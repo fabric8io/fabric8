@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>Forge Addons | Fabric8 Documentation</title>
+        <title>Metrics | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 1.5.0">
@@ -19,10 +19,10 @@
         
     
     
-    <link rel="next" href="./javaLibraries.html" />
+    <link rel="next" href="./quickstarts.html" />
     
     
-    <link rel="prev" href="./mavenPlugin.html" />
+    <link rel="prev" href="./logging.html" />
     
 
         
@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.6" data-basepath="." data-revision="1422963251635">
+    <div class="book" data-level="3.3" data-basepath="." data-revision="1422963251635">
     
 
 <div class="book-summary">
@@ -415,7 +415,7 @@
         </li>
     
         
-        <li class="chapter " data-level="3.3" data-path="metrics.html">
+        <li class="chapter active" data-level="3.3" data-path="metrics.html">
             
                 
                     <a href="./metrics.html">
@@ -463,7 +463,7 @@
         </li>
     
         
-        <li class="chapter active" data-level="3.6" data-path="forge.html">
+        <li class="chapter " data-level="3.6" data-path="forge.html">
             
                 
                     <a href="./forge.html">
@@ -744,32 +744,25 @@
                 <div class="page-inner">
                 
                 
-                    <section class="normal" id="section-gitbook_14">
+                    <section class="normal" id="section-gitbook_24">
                     
-                        <h2 id="forge-addons"><a name="forge-addons" class="anchor" href="#forge-addons"><span class="fa fa-link"></span></a>Forge Addons</h2>
-<p>fabric8 comes with various <a href="http://forge.jboss.org/" target="_blank">JBoss Forge</a> add ons to help improve your developer experience.</p>
-<p>First <a href="http://forge.jboss.org/download" target="_blank">install Forge</a> and run it:</p>
-<pre><code>forge
-</code></pre><p>you can install the Forge add ons via:</p>
-<pre><code>addon-install --coordinate io.fabric8.forge:camel,2.0.19
-addon-install --coordinate io.fabric8.forge:kubernetes,2.0.19
-</code></pre><p>You should be able to see the new commands that are installed via:</p>
-<pre><code>kube&lt;TAB&gt;
-camel&lt;TAB&gt;
-</code></pre><p>You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what&apos;s available.</p>
-<p>NOTE the Camel commands are currently not available as they require Camel functionality which hasn&apos;t been released yet. When Apache Camel 2.15 is released the forge Camel commands will be available.</p>
-<h3 id="kubernetes"><a name="kubernetes" class="anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
-<p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
-<p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
-<pre><code>export KUBERNETES_MASTER=http://localhost:8585/
-</code></pre><p>You can now list pods / replication controllers / services via</p>
-<pre><code>kubernetes-pod-list
-kubernetes-replication-controller-list
-kubernetes-service-list
-</code></pre><h3 id="applying-json"><a name="applying-json" class="anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h3>
-<p>If you are in a build which has <a href="mavenPlugin.html#generating-the-json">generated a kubernetes JSON file</a> <strong>target/classes/kubernetes.json</strong> you can apply this via...</p>
-<pre><code>kubernetes-apply --file target/classes/kubernetes.json
-</code></pre>
+                        <h2 id="metrics"><a name="metrics" class="anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h2>
+<p>Capturing historical metrics an extremely useful tool to help diagnose your running system.</p>
+<p>With fabric8 we recommend using:</p>
+<ul>
+<li><a href="http://influxdb.com/" target="_blank">InfluxDB</a> or <a href="https://github.com/rhq-project/rhq-metrics" target="_blank">RHQ Metrics</a> as the back end storage of historical metric data as they are both easy to scale, provide replicated data for resilience and are very easy to query</li>
+<li><a href="http://grafana.org/" target="_blank">Grafana</a> as the console to view, query and analyze metrics</li>
+<li>to collect the metrics we use <a href="https://github.com/google/cadvisor" target="_blank">cAdvisor</a> for collecting metrics from docker containers and <a href="https://github.com/jimmidyson/jadvisor" target="_blank">jAdvisor</a> for collecting metrics from JMX using <a href="http://jolokia.org/" target="_blank">jolokia</a></li>
+</ul>
+<h3 id="how-to-use-metrics-in-fabric8"><a name="how-to-use-metrics-in-fabric8" class="anchor" href="#how-to-use-metrics-in-fabric8"><span class="fa fa-link"></span></a>How to use Metrics in fabric8</h3>
+<p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab.</p>
+<ul>
+<li>click the <strong>Run...</strong> button and select the <strong>InfluxDB</strong> app to and run it.</li>
+<li>click the <strong>Run...</strong> button and select the <strong>Grafana</strong> app to and run it.</li>
+</ul>
+<p>You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you <a href="openShiftDocker.html">use the bash script to install fabric8</a> with the <strong>-k</strong> command line option enabled. Hopefully one day we&apos;ll be able to turn cadvisor and jadvisor into <a href="apps.html">apps</a> you can easily run in the same way.</p>
+<p>Once the above is running, the <a href="console.html">Fabric8 Console</a> should have a <strong>Metrics</strong> tab letting you view and search the metrics via <a href="http://grafana.org/" target="_blank">Grafana</a>.</p>
+
                     
                     </section>
                 
@@ -779,10 +772,10 @@ kubernetes-service-list
         </div>
 
         
-        <a href="./mavenPlugin.html" class="navigation navigation-prev " aria-label="Previous page: Maven Plugin"><i class="fa fa-angle-left"></i></a>
+        <a href="./logging.html" class="navigation navigation-prev " aria-label="Previous page: Logging"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./javaLibraries.html" class="navigation navigation-next " aria-label="Next page: Java Libraries"><i class="fa fa-angle-right"></i></a>
+        <a href="./quickstarts.html" class="navigation navigation-next " aria-label="Next page: QuickStarts"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1422395052137">
+    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1422963251635">
     
 
 <div class="book-summary">
@@ -399,13 +399,45 @@
         </li>
     
         
-        <li class="chapter " data-level="3.2" data-path="quickstarts.html">
+        <li class="chapter " data-level="3.2" data-path="logging.html">
+            
+                
+                    <a href="./logging.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.2.</b>
+                        
+                         Logging
+                    </a>
+                
+            
+            
+        </li>
+    
+        
+        <li class="chapter " data-level="3.3" data-path="metrics.html">
+            
+                
+                    <a href="./metrics.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.3.</b>
+                        
+                         Metrics
+                    </a>
+                
+            
+            
+        </li>
+    
+        
+        <li class="chapter " data-level="3.4" data-path="quickstarts.html">
             
                 
                     <a href="./quickstarts.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.2.</b>
+                            <b>3.4.</b>
                         
                          QuickStarts
                     </a>
@@ -415,13 +447,13 @@
         </li>
     
         
-        <li class="chapter " data-level="3.3" data-path="mavenPlugin.html">
+        <li class="chapter " data-level="3.5" data-path="mavenPlugin.html">
             
                 
                     <a href="./mavenPlugin.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.</b>
+                            <b>3.5.</b>
                         
                          Maven Plugin
                     </a>
@@ -431,13 +463,13 @@
         </li>
     
         
-        <li class="chapter " data-level="3.4" data-path="forge.html">
+        <li class="chapter " data-level="3.6" data-path="forge.html">
             
                 
                     <a href="./forge.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.4.</b>
+                            <b>3.6.</b>
                         
                          Forge Addons
                     </a>
@@ -447,13 +479,13 @@
         </li>
     
         
-        <li class="chapter " data-level="3.5" data-path="javaLibraries.html">
+        <li class="chapter " data-level="3.7" data-path="javaLibraries.html">
             
                 
                     <a href="./javaLibraries.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.5.</b>
+                            <b>3.7.</b>
                         
                          Java Libraries
                     </a>
@@ -463,13 +495,13 @@
         </li>
     
         
-        <li class="chapter " data-level="3.6" data-path="testing.html">
+        <li class="chapter " data-level="3.8" data-path="testing.html">
             
                 
                     <a href="./testing.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.6.</b>
+                            <b>3.8.</b>
                         
                          Testing
                     </a>
@@ -712,7 +744,7 @@
                 <div class="page-inner">
                 
                 
-                    <section class="normal" id="section-gitbook_25">
+                    <section class="normal" id="section-gitbook_27">
                     
                         <h2 id="run-openshift-v3-using-vagrant"><a name="run-openshift-v3-using-vagrant" class="anchor" href="#run-openshift-v3-using-vagrant"><span class="fa fa-link"></span></a>Run OpenShift V3 using Vagrant</h2>
 <p>Let&apos;s run OpenShift V3 using Vagrant. Be sure to check the latest <a href="https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-on-virtual-machine-using-vagrant" target="_blank">OpenShift docs</a> just in case!.</p>
@@ -729,7 +761,7 @@
 export OPENSHIFT_NUM_MINIONS=1
 vagrant up
 </code></pre><p>You now should have a master node running on <strong>10.245.1.2</strong>.</p>
-<p>You can test this by querying the REST API for the pods at: <a href="http://10.245.1.2:8080/api/v1beta1/pods" target="_blank">http://10.245.1.2:8080/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
+<p>You can test this by querying the REST API for the pods at: <a href="https://10.245.1.2:8443/api/v1beta1/pods" target="_blank">https://10.245.1.2:8443/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
 <h2 id="setup-your-machine"><a name="setup-your-machine" class="anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h2>
 <p>There&apos;s a few things that will make it easier for you to work with OpenShift on vagrant on your host machine:</p>
 <p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
@@ -745,7 +777,7 @@ sudo vi /var/lib/boot2docker/profile
 EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000&quot;
 ### Setting up your environment variables to use OpenShift
 </code></pre><p>Add the following to your ~/.profile or ~./bashrc</p>
-<pre><code>export KUBERNETES_MASTER=http://10.245.1.2:8080
+<pre><code>export KUBERNETES_MASTER=https://10.245.1.2:8443
 </code></pre><p>You now should be able to use the various <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a> to work on your local OpenShift.</p>
 <h3 id="adding-the-master-and-minion-hosts-to-etchosts"><a name="adding-the-master-and-minion-hosts-to-etchosts" class="anchor" href="#adding-the-master-and-minion-hosts-to-etchosts"><span class="fa fa-link"></span></a>Adding the master and minion hosts to /etc/hosts</h3>
 <p>You might find it easier working on your host machine and interacting with the master and minions by adding this to your <strong>/etc/hosts</strong></p>
