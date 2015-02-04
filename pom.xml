@@ -48,7 +48,11 @@
         </license>
     </licenses>
 
-    <!-- including A developer as it's required by the maven poms going into central -->
+    <prerequisites>
+      <maven>3.2.1</maven>
+    </prerequisites>
+
+      <!-- including A developer as it's required by the maven poms going into central -->
     <developers>
         <developer>
             <id>geeks</id>
