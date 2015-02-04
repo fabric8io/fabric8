@@ -33,6 +33,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +61,7 @@ public class SessionListener {
         String namespace = session.getNamespace();
 
         log.status("Creating kubernetes resources inside namespace: " + namespace);
-        log.info("if you use a kubernetes CLI type this to switch namespaces: kube ns " + namespace);
+        log.info("if you use a kubernetes CLI type this to switch namespaces: kube namespace " + namespace);
         controller.setNamespace(namespace);
 
         shutdownHook = new ShutdownHook(client, session);
@@ -72,10 +74,7 @@ public class SessionListener {
 
             for (String dependency : dependencies) {
                 log.info("Found dependency: " + dependency);
-                Object kubeCfg = loadJson(readAsString(new URL(dependency)));
-                if (kubeCfg instanceof Config) {
-                    kubeConfigs.add((Config) kubeCfg);
-                }
+                loadDependency(kubeConfigs, dependency);
             }
 
             if (configUrl != null) {
@@ -98,6 +97,40 @@ public class SessionListener {
                 }
             }
             throw new RuntimeException(e);
+        }
+    }
+
+    protected static void addConfig(List<Config> kubeConfigs, Object kubeCfg) {
+        if (kubeCfg instanceof Config) {
+            kubeConfigs.add((Config) kubeCfg);
+        }
+    }
+
+    public void loadDependency(List<Config> kubeConfigs, String dependency) throws IOException {
+        // lets test if the dependency is a local string
+        String baseDir = System.getProperty("basedir", ".");
+        String path = baseDir + "/" + dependency;
+        File file = new File(path);
+        if (file.exists()) {
+            loadDependency(kubeConfigs, file);
+        } else {
+            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))));
+        }
+    }
+
+    protected void loadDependency(List<Config> kubeConfigs, File file) throws IOException {
+        if (file.isFile()) {
+            addConfig(kubeConfigs, loadJson(file));
+        } else {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    String name = child.getName().toLowerCase();
+                    if (name.endsWith(".json") || name.endsWith(".yaml")) {
+                        loadDependency(kubeConfigs, child);
+                    }
+                }
+            }
         }
     }
 
