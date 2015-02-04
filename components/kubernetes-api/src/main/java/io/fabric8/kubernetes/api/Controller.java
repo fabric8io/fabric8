@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespacePodMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespaceReplicationControllerMap;
@@ -51,7 +52,6 @@ public class Controller {
     private Map<String, Pod> podMap = null;
     private Map<String, ReplicationController> replicationControllerMap = null;
     private Map<String, Service> serviceMap = null;
-    private String namespace;
 
     public Controller() {
         this(new KubernetesClient());
@@ -77,7 +77,7 @@ public class Controller {
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(byte[] json) throws IOException {
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -86,7 +86,7 @@ public class Controller {
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(String json) throws IOException {
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -95,7 +95,7 @@ public class Controller {
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(File json) throws IOException {
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -105,7 +105,7 @@ public class Controller {
      */
     public String applyYaml(String yaml) throws IOException {
         String json = convertYamlToJson(yaml);
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -115,7 +115,7 @@ public class Controller {
      */
     public String applyYaml(File yaml) throws IOException {
         String json = convertYamlToJson(yaml);
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -144,7 +144,7 @@ public class Controller {
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(InputStream json) throws IOException {
-        Object dto = KubernetesHelper.loadJson(json);
+        Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
     }
@@ -201,7 +201,7 @@ public class Controller {
     }
 
     public void applyConfig(Config config, String sourceName) throws IOException {
-        List<Object> entities = KubernetesHelper.getEntities(config);
+        List<Object> entities = getEntities(config);
         for (Object entity : entities) {
             applyEntity(entity, sourceName);
         }
@@ -236,6 +236,7 @@ public class Controller {
     }
 
     public void applyService(Service serviceSchema, String sourceName) {
+        String namespace = getNamespace();
         if (serviceMap == null) {
             serviceMap = getNamespaceServiceMap(kubernetes, namespace);
         }
@@ -244,13 +245,13 @@ public class Controller {
         if (isRunning(old)) {
             LOG.info("Updating a service from " + sourceName);
             try {
-                Object answer = kubernetes.updateService(id, serviceSchema);
+                Object answer = kubernetes.updateService(id, serviceSchema, namespace);
                 LOG.info("Updated service: " + answer);
             } catch (Exception e) {
                 LOG.error("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
             }
         } else {
-            LOG.info("Creating a service from " + sourceName);
+            LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(serviceSchema));
             try {
                 Object answer;
                 if (Strings.isNotBlank(namespace)) {
@@ -260,77 +261,79 @@ public class Controller {
                 }
                 LOG.info("Created service: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                LOG.error("Failed to create service from " + sourceName + ". " + e + ". " + serviceSchema, e);
             }
         }
     }
 
-    public void applyReplicationController(ReplicationController replicationControllerSchema, String sourceName) {
+    public void applyReplicationController(ReplicationController replicationController, String sourceName) {
+        String namespace = getNamespace();
         if (replicationControllerMap == null) {
             replicationControllerMap = getNamespaceReplicationControllerMap(kubernetes, namespace);
         }
-        String id = getId(replicationControllerSchema);
+        String id = getId(replicationController);
         ReplicationController old = replicationControllerMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Updating replicationController from " + sourceName);
+            LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
             try {
-                Object answer = kubernetes.updateReplicationController(id, replicationControllerSchema);
+                Object answer = kubernetes.updateReplicationController(id, replicationController);
                 LOG.info("Updated replicationController: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationControllerSchema, e);
+                LOG.error("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
             }
         } else {
-            LOG.info("Creating a replicationController from " + sourceName);
+            LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
             try {
                 Object answer;
                 if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createReplicationController(replicationControllerSchema, namespace);
+                    answer = kubernetes.createReplicationController(replicationController, namespace);
                 } else {
-                    answer = kubernetes.createReplicationController(replicationControllerSchema);
+                    answer = kubernetes.createReplicationController(replicationController);
                 }
                 LOG.info("Created replicationController: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationControllerSchema, e);
+                LOG.error("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
             }
         }
     }
 
-    public void applyPod(Pod podSchema, String sourceName) {
+    public void applyPod(Pod pod, String sourceName) {
+        String namespace = getNamespace();
         if (podMap == null) {
             podMap = getNamespacePodMap(kubernetes, namespace);
         }
-        String id = getId(podSchema);
+        String id = getId(pod);
         Pod old = podMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Updating a pod from " + sourceName);
+            LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
             try {
-                Object answer = kubernetes.updatePod(id, podSchema);
+                Object answer = kubernetes.updatePod(id, pod);
                 LOG.info("Updated pod result: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to update pod from " + sourceName + ". " + e + ". " + podSchema, e);
+                LOG.error("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
             }
         } else {
-            LOG.info("Creating a pod from " + sourceName);
+            LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
             try {
                 Object answer;
                 if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createPod(podSchema, namespace);
+                    answer = kubernetes.createPod(pod, namespace);
                 } else {
-                    answer = kubernetes.createPod(podSchema);
+                    answer = kubernetes.createPod(pod);
                 }
                 LOG.info("Created pod result: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create pod from " + sourceName + ". " + e + ". " + podSchema, e);
+                LOG.error("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
             }
         }
     }
 
     public String getNamespace() {
-        return namespace;
+        return kubernetes.getNamespace();
     }
 
     public void setNamespace(String namespace) {
-        this.namespace = namespace;
+        kubernetes.setNamespace(namespace);
     }
 
     protected boolean isRunning(Pod entity) {

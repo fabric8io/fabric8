@@ -50,8 +50,8 @@ public class BrokerProducerConsumerIT {
     @ArquillianResource
     JolokiaClients jolokiaClients;
 
-    String brokerReplicationControllerId = "fabric8MQ";
-    String consumerReplicationControllerId = "fabric8MQConsumer";
+    String brokerReplicationControllerId = "fabric8mq-controller";
+    String consumerReplicationControllerId = "fabric8mq-consumer-controller";
 
     @Test
     public void testMQConsumer() throws Exception {
@@ -68,7 +68,7 @@ public class BrokerProducerConsumerIT {
                     }
                 });
 
-        Asserts.assertWaitFor(4 * 60 * 1000, new Block() {
+        Asserts.assertWaitFor(10 * 60 * 1000, new Block() {
             @Override
             public void invoke() throws Exception {
                 J4pClient brokerClient = jolokiaClients.assertClientForReplicationController(brokerReplicationControllerId);

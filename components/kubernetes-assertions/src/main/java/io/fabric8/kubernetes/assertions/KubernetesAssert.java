@@ -60,7 +60,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public PodsAssert pods() {
-        List<Pod> pods = getPods(null);
+        List<Pod> pods = getPods(client.getNamespace());
         return Assertions.assertThat(pods);
     }
 
@@ -88,7 +88,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public ListAssert<ReplicationController> replicationControllers() {
-        return replicationControllers(null);
+        return replicationControllers(client.getNamespace());
     }
 
     public ListAssert<ReplicationController> replicationControllers(String namespace) {
@@ -109,7 +109,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public ListAssert<Service> services() {
-       return services(null);
+       return services(client.getNamespace());
     }
     public ListAssert<Service> services(String namespace) {
         ServiceList serviceList = client.getServices(namespace);
@@ -122,7 +122,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
      * Asserts that we can find the given replication controller and match it to a list of pods, returning the pods for further assertions
      */
     public PodsAssert podsForReplicationController(String replicationControllerId) {
-        return podsForReplicationController(replicationControllerId, null);
+        return podsForReplicationController(replicationControllerId, client.getNamespace());
     }
 
     /**
@@ -146,7 +146,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
      * Asserts that we can find the given service and match it to a list of pods, returning the pods for further assertions
      */
     public PodsAssert podsForService(String serviceId) {
-        Service service = getService(serviceId, null);
+        Service service = getService(serviceId, client.getNamespace());
         return podsForService(service);
     }
 
@@ -171,7 +171,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
      * Asserts that the replication controller can be found for the given ID
      */
     public ReplicationControllerAssert replicationController(String replicationControllerId) {
-        return assertThat(getReplicationController(replicationControllerId, null));
+        return assertThat(getReplicationController(replicationControllerId, client.getNamespace()));
     }
 
     /**
@@ -199,7 +199,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
      * Asserts that the service can be found for the given ID
      */
     public ServiceAssert service(String serviceId) {
-        return assertThat(getService(serviceId, null));
+        return assertThat(getService(serviceId, client.getNamespace()));
     }
 
     /**
@@ -226,7 +226,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
      * Asserts that the pod can be found for the given ID
      */
     public PodAssert pod(String podId) {
-        return assertThat(getPod(podId, null));
+        return assertThat(getPod(podId, client.getNamespace()));
     }
 
     /**

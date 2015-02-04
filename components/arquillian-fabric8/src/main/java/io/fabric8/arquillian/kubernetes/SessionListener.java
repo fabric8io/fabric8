@@ -62,6 +62,7 @@ public class SessionListener {
 
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use a kubernetes CLI type this to switch namespaces: kube namespace " + namespace);
+        client.setNamespace(namespace);
         controller.setNamespace(namespace);
 
         shutdownHook = new ShutdownHook(client, session);
@@ -74,7 +75,7 @@ public class SessionListener {
 
             for (String dependency : dependencies) {
                 log.info("Found dependency: " + dependency);
-                loadDependency(kubeConfigs, dependency);
+                loadDependency(log, kubeConfigs, dependency);
             }
 
             if (configUrl != null) {
@@ -106,20 +107,21 @@ public class SessionListener {
         }
     }
 
-    public void loadDependency(List<Config> kubeConfigs, String dependency) throws IOException {
+    public void loadDependency(Logger log, List<Config> kubeConfigs, String dependency) throws IOException {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
         File file = new File(path);
         if (file.exists()) {
-            loadDependency(kubeConfigs, file);
+            loadDependency(log, kubeConfigs, file);
         } else {
             addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))));
         }
     }
 
-    protected void loadDependency(List<Config> kubeConfigs, File file) throws IOException {
+    protected void loadDependency(Logger log, List<Config> kubeConfigs, File file) throws IOException {
         if (file.isFile()) {
+            log.info("Loading file " + file);
             addConfig(kubeConfigs, loadJson(file));
         } else {
             File[] children = file.listFiles();
@@ -127,7 +129,7 @@ public class SessionListener {
                 for (File child : children) {
                     String name = child.getName().toLowerCase();
                     if (name.endsWith(".json") || name.endsWith(".yaml")) {
-                        loadDependency(kubeConfigs, child);
+                        loadDependency(log, kubeConfigs, child);
                     }
                 }
             }

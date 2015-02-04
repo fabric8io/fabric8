@@ -37,6 +37,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     private Kubernetes kubernetes;
     private Kubernetes kubernetesWriteable;
     private KubernetesExtensions kubernetesExtensions;
+    private String namespace;
 
     public KubernetesClient() {
     }
@@ -56,6 +57,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     // Properties
     //-------------------------------------------------------------------------
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
     public Kubernetes getKubernetes() {
         return getKubernetes(false);
@@ -119,7 +127,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @GET
     @Path("pods")
     public PodList getPods() {
-        return getKubernetes().getPods();
+        return getPods(getNamespace());
     }
 
     @Override
@@ -137,7 +145,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     public ReplicationController getReplicationController(@NotNull String controllerId) {
-        return getKubernetes().getReplicationController(controllerId);
+        return getReplicationController(controllerId, getNamespace());
     }
 
     @Override
@@ -213,7 +221,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("services/{serviceId}")
     @Produces("application/json")
     public Service getService(@NotNull String serviceId) {
-        return getKubernetes().getService(serviceId);
+        return getService(serviceId, getNamespace());
     }
 
     @Override
@@ -238,7 +246,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @GET
     @Path("pods/{podId}")
     public Pod getPod(@NotNull String podId) {
-        return getKubernetes().getPod(podId);
+        return getPod(podId, getNamespace());
     }
 
     @Override
@@ -480,7 +488,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     protected Collection<Pod> getPodList() {
-        return KubernetesHelper.getPodMap(this).values();
+        return KubernetesHelper.getNamespacePodMap(this, namespace).values();
     }
 
 }

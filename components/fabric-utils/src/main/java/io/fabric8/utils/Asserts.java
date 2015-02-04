@@ -95,10 +95,18 @@ public class Asserts {
             } catch (Exception e) {
                 failure = new AssertionError(e);
             }
-            LOG.debug("Waiting for " + failure);
+            LOG.debug("Waiting for " + failure, failure);
             System.out.println("Waiting for: " + failure);
+            if (isVerboseWaitMessage()) {
+                failure.printStackTrace();
+            }
             Thread.sleep(1000);
         }
+    }
+
+    protected static boolean isVerboseWaitMessage() {
+        String value = System.getenv("FABRIC8_VERBOSE_ASSERT");
+        return value != null && value.equalsIgnoreCase("true");
     }
 
     /**
