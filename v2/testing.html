@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.8" data-basepath="." data-revision="1423003454163">
+    <div class="book" data-level="3.8" data-basepath="." data-revision="1423062895929">
     
 
 <div class="book-summary">
@@ -821,7 +821,7 @@ This means that the arquillian.xml configuration file is completely optional.</p
 <li>masterUrl: The url to the kubernetes master.</li>
 <li>configUrl: The url to the kubernetes configuration to be tested.</li>
 <li>configFileName: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
-<li>dependencies: A space separated list of urls to kubernetes configurations that are required to be applied before the current one.</li>
+<li>dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.</li>
 <li>waitForServiceConnection: Wait until a network connection to all applied services is possible.</li>
 <li>serviceConnectionTimeout: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
 <li>waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.</li>
@@ -831,6 +831,7 @@ This means that the arquillian.xml configuration file is completely optional.</p
 <h3 id="maven-integration"><a name="maven-integration" class="anchor" href="#maven-integration"><span class="fa fa-link"></span></a>Maven Integration</h3>
 <p>If dependencies have not been explicitly specified, the extension will find all test scoped dependencies and search inside those artifacts for kubernetes.json resources.
 Then it will treat those as dependencies and apply them along with the configuration.</p>
+<p>One thing to be careful of is that adding test dependencies on kubernetes.json will add transitive dependencies to your test project; so you may want to add exclusions as <a href="https://github.com/fabric8io/fabric8/blob/master/itests/pom.xml#L57" target="_blank">this example shows</a>.</p>
 <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
 <p>There are lots of examples in the <a href="http://fabric8.io/v2/quickstarts.html" target="_blank">quickstarts</a>.</p>
 <p>Here is an <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">example Arquillian Fabric8 integration test</a> that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.</p>
@@ -841,7 +842,12 @@ Then it will treat those as dependencies and apply them along with the configura
 <pre><code>export KUBERNETES_TRUST_CERT=true
 export KUBERNETES_MASTER=http://localhost:8443
 </code></pre><p>Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube installation</a>. Also note that different integration tests can be running at the same time on the same kubernetes environment.</p>
-<h3 id="assertion-libraries"><a name="assertion-libraries" class="anchor" href="#assertion-libraries"><span class="fa fa-link"></span></a>Assertion libraries</h3>
+<p>If you find that you are getting exceptions and output of the form:</p>
+<pre><code>Waiting for: SomeException....
+Waiting for: SomeException....
+</code></pre><p>and if the exception isn&apos;t clear from the message, you could define this environment variable to get an additional full stack trace (which is very noisy but can be handy):</p>
+<pre><code>export FABRIC8_VERBOSE_ASSERT=true
+</code></pre><h3 id="assertion-libraries"><a name="assertion-libraries" class="anchor" href="#assertion-libraries"><span class="fa fa-link"></span></a>Assertion libraries</h3>
 <p>The following libraries are provided to help you create concise assertions using <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> based DSL:</p>
 <ul>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
