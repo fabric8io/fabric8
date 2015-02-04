@@ -1,39 +1,18 @@
-Modules
-===================
-
-By default Fabric8 builds the set of modules required by the karaf distribution and runs the associated integration tests.
-There are two main build targets associated with corresponding maven profiles
-
-* tomcat: Fabric8 on Tomcat 
-* wildfly: Fabric8 on WildFly
-
-Build examples are below
-
-Committers
-----------
-
-Be sure to check out the [committer instructions](http://174.129.32.31:8080/) on how to fork this repo and submit Pull Requests
-
 Building Fabric8
 ============
 
-First of all, the Fabric8 build process needs, most 
-of the time, more memory than the default allocated
+First of all, the Fabric8 build process may need, 
+more memory than the default allocated
 to the maven process. Therefore, ensure to set the 
 MAVEN_OPTS system property with the following settings
 before starting
 
     > MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 
-Build Fabric8 and run the associated smoke tests
+Build Fabric8 and run the associated tests
 
     > mvn clean install
-    
-Build Fabric8 using latest hawtio Snapshot and run the associated tests
-
-    > mvn -Phawtio-snapshot clean install
-
-Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
+   
 
 Quick Builds
 ==========
@@ -46,26 +25,41 @@ Build Fabric8 and skip tests
 
 Build fabric8 with all modules and skip tests
 
+
+
 Test Profiles
 ==========
 
 Fabric8 tests are seperated in serveral dedicated tests profiles
 
-* ts.smoke:   Smoke tests
-* ts.basic:   Basic integration tests
-* ts.all:     All of the above
+* ts.all:    Includes additional testing
 
 Examples
 --------
+  
+Build Fabric8 and run regular tests
 
-Build Fabric8 and run the smoke and basic integration tests
+    > mvn clean install
 
-    > mvn clean install -Dts.basic
-    
 Build Fabric8 and run all tests
 
     > mvn clean install -Dts.all
     
+
+Building including SNAPSHOTS
+============================
+
+Fabric8 allows using SNAPSHOT builds of hawtio and/or Camel using Maven profiles
+
+* camelSnapshot
+* hawtioSnapshot
+
+For example to build Fabric8 using latest hawtio Snapshot and run the associated tests
+
+    > mvn -Phawtio-snapshot clean install
+
+Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
+
 
 License check
 =============
