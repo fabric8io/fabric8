@@ -48,7 +48,11 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     private ThreadPoolExecutor executorService;
 
     public MavenDownloadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, int threadMaximumPoolSize) {
-        super(resolver, runtimeProperties, projectDeployer);
+        this(resolver, runtimeProperties, projectDeployer, null, threadMaximumPoolSize);
+    }
+
+    protected MavenDownloadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, File uploadRepository, int threadMaximumPoolSize) {
+        super(resolver, runtimeProperties, projectDeployer, uploadRepository);
         this.threadMaximumPoolSize = threadMaximumPoolSize;
     }
 

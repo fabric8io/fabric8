@@ -52,7 +52,6 @@ import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.installation.InstallRequest;
 import org.eclipse.aether.metadata.DefaultMetadata;
 import org.eclipse.aether.metadata.Metadata;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -95,16 +94,19 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected RepositorySystemSession session;
     protected File tmpFolder = new File(System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
+    final File uploadRepository;
+
     final RuntimeProperties runtimeProperties;
 
     final ProjectDeployer projectDeployer;
 
     final MavenResolver resolver;
 
-    public MavenProxyServletSupport(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer) {
+    public MavenProxyServletSupport(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, File uploadRepository) {
         this.resolver = resolver;
         this.runtimeProperties = runtimeProperties;
         this.projectDeployer = projectDeployer;
+        this.uploadRepository = uploadRepository;
     }
 
     public synchronized void start() throws IOException {
@@ -298,12 +300,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         if (metadataMatcher.matches()) {
             LOGGER.info("Received upload request for maven metadata : {}", path);
             try {
-                Metadata metadata = convertPathToMetadata(path);
-                metadata = metadata.setFile(file);
-                InstallRequest request = new InstallRequest();
-                request.addMetadata(metadata);
-                system.install(session, request);
-                LOGGER.info("Maven metadata installed: {}", request.toString());
+                File target = new File(uploadRepository, path);
+                Files.copy(file, target);
+                LOGGER.info("Maven metadata installed");
             } catch (Exception e) {
                 result = UploadContext.ERROR;
                 LOGGER.warn(String.format("Failed to upload metadata: %s due to %s", path, e.getMessage()), e);
@@ -314,10 +313,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             Artifact artifact = null;
             try {
                 artifact = convertPathToArtifact(path);
-                artifact = artifact.setFile(file);
-                InstallRequest request = new InstallRequest();
-                request.addArtifact(artifact);
-                system.install(session, request);
+
+                File target = new File(uploadRepository, path);
+                Files.copy(file, target);
 
                 result.setGroupId(artifact.getGroupId());
                 result.setArtifactId(artifact.getArtifactId());

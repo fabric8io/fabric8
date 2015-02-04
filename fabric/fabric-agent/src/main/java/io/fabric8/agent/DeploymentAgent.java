@@ -319,8 +319,8 @@ public class DeploymentAgent implements ManagedService {
         updateStatus("analyzing", null);
 
         // Building configuration
-        Mirror mirror = getMavenProxy(fabricService.getService());
-        MavenResolver resolver = MavenResolvers.createMavenResolver(mirror, properties, "org.ops4j.pax.url.mvn");
+        addMavenProxies(properties, fabricService.getService());
+        MavenResolver resolver = MavenResolvers.createMavenResolver(properties, "org.ops4j.pax.url.mvn");
         final DownloadManager manager = DownloadManagers.createDownloadManager(resolver, getDownloadExecutor());
         manager.addListener(new DownloadCallback() {
             @Override

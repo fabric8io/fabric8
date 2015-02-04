@@ -21,6 +21,7 @@ import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
-    public MavenUploadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer) {
-        super(resolver, runtimeProperties, projectDeployer, 0);
+    public MavenUploadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, File uploadRepository) {
+        super(resolver, runtimeProperties, projectDeployer, uploadRepository, 0);
     }
 
     @Override

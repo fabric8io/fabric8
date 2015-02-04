@@ -97,6 +97,9 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @Property(name = "threadMaximumPoolSize", label = "Thread pool maximum size", description = "Maximum number of concurrent threads used for the DownloadMavenProxy servlet", intValue = 5)
     private int threadMaximumPoolSize;
 
+    @Property(name = "upload", label = "Upload repository", description = "The path to hold uploaded artifacts", value = "${runtime.data}/data/maven/upload")
+    private String uploadRepository;
+
     @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
 
     public MavenProxyRegistrationHandler() {
@@ -109,10 +112,13 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
+        if (uploadRepository == null) {
+            uploadRepository = runtimeProperties.get().getProperty("runtime.data") + "/maven/upload";
+        }
 
         this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(mavenResolver.get(), runtimeProperties.get(), projectDeployer.get(), threadMaximumPoolSize);
         this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(mavenResolver.get(), runtimeProperties.get(), projectDeployer.get());
+        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(mavenResolver.get(), runtimeProperties.get(), projectDeployer.get(), new File(uploadRepository));
         this.mavenUploadProxyServlet.start();
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();

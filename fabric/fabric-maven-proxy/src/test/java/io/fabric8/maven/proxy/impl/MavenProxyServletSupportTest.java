@@ -783,7 +783,7 @@ public class MavenProxyServletSupportTest {
             List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
             RuntimeProperties props = new MockRuntimeProperties();
             MavenResolver resolver = createResolver("target/tmp", remoteRepos, "http", "localhost", localPort, "fuse", "fuse", null);
-            MavenUploadProxyServlet servlet = new MavenUploadProxyServlet(resolver, props, projectDeployer);
+            MavenUploadProxyServlet servlet = new MavenUploadProxyServlet(resolver, props, projectDeployer, new File("target/upload"));
 
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getPathInfo()).andReturn(path);
