@@ -23,6 +23,9 @@ public class Constants {
     public static final String MASTER_URL = "masterUrl";
     public static final String CONFIG_URL = "configUrl";
     public static final String DEPENDENCIES = "dependencies";
+    public static final String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
+    public static final String PROTOCOL_HANDLERS = "protocolHandlers";
+    public static final String DEFAULT_MAVEN_PROTOCOL_HANDLER = "org.ops4j.pax.url";
 
     public static final String WAIT_FOR_SERVICES = "waitForServices";
     public static final String WAIT_FOR_SERVICE_CONNECTION = "waitForServiceConnection";

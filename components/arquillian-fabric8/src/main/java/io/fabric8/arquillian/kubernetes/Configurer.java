@@ -16,13 +16,20 @@
 
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.utils.Strings;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+
+import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_MAVEN_PROTOCOL_HANDLER;
+import static io.fabric8.arquillian.kubernetes.Constants.PROTOCOL_HANDLERS;
+import static io.fabric8.arquillian.kubernetes.Constants.JAVA_PROTOCOL_HANDLER;
 
 public class Configurer {
 
@@ -35,5 +42,13 @@ public class Configurer {
     public void configure(@Observes ArquillianDescriptor arquillianDescriptor) {
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         configurationProducer.set(Configuration.fromMap(config));
+        configureProtocolHandlers(config);
+    }
+    
+    private static void configureProtocolHandlers(Map<String, String> conf) {
+        Set<String> handlers = new LinkedHashSet<>();
+        handlers.addAll(Strings.splitAndTrimAsList(System.getProperty(JAVA_PROTOCOL_HANDLER, ""), " "));
+        handlers.addAll(Strings.splitAndTrimAsList(conf.containsKey(PROTOCOL_HANDLERS) ? conf.get(PROTOCOL_HANDLERS) : DEFAULT_MAVEN_PROTOCOL_HANDLER, " "));
+        System.setProperty(JAVA_PROTOCOL_HANDLER, Strings.join(handlers, " "));
     }
 }
