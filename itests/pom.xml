@@ -45,64 +45,49 @@
       <artifactId>arquillian-fabric8</artifactId>
       <scope>test</scope>
     </dependency>
-  </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${maven-dependency-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>copy-kubernetes-files</id>
-            <phase>test-compile</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>io.fabric8.jube.images.fabric8</groupId>
-                  <artifactId>fabric8-mq</artifactId>
-                  <classifier>kubernetes</classifier>
-                  <type>json</type>
-                  <version>${fabric8.test.version}</version>
-                  <overWrite>true</overWrite>
-<!--
-                  <destFileName>fabric8mq.json</destFileName>
--->
-                </artifactItem>
-                <artifactItem>
-                  <groupId>io.fabric8.jube.images.fabric8</groupId>
-                  <artifactId>fabric8-mq-producer</artifactId>
-                  <classifier>kubernetes</classifier>
-                  <type>json</type>
-                  <version>${fabric8.test.version}</version>
-                  <overWrite>true</overWrite>
-<!--
-                  <destFileName>fabric8mq-producer.json</destFileName>
--->
-                </artifactItem>
-                <artifactItem>
-                  <groupId>io.fabric8.jube.images.fabric8</groupId>
-                  <artifactId>fabric8-mq-consumer</artifactId>
-                  <classifier>kubernetes</classifier>
-                  <type>json</type>
-                  <version>${fabric8.test.version}</version>
-                  <overWrite>true</overWrite>
-<!--
-                  <destFileName>fabric8mq-consumer.json</destFileName>
--->
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/apps</outputDirectory>
-              <overWriteReleases>false</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+    <!-- kubernetes json files -->
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq-producer</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq-consumer</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 </project>

@@ -109,7 +109,7 @@ Supported options:
 * masterUrl: The url to the kubernetes master.
 * configUrl: The url to the kubernetes configuration to be tested.
 * configFileName: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
-* dependencies: A space separated list of urls to kubernetes configurations that are required to be applied before the current one.
+* dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
 * waitForServiceConnection: Wait until a network connection to all applied services is possible.
 * serviceConnectionTimeout: The connection timeout for each attempt to "connect to the service".
 * waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.
@@ -122,6 +122,7 @@ Supported options:
 If dependencies have not been explicitly specified, the extension will find all test scoped dependencies and search inside those artifacts for kubernetes.json resources.
 Then it will treat those as dependencies and apply them along with the configuration.
 
+One thing to be careful of is that adding test dependencies on kubernetes.json will add transitive dependencies to your test project; so you may want to add exclusions as [this example shows](https://github.com/fabric8io/fabric8/blob/master/itests/pom.xml#L57).
 
 ### Example
 
@@ -141,6 +142,15 @@ Also you may want to set the **KUBERNETES_TRUST_CERT** variable to allow connect
     export KUBERNETES_MASTER=http://localhost:8443
 
 Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a [Jube installation](http://fabric8.io/jube/getStarted.html). Also note that different integration tests can be running at the same time on the same kubernetes environment.
+
+If you find that you are getting exceptions and output of the form:
+
+    Waiting for: SomeException....
+    Waiting for: SomeException....
+
+and if the exception isn't clear from the message, you could define this environment variable to get an additional full stack trace (which is very noisy but can be handy):
+
+    export FABRIC8_VERBOSE_ASSERT=true
 
 ### Assertion libraries
 
