@@ -87,7 +87,8 @@ public class ZipMojo extends AbstractFabric8Mojo {
     @Component
     private MavenProjectHelper projectHelper;
 
-    @Parameter(defaultValue = "${project.distributionManagementArtifactRepository}", readonly = true, required = true)
+    // this is required for the deploy phase, but end user may just use a install phase only, so let required = false
+    @Parameter(defaultValue = "${project.distributionManagementArtifactRepository}", readonly = true, required = false)
     private ArtifactRepository deploymentRepository;
 
     /**
@@ -475,6 +476,13 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
 
         if (rootProject.hasLifecyclePhase("deploy")) {
+
+            if (deploymentRepository == null) {
+                String msg = "Cannot run deploy phase as Maven project has no <distributionManagement> with the maven url to use for deploying the aggregated zip file";
+                getLog().warn(msg);
+                throw new MojoExecutionException(msg);
+            }
+
             getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
             getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfileIds);
 
