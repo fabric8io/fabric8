@@ -115,6 +115,28 @@ The **fabric8:json** goal will either copy or generate the JSON and then add it 
     mvn fabric8:json
     cat target/classes/kubernetes.json
 
+### Generating CDI environment variables
+
+If you use CDI for your dependency injection and use the [@ConfigProperty](http://deltaspike.apache.org/documentation/configuration.html) annotation from [deltaspike](http://deltaspike.apache.org/) to inject environment variables or default values into your Java code then you can automatically generate a json schema file for each jar you create by just adding a **provided** scope dependency on the **fabric8-apt** module.
+
+e.g. add this to your pom.xml
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-apt</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+This will then generate inside your jar a file called **io/fabric8/environment/schema.json** which will be a JSON Schema document describing all the environment variables, their types, default values and their description (if you added some javadoc for them).
+
+#### Viewing all the environment variable injection points
+
+If you have transitive dependences which include the generated **io/fabric8/environment/schema.json** file in their jars you can view the overall list of environment variable injection points for a project via:
+
+    mvn fabric8:env
+
+This will then list all the environment variables, their default value, type and description.
+
 #### Properties for configuring the generation
 
 You can use maven properties to customize the generation of the JSON:

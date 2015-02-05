@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -116,21 +117,44 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
         return answer;
     }
 
-    protected URLClassLoader getTestClassLoader() throws MojoExecutionException {
-        List<URL> urls = new ArrayList<>();
+    protected URLClassLoader getCompileClassLoader() throws MojoExecutionException {
         try {
-            for (Object object : getProject().getTestClasspathElements()) {
-                if (object != null) {
-                    String path = object.toString();
-                    File file = new File(path);
-                    URL url = file.toURI().toURL();
-                    urls.add(url);
-                }
-            }
+            List<String> classpathElements = getProject().getCompileClasspathElements();
+            return createClassLoader(classpathElements, getProject().getBuild().getOutputDirectory());
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
         }
+    }
+
+    protected URLClassLoader getTestClassLoader() throws MojoExecutionException {
+        try {
+            List<String> classpathElements = getProject().getTestClasspathElements();
+            return createClassLoader(classpathElements, getProject().getBuild().getTestOutputDirectory());
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
+        }
+    }
+
+    protected URLClassLoader createClassLoader(List<String> classpathElements, String... paths) throws MalformedURLException {
+        List<URL> urls = new ArrayList<>();
+        for (String path : paths) {
+            URL url = pathToUrl(path);
+            urls.add(url);
+        }
+        for (Object object : classpathElements) {
+            if (object != null) {
+                String path = object.toString();
+                URL url = pathToUrl(path);
+                urls.add(url);
+            }
+        }
+        getLog().debug("Creating class loader from: " + urls);
         return createURLClassLoader(urls);
+    }
+
+    private URL pathToUrl(String path) throws MalformedURLException {
+        File file = new File(path);
+        return file.toURI().toURL();
     }
 
     protected boolean hasConfigDir() {

@@ -1,0 +1,82 @@
+{
+  "type": "object",
+  "properties": {
+    "ZOOKEEPER_CLIENT_PORT": {
+      "type": "integer",
+      "default": "2181",
+      "description": "the port the ZooKeeper client uses to connect to",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_ELECTION_PORT": {
+      "type": "integer",
+      "default": "2182",
+      "description": "the port ZooKeeper uses to perform elections",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_DATADIR": {
+      "type": "string",
+      "default": "ensemble/data",
+      "description": "the directory ZooKeeper uses to store its data",
+      "javaType": "java.lang.String"
+    },
+    "ZOOKEEPER_DATA_LOG_DIR": {
+      "type": "string",
+      "default": "ensemble/log",
+      "description": "the directory ZooKeeper uses to store its logs",
+      "javaType": "java.lang.String"
+    },
+    "ZOOKEEPER_TICKTIME": {
+      "type": "integer",
+      "default": "3000",
+      "description": "the keep alive tick time",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_INIT_LIMIT": {
+      "type": "integer",
+      "description": "initialisation limit",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_SYNC_LIMIT": {
+      "type": "integer",
+      "description": "synchronisation limit",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_URL": {
+      "type": "string",
+      "javaType": "java.lang.String"
+    },
+    "ZOOKEEPER_USER": {
+      "type": "string",
+      "javaType": "java.lang.String"
+    },
+    "ZOOKEEPER_PASSWORD": {
+      "type": "string",
+      "javaType": "java.lang.String"
+    },
+    "ZOOKEEPER_RETRY_POLICY_MAX_RETRIES": {
+      "type": "integer",
+      "default": "3",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_RETRY_POLICY_INTERVAL_MS": {
+      "type": "integer",
+      "default": "500",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_CONNECTION_TIMEOUT": {
+      "type": "integer",
+      "default": "15000",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_SESSION_TIMEOUT": {
+      "type": "integer",
+      "default": "60000",
+      "javaType": "int"
+    },
+    "ZOOKEEPER_SERVER_ID": {
+      "type": "string",
+      "default": "singleRootZkNode",
+      "javaType": "java.lang.String"
+    }
+  }
+}

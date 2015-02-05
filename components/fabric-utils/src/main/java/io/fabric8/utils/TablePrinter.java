@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * A helper class to pretty print a table of values to the console
@@ -106,7 +107,39 @@ public class TablePrinter {
         return new String(out.toByteArray());
     }
 
-    public void print(PrintStream out) {
+    /**
+     * Returns a list of text lines for easier printing on other output formats
+     */
+    public List<String> asTextLines() {
+        String text = asText();
+        List<String> list = new ArrayList<>();
+        StringTokenizer iter = new StringTokenizer(text, "\n");
+        while (iter.hasMoreTokens()) {
+            list.add(iter.nextToken());
+        }
+        return list;
+    }
+
+    public void print(final PrintStream out) {
+        print(new TableWriter() {
+            @Override
+            public String toString() {
+                return "PrintStreamTableWriter()";
+            }
+
+            @Override
+            public void print(String text) {
+                out.print(text);
+            }
+
+            @Override
+            public void println() {
+                out.println();
+            }
+        });
+    }
+
+    public void print(TableWriter out) {
         boolean first = true;
         for (Column column : columns) {
             if (first) {
@@ -141,6 +174,12 @@ public class TablePrinter {
         }
     }
 
+
+    public interface TableWriter {
+        void print(String text);
+
+        void println();
+    }
 
     public static class Column {
         private final String headerText;
@@ -196,17 +235,19 @@ public class TablePrinter {
         /**
          * Prints the header value
          */
-        public void printHeader(PrintStream out) {
+        public void printHeader(TableWriter out) {
             String formatText = "%" + headerFlags + width + "s";
-            out.printf(formatText, headerText);
+            String text = String.format(formatText, headerText);
+            out.print(text);
         }
 
         /**
          * Prints a value
          */
-        public void printValue(PrintStream out, String value) {
+        public void printValue(TableWriter out, String value) {
             String formatText = "%" + rowFlags + width + "s";
-            out.printf(formatText, value);
+            String text = String.format(formatText, value);
+            out.print(text);
         }
     }
 }
