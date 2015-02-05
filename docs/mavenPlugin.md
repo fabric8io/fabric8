@@ -131,7 +131,7 @@ This will then generate inside your jar a file called **io/fabric8/environment/s
 
 #### Viewing all the environment variable injection points
 
-If you have transitive dependences which include the generated **io/fabric8/environment/schema.json** file in their jars you can view the overall list of environment variable injection points for a project via:
+If you have transitive dependencies which include the generated **io/fabric8/environment/schema.json** file in their jars you can view the overall list of environment variable injection points for a project via:
 
     mvn fabric8:env
 
