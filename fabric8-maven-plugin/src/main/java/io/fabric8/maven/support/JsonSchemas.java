@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  */
@@ -97,4 +99,28 @@ public class JsonSchemas {
         return mapper;
     }
 
+    /**
+     * Modifies the given json schema adding the additional environment variable overrides which either create
+     * new properties or override the default values of existing known properties
+     */
+    public static void addEnvironmentVariables(JsonSchema schema, Map<String, String> environmentVariables) {
+        Map<String, JsonSchemaProperty> properties = schema.getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+            schema.setProperties(properties);
+        }
+
+        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            JsonSchemaProperty property = properties.get(name);
+            if (property == null) {
+                property = new JsonSchemaProperty();
+                properties.put(name, property);
+            }
+            property.setDefaultValue(value);
+        }
+
+    }
 }

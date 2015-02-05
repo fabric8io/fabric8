@@ -15,6 +15,7 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -29,6 +30,9 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
 /**
  * Abstract base class for Fabric8 based Mojos
@@ -167,5 +171,12 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
 
     protected boolean shouldGenerateForThisProject() {
         return !isPomProject() || hasConfigDir();
+    }
+
+    /**
+     * Returns all the environment variable properties defined in the pom.xml
+     */
+    public Map<String, String> getEnvironmentVariableProperties() {
+        return findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
     }
 }

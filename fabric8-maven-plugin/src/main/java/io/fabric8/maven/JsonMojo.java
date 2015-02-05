@@ -428,7 +428,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (environmentVariables.isEmpty()) {
             Map<String, EnvVar> envMap = new HashMap<>();
-            Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
+            Map<String, String> envs = getEnvironmentVariableProperties();
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
                 String name = entry.getKey();

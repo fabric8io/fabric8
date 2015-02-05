@@ -47,6 +47,8 @@ public class EnvironmentMojo extends AbstractFabric8Mojo {
             if (schema == null) {
                 getLog().warn("No environment schemas found for file: " + JsonSchemas.ENVIRONMENT_SCHEMA_FILE);
             } else {
+                Map<String, String> envs = getEnvironmentVariableProperties();
+                JsonSchemas.addEnvironmentVariables(schema, envs);
                 displaySchema(schema);
             }
         } catch (IOException e) {

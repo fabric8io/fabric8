@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  */
 public class JsonSchemaProperty {
-    private String type;
+    private String type = "string";
     private String format;
     @JsonProperty("default")
     private String defaultValue;
