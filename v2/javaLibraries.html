@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.7" data-basepath="." data-revision="1423159453578">
+    <div class="book" data-level="3.7" data-basepath="." data-revision="1423161875489">
     
 
 <div class="book-summary">
@@ -760,6 +760,10 @@
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> provides a plugin for <a href="arquillian-fabric8">Arquillian</a> for integration testing <a href="apps.html">Apps</a> on top of Kubernetes; using Kubernetes to provision and orchestrate the containers and then making <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">assertions</a> that the required resources startup correctly.</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
+</ul>
+<h4 id="cdi"><a name="cdi" class="anchor" href="#cdi"><span class="fa fa-link"></span></a>CDI</h4>
+<ul>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric8-apt" target="_blank">fabric8-apt</a> provides an APT code generator to create a JSON Schema file for each environment variable injected by the <a href="http://deltaspike.apache.org/documentation/configuration.html" target="_blank">@ConfigProperty</a> annotation from <a href="http://deltaspike.apache.org/" target="_blank">deltaspike</a> - giving dteails of the name, type, default value and description. This can then be used by the <a href="mavenplugin.html">fabric8:json maven goal</a> to list all of the environment variables and their value in the generated kubernetes JSON file.</li>
 </ul>
 <h3 id="docker"><a name="docker" class="anchor" href="#docker"><span class="fa fa-link"></span></a>Docker</h3>
 <ul>

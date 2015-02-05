@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.5" data-basepath="." data-revision="1423159453578">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="1423161875489">
     
 
 <div class="book-summary">
@@ -843,7 +843,7 @@ cat target/classes/kubernetes.json
 &lt;/dependency&gt;
 </code></pre><p>This will then generate inside your jar a file called <strong>io/fabric8/environment/schema.json</strong> which will be a JSON Schema document describing all the environment variables, their types, default values and their description (if you added some javadoc for them).</p>
 <h4 id="viewing-all-the-environment-variable-injection-points"><a name="viewing-all-the-environment-variable-injection-points" class="anchor" href="#viewing-all-the-environment-variable-injection-points"><span class="fa fa-link"></span></a>Viewing all the environment variable injection points</h4>
-<p>If you have transitive dependences which include the generated <strong>io/fabric8/environment/schema.json</strong> file in their jars you can view the overall list of environment variable injection points for a project via:</p>
+<p>If you have transitive dependencies which include the generated <strong>io/fabric8/environment/schema.json</strong> file in their jars you can view the overall list of environment variable injection points for a project via:</p>
 <pre><code>mvn fabric8:env
 </code></pre><p>This will then list all the environment variables, their default value, type and description.</p>
 <h4 id="including-the-environment-variables-in-the-generated-json"><a name="including-the-environment-variables-in-the-generated-json" class="anchor" href="#including-the-environment-variables-in-the-generated-json"><span class="fa fa-link"></span></a>Including the environment variables in the generated JSON</h4>
