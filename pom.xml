@@ -453,6 +453,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-apt</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-cxf</artifactId>
                 <version>${project.version}</version>
@@ -2854,6 +2859,7 @@
     <modules>
         <module>bom</module>
         <module>parent</module>
+        <module>fabric8-apt</module>
         <module>fabric8-maven-plugin</module>
         <module>components</module>
         <module>tooling</module>

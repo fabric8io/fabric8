@@ -20,12 +20,23 @@ import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 
 import javax.inject.Inject;
+import java.lang.annotation.Documented;
 import java.net.InetSocketAddress;
 
 /**
  * Allows easy injection with CDI for a {@link QuorumPeerConfig}
  */
 public class InjectableQuorumPeerConfig extends QuorumPeerConfig {
+    /**
+     *
+     * @param clientPort the port the ZooKeeper client uses to connect to
+     * @param electionPort the port ZooKeeper uses to perform elections
+     * @param dataDir the directory ZooKeeper uses to store its data
+     * @param dataLogDir  the directory ZooKeeper uses to store its logs
+     * @param tickTime  the keep alive tick time
+     * @param initLimit initialisation limit
+     * @param syncLimit synchronisation limit
+     */
     @Inject
     public InjectableQuorumPeerConfig(@ConfigProperty(name = "ZOOKEEPER_CLIENT_PORT", defaultValue = "2181")
                                       int clientPort,

@@ -65,4 +65,24 @@
     <module>fabric-apm</module>
   </modules>
 
+  <profiles>
+    <!-- enables the APT dependency so that it can be disabled in IDE builds -->
+    <profile>
+      <id>apt</id>
+      <activation>
+        <property>
+            <name>!dummy.prop.to.keep.this.profile.active.even.when.other.profiles.are.active</name>
+        </property>
+      </activation>
+
+      <dependencies>
+        <!-- enable the APT processor -->
+        <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-apt</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
