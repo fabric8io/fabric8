@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.5" data-basepath="." data-revision="1423062895929">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="1423159453578">
     
 
 <div class="book-summary">
@@ -833,7 +833,23 @@
 <p>The <strong>fabric8:json</strong> goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.</p>
 <pre><code>mvn fabric8:json
 cat target/classes/kubernetes.json
-</code></pre><h4 id="properties-for-configuring-the-generation"><a name="properties-for-configuring-the-generation" class="anchor" href="#properties-for-configuring-the-generation"><span class="fa fa-link"></span></a>Properties for configuring the generation</h4>
+</code></pre><h3 id="generating-cdi-environment-variables"><a name="generating-cdi-environment-variables" class="anchor" href="#generating-cdi-environment-variables"><span class="fa fa-link"></span></a>Generating CDI environment variables</h3>
+<p>If you use CDI for your dependency injection and use the <a href="http://deltaspike.apache.org/documentation/configuration.html" target="_blank">@ConfigProperty</a> annotation from <a href="http://deltaspike.apache.org/" target="_blank">deltaspike</a> to inject environment variables or default values into your Java code then you can automatically generate a json schema file for each jar you create by just adding a <strong>provided</strong> scope dependency on the <strong>fabric8-apt</strong> module.</p>
+<p>e.g. add this to your pom.xml</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;fabric8-apt&lt;/artifactId&gt;
+  &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre><p>This will then generate inside your jar a file called <strong>io/fabric8/environment/schema.json</strong> which will be a JSON Schema document describing all the environment variables, their types, default values and their description (if you added some javadoc for them).</p>
+<h4 id="viewing-all-the-environment-variable-injection-points"><a name="viewing-all-the-environment-variable-injection-points" class="anchor" href="#viewing-all-the-environment-variable-injection-points"><span class="fa fa-link"></span></a>Viewing all the environment variable injection points</h4>
+<p>If you have transitive dependences which include the generated <strong>io/fabric8/environment/schema.json</strong> file in their jars you can view the overall list of environment variable injection points for a project via:</p>
+<pre><code>mvn fabric8:env
+</code></pre><p>This will then list all the environment variables, their default value, type and description.</p>
+<h4 id="including-the-environment-variables-in-the-generated-json"><a name="including-the-environment-variables-in-the-generated-json" class="anchor" href="#including-the-environment-variables-in-the-generated-json"><span class="fa fa-link"></span></a>Including the environment variables in the generated JSON</h4>
+<p>By default any discovered environment variable JSON Schema files will be included in the generated JSON so that your <a href="apps.html">app JSON</a> has all the available known environment variables from a CDI perspective; which makes it easy to change the app without too much detailed knownledge of the source code and helps reduce typeos since all the environment variable names are defaulted.</p>
+<p>If you wish to disable this behaviour then set the maven property <strong>fabric8.includeAllEnvironmentVariables</strong> to false.</p>
+<h4 id="properties-for-configuring-the-generation"><a name="properties-for-configuring-the-generation" class="anchor" href="#properties-for-configuring-the-generation"><span class="fa fa-link"></span></a>Properties for configuring the generation</h4>
 <p>You can use maven properties to customize the generation of the JSON:</p>
 <table class="table table-striped">
 <tr>
@@ -859,6 +875,10 @@ cat target/classes/kubernetes.json
 <tr>
 <td>fabric8.generateJson</td>
 <td>If set to false then the generation of the JSON is disabled.</td>
+</tr>
+<tr>
+<td>fabric8.includeAllEnvironmentVariables</td>
+<td>Should the environment variable JSON Schema files, generate by the <strong>fabric-apt</strong> API plugin be discovered and included in the generated kuberentes JSON file. Defaults to true.</td>
 </tr>
 <tr>
 <td>fabric8.json.template</td>
