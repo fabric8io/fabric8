@@ -1,6 +1,9 @@
 Building Fabric8
 ============
 
+Due to certain plugin dependencies, Building Fabric8
+requires a version of Maven >= 3.2.1.
+
 First of all, the Fabric8 build process may need, 
 more memory than the default allocated
 to the maven process. Therefore, ensure to set the 
@@ -12,7 +15,6 @@ before starting
 Build Fabric8 and run the associated tests
 
     > mvn clean install
-   
 
 Quick Builds
 ==========
@@ -24,8 +26,6 @@ Build Fabric8 and skip tests
     > mvn clean install -DskipTests
 
 Build fabric8 with all modules and skip tests
-
-
 
 Test Profiles
 ==========
