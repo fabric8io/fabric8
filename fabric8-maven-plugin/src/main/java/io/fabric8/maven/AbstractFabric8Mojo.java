@@ -15,6 +15,8 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,6 +25,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -178,5 +181,16 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
      */
     public Map<String, String> getEnvironmentVariableProperties() {
         return findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
+    }
+
+    public JsonSchema getEnvironmentVariableJsonSchema() throws IOException, MojoExecutionException {
+        JsonSchema schema = JsonSchemas.loadEnvironmentSchemas(getCompileClassLoader(), getProject().getBuild().getOutputDirectory());
+        if (schema == null) {
+            getLog().info("No environment schemas found for file: " + JsonSchemas.ENVIRONMENT_SCHEMA_FILE);
+            schema = new JsonSchema();
+        }
+        Map<String, String> envs = getEnvironmentVariableProperties();
+        JsonSchemas.addEnvironmentVariables(schema, envs);
+        return schema;
     }
 }

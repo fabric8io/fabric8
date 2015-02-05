@@ -16,6 +16,8 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Lists;
 import io.fabric8.utils.Strings;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
@@ -166,6 +169,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.imagePullPolicy")
     private String imagePullPolicy;
 
+    /**
+     * Whether the plugin should discover all the environment variable json schema files in the classpath and export those into the generated kubernetes JSON
+     */
+    @Parameter(property = "fabric8.includeAllEnvironmentVariables", defaultValue = "true")
+    private boolean includeAllEnvironmentVariables;
 
 
     @Override
@@ -422,13 +430,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return labels;
     }
 
-    public List<EnvVar> getEnvironmentVariables() {
+    public List<EnvVar> getEnvironmentVariables() throws MojoExecutionException {
         if (environmentVariables == null) {
             environmentVariables = new ArrayList<EnvVar>();
         }
         if (environmentVariables.isEmpty()) {
             Map<String, EnvVar> envMap = new HashMap<>();
-            Map<String, String> envs = getEnvironmentVariableProperties();
+            Map<String, String> envs = getExportedEnvironmentVariables();
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
                 String name = entry.getKey();
@@ -448,6 +456,30 @@ public class JsonMojo extends AbstractFabric8Mojo {
             environmentVariables.addAll(envMap.values());
         }
         return environmentVariables;
+    }
+
+    public Map<String, String> getExportedEnvironmentVariables() throws MojoExecutionException {
+        if (includeAllEnvironmentVariables) {
+            try {
+                JsonSchema schema = getEnvironmentVariableJsonSchema();
+                Map<String, String> answer = new TreeMap<>();
+                Map<String, JsonSchemaProperty> properties = schema.getProperties();
+                Set<Map.Entry<String, JsonSchemaProperty>> entries = properties.entrySet();
+                for (Map.Entry<String, JsonSchemaProperty> entry : entries) {
+                    String name = entry.getKey();
+                    String value = entry.getValue().getDefaultValue();
+                    if (value == null) {
+                        value = "";
+                    }
+                    answer.put(name, value);
+                }
+                return answer;
+            } catch (IOException e) {
+                throw new MojoExecutionException("Failed to load environment variable json schema files: " + e, e);
+            }
+        } else {
+            return getEnvironmentVariableProperties();
+        }
     }
 
     public void setLabels(Map<String, String> labels) {

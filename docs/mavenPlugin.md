@@ -137,6 +137,13 @@ If you have transitive dependences which include the generated **io/fabric8/envi
 
 This will then list all the environment variables, their default value, type and description.
 
+
+#### Including the environment variables in the generated JSON
+
+By default any discovered environment variable JSON Schema files will be included in the generated JSON so that your [app JSON](apps.html) has all the available known environment variables from a CDI perspective; which makes it easy to change the app without too much detailed knownledge of the source code and helps reduce typeos since all the environment variable names are defaulted.
+
+If you wish to disable this behaviour then set the maven property **fabric8.includeAllEnvironmentVariables** to false.
+
 #### Properties for configuring the generation
 
 You can use maven properties to customize the generation of the JSON:
@@ -165,6 +172,10 @@ You can use maven properties to customize the generation of the JSON:
 <tr>
 <td>fabric8.generateJson</td>
 <td>If set to false then the generation of the JSON is disabled.</td>
+</tr>
+<tr>
+<td>fabric8.includeAllEnvironmentVariables</td>
+<td>Should the environment variable JSON Schema files, generate by the **fabric-apt** API plugin be discovered and included in the generated kuberentes JSON file. Defaults to true.</td>
 </tr>
 <tr>
 <td>fabric8.json.template</td>

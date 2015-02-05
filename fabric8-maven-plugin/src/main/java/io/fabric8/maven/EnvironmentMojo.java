@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 /**
@@ -43,14 +42,8 @@ public class EnvironmentMojo extends AbstractFabric8Mojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            JsonSchema schema = JsonSchemas.loadEnvironmentSchemas(getCompileClassLoader(), getProject().getBuild().getOutputDirectory());
-            if (schema == null) {
-                getLog().warn("No environment schemas found for file: " + JsonSchemas.ENVIRONMENT_SCHEMA_FILE);
-            } else {
-                Map<String, String> envs = getEnvironmentVariableProperties();
-                JsonSchemas.addEnvironmentVariables(schema, envs);
-                displaySchema(schema);
-            }
+            JsonSchema schema = getEnvironmentVariableJsonSchema();
+            displaySchema(schema);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to load environment schemas: " + e, e);
         }
