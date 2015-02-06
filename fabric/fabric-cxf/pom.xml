@@ -32,6 +32,7 @@
     <properties>
         <fuse.osgi.export>
             io.fabric8.cxf*;version=${project.version},
+            io.fabric8.cxf.env;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.cxf.management.jmx,                           
