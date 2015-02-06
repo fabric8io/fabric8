@@ -12,7 +12,7 @@
 	                  @if{!first} , @else{} @code{first=false} @end{}
           "@{destinationName}": { @foreach{e : d.attrs.entrySet()}
             "@{e.key}": @{toJson(e.value)} @end{', '}
-          } @end{} @end{}
+          } @end{} @end{', '}
         },
         "topics": { @foreach{d : result.results['topics'].results}
         			@code{destinationName = d.objectName.getKeyProperty('destinationName')}
@@ -21,7 +21,7 @@
 	                  @if{!first} , @else{} @code{first=false} @end{}
           "@{d.objectName.getKeyProperty('destinationName')}": { @foreach{e : d.attrs.entrySet()}
             "@{e.key}": @{toJson(e.value)} @end{', '}
-          } @end{} @end{}
+          } @end{} @end{', '}
         }
       } @end{}
 }
