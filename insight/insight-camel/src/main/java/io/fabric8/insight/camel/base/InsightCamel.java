@@ -26,8 +26,6 @@ import io.fabric8.insight.camel.profiler.Profiler;
 import io.fabric8.insight.camel.trace.Tracer;
 import io.fabric8.insight.storage.StorageService;
 import org.apache.camel.CamelContext;
-import org.apache.camel.management.mbean.ManagedCamelContext;
-import org.apache.camel.spi.Container;
 import org.apache.felix.gogo.commands.basic.SimpleCommand;
 import org.apache.felix.scr.annotations.*;
 import org.osgi.framework.BundleContext;
@@ -39,16 +37,13 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
  */
 @Component(name = InsightCamel.INSIGHT_CAMEL_PID)
-public class InsightCamel implements Container {
+public class InsightCamel {
 
     public static final String INSIGHT_CAMEL_PID = "io.fabric8.insight.camel";
 
@@ -66,6 +61,9 @@ public class InsightCamel implements Container {
 
     @Reference
     private MBeanServer mbeanServer;
+
+    @Reference(referenceInterface = CamelContext.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC, bind = "bindCamelContext", unbind = "unbindCamelContext")
+    private Set<CamelContext> camelContexts = new HashSet<>();
 
     private List<ServiceRegistration> commandRegistrations;
 
@@ -90,7 +88,6 @@ public class InsightCamel implements Container {
                 }
             }
         }
-        Container.Instance.set(this);
 
         try {
 
@@ -111,7 +108,6 @@ public class InsightCamel implements Container {
         for (ServiceRegistration sr : commandRegistrations) {
             sr.unregister();
         }
-        Container.Instance.set(null);
         if (mbeanServer != null) {
             for (ContainerStrategy strategy : strategies.values()) {
                 try {
@@ -145,8 +141,7 @@ public class InsightCamel implements Container {
         }
     }
 
-    @Override
-    public void manage(CamelContext camelContext) {
+    public void bindCamelContext(CamelContext camelContext) {
         for (ContainerStrategy strategy : strategies.values()) {
             try {
                 strategy.manage(camelContext);
@@ -154,12 +149,11 @@ public class InsightCamel implements Container {
                 LOG.error("Error managing CamelContext " + camelContext, e);
             }
         }
-        ManagedCamelContext mcc = (ManagedCamelContext) camelContext.getManagementStrategy().getManagementObjectStrategy().getManagedObjectForCamelContext(camelContext);
-        try {
-            mcc.restart();
-        } catch (Exception e) {
-            LOG.error("Could not restart camel context", e);
-        }
+        this.camelContexts.add(camelContext);
+    }
+
+    public void unbindCamelContext(CamelContext camelContext) {
+        this.camelContexts.remove(camelContext);
     }
 
     protected ObjectName getObjectName(ContainerStrategy strategy) throws MalformedObjectNameException {

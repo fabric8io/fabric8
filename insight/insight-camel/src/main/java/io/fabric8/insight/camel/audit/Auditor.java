@@ -18,26 +18,23 @@ package io.fabric8.insight.camel.audit;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
+import io.fabric8.insight.storage.StorageService;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.spi.EventNotifier;
-import io.fabric8.insight.storage.StorageService;
 import org.mvel2.ParserContext;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRuntime;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +68,7 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     }
 
     public Auditor(ValidatingReference<StorageService> storage) {
-        super(false);
+        super(true);
         this.storage = storage;
         context = new ParserContext();
         try {
