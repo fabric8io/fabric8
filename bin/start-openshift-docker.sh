@@ -26,8 +26,9 @@ DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
 CLEANUP=0
+DONT_RUN=0
 
-while getopts "fud:k" opt; do
+while getopts "fud:kp" opt; do
   case $opt in
     k)
       DEPLOY_IMAGES="${ALL_IMAGES}"
@@ -43,6 +44,10 @@ while getopts "fud:k" opt; do
       ;;
     u)
       UPDATE_IMAGES=1
+      ;;
+    p)
+      UPDATE_IMAGES=1
+      DONT_RUN=1
       ;;
     d)
       DOCKER_IP=$OPTARG
@@ -74,6 +79,11 @@ done
 
 if [ ${CLEANUP} -eq 1 ]; then
   docker run --rm --privileged -v /var/lib/openshift:/var/lib/openshift --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/*
+fi
+
+if [ ${DONT_RUN} -eq 1 ]; then
+  echo "Terminating before running any containers"
+  exit 0
 fi
 
 echo "Validating firewall rules"

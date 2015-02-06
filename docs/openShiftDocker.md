@@ -27,6 +27,34 @@ And of course flags can be combined. To start from scratch & update all images a
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -fku
 
+#### Pulling images when using Vagrant or VMware
+
+If you use either [Vagrant](http://www.vagrantup.com/downloads.html) or VMWare to run a virtual machine for running OpenShift inside, you may wish to download all the docker images first; then snapshot the VM.
+
+Then at any time you can just restore from a clean snapshot without having to worry about re-downloading all the images again.
+
+If so from your folder with a Vagrant file; or in the fabric8 directory from a git clone type:
+
+    vagrant up
+    vagrant ssh
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -p
+
+or if you want to pull down all the docker images for the kitchen sink
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -p
+
+You can now take a snapshot of the vagrant image:
+
+    exit
+    vagrant snapshot take default cleanstart
+
+Then at any point you can reset to the cleanstart snapshot via:
+
+    vagrant snapshot go default cleanstart
+
+This should hopefully minimise the amount of times you have to download docker image layers.
+
 #### Making sure you can access the IP addresses of services and pods from your host
 
 If you run the above on boot2docker, vagrant or VMware and want to access the console and other services from your laptop then try the following.

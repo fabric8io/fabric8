@@ -1,4 +1,4 @@
-## Fabric APT Tool
+## Fabric8 APT Tool
 
 This APT plugin generates a JSON Schema file called **io/fabric8/environment/schema.json** inside each jar which uses CDI for your dependency injection and uses the [@ConfigProperty](http://deltaspike.apache.org/documentation/configuration.html) annotation from [deltaspike](http://deltaspike.apache.org/) to inject environment variables or default values into your Java code.
 
