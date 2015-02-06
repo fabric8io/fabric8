@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1423161875489">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1423229039301">
     
 
 <div class="book-summary">
@@ -761,7 +761,23 @@ in the <code>-u</code> flag:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -u
 </code></pre><p>And of course flags can be combined. To start from scratch &amp; update all images at once:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -fku
-</code></pre><h4 id="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><a name="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host" class="anchor" href="#making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><span class="fa fa-link"></span></a>Making sure you can access the IP addresses of services and pods from your host</h4>
+</code></pre><h4 id="pulling-images-when-using-vagrant-or-vmware"><a name="pulling-images-when-using-vagrant-or-vmware" class="anchor" href="#pulling-images-when-using-vagrant-or-vmware"><span class="fa fa-link"></span></a>Pulling images when using Vagrant or VMware</h4>
+<p>If you use either <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a> or VMWare to run a virtual machine for running OpenShift inside, you may wish to download all the docker images first; then snapshot the VM.</p>
+<p>Then at any time you can just restore from a clean snapshot without having to worry about re-downloading all the images again.</p>
+<p>If so from your folder with a Vagrant file; or in the fabric8 directory from a git clone type:</p>
+<pre><code>vagrant up
+vagrant ssh
+
+bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p
+</code></pre><p>or if you want to pull down all the docker images for the kitchen sink</p>
+<pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p
+</code></pre><p>You can now take a snapshot of the vagrant image:</p>
+<pre><code>exit
+vagrant snapshot take default cleanstart
+</code></pre><p>Then at any point you can reset to the cleanstart snapshot via:</p>
+<pre><code>vagrant snapshot go default cleanstart
+</code></pre><p>This should hopefully minimise the amount of times you have to download docker image layers.</p>
+<h4 id="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><a name="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host" class="anchor" href="#making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><span class="fa fa-link"></span></a>Making sure you can access the IP addresses of services and pods from your host</h4>
 <p>If you run the above on boot2docker, vagrant or VMware and want to access the console and other services from your laptop then try the following.</p>
 <p>First make sure that the environment variable <strong>DOCKER_IP</strong> points to the IP address where docker is running in the above script.</p>
 <p>On windows or a Mac and running directly with docker:</p>
