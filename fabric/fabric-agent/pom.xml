@@ -192,6 +192,11 @@
             <version>${pax.url.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.swissbox</groupId>
+            <artifactId>pax-swissbox-property</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.ops4j.base</groupId>
@@ -204,6 +209,12 @@
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-wrap</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-wrap</artifactId>
+            <scope>test</scope>
+            <classifier>uber</classifier>
         </dependency>
 
         <dependency>
@@ -220,6 +231,10 @@
                 <exclusion>
                     <groupId>org.apache.servicemix.specs</groupId>
                     <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse</groupId>
+                    <artifactId>osgi</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

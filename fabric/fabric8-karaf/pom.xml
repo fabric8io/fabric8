@@ -36,6 +36,12 @@
                <version>${karaf-version}</version>
                <scope>provided</scope>
                <type>tar.gz</type>
+               <exclusions>
+                   <exclusion>
+                       <groupId>org.eclipse</groupId>
+                       <artifactId>osgi</artifactId>
+                   </exclusion>
+               </exclusions>
            </dependency>
            <dependency>
                <groupId>org.apache.karaf</groupId>
@@ -43,6 +49,12 @@
                <version>${karaf-version}</version>
                <scope>provided</scope>
                <type>zip</type>
+               <exclusions>
+                   <exclusion>
+                       <groupId>org.eclipse</groupId>
+                       <artifactId>osgi</artifactId>
+                   </exclusion>
+               </exclusions>
            </dependency>
 
            <!-- we want to include quickstarts -->

@@ -63,6 +63,16 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-dependency-analyzer</artifactId>
       <version>1.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-all</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -72,7 +82,6 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
-      <version>2.0.11</version>
     </dependency>
     <dependency>
         <groupId>io.fabric8</groupId>
@@ -81,13 +90,26 @@
     <dependency>
         <groupId>com.wordnik</groupId>
         <artifactId>swagger-jaxrs_2.10</artifactId>
-        <version>1.3.0</version>
+        <version>${swagger-community-version}</version>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>2.0</version>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>${xml.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jsonSchema</artifactId>
+      <version>${jackson2-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-scala_2.10</artifactId>
+      <version>${jackson2-version}</version>
     </dependency>
 
     <dependency>
@@ -101,26 +123,31 @@
        <artifactId>javax.servlet-api</artifactId>
     </dependency>
     <dependency>
-       <groupId>org.eclipse.tycho</groupId>
+       <groupId>org.eclipse.jdt</groupId>
        <artifactId>org.eclipse.jdt.core</artifactId>
-       <version>3.9.1.v20130905-0837</version>
+       <version>3.10.0</version>
     </dependency>
-    <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>runtime</artifactId>
-        <version>3.9.100-v20131218-1515</version>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.birt.runtime</groupId>
-        <artifactId>org.eclipse.core.resources</artifactId>
-        <version>3.8.101.v20130717-0806</version>
-    </dependency>
+    <!--<dependency>-->
+       <!--<groupId>org.eclipse.tycho</groupId>-->
+       <!--<artifactId>org.eclipse.jdt.core</artifactId>-->
+       <!--<version>3.9.1.v20130905-0837</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+        <!--<groupId>org.eclipse.core</groupId>-->
+        <!--<artifactId>runtime</artifactId>-->
+        <!--<version>3.9.100-v20131218-1515</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+        <!--<groupId>org.eclipse.birt.runtime</groupId>-->
+        <!--<artifactId>org.eclipse.core.resources</artifactId>-->
+        <!--<version>3.8.101.v20130717-0806</version>-->
+    <!--</dependency>-->
 
-    <dependency>
-	<groupId>org.eclipse</groupId>
-	<artifactId>text</artifactId>
-	<version>3.3.0-v20070606-0010</version>
-    </dependency>
+    <!--<dependency>-->
+	<!--<groupId>org.eclipse</groupId>-->
+	<!--<artifactId>text</artifactId>-->
+	<!--<version>3.3.0-v20070606-0010</version>-->
+    <!--</dependency>-->
 
   </dependencies>
 

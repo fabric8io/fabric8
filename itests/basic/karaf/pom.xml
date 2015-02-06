@@ -59,10 +59,9 @@
         <dependency>
             <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -78,6 +77,16 @@
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-container-karaf-managed</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-container-spi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.protocol</groupId>
+            <artifactId>arquillian-protocol-jmx</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -98,12 +107,10 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
-            <version>3.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-settings-builder</artifactId>
-            <version>3.0.5</version>
         </dependency>
     </dependencies>
 

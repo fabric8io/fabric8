@@ -52,13 +52,12 @@
             <version>${jolokia-version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-api</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-api</artifactId>
         </dependency>
     </dependencies>
 

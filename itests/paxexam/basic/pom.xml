@@ -86,13 +86,11 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore-osgi</artifactId>
-            <version>4.3.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient-osgi</artifactId>
-            <version>4.3.6</version>
             <scope>test</scope>
         </dependency>
 
@@ -260,7 +258,6 @@
                     </excludes>
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
-                        <perfectus-build>${perfectus-build}</perfectus-build>
                         <fabric.version>${project.version}</fabric.version>
                         <project-version>${project.version}</project-version>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}

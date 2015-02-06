@@ -94,37 +94,41 @@
               </exclusion>
           </exclusions>
       </dependency>
+      <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+          <version>${groovy-version}</version>
+      </dependency>
 
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-core</artifactId>
-          <version>3.6.0</version>
+          <version>${lucene-version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-analyzers</artifactId>
-          <version>3.6.0</version>
+          <artifactId>lucene-analyzers-common</artifactId>
+          <version>${lucene-version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-highlighter</artifactId>
-          <version>3.6.0</version>
+          <version>${lucene-version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-memory</artifactId>
-          <version>3.6.0</version>
+          <version>${lucene-version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-queries</artifactId>
-          <version>3.6.0</version>
+          <version>${lucene-version}</version>
       </dependency>
 
       <dependency>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
-          <version>1.2.16</version>
       </dependency>
 
       <dependency>

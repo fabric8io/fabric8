@@ -30,7 +30,7 @@
     <packaging>bundle</packaging>
 
     <name>Fabric8 :: Integration Tests :: PaxExam (Deprecated) :: Common</name>
-    
+
     <properties>
         <fuse.osgi.dynamic>*,org.apache.felix.service.*;status=provisional</fuse.osgi.dynamic>
         <fuse.osgi.export>
@@ -38,7 +38,7 @@
         </fuse.osgi.export>
         <fuse.osgi.import></fuse.osgi.import>
     </properties>
-    
+
     <dependencies>
         <dependency>
           <groupId>io.fabric8</groupId>

@@ -70,6 +70,11 @@
       <artifactId>org.eclipse.jgit</artifactId>
       <version>${jgit-version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+      <version>${jsch-version}</version>
+    </dependency>
 
     <dependency>
       <groupId>io.fabric8</groupId>

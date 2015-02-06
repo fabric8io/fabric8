@@ -41,7 +41,6 @@
         </fuse.osgi.import>
         <fuse.osgi.export></fuse.osgi.export>
         <servlet-api-version>2.5</servlet-api-version>
-        <slf4j-version>1.6.6</slf4j-version>
         <maven-antrun-plugin-version>1.7</maven-antrun-plugin-version>
         <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
         <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
@@ -61,8 +60,7 @@
         <!-- servlet API is provided by the container -->
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet-api-version}</version>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -97,13 +95,18 @@
         <dependency>
             <groupId>io.hawt</groupId>
             <artifactId>hawtio-system</artifactId>
-            <version>1.4.18</version>
+            <version>${hawtio-version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.redhat.gss</groupId>
             <artifactId>redhat-support-lib-java</artifactId>
             <version>${redhat-support-lib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.3</version>
         </dependency>
 
     </dependencies>

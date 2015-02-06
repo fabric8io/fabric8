@@ -47,8 +47,7 @@
       <dependency>
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-core</artifactId>
-          <!-- maven-plugin-testing-harness only works with this version of maven -->
-          <version>3.0.5</version>
+          <version>3.2.1</version>
       </dependency>
       <!--
       <dependency>
@@ -69,22 +68,18 @@
       <dependency>
           <groupId>org.ops4j.pax.url</groupId>
           <artifactId>pax-url-war</artifactId>
-          <version>2.1.0</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.url</groupId>
           <artifactId>pax-url-wrap</artifactId>
-          <version>2.1.0</version>
       </dependency>
       <dependency>
           <groupId>biz.aQute.bnd</groupId>
           <artifactId>bndlib</artifactId>
-          <version>2.1.0</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
           <artifactId>pax-swissbox-bnd</artifactId>
-          <version>1.7.1</version>
       </dependency>
     <dependency>
         <groupId>org.apache.felix</groupId>
@@ -178,6 +173,16 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-dependency-analyzer</artifactId>
       <version>1.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-all</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -187,20 +192,12 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
-      <version>2.0.11</version>
     </dependency>
 
     <!-- help mojo has a dependency to plexus-utils -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>2.0</version>
     </dependency>
 
     <!-- Testing -->
@@ -210,6 +207,16 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.objenesis</groupId>
+      <artifactId>objenesis</artifactId>
       <scope>test</scope>
     </dependency>
 

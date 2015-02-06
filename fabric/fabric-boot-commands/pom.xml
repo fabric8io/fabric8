@@ -107,7 +107,7 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.42</version>
+            <version>${jsch-version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -32,7 +32,7 @@
   <name>Fabric8 :: Patch :: Maven Plugin</name>
 
     <properties>
-        <maven-version>2.0.9</maven-version>
+        <maven-version>3.2.1</maven-version>
     </properties>
 
   <dependencies>
@@ -42,11 +42,11 @@
           <artifactId>maven-plugin-api</artifactId>
           <version>${maven-version}</version>
       </dependency>
-      <dependency>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-project</artifactId>
-          <version>${maven-version}</version>
-      </dependency>
+      <!--<dependency>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-project</artifactId>-->
+          <!--<version>${maven-version}</version>-->
+      <!--</dependency>-->
       <dependency>
           <groupId>io.fabric8.patch</groupId>
           <artifactId>patch-core</artifactId>

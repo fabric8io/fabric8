@@ -56,7 +56,6 @@
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
-          <version>4.3.0</version>
       </dependency>
 
       <dependency>
@@ -68,7 +67,18 @@
       <dependency>
           <groupId>org.easymock</groupId>
           <artifactId>easymock</artifactId>
-          <version>3.0</version>
+          <scope>test</scope>
+          <exclusions>
+              <exclusion>
+                  <groupId>cglib</groupId>
+                  <artifactId>cglib-nodep</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-nodep</artifactId>
+          <version>3.1</version>
           <scope>test</scope>
       </dependency>
 

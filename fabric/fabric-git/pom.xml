@@ -66,6 +66,11 @@
             <artifactId>org.eclipse.jgit</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${jsch-version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.gitective</groupId>
             <artifactId>gitective-core</artifactId>
             <version>${gitective-version}</version>
@@ -115,7 +120,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
