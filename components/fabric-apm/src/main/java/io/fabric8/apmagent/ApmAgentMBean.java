@@ -25,6 +25,8 @@ public interface ApmAgentMBean {
 
     void shutDown();
 
+    boolean isStarted();
+
     /**
      * @return List of <className>@<methodName>
      */

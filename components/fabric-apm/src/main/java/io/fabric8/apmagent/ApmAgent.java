@@ -218,6 +218,11 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     }
 
     @Override
+    public boolean isStarted() {
+        return started.get();
+    }
+
+    @Override
     public void configurationChanged() {
         if (started.get()) {
             if (configuration.isMethodMetricDepthChanged()) {
