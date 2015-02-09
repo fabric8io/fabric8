@@ -38,6 +38,10 @@ import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findCom
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
+    @WithAttributes(label = "filter", required = false, description = "To filter components")
+    private UIInput<String> filter;
+
+    @Inject
     @WithAttributes(label = "name", required = true, description = "Name of component to add.")
     private UIInput<String> name;
 
@@ -54,8 +58,10 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder);
-        name.setCompleter(new CamelComponentsCompleter(project));
+        filter.setCompleter(new CamelComponentsLabelCompleter(project));
+        name.setCompleter(new CamelComponentsCompleter(project, filter));
 
+        builder.add(filter);
         builder.add(name);
     }
 

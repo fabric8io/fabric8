@@ -27,18 +27,20 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
+import org.jboss.forge.addon.ui.input.UIInput;
 
 public class CamelComponentsCompleter implements UICompleter<String> {
 
     private Project project;
+    private UIInput<String> filter;
 
-    public CamelComponentsCompleter(Project project) {
+    public CamelComponentsCompleter(Project project, UIInput<String> filter) {
         this.project = project;
+        this.filter = filter;
     }
 
     @Override
     public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        List<String> answer = new ArrayList<String>();
         // find the version of Apache Camel we use
 
         // need to find camel-core so we known the camel version
@@ -59,8 +61,19 @@ public class CamelComponentsCompleter implements UICompleter<String> {
             }
         }
 
-        // filter names which are already on the classpath
-        for (String name : filtered) {
+        filtered = filterByName(filtered);
+        filtered = filterByLabel(filtered, filter.getValue());
+
+        return filtered;
+    }
+
+    private List<String> filterByName(List<String> choices) {
+        List<String> answer = new ArrayList<String>();
+
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+
+        // filter names which are already on the classpath, or do not match the optional filter by label input
+        for (String name : choices) {
             String json = catalog.componentJSonSchema(name);
             String artifactId = findArtifactId(json);
 
@@ -69,8 +82,38 @@ public class CamelComponentsCompleter implements UICompleter<String> {
             if (artifactId != null) {
                 already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
             }
+
             if (!already) {
                 answer.add(name);
+            }
+        }
+
+        return answer;
+    }
+
+    private List<String> filterByLabel(List<String> choices, String label) {
+        if (label == null || label.isEmpty()) {
+            return choices;
+        }
+
+        List<String> answer = new ArrayList<String>();
+
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+
+        // filter names which are already on the classpath, or do not match the optional filter by label input
+        for (String name : choices) {
+            String json = catalog.componentJSonSchema(name);
+            String labels = findLabel(json);
+            if (labels != null) {
+                for (String target : labels.split(",")) {
+                    if (target.startsWith(label)) {
+                        answer.add(name);
+                        break;
+                    }
+                }
+            } else {
+                // no label so they all match
+                answer.addAll(choices);
             }
         }
 
@@ -82,6 +125,16 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         for (Map<String, String> row : data) {
             if (row.get("artifactId") != null) {
                 return row.get("artifactId");
+            }
+        }
+        return null;
+    }
+
+    private static String findLabel(String json) {
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+        for (Map<String, String> row : data) {
+            if (row.get("label") != null) {
+                return row.get("label");
             }
         }
         return null;
