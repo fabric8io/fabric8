@@ -456,7 +456,7 @@
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
+                                   <!--<descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>-->
                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                    <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
                                </descriptors>
@@ -500,6 +500,8 @@
                                    <feature>mq-fabric-http-discovery</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>swagger</feature>
+                                   <feature>transaction</feature>
+                                   <feature>connector</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
