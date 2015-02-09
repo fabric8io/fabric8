@@ -78,7 +78,7 @@ for image in ${DEPLOY_IMAGES}; do
 done
 
 if [ ${CLEANUP} -eq 1 ]; then
-  docker run --rm --privileged -v /var/lib/openshift:/var/lib/openshift --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/*
+  docker run --rm --privileged -v /var/lib:/var/lib --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/
 fi
 
 if [ ${DONT_RUN} -eq 1 ]; then
@@ -122,7 +122,7 @@ export KUBERNETES=http://$DOCKER_IP:8443
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
 validateService()
 {
