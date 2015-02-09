@@ -177,7 +177,7 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     }
 
     /**
-     * Returns all the environment variable properties defined in the pom.xml
+     * Returns all the environment variable properties defined in the pom.xml which are prefixed with "fabric8.env."
      */
     public Map<String, String> getEnvironmentVariableProperties() {
         return findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());

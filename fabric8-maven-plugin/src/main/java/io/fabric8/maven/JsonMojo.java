@@ -473,6 +473,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     }
                     answer.put(name, value);
                 }
+                Map<String, String> mavenEnvVars = getEnvironmentVariableProperties();
+                answer.putAll(mavenEnvVars);
                 return answer;
             } catch (IOException e) {
                 throw new MojoExecutionException("Failed to load environment variable json schema files: " + e, e);
