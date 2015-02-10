@@ -40,6 +40,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     private String namespace;
 
     public KubernetesClient() {
+        this(new KubernetesFactory());
     }
 
     public KubernetesClient(String url) {
