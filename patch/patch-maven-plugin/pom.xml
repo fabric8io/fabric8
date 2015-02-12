@@ -31,10 +31,6 @@
   
   <name>Fabric8 :: Patch :: Maven Plugin</name>
 
-    <properties>
-        <maven-version>3.2.1</maven-version>
-    </properties>
-
   <dependencies>
 
       <dependency>

@@ -34,7 +34,23 @@
       <dependency>
           <groupId>org.apache.maven.plugin-testing</groupId>
           <artifactId>maven-plugin-testing-harness</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.0</version>
+          <scope>test</scope>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.codehaus.plexus</groupId>
+                  <artifactId>plexus-container-default</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.eclipse.sisu</groupId>
+          <artifactId>org.eclipse.sisu.plexus</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.eclipse.sisu</groupId>
+          <artifactId>org.eclipse.sisu.inject</artifactId>
           <scope>test</scope>
       </dependency>
 
@@ -42,12 +58,18 @@
           <groupId>org.sonatype.sisu</groupId>
           <artifactId>sisu-guice</artifactId>
           <scope>test</scope>
+          <classifier>no_aop</classifier>
+      </dependency>
+
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>14.0.1</version>
       </dependency>
 
       <dependency>
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-core</artifactId>
-          <version>3.2.1</version>
       </dependency>
       <!--
       <dependency>
@@ -80,6 +102,10 @@
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
           <artifactId>pax-swissbox-bnd</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.swissbox</groupId>
+          <artifactId>pax-swissbox-optional-jcl</artifactId>
       </dependency>
     <dependency>
         <groupId>org.apache.felix</groupId>
@@ -166,19 +192,17 @@
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.2</version>
+      <version>3.3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-dependency-analyzer</artifactId>
-      <version>1.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>asm</groupId>
-          <artifactId>asm</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-reflect</artifactId>
+      <version>${xbean-reflect-version}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -187,7 +211,6 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-dependency-tree</artifactId>
-      <version>2.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>

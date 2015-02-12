@@ -189,7 +189,6 @@
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-commons</artifactId>
-            <version>${pax.url.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

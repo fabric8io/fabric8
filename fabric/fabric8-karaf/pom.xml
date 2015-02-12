@@ -365,7 +365,6 @@
                 <version>${rhq-metrics-version}</version>
                 <type>war</type>
             </dependency>
-
        </dependencies>
 
        <build>

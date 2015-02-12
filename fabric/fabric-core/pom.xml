@@ -59,6 +59,11 @@
             <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.mina</groupId>
+            <artifactId>mina-core</artifactId>
+            <version>${mina-version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>

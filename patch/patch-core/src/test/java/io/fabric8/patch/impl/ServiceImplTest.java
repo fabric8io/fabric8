@@ -409,9 +409,7 @@ public class ServiceImplTest {
         expectLastCall().andAnswer(new IAnswer<Object>() {
             @Override
             public Object answer() throws Throwable {
-                for (FrameworkListener l : (FrameworkListener[]) (EasyMock.getCurrentArguments()[1])) {
-                    l.frameworkEvent(null);
-                }
+                ((FrameworkListener) (EasyMock.getCurrentArguments()[1])).frameworkEvent(null);
                 return null;
             }
         });

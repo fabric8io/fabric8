@@ -122,7 +122,7 @@
         <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
-        <activemq-version>5.11.0.redhat-620069</activemq-version>
+        <activemq-version>5.11.0.redhat-620072</activemq-version>
         <aether-version>0.9.0.M2</aether-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
@@ -145,18 +145,20 @@
         <arquillian-tomcat-version>1.0.0.CR7</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
-        <asm.version>5.0.3</asm.version>
+        <!-- aligned to pax-web 3.1.4 (feature "pax-http") -->
+        <asm.version>5.0.2</asm.version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
-        <bndlib-version>2.3.0</bndlib-version>
+        <!-- aligned to pax-web 3.1.4 (feature "pax-war") -->
+        <bndlib-version>2.2.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
         <camel-version-range>[2.14,3)</camel-version-range>
-        <camel-version>2.14.0.redhat-620064</camel-version>
+        <camel-version>2.14.0.redhat-620067</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
-        <codehaus-plexus-interpolation-version>1.4</codehaus-plexus-interpolation-version>
+        <codehaus-plexus-interpolation-version>1.19</codehaus-plexus-interpolation-version>
         <codehaus-plexus-version>1.5.5</codehaus-plexus-version>
         <codahale-metrics-version>3.0.2</codahale-metrics-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
-        <commons-codec-version>1.6</commons-codec-version>
+        <commons-codec-version>1.9</commons-codec-version>
         <commons-collections-version>3.2.1</commons-collections-version>
         <commons-compress-version>1.8</commons-compress-version>
         <commons-fileupload-version>1.3.1</commons-fileupload-version>
@@ -171,7 +173,7 @@
         <commons-jxpath-version>1.3_1</commons-jxpath-version>
         <xmlresolver-version>1.2_5</xmlresolver-version>
         <curator.version>2.6.0</curator.version>
-        <cxf-version>3.0.2.redhat-620062</cxf-version>
+        <cxf-version>3.0.2.redhat-620065</cxf-version>
         <cxf-version-range>(3.0.1,3.1)</cxf-version-range>
         <deltaspike-version>1.0.1</deltaspike-version>
         <dnsjava.version>2.1.1</dnsjava.version>
@@ -181,7 +183,7 @@
         <drools-spring-groupId>org.kie</drools-spring-groupId>
         <!-- drools 6.1.0.Final has mvel2 issue -->
         <drools-version>6.1.0.Final</drools-version>
-        <ehcache-version>2.8.3</ehcache-version>
+        <ehcache-version>2.8.5</ehcache-version>
         <elasticsearch-version>1.3.2</elasticsearch-version>
         <elasticsearch-smx4-bundle.version>${elasticsearch-version}_1</elasticsearch-smx4-bundle.version>
         <elasticsearch-zookeeper-version>1.3.2_1</elasticsearch-zookeeper-version>
@@ -228,7 +230,7 @@
         <hawtio-eshead-version>1.0.1</hawtio-eshead-version>
         <hawtio-kibana-version>3.1.0_4</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.5.redhat-069</hawtio-version>
+        <hawtio-version>1.5.redhat-072</hawtio-version>
         <http-client-version>4.3.6</http-client-version>
         <http-core-version>4.3.3</http-core-version>
         <influxdb-version>1.2</influxdb-version>
@@ -263,14 +265,15 @@
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-bundle-version>1.1</jna-bundle-version>
         <jna-version>3.3.0</jna-version>
-        <joda-time2-version>2.7</joda-time2-version>
+        <joda-time-version>1.6.2</joda-time-version>
+        <joda-time2-version>2.5</joda-time2-version>
         <jolokia-version>1.2.2</jolokia-version>
         <jgroups-version>3.4.4.Final</jgroups-version>
         <jsch-version>0.1.51</jsch-version>
         <jsch-smx-version>0.1.51_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
-        <karaf-version>2.4.0.redhat-620062</karaf-version>
+        <karaf-version>2.4.0.redhat-620065</karaf-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
@@ -278,18 +281,24 @@
         <lombok.version>1.14.4</lombok.version>
         <lucene-version>4.9.0</lucene-version>
         <maven-fab-plugin-version>1.32</maven-fab-plugin-version>
-        <maven-version>3.2.1</maven-version>
+        <maven-version>3.2.3</maven-version>
         <maven-shared-version>2.1.1</maven-shared-version>
+        <maven-dependency-analyzer-version>1.6</maven-dependency-analyzer-version>
+        <maven-dependency-tree-version>2.2</maven-dependency-tree-version>
         <maven-dependency-plugin-version>2.8</maven-dependency-plugin-version>
-        <mina-version>2.0.7</mina-version>
+        <mina-version>2.0.9</mina-version>
         <mockserver-version>3.4</mockserver-version>
         <mongo-java-driver-version>2.12.3</mongo-java-driver-version>
         <mvel-version>2.2.1.Final</mvel-version>
         <netty.version>4.0.23.Final</netty.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
+        <!-- aligned to pax-web 3.1.4 -->
+        <!-- swissbox 1.8.0 requires ops4j-base [1.5,2), pax-web 3.1.4 uses 1.4.0 in feature definitions -->
         <ops4j-base.version>1.5.0</ops4j-base.version>
+        <ops4j-base-lang.version>1.5.0</ops4j-base-lang.version>
         <ops4j-pax-exam-version>3.5.0</ops4j-pax-exam-version>
+        <!-- pax-url-commons 2.3.0 (even 2.2.0) requires swissbox [1.8,2), but pax-web 3.1.4 uses 1.7.0 in feature definitions -->
         <ops4j-pax-swissbox.version>1.8.0</ops4j-pax-swissbox.version>
         <ops4j-pax-swissbox-bnd.version>1.8.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.8.0</ops4j-pax-swissbox-property.version>
@@ -305,7 +314,10 @@
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.version>2.3.0</pax.url.version>
-        <pax.web.version>3.1.2</pax.web.version>
+        <!-- aligned to pax-web 3.1.4 -->
+        <pax.url.war.version>1.4.2</pax.url.war.version>
+        <pax.url.commons.version>${pax.url.war.version}</pax.url.commons.version>
+        <pax.web.version>3.1.4</pax.web.version>
         <plexus-utils-version>3.0.17</plexus-utils-version>
         <plexus-classworlds-version>2.4</plexus-classworlds-version>
         <qpid-jms-version>0.28</qpid-jms-version>
@@ -321,23 +333,27 @@
         <servicemix-features-version>4.5.3</servicemix-features-version>
         <servicemix-nmr-version>1.6.1</servicemix-nmr-version>
         <servicemix-specs-version>2.4.0</servicemix-specs-version>
+        <!-- aligned to pax-web 3.1.4 -->
+        <servicemix-specs-activation-version>2.2.0</servicemix-specs-activation-version>
         <servicemix-tooling-plugin-version>1.2</servicemix-tooling-plugin-version>
         <servicemix-utils-version>1.6.0</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
-        <sisu-guice-version>3.1.10</sisu-guice-version>
-        <sisu-inject-plexus-version>2.3.0</sisu-inject-plexus-version>
-        <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
+        <!-- aligned to Maven 3.2.3 -->
+        <sisu-guice-version>3.1.3</sisu-guice-version>
+        <sisu-inject-plexus-version>0.0.0.M5</sisu-inject-plexus-version>
+        <shrinkwrap-resolver-version>2.1.1</shrinkwrap-resolver-version>
         <shrinkwrap-version>1.1.2</shrinkwrap-version>
-        <slf4j-api-version>1.7.10</slf4j-api-version>
-        <slf4j-version>1.7.10</slf4j-version>
+        <!-- aligned to pax-logging 1.8.1 -->
+        <slf4j-api-version>1.7.7</slf4j-api-version>
+        <slf4j-version>1.7.7</slf4j-version>
         <sonatype-plexus-sec-version>1.3</sonatype-plexus-sec-version>
         <sonatype-plexus-cipher-version>1.7</sonatype-plexus-cipher-version>
         <spring-bundle-version>3.2.11.RELEASE_1</spring-bundle-version>
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.2.11.RELEASE</spring-version>
-        <sshd-version>0.12.0</sshd-version>
+        <sshd-version>0.12.0.redhat-002</sshd-version>
         <sshj.version>0.8.1</sshj.version>
         <swagger-community-version>1.3.0</swagger-community-version>
         <swagger-version>1.3.2_1</swagger-version>
@@ -357,8 +373,8 @@
         <woodstox-stax2-api-version>3.1.4</woodstox-stax2-api-version>
         <woodstox-version>4.4.1</woodstox-version>
         <xalan.version>2.7.2</xalan.version>
-        <xbean-version>3.16</xbean-version>
-        <xbean-reflect-version>3.4</xbean-reflect-version>
+        <xbean-version>3.18</xbean-version>
+        <xbean-reflect-version>3.18</xbean-reflect-version>
         <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>1.4.01</xml.api.version>
@@ -2284,7 +2300,7 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-war</artifactId>
-                <version>${pax.url.version}</version>
+                <version>${pax.url.war.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
@@ -2300,7 +2316,7 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-commons</artifactId>
-                <version>${pax.url.mvn.commons.version}</version>
+                <version>${pax.url.commons.version}</version>
             </dependency>
 
             <!-- Spring -->
@@ -3579,6 +3595,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
                 <artifactId>maven-settings-builder</artifactId>
                 <version>${maven-version}</version>
             </dependency>
@@ -3648,9 +3669,39 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-dependency-tree</artifactId>
+                <version>${maven-dependency-tree-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-dependency-analyzer</artifactId>
+                <version>${maven-dependency-analyzer-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-container-default</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- we exclude it, because maven-compat provide all required classes -->
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-project</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.sonatype.sisu</groupId>
                 <artifactId>sisu-guice</artifactId>
                 <version>${sisu-guice-version}</version>
+                <classifier>no_aop</classifier>
             </dependency>
 
             <dependency>
@@ -3681,12 +3732,6 @@
                 <groupId>org.sonatype.plexus</groupId>
                 <artifactId>plexus-cipher</artifactId>
                 <version>${sonatype-plexus-cipher-version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-container-default</artifactId>
-                <version>${codehaus-plexus-version}</version>
             </dependency>
 
             <dependency>
@@ -3764,6 +3809,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-optional-jcl</artifactId>
+                <version>${ops4j-pax-swissbox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
                 <artifactId>pax-swissbox-framework</artifactId>
                 <version>${ops4j-pax-swissbox.version}</version>
             </dependency>
@@ -3779,13 +3829,28 @@
             </dependency>
 
             <dependency>
-                <groupId>org.sonatype.sisu</groupId>
-                <artifactId>sisu-inject-plexus</artifactId>
+                <groupId>org.eclipse.sisu</groupId>
+                <artifactId>org.eclipse.sisu.plexus</artifactId>
                 <version>${sisu-inject-plexus-version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>plexus-utils</artifactId>
                         <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sisu</groupId>
+                <artifactId>org.eclipse.sisu.inject</artifactId>
+                <version>${sisu-inject-plexus-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.inject</groupId>
+                        <artifactId>guice</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

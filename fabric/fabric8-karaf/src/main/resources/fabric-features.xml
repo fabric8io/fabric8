@@ -193,7 +193,7 @@
         <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
         <bundle dependency='true'>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.mvn.commons.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.commons.version}</bundle>
 
         <bundle>mvn:org.apache.felix/org.apache.felix.metatype/${felix-metatype-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
@@ -340,7 +340,7 @@
     </feature>
 
     <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
-        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-activation-version}</bundle>
         <feature version="${project.version}">fabric-commands</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-api-ec2</feature>
