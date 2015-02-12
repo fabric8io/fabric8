@@ -82,7 +82,7 @@ public class GitHelpers {
     }
     
     public static RevCommit getProfileLastCommit(Git git, String branch, String profilePath) {
-        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES + "/" + profilePath);
+        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES + File.separator + profilePath);
     }
 
     private static RevCommit getLastCommit(Git git, String branch, String path) {
@@ -91,10 +91,16 @@ public class GitHelpers {
             Ref versionRef = git.getRepository().getRefDatabase().getRef(branch);
             if (versionRef != null) {
                 String revision = versionRef.getObjectId().getName();
+                // need to force unix style on windows
+                if (path != null) {
+                    path = path.replace(File.separatorChar, '/');
+                }
                 profileRef = CommitUtils.getLastCommit(git.getRepository(), revision, path != null ? path : ".");
             }
         } catch (IOException ex) {
-            // ignore
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Failed to get the last commit for " + path + " on branch " + branch, ex);
+            }
         }
         return profileRef;
     }
