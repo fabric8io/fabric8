@@ -8,7 +8,7 @@ You should be able to check if the docker registry is running OK via this comman
 
     curl http://$DOCKER_REGISTRY/v1/_ping
 
-Or you can use the [ping-registry.sh](https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh) scriptwhich will check that you have your **DOCKER_REGISTRY** environment variable setup correctly to point to a valid docker registry:
+Or you can use the [ping-registry.sh](https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh) script which will check that you have your **DOCKER_REGISTRY** environment variable setup correctly to point to a valid docker registry:
 
     ping-registry.sh
 
@@ -25,10 +25,10 @@ Now let's navigate to the specific quickstart:
 
     cd quickstarts/war/camel-servlet
     mvn clean install docker:build
-    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
+    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.2-SNAPSHOT
 
 Now let's deploy the image into the Kubernetes environment:
 
     mvn fabric8:run
 
-You should now be able to view the running web application at [http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/](http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/)
+You should now be able to view the quickstart in the fabric8 console.  On the Services tab you will see the camel-servlet URL which will take you to the running example.
