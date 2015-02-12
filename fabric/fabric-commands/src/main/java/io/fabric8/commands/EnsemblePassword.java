@@ -39,7 +39,7 @@ public class EnsemblePassword extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "ensemble-password";
-    public static final String DESCRIPTION = "Display the ensemble password";
+    public static final String DESCRIPTION = "Display or update the ensemble password";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
