@@ -181,7 +181,6 @@ getServiceIpAndPort()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" fabric8-console)/hawtio/
-KUBERNETES_MASTER_SERVICE=http://$(getServiceIpAndPort "$K8S_SERVICES" kubernetes)
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
@@ -235,25 +234,28 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   fi
 fi
 
-# Work out the DOCKER_IP env var.  There can be multiple networy interfaces so if we dont know which one the options are listed for the user to decide.  
-function printDockerIP {
+# Work out the host machine related env vars.  There can be multiple networy interfaces so if we dont know which one, the options are listed for the user to decide.  
+function printHostEnvVars {
   IPS=$(hostname -I)
-
-if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
+  if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
     printf "%s\n" "export DOCKER_IP=$FABRIC8_VAGRANT_IP"
     printf "%s\n" "export DOCKER_HOST=tcp://$FABRIC8_VAGRANT_IP:2375"
+    printf "%s\n" "export KUBERNETES_MASTER=https://$FABRIC8_VAGRANT_IP:8443"
   else
     if [[ $IPS  = *[[:space:]]* ]]; then
       printf "\n"
-      printf "%s\n" "# ATTENTION!!!!  Multiple potential DOCKER_IP's found, please use only ONE from the list below.  Usually it's the one you can ping from your host and would use to SSH into the machine."
+      printf "%s\n" "# ATTENTION!!!!  Multiple potential DOCKER_IP's found, please use only ONE from the list below.  Try to ping each one to work out the correct environment variables to set."
       for IP in $IPS; do
+        printf "%s\n" "#---"
         printf "%s\n" "export DOCKER_IP=$IP"
         printf "%s\n" "export DOCKER_HOST=tcp://$IP:2375"
+        printf "%s\n" "export KUBERNETES_MASTER=https://$IP:8443"
         printf "%s\n" "#---"
       done
      else
        printf "%s\n" "export DOCKER_IP=$IPS"
        printf "%s\n" "export DOCKER_HOST=tcp://$IPS:2375"
+       printf "%s\n" "export KUBERNETES_MASTER=https://$IPS:8443"
     fi
   fi
 }
@@ -279,13 +281,12 @@ fi
 printf "$SERVICE_TABLE" | column -t -s '|'
 
 printf "\n" 
-printf "%s\n" "Set these environment variables on the machine you'll use to develop on"
+printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n" 
-printf "%s\n" "export KUBERNETES_MASTER=$KUBERNETES_MASTER_SERVICE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
-printDockerIP
+printHostEnvVars
 
 if [[ $OSTYPE == darwin* ]]; then
   open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
