@@ -468,7 +468,8 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
             this.connectors = connectorsProperty.split("\\s");
 
             this.replicating = "true".equalsIgnoreCase(properties.getProperty("replicating"));
-            this.standalone = "true".equalsIgnoreCase(properties.getProperty("standalone"));
+            this.standalone = "true".equalsIgnoreCase(properties.getProperty("standalone")) ||
+                    "standalone".equalsIgnoreCase(properties.getProperty("kind"));
             this.registerService = "true".equalsIgnoreCase(properties.getProperty("registerService"));
             this.configCheck = "true".equalsIgnoreCase(properties.getProperty("config.check"));
 
