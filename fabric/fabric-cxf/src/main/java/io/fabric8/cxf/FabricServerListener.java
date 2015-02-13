@@ -160,7 +160,13 @@ public class FabricServerListener implements ServerLifeCycleListener {
 
             answer =  uri.getScheme() + "://" + uri.getHost() + ":" + port + "/" + path;
             try {
-                if (InetAddress.getByName(uri.getHost()).isLoopbackAddress()) {
+                String openshiftFuseIpAddress = System.getenv("OPENSHIFT_FUSE_IP");
+                if (openshiftFuseIpAddress != null && !openshiftFuseIpAddress.trim().equals("")) {
+                    // ENTESB-2648: we're in OpenShift env. loopback addresses are actually correct internal addresses
+                    // so we actually have to translate them to public container addresses
+                } else if (InetAddress.getByName(uri.getHost()).isLoopbackAddress()) {
+                    // not in OpenShift - we don't translate loopback addresses, because if we do, it won't be possible to connect
+                    // to TCP server listening on 127.0.0.1 using other address/interface
                     return answer;
                 }
             } catch (UnknownHostException e) {
