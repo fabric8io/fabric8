@@ -65,6 +65,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>3.3.1</version>
+    </dependency>
+
     <!-- used for logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
