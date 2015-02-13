@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.3" data-basepath="." data-revision="1423562645542">
+    <div class="book" data-level="2.3" data-basepath="." data-revision="1423847208932">
     
 
 <div class="book-summary">
@@ -751,7 +751,7 @@
 <p>Make sure you have followed the <a href="http://fabric8.io/v2/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
 <p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
 <pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
-</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> scriptwhich will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
+</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> script which will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
 <pre><code>ping-registry.sh
 </code></pre><p>If either of those return <strong>true</strong> you are ready to build a quickstart!</p>
 <h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
@@ -761,10 +761,10 @@ cd quickstarts
 </code></pre><p>Now let&apos;s navigate to the specific quickstart:</p>
 <pre><code>cd quickstarts/war/camel-servlet
 mvn clean install docker:build
-docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
+docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.2-SNAPSHOT
 </code></pre><p>Now let&apos;s deploy the image into the Kubernetes environment:</p>
 <pre><code>mvn fabric8:run
-</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/</a></p>
+</code></pre><p>You should now be able to view the quickstart in the fabric8 console.  On the Services tab you will see the camel-servlet URL which will take you to the running example.</p>
 
                     
                     </section>
