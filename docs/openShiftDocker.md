@@ -31,6 +31,10 @@ And of course flags can be combined. To start from scratch & update all images a
 
 If you use either [Vagrant](http://www.vagrantup.com/downloads.html) or VMWare to run a virtual machine for running OpenShift inside, you may wish to download all the docker images first; then snapshot the VM.
 
+To take a snapshot using Vagrant, you should install first the plugin using this command
+
+    vagrant plugin install vagrant-vbox-snapshot
+
 Then at any time you can just restore from a clean snapshot without having to worry about re-downloading all the images again.
 
 If so from your folder with a Vagrant file; or in the fabric8 directory from a git clone type:
