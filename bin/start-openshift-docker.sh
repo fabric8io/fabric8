@@ -14,7 +14,7 @@ OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:latest
 REGISTRY_IMAGE=registry:latest
 CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
-FABRIC8_CONSOLE_IMAGE=fabric8/hawtio:latest
+FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
@@ -180,7 +180,12 @@ getServiceIpAndPort()
   echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
 }
 
-FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" fabric8-console)/hawtio/
+getServiceIp()
+{
+  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $4 }'`
+}
+
+FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)

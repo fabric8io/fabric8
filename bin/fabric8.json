@@ -7,11 +7,11 @@
   "items": [
     {
       "apiVersion": "v1beta1",
-      "containerPort": 8080,
+      "containerPort": 9090,
       "creationTimestamp": null,
       "id": "fabric8-console-service",
       "kind": "Service",
-      "port": 8080,
+      "port": 80,
       "selector": {
         "component": "fabric8Console"
       }
@@ -25,7 +25,7 @@
             "manifest": {
               "containers": [
                 {
-                  "image": "fabric8/hawtio:latest",
+                  "image": "fabric8/hawtio-kubernetes:latest",
                   "name": "fabric8-console-container",
                   "imagePullPolicy": "PullIfNotPresent",
                   "env": [
@@ -44,7 +44,7 @@
                   ],
                   "ports": [
                     {
-                      "containerPort": 8080,
+                      "containerPort": 9090,
                       "protocol": "TCP"
                     }
                   ]
