@@ -258,7 +258,7 @@
         <jetty-version>8.1.15.v20140411</jetty-version>
         <jetty9-version>9.1.5.v20140505</jetty9-version>
         <jetty6-version>6.1.26_4</jetty6-version>
-        <jgit-version>3.4.1.201406201815-r</jgit-version>
+        <jgit-version>3.5.3.201412180710-r</jgit-version>
         <jledit.version>0.2.1</jledit.version>
         <jline.version>2.12.redhat-002</jline.version>
         <jmdns-version>3.4.1</jmdns-version>
