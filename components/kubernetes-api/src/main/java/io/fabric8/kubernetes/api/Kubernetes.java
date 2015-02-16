@@ -41,7 +41,7 @@ import javax.ws.rs.QueryParam;
  * Represents the Remote API to working with <a href="http://kubernetes.io/">Kubernetes</a> providing a facade
  * over the generated JAXRS client.
  */
-@Path("api/v1beta1")
+@Path("api/v1beta2")
 @Produces("application/json")
 @Consumes("application/json")
 public interface Kubernetes {
