@@ -25,7 +25,7 @@ Now let's navigate to the specific quickstart:
 
     cd quickstarts/war/camel-servlet
     mvn clean install docker:build
-    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.2-SNAPSHOT
+    docker push $DOCKER_REGISTRY/fabric8/quickstart-war-camel-servlet:2.2-SNAPSHOT
 
 Now let's deploy the image into the Kubernetes environment:
 
