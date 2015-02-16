@@ -19,7 +19,9 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -44,6 +46,12 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     @Inject
     private DependencyInstaller dependencyInstaller;
 
+    @Inject
+    private DependencyResolver resolver;
+
+    @Inject
+    private ArchetypeCatalogFactoryRegistry registry;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
@@ -54,6 +62,13 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         builder.add(version);
+
+        if (registry.getArchetypeCatalogFactory("camel") == null) {
+            registry.addArchetypeCatalogFactory(new CamelArchetypeCatalogFactory(resolver));
+
+        }
+        // lets see if the fucker can get the archetypes
+        registry.getArchetypeCatalogFactory("camel").getArchetypeCatalog();
     }
 
     @Override
