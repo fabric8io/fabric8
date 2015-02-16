@@ -64,12 +64,6 @@
       <artifactId>maven-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>maven-impl</artifactId>
-      <version>2.14.0.Final</version>
-      <scope>provided</scope>
-    </dependency>
 
     <!--forge addons -->
     <dependency>
