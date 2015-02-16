@@ -16,27 +16,26 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Set;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.maven.archetype.catalog.Archetype;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
-import org.jboss.forge.addon.dependencies.Dependency;
-import org.jboss.forge.addon.dependencies.DependencyResolver;
-import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
+import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
+import org.jboss.forge.furnace.util.Strings;
 
 /**
  * The Apache Camel archetypes
  */
 public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
-    private DependencyResolver resolver;
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
-    public CamelArchetypeCatalogFactory(DependencyResolver resolver) {
-        this.resolver = resolver;
-    }
+    private ArchetypeCatalog cachedArchetypes;
 
     @Override
     public String getName() {
@@ -44,30 +43,37 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     }
 
     @Override
-    public ArchetypeCatalog getArchetypeCatalog() {
-        ArchetypeCatalog catalog = new ArchetypeCatalog();
-
-        try {
-            Set<Dependency> deps = resolver.resolveDependencies(DependencyQueryBuilder.create("org.apache.camel.archetypes::[2.4.1]"));
-            for (Dependency dep : deps) {
-                Archetype arc = new Archetype();
-                arc.setGroupId(dep.getCoordinate().getGroupId());
-                arc.setArtifactId(dep.getCoordinate().getArtifactId());
-                arc.setVersion(dep.getCoordinate().getVersion());
-                // maven central
-                arc.setRepository("http://repo2.maven.org/maven2/");
-                catalog.addArchetype(arc);
+    public ArchetypeCatalog getArchetypeCatalog()
+    {
+        if (cachedArchetypes == null)
+        {
+            URL url = null;
+            try {
+                url = new URL("http://repo2.maven.org/maven2/archetype-catalog.xml");
+            } catch (MalformedURLException e) {
+                logger.log(Level.SEVERE, "URL should be valid", e);
+                // ignore
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+            if (url != null) {
+                try (InputStream urlStream = url.openStream()) {
+                    cachedArchetypes = new ArchetypeCatalog();
 
-            // thanks cant see the fucking exceptions
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            String s = sw.toString();
-            System.out.println(s);
+                    ArchetypeCatalog catalog = new ArchetypeCatalogXpp3Reader().read(urlStream);
+                    for (Archetype archetype : catalog.getArchetypes()) {
+                        // only include camel
+                        if ("org.apache.camel.archetypes".equals(archetype.getArtifactId())) {
+                            if (Strings.isNullOrEmpty(archetype.getRepository())) {
+                                archetype.setRepository("http://repo2.maven.org/maven2");
+                            }
+                            cachedArchetypes.addArchetype(archetype);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "Error while retrieving archetypes", e);
+                }
+            }
         }
-
-        return catalog;
+        return cachedArchetypes;
     }
+
 }
