@@ -18,8 +18,6 @@ package io.fabric8.cdi;
 
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,6 +34,7 @@ public class ExtensionTest extends CdiTestBase {
     public void testServiceInjection() {
         TestBean testBean = container.instance().select(TestBean.class).get();
         Assert.assertNotNull(testBean);
-        Assert.assertNotNull(testBean.getServiceUrl());
+        Assert.assertNotNull(testBean.getKubernetesUrl());
+        Assert.assertNotNull(testBean.getConsoleUrl());
     }
 }

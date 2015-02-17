@@ -20,18 +20,25 @@ package io.fabric8.cdi;
 import io.fabric8.cdi.annotations.Service;
 
 import javax.inject.Inject;
-import java.net.URL;
 
 public class TestBean {
-    
+
     @Inject
-    @Service("kubernetes-ro")
-    String serviceUrl;
+    @Service("kubernetes")
+    String kubernetesUrl;
+
+    @Inject
+    @Service("fabric8-console-service")
+    String consoleUrl;
 
     public TestBean() {
     }
 
-    public String getServiceUrl() {
-        return serviceUrl;
+    public String getKubernetesUrl() {
+        return kubernetesUrl;
+    }
+
+    public String getConsoleUrl() {
+        return consoleUrl;
     }
 }
