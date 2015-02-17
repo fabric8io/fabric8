@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ *  Copyright 2005-2014 Red Hat, Inc.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
 package io.fabric8.forge.camel.commands.project;
 
@@ -64,6 +63,9 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        targetPackage.addValidator(new PackageNameValidator());
+        name.addValidator(new ClassNameValidator());
+
         builder.add(targetPackage).add(name);
     }
 
@@ -78,21 +80,8 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // is it a valid class name
-        char[] chars = name.getValue().toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char ch = chars[i];
-            if (!Character.isJavaIdentifierPart(ch)) {
-                return Results.fail("The class name [" + name.getValue() + "] is invalid at position " + (i + 1));
-            }
-            // first must be upper case alfa
-            if (i == 0 && !Character.isUpperCase(ch)) {
-                return Results.fail("The class name [" + name.getValue() + "] must start with an upper case alphabetic character");
-            }
-        }
-
         // do we already have a class with the name
-        String fqn = targetPackage.getValue() != null ? targetPackage.getValue() + "." + name.getValue() : name.getName();
+        String fqn = targetPackage.getValue() != null ? targetPackage.getValue() + "." + name.getValue() : name.getValue();
 
         JavaResource existing = facet.getJavaResource(fqn);
         if (existing != null && existing.exists()) {
