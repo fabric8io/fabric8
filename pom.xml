@@ -453,8 +453,19 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-container</artifactId>
+                <version>${arquillian-junit-container.version}</version>
+            </dependency>
+
+            <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-apt</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-jgroups</artifactId>
               <version>${project.version}</version>
             </dependency>
             <dependency>
