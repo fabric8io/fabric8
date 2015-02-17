@@ -23,7 +23,6 @@ import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -49,11 +48,6 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
     @WithAttributes(label = "name", required = true, description = "Name of RouteBuilder class")
     private UIInput<String> name;
 
-    @Inject
-    private DependencyInstaller dependencyInstaller;
-
-    private JavaSourceFacet facet;
-
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
@@ -63,6 +57,10 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        Project project = getSelectedProject(builder.getUIContext());
+        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
+
+        targetPackage.setCompleter(new PackageNameCompleter(facet));
         targetPackage.addValidator(new PackageNameValidator());
         name.addValidator(new ClassNameValidator());
 
@@ -72,7 +70,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Project project = getSelectedProject(context);
-        facet = project.getFacet(JavaSourceFacet.class);
+        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
         // does the project already have camel?
         Dependency core = findCamelCoreDependency(project);
@@ -101,7 +99,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
                 .setPublic()
                 .setReturnTypeVoid()
                 .setName("configure")
-                .setBody("from(\"timer:foo\").to(\"log:foo\");")
+                .setBody("// add routes here")
                 .addThrows(Exception.class);
 
         facet.saveJavaSource(javaClass);

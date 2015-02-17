@@ -43,7 +43,8 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     // TODO: Remove when when using Forge 2.14.1+
     void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
-        registry.addArchetypeCatalogFactory(this);
+        // TODO: disabled as archetypes do not yet work, so no need to download maven central archetypes
+        // registry.addArchetypeCatalogFactory(this);
     }
 
     @Override
