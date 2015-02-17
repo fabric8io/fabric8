@@ -16,6 +16,10 @@
 package io.fabric8.internal;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -26,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateContainerMetadata;
@@ -37,6 +43,7 @@ import io.fabric8.common.util.ObjectUtils;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +89,9 @@ public final class ContainerProviderUtils {
 
     protected transient static Logger logger = LoggerFactory.getLogger(ContainerProviderUtils.class);
 
+    private static final int DEFAULT_ZIP_BUFFER_SIZE = 8 * 1024;
+
+    private static final ArrayList<String> zipFileExcludes = new ArrayList<String>(Arrays.asList(new String[] {"deploy", "extras", "lock", "quickstarts", "data", "instances", "patches", "fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip"}));
 
     private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -267,6 +277,51 @@ public final class ContainerProviderUtils {
         return sb.toString();
     }
 
+    public static void zipDirectory(File zipFile, String srcDir) throws Exception {
+        FileOutputStream fos = new FileOutputStream(zipFile);
+        ZipOutputStream zos = new ZipOutputStream(fos);
+        File srcFile = new File(srcDir);
+
+        logger.info("Zipping up " + srcFile + " to " + zipFile.getPath());
+
+        addDirToZip(zos, srcFile, null);
+        zos.close();
+    }
+
+    private static void addDirToZip(ZipOutputStream zos, File fileToZip, String parent) throws Exception {
+        if (fileToZip == null || !fileToZip.exists()) {
+            return;
+        }
+
+        String zipEntryName = fileToZip.getName();
+        if (parent != null && !parent.isEmpty()) {
+            zipEntryName = parent + File.separator + fileToZip.getName();
+        }
+
+        if (zipFileExcludes.contains(fileToZip.getName())) {
+            return;
+        }
+
+        if (fileToZip.isDirectory()) {
+            for (File file : fileToZip.listFiles()) {
+                addDirToZip(zos, file, zipEntryName);
+            }
+        } else {
+            byte[] buffer = new byte[DEFAULT_ZIP_BUFFER_SIZE];
+            FileInputStream fis = new FileInputStream(fileToZip);
+
+            logger.debug("Adding " + zipEntryName + " to zip.");
+
+            zos.putNextEntry(new ZipEntry(zipEntryName));
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, length);
+            }
+            zos.closeEntry();
+            fis.close();
+        }
+    }
+    
     /**
      * Creates a shell script for starting an existing remote container.
      *

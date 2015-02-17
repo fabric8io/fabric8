@@ -18,13 +18,18 @@ package io.fabric8.service.ssh;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -32,6 +37,7 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpProgressMonitor;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
@@ -43,6 +49,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.SshHostConfiguration;
+
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -54,6 +61,7 @@ import static io.fabric8.internal.ContainerProviderUtils.buildInstallAndStartScr
 import static io.fabric8.internal.ContainerProviderUtils.buildStartScript;
 import static io.fabric8.internal.ContainerProviderUtils.buildStopScript;
 import static io.fabric8.internal.ContainerProviderUtils.buildUninstallScript;
+import static io.fabric8.internal.ContainerProviderUtils.zipDirectory;
 
 /**
  * A concrete {@link io.fabric8.api.ContainerProvider} that builds Containers via ssh.
@@ -68,7 +76,6 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     static final String SCHEME = "ssh";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SshContainerProvider.class);
-
     private boolean verbose = false;
 
     @Override
@@ -102,8 +109,18 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             try {
                 session = createSession(options);
                 if (options.doUploadDistribution()) {
-                    uploadTo(session, options.getProxyUri()
-                                    .resolve("io/fabric8/fabric8-karaf/" + FabricConstants.FABRIC_VERSION + "/fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip").toURL(),
+                    String zipFile = System.getProperty("karaf.home", "") + "/system/io/fabric8/fabric8-karaf/" + FabricConstants.FABRIC_VERSION + "/fabric8-karaf-" + FabricConstants.FABRIC_VERSION
+                            + ".zip";
+                    File srcFile = new File(zipFile);
+                    if (!srcFile.exists()) {
+                        try {
+                            zipDirectory(srcFile, System.getProperty("karaf.home", "."));
+                        } catch (Exception e) {
+                            LOGGER.debug("Could not zip up current distro to use as base for new SSH container. Will try downloading via Maven instead.", e);
+                        }
+                    }
+                    uploadTo(session,
+                            options.getProxyUri().resolve("io/fabric8/fabric8-karaf/" + FabricConstants.FABRIC_VERSION + "/fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip").toURL(),
                             "/tmp/fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip");
                 }
                 runScriptOnHost(session, script);
@@ -119,7 +136,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             throw FabricException.launderThrowable(e);
         }
     }
-
+    
     @Override
     public void start(Container container) {
         CreateContainerMetadata metadata = container.getMetadata();
