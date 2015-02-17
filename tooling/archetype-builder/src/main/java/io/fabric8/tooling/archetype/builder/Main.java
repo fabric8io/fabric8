@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,22 +30,22 @@ public class Main {
     public static void main(String[] args) throws Exception {
         try {
             String basedir = System.getProperty("basedir");
-            if (basedir == null) {
+            if (Strings.isNullOrBlank(basedir)) {
                 basedir = ".";
             }
 
-            File bomFile = new File(basedir, "../../pom.xml");
-            File karafProfilesDir = new File(basedir, "../../fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/").getCanonicalFile();
+            String sourcedir = System.getProperty("sourcedir");
+            if (Strings.isNullOrBlank(sourcedir)) {
+                throw new IllegalArgumentException("No sourcedir system property");
+            }
 
+            File bomFile = new File(basedir, System.getProperty("rootPomFile", "../pom.xml"));
             File catalogFile = new File(basedir, "target/classes/archetype-catalog.xml").getCanonicalFile();
-            File quickStartJavaSrcDir = new File(basedir, "../../quickstarts/java").getCanonicalFile();
-            File quickStartKarafSrcDir = new File(basedir, "../../quickstarts/karaf").getCanonicalFile();
-            File quickStartKarafBeginnerSrcDir = new File(basedir, "../../quickstarts/karaf/beginner").getCanonicalFile();
-            File quickStartKarafCxfSrcDir = new File(basedir, "../../quickstarts/karaf/cxf").getCanonicalFile();
-            File quickStartMuleSrcDir = new File(basedir, "../../quickstarts/mule").getCanonicalFile();
-            File quickStartSpringBootSrcDir = new File(basedir, "../../quickstarts/spring-boot").getCanonicalFile();
-            File quickStartWarSrcDir = new File(basedir, "../../quickstarts/war").getCanonicalFile();
-            File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
+            catalogFile.getParentFile().mkdirs();
+
+
+            String outputPath = System.getProperty("outputdir");
+            File outputDir = Strings.isNotBlank(outputPath) ? new File(outputPath) : new File(basedir);
 
             ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
             builder.setBomFile(bomFile);
@@ -52,13 +53,22 @@ public class Main {
 
             List<String> dirs = new ArrayList<>();
             try {
-                builder.generateArchetypes("java", quickStartJavaSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("karaf", quickStartKarafSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("karaf", quickStartKarafBeginnerSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("karaf", quickStartKarafCxfSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("mule", quickStartMuleSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("springboot", quickStartSpringBootSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs, karafProfilesDir);
+                File sourceDirectory = new File(sourcedir);
+                if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
+                    throw new IllegalArgumentException("Source directory: " + sourcedir + " is not a valid directory");
+                }
+                File[] childDirs = sourceDirectory.listFiles();
+                if (childDirs == null || childDirs.length == 0) {
+                    throw new IllegalArgumentException("Source directory: " + sourcedir + " has no child folders");
+                }
+                for (File childDir : childDirs) {
+                    if (childDir.isDirectory()) {
+                        File[] grandChildren = childDir.listFiles();
+                        if (grandChildren != null && grandChildren.length > 0) {
+                            builder.generateArchetypes(childDir.getName(), childDir, outputDir, false, dirs);
+                        }
+                    }
+                }
             } finally {
                 LOG.debug("Completed the generation. Closing!");
                 builder.close();
@@ -68,11 +78,11 @@ public class Main {
             for (String dir : dirs) {
                 sb.append("\n\t<module>" + dir + "</module>");
             }
-            LOG.info("Done creating archetypes:\n{}\n\n", sb.toString());
+            System.out.println("Done creating archetypes:\n" + sb + "\n");
 
         } catch (Exception e) {
-            LOG.error("Caught: " + e.getMessage(), e);
+            System.out.println("Caught: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
 }

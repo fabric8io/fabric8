@@ -165,7 +165,7 @@ public class ArchetypeBuilder {
      * @param clean regenerate the archetypes (clean the archetype target dir)?
      * @throws IOException
      */
-    public void generateArchetypes(String containerType, File baseDir, File outputDir, boolean clean, List<String> dirs, File karafProfileDir) throws IOException {
+    public void generateArchetypes(String containerType, File baseDir, File outputDir, boolean clean, List<String> dirs) throws IOException {
         LOG.debug("Generating archetypes from {} to {}", baseDir.getCanonicalPath(), outputDir.getCanonicalPath());
         File[] files = baseDir.listFiles();
         if (files != null) {
