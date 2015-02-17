@@ -59,7 +59,8 @@ public class SessionListener {
         Session session = event.getSession();
         final Logger log = session.getLogger();
         String namespace = session.getNamespace();
-
+        System.setProperty(Constants.KUBERNETES_NAMESPACE, namespace);
+        
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use a kubernetes CLI type this to switch namespaces: kube namespace " + namespace);
         client.setNamespace(namespace);
