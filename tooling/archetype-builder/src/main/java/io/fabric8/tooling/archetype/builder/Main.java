@@ -57,18 +57,7 @@ public class Main {
                 if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
                     throw new IllegalArgumentException("Source directory: " + sourcedir + " is not a valid directory");
                 }
-                File[] childDirs = sourceDirectory.listFiles();
-                if (childDirs == null || childDirs.length == 0) {
-                    throw new IllegalArgumentException("Source directory: " + sourcedir + " has no child folders");
-                }
-                for (File childDir : childDirs) {
-                    if (childDir.isDirectory()) {
-                        File[] grandChildren = childDir.listFiles();
-                        if (grandChildren != null && grandChildren.length > 0) {
-                            builder.generateArchetypes(childDir.getName(), childDir, outputDir, false, dirs);
-                        }
-                    }
-                }
+                builder.generateArchetypes("", sourceDirectory, outputDir, false, dirs);
             } finally {
                 LOG.debug("Completed the generation. Closing!");
                 builder.close();

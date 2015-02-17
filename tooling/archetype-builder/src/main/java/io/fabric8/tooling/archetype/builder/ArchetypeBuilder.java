@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import io.fabric8.tooling.archetype.ArchetypeUtils;
+import io.fabric8.utils.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -173,20 +174,29 @@ public class ArchetypeBuilder {
                 if (file.isDirectory()) {
                     File projectDir = file;
                     File projectPom = new File(projectDir, "pom.xml");
-                    if (projectPom.exists() && !skipImport(projectDir) && archetypeUtils.isValidProjectPom(projectPom)) {
-                        String fileName = file.getName();
-                        String archetypeDirName = fileName.replace("example", "archetype");
-                        if (fileName.equals(archetypeDirName)) {
-                            archetypeDirName += "-archetype";
-                        }
-                        archetypeDirName = containerType + "-" + archetypeDirName;
+                    if (projectPom.exists() && !skipImport(projectDir)) {
+                        if (archetypeUtils.isValidProjectPom(projectPom)) {
+                            String fileName = file.getName();
+                            String archetypeDirName = fileName.replace("example", "archetype");
+                            if (fileName.equals(archetypeDirName)) {
+                                archetypeDirName += "-archetype";
+                            }
+                            archetypeDirName = containerType + "-" + archetypeDirName;
 
-                        File archetypeDir = new File(outputDir, archetypeDirName);
-                        generateArchetype(projectDir, projectPom, archetypeDir, clean, dirs);
+                            File archetypeDir = new File(outputDir, archetypeDirName);
+                            generateArchetype(projectDir, projectPom, archetypeDir, clean, dirs);
 
-                        File archetypePom = new File(archetypeDir, "pom.xml");
-                        if (archetypePom.exists()) {
-                            addArchetypeMetaData(archetypePom, archetypeDirName);
+                            File archetypePom = new File(archetypeDir, "pom.xml");
+                            if (archetypePom.exists()) {
+                                addArchetypeMetaData(archetypePom, archetypeDirName);
+                            }
+                        } else {
+                            // lets iterate through the children
+                            String childContainerType = file.getName();
+                            if (Strings.isNotBlank(containerType)) {
+                                childContainerType = containerType + "-" + childContainerType;
+                            }
+                            generateArchetypes(childContainerType, file, outputDir, clean, dirs);
                         }
                     }
                 }
