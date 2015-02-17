@@ -22,6 +22,7 @@ import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
+import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
@@ -77,7 +78,6 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // TODO: maybe roaster can validate this?
         // is it a valid class name
         char[] chars = name.getValue().toCharArray();
         for (int i = 0; i < chars.length; i++) {
@@ -89,6 +89,14 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
             if (i == 0 && !Character.isUpperCase(ch)) {
                 return Results.fail("The class name [" + name.getValue() + "] must start with an upper case alphabetic character");
             }
+        }
+
+        // do we already have a class with the name
+        String fqn = targetPackage.getValue() != null ? targetPackage.getValue() + "." + name.getValue() : name.getName();
+
+        JavaResource existing = facet.getJavaResource(fqn);
+        if (existing != null && existing.exists()) {
+            return Results.fail("A class with name " + fqn + " already exists");
         }
 
         // need to parse to be able to extends another class
@@ -108,8 +116,6 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
                 .addThrows(Exception.class);
 
         facet.saveJavaSource(javaClass);
-
-        // TODO: fail if exist, or have an override option?
 
         return Results.success("Added RouteBuilder " + name.getValue() + " to the project");
     }
