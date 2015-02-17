@@ -954,7 +954,7 @@ public class KubernetesHelper {
         // lets create a new config
         JsonNodeFactory factory = createNodeFactory();
         ObjectNode config = factory.objectNode();
-        config.set("apiVersion", factory.textNode("v1beta1"));
+        config.set("apiVersion", factory.textNode("v1beta2"));
         config.set("kind", factory.textNode("Config"));
         config.set("items", factory.arrayNode());
         return config;
