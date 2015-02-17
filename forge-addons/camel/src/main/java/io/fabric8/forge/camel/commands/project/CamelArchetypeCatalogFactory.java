@@ -21,11 +21,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.event.Observes;
 
 import org.apache.maven.archetype.catalog.Archetype;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
 import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
+import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
+import org.jboss.forge.furnace.container.cdi.events.Local;
+import org.jboss.forge.furnace.event.PostStartup;
 import org.jboss.forge.furnace.util.Strings;
 
 /**
@@ -37,16 +41,19 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     private ArchetypeCatalog cachedArchetypes;
 
+    // TODO: Remove when when using Forge 2.14.1+
+    void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
+        registry.addArchetypeCatalogFactory(this);
+    }
+
     @Override
     public String getName() {
         return "camel";
     }
 
     @Override
-    public ArchetypeCatalog getArchetypeCatalog()
-    {
-        if (cachedArchetypes == null)
-        {
+    public ArchetypeCatalog getArchetypeCatalog() {
+        if (cachedArchetypes == null) {
             URL url = null;
             try {
                 url = new URL("http://repo2.maven.org/maven2/archetype-catalog.xml");
@@ -54,6 +61,11 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
                 logger.log(Level.SEVERE, "URL should be valid", e);
                 // ignore
             }
+
+            String defaultRepository = "http://repo2.maven.org/maven2";
+
+            // TODO: ideally Apache Camel has its own catalog we can use, and load from the offline camel-catalog JAR
+            // https://issues.apache.org/jira/browse/CAMEL-8365
             if (url != null) {
                 try (InputStream urlStream = url.openStream()) {
                     cachedArchetypes = new ArchetypeCatalog();
@@ -63,7 +75,7 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
                         // only include camel
                         if ("org.apache.camel.archetypes".equals(archetype.getArtifactId())) {
                             if (Strings.isNullOrEmpty(archetype.getRepository())) {
-                                archetype.setRepository("http://repo2.maven.org/maven2");
+                                archetype.setRepository(defaultRepository);
                             }
                             cachedArchetypes.addArchetype(archetype);
                         }
