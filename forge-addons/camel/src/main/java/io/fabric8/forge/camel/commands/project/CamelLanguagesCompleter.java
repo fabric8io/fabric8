@@ -77,6 +77,17 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
         return answer;
     }
 
+    public Iterable<String> getValueChoices() {
+        // need to find camel-core so we known the camel version
+        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+        if (core == null) {
+            return null;
+        }
+
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        return catalog.findLanguageNames();
+    }
+
     private static String findArtifactId(String json) {
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
         for (Map<String, String> row : data) {

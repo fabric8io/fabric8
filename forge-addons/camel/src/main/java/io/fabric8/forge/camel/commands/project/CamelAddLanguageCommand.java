@@ -25,7 +25,7 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -39,7 +39,7 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "name", required = true, description = "Name of language to add.")
-    private UIInput<String> name;
+    private UISelectOne<String> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -54,7 +54,7 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder);
-        name.setCompleter(new CamelLanguagesCompleter(project));
+        name.setValueChoices(new CamelLanguagesCompleter(project).getValueChoices());
 
         builder.add(name);
     }

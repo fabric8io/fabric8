@@ -77,6 +77,18 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         return answer;
     }
 
+    public Iterable<String> getValueChoices() {
+        // need to find camel-core so we known the camel version
+        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+        if (core == null) {
+            return null;
+        }
+
+        // find all available component names
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        return catalog.findDataFormatNames();
+    }
+
     private static String findArtifactId(String json) {
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
         for (Map<String, String> row : data) {
