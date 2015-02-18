@@ -18,7 +18,6 @@ package io.fabric8.forge.camel.commands.project;
 import java.io.PrintStream;
 import java.util.Set;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -36,7 +35,7 @@ public class CamelListComponentCommand extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConnectCommand.class).name(
+        return Metadata.forCommand(CamelListComponentCommand.class).name(
                 "project-camel-component-list").category(Categories.create(CATEGORY))
                 .description("Lists all the components the current project includes");
     }
@@ -44,6 +43,12 @@ public class CamelListComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         // noop
+    }
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        // we dont want this in GUI as it dont add value there
+        return !context.getProvider().isGUI();
     }
 
     @Override

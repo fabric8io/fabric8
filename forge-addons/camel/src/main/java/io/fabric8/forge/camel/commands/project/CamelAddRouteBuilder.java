@@ -17,7 +17,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -50,7 +49,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConnectCommand.class).name(
+        return Metadata.forCommand(CamelAddRouteBuilder.class).name(
                 "project-camel-add-route-builder").category(Categories.create(CATEGORY))
                 .description("Adds a Camel RouteBuilder class to your project");
     }

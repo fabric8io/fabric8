@@ -17,7 +17,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -46,7 +45,7 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConnectCommand.class).name(
+        return Metadata.forCommand(CamelAddDataFormatCommand.class).name(
                 "project-camel-dataformat-add").category(Categories.create(CATEGORY))
                 .description("Adds a Camel dataformat to your project");
     }

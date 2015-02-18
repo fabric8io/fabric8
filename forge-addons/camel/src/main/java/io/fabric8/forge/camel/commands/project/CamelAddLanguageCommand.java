@@ -17,7 +17,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -46,7 +45,7 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConnectCommand.class).name(
+        return Metadata.forCommand(CamelAddLanguageCommand.class).name(
                 "project-camel-language-add").category(Categories.create(CATEGORY))
                 .description("Adds a Camel language to your project");
     }
