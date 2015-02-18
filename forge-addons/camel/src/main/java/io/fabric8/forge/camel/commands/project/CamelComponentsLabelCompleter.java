@@ -44,8 +44,7 @@ public class CamelComponentsLabelCompleter implements UICompleter<String> {
         }
 
         // find all available component labels
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
-        Set<String> names = catalog.findComponentLabels();
+        Iterable<String> names = getValueChoices();
 
         List<String> filtered = new ArrayList<String>();
         for (String name : names) {
@@ -55,6 +54,14 @@ public class CamelComponentsLabelCompleter implements UICompleter<String> {
         }
 
         return filtered;
+    }
+
+    public Iterable<String> getValueChoices() {
+        // find all available component labels
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        Set<String> names = catalog.findComponentLabels();
+        names.add("<all>");
+        return names;
     }
 
 }

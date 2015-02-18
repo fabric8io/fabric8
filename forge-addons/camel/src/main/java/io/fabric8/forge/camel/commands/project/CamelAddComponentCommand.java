@@ -15,6 +15,7 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
@@ -25,7 +26,7 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -39,11 +40,11 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "filter", required = false, description = "To filter components")
-    private UIInput<String> filter;
+    private UISelectOne<String> filter;
 
     @Inject
     @WithAttributes(label = "name", required = true, description = "Name of component to add.")
-    private UIInput<String> name;
+    private UISelectOne<String> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -57,9 +58,19 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        Project project = getSelectedProject(builder);
-        filter.setCompleter(new CamelComponentsLabelCompleter(project));
-        name.setCompleter(new CamelComponentsCompleter(project, filter));
+        final Project project = getSelectedProject(builder);
+
+        filter.setValueChoices(new CamelComponentsLabelCompleter(project).getValueChoices());
+        filter.setDefaultValue("<all>");
+
+        // use callbable so we can live update the filter
+        name.setValueChoices(new Callable<Iterable<String>>() {
+            @Override
+            public Iterable<String> call() throws Exception {
+                String label = filter.getValue();
+                return new CamelComponentsCompleter(project, null).getValueChoices(label);
+            }
+        });
 
         builder.add(filter);
         builder.add(name);

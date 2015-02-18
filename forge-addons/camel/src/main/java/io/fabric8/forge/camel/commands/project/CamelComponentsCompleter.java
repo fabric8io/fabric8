@@ -67,6 +67,23 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         return filtered;
     }
 
+    public Iterable<String> getValueChoices(String label) {
+        // need to find camel-core so we known the camel version
+        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+        if (core == null) {
+            return null;
+        }
+
+        // find all available component names
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        List<String> names = catalog.findComponentNames();
+
+        if (label == null || "<all>".equals(label)) {
+            return names;
+        }
+        return filterByLabel(names, label);
+    }
+
     private List<String> filterByName(List<String> choices) {
         List<String> answer = new ArrayList<String>();
 
