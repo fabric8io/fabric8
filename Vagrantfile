@@ -19,7 +19,7 @@ echo *        soft    nofile           8192 >> /etc/security/limits.conf
 # add some user aliases
 echo >> ~/.bashrc
 echo export DOCKER_IP=172.28.128.4 >> ~/.bashrc
-echo alias kube="docker run --rm -i --net=host openshift/origin kube" >> ~/.bashrc
+echo alias kube=\"docker run --rm -i --net=host openshift/origin kube\" >> ~/.bashrc
 
 SCRIPT
 
