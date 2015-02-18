@@ -18,9 +18,9 @@ export OPENSHIFT_NUM_MINIONS=1
 vagrant up
 ```
 
-You now should have a master node running on **10.245.1.2**.
+You now should have a master node running on **10.245.2.2**.
 
-You can test this by querying the REST API for the pods at: [https://10.245.1.2:8443/api/v1beta1/pods](https://10.245.1.2:8443/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
+You can test this by querying the REST API for the pods at: [https://10.245.2.2:8443/api/v1beta1/pods](https://10.245.2.2:8443/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
 
 ## Setup your machine
 
@@ -43,12 +43,12 @@ If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile
 and add two lines
 
     DOCKER_TLS=no
-    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000"
+    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.3:5000 --insecure-registry 10.245.2.4:5000"
     ### Setting up your environment variables to use OpenShift
 
 Add the following to your ~/.profile or ~./bashrc
 
-    export KUBERNETES_MASTER=https://10.245.1.2:8443
+    export KUBERNETES_MASTER=https://10.245.2.2:8443
 
 You now should be able to use the various [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html) to work on your local OpenShift.
 
@@ -57,16 +57,16 @@ You now should be able to use the various [Tools](http://fabric8.io/v2/tools.htm
 
 You might find it easier working on your host machine and interacting with the master and minions by adding this to your **/etc/hosts**
 
-    10.245.1.2 openshift-master
-    10.245.2.2 openshift-minion-1
-    10.245.2.3 openshift-minion-2
+    10.245.2.2 openshift-master
+    10.245.2.3 openshift-minion-1
+    10.245.2.4 openshift-minion-2
 
 ### Network routes
 
 Add a network route so you can connect to pods from your host
 
-    sudo route -n add 10.244.1.0/24 10.245.2.2
-    sudo route -n add 10.244.2.0/24 10.245.2.3
+    sudo route -n add 10.244.1.0/24 10.245.2.3
+    sudo route -n add 10.244.2.0/24 10.245.2.4
 
 ## Tips on working with OpenShift on Vagrant
 
@@ -116,7 +116,7 @@ There are a few things we need to be aware of if running OpenShift in a VM and d
 
 When pushing images make sure you have set the DOCKER_REGISTRY env var to the correct minion that is hosting the registry, for example..
 
-	export DOCKER_REGISTRY=10.245.2.2:5000
+	export DOCKER_REGISTRY=10.245.2.3:5000
 
 If you are running a non Linux host and using boot2docker then you still need to follow the [Setup Machine](setupMachine.md) guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..
 
