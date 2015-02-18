@@ -60,6 +60,11 @@ public class EndpointListCommand extends AbstractJolokiaCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        return getJolokiaUrl() != null;
+    }
+
+    @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String url = getJolokiaUrl();
         if (url == null) {
