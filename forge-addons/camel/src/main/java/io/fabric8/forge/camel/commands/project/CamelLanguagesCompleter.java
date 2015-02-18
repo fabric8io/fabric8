@@ -18,6 +18,7 @@ package io.fabric8.forge.camel.commands.project;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.camel.catalog.CamelComponentCatalog;
 import org.apache.camel.catalog.DefaultCamelComponentCatalog;
@@ -27,6 +28,9 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
+
+import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.languagesFromArtifact;
+import static io.fabric8.forge.camel.commands.project.CamelProjectHelper.findCamelArtifacts;
 
 public class CamelLanguagesCompleter implements UICompleter<String> {
 
@@ -85,7 +89,16 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
         }
 
         CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
-        return catalog.findLanguageNames();
+        List<String> names = catalog.findLanguageNames();
+
+        // filter out existing languages we already have
+        Set<Dependency> artifacts = findCamelArtifacts(project);
+        for (Dependency dep : artifacts) {
+            Set<String> languages = languagesFromArtifact(dep.getCoordinate().getArtifactId());
+            names.removeAll(languages);
+        }
+
+        return names;
     }
 
     private static String findArtifactId(String json) {
