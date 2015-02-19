@@ -126,6 +126,11 @@
       <artifactId>camel-commands-jolokia</artifactId>
       <version>${camel.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-catalog</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
 
   </dependencies>
 
