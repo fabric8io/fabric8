@@ -626,17 +626,12 @@ public class ArchetypeBuilder {
             version = archetypeUtils.firstElementText(root, "version", "");
         }
 
-        // TODO: remove me
-        String repo = "https://repo.fusesource.com/nexus/content/groups/public";
-
         printWriter.println(String.format(indent + indent + "<archetype>\n" +
             indent + indent + indent + "<groupId>%s</groupId>\n" +
             indent + indent + indent + "<artifactId>%s</artifactId>\n" +
             indent + indent + indent + "<version>%s</version>\n" +
-            indent + indent + indent + "<repository>%s</repository>\n" +
-            indent + indent + indent + "<name>%s</name>\n" +
             indent + indent + indent + "<description>%s</description>\n" +
-            indent + indent + "</archetype>", groupId, artifactId, version, repo, name, description));
+            indent + indent + "</archetype>", groupId, artifactId, version, description));
     }
 
     /**
