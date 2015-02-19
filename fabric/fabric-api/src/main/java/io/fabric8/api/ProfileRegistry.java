@@ -131,10 +131,21 @@ public interface ProfileRegistry {
     String updateProfile(Profile profile);
 
     /**
+     * Create the given profile in the data store.
+     * @param profile
+     * @param force control whether to update profile in case when old.equals(new)
+     * @return
+     */
+    String updateProfile(Profile profile, boolean force);
+
+    /**
      * Create the given profile in the data store in the provided Git context.
+     * @param context
+     * @param profile
+     * @param force update profile regardless of normal equality of new and old profile (which doesn't take into account resources contents)
      * @return The profile id
      */
-    String updateProfile(GitContext context, Profile profile);
+    String updateProfile(GitContext context, Profile profile, boolean force);
 
     /**
      * True if the given profile existes in the given version.

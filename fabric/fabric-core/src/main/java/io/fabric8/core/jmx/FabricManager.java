@@ -1063,7 +1063,8 @@ public final class FabricManager implements FabricManagerMBean {
         Profile profile = profileService.getRequiredProfile(versionId, profileId);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addFileConfiguration(fileName, Base64.decodeBase64(data));
-        profileService.updateProfile(builder.getProfile());
+        // ENTESB-2315: profile equality doesn't consider change of resources contents
+        profileService.updateProfile(builder.getProfile(), true);
     }
 
     @Override

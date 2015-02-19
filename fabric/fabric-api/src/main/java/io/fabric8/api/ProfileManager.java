@@ -52,6 +52,14 @@ public interface ProfileManager {
     Profile getOverlayProfile(Profile profile);
 
     Profile updateProfile(Profile profile);
-    
+
+    /**
+     * Always update profile. Used to modify resource, as equality of profiles doesn't take into account resources contents)
+     * @param profile
+     * @param force
+     * @return
+     */
+    Profile updateProfile(Profile profile, boolean force);
+
     void deleteProfile(String versionId, String profileId, boolean force);
 }

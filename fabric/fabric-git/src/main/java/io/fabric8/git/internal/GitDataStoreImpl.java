@@ -671,11 +671,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String updateProfile(Profile profile) {
-        return updateProfile(newGitWriteContext(), profile);
+        return updateProfile(profile, false);
     }
 
     @Override
-    public String updateProfile(GitContext context, final Profile profile) {
+    public String updateProfile(Profile profile, boolean force) {
+        return updateProfile(newGitWriteContext(), profile, force);
+    }
+
+    @Override
+    public String updateProfile(GitContext context, final Profile profile, boolean force) {
         IllegalStateAssertion.assertNotNull(profile, "profile");
         LockHandle writeLock = aquireWriteLock();
         try {
@@ -686,7 +691,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             final String profileId = profile.getId();
             final Profile lastProfile = getRequiredProfile(versionId, profileId);
             
-            if (!lastProfile.equals(profile)) {
+            if (force || !lastProfile.equals(profile)) {
                 GitOperation<String> gitop = new GitOperation<String>() {
                     public String call(Git git, GitContext context) throws Exception {
                         checkoutRequiredProfileBranch(git, context, versionId, profileId);

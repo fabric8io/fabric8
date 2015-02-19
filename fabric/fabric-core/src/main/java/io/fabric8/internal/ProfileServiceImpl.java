@@ -142,9 +142,14 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
 
     @Override
     public Profile updateProfile(Profile profile) {
+        return updateProfile(profile, false);
+    }
+
+    @Override
+    public Profile updateProfile(Profile profile, boolean force) {
         assertValid();
         LOGGER.info("updateProfile: {}", profile);
-        String profileId = profileRegistry.get().updateProfile(profile);
+        String profileId = profileRegistry.get().updateProfile(profile, force);
         return getRequiredProfile(profile.getVersion(), profileId);
     }
 

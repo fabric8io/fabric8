@@ -185,10 +185,15 @@ public final class ProfileManagerImpl extends AbstractComponent implements Profi
 
     @Override
     public Profile updateProfile(Profile profile) {
+        return updateProfile(profile, false);
+    }
+
+    @Override
+    public Profile updateProfile(Profile profile, boolean force) {
         Permit<ProfileService> permit = permitManager.get().aquirePermit(ProfileService.PERMIT, false);
         try {
             ProfileService service = permit.getInstance();
-            return service.updateProfile(profile);
+            return service.updateProfile(profile, force);
         } finally {
             permit.release();
         }
