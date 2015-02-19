@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1424091840868">
+    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1424351642426">
     
 
 <div class="book-summary">
@@ -760,8 +760,8 @@
 <pre><code>export OPENSHIFT_DEV_CLUSTER=true
 export OPENSHIFT_NUM_MINIONS=1
 vagrant up
-</code></pre><p>You now should have a master node running on <strong>10.245.1.2</strong>.</p>
-<p>You can test this by querying the REST API for the pods at: <a href="https://10.245.1.2:8443/api/v1beta1/pods" target="_blank">https://10.245.1.2:8443/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
+</code></pre><p>You now should have a master node running on <strong>10.245.2.2</strong>.</p>
+<p>You can test this by querying the REST API for the pods at: <a href="https://10.245.2.2:8443/api/v1beta1/pods" target="_blank">https://10.245.2.2:8443/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
 <h2 id="setup-your-machine"><a name="setup-your-machine" class="anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h2>
 <p>There&apos;s a few things that will make it easier for you to work with OpenShift on vagrant on your host machine:</p>
 <p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
@@ -774,20 +774,20 @@ boot2docker up
 sudo vi /var/lib/boot2docker/profile
 </code></pre><p>and add two lines</p>
 <pre><code>DOCKER_TLS=no
-EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000&quot;
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.3:5000 --insecure-registry 10.245.2.4:5000&quot;
 ### Setting up your environment variables to use OpenShift
 </code></pre><p>Add the following to your ~/.profile or ~./bashrc</p>
-<pre><code>export KUBERNETES_MASTER=https://10.245.1.2:8443
+<pre><code>export KUBERNETES_MASTER=https://10.245.2.2:8443
 </code></pre><p>You now should be able to use the various <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a> to work on your local OpenShift.</p>
 <h3 id="adding-the-master-and-minion-hosts-to-etchosts"><a name="adding-the-master-and-minion-hosts-to-etchosts" class="anchor" href="#adding-the-master-and-minion-hosts-to-etchosts"><span class="fa fa-link"></span></a>Adding the master and minion hosts to /etc/hosts</h3>
 <p>You might find it easier working on your host machine and interacting with the master and minions by adding this to your <strong>/etc/hosts</strong></p>
-<pre><code>10.245.1.2 openshift-master
-10.245.2.2 openshift-minion-1
-10.245.2.3 openshift-minion-2
+<pre><code>10.245.2.2 openshift-master
+10.245.2.3 openshift-minion-1
+10.245.2.4 openshift-minion-2
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
 <p>Add a network route so you can connect to pods from your host</p>
-<pre><code>sudo route -n add 10.244.1.0/24 10.245.2.2
-sudo route -n add 10.244.2.0/24 10.245.2.3
+<pre><code>sudo route -n add 10.244.1.0/24 10.245.2.3
+sudo route -n add 10.244.2.0/24 10.245.2.4
 </code></pre><h2 id="tips-on-working-with-openshift-on-vagrant"><a name="tips-on-working-with-openshift-on-vagrant" class="anchor" href="#tips-on-working-with-openshift-on-vagrant"><span class="fa fa-link"></span></a>Tips on working with OpenShift on Vagrant</h2>
 <p>Here&apos;s a bunch of handy tips:</p>
 <h3 id="starting-openshift"><a name="starting-openshift" class="anchor" href="#starting-openshift"><span class="fa fa-link"></span></a>Starting OpenShift</h3>
@@ -816,7 +816,7 @@ docker run -p 9282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HO
 </code></pre><h3 id="working-with-openshift-in-a-vm"><a name="working-with-openshift-in-a-vm" class="anchor" href="#working-with-openshift-in-a-vm"><span class="fa fa-link"></span></a>Working with OpenShift in a VM</h3>
 <p>There are a few things we need to be aware of if running OpenShift in a VM and developing on our host.</p>
 <p>When pushing images make sure you have set the DOCKER_REGISTRY env var to the correct minion that is hosting the registry, for example..</p>
-<pre><code>export DOCKER_REGISTRY=10.245.2.2:5000
+<pre><code>export DOCKER_REGISTRY=10.245.2.3:5000
 </code></pre><p>If you are running a non Linux host and using boot2docker then you still need to follow the <a href="setupMachine.html">Setup Machine</a> guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..</p>
 <pre><code>export DOCKER_HOST=tcp://192.168.59.103:2375
 </code></pre><h3 id="checking-your-docker_registry"><a name="checking-your-docker_registry" class="anchor" href="#checking-your-docker_registry"><span class="fa fa-link"></span></a>Checking your $DOCKER_REGISTRY</h3>
