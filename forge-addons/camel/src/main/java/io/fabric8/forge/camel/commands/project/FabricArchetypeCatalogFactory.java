@@ -43,6 +43,8 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
+    private final String name = "fabric8";
+
     @Inject
     Imported<DependencyResolver> resolver;
 
@@ -50,14 +52,14 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
         // must use this to trigger startup event so we can add ourselves
-        if (registry.getArchetypeCatalogFactory("fabric8") == null) {
+        if (registry.getArchetypeCatalogFactory(name) == null) {
             registry.addArchetypeCatalogFactory(this);
         }
     }
 
     @Override
     public String getName() {
-        return "fabric8";
+        return name;
     }
 
     @Override
@@ -87,4 +89,20 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
         return cachedArchetypes;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FabricArchetypeCatalogFactory that = (FabricArchetypeCatalogFactory) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

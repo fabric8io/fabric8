@@ -35,19 +35,20 @@ import org.jboss.forge.furnace.event.PostStartup;
 public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
+    private final String name = "camel";
 
     private ArchetypeCatalog cachedArchetypes;
 
     void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
         // must use this to trigger startup event so we can add ourselves
-        if (registry.getArchetypeCatalogFactory("camel") == null) {
+        if (registry.getArchetypeCatalogFactory(name) == null) {
             registry.addArchetypeCatalogFactory(this);
         }
     }
 
     @Override
     public String getName() {
-        return "camel";
+        return name;
     }
 
     @Override
@@ -66,4 +67,20 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
         return cachedArchetypes;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CamelArchetypeCatalogFactory that = (CamelArchetypeCatalogFactory) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }
