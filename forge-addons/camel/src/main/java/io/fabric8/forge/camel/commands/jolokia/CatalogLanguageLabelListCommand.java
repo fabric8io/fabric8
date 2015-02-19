@@ -49,7 +49,7 @@ public class CatalogLanguageLabelListCommand extends AbstractJolokiaCommand {
     @Override
     public boolean isEnabled(UIContext context) {
         // we dont want this in GUI as it dont add value there
-        return !context.getProvider().isGUI();
+        return !context.getProvider().isGUI() && getJolokiaUrl() != null;
     }
 
     @Override
