@@ -87,7 +87,7 @@
         <fabric-perfectus.version>7.3.0.redhat-${perfectus-build}</fabric-perfectus.version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
-        <activemq.version>5.10.0</activemq.version>
+        <activemq.version>5.11.1</activemq.version>
         <aether.version>1.11</aether.version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr.version>3.3</antlr.version>
