@@ -42,8 +42,7 @@ import org.jboss.forge.furnace.services.Imported;
 public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
-
-    private final String name = "fabric8";
+    private static final String NAME = "fabric8";
 
     @Inject
     Imported<DependencyResolver> resolver;
@@ -52,14 +51,14 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
         // must use this to trigger startup event so we can add ourselves
-        if (registry.getArchetypeCatalogFactory(name) == null) {
+        if (registry.getArchetypeCatalogFactory(NAME) == null) {
             registry.addArchetypeCatalogFactory(this);
         }
     }
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
     @Override
@@ -96,13 +95,13 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
         FabricArchetypeCatalogFactory that = (FabricArchetypeCatalogFactory) o;
 
-        if (!name.equals(that.name)) return false;
+        if (!NAME.equals(that.NAME)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return NAME.hashCode();
     }
 }
