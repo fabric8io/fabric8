@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="4.5" data-basepath="." data-revision="1424413446460">
+    <div class="book" data-level="4.5" data-basepath="." data-revision="1424433358164">
     
 
 <div class="book-summary">
@@ -773,6 +773,11 @@
 <li>associates any resource (<a href="services.html">service</a>, <a href="replicationControllers.html">replication controller</a>, <a href="pod.html">pod</a>) with the icon stored in the App Library wiki so that things look much nicer ;)</li>
 <li>the Library tab allows you to explore all your installed Apps, browse the documentation and drag and drop apps from the internet or file system to or from the App Library to install or share Apps between environments or people.</li>
 </ul>
+<h3 id="running-on-kubernetesopenshift"><a name="running-on-kubernetesopenshift" class="anchor" href="#running-on-kubernetesopenshift"><span class="fa fa-link"></span></a>Running on Kubernetes/OpenShift</h3>
+<p>If you start <a href="openShiftDocker.html">fabric8 using these instructions</a> then it should be started by default.</p>
+<p>If not you can run the App Library on any kubernetes environment as follows:</p>
+<pre><code>kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.0.29/app-library-2.0.29-kubernetes.json
+</code></pre><p>Then make sure you have <a href="console.html">run the console</a></p>
 
                     
                     </section>
