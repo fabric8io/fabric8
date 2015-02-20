@@ -181,7 +181,7 @@ The hardware profiles for Amazon EC2 will look like:
             t1.micro               1.0     1.0  630.0
             c1.medium              5.0     2.0 1740.0
             c1.xlarge             20.0     8.0 7168.0
-            m1.large               4.0     2.0.25680.0
+            m1.large               4.0     2.0.29680.0
             m1.small               1.0     1.0 1740.0
             m1.medium              2.0     1.0 3750.0
             m1.xlarge              8.0     4.0 15360.0

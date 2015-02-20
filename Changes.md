@@ -1,4 +1,13 @@
 
+### 2.0.29
+
+* Migrated to hawtio 2.x for the console making it small and lightweight with [optional modular services](service.md)
+* Fixes [these 18 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.29+is%3Aclosed)
+
+### 2.0.26
+
+* Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.26+is%3Aclosed)
+
 ### 2.0.25
 
 * Handle the new HTTPS only REST API in Kubernetes / OpenShift
