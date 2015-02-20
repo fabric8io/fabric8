@@ -17,8 +17,6 @@
  */
 package io.fabric8.tools.apt;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
 import java.util.HashMap;
 import java.util.Map;
 

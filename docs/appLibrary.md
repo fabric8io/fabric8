@@ -13,3 +13,13 @@ When the App Library is running the [console](console.html):
 * has a **Run...** button on the Apps tab which lets you easily pick which Apps you want to run in a few clicks
 * associates any resource ([service](services.html), [replication controller](replicationControllers.html), [pod](pod.html)) with the icon stored in the App Library wiki so that things look much nicer ;)
 * the Library tab allows you to explore all your installed Apps, browse the documentation and drag and drop apps from the internet or file system to or from the App Library to install or share Apps between environments or people.
+
+### Running on Kubernetes/OpenShift
+
+If you start [fabric8 using these instructions](openShiftDocker.html) then it should be started by default.
+
+If not you can run the App Library on any kubernetes environment as follows:
+
+    kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.0.29/app-library-2.0.29-kubernetes.json
+
+Then make sure you have [run the console](console.html)
