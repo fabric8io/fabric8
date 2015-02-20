@@ -45,8 +45,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Filter<Service> serviceFilter = session.createServiceFilter();
-        List<Service> services = Util.findServices(kubernetesClient, serviceFilter);
+        List<Service> services = kubernetesClient.getServices(session.getNamespace()).getItems();
 
         if (services.isEmpty()) {
             result = false;

@@ -49,11 +49,8 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-
-        Filter<ReplicationController> replicationControllerFilter = session.createReplicationControllerFilter();
-
-        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
-            if (replicationControllerFilter.matches(replicationController) && qualifies(replicationController, qualifiers)) {
+        for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
+            if (qualifies(replicationController, qualifiers)) {
                 return replicationController;
             }
         }
