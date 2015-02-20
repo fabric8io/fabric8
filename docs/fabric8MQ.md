@@ -1,6 +1,6 @@
 ## Fabric8 MQ
 
-The Fabric8 MQ [App](apps.html) creates a [service](services.html) using a [replication controller](replicationControllers.md) for using [Apache ActiveMQ](http://activemq.apache.org/) effectively within Fabric8 or Kubernetes.
+The Fabric8 MQ [App](apps.html) creates a [service](services.html) using a [replication controller](replicationControllers.html) for using [Apache ActiveMQ](http://activemq.apache.org/) effectively within Fabric8 or Kubernetes.
 
 ### Running Fabric8 MQ
 

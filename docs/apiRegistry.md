@@ -1,6 +1,6 @@
 ## API Registry
 
-The API Registry implements a highly available RESTful [service](services.html) using a [replication controller](replicationControllers.md) to provide a global view of all of your RESTful and web service APIs.
+The API Registry implements a highly available RESTful [service](services.html) using a [replication controller](replicationControllers.html) to provide a global view of all of your RESTful and web service APIs.
 
 It currently discovers all [Swagger](http://swagger.io/), [WADL](http://www.w3.org/Submission/wadl/) and [WSDL](http://www.w3.org/TR/wsdl) contracts used by any [Apache CXF](http://cxf.apache.org/) based REST or web services or any [Camel REST DSL routes](http://camel.apache.org/rest-dsl.html). Any JVM is supported; so your CXF and Camel can be running inside Karaf, Tomcat, Wildfly or a vanilla JVM or Spring Boot etc.
 

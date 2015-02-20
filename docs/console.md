@@ -29,7 +29,7 @@ The **Overview** tab gives you a feel for how all the various [services](service
 
 #### Library
 
-The **Library** tab lets you drag and drop [Apps](apps.html) into your library from downloaded [App Zips](appzip.md) so that you can see all the available applications you can run. Click on an app then hit **Run** to run them.
+The **Library** tab lets you drag and drop [Apps](apps.html) into your library from downloaded [App Zips](appzip.html) so that you can see all the available applications you can run. Click on an app then hit **Run** to run them.
 
 You can also drag folder from the Library to your desktop and local file system to save them.
 

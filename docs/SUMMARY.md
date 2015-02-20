@@ -26,6 +26,7 @@
     * [Logging](logging.md)
     * [Metrics](metrics.md)
     * [API Registry](apiRegistry.md)
+    * [App Library](appLibrary.md)
     * [MQ](fabric8MQ.md)
     * [MQ AutoScaler](fabric8MQAutoScaler.md)
 * [Changes from V1](v2-changes.md)

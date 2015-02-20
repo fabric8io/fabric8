@@ -1,7 +1,8 @@
 
 ### 2.0.29
 
-* Migrated to hawtio 2.x for the console making it small and lightweight with [optional modular services](service.md)
+* Migrated to hawtio 2.x for the console making it small and lightweight with [optional modular services](fabric8Apps.md)
+* Added the [App Library](appLibrary.html) to provide a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.
 * Fixes [these 18 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.29+is%3Aclosed)
 
 ### 2.0.26

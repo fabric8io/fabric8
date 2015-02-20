@@ -2,7 +2,7 @@
 
 These instructions walk you through natively installing OpenShift on your host operating system.
 
-**NOTE** OpenShift used to work in Linux, Windows and OS X; but recent networking/service changes only work on Linux. So until that is fixed if you don't use Linux we recommend you try using [OpenShift with Docker](openShiftDocker.md) or [OpenShift with Vagrant](openShiftVagrant.md)
+**NOTE** OpenShift used to work in Linux, Windows and OS X; but recent networking/service changes only work on Linux. So until that is fixed if you don't use Linux we recommend you try using [OpenShift with Docker](openShiftDocker.html) or [OpenShift with Vagrant](openShiftVagrant.html)
 
 ### Downloading Openshift V3
 

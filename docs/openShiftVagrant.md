@@ -118,7 +118,7 @@ When pushing images make sure you have set the DOCKER_REGISTRY env var to the co
 
 	export DOCKER_REGISTRY=10.245.2.3:5000
 
-If you are running a non Linux host and using boot2docker then you still need to follow the [Setup Machine](setupMachine.md) guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..
+If you are running a non Linux host and using boot2docker then you still need to follow the [Setup Machine](setupMachine.html) guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..
 
 	export DOCKER_HOST=tcp://192.168.59.103:2375
 

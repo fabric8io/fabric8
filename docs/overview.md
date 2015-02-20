@@ -18,7 +18,7 @@ Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on pre
 
 * [Pods](pods.html)
 * [Replication Controllers](replicationControllers.html)
-* [Services](services.md)
+* [Services](services.html)
 
 #### Kubernetes extensions from OpenShift Origin v3
 

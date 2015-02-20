@@ -1,14 +1,14 @@
 ## Add a quickstart to the App Library
 
-The web console has a Wiki which acts as a place you can store any documentation or [App Zips](appzip.md).
+The web console has a Wiki which acts as a place you can store any documentation or [App Zips](appzip.html).
 
 ### Adding or removing Apps
 
-You can add or remove an [App Zip](appzip.md) by dragging folders from the wiki's view to your file system; or dragging an [App Zip](appzip.md) from your file system and dropping it onto the file listing view in the Wiki.
+You can add or remove an [App Zip](appzip.html) by dragging folders from the wiki's view to your file system; or dragging an [App Zip](appzip.html) from your file system and dropping it onto the file listing view in the Wiki.
 
 ### Using mvn fabric8:deploy
 
-You can use the [mvn fabric8:deploy](mavenPlugin.html#deploying) goal to run the **zip** goal to make an [App Zip](appzip.md) and then post it to the App Library in your web console using the **FABRIC8_CONSOLE** environment variable.
+You can use the [mvn fabric8:deploy](mavenPlugin.html#deploying) goal to run the **zip** goal to make an [App Zip](appzip.html) and then post it to the App Library in your web console using the **FABRIC8_CONSOLE** environment variable.
 
 e.g. run the following
 
