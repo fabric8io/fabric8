@@ -43,8 +43,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Filter<Pod> podFilter = session.createPodFilter();
-        List<Pod> pods = Util.findPods(kubernetesClient, podFilter);
+        List<Pod> pods = kubernetesClient.getPods(session.getNamespace()).getItems();
 
         if (pods.isEmpty()) {
             result = false;

@@ -51,17 +51,6 @@ public class PodListResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-
-        Filter<Pod> podFilter = session.createPodFilter();
-        PodList pods = client.getPods();
-        List<Pod> sessionPods = new ArrayList<>();
-
-        for (Pod pod : client.getPods().getItems()) {
-            if (podFilter.matches(pod)) {
-                sessionPods.add(pod);
-            }
-        }
-        pods.setItems(sessionPods);
-        return pods;
+        return client.getPods(session.getNamespace());
     }
 }

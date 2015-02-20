@@ -51,17 +51,6 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-
-        Filter<ReplicationController> replicationControllerFilter = session.createReplicationControllerFilter();
-        ReplicationControllerList controllers = client.getReplicationControllers();
-        List<ReplicationController> sessionControllers = new ArrayList<>();
-
-        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
-            if (replicationControllerFilter.matches(replicationController)) {
-                sessionControllers.add(replicationController);
-            }
-        }
-        controllers.setItems(sessionControllers);
-        return controllers;
+        return client.getReplicationControllers(session.getNamespace());
     }
 }

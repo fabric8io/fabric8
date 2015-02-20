@@ -49,10 +49,8 @@ public class ServiceResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-        Filter<Service> serviceFilter = session.createServiceFilter();
-
-        for (Service service : client.getServices().getItems()) {
-            if (serviceFilter.matches(service) && qualifies(service, qualifiers) ) {
+        for (Service service : client.getServices(session.getNamespace()).getItems()) {
+            if ( qualifies(service, qualifiers) ) {
                 return service;
             }
         }
