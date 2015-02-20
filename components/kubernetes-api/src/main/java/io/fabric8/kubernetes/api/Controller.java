@@ -27,20 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.*;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespacePodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespaceReplicationControllerMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespaceServiceMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -238,7 +229,7 @@ public class Controller {
     public void applyService(Service serviceSchema, String sourceName) {
         String namespace = getNamespace();
         if (serviceMap == null) {
-            serviceMap = getNamespaceServiceMap(kubernetes, namespace);
+            serviceMap = getServiceMap(kubernetes, namespace);
         }
         String id = getId(serviceSchema);
         Service old = serviceMap.get(id);
@@ -269,7 +260,7 @@ public class Controller {
     public void applyReplicationController(ReplicationController replicationController, String sourceName) {
         String namespace = getNamespace();
         if (replicationControllerMap == null) {
-            replicationControllerMap = getNamespaceReplicationControllerMap(kubernetes, namespace);
+            replicationControllerMap = getReplicationControllerMap(kubernetes, namespace);
         }
         String id = getId(replicationController);
         ReplicationController old = replicationControllerMap.get(id);
@@ -300,7 +291,7 @@ public class Controller {
     public void applyPod(Pod pod, String sourceName) {
         String namespace = getNamespace();
         if (podMap == null) {
-            podMap = getNamespacePodMap(kubernetes, namespace);
+            podMap = getPodMap(kubernetes, namespace);
         }
         String id = getId(pod);
         Pod old = podMap.get(id);

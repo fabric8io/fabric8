@@ -16,24 +16,15 @@
 
 package io.fabric8.arquillian.kubernetes.enricher;
 
-import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.jolokia.JolokiaClients;
-import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link JolokiaClients}.
@@ -58,7 +49,6 @@ public class JolokiaClientsProvider implements ResourceProvider {
         Session session = sessionInstance.get();
 
         JolokiaClients jolokiaClients = new JolokiaClients(client);
-        jolokiaClients.setPodFilter(session.createPodFilter());
         return jolokiaClients;
     }
 }

@@ -75,7 +75,7 @@ public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
         Kubernetes kubernetes = getKubernetes();
 
         String podIdText = podId.getValue();
-        Pod podInfo = kubernetes.getPod(podIdText);
+        Pod podInfo = getKubernetes().getPod(podIdText);
         if (podInfo == null) {
             System.out.println("No pod for id: " + podIdText);
         } else {

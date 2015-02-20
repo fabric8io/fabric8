@@ -15,11 +15,10 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.utils.Filter;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.utils.Filter;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -36,9 +35,7 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 
 /**
  * Command to list services in kubernetes
@@ -65,8 +62,7 @@ public class ServicesList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-        ServiceList services = kubernetes.getServices();
+        ServiceList services = getKubernetes().getServices();
         printServices(services, System.out);
         return null;
     }

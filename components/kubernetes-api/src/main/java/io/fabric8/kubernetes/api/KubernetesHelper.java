@@ -400,43 +400,54 @@ public class KubernetesHelper {
     }
 
     public static Map<String, Pod> getPodMap(Kubernetes kubernetes) {
-        return getSelectedPodMap(kubernetes, null);
+        return getPodMap(kubernetes, Kubernetes.NAMESPACE_ALL);
     }
 
-    public static Map<String, Pod> getNamespacePodMap(Kubernetes kubernetes, String namespace) {
-        Filter<Pod> filter = createNamespacePodFilter(namespace);
-        return getFilteredPodMap(kubernetes, filter);
+    public static Map<String, Pod> getPodMap(Kubernetes kubernetes, String namespace) {
+        return toPodMap(kubernetes.getPods(namespace));
     }
 
     public static Map<String, Pod> getSelectedPodMap(Kubernetes kubernetes, String selector) {
+        return getSelectedPodMap(kubernetes, Kubernetes.NAMESPACE_ALL, selector);
+    }
+
+    public static Map<String, Pod> getSelectedPodMap(Kubernetes kubernetes, String namespace, String selector) {
         Filter<Pod> filter = createPodFilter(selector);
-        return getFilteredPodMap(kubernetes, filter);
+        return getFilteredPodMap(kubernetes, namespace, filter);
     }
 
     public static Map<String, Pod> getFilteredPodMap(Kubernetes kubernetes, Filter<Pod> filter) {
-        PodList podSchema = kubernetes.getPods();
+        return getFilteredPodMap(kubernetes, Kubernetes.NAMESPACE_ALL, filter);
+    }
+
+    public static Map<String, Pod> getFilteredPodMap(Kubernetes kubernetes, String namespace, Filter<Pod> filter) {
+        PodList podSchema = kubernetes.getPods(namespace);
         return toFilteredPodMap(podSchema, filter);
     }
 
     public static Map<String, Service> getServiceMap(Kubernetes kubernetes) {
-        return toServiceMap(kubernetes.getServices());
+        return getServiceMap(kubernetes, Kubernetes.NAMESPACE_ALL);
     }
 
-    public static Map<String, Service> getNamespaceServiceMap(Kubernetes kubernetes, String namespace) {
-        return toFilteredServiceMap(kubernetes.getServices(), createNamespaceServiceFilter(namespace));
+    public static Map<String, Service> getServiceMap(Kubernetes kubernetes, String namespace) {
+        return toServiceMap(kubernetes.getServices(namespace));
     }
 
     public static Map<String, ReplicationController> getReplicationControllerMap(Kubernetes kubernetes) {
-        return toReplicationControllerMap(kubernetes.getReplicationControllers());
+        return getReplicationControllerMap(kubernetes, Kubernetes.NAMESPACE_ALL);
+    }
+
+    public static Map<String, ReplicationController> getReplicationControllerMap(Kubernetes kubernetes, String namespace) {
+        return toReplicationControllerMap(kubernetes.getReplicationControllers(namespace));
     }
 
     public static Map<String, ReplicationController> getSelectedReplicationControllerMap(Kubernetes kubernetes, String selector) {
-        Filter<ReplicationController> filter = createReplicationControllerFilter(selector);
-        return toFilteredReplicationControllerMap(kubernetes.getReplicationControllers(), filter);
+        return getSelectedReplicationControllerMap(kubernetes, Kubernetes.NAMESPACE_ALL, selector);
     }
 
-    public static Map<String, ReplicationController> getNamespaceReplicationControllerMap(Kubernetes kubernetes, String namespace) {
-        return toFilteredReplicationControllerMap(kubernetes.getReplicationControllers(), createNamespaceReplicationControllerFilter(namespace));
+    public static Map<String, ReplicationController> getSelectedReplicationControllerMap(Kubernetes kubernetes, String namespace, String selector) {
+        Filter<ReplicationController> filter = createReplicationControllerFilter(selector);
+        return toFilteredReplicationControllerMap(kubernetes.getReplicationControllers(namespace), filter);
     }
 
     /**
@@ -542,25 +553,6 @@ public class KubernetesHelper {
     }
 
     /**
-     * Creates a filter on a pod if it matches the given namespace
-     */
-    public static Filter<Pod> createNamespacePodFilter(final String namespace) {
-        if (isNullOrBlank(namespace)) {
-            return Filters.<Pod>trueFilter();
-        } else {
-            return new Filter<Pod>() {
-                public String toString() {
-                    return "NamespacePodFilter(" + namespace + ")";
-                }
-
-                public boolean matches(Pod entity) {
-                    return Objects.equal(namespace, entity.getNamespace());
-                }
-            };
-        }
-    }
-
-    /**
      * Creates a filter on a pod annotations using the given set of attribute values
      */
     public static Filter<Pod> createPodAnnotationFilter(final Map<String, String> annotationSelector) {
@@ -650,25 +642,6 @@ public class KubernetesHelper {
 
                 public boolean matches(ReplicationController entity) {
                     return filterMatchesIdOrLabels(textFilter, getId(entity), entity.getLabels());
-                }
-            };
-        }
-    }
-
-    /**
-     * Creates a filter on a replicationController if it matches the given namespace
-     */
-    public static Filter<ReplicationController> createNamespaceReplicationControllerFilter(final String namespace) {
-        if (isNullOrBlank(namespace)) {
-            return Filters.<ReplicationController>trueFilter();
-        } else {
-            return new Filter<ReplicationController>() {
-                public String toString() {
-                    return "NamespaceReplicationControllerFilter(" + namespace + ")";
-                }
-
-                public boolean matches(ReplicationController entity) {
-                    return Objects.equal(namespace, entity.getNamespace());
                 }
             };
         }

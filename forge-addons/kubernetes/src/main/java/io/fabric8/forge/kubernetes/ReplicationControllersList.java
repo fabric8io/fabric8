@@ -15,12 +15,11 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.utils.Filter;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.utils.Filter;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -65,9 +64,7 @@ public class ReplicationControllersList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-
-        ReplicationControllerList replicationControllers = kubernetes.getReplicationControllers();
+        ReplicationControllerList replicationControllers = getKubernetes().getReplicationControllers();
         printReplicationControllers(replicationControllers, System.out);
         return null;
     }

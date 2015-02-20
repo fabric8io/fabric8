@@ -15,9 +15,8 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -83,10 +82,8 @@ public class ServiceDelete extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-
         String idText = serviceId.getValue();
-        Service service = kubernetes.getService(idText);
+        Service service = getKubernetes().getService(idText);
         if (service == null) {
             System.out.println("No service for id: " + idText);
         } else {

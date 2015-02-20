@@ -17,15 +17,7 @@
 package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.log.Logger;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.utils.Filter;
 import io.fabric8.utils.Systems;
-
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a testing session.
@@ -66,35 +58,4 @@ public class Session {
         return namespacePrefix + getId();
     }
 
-    /**
-     * The prefix used for the namespace to help make it more obvious which namespaces are
-     * integration test runs (which are typically fairly transient).
-     *
-     * This defaults to using the <code>$FABRIC8_NAMESPACE_PREFIX</code> environment variable
-     */
-    public String getNamespacePrefix() {
-        return namespacePrefix;
-    }
-
-
-    /**
-     * Returns a new filter on pods which are created as part of this Arquillian session
-     */
-    public Filter<Pod> createPodFilter() {
-        return KubernetesHelper.createNamespacePodFilter(getNamespace());
-    }
-
-    /**
-     * Returns a new filter on services which are created as part of this Arquillian session
-     */
-    public Filter<Service> createServiceFilter() {
-        return KubernetesHelper.createNamespaceServiceFilter(getNamespace());
-    }
-
-    /**
-     * Returns a new filter on replication controllers which are created as part of this Arquillian session
-     */
-    public Filter<ReplicationController> createReplicationControllerFilter() {
-        return KubernetesHelper.createNamespaceReplicationControllerFilter(getNamespace());
-    }
 }

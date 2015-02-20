@@ -15,9 +15,8 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -83,10 +82,8 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-
         String idText = replicationControllerId.getValue();
-        ReplicationController replicationController = kubernetes.getReplicationController(idText);
+        ReplicationController replicationController = getKubernetes().getReplicationController(idText);
         if (replicationController == null) {
             System.out.println("No replicationController for id: " + idText);
         } else {

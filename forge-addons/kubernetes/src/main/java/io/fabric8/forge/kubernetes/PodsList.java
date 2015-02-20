@@ -15,14 +15,9 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.utils.Filter;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.utils.Filter;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -66,8 +61,7 @@ public class PodsList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-        PodList pods = kubernetes.getPods();
+        PodList pods = getKubernetes().getPods();
         KubernetesHelper.removeEmptyPods(pods);
         TablePrinter table = podsAsTable(pods);
         return tableResults(table);

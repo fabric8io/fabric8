@@ -94,7 +94,7 @@ public class Example {
 
     protected static void listPods(Kubernetes kube) {
         System.out.println("Looking up pods");
-        PodList pods = kube.getPods();
+        PodList pods = kube.getPods(Kubernetes.NAMESPACE_ALL);
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
@@ -126,7 +126,7 @@ public class Example {
 
     protected static void listServices(Kubernetes kube) {
         System.out.println("Looking up services");
-        ServiceList services = kube.getServices();
+        ServiceList services = kube.getServices(Kubernetes.NAMESPACE_ALL);
         List<Service> serviceItems = services.getItems();
         for (Service service : serviceItems) {
             System.out.println("Service " + getId(service) + " labels: " + service.getLabels() + " selector: " + getSelector(service) + " port: " + getPort(service));
@@ -137,7 +137,7 @@ public class Example {
 
     protected static void listReplicationControllers(Kubernetes kube) {
         System.out.println("Looking up replicationControllers");
-        ReplicationControllerList replicationControllers = kube.getReplicationControllers();
+        ReplicationControllerList replicationControllers = kube.getReplicationControllers(Kubernetes.NAMESPACE_ALL);
         List<ReplicationController> items = replicationControllers.getItems();
         for (ReplicationController item : items) {
             ReplicationControllerState desiredState = item.getDesiredState();
