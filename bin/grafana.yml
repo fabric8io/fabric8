@@ -39,3 +39,10 @@ items:
     port: 80
     selector:
       app: grafana-viewer
+  - apiVersion: v1beta1
+    kind: Route
+    id: gragana-route
+    metadata:
+      name: grafana-route
+    host: metrics.fabric8.local
+    serviceName: grafana-service
