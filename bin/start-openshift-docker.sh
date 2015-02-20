@@ -17,7 +17,7 @@ CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
-ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
+ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
 GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
@@ -219,8 +219,8 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
     }' > /dev/null
   fi
 
-  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -w "%{http_code}" -o /dev/null) ]; then
-    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -d '{
+  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/config/4.0.0" -w "%{http_code}" -o /dev/null) ]; then
+    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0" -d '{
       "defaultIndex": "[logstash-]YYYY.MM.DD"
     }' > /dev/null
   fi
