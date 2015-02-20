@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>Java Libraries | Fabric8 Documentation</title>
+        <title>App Library | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 1.5.0">
@@ -19,10 +19,10 @@
         
     
     
-    <link rel="next" href="./testing.html" />
+    <link rel="next" href="./fabric8MQ.html" />
     
     
-    <link rel="prev" href="./forge.html" />
+    <link rel="prev" href="./apiRegistry.html" />
     
 
         
@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="1424413446460">
+    <div class="book" data-level="4.5" data-basepath="." data-revision="1424413446460">
     
 
 <div class="book-summary">
@@ -431,7 +431,7 @@
         </li>
     
         
-        <li class="chapter active" data-level="3.4" data-path="javaLibraries.html">
+        <li class="chapter " data-level="3.4" data-path="javaLibraries.html">
             
                 
                     <a href="./javaLibraries.html">
@@ -549,7 +549,7 @@
         </li>
     
         
-        <li class="chapter " data-level="4.5" data-path="appLibrary.html">
+        <li class="chapter active" data-level="4.5" data-path="appLibrary.html">
             
                 
                     <a href="./appLibrary.html">
@@ -760,41 +760,18 @@
                 <div class="page-inner">
                 
                 
-                    <section class="normal" id="section-gitbook_18">
+                    <section class="normal" id="section-gitbook_4">
                     
-                        <h2 id="java-libraries"><a name="java-libraries" class="anchor" href="#java-libraries"><span class="fa fa-link"></span></a>Java Libraries</h2>
-<p>If you want to write any Java/JVM based tools to interact with <a href="http://kubernetes.io" target="_blank">Kubernetes</a>, <a href="http://www.docker.com/" target="_blank">Docker</a> or <a href="https://github.com/coreos/etcd/blob/master/README.md" target="_blank">Etcd</a> we have a number of libraries to help:</p>
-<h3 id="kubernetes"><a name="kubernetes" class="anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
-<p>Kubernetes provides the main REST API for working with the <a href="http://kubernetes.io" target="_blank">Kubernetes Platform</a>. It should provide all you need for writing most services and plugins for Kubernetes.</p>
+                        <h2 id="app-library"><a name="app-library" class="anchor" href="#app-library"><span class="fa fa-link"></span></a>App Library</h2>
+<p>The App Library implements a RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a wiki of <a href="apps.html">apps</a> that can be run.</p>
+<p>You can think of this as being a little like your library for Apps for your mobile device; its a way of populating your default set of Apps that are available so that you can easily run them.</p>
+<p>The library is stored in a git based wiki and can be edited via git or via the <a href="console.html">console</a>.</p>
+<h3 id="features"><a name="features" class="anchor" href="#features"><span class="fa fa-link"></span></a>Features</h3>
+<p>When the App Library is running the <a href="console.html">console</a>:</p>
 <ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a> provides a Java API for working with the Kubernetes REST API (pods, replication controllers, services etc)</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="pods.html">Pods</a> inside Kubernetes which expose the Jolokia port</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-template" target="_blank">kubernetes-template</a> provides a simple templating mechanism for generating the Kubernetes JSON files from MVEL templates with parameters from a DTO</li>
-</ul>
-<h4 id="testing"><a name="testing" class="anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h4>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> provides a plugin for <a href="arquillian-fabric8">Arquillian</a> for integration testing <a href="apps.html">Apps</a> on top of Kubernetes; using Kubernetes to provision and orchestrate the containers and then making <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">assertions</a> that the required resources startup correctly.</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
-</ul>
-<h4 id="cdi"><a name="cdi" class="anchor" href="#cdi"><span class="fa fa-link"></span></a>CDI</h4>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric8-apt" target="_blank">fabric8-apt</a> provides an APT code generator to create a JSON Schema file for each environment variable injected by the <a href="http://deltaspike.apache.org/documentation/configuration.html" target="_blank">@ConfigProperty</a> annotation from <a href="http://deltaspike.apache.org/" target="_blank">deltaspike</a> - giving dteails of the name, type, default value and description. This can then be used by the <a href="mavenplugin.html">fabric8:json maven goal</a> to list all of the environment variables and their value in the generated kubernetes JSON file.</li>
-</ul>
-<h3 id="docker"><a name="docker" class="anchor" href="#docker"><span class="fa fa-link"></span></a>Docker</h3>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/docker-api" target="_blank">docker-api</a> for working directly with a docker host over its REST API</li>
-</ul>
-<h3 id="etcd"><a name="etcd" class="anchor" href="#etcd"><span class="fa fa-link"></span></a>Etcd</h3>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/blob/master/components/fabric-etcd/" target="_blank">etcd-api</a> provides a Java API for working with <a href="https://github.com/coreos/etcd/blob/master/README.md" target="_blank">etcd</a></li>
-</ul>
-<h3 id="activemq"><a name="activemq" class="anchor" href="#activemq"><span class="fa fa-link"></span></a>ActiveMQ</h3>
-<ul>
-<li><p><a href="https://github.com/fabric8io/fabric8/tree/master/components/mq/mq-client" target="_blank">mq-client</a> provides the the <strong>io.fabric8.mq.core.MQConnectionFactory</strong> class which implements the JMS ConnectionFactory to connect to ActiveMQ using the <a href="http://fabric8.io/v2/services.html" target="_blank">Kubernetes Service</a> discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)</p>
-</li>
-<li><p><a href="https://github.com/fabric8io/fabric8/tree/master/components/mq/camel-amq" target="_blank">camel-amq</a> provides the <a href="http://camel.apache.org/" target="_blank">Camel</a> <strong>amq:</strong> component which uses the <a href="http://fabric8.io/v2/services.html" target="_blank">Kubernetes Service</a> discovery mechanism to discover and connect to the ActiveMQ brokers so that no configuration is required (other than a single environment variable if you wish to switch to a non default service implementation)</p>
-</li>
+<li>has a <strong>Run...</strong> button on the Apps tab which lets you easily pick which Apps you want to run in a few clicks</li>
+<li>associates any resource (<a href="services.html">service</a>, <a href="replicationControllers.html">replication controller</a>, <a href="pod.html">pod</a>) with the icon stored in the App Library wiki so that things look much nicer ;)</li>
+<li>the Library tab allows you to explore all your installed Apps, browse the documentation and drag and drop apps from the internet or file system to or from the App Library to install or share Apps between environments or people.</li>
 </ul>
 
                     
@@ -806,10 +783,10 @@
         </div>
 
         
-        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge Addons"><i class="fa fa-angle-left"></i></a>
+        <a href="./apiRegistry.html" class="navigation navigation-prev " aria-label="Previous page: API Registry"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./testing.html" class="navigation navigation-next " aria-label="Next page: Testing"><i class="fa fa-angle-right"></i></a>
+        <a href="./fabric8MQ.html" class="navigation navigation-next " aria-label="Next page: MQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
