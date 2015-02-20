@@ -6,48 +6,66 @@
   "description": "Creates an elasticsearch pod & service",
   "items": [{
     "apiVersion": "v1beta1",
-    "kind": "Pod",
-    "id": "elasticsearch-pod",
+    "kind": "ReplicationController",
+    "id": "elasticsearch-controller",
     "desiredState": {
-      "manifest": {
-        "version": "v1beta1",
-        "id": "es",
-        "containers": [
-          {
-            "name": "elasticsearch",
-            "image": "dockerfile/elasticsearch",
-            "imagePullPolicy": "PullIfNotPresent",
-            "ports": [
+      "replicas": 1,
+      "replicaSelector": {
+        "component": "elasticsearch"
+      },
+      "podTemplate": {
+        "desiredState": {
+          "manifest": {
+            "version": "v1beta1",
+            "id": "es",
+            "containers": [
               {
-                "name": "es-port",
-                "containerPort": 9200,
-                "hostPort": 9200
-              },
-              {
-                "name": "es-transport-port",
-                "containerPort": 9300
+                "name": "elasticsearch",
+                "image": "fabric8/elasticsearch-k8s:1.4.4",
+                "imagePullPolicy": "PullIfNotPresent",
+                "env": [
+                  {
+                    "name": "SELECTOR",
+                    "value": "component=elasticsearch,cluster=fabric8"
+                  },
+                  {
+                    "name": "KUBERNETES_TRUST_CERT",
+                    "value": "true"
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "es-port",
+                    "containerPort": 9200
+                  },
+                  {
+                    "name": "es-transport-port",
+                    "containerPort": 9300
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "es-data-storage",
+                    "mountPath": "/usr/share/elasticsearch/data"
+                  }
+                ]
               }
             ],
-            "volumeMounts": [
+            "volumes": [
               {
-                "name": "es-persistent-storage",
-                "mountPath": "/data"
+                "name": "es-data-storage",
+                "source": {
+                  "emptyDir": {}
+                }
               }
             ]
           }
-        ],
-        "volumes": [
-          {
-            "name": "es-persistent-storage",
-            "source": {
-              "emptyDir": {}
-            }
-          }
-        ]
+        },
+        "labels": {
+          "component": "elasticsearch",
+          "cluster": "fabric8"
+        }
       }
-    },
-    "labels": {
-      "app": "elasticsearch"
     }
   },
   {
@@ -57,7 +75,9 @@
     "containerPort": "es-port",
     "port": 9200,
     "selector": {
-      "app": "elasticsearch"
+      "component": "elasticsearch",
+      "cluster": "fabric8"
     }
   }]
 }
+
