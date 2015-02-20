@@ -73,6 +73,9 @@
     },
     {
       "id": "fabric8-console-route",
+      "metadata": {
+        "name": "my-route"
+      },
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "fabric8.local",
