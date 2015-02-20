@@ -74,12 +74,12 @@
     {
       "id": "fabric8-console-route",
       "metadata": {
-        "name": "my-route"
+        "name": "fabric8-console-route"
       },
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "fabric8.local",
-      "serviceName": "fabric8-console"
+      "serviceName": "fabric8-console-service"
     }
   ]
 }
