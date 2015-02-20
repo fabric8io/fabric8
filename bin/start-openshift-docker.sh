@@ -9,6 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
+FABRIC8_VERSION=2.0.29
 OPENSHIFT_IMAGE=openshift/origin:latest
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:latest
 REGISTRY_IMAGE=registry:latest
@@ -19,8 +20,9 @@ KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
 GRAFANA_IMAGE=jimmidyson/grafana:latest
+APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
-MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${REGISTRY_IMAGE}"
+MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE}"
 ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
@@ -147,7 +149,9 @@ fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE apply -f -
+  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
   cat $APP_BASE/registry.json | $KUBE apply -f -
+
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     cat $APP_BASE/influxdb.json | $KUBE apply -f -
     cat $APP_BASE/elasticsearch.json | $KUBE apply -f -
@@ -158,7 +162,9 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   fi
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -f -
+  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -f -
+
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -f -
