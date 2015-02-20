@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>Differences | Jube Documentation</title>
+        <title>Glossary | Jube Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 1.5.0">
@@ -19,10 +19,10 @@
         
     
     
-    <link rel="next" href="./developing.html" />
     
     
-    <link rel="prev" href="./imageZips.html" />
+
+    
     
 
         
@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="4" data-basepath="." data-revision="1424413775923">
+    <div class="book" data-level="" data-basepath="." data-revision="1424413775923">
     
 
 <div class="book-summary">
@@ -204,7 +204,7 @@
         </li>
     
         
-        <li class="chapter active" data-level="4" data-path="differences.html">
+        <li class="chapter " data-level="4" data-path="differences.html">
             
                 
                     <a href="./differences.html">
@@ -377,36 +377,13 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="page-inner">
                 
-                
-                    <section class="normal" id="section-gitbook_5">
-                    
-                        <h2 id="differences-between-jube-and-the-go-based-kubernetes--openshift-v3"><a name="differences-between-jube-and-the-go-based-kubernetes--openshift-v3" class="anchor" href="#differences-between-jube-and-the-go-based-kubernetes--openshift-v3"><span class="fa fa-link"></span></a>Differences between Jube and the Go based Kubernetes / OpenShift V3</h2>
-<p>Jube is a pure Java implementation of kubernetes; designed for use provisioning Java based middleware and applications when either Go Lang, Docker or Kubernetes is not available on your platform.</p>
-<p>While it tries to keep as close as possible to the Kubernetes REST API and metadata it does have some differences:</p>
-<ul>
-<li>Jube is implemented in pure Java; intended for use in non-modern-linux platforms where any of Go Lang, Docker or Kubernetes is not natively supported well. We recommened you use Docker and Kubernetes for real whenever you can though!</li>
-<li>Since its pure Java, Jube cannot do any funky iptables / OpenVSwitch stuff; so the kubernetes networking model is a little different in that:<ul>
-<li>we cannot allocate an IP port per Pod or Service</li>
-<li>service ports are global across all services; so please be careful to avoid clashes!</li>
-<li>this means that services which want to run multiple times on a single host must use consumer port environment variables to listen on dynamic port numbers using environment variables</li>
-</ul>
-</li>
-<li>Jube does not use Docker (since if you had docker, we recommend you use Kubernetes for real ;). So cannot run arbitrary linux images. It can run <a href="imageZips.html">image zips</a> which are similar conceptually; some files used to run a process. This is fine for running simple binaries and Java applications; but is not ideal if you wish to use things like package managers and RPMs per container (e.g. for working with Ruby, Python, Node etc). For those kinds of things we highly recommend Docker and Kubernetes. The focus of Jube is predominantly around running Java based middleware and applications; were an image zip is OK (when docker is not available)</li>
-</ul>
 
-                    
-                    </section>
-                
-                
+
                 </div>
             </div>
         </div>
 
         
-        <a href="./imageZips.html" class="navigation navigation-prev " aria-label="Previous page: Image Zips"><i class="fa fa-angle-left"></i></a>
-        
-        
-        <a href="./developing.html" class="navigation navigation-next " aria-label="Next page: Developing"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
