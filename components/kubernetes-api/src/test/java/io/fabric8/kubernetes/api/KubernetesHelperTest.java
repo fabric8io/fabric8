@@ -24,6 +24,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class KubernetesHelperTest {
 
@@ -54,6 +55,14 @@ public class KubernetesHelperTest {
         map.put("name", "foo");
         map.put("food", "cheese");
         assertTrue(text + " should = " + map, KubernetesHelper.filterMatchesIdOrLabels(text, id, map));
+    }
+
+    @Test
+    public void testfilterMatchesIdOrLabelsNoLabels() throws Exception {
+        String text = "container=java,name=foo,food=cheese";
+        String id = "foo";
+        HashMap<String, String> map = null;
+        assertFalse(text + " should not = " + map, KubernetesHelper.filterMatchesIdOrLabels(text, id, map));
     }
 
 }

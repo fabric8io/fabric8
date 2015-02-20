@@ -703,7 +703,7 @@ public class KubernetesHelper {
             //labels can be in different order to selector
             Map<String, String> selectorMap = toLabelsMap(textFilter);
 
-            if (!selectorMap.isEmpty()) {
+            if (!selectorMap.isEmpty() && labels != null && !labels.isEmpty()) {
                 result = true;
                 for (Map.Entry<String, String> entry : selectorMap.entrySet()) {
                     String value = labels.get(entry.getKey());
