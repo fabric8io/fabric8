@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.camel.catalog.CamelComponentCatalog;
-import org.apache.camel.catalog.DefaultCamelComponentCatalog;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -54,7 +54,7 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         }
 
         // find all available component names
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         List<String> names = catalog.findComponentNames();
 
         // filter non matching names first
@@ -79,7 +79,7 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         }
 
         // find all available component names
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         List<String> names = catalog.findComponentNames();
 
         // filter out existing components we already have
@@ -98,7 +98,7 @@ public class CamelComponentsCompleter implements UICompleter<String> {
     private List<String> filterByName(List<String> choices) {
         List<String> answer = new ArrayList<String>();
 
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
 
         // filter names which are already on the classpath, or do not match the optional filter by label input
         for (String name : choices) {
@@ -126,7 +126,7 @@ public class CamelComponentsCompleter implements UICompleter<String> {
 
         List<String> answer = new ArrayList<String>();
 
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
 
         // filter names which are already on the classpath, or do not match the optional filter by label input
         for (String name : choices) {

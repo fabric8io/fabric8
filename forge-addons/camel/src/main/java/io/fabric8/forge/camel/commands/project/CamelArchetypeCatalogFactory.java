@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.event.Observes;
 
-import org.apache.camel.catalog.DefaultCamelComponentCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
 import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
@@ -55,7 +55,7 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     public ArchetypeCatalog getArchetypeCatalog() {
         if (cachedArchetypes == null) {
             // use the camel catalog to load the archetypes
-            String xml = new DefaultCamelComponentCatalog().archetypeCatalogAsXml();
+            String xml = new DefaultCamelCatalog().archetypeCatalogAsXml();
             if (xml != null) {
                 try {
                     cachedArchetypes = new ArchetypeCatalogXpp3Reader().read(new StringReader(xml));

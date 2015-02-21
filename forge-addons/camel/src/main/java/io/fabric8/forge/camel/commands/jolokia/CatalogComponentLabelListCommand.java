@@ -37,7 +37,7 @@ public class CatalogComponentLabelListCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-catalog-component-label-list").category(Categories.create(CATEGORY))
+                "camel-catalog-component-label-list").category(Categories.create(CATEGORY_CATALOG))
                 .description("Lists all Camel component labels from the Camel catalog");
     }
 

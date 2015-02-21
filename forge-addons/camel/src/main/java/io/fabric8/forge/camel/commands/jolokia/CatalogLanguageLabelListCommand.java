@@ -37,7 +37,7 @@ public class CatalogLanguageLabelListCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-catalog-language-label-list").category(Categories.create(CATEGORY))
+                "camel-catalog-language-label-list").category(Categories.create(CATEGORY_CATALOG))
                 .description("Lists all Camel language labels from the Camel catalog");
     }
 

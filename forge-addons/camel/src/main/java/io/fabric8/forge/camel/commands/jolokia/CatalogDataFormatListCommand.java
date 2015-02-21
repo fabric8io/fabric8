@@ -41,7 +41,7 @@ public class CatalogDataFormatListCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-catalog-dataformat-list").category(Categories.create(CATEGORY))
+                "camel-catalog-dataformat-list").category(Categories.create(CATEGORY_CATALOG))
                 .description("Lists all Camel dataformats from the Camel catalog");
     }
 

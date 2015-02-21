@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.camel.catalog.CamelComponentCatalog;
-import org.apache.camel.catalog.DefaultCamelComponentCatalog;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -52,7 +52,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         }
 
         // find all available dataformat names
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         List<String> names = catalog.findDataFormatNames();
 
         // filter non matching names first
@@ -89,7 +89,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         }
 
         // find all available component names
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         List<String> names = catalog.findDataFormatNames();
 
         // filter out existing dataformats we already have

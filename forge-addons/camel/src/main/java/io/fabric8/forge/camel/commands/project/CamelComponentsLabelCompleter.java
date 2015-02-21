@@ -19,16 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.camel.catalog.CamelComponentCatalog;
-import org.apache.camel.catalog.DefaultCamelComponentCatalog;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
-
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.componentsFromArtifact;
-import static io.fabric8.forge.camel.commands.project.CamelProjectHelper.findCamelArtifacts;
 
 public class CamelComponentsLabelCompleter implements UICompleter<String> {
 
@@ -61,7 +58,7 @@ public class CamelComponentsLabelCompleter implements UICompleter<String> {
 
     public Iterable<String> getValueChoices() {
         // find all available component labels
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         Set<String> names = catalog.findComponentLabels();
         names.add("<all>");
         return names;

@@ -63,7 +63,7 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     @Override
     public ArchetypeCatalog getArchetypeCatalog() {
-       if (cachedArchetypes == null) {
+        if (cachedArchetypes == null) {
             // TODO: version should be not hardcoded
             // use the camel catalog to load the archetypes
             Coordinate coordinate = CoordinateBuilder.create()

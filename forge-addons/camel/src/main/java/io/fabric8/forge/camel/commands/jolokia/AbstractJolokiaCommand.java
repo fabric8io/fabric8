@@ -32,6 +32,7 @@ import org.jboss.forge.addon.ui.context.UIExecutionContext;
 public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
 
     public static String CATEGORY = "Camel";
+    public static String CATEGORY_CATALOG = "CamelCatalog";
 
     @Inject
     protected ProjectFactory projectFactory; // helper to integrate with the filesystem

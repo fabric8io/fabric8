@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.camel.catalog.CamelComponentCatalog;
-import org.apache.camel.catalog.DefaultCamelComponentCatalog;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 
 public final class CamelCatalogHelper {
@@ -39,7 +39,7 @@ public final class CamelCatalogHelper {
         }
 
         // use the camel catalog to lookup the component name -> artifact id
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         String json = catalog.componentJSonSchema(name);
         if (json == null) {
             return null;
@@ -68,7 +68,7 @@ public final class CamelCatalogHelper {
         }
 
         // use the camel catalog to lookup the dataformat name -> artifact id
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         String json = catalog.dataFormatJSonSchema(name);
         if (json == null) {
             return null;
@@ -97,7 +97,7 @@ public final class CamelCatalogHelper {
         }
 
         // use the camel catalog to lookup the language name -> artifact id
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         String json = catalog.languageJSonSchema(name);
         if (json == null) {
             return null;
@@ -117,7 +117,7 @@ public final class CamelCatalogHelper {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         for (String name : catalog.findComponentNames()) {
             String json = catalog.componentJSonSchema(name);
             if (json != null) {
@@ -145,7 +145,7 @@ public final class CamelCatalogHelper {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         for (String name : catalog.findDataFormatNames()) {
             String json = catalog.dataFormatJSonSchema(name);
             if (json != null) {
@@ -173,7 +173,7 @@ public final class CamelCatalogHelper {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        CamelCatalog catalog = new DefaultCamelCatalog();
         for (String name : catalog.findLanguageNames()) {
             String json = catalog.languageJSonSchema(name);
             if (json != null) {

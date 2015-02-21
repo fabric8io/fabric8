@@ -41,7 +41,7 @@ public class CatalogEipListCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-catalog-eip-list").category(Categories.create(CATEGORY))
+                "camel-catalog-eip-list").category(Categories.create(CATEGORY_CATALOG))
                 .description("Lists all Camel EIPs from the Camel catalog");
     }
 
