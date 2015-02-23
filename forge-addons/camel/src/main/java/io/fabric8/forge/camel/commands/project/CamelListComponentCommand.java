@@ -48,7 +48,7 @@ public class CamelListComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public boolean isEnabled(UIContext context) {
         // we dont want this in GUI as it dont add value there
-        return !context.getProvider().isGUI();
+        return super.isEnabled(context) && !context.getProvider().isGUI();
     }
 
     @Override
