@@ -37,6 +37,10 @@
         <fuse.osgi.import>
             javax.servlet,
             javax.servlet.http,
+            org.ops4j.pax.web.service,
+            org.osgi.service.http,
+            org.osgi.framework,
+            javax.management,
             *;resolution:=optional
         </fuse.osgi.import>
         <fuse.osgi.export></fuse.osgi.export>
@@ -89,6 +93,7 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -108,6 +113,21 @@
             <artifactId>commons-net</artifactId>
             <version>3.3</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <version>${osgi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
     </dependencies>
 
