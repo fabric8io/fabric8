@@ -133,18 +133,6 @@
 
     <build>
 
-        <!-- we want to ensure src/main/resources/WEB-INF/web.xml is being filtered
-          so that it picks up all of our javascript files -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-        </resources>
-
         <plugins>
 
             <!-- We use maven-antrun-plugin to build up a list of
@@ -243,15 +231,6 @@
                     <archive>
                         <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
-                    <webResources>
-                        <resource>
-                            <filtering>true</filtering>
-                            <directory>src/main/resources</directory>
-                            <includes>
-                                <include>**/*.*</include>
-                            </includes>
-                        </resource>
-                    </webResources>
                 </configuration>
             </plugin>
 
