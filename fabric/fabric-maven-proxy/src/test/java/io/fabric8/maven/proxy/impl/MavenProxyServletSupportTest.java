@@ -74,7 +74,8 @@ public class MavenProxyServletSupportTest {
     private ProjectDeployer projectDeployer;
 
     protected static final Logger LOG = LoggerFactory.getLogger(MavenProxyServletSupportTest.class);
-@Rule public TestName testname = new TestName();
+    @Rule public TestName testname = new TestName();
+
     @Before
     public void setUp() {
         System.out.println(">>>>>>> Running " + testname.getMethodName() );
@@ -260,7 +261,6 @@ public class MavenProxyServletSupportTest {
         });
     }
 
-    @Ignore("ENTESB-2409")
     @Test(timeout=30000)
     public void testDownloadMetadata() throws Exception {
         final String old = System.getProperty("karaf.data");
@@ -420,6 +420,7 @@ public class MavenProxyServletSupportTest {
                 }
             };
             EasyMock.makeThreadSafe(request, true);
+            EasyMock.expect(request.getMethod()).andReturn("GET");
             EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/maven-metadata.xml");
             EasyMock.expect(request.startAsync()).andReturn(context);
             context.setTimeout(EasyMock.anyInt());
@@ -436,6 +437,8 @@ public class MavenProxyServletSupportTest {
             response.setDateHeader((String) EasyMock.anyObject(), EasyMock.anyLong());
             EasyMock.expectLastCall().anyTimes();
             response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+            response.flushBuffer();
             EasyMock.expectLastCall().anyTimes();
 
             final CountDownLatch latchDispatch = new CountDownLatch(1);
@@ -473,6 +476,8 @@ public class MavenProxyServletSupportTest {
                     baos.write(b, off, len);
                 }
             }).anyTimes();
+            response.flushBuffer();
+            EasyMock.expectLastCall().anyTimes();
             final CountDownLatch latchComplete = new CountDownLatch(1);
             context.complete();
             EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
