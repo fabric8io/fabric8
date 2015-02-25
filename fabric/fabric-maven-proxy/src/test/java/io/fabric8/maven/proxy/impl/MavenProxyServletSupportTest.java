@@ -226,7 +226,6 @@ public class MavenProxyServletSupportTest {
         }
     }
 
-    @Ignore("ENTESB-2409")
     @Test(timeout=30000)
     public void testDownloadUsingAuthenticatedProxy() throws Exception {
         testDownload(new AbstractHandler() {
@@ -247,7 +246,6 @@ public class MavenProxyServletSupportTest {
         });
     }
 
-    @Ignore("ENTESB-2409")
     @Test(timeout=30000)
     public void testDownloadUsingNonAuthenticatedProxy() throws Exception {
         testDownload(new AbstractHandler() {
@@ -542,6 +540,7 @@ public class MavenProxyServletSupportTest {
                 }
             };
             EasyMock.makeThreadSafe(request, true);
+            EasyMock.expect(request.getMethod()).andReturn("GET");
             EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
             EasyMock.expect(request.startAsync()).andReturn(context);
             context.setTimeout(EasyMock.anyInt());
@@ -643,6 +642,8 @@ public class MavenProxyServletSupportTest {
                 }
             });
             EasyMock.expect(response.getOutputStream()).andReturn(outputStream);
+            response.flushBuffer();
+            EasyMock.expectLastCall();
             EasyMock.replay(request, response, context);
             servlet.doGet(requestWrapper, response);
             latchComplete.await();
