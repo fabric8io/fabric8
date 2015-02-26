@@ -593,7 +593,7 @@ public class SimpleFilter
                                         vr.getCeiling().toString(),
                                         SimpleFilter.LTE));
                     }
-                    else
+                    else if (!vr.getCeiling().equals(VersionRange.INFINITE_VERSION))
                     {
                         SimpleFilter not =
                                 new SimpleFilter(null, new ArrayList(), SimpleFilter.NOT);

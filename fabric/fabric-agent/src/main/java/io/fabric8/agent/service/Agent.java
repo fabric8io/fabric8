@@ -50,6 +50,7 @@ import io.fabric8.api.gravia.ServiceLocator;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.MultiException;
 import org.apache.felix.utils.version.VersionRange;
+import org.apache.karaf.util.bundles.BundleUtils;
 import org.eclipse.equinox.region.Region;
 import org.eclipse.equinox.region.RegionDigraph;
 import org.eclipse.equinox.region.RegionFilterBuilder;
@@ -62,6 +63,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
 import org.osgi.framework.wiring.BundleCapability;
@@ -474,23 +476,24 @@ public class Agent {
                     if (Thread.currentThread() == thread) {
                         Bundle sourceBundle = requirement.getRevision().getBundle();
                         Resource sourceResource = bndToRes.get(sourceBundle);
+                        Set<Resource> wired = new HashSet<>();
+                        // Get a list of allowed wired resources
+                        wired.add(sourceResource);
                         for (Wire wire : wiring.get(sourceResource)) {
-                            Requirement req = wire.getRequirement();
-                            if (req.getNamespace().equals(requirement.getNamespace())
-                                    && req.getAttributes().equals(requirement.getAttributes())
-                                    && req.getDirectives().equals(requirement.getDirectives())) {
-                                for (Iterator<BundleCapability> capIter = candidates.iterator(); capIter.hasNext(); ) {
-                                    BundleCapability cap = capIter.next();
-                                    BundleRevision br = cap.getRevision();
-                                    if (br == wire.getCapability().getResource()) {
-                                        continue;
-                                    }
-                                    Resource res = bndToRes.get(br.getBundle());
-                                    if (res != wire.getCapability().getResource()) {
-                                        capIter.remove();
-                                    }
+                            wired.add(wire.getProvider());
+                            if (HostNamespace.HOST_NAMESPACE.equals(wire.getRequirement().getNamespace())) {
+                                for (Wire hostWire : wiring.get(wire.getProvider())) {
+                                    wired.add(hostWire.getProvider());
                                 }
-                                break;
+                            }
+                        }
+                        // Remove candidates that are not allowed
+                        for (Iterator<BundleCapability> candIter = candidates.iterator(); candIter.hasNext(); ) {
+                            BundleCapability cand = candIter.next();
+                            BundleRevision br = cand.getRevision();
+                            Resource res = bndToRes.get(br.getBundle());
+                            if (!wired.contains(br) && !wired.contains(res)) {
+                                candIter.remove();
                             }
                         }
                     }
