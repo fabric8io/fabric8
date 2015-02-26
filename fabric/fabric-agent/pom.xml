@@ -53,6 +53,7 @@
             org.apache.karaf.features;
             org.apache.karaf.features.internal;
             org.apache.karaf.util.collections;
+            org.apache.karaf.util.bundles;
             io.fabric8.agent;
             io.fabric8.agent.download.impl;
             io.fabric8.agent.internal;

@@ -109,7 +109,7 @@ public class Deployer {
         void installFeatureConfigs(Feature feature) throws IOException, InvalidSyntaxException;
 
         Bundle installBundle(String region, String uri, InputStream is) throws BundleException;
-        void updateBundle(Bundle bundle, InputStream is) throws BundleException;
+        void updateBundle(Bundle bundle, String uri, InputStream is) throws BundleException;
         void uninstall(Bundle bundle) throws BundleException;
         void startBundle(Bundle bundle) throws BundleException;
         void stopBundle(Bundle bundle, int options) throws BundleException;
@@ -518,7 +518,7 @@ public class Deployer {
             try (
                     InputStream is = getBundleInputStream(resource, providers)
             ) {
-                callback.updateBundle(dstate.serviceBundle, is);
+                callback.updateBundle(dstate.serviceBundle, uri, is);
             }
             callback.refreshPackages(toRefresh);
             callback.startBundle(dstate.serviceBundle);
@@ -655,7 +655,7 @@ public class Deployer {
                     try (
                             InputStream is = getBundleInputStream(resource, providers)
                     ) {
-                        callback.updateBundle(bundle, is);
+                        callback.updateBundle(bundle, uri, is);
                     }
                     toStart.add(bundle);
                 }
@@ -783,7 +783,7 @@ public class Deployer {
         callback.phase("finalizing (resolving bundles)");
         toResolve.addAll(toStart);
         toResolve.addAll(toRefresh);
-        removeFragmentsAndBundlesInState(toResolve, UNINSTALLED);
+        removeBundlesInState(toResolve, UNINSTALLED);
         callback.resolveBundles(toResolve, resolver.getWiring(), deployment.resToBnd);
 
         // Compute bundles to start
@@ -960,6 +960,15 @@ public class Deployer {
             Bundle bundle = iterator.next();
             if ((bundle.getState() & state) != 0
                     || bundle.getHeaders().get(org.osgi.framework.Constants.FRAGMENT_HOST) != null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void removeBundlesInState(Collection<Bundle> bundles, int state) {
+        for (Iterator<Bundle> iterator = bundles.iterator(); iterator.hasNext();) {
+            Bundle bundle = iterator.next();
+            if ((bundle.getState() & state) != 0) {
                 iterator.remove();
             }
         }

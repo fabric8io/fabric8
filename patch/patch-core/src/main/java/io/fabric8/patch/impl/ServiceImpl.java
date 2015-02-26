@@ -56,6 +56,7 @@ import io.fabric8.patch.BundleUpdate;
 import io.fabric8.patch.PatchException;
 import io.fabric8.patch.Result;
 import io.fabric8.patch.Service;
+import org.apache.karaf.util.bundles.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -483,15 +484,10 @@ public class ServiceImpl implements Service {
         Set<Bundle> toRefresh = new HashSet<Bundle>();
         Set<Bundle> toStart = new HashSet<Bundle>();
         for (Map.Entry<Bundle, String> e : toUpdate.entrySet()) {
-            InputStream is = new URL(e.getValue()).openStream();
-            try {
-                Bundle bundle = e.getKey();
-                bundle.update(is);
-                toRefresh.add(bundle);
-                toStart.add(bundle);
-            } finally {
-                is.close();
-            }
+            Bundle bundle = e.getKey();
+            BundleUtils.update(bundle, new URL(e.getValue()));
+            toRefresh.add(bundle);
+            toStart.add(bundle);
         }
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFramentsToRefresh(toRefresh);
