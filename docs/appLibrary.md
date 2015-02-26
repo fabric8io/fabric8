@@ -23,3 +23,22 @@ If not you can run the App Library on any kubernetes environment as follows:
     kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.0.29/app-library-2.0.29-kubernetes.json
 
 Then make sure you have [run the console](console.html)
+
+You can find specific URLs for REST/Git etc. by visiting the App Library service endpoint in a browser.
+
+### Pre-Populating Applications
+
+The App Library can be configured to pre-populate itself using content downloaded via maven co-ordinates.
+
+For example, the default App Library config file contains the following IMPORT_APP_URLS environment variable:
+
+      "env": [
+         {
+             "name": "IMPORT_APP_URLS",
+             "value": "mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${FABRIC8_VERSION}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${FABRIC8_VERSION}/zip/app"
+         }
+       ]
+       
+Download one of the above zips to see the structure used:
+
+      http://central.maven.org/maven2/io/fabric8//quickstarts/fabric8-quickstarts-parent/2.0.29/fabric8-quickstarts-parent-2.0.29-app.zip
