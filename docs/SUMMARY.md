@@ -5,6 +5,7 @@
   * [Services](services.md)
   * [Apps](apps.md)
   * [App Zip](appzip.md)
+  * [App Library](appLibrary.md)
   * [Builds](builds.md)
 * [Getting Started](getStarted.md)
     * [Using Jube](getStartedJube.md)
