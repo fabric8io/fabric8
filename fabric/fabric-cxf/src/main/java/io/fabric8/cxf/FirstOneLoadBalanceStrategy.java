@@ -22,10 +22,12 @@ public class FirstOneLoadBalanceStrategy extends FabricLoadBalanceStrategySuppor
 
     @Override
     public String getNextAlternateAddress() {
-        if (alternateAddressList.size() > 0) {
-            return alternateAddressList.get(0);
-        } else {
-            throw new IllegalArgumentException("The AlternateAddressList is empty, please fresh the list shortly.");
+        synchronized(alternateAddressList) {
+            if (alternateAddressList.size() > 0) {
+                return alternateAddressList.get(0);
+            } else {
+                throw new IllegalArgumentException("The AlternateAddressList is empty, please fresh the list shortly.");
+            }
         }
     }
 }

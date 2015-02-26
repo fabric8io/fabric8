@@ -45,14 +45,16 @@ public abstract class FabricLoadBalanceStrategySupport implements LoadBalanceStr
     }
 
     protected void onUpdate(Group<CxfNodeState> group) {
-        alternateAddressList.clear();
-        for (CxfNodeState node : group.members().values()) {
-            if (node.services != null) {
-                for (String url : node.services) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Added the CXF endpoint address " + url);
+        synchronized(alternateAddressList) {
+            alternateAddressList.clear();
+            for (CxfNodeState node : group.members().values()) {
+                if (node.services != null) {
+                    for (String url : node.services) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Added the CXF endpoint address " + url);
+                        }
+                        alternateAddressList.add(url);
                     }
-                    alternateAddressList.add(url);
                 }
             }
         }
