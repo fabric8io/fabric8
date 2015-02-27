@@ -97,6 +97,7 @@ public class ContainerCreateChild extends AbstractCommandComponent {
 
     void bindRootContainerCompleter(RootContainerCompleter completer) {
         bindCompleter(completer);
+        bindCompleter(null);//root container completer should be used only once
     }
 
     void unbindRootContainerCompleter(RootContainerCompleter completer) {
