@@ -125,7 +125,8 @@ export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
 export KUBERNETES=http://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
+KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:v0.3.2 --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
+KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:v0.3.2 --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
@@ -138,6 +139,7 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
+$KUBE_EX router --create --ports=80,443
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
@@ -150,32 +152,30 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
 fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
-  cat $APP_BASE/fabric8.json | $KUBE apply -f -
-  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  cat $APP_BASE/fabric8.json | $KUBE cli create -f -
+  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE apply -f -
-    cat $APP_BASE/elasticsearch.json | $KUBE apply -f -
-    cat $APP_BASE/logspout.yml | $KUBE apply -f -
-    cat $APP_BASE/kibana.yml | $KUBE apply -f -
-    cat $APP_BASE/grafana.yml | $KUBE apply -f -
-    cat $APP_BASE/router.json | $KUBE create  -f -
+    cat $APP_BASE/influxdb.json | $KUBE cli create -f -
+    cat $APP_BASE/elasticsearch.json | $KUBE cli create -f -
+    cat $APP_BASE/logspout.yml | $KUBE cli create -f -
+    cat $APP_BASE/kibana.yml | $KUBE cli create -f -
+    cat $APP_BASE/grafana.yml | $KUBE cli create -f -
   fi
 else
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -f -
-  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE cli create -f -
+  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE cli create -f -
   fi
 fi
 
-K8S_SERVICES=$($KUBE get services)
+K8S_SERVICES=$($KUBE cli get services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
