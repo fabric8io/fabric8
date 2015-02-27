@@ -1059,6 +1059,21 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public void deleteConfigurationFiles(String versionId, List<String> profileIds, List<String> fileNames) {
+        if (profileIds.size() != fileNames.size()) {
+            throw new FabricException("Lists of profile IDs and filenames should be the same size");
+        }
+        for (int i = 0; i < profileIds.size(); i++) {
+            String profileId = profileIds.get(i);
+            String fileName = fileNames.get(i);
+            Profile profile = profileService.getRequiredProfile(versionId, profileId);
+            ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+            builder.deleteFileConfiguration(fileName);
+            profileService.updateProfile(builder.getProfile());
+        }
+    }
+
+    @Override
     public void setConfigurationFile(String versionId, String profileId, String fileName, String data) {
         Profile profile = profileService.getRequiredProfile(versionId, profileId);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);

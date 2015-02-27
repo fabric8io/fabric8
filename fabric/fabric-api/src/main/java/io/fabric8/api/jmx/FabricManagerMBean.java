@@ -171,6 +171,8 @@ public interface FabricManagerMBean {
 
     void deleteConfigurationFile(String versionId, String profileId, String fileName);
 
+    void deleteConfigurationFiles(String versionId, List<String> profileIds, List<String> fileNames);
+
     /**
      * Returns all of the configuration files available in the given profile (with inheritance) returning a map of the file
      * name to the profile which defines the
