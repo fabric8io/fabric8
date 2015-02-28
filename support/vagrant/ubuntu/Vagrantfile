@@ -19,7 +19,6 @@ echo >> ~/.bashrc
 echo export DOCKER_IP=172.28.128.4 >> ~/.bashrc
 echo alias kube=\"docker run --rm -i --net=host openshift/origin kube\" >> ~/.bashrc
 
-#sed -i "s/^DOCKER_OPTS=.\*/DOCKER_OPTS='-H unix:\/\/var\/run\/docker.sock -H tcp:\/\/0.0.0.0:2375 --insecure-registry=172.0.0.0\/8'/" /etc/default/docker
 sed -i "s/^DOCKER_OPTS=.\*/DOCKER_OPTS='-H unix:\\/\\/var\\/run\\/docker.sock -H tcp:\\/\\/0.0.0.0:2375 --insecure-registry=172.0.0.0\\/8'/" /etc/default/docker
 
 service docker restart
