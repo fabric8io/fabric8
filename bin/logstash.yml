@@ -1,0 +1,45 @@
+apiVersion: v1beta1
+kind: Config
+id: logstash-config
+items:
+  - apiVersion: v1beta1
+    kind: ReplicationController
+    id: logstash-controller
+    desiredState:
+      replicas: 1
+      replicaSelector:
+        component: logstash-viewer
+      podTemplate:
+        desiredState:
+          manifest:
+            version: v1beta1
+            id: logstash-server
+            containers:
+              -
+                name: logstash-image
+                image: fabric8/logstash:latest
+                imagePullPolicy: PullIfNotPresent
+                ports:
+                  -
+                    name: logstash-port
+                    containerPort: 4560
+                env:
+                  -
+                    name: ELASTICSEARCH_SERVICE_NAME
+                    value: ELASTICSEARCH
+        labels:
+          component: logstash-viewer
+  - apiVersion: v1beta1
+    kind: Service
+    id: logstash-service
+    containerPort: logstash-port
+    port: 4560
+    selector:
+      component: logstash-viewer
+  - apiVersion: v1beta1
+    kind: Route
+    id: logstash-route
+    metadata:
+      name: logstash-route
+    host: logs.fabric8.local
+    serviceName: logstash-service
