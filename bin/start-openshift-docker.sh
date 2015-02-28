@@ -14,7 +14,7 @@ OPENSHIFT_VERSION=0.3.2
 FABRIC8_VERSION=2.0.29
 OPENSHIFT_IMAGE=openshift/origin:v${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:v${OPENSHIFT_VERSION}
-REGISTRY_IMAGE=openshift/origin-haproxy-router:v${OPENSHIFT_VERSION}
+REGISTRY_IMAGE=openshift/origin-docker-registry:v${OPENSHIFT_VERSION}
 CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
@@ -154,6 +154,7 @@ fi
 if [ -f "$APP_BASE/fabric8.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE cli create -f -
   $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  cat $APP_BASE/registry.json | $KUBE cli create -f -
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     cat $APP_BASE/influxdb.json | $KUBE cli create -f -
@@ -165,6 +166,7 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE cli create -f -
   $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE cli create -f -
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
@@ -192,6 +194,7 @@ getServiceIp()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
+DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
@@ -205,6 +208,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
   validateService "Grafana console" $GRAFANA_CONSOLE
+  validateService "Docker registry" $DOCKER_REGISTRY
 
   # Set up Kibana default index
   if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null) ]; then
@@ -277,6 +281,7 @@ format="%-20s | %-60s\n"
 printf "${header}" Service URL
 printf "${header}" "-------" "---"
 printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
+printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Kibana console" $KIBANA_CONSOLE
   printf "${format}" "Grafana console" $GRAFANA_CONSOLE
@@ -292,6 +297,7 @@ printf "\n"
 printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
+printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
 printHostEnvVars
 
