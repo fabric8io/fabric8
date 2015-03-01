@@ -23,7 +23,7 @@
             "manifest": {
               "containers": [
                 {
-                  "image": "openshift/origin-docker-registry:v0.3.2",
+                  "image": "registry",
                   "name": "registry-container",
                   "imagePullPolicy": "PullIfNotPresent",
                   "ports": [
