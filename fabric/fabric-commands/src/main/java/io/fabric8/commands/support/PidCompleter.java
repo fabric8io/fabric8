@@ -15,14 +15,9 @@
  */
 package io.fabric8.commands.support;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import io.fabric8.api.scr.AbstractComponent;
 import org.apache.felix.scr.annotations.Activate;
@@ -32,7 +27,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -51,21 +45,7 @@ public class PidCompleter extends AbstractComponent implements Completer {
 
     @Activate
     void activate() {
-        Configuration[] configs;
-        try {
-            configs = configurationAdmin.listConfigurations(null);
-            if (configs == null) {
-                return;
-            }
-        } catch (Exception e) {
-            return;
-        }
-
-        Collection<String> pids = new ArrayList<String>();
-        for (Configuration config : configs) {
-            delegate.getStrings().addAll(getPidWithKeys(config.getPid()));
-        }
-
+        updateAllPids();
         activateComponent();
     }
 
@@ -96,12 +76,19 @@ public class PidCompleter extends AbstractComponent implements Completer {
      * Updates all Pids.
      */
     private void updateAllPids() {
-        Configuration[] configurations = null;
         try {
-            configurations = configurationAdmin.listConfigurations(null);
-            if (configurations != null) {
-                for (Configuration configuration:configurations) {
-                      delegate.getStrings().addAll(getPidWithKeys(configuration.getPid()));
+            Configuration[] configs = configurationAdmin.listConfigurations(null);
+            if (configs != null) {
+                for (Configuration config : configs) {
+                    String pid = config.getPid();
+                    Dictionary dictionary = config.getProperties();
+                    if (dictionary != null) {
+                        Enumeration keyEnumeration = dictionary.keys();
+                        while (keyEnumeration.hasMoreElements()) {
+                            String key = (String) keyEnumeration.nextElement();
+                            delegate.getStrings().add(pid + "/" + key);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -109,28 +96,4 @@ public class PidCompleter extends AbstractComponent implements Completer {
         }
     }
 
-    /**
-     * Returns a Set of Stings that contains all keys of the pid prefixed with the pid itself.
-     */
-    private Set<String> getPidWithKeys(String pid) {
-        Set<String> pidWithKeys = new LinkedHashSet<String>();
-        try {
-            Configuration[] configuration = configurationAdmin.listConfigurations("(service.pid=" + pid + ")");
-            if (configuration != null && configuration.length > 0) {
-                Dictionary dictionary = configuration[0].getProperties();
-                if (dictionary != null) {
-                    Enumeration keyEnumeration = dictionary.keys();
-                    while (keyEnumeration.hasMoreElements()) {
-                        String key = (String) keyEnumeration.nextElement();
-                        pidWithKeys.add(pid+"/"+key);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Could not lookup pid {} from configuration admin.",pid);
-        } catch (InvalidSyntaxException e) {
-            LOGGER.warn("Could not lookup pid {} from configuration admin.",pid);
-        }
-        return pidWithKeys;
-    }
 }
