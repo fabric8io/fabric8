@@ -29,9 +29,17 @@ You will need:
 
 1. [Install Docker](https://docs.docker.com/installation/), the later the version generally the better it is!
 2. Ensure you enable sudoless use of the docker daemon for users that will run the Fabric8 Start Script
-3. Copy the following line into /etc/sysconfig/docker
+3. Update your Docker config - this differs slightly on different Linux distros:
 
-    `OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"`
+    On RHEL/Centos/Fedora:
+    Copy the following line into `/etc/sysconfig/docker`
+
+        OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
+
+    If you are on Ubuntu/Debian:
+    Copy the following line into `/etc/default/docker`
+
+        DOCKER_OPTS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
 4. Restart the docker service  
     
     `service docker restart`
@@ -79,8 +87,7 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
     __Now at any point you can reset to the cleanstart snapshot via:__
 
     `vagrant snapshot go default cleanstart`
-
----  
+---
 
 ### Run the Start Script
 
