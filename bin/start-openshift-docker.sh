@@ -9,7 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-OPENSHIFT_VERSION=v0.3.2
+OPENSHIFT_VERSION=v0.3.4
 
 FABRIC8_VERSION=2.0.29
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
@@ -126,7 +126,7 @@ export KUBERNETES=http://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
-KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:v0.3.3 --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
+KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
