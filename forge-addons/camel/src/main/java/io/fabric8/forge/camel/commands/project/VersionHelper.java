@@ -19,8 +19,42 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
-public final class HawtioVersionHelper {
+public final class VersionHelper {
+
+    /**
+     * Retrieves the version of fabric8 to use
+     */
+    public static String fabric8Version() {
+        String version = null;
+
+        InputStream is = null;
+        try {
+            // try to load from maven properties first as they have the version
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.properties");
+            if (is == null) {
+                is = VersionHelper.class.getClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.properties");
+            }
+            if (is != null) {
+                Properties prop = new Properties();
+                prop.load(is);
+                version = prop.getProperty("version");
+            }
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        return version;
+    }
 
     /**
      * Retrieves the version of hawtio to use
