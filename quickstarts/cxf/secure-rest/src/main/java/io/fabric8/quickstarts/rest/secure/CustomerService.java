@@ -171,7 +171,6 @@ public class CustomerService {
     @com.wordnik.swagger.annotations.ApiOperation(
         value = "getOrder",
         notes = "/** \n * This method is mapped to an HTTP GET of 'http://localhost:8181/cxf/crm/customerservice/orders/{id}'.  The value for {id} will be passed to this message as a parameter, using the @PathParam annotation. <p/> The method returns an Order object - the class for that object includes a few more JAX-RS annotations, allowing it to display one of these two outputs, depending on the actual URI path being used: - display the order information itself in XML format - display details about a product in the order in XML format in a path relative to the URI defined here\n */\n")
-    @GET
     @Path("/orders/{orderId}/")
     public Order getOrder(@com.wordnik.swagger.annotations.ApiParam(value = "orderId") @PathParam("orderId") String orderId) {
         LOG.info("Invoking getOrder, Order id is: {}", orderId);
