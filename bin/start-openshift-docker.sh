@@ -14,8 +14,7 @@ OPENSHIFT_VERSION=v0.3.2
 FABRIC8_VERSION=2.0.29
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
-#REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
-REGISTRY_IMAGE=registry:latest
+REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
 CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
@@ -127,7 +126,7 @@ export KUBERNETES=http://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
-KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
+KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:v0.3.3 --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
@@ -141,6 +140,7 @@ validateService()
 
 validateService "Kubernetes master" $KUBERNETES
 $KUBE_EX router --create --ports=80:80,443:443
+$KUBE_EX registry --create
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
@@ -155,7 +155,6 @@ fi
 if [ -f "$APP_BASE/fabric8.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE cli create -f -
   $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
-  cat $APP_BASE/registry.json | $KUBE cli create -f -
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     cat $APP_BASE/influxdb.json | $KUBE cli create -f -
@@ -167,7 +166,6 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE cli create -f -
   $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE cli create -f -
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
