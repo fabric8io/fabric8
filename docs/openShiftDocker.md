@@ -90,7 +90,7 @@ Once you've run the script you'll need to complete some post-install steps befor
 
 __The first time you run fabric8 v2 it may take some time as there are a number of docker images to download, this may require some patience__
 
-If you are running fabric8 v2 for the first time we recommend you start with the basic script
+If you are running fabric8 v2 for the first time we recommend you start with the basic script. This should be run from the machine hosting Docker.
 
 #### Basic
 
@@ -141,7 +141,7 @@ You'll need to set the following environment variables on your host to be able u
     DOCKER_HOST
     KUBERNETES_MASTER  - used to interact with the Kubernetes Rest API
 
-These environment variables are presented to you on succesfull completion of the start scirpt, so the easiest thing to do is copy them from the output into your .bashrc
+These environment variables are presented to you on succesfull completion of the start scirpt, so the easiest thing to do is copy them from the output into your ~/.bashrc (linux) or ~/.profile (mac). Windows users will need to set them individually via the Environment Variables dialog.
 
 #### Setup Network Routes (Non-Native Install Only)
 
@@ -183,6 +183,7 @@ To see all the available commands:
 However you can pipe them into the command line via
 
     cat mything.json | osc create -f -
+---
 
 ### Miscellaneous 
 
