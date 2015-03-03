@@ -8,7 +8,7 @@
     {
       "apiVersion": "v1beta1",
       "containerPort": 5000,
-      "id": "registry-service",
+      "id": "docker-registry",
       "kind": "Service",
       "port": 5000,
       "selector": {
