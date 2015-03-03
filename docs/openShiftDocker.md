@@ -1,44 +1,110 @@
 ## Run OpenShift V3 using Docker
 
+### Overview
 
-There are two common approaches to running OpenShift with [Docker](https://docs.docker.com/) and the prerequisites are different depending on how you install and run Docker.
+There are two common approaches to running OpenShift with [Docker](https://docs.docker.com/):
+
+* **Native Docker Install** - If you are using a Linux Operating System that natively suppors Docker such as Fedora, Centos or RHEL, then you can install and run OpenShift using a local Docker install.
+
+* **Non-Native Docker Install** - If you are using an Operating System such as OSX or Windows that doesn't support Docker natively, you'll need to create a Virtual Machine to host Docker and subsequently OpenShift.
+
+Even if your OS supports Docker natively it can be useful to use a Non-Native Install as you can then snapshot your Vm hosting OpenShift install in various states and restore.
+
+Regardless of the approach taken you will need to:
+
+* Setup your Docker environment (Prerequisites)
+* Run the Start Script to install and configure OpenShift in Docker
+* Configure your host to provide access to OpenShift (Env Variables and Network Routes)
+
+---
 
 ### Prerequisites
-Whether you can run and install Docker natively changes the steps you need to follow.  Please follow the correct steps for you..
 
-  * Internet connection to download the start script and pull docker images
-  * Suitable disk space for your desired usage.  Docker images can be quite large and 20G will disappear quickly, it's recommended to keep an eye on your available disk space.  There are some useful [clean up scripts](#clean-up-scripts) to help.
-  * [Native setup steps](#native-prerequisites) - if you are using an Operating System such as Fedora, Centos or RHEL then you can install and run Docker natively and therefore OpenShift too
-  * [Non native setup steps](#non-native-prerequisites) - if you are using an Operating System such as OSX or Windows then you'll need to use a Virtual Machine
+You will need:
 
-### Getting started
+  * An Internet connection to download the Start script and pull docker images (docker images are then subsequently cached for offline use)
+  * Sufficient disk space for your desired usage.  Docker images can be quite large and 20G will disappear quickly. Therefore, it's recommended to keep an eye on your available disk space.  There are some useful [clean up scripts](#clean-up-scripts) to help manage this.
 
-We use a script which is downloaded via curl to configure and start OpenShift in a Docker container.  This script will also schedule a number of further containers such as the fabric8 console and optionally logging and metric dashboards in the form of [Kibana](http://www.elasticsearch.org/overview/kibana) and [Grafana](http://play.grafana.org/#/dashboard/db/grafana-play-home).
+#### Native Docker Install Pre Requisites
 
-* [Start Scripts](#start-scripts)
-* [Environment Variables](#environment-variables)
-* [Deploy and Run a quickstart](example.html)
-* [Using the OpenShift CLI (osc)](#using-the-kube-command-line)
+1. [Install Docker](https://docs.docker.com/installation/), the later the version generally the better it is!
+2. Ensure you enable sudoless use of the docker daemon for users that will run the Fabric8 Start Script
+3. Copy the following line into /etc/sysconfig/docker
+
+    `OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"`
+4. Restart the docker service  
+    
+    `service docker restart`
+
+#### Non-Native Docker Install Pre Requisites
+
+Traditionally Mac and Windows users would use [boot2docker](http://boot2docker.io/), a lightweight VM designed to make it feel like users can run docker natively.  This has been good in the past when working with a few containers however we have seen connectivity issues and problems related to low resources when working with more demanding technologies such as OpenShift & Kubernetes. Therefore, We __do not__ recommend you use boot2docker to run OpenShift.
+
+Alternatively, you *could* create a VM manually using VMWare or [Virtual Box](https://www.virtualbox.org/) and install docker manually (using the  [Native Install Pre Requisites](#Native Docker Install Pre Requisites))
+
+__Instead, we recommend that the simplest way to get going is to use the Fabric8 VagrantFile, as detailed below:__
+
+1. Install the [Docker client](https://docs.docker.com/installation/) to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn't currently a binary distribution for Windows)
+2. Install [Vagrant](http://www.vagrantup.com/downloads.html)
+3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip):
+
+    `git clone git@github.com:fabric8io/fabric8.git`  
+4. Create a VM using the Fabric8 VagrantFile at the root of the repository:
+
+    `cd fabric8`  
+    `vagrant up`   
+    `vagrant ssh`
+
+   Note: There are alternative Vagrant images available in the [Fabric8 Repo](https://github.com/fabric8io/fabric8/tree/master/support/vagrant)
+
+5. We recommend priming the docker registry with the images used by Fabric8, and then using Vagrant to take a snapshot so we can revert back to a clean start without re-downloading gigabites of docker images.
+
+    first install the snapshot plugin
+
+    `vagrant plugin install vagrant-vbox-snapshot`  
+
+    now prime the registry  
+
+    `bash <(curl -sSL https://bit.ly/get-fabric8) -p`  
+
+    or if you want to pull down all the docker images for the kitchen sink
+
+    `bash <(curl -sSL https://bit.ly/get-fabric8) -pk`  
+
+    take a snapshot of the vagrant image:
+
+    `exit`  
+    `vagrant snapshot take default cleanstart` 
+
+    __Now at any point you can reset to the cleanstart snapshot via:__
+
+    `vagrant snapshot go default cleanstart`
 
 ---  
 
+### Run the Start Script
 
-### Start Scripts
+We use a script downloaded via curl to configure and start OpenShift in a Docker container. This script will then schedule a number of further containers such as the Fabric8 console and optionally logging and metric dashboards in the form of [Kibana](http://www.elasticsearch.org/overview/kibana) and [Grafana](http://play.grafana.org/#/dashboard/db/grafana-play-home).
 
-_The first time you run fabric8 v2 it may take some time as there are a number of docker images to download, this may require some patience_
+Once you've run the script you'll need to complete some post-install steps before you can access Fabric8.
 
-If you are running fabric8 v2 for the first time we recommend you start with the basic script below
+__The first time you run fabric8 v2 it may take some time as there are a number of docker images to download, this may require some patience__
 
+If you are running fabric8 v2 for the first time we recommend you start with the basic script
 
 #### Basic
 
-If you fancy starting OpenShift V3 the super-easy way which includes the [Fabric8 console](console.html) and a [Private Docker registry](https://registry.hub.docker.com/_/registry/), run this one-liner, once finished if a browser is installed it will open to the fabric8 console  
+If you fancy starting OpenShift V3 the super-easy way which includes the [Fabric8 console](console.html) and a [Private Docker registry](https://registry.hub.docker.com/_/registry/), run this one-liner.
 
     bash <(curl -sSL https://bit.ly/get-fabric8)
 
+If using a native install a Browser will automatically open on completion showing the Fabric8 console
+
 #### Full
 
-If you would like to try out a fully-featured installation, including aggregated logs & metrics, you can pass in the `-k` ("kitchen sink") flag __warning more images to download so longer to wait__
+If you would like to try out a fully-featured installation, including aggregated logs & metrics, you can pass in the `-k` ("kitchen sink") flag
+
+__warning: more images to download so longer to wait__
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -k
 
@@ -60,107 +126,49 @@ And of course flags can be combined, to start from scratch & update all images a
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -kuf
 
-
 ---  
 
-### Native prerequisites
+### Post Install Steps
 
-1. First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
-2. Ensure you enable sudoless use of the docker daemon for users that will run the start script
-3. Copy the following line into /etc/sysconfig/docker  
+#### Set Environment variables
 
-    OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
-4. Restart the docker service  
-    
-    service docker restart
+You'll need to set the following environment variables on your host to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
 
-### Non Native prerequisites
-
-Traditionally Mac and Windows users for example would use [boot2docker](http://boot2docker.io/) (a lightweight VM designed to make it feel like users can run docker natively).  This has been good in the past when working with a few containers however we have seen connectivity issues and problems related to low resources when working with more demanding technologies such as Kubernetes.  We __do not__ recommend you use boot2docker to run OpenShift.  
-
-We will use a VM to run OpenShift, you can configure a VM yourself, some use VMWare over Virtual Box and follow the Native steps above.  You will still need to add network routes as described in the steps below so you can access [Sevices](services.html) and [Pods](pods.html).
-
-__If you want to avoid this then the simplest way to get going is to use the fabric8 VagrantFile:__
-
-1. First you'll need to install the [Docker client](https://docs.docker.com/installation/) as mentioned above to interact with docker registries etc, the later the version generally the better it is!
-2. Install [Vagrant](http://www.vagrantup.com/downloads.html)
-3. Get the fabrc8 VM
-
-    `git clone git@github.com:fabric8io/fabric8.git`  
-    `cd fabric8`  
-    `vagrant up`  
-    `vagrant ssh`    
-
-
-4. It's a good idea prime prime the docker registry (docker pull the images we will be using) and use Vagrant to take a snapshot so we can revert back to a clean start without re-downloading gigabites of docker images.
-
-    first install the snapshot plugin
-
-    `vagrant plugin install vagrant-vbox-snapshot`  
-
-    now prime the registry  
-
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -p`  
-
-    or if you want to pull down all the docker images for the kitchen sink
-
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -pk`  
-
-    take a snapshot of the vagrant image:
-
-    `exit`  
-    `vagrant snapshot take default cleanstart`  
-
-    __Now at any point you can reset to the cleanstart snapshot via:__
-
-    `vagrant snapshot go default cleanstart`
-
-
-5.  Networking - Making sure you can access the IP addresses of services and pods from your host, you will need to add network routes on your host to access the fabric8 console and other services.  
-
-    Set the **DOCKER_IP** environment variable.  This points to the IP address where docker is running.
-
-    If you are using the fabric8 vagrant image then run:
-
-    `export DOCKER_IP=172.28.128.4`
-
-    If you are running with VM and have set it up yourself rather than using the Vagrant image then get the correct en* ipaddress you use to connect to your VM using `ip addr show` or `ifconfig` 
-
-    `export DOCKER_IP=[correct en IP]`
-
-    Then you should be able to add a network route so you can see the 172.X.X.X IP addresses:
-
-    `sudo route -n delete 172.0.0.0/8`  
-    `sudo route -n add 172.0.0.0/8 $DOCKER_IP`
-
-    you should now be able to access IP addresses within kubernetes starting with "172."
-
-
-### Environment variables
-
-You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
-
-The following environment variables with their values are presented to you after the start script finishes.  
-
-    DOCKER_IP
-    KUBERNETES_TRUST_CERT
-    KUBERNETES_MASTER  - used to interact with the Kubernetes Rest API
-    DOCKER_REGISTRY  - used to push images to the private docker registry
     FABRIC8_CONSOLE - used to interact with the faberic8 console to deploy and run apps
+    DOCKER_REGISTRY  - used to push images to the private docker registry
+    KUBERNETES_TRUST_CERT
+    DOCKER_IP - used by the docker client to connect to docker
+    DOCKER_HOST
+    KUBERNETES_MASTER  - used to interact with the Kubernetes Rest API
 
-### Using the kube command line
+These environment variables are presented to you on succesfull completion of the start scirpt, so the easiest thing to do is copy them from the output into your .bashrc
 
-Run this command or add it to your ~/.bashrc
+#### Setup Network Routes (Non-Native Install Only)
 
-Natively  
+To make sure you can access the IP addresses of services and pods hosted in your Virtual Machine (e.g. the Fabric8 Console), you'll need to add a network route for the 172.X.X.X IP range:
+
+    sudo route -n delete 172.0.0.0/8  
+    sudo route -n add 172.0.0.0/8 $DOCKER_IP
+
+Or on Windows run the following from a DOS prompt as an Administrator:
+
+    route add 172.0.0.0 MASK 255.0.0.0 $DOCKER_IP
+
+You should now be able to access the Fabric8 console using the address defined in the previously set $FABRIC8_CONSOLE environment variable.
+
+#### Using the osc command line
+
+On Linux you can create an alias to access the osc command line (an extended version of 'kube'). Run the following or add it to your ~/.bashrc
+
+**Native Install**
 
     alias osc="docker run --rm -i --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify"
 
-Non-natively  
+**Non-Native Install**
 
     alias osc="docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify"
 
-You can now use the kube command line to list pods, replication controllers and services; delete or create resources etc:
+You can now use the osc command line to list pods, replication controllers and services; delete or create resources etc:
 
     osc get pods
     osc get replicationControllers
@@ -176,7 +184,15 @@ However you can pipe them into the command line via
 
     cat mything.json | osc create -f -
 
-### Clean up scripts
+### Miscellaneous 
+
+#### Restarting OpenShift
+
+If docker is restarted, you can restart openshift by starting the openshift container
+
+    docker start openshift
+
+#### Clean up script
 
 To remove untagged images
 
@@ -189,16 +205,10 @@ Sometimes Docker containers are not removed completely.  The lines below will st
     docker kill $(docker ps -a | grep k8s | cut -c 1-12)
     docker rm -v $(docker ps -a -q)
 
-### Running a hawtio console
+#### Running a Hawtio Console
+
 If you are developing and working with hawtio you might want to run a locally built hawtio docker image against OpenShift..
 
     docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 
 You can now access the web console at http://$DOCKER_IP:8484/hawtio/kubernetes/pods.
-
-### Troubleshooting
-
-#### Avoiding boot2docker all together
-
-You still need to run docker commands on your host such as `docker build`, `docker push` and when using the OpenShift CLI.  Rather than using boot2docker we can also use the docker daemon from the VM.  If you're using the fabric8 Vagrant image this will already be setup for you.  If you have created a VM yourself you need to follow these steps..
-
