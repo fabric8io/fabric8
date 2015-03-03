@@ -66,13 +66,21 @@ And of course flags can be combined, to start from scratch & update all images a
 ### Native prerequisites
 
 1. First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
-2. Ensure you enable sudoless use of the docker daemon for users that will run the start script
-3. Copy the following line into /etc/sysconfig/docker  
+2. Ensure you enable sudoless use of the docker daemon for users that will run the start script. To archive this add your user to the grouop docker and restart the docker service. After that logoff and login again.
+3. You'll need to change some docker configuration. How you do that depends on the system you are on.
 
-    OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
+    On RHEL/Centos/Fedora:
+    Copy the following line into /etc/sysconfig/docker  
+
+        OPTIONS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
+
+    If you are on Ubuntu/Debian:
+    Copy the following line into /etc/default/docker
+        
+        DOCKER_OPTS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
 4. Restart the docker service  
     
-    service docker restart
+        service docker restart
 
 ### Non Native prerequisites
 
