@@ -120,7 +120,12 @@ public class ClusterListAction extends AbstractAction {
                                 node.slaves.add(agent);
                             }
                         } else {
-                            node.slaves.add(agent);
+                            Object started = value(map, "started");
+                            if( started == Boolean.TRUE ) {
+                                node.masters.add(agent);
+                            } else {
+                                node.slaves.add(agent);
+                            }
                         }
                     }
                 }

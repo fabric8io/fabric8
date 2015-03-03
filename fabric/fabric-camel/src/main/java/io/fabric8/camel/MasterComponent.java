@@ -27,7 +27,7 @@ import java.util.Map;
  * taking over to provide high availability of a single consumer.
  */
 public class MasterComponent extends ZKComponentSupport {
-    private String zkRoot = "/fabric/registry/camel/master";
+    private String zkRoot = "/fabric/registry/clusters/camel/master";
 
     public String getZkRoot() {
         return zkRoot;

@@ -51,14 +51,18 @@ public class MasterConsumer extends DefaultConsumer implements GroupListener {
     protected void doStart() throws Exception {
         super.doStart();
         singleton.start();
-        CamelNodeState state = new CamelNodeState(endpoint.getSingletonId());
         LOG.debug("Attempting to become master for endpoint: " + endpoint + " in " + endpoint.getCamelContext() + " with singletonID: " + endpoint.getSingletonId());
-        singleton.update(state);
+        singleton.update(createNodeState());
+    }
+
+    private CamelNodeState createNodeState() {
+        CamelNodeState state = new CamelNodeState(endpoint.getSingletonId());
+        state.consumer = endpoint.getChildEndpoint().getEndpointUri();
+        return state;
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
         try {
             stopConsumer();
         } finally {
@@ -125,6 +129,12 @@ public class MasterConsumer extends DefaultConsumer implements GroupListener {
                 if (delegate instanceof SuspendableService) {
                     delegateService = (SuspendableService) delegate;
                 }
+
+                // Lets show we are starting the consumer.
+                CamelNodeState nodeState = createNodeState();
+                nodeState.started = true;
+                singleton.update(nodeState);
+
                 ServiceHelper.startService(delegate);
             } catch (Exception e) {
                 LOG.error("Failed to start master consumer for: " + endpoint + ". Reason: " + e, e);
