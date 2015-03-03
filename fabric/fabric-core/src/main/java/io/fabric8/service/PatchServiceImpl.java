@@ -15,12 +15,7 @@
  */
 package io.fabric8.service;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.PatchService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileBuilder;
-import io.fabric8.api.ProfileService;
-import io.fabric8.api.Version;
+import io.fabric8.api.*;
 import io.fabric8.utils.Base64Encoder;
 
 import java.io.BufferedInputStream;
@@ -151,6 +146,9 @@ public class PatchServiceImpl implements PatchService {
                     LOGGER.info("The patch {} has already been applied to version {}, ignoring.", descriptor.getId(), version.getId());
                 }
             }
+        } catch (PatchException e) {
+            // PatchException already is a RuntimeException - simply rethrowing it
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Unable to apply patch", e);
         }
@@ -158,13 +156,13 @@ public class PatchServiceImpl implements PatchService {
 
     /**
      * Check if all required patches for a patch are available in the specified version
-     * @throws java.lang.RuntimeException if a required patch is missing
+     * @throws io.fabric8.api.PatchException if a required patch is missing
      */
     protected static void checkRequirements(Version version, PatchDescriptor descriptor) {
         for (String requirement : descriptor.getRequirements()) {
             if (getPatchProfile(version, requirement) == null) {
-                throw new RuntimeException(String.format("Unable to install patch '%s' - required patch '%s' is missing in version %s",
-                                                         descriptor.getId(), requirement, version.getId()));
+                throw new PatchException(String.format("Unable to install patch '%s' - required patch '%s' is missing in version %s",
+                                                       descriptor.getId(), requirement, version.getId()));
             }
         }
     }

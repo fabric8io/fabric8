@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import io.fabric8.api.PatchException;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import org.junit.Test;
@@ -83,7 +84,7 @@ public class PatchServiceImplTest {
         try {
             PatchServiceImpl.checkRequirements(version, descriptor);
             fail("Patch should not have passed requirements check - required patch is missing");
-        } catch (RuntimeException e) {
+        } catch (PatchException e) {
             assertTrue(e.getMessage().toLowerCase().contains("required patch 'prereq4b' is missing"));
         }
     }
@@ -100,7 +101,7 @@ public class PatchServiceImplTest {
         try {
             PatchServiceImpl.checkRequirements(version, patches);
             fail("Patch should not have passed requirements check - required patch is missing");
-        } catch (RuntimeException e) {
+        } catch (PatchException e) {
             assertTrue(e.getMessage().toLowerCase().contains("required patch 'prereq4b' is missing"));
         }
     }
