@@ -140,8 +140,7 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
-$KUBE_EX router --create --ports=80,443
-$KUBE_EX registry --create
+$KUBE_EX router --create --ports=80:80,443
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
