@@ -21,6 +21,7 @@
             // retrieve our version (something like redhat-access-plugin-jon-X.X.X)
             $(document).ready(
                     function () {
+                        parent.iframeLoaded();
                         $.ajax({
                             dataType: 'json',
                             contentType: 'application/json',
