@@ -69,13 +69,6 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
     ResourceFactory resourceFactory;
 
     @Override
-    public boolean isEnabled(UIContext context) {
-        // requires camel is already setup
-        Project project = getSelectedProject(context);
-        return super.isEnabled(context) && findCamelCoreDependency(project) != null;
-    }
-
-    @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
                 "project-camel-add-spring-xml").category(Categories.create(CATEGORY))
@@ -110,15 +103,12 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // name -> artifactId
-        String artifactId = findComponentArchetype("spring");
-
-        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
+        DependencyBuilder spring = DependencyBuilder.create().setGroupId("org.apache.camel")
+                .setArtifactId("camel-spring").setVersion(core.getCoordinate().getVersion());
 
         // install camel-spring if missing
-        if (!dependencyInstaller.isManaged(project, component)) {
-            dependencyInstaller.install(project, component);
+        if (!dependencyInstaller.isManaged(project, spring)) {
+            dependencyInstaller.install(project, spring);
         }
 
         Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/camel-spring.ftl")).reify(URLResource.class);

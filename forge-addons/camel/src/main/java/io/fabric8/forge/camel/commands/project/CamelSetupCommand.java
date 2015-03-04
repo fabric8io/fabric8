@@ -45,6 +45,11 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     private DependencyInstaller dependencyInstaller;
 
     @Override
+    protected boolean requiresCamelSetup() {
+        return false;
+    }
+
+    @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
                 "project-camel-setup").category(Categories.create(CATEGORY))

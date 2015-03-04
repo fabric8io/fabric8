@@ -41,6 +41,21 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        if (requiresCamelSetup()) {
+            // requires camel is already setup
+            Project project = getSelectedProject(context);
+            return super.isEnabled(context) && findCamelCoreDependency(project) != null;
+        } else {
+            return super.isEnabled(context);
+        }
+    }
+
+    protected boolean requiresCamelSetup() {
+        return true;
+    }
+
+    @Override
     protected ProjectFactory getProjectFactory() {
         return projectFactory;
     }

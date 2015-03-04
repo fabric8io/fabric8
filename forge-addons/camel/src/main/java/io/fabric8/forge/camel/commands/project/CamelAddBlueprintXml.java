@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.resource.Resource;
@@ -55,17 +58,13 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
     private UIInput<String> name;
 
     @Inject
+    private DependencyInstaller dependencyInstaller;
+
+    @Inject
     private TemplateFactory factory;
 
     @Inject
     ResourceFactory resourceFactory;
-
-    @Override
-    public boolean isEnabled(UIContext context) {
-        // requires camel is already setup
-        Project project = getSelectedProject(context);
-        return super.isEnabled(context) && findCamelCoreDependency(project) != null;
-    }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -82,10 +81,6 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-
-        // TODO: check we have camel-blueprint, and packaging = bundle
-        // and add the karaf bundle plugin
-
         Project project = getSelectedProject(context);
         String projectName = project.getRoot().getName();
 
@@ -98,6 +93,20 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
 
         if (fileResource.exists()) {
             return Results.fail("Blueprint XML file " + fullName + " already exists");
+        }
+
+        // does the project already have camel?
+        Dependency core = findCamelCoreDependency(project);
+        if (core == null) {
+            return Results.fail("The project does not include camel-core");
+        }
+
+        DependencyBuilder spring = DependencyBuilder.create().setGroupId("org.apache.camel")
+                .setArtifactId("camel-blueprint").setVersion(core.getCoordinate().getVersion());
+
+        // install camel-blueprint if missing
+        if (!dependencyInstaller.isManaged(project, spring)) {
+            dependencyInstaller.install(project, spring);
         }
 
         Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/camel-blueprint.ftl")).reify(URLResource.class);
