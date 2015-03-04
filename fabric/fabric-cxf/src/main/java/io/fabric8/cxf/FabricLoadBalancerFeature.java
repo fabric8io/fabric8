@@ -48,6 +48,9 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     private boolean shouldCloseZkClient = false;
     // Default ZooKeeper connection timeout
     private int maximumConnectionTimeout = 10 * 1000;
+    
+    //waiting for the GroupEvent to avoid the AlternateAddressList empty
+    private int waitingForGroupEvent = 3 * 1000;
     private volatile Group group;
     private LoadBalanceStrategy loadBalanceStrategy;
 
@@ -58,6 +61,11 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         // setup the BusLifeCycleListener
         BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
         manager.registerLifeCycleListener(this);
+        try {
+            Thread.sleep(getWaitingForGroupEvent());
+        } catch (InterruptedException e) {
+            LOG.warn("InterruptedException when wait for the GroupEvent notification " + e);
+        }
     }
 
     // this method will be used for JAXRS client
@@ -78,6 +86,11 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
             // setup the BusLifeCycleListener
             BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
             manager.registerLifeCycleListener(this);
+            try {
+                Thread.sleep(getWaitingForGroupEvent());
+            } catch (InterruptedException e) {
+                LOG.warn("InterruptedException when wait for the GroupEvent notification " + e);
+            }
         }
     }
 
@@ -106,6 +119,11 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         // setup the BusLifeCycleListener
         BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
         manager.registerLifeCycleListener(this);
+        try {
+            Thread.sleep(getWaitingForGroupEvent());
+        } catch (InterruptedException e) {
+            LOG.warn("InterruptedException when wait for the GroupEvent notification " + e);
+        }
     }
 
     protected void setupClientConduitSelector(Client client) {
@@ -260,5 +278,13 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         } catch (Exception e) {
             LOG.error("Cannot shut down the curator due to " + e);
         }
+    }
+
+    public int getWaitingForGroupEvent() {
+        return waitingForGroupEvent;
+    }
+
+    public void setWaitingForGroupEvent(int waitingForGroupEvent) {
+        this.waitingForGroupEvent = waitingForGroupEvent;
     }
 }
