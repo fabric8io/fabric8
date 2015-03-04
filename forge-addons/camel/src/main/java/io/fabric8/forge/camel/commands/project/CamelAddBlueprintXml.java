@@ -61,6 +61,13 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
     ResourceFactory resourceFactory;
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        // requires camel is already setup
+        Project project = getSelectedProject(context);
+        return super.isEnabled(context) && findCamelCoreDependency(project) != null;
+    }
+
+    @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
                 "project-camel-add-blueprint-xml").category(Categories.create(CATEGORY))
@@ -75,6 +82,10 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
+
+        // TODO: check we have camel-blueprint, and packaging = bundle
+        // and add the karaf bundle plugin
+
         Project project = getSelectedProject(context);
         String projectName = project.getRoot().getName();
 

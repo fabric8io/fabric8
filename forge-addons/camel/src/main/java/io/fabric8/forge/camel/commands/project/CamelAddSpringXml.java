@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.resource.Resource;
@@ -42,6 +45,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
+import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findComponentArchetype;
+
 @FacetConstraint({ResourcesFacet.class})
 public class CamelAddSpringXml extends AbstractCamelProjectCommand {
 
@@ -55,10 +60,20 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
     private UIInput<String> name;
 
     @Inject
+    private DependencyInstaller dependencyInstaller;
+
+    @Inject
     private TemplateFactory factory;
 
     @Inject
     ResourceFactory resourceFactory;
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        // requires camel is already setup
+        Project project = getSelectedProject(context);
+        return super.isEnabled(context) && findCamelCoreDependency(project) != null;
+    }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -87,6 +102,23 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
 
         if (fileResource.exists()) {
             return Results.fail("Spring XML file " + fullName + " already exists");
+        }
+
+        // does the project already have camel?
+        Dependency core = findCamelCoreDependency(project);
+        if (core == null) {
+            return Results.fail("The project does not include camel-core");
+        }
+
+        // name -> artifactId
+        String artifactId = findComponentArchetype("spring");
+
+        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
+                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
+
+        // install camel-spring if missing
+        if (!dependencyInstaller.isManaged(project, component)) {
+            dependencyInstaller.install(project, component);
         }
 
         Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/camel-spring.ftl")).reify(URLResource.class);
