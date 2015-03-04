@@ -69,7 +69,7 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        // TODO: add completors for directory / validator for name
+        name.addValidator(new ResourceNameValidator("xml"));
         builder.add(directory).add(name);
     }
 
