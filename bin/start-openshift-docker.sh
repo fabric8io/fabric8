@@ -157,22 +157,22 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE cli create -f -
-    cat $APP_BASE/elasticsearch.json | $KUBE cli create -f -
-    cat $APP_BASE/logspout.yml | $KUBE cli create -f -
-    cat $APP_BASE/kibana.yml | $KUBE cli create -f -
-    cat $APP_BASE/grafana.yml | $KUBE cli create -f -
+    cat $APP_BASE/influxdb.json | $KUBE create -f -
+    cat $APP_BASE/elasticsearch.json | $KUBE create -f -
+    cat $APP_BASE/logspout.yml | $KUBE create -f -
+    cat $APP_BASE/kibana.yml | $KUBE create -f -
+    cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE create -f -
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
   fi
 fi
 
