@@ -64,12 +64,12 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     @Override
     public ArchetypeCatalog getArchetypeCatalog() {
         if (cachedArchetypes == null) {
-            // TODO: version should be not hardcoded
-            // use the camel catalog to load the archetypes
+            String version = VersionHelper.fabric8Version();
+
             Coordinate coordinate = CoordinateBuilder.create()
                     .setGroupId("io.fabric8.archetypes")
                     .setArtifactId("archetypes-catalog")
-                    .setVersion("2.2-SNAPSHOT")
+                    .setVersion(version)
                     .setClassifier("archetype-catalog")
                     .setPackaging("xml");
 

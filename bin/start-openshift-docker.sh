@@ -9,10 +9,12 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
+OPENSHIFT_VERSION=v0.3.4
+
 FABRIC8_VERSION=2.0.29
-OPENSHIFT_IMAGE=openshift/origin:latest
-OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:latest
-REGISTRY_IMAGE=registry:latest
+OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
+OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
+REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
 CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
@@ -22,8 +24,8 @@ LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
 GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
-MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
+MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -123,7 +125,8 @@ export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
 export KUBERNETES=http://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
+KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
+KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
@@ -136,6 +139,8 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
+$KUBE_EX router --create --ports=80:80,443:443
+$KUBE_EX registry --create
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
@@ -148,34 +153,30 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
 fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
-  cat $APP_BASE/fabric8.json | $KUBE apply -f -
-  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
-  cat $APP_BASE/registry.json | $KUBE apply -f -
+  cat $APP_BASE/fabric8.json | $KUBE cli create -f -
+  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE apply -f -
-    cat $APP_BASE/elasticsearch.json | $KUBE apply -f -
-    cat $APP_BASE/logspout.yml | $KUBE apply -f -
-    cat $APP_BASE/kibana.yml | $KUBE apply -f -
-    cat $APP_BASE/grafana.yml | $KUBE apply -f -
-    cat $APP_BASE/router.json | $KUBE create  -f -
+    cat $APP_BASE/influxdb.json | $KUBE cli create -f -
+    cat $APP_BASE/elasticsearch.json | $KUBE cli create -f -
+    cat $APP_BASE/logspout.yml | $KUBE cli create -f -
+    cat $APP_BASE/kibana.yml | $KUBE cli create -f -
+    cat $APP_BASE/grafana.yml | $KUBE cli create -f -
   fi
 else
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -f -
-  $KUBE apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -f -
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE cli create -f -
+  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE cli create -f -
   fi
 fi
 
-K8S_SERVICES=$($KUBE get services)
+K8S_SERVICES=$($KUBE cli get services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
@@ -192,7 +193,7 @@ getServiceIp()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
-DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
+DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
@@ -200,8 +201,8 @@ GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 CADVISOR=http://$DOCKER_IP:4194
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
+validateService "Docker registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
-  validateService "Docker registry" $DOCKER_REGISTRY
   validateService "Influxdb" $INFLUXDB
   validateService "Elasticsearch" $ELASTICSEARCH
   validateService "cadvisor" $CADVISOR
@@ -245,7 +246,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   fi
 fi
 
-# Work out the host machine related env vars.  There can be multiple networy interfaces so if we dont know which one, the options are listed for the user to decide.  
+# Work out the host machine related env vars.  There can be multiple networy interfaces so if we dont know which one, the options are listed for the user to decide.
 function printHostEnvVars {
   IPS=$(hostname -I)
   if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
@@ -291,11 +292,11 @@ fi
 
 printf "$SERVICE_TABLE" | column -t -s '|'
 
-printf "\n" 
+printf "\n"
 printf "%s\n" "Set these environment variables on your development machine:"
-printf "\n" 
-printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
+printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
+printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
 printHostEnvVars
 

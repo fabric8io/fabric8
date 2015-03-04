@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+$provisionScript = <<SCRIPT
+
+# add host
+# update limits
+echo >> /etc/security/limits.conf
+echo *        hard    nproc           8192 >> /etc/security/limits.conf
+echo *        soft    nproc           8192 >> /etc/security/limits.conf
+echo *        hard    nofile           8192 >> /etc/security/limits.conf
+echo *        soft    nofile           8192 >> /etc/security/limits.conf
+
+# add some user aliases
+echo >> ~/.bashrc
+echo export DOCKER_IP=172.28.128.4 >> ~/.bashrc
+echo alias kube=\"docker run --rm -i --net=host openshift/origin kube\" >> ~/.bashrc
+
+sed -i "s/^DOCKER_OPTS=.\*/DOCKER_OPTS='-H unix:\\/\\/var\\/run\\/docker.sock -H tcp:\\/\\/0.0.0.0:2375 --insecure-registry=172.0.0.0\\/8'/" /etc/default/docker
+
+service docker restart
+
+SCRIPT
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.network "private_network", ip: "172.28.128.4"
+
+  config.vm.hostname = "fabric8-master.vagant.local"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  end
+
+  config.vm.provision "docker"
+
+  config.vm.provision "shell", inline: $provisionScript
+
+end

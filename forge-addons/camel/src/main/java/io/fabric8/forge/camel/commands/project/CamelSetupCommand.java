@@ -82,7 +82,7 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
 
         // add hawtio-maven-plugin using latest version
         plugin = MavenPluginBuilder.create()
-                .setCoordinate(createCoordinate("io.hawt", "hawtio-maven-plugin", HawtioVersionHelper.hawtioVersion()));
+                .setCoordinate(createCoordinate("io.hawt", "hawtio-maven-plugin", VersionHelper.hawtioVersion()));
         pluginFacet.addPlugin(plugin);
 
         return Results.success("Added Apache Camel to the project");
