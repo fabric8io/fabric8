@@ -193,7 +193,7 @@ getServiceIp()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
-DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
+DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
