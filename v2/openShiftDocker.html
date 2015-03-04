@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1425457183011">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1425459834081">
     
 
 <div class="book-summary">
@@ -789,9 +789,14 @@
 <ol>
 <li><a href="https://docs.docker.com/installation/" target="_blank">Install Docker</a>, the later the version generally the better it is!</li>
 <li>Ensure you enable sudoless use of the docker daemon for users that will run the Fabric8 Start Script</li>
-<li><p>Copy the following line into /etc/sysconfig/docker</p>
-<p> <code>OPTIONS=&quot;--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8&quot;</code></p>
-</li>
+<li><p>Update your Docker config - this differs slightly on different Linux distros:</p>
+<p> On RHEL/Centos/Fedora:
+ Copy the following line into <code>/etc/sysconfig/docker</code></p>
+<pre><code> OPTIONS=&quot;--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8&quot;
+</code></pre><p> If you are on Ubuntu/Debian:
+ Copy the following line into <code>/etc/default/docker</code></p>
+<pre><code> DOCKER_OPTS=&quot;--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8&quot;
+</code></pre></li>
 <li><p>Restart the docker service  </p>
 <p> <code>service docker restart</code></p>
 </li>
