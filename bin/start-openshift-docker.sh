@@ -122,7 +122,7 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
-export KUBERNETES=http://$DOCKER_IP:8443
+export KUBERNETES=https://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} cli --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
@@ -252,7 +252,6 @@ function printHostEnvVars {
   if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
     printf "%s\n" "export DOCKER_IP=$FABRIC8_VAGRANT_IP"
     printf "%s\n" "export DOCKER_HOST=tcp://$FABRIC8_VAGRANT_IP:2375"
-    printf "%s\n" "export KUBERNETES_MASTER=https://$FABRIC8_VAGRANT_IP:8443"
   else
     if [[ $IPS  = *[[:space:]]* ]]; then
       printf "\n"
@@ -261,13 +260,11 @@ function printHostEnvVars {
         printf "%s\n" "#---"
         printf "%s\n" "export DOCKER_IP=$IP"
         printf "%s\n" "export DOCKER_HOST=tcp://$IP:2375"
-        printf "%s\n" "export KUBERNETES_MASTER=https://$IP:8443"
         printf "%s\n" "#---"
       done
      else
        printf "%s\n" "export DOCKER_IP=$IPS"
        printf "%s\n" "export DOCKER_HOST=tcp://$IPS:2375"
-       printf "%s\n" "export KUBERNETES_MASTER=https://$IPS:8443"
     fi
   fi
 }
@@ -297,8 +294,11 @@ printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
+printf "%s\n" "export KUBERNETES_MASTER=$KUBERNETES"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
-printHostEnvVars
+if [[ -z "${DOCKER_HOST}" ]]; then
+  printHostEnvVars
+fi
 
 if [[ $OSTYPE == darwin* ]]; then
   open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
