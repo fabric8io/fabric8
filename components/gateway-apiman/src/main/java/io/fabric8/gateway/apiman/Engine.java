@@ -15,12 +15,6 @@
  */
 package io.fabric8.gateway.apiman;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import io.fabric8.gateway.api.handlers.http.HttpGateway;
-import io.fabric8.gateway.api.handlers.http.HttpGatewayServiceClient;
-import io.fabric8.gateway.api.handlers.http.IMappedServices;
 import io.apiman.gateway.api.rest.contract.exceptions.NotAuthorizedException;
 import io.apiman.gateway.engine.IConnectorFactory;
 import io.apiman.gateway.engine.IEngine;
@@ -29,18 +23,22 @@ import io.apiman.gateway.engine.IEngineResult;
 import io.apiman.gateway.engine.IRegistry;
 import io.apiman.gateway.engine.IServiceRequestExecutor;
 import io.apiman.gateway.engine.async.IAsyncResultHandler;
-import io.apiman.gateway.engine.beans.Application;
 import io.apiman.gateway.engine.beans.Service;
 import io.apiman.gateway.engine.beans.ServiceRequest;
-import io.apiman.gateway.engine.beans.exceptions.PublishingException;
-import io.apiman.gateway.engine.beans.exceptions.RegistrationException;
 import io.apiman.gateway.engine.impl.DefaultEngineFactory;
+import io.fabric8.gateway.api.handlers.http.HttpGateway;
+import io.fabric8.gateway.api.handlers.http.HttpGatewayServiceClient;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+
+import java.util.Iterator;
+import java.util.Map;
 
 import org.vertx.java.core.Vertx;
 
 public class Engine {
 	
 	private FileBackedRegistry registry;
+	
 	/**
 	 * The APIMan Engine that applies policies before and after each service request.
 	 * The engine's configuration is persisted by a JSON file called registry.json
@@ -74,29 +72,11 @@ public class Engine {
 		};
 		final IEngine engine = factory.createEngine();
 		ApiManEngine apimanEngine = new ApiManEngine() {
-			
-			@Override
-			public void unregisterApplication(String organizationId,
-					String applicationId, String version) throws RegistrationException {
-				engine.unregisterApplication(organizationId, applicationId, version);
-			}
-			
-			@Override
-			public void retireService(String organizationId, String serviceId,
-					String version) throws PublishingException {
-				engine.retireService(organizationId, serviceId, version);
-			}
-			
-			@Override
-			public void registerApplication(Application application)
-					throws RegistrationException {
-				engine.registerApplication(application);
-			}
-			
-			@Override
-			public void publishService(Service service) throws PublishingException {
-				engine.publishService(service);
-			}
+		    
+		    @Override
+		    public IRegistry getRegistry() {
+		        return engine.getRegistry();
+		    }
 			
 			@Override
 			public String getVersion() {
@@ -109,9 +89,11 @@ public class Engine {
 				return engine.executor(request, resultHandler);
 			}
 			
+			/**
+			 * @see io.fabric8.gateway.apiman.ApiManEngine#serviceMapping(io.apiman.gateway.engine.beans.Service)
+			 */
 			@Override
-			public String serviceMapping(String orgId, String serviceId, String version) throws NotAuthorizedException {
-				Service service = registry.getService(orgId, serviceId, version);
+			public String serviceMapping(Service service) throws NotAuthorizedException {
 				String serviceUrl = service.getEndpoint();
 				Map<String, IMappedServices> mappedServices = httpGateway.getMappedServices();
 				Iterator<String> keys = mappedServices.keySet().iterator();
