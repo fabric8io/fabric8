@@ -332,9 +332,11 @@ public class Agent {
 
                 // FABRIC-790, FABRIC-981 - wait for ProfileUrlHandler before attempting to load bundles (in subsystem.resolve())
                 // (which may be the case with bundle.xxx=blueprint:profile:xxx URLs in io.fabric8.agent PID)
-                LOGGER.debug("Waiting for ProfileUrlHandler");
-                awaitService(URLStreamHandlerService.class, "(url.handler.protocol=profile)", 30, TimeUnit.SECONDS);
-                LOGGER.debug("Waiting for ProfileUrlHandler finished");
+                // https://developer.jboss.org/message/920681 - 30 seconds is too low sometimes
+                // there was "url.handler.timeouts" option for agent, but it was removed during migration to karaf 4.x resolver
+//                LOGGER.debug("Waiting for ProfileUrlHandler");
+//                awaitService(URLStreamHandlerService.class, "(url.handler.protocol=profile)", 30, TimeUnit.SECONDS);
+//                LOGGER.debug("Waiting for ProfileUrlHandler finished");
 
                 Deployer deployer = new Deployer(manager, callback);
                 deployer.deploy(dstate, request);

@@ -40,10 +40,10 @@ public abstract class AbstractRetryableDownloadTask extends AbstractDownloadTask
                 File file = download();
                 setFile(file);
             } catch (IOException e) {
-                if (++scheduleNbRun < 5) {
+                if (++scheduleNbRun < 9) {
                     long delay = (long)(scheduleDelay * 3 / 2 + Math.random() * scheduleDelay / 2);
                     LOGGER.debug("Error downloading " + url + ": " + e.getMessage() + ". Retrying in approx " + delay + " ms.");
-                    executorService.schedule(this, scheduleDelay, TimeUnit.MILLISECONDS);
+                    executorService.schedule(this, delay, TimeUnit.MILLISECONDS);
                     scheduleDelay *= 2;
                 } else {
                     setException(new IOException("Error downloading " + url, e));
