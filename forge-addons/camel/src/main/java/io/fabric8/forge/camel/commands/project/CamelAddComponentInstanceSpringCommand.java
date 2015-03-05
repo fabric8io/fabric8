@@ -47,7 +47,7 @@ import static io.fabric8.forge.camel.commands.project.CamelCommands.ensureCamelA
 import static io.fabric8.forge.camel.commands.project.CamelCommands.loadCamelComponentDetails;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
-public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCommand {
+public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
@@ -66,7 +66,7 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
     private UIInput<String> targetPackage;
 
     @Inject
-    @WithAttributes(label = "className", required = true, description = "Name of @Producer class")
+    @WithAttributes(label = "className", required = true, description = "Name of the Spring Component class to generate")
     private UIInput<String> className;
 
     @Inject
@@ -77,16 +77,16 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddComponentInstanceCDICommand.class).name(
-                "Camel: New Component CDI").category(Categories.create(CATEGORY))
-                .description("Adds a Camel component instance configuration using CDI to your project");
+        return Metadata.forCommand(CamelAddComponentInstanceSpringCommand.class).name(
+                "Camel: New Component Spring").category(Categories.create(CATEGORY))
+                .description("Adds a Camel component instance configuration using Spring to your project");
     }
 
     @Override
     public boolean isEnabled(UIContext context) {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
-            return CamelCommands.isCdiProject(getSelectedProject(context));
+            return CamelCommands.isSpringProject(getSelectedProject(context));
         }
         return false;
     }
@@ -113,7 +113,7 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
 
         targetPackage.setCompleter(new PackageNameCompleter(facet));
         targetPackage.addValidator(new PackageNameValidator());
-        targetPackage.setDefaultValue("org.apache.camel.cdi.producers");
+        targetPackage.setDefaultValue("org.apache.camel.spring.components");
 
         className.addValidator(new ClassNameValidator());
         className.setDefaultValue(new Callable<String>() {
@@ -129,7 +129,7 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
     protected String getDefaultProducerClassName() {
         String name = instanceName.getValue();
         if (!Strings.isBlank(name)) {
-            return Strings.capitalize(name) + "ComponentProducer";
+            return Strings.capitalize(name) + "ComponentFactory";
         }
         return null;
     }
@@ -174,9 +174,13 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
         if (generatePackageName != null) {
             javaClass.setPackage(generatePackageName);
         }
-        javaClass.addImport("javax.enterprise.inject.Produces");
-        javaClass.addImport("javax.inject.Singleton");
-        javaClass.addImport("javax.inject.Named");
+        javaClass.addAnnotation("Component");
+
+        javaClass.addImport("org.springframework.beans.factory.config.BeanDefinition");
+        javaClass.addImport("org.springframework.beans.factory.annotation.Qualifier");
+        javaClass.addImport("org.springframework.context.annotation.Bean");
+        javaClass.addImport("org.springframework.context.annotation.Scope");
+        javaClass.addImport("org.springframework.stereotype.Component");
 
 
         javaClass.addImport(details.getComponentClassQName());
@@ -193,13 +197,13 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
                 .setBody(body)
                 .addThrows(Exception.class);
 
-        method.addAnnotation("Named").setStringValue(camelComponentName);
-        method.addAnnotation("Produces");
-        method.addAnnotation("Singleton");
+        method.addAnnotation("Qualifier").setStringValue(camelComponentName);
+        method.addAnnotation("Bean");
+        method.addAnnotation("Scope").setLiteralValue("BeanDefinition.SCOPE_SINGLETON");
 
         facet.saveJavaSource(javaClass);
 
-        return Results.success("Added Component instance @Producer class " + generateClassName + " to the project");
+        return Results.success("Added spring factory class " + generateClassName + " to the project");
     }
 
 }

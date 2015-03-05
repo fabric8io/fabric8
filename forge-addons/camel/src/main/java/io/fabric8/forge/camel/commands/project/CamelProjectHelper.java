@@ -26,9 +26,21 @@ import org.jboss.forge.addon.projects.facets.DependencyFacet;
 public class CamelProjectHelper {
 
     public static Dependency findCamelCoreDependency(Project project) {
+        return findCamelArtifactDependency(project, "camel-core");
+    }
+
+    public static Dependency findCamelSpringDependency(Project project) {
+        return findCamelArtifactDependency(project, "camel-spring");
+    }
+
+    public static Dependency findCamelCDIDependency(Project project) {
+        return findCamelArtifactDependency(project, "camel-cdi");
+    }
+
+    public static Dependency findCamelArtifactDependency(Project project, String artifactId) {
         List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies) {
-            if ("org.apache.camel".equals(d.getCoordinate().getGroupId()) && "camel-core".equals(d.getCoordinate().getArtifactId())) {
+            if ("org.apache.camel".equals(d.getCoordinate().getGroupId()) && artifactId.equals(d.getCoordinate().getArtifactId())) {
                 return d;
             }
         }

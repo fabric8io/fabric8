@@ -99,10 +99,12 @@ public class CamelCommands {
     }
 
     public static boolean isCdiProject(Project project) {
-        return JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces");
+        return JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces") &&
+                CamelProjectHelper.findCamelCDIDependency(project) != null;
     }
 
     public static boolean isSpringProject(Project project) {
-        return JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext");
+        return JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext") &&
+                        CamelProjectHelper.findCamelSpringDependency(project) != null;
     }
 }
