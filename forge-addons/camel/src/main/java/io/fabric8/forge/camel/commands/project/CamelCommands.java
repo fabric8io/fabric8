@@ -41,6 +41,9 @@ import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findCom
 /**
  */
 public class CamelCommands {
+    // to speed up performance on command line completion lets not perform a full classpath validation of the project until its being used on a command
+    private static final boolean validateClassPathForProjectValidation = false;
+
     public static Iterable<String> createComponentNameValues(Project project) {
         return new CamelComponentsLabelCompleter(project).getValueChoices();
     }
@@ -101,12 +104,12 @@ public class CamelCommands {
     }
 
     public static boolean isCdiProject(Project project) {
-        return JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces") &&
+        return (!validateClassPathForProjectValidation || JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces")) &&
                 CamelProjectHelper.findCamelCDIDependency(project) != null;
     }
 
     public static boolean isSpringProject(Project project) {
-        return JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext") &&
+        return (!validateClassPathForProjectValidation || JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext")) &&
                         CamelProjectHelper.findCamelSpringDependency(project) != null;
     }
 
