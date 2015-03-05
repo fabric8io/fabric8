@@ -55,6 +55,16 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (enabled) {
+            Project project = getSelectedProject(context);
+            return !CamelCommands.isCdiProject(project) && !CamelCommands.isSpringProject(project);
+        }
+        return false;
+    }
+
+    @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
