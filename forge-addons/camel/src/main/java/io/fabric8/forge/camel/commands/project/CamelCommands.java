@@ -27,8 +27,11 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.roaster.model.source.JavaClassSource;
+import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -67,7 +70,6 @@ public class CamelCommands {
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
 
         for (Map<String, String> row : data) {
-            System.out.println("Row: " + row);
             String javaType = row.get("javaType");
             if (!Strings.isNullOrEmpty(javaType)) {
                 details.setComponentClassQName(javaType);
@@ -106,5 +108,71 @@ public class CamelCommands {
     public static boolean isSpringProject(Project project) {
         return JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext") &&
                         CamelProjectHelper.findCamelSpringDependency(project) != null;
+    }
+
+    protected static void createCdiComponentProducerClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
+        javaClass.addImport("javax.enterprise.inject.Produces");
+        javaClass.addImport("javax.inject.Singleton");
+        javaClass.addImport("javax.inject.Named");
+        javaClass.addImport(details.getComponentClassQName());
+
+        String componentClassName = details.getComponentClassName();
+        String methodName = "create" + Strings.capitalize(componentInstanceName) + "Component";
+
+        String body = componentClassName + " component = new " + componentClassName + "();" + configurationCode + "\nreturn component;";
+
+        MethodSource<JavaClassSource> method = javaClass.addMethod()
+                .setPublic()
+                .setReturnType(componentClassName)
+                .setName(methodName)
+                .setBody(body)
+                .addThrows(Exception.class);
+
+        method.addAnnotation("Named").setStringValue(camelComponentName);
+        method.addAnnotation("Produces");
+        method.addAnnotation("Singleton");
+    }
+
+    protected static void createSpringComponentFactoryClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
+        javaClass.addAnnotation("Component");
+
+        javaClass.addImport("org.springframework.beans.factory.config.BeanDefinition");
+        javaClass.addImport("org.springframework.beans.factory.annotation.Qualifier");
+        javaClass.addImport("org.springframework.context.annotation.Bean");
+        javaClass.addImport("org.springframework.context.annotation.Scope");
+        javaClass.addImport("org.springframework.stereotype.Component");
+        javaClass.addImport(details.getComponentClassQName());
+
+        String componentClassName = details.getComponentClassName();
+        String methodName = "create" + Strings.capitalize(componentInstanceName) + "Component";
+
+        String body = componentClassName + " component = new " + componentClassName + "();" + configurationCode + "\nreturn component;";
+
+        MethodSource<JavaClassSource> method = javaClass.addMethod()
+                .setPublic()
+                .setReturnType(componentClassName)
+                .setName(methodName)
+                .setBody(body)
+                .addThrows(Exception.class);
+
+        method.addAnnotation("Qualifier").setStringValue(camelComponentName);
+        method.addAnnotation("Bean");
+        method.addAnnotation("Scope").setLiteralValue("BeanDefinition.SCOPE_SINGLETON");
+    }
+
+    /**
+     * Converts a java type as a string to a valid input type and returns the class or null if its not supported
+     */
+    protected static  Class<?> loadValidInputTypes(String javaType, String type) {
+        try {
+            Class<?> clazz = Class.forName(javaType);
+            if (clazz.equals(String.class) || clazz.equals(Date.class)
+                    || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz)) {
+                return clazz;
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore errors
+        }
+        return null;
     }
 }

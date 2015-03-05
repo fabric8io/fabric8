@@ -15,11 +15,9 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
-import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
@@ -27,27 +25,25 @@ import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
-import org.jboss.forge.roaster.Roaster;
-import org.jboss.forge.roaster.model.source.JavaClassSource;
-import org.jboss.forge.roaster.model.source.MethodSource;
+import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.jboss.forge.roaster.model.util.Strings;
 
 import javax.inject.Inject;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.forge.camel.commands.project.CamelCommands.ensureCamelArtifactIdAdded;
-import static io.fabric8.forge.camel.commands.project.CamelCommands.loadCamelComponentDetails;
-
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
-public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProjectCommand {
+public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
@@ -126,7 +122,22 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(targetPackage).add(className);
     }
 
-    protected String getDefaultProducerClassName() {
+    @Override
+    public NavigationResult next(UINavigationContext context) throws Exception {
+        Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+        attributeMap.put("componentName", componentName.getValue());
+        attributeMap.put("instanceName", instanceName.getValue());
+        attributeMap.put("targetPackage", targetPackage.getValue());
+        attributeMap.put("className", className.getValue());
+        attributeMap.put("kind", "spring");
+        return Results.navigateTo(ConfigureComponentPropertiesStep.class);
+    }
+
+
+    @Override
+    public Result execute(UIExecutionContext context) throws Exception {
+        return Results.success();
+    }    protected String getDefaultProducerClassName() {
         String name = instanceName.getValue();
         if (!Strings.isBlank(name)) {
             return Strings.capitalize(name) + "ComponentFactory";
@@ -134,76 +145,5 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
         return null;
     }
 
-    @Override
-    public Result execute(UIExecutionContext context) throws Exception {
-        Project project = getSelectedProject(context);
-        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
-
-        // does the project already have camel?
-        Dependency core = findCamelCoreDependency(project);
-        if (core == null) {
-            return Results.fail("The project does not include camel-core");
-        }
-
-        // lets find the camel component class
-        String camelComponentName = componentName.getValue();
-
-        CamelComponentDetails details = new CamelComponentDetails();
-        Result result = loadCamelComponentDetails(camelComponentName, details);
-        if (result != null) {
-            return result;
-        }
-        result = ensureCamelArtifactIdAdded(project, details, dependencyInstaller);
-        if (result != null) {
-            return result;
-        }
-
-        // do we already have a class with the name
-        String generatePackageName = targetPackage.getValue();
-        String generateClassName = className.getValue();
-        String fqn = generatePackageName != null ? generatePackageName + "." + generateClassName : generateClassName;
-
-        JavaResource existing = facet.getJavaResource(fqn);
-        if (existing != null && existing.exists()) {
-            return Results.fail("A class with name " + fqn + " already exists");
-        }
-
-        // need to parse to be able to extends another class
-        final JavaClassSource javaClass = Roaster.create(JavaClassSource.class);
-        javaClass.setName(generateClassName);
-        if (generatePackageName != null) {
-            javaClass.setPackage(generatePackageName);
-        }
-        javaClass.addAnnotation("Component");
-
-        javaClass.addImport("org.springframework.beans.factory.config.BeanDefinition");
-        javaClass.addImport("org.springframework.beans.factory.annotation.Qualifier");
-        javaClass.addImport("org.springframework.context.annotation.Bean");
-        javaClass.addImport("org.springframework.context.annotation.Scope");
-        javaClass.addImport("org.springframework.stereotype.Component");
-
-
-        javaClass.addImport(details.getComponentClassQName());
-
-        String componentClassName = details.getComponentClassName();
-        String methodName = "create" + Strings.capitalize(instanceName.getValue()) + "Component";
-
-        String body = componentClassName + " component = new " + componentClassName + "();\n/* TODO configure component here */\nreturn component;";
-
-        MethodSource<JavaClassSource> method = javaClass.addMethod()
-                .setPublic()
-                .setReturnType(componentClassName)
-                .setName(methodName)
-                .setBody(body)
-                .addThrows(Exception.class);
-
-        method.addAnnotation("Qualifier").setStringValue(camelComponentName);
-        method.addAnnotation("Bean");
-        method.addAnnotation("Scope").setLiteralValue("BeanDefinition.SCOPE_SINGLETON");
-
-        facet.saveJavaSource(javaClass);
-
-        return Results.success("Added spring factory class " + generateClassName + " to the project");
-    }
 
 }
