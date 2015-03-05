@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.framework.wiring.BundleRequirementImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.namespace.service.ServiceNamespace;
 import org.osgi.resource.Capability;
@@ -166,6 +169,12 @@ public final class ResourceBuilder {
         List<ParsedHeaderClause> requireClauses = parseStandardHeader(headerMap.get(Constants.REQUIRE_CAPABILITY));
         requireClauses = normalizeRequireCapabilityClauses(requireClauses);
         List<Requirement> requireReqs = convertRequireCapabilities(requireClauses, resource);
+
+        //
+        // Parse Bundle-RequiredExecutionEnvironment.
+        //
+        List<Requirement> breeReqs =
+                parseBreeHeader((String) headerMap.get(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT), resource);
 
         //
         // Parse Export-Package.
@@ -741,6 +750,103 @@ public final class ResourceBuilder {
         }
 
         return reqs;
+    }
+
+    private static List<Requirement> parseBreeHeader(String header, Resource resource) {
+        List<String> filters = new ArrayList<String>();
+        for (String entry : parseDelimitedString(header, ",")) {
+            List<String> names = parseDelimitedString(entry, "/");
+            List<String> left = parseDelimitedString(names.get(0), "-");
+
+            String lName = left.get(0);
+            Version lVer;
+            try {
+                lVer = Version.parseVersion(left.get(1));
+            } catch (Exception ex) {
+                // Version doesn't parse. Make it part of the name.
+                lName = names.get(0);
+                lVer = null;
+            }
+
+            String rName = null;
+            Version rVer = null;
+            if (names.size() > 1) {
+                List<String> right = parseDelimitedString(names.get(1), "-");
+                rName = right.get(0);
+                try {
+                    rVer = Version.parseVersion(right.get(1));
+                } catch (Exception ex) {
+                    rName = names.get(1);
+                    rVer = null;
+                }
+            }
+
+            String versionClause;
+            if (lVer != null) {
+                if ((rVer != null) && (!rVer.equals(lVer))) {
+                    // Both versions are defined, but different. Make each of them part of the name
+                    lName = names.get(0);
+                    rName = names.get(1);
+                    versionClause = null;
+                } else {
+                    versionClause = getBreeVersionClause(lVer);
+                }
+            } else {
+                versionClause = getBreeVersionClause(rVer);
+            }
+
+            if ("J2SE".equals(lName)) {
+                // J2SE is not used in the Capability variant of BREE, use JavaSE here
+                // This can only happen with the lName part...
+                lName = "JavaSE";
+            }
+
+            String nameClause;
+            if (rName != null)
+                nameClause = "(" + ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE + "=" + lName + "/" + rName + ")";
+            else
+                nameClause = "(" + ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE + "=" + lName + ")";
+
+            String filter;
+            if (versionClause != null)
+                filter = "(&" + nameClause + versionClause + ")";
+            else
+                filter = nameClause;
+
+            filters.add(filter);
+        }
+
+        if (filters.size() == 0) {
+            return Collections.emptyList();
+        } else {
+            String reqFilter;
+            if (filters.size() == 1) {
+                reqFilter = filters.get(0);
+            } else {
+                // If there are more BREE filters, we need to or them together
+                StringBuilder sb = new StringBuilder("(|");
+                for (String f : filters) {
+                    sb.append(f);
+                }
+                sb.append(")");
+                reqFilter = sb.toString();
+            }
+
+            SimpleFilter sf = SimpleFilter.parse(reqFilter);
+            return Collections.<Requirement>singletonList(new RequirementImpl(
+                    resource,
+                    ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
+                    Collections.singletonMap(ExecutionEnvironmentNamespace.REQUIREMENT_FILTER_DIRECTIVE, reqFilter),
+                    Collections.<String, Object>emptyMap(),
+                    sf));
+        }
+    }
+
+    private static String getBreeVersionClause(Version ver) {
+        if (ver == null)
+            return null;
+
+        return "(" + ExecutionEnvironmentNamespace.CAPABILITY_VERSION_ATTRIBUTE + "=" + ver + ")";
     }
 
     private static List<ParsedHeaderClause> normalizeRequireClauses(List<ParsedHeaderClause> clauses) {

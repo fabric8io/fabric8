@@ -18,6 +18,7 @@ package io.fabric8.agent.region;
 import java.util.Comparator;
 import java.util.Set;
 
+import io.fabric8.agent.resolver.ResourceUtils;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
@@ -108,6 +109,12 @@ public class CandidateComparator implements Comparator<Capability> {
             } else if (!(cap1 instanceof BundleCapability) && cap2 instanceof BundleCapability) {
                 c = 1;
             }
+        }
+        if (c == 0) {
+            // We just want to have a deterministic heuristic
+            String n1 = ResourceUtils.getSymbolicName(cap1.getResource());
+            String n2 = ResourceUtils.getSymbolicName(cap2.getResource());
+            c = n1.compareTo(n2);
         }
         return c;
     }

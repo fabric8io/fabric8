@@ -89,6 +89,7 @@ import static org.osgi.framework.Bundle.STARTING;
 import static org.osgi.framework.Bundle.STOPPING;
 import static org.osgi.framework.Bundle.STOP_TRANSIENT;
 import static org.osgi.framework.Bundle.UNINSTALLED;
+import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
 import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 import static org.osgi.framework.namespace.IdentityNamespace.TYPE_BUNDLE;
 import static org.osgi.resource.Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE;
@@ -277,7 +278,7 @@ public class Deployer {
         for (Map.Entry<String, Set<String>> entry : delFeatures.entrySet()) {
             Map<String, String> map = stateFeatures.get(entry.getKey());
             if (map != null) {
-                map.entrySet().removeAll(entry.getValue());
+                map.keySet().removeAll(entry.getValue());
                 if (map.isEmpty()) {
                     stateFeatures.remove(entry.getKey());
                 }
@@ -317,16 +318,20 @@ public class Deployer {
         //
         // Compute the set of bundles to refresh
         //
-        Set<Bundle> toRefresh = new TreeSet<>(new BundleComparator()); // sort is only used for display
+        Map<Bundle, String> toRefresh = new TreeMap<>(new BundleComparator()); // sort is only used for display
         for (Deployer.RegionDeployment regionDeployment : deployment.regions.values()) {
-            toRefresh.addAll(regionDeployment.toDelete);
-            toRefresh.addAll(regionDeployment.toUpdate.keySet());
+            for (Bundle b : regionDeployment.toDelete) {
+                toRefresh.put(b, "Bundle will be uninstalled");
+            }
+            for (Bundle b : regionDeployment.toUpdate.keySet()) {
+                toRefresh.put(b, "Bundle will be updated");
+            }
         }
         if (!noRefreshManaged) {
             computeBundlesToRefresh(toRefresh, dstate.bundles.values(), deployment.resToBnd, resolver.getWiring());
         }
         if (noRefreshUnmanaged) {
-            toRefresh.removeAll(flatten(unmanagedBundles));
+            toRefresh.keySet().removeAll(flatten(unmanagedBundles));
         }
 
         // Automatically turn unmanaged bundles into managed bundles
@@ -439,8 +444,9 @@ public class Deployer {
 
         if (!noRefresh && !toRefresh.isEmpty()) {
             print("  Bundles to refresh:", display);
-            for (Bundle bundle : toRefresh) {
-                print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
+            for (Map.Entry<Bundle, String> entry : toRefresh.entrySet()) {
+                Bundle bundle = entry.getKey();
+                print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion() + " (" + entry.getValue() + ")", display);
             }
         }
         if (!toManage.isEmpty()) {
@@ -480,7 +486,7 @@ public class Deployer {
         }
 
         // Ensure all classes are loaded if the agent will be refreshed
-        if (toRefresh.contains(dstate.serviceBundle)) {
+        if (toRefresh.containsKey(dstate.serviceBundle)) {
             OsgiUtils.ensureAllClassesLoaded(dstate.serviceBundle);
         }
 
@@ -509,7 +515,7 @@ public class Deployer {
             String uri = getUri(resource);
             print("The agent bundle needs is being updated with " + uri, display);
             toRefresh.clear();
-            toRefresh.add(dstate.serviceBundle);
+            toRefresh.put(dstate.serviceBundle, "DeploymentAgent bundle is being updated");
             computeBundlesToRefresh(toRefresh,
                     dstate.bundles.values(),
                     Collections.<Resource, Bundle>emptyMap(),
@@ -520,7 +526,7 @@ public class Deployer {
             ) {
                 callback.updateBundle(dstate.serviceBundle, uri, is);
             }
-            callback.refreshPackages(toRefresh);
+            callback.refreshPackages(toRefresh.keySet());
             callback.startBundle(dstate.serviceBundle);
             return;
         }
@@ -751,7 +757,7 @@ public class Deployer {
 
         if (!noRefresh) {
             toStop = new HashSet<>();
-            toStop.addAll(toRefresh);
+            toStop.addAll(toRefresh.keySet());
             removeFragmentsAndBundlesInState(toStop, UNINSTALLED | RESOLVED | STOPPING);
             if (!toStop.isEmpty()) {
                 callback.phase("finalizing (stopping bundles)");
@@ -770,11 +776,12 @@ public class Deployer {
             if (!toRefresh.isEmpty()) {
                 callback.phase("finalizing (refreshing bundles)");
                 print("Refreshing bundles:", display);
-                for (Bundle bundle : toRefresh) {
-                    print("  " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
+                for (Map.Entry<Bundle, String> entry : toRefresh.entrySet()) {
+                    Bundle bundle = entry.getKey();
+                    print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion() + " (" + entry.getValue() + ")", display);
                 }
                 if (!toRefresh.isEmpty()) {
-                    callback.refreshPackages(toRefresh);
+                    callback.refreshPackages(toRefresh.keySet());
                 }
             }
         }
@@ -782,7 +789,7 @@ public class Deployer {
         // Resolve bundles
         callback.phase("finalizing (resolving bundles)");
         toResolve.addAll(toStart);
-        toResolve.addAll(toRefresh);
+        toResolve.addAll(toRefresh.keySet());
         removeBundlesInState(toResolve, UNINSTALLED);
         callback.resolveBundles(toResolve, resolver.getWiring(), deployment.resToBnd);
 
@@ -860,7 +867,25 @@ public class Deployer {
         return Constants.RequestedState.Installed;
     }
 
-    private void computeBundlesToRefresh(Set<Bundle> toRefresh, Collection<Bundle> bundles, Map<Resource, Bundle> resources, Map<Resource, List<Wire>> resolution) {
+    private void computeBundlesToRefresh(Map<Bundle, String> toRefresh, Collection<Bundle> bundles, Map<Resource, Bundle> resources, Map<Resource, List<Wire>> resolution) {
+        // Compute the new list of fragments
+        Map<Bundle, Set<Resource>> newFragments = new HashMap<>();
+        for (Bundle bundle : bundles) {
+            newFragments.put(bundle, new HashSet<Resource>());
+        }
+        for (Resource res : resolution.keySet()) {
+            for (Wire wire : resolution.get(res)) {
+                if (HOST_NAMESPACE.equals(wire.getCapability().getNamespace())) {
+                    Bundle bundle = resources.get(wire.getProvider());
+                    if (bundle != null) {
+                        Bundle b = resources.get(wire.getRequirer());
+                        Resource r = b != null ? b.adapt(BundleRevision.class) : wire.getRequirer();
+                        newFragments.get(bundle).add(r);
+                    }
+                }
+            }
+        }
+        // Main loop
         int size;
         Map<Bundle, Resource> bndToRes = new HashMap<>();
         for (Map.Entry<Resource, Bundle> entry : resources.entrySet()) {
@@ -875,7 +900,7 @@ public class Deployer {
                     continue;
                 }
                 // Continue if we already know about this bundle
-                if (toRefresh.contains(bundle)) {
+                if (toRefresh.containsKey(bundle)) {
                     continue;
                 }
                 // Ignore non resolved bundle
@@ -888,19 +913,29 @@ public class Deployer {
                 if (newWires == null) {
                     continue;
                 }
+                // Check if this bundle is a host and its fragments changed
+                Set<Resource> oldFragments = new HashSet<>();
+                for (BundleWire wire : wiring.getProvidedWires(null)) {
+                    if (HOST_NAMESPACE.equals(wire.getCapability().getNamespace())) {
+                        oldFragments.add(wire.getRequirer());
+                    }
+                }
+                if (!oldFragments.equals(newFragments.get(bundle))) {
+                    toRefresh.put(bundle, "Attached fragments changed: " + new ArrayList<>(newFragments.get(bundle)));
+                    break;
+                }
                 // Compare the old and new resolutions
                 Set<Resource> wiredBundles = new HashSet<>();
                 for (BundleWire wire : wiring.getRequiredWires(null)) {
                     BundleRevision rev = wire.getProvider();
-                    Bundle b = rev.getBundle();
-                    if (toRefresh.contains(b)) {
+                    Bundle provider = rev.getBundle();
+                    if (toRefresh.containsKey(provider)) {
                         // The bundle is wired to a bundle being refreshed,
                         // so we need to refresh it too
-                        LOGGER.info("Refreshing " + bundle.getSymbolicName() + " / " + bundle.getVersion() + " because it's wired to " + b.getSymbolicName() + "/" + b.getVersion() + " which is being refreshed (through" + wire.getRequirement() + ")");
-                        toRefresh.add(bundle);
+                        toRefresh.put(bundle, "Wired to " + provider.getSymbolicName() + "/" + provider.getVersion() + " which is being refreshed");
                         continue main;
                     }
-                    Resource res = bndToRes.get(b);
+                    Resource res = bndToRes.get(provider);
                     wiredBundles.add(res != null ? res : rev);
                 }
                 Map<Resource, Requirement> wiredResources = new HashMap<>();
@@ -929,7 +964,7 @@ public class Deployer {
                     Map<Resource, Requirement> newResources = new HashMap<>(wiredResources);
                     newResources.keySet().removeAll(wiredBundles);
                     StringBuilder sb = new StringBuilder();
-                    sb.append("Refreshing ").append(bundle.getSymbolicName()).append(" / ").append(bundle.getVersion()).append(" because it should be wired to: ");
+                    sb.append("Should be wired to: ");
                     boolean first = true;
                     for (Map.Entry<Resource, Requirement> entry : newResources.entrySet()) {
                         if (!first) {
@@ -944,8 +979,7 @@ public class Deployer {
                         sb.append(req);
                         sb.append(")");
                     }
-                    LOGGER.info(sb.toString());
-                    toRefresh.add(bundle);
+                    toRefresh.put(bundle, sb.toString());
                 }
             }
         } while (toRefresh.size() > size);
