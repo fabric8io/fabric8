@@ -35,8 +35,9 @@
      <profile>
         <id>camel-snapshot</id>
          <modules>
-            <module>kubernetes</module>
             <module>camel</module>
+            <module>camel-tests</module>
+             <module>kubernetes</module>
          </modules>
       </profile>
       <profile>
