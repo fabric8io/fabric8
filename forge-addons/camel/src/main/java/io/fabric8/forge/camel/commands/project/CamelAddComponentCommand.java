@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -59,17 +58,10 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        filter.setValueChoices(new CamelComponentsLabelCompleter(project).getValueChoices());
+        filter.setValueChoices(CamelCommands.createComponentNameValues(project));
         filter.setDefaultValue("<all>");
 
-        // use callbable so we can live update the filter
-        name.setValueChoices(new Callable<Iterable<String>>() {
-            @Override
-            public Iterable<String> call() throws Exception {
-                String label = filter.getValue();
-                return new CamelComponentsCompleter(project, null).getValueChoices(label);
-            }
-        });
+        name.setValueChoices(CamelCommands.createComponentNameValues(project, filter, true));
 
         builder.add(filter);
         builder.add(name);

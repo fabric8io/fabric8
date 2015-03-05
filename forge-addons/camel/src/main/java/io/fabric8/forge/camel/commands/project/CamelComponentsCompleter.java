@@ -37,10 +37,12 @@ public class CamelComponentsCompleter implements UICompleter<String> {
 
     private Project project;
     private UIInput<String> filter;
+    private final boolean excludeComponentsOnClasspath;
 
-    public CamelComponentsCompleter(Project project, UIInput<String> filter) {
+    public CamelComponentsCompleter(Project project, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
         this.project = project;
         this.filter = filter;
+        this.excludeComponentsOnClasspath = excludeComponentsOnClasspath;
     }
 
     @Override
@@ -83,10 +85,12 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         List<String> names = catalog.findComponentNames();
 
         // filter out existing components we already have
-        Set<Dependency> artifacts = findCamelArtifacts(project);
-        for (Dependency dep : artifacts) {
-            Set<String> components = componentsFromArtifact(dep.getCoordinate().getArtifactId());
-            names.removeAll(components);
+        if (excludeComponentsOnClasspath) {
+            Set<Dependency> artifacts = findCamelArtifacts(project);
+            for (Dependency dep : artifacts) {
+                Set<String> components = componentsFromArtifact(dep.getCoordinate().getArtifactId());
+                names.removeAll(components);
+            }
         }
 
         if (label == null || "<all>".equals(label)) {
@@ -102,13 +106,14 @@ public class CamelComponentsCompleter implements UICompleter<String> {
 
         // filter names which are already on the classpath, or do not match the optional filter by label input
         for (String name : choices) {
-            String json = catalog.componentJSonSchema(name);
-            String artifactId = findArtifactId(json);
-
             // skip if we already have the dependency
             boolean already = false;
-            if (artifactId != null) {
-                already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
+            if (excludeComponentsOnClasspath) {
+                String json = catalog.componentJSonSchema(name);
+                String artifactId = findArtifactId(json);
+                if (artifactId != null) {
+                    already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
+                }
             }
 
             if (!already) {
