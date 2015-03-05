@@ -276,6 +276,7 @@ header="%-20s | %-60s\n"
 format="%-20s | %-60s\n"
 printf "${header}" Service URL
 printf "${header}" "-------" "---"
+printf "${format}" "Kubernetes master" $KUBERNETES
 printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
 printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
@@ -283,7 +284,6 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
-  printf "${format}" "Kubernetes master" $KUBERNETES
   printf "${format}" "Cadvisor" $CADVISOR
 fi
 
