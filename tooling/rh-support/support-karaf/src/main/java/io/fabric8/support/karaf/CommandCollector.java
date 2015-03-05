@@ -51,7 +51,6 @@ public class CommandCollector implements Collector {
         result.add(factory.createCommandResource("shell:info"));
         result.add(factory.createCommandResource("packages:imports"));
         result.add(factory.createCommandResource("packages:exports -i"));
-        result.add(factory.createCommandResource("dev:classloaders"));
         result.add(factory.createCommandResource("dev:system-property"));
         result.add(factory.createCommandResource("scr:list"));
         result.add(factory.createCommandResource("jaas:realms"));
