@@ -16,6 +16,7 @@
 package io.fabric8.forge.camel.commands.project;
 
 import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
@@ -70,6 +71,9 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
     @Inject
     private DependencyInstaller dependencyInstaller;
 
+    @Inject
+    private DependencyResolver dependencyResolver;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddComponentInstanceCDICommand.class).name(
@@ -81,10 +85,11 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
     public boolean isEnabled(UIContext context) {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
-            // TODO return true if @Produces.class is on the classpath!
+            return CamelCommands.isCdiProject(getSelectedProject(context));
         }
-        return enabled;
+        return false;
     }
+
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
@@ -98,8 +103,9 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
         instanceName.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                // lets check if we've not already created a java class for the default component already
                 String value = componentName.getValue();
+                // TODO if we already have a component instance of the same name
+                // then lets return null
                 return value;
             }
         });

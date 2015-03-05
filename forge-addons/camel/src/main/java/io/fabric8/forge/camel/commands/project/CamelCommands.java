@@ -97,4 +97,12 @@ public class CamelCommands {
         dependencyInstaller.install(project, component);
         return null;
     }
+
+    public static boolean isCdiProject(Project project) {
+        return JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces");
+    }
+
+    public static boolean isSpringProject(Project project) {
+        return JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext");
+    }
 }

@@ -17,6 +17,11 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
+
+import java.net.URLClassLoader;
+
 /**
  */
 public class JavaHelper {
@@ -30,5 +35,44 @@ public class JavaHelper {
         } else {
             return className;
         }
+    }
+
+
+    public static URLClassLoader getProjectClassLoader(Project project) {
+        if (project != null) {
+            ClassLoaderFacet classLoaderFacet = project.getFacet(ClassLoaderFacet.class);
+            if (classLoaderFacet != null) {
+                return classLoaderFacet.getClassLoader();
+            }
+        }
+        return null;
+    }
+
+    public static boolean projectHasClassOnClassPath(Project project, String className) {
+        URLClassLoader classLoader = getProjectClassLoader(project);
+        if (classLoader != null ){
+            try {
+                Class<?> clazz = classLoader.loadClass(className);
+                return true;
+            } catch (ClassNotFoundException e) {
+                // ignore
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Loads a class of the given name from the project class loader or returns null if its not found
+     */
+    public static Class<?> loadProjectClass(Project project, String className) {
+        URLClassLoader classLoader = getProjectClassLoader(project);
+        if (classLoader != null ){
+            try {
+                return classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                // ignore
+            }
+        }
+        return null;
     }
 }
