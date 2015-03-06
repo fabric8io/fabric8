@@ -21,9 +21,13 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.CamelListComponentCommand;
+import io.fabric8.forge.camel.commands.project.CamelSetupCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.ui.controller.CommandController;
+import org.jboss.forge.addon.ui.result.Failed;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.test.UITestHarness;
 import org.jboss.forge.arquillian.AddonDependencies;
@@ -32,6 +36,7 @@ import org.jboss.forge.arquillian.archive.AddonArchive;
 import org.jboss.forge.furnace.repositories.AddonDependencyEntry;
 import org.jboss.forge.furnace.util.OperatingSystemUtils;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,6 +45,9 @@ public class NewComponentInstanceTest {
 
     @Inject
     private UITestHarness testHarness;
+
+    @Inject
+    private ProjectFactory projectFactory;
 
     @Deployment
     @AddonDependencies({
@@ -50,9 +58,9 @@ public class NewComponentInstanceTest {
             @AddonDependency(name = "org.jboss.forge.addon:shell-test-harness"),
             @AddonDependency(name = "io.fabric8.forge:camel")
     })
-
     public static AddonArchive getDeployment() {
-        AddonArchive archive = ShrinkWrap.create(AddonArchive.class)
+        AddonArchive archive = ShrinkWrap
+                .create(AddonArchive.class)
                 .addBeansXML()
                 .addAsAddonDependencies(
                         AddonDependencyEntry.create("org.jboss.forge.furnace.container:cdi"),
@@ -70,7 +78,16 @@ public class NewComponentInstanceTest {
     public void testSomething() throws Exception {
         File tempDir = OperatingSystemUtils.createTempDir();
         try {
-            CommandController command = testHarness.createCommandController(CamelListComponentCommand.class);
+            Project project = projectFactory.createTempProject();
+            Assert.assertNotNull("Should have created a project", project);
+
+            CommandController command = testHarness.createCommandController(CamelSetupCommand.class);
+            command.initialize();
+
+            Result result = command.execute();
+            Assert.assertFalse("Should setup Camel in the project", result instanceof Failed);
+
+            command = testHarness.createCommandController(CamelListComponentCommand.class);
             command.initialize();
 /*
            Assert.assertFalse(command.canMoveToNextStep());
@@ -80,7 +97,7 @@ public class NewComponentInstanceTest {
            command.setValueFor("type", "norequirements");
            Assert.assertEquals("norequirements", InputComponents.getValueFor(command.getInputs().get("type")).toString());
 */
-            Result result = command.execute();
+            result = command.execute();
             System.out.println("Got result: " + result);
         } finally {
             tempDir.delete();
