@@ -17,24 +17,23 @@
  */
 package io.fabric8.forge.camel.commands;
 
+import java.io.File;
+import javax.inject.Inject;
+
 import io.fabric8.forge.camel.commands.project.CamelListComponentCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.test.UITestHarness;
+import org.jboss.forge.arquillian.AddonDependencies;
 import org.jboss.forge.arquillian.AddonDependency;
-import org.jboss.forge.arquillian.Dependencies;
-import org.jboss.forge.arquillian.archive.ForgeArchive;
-import org.jboss.forge.arquillian.maven.ProjectHelper;
+import org.jboss.forge.arquillian.archive.AddonArchive;
 import org.jboss.forge.furnace.repositories.AddonDependencyEntry;
 import org.jboss.forge.furnace.util.OperatingSystemUtils;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.io.File;
 
 @RunWith(Arquillian.class)
 public class NewComponentInstanceTest {
@@ -43,7 +42,7 @@ public class NewComponentInstanceTest {
     private UITestHarness testHarness;
 
     @Deployment
-    @Dependencies({
+    @AddonDependencies({
             @AddonDependency(name = "org.jboss.forge.addon:maven"),
             @AddonDependency(name = "org.jboss.forge.addon:projects"),
             @AddonDependency(name = "org.jboss.forge.addon:ui"),
@@ -51,8 +50,9 @@ public class NewComponentInstanceTest {
             @AddonDependency(name = "org.jboss.forge.addon:shell-test-harness"),
             @AddonDependency(name = "io.fabric8.forge:camel")
     })
-    public static ForgeArchive getDeployment() {
-        ForgeArchive archive = ShrinkWrap.create(ForgeArchive.class)
+
+    public static AddonArchive getDeployment() {
+        AddonArchive archive = ShrinkWrap.create(AddonArchive.class)
                 .addBeansXML()
                 .addAsAddonDependencies(
                         AddonDependencyEntry.create("org.jboss.forge.furnace.container:cdi"),
