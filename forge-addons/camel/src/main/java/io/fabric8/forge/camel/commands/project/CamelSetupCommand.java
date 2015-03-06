@@ -50,6 +50,14 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        Project project = getSelectedProject(context);
+        // only enable if we do not have Camel yet
+        boolean noCamel = findCamelCoreDependency(project) == null;
+        return super.isEnabled(context) && noCamel;
+    }
+
+    @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
                 "Camel: Setup").category(Categories.create(CATEGORY))

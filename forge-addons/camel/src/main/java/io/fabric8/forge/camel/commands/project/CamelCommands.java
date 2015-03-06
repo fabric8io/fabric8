@@ -110,6 +110,10 @@ public final class CamelCommands {
                         CamelProjectHelper.findCamelSpringDependency(project) != null;
     }
 
+    public static boolean isBlueprintProject(Project project) {
+        return CamelProjectHelper.findCamelBlueprintDependency(project) != null;
+    }
+
     protected static void createCdiComponentProducerClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
         javaClass.addImport("javax.enterprise.inject.Produces");
         javaClass.addImport("javax.inject.Singleton");

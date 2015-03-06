@@ -69,6 +69,19 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
     ResourceFactory resourceFactory;
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (enabled) {
+            Project project = getSelectedProject(context);
+            // not enable for cdi or blueprint projects
+            boolean cdi = CamelCommands.isCdiProject(project);
+            boolean blueprint = CamelCommands.isBlueprintProject(project);
+            return !cdi && !blueprint;
+        }
+        return false;
+    }
+
+    @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
                 "Camel: New XML spring").category(Categories.create(CATEGORY))
