@@ -48,11 +48,6 @@ public class ContextStopCommand extends AbstractJolokiaCommand {
     }
 
     @Override
-    public boolean isEnabled(UIContext context) {
-        return getJolokiaUrl() != null;
-    }
-
-    @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String url = getJolokiaUrl();
         if (url == null) {
