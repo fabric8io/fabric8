@@ -165,15 +165,19 @@ You should now be able to access the Fabric8 console using the address defined i
 
 #### Using the osc command line
 
-On Linux you can create an alias to access the osc command line (an extended version of 'kube'). Run the following or add it to your ~/.bashrc
+The OpenShift container includes the OpenShift Command Line (osc). Therefore, you can use the osc via a docker 'run' command.
+
+The easiest way to do this is to create an alias in your ~/.bashrc.
+
+**Note:** In the aliases below you'll need to update the openshift/origin container tag to be whatever version Fabric8 is currently using. Run `docker ps | grep openshift/origin:` to find this out
 
 **Native Install**
 
-    alias osc="docker run --rm -i --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify"
+    alias osc="docker run --rm -i --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify"
 
 **Non-Native Install**
 
-    alias osc="docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify"
+    alias osc="docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify"
 
 You can now use the osc command line to list pods, replication controllers and services; delete or create resources etc:
 
