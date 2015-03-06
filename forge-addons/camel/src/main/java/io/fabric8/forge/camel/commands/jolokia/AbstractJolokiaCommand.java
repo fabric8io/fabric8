@@ -24,6 +24,7 @@ import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 
 /**
@@ -43,6 +44,12 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
     @Override
     protected boolean isProjectRequired() {
         return false;
+    }
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        // all the jolokia commands is for CLI
+        return super.isEnabled(context) && !context.getProvider().isGUI() && getJolokiaUrl() != null;
     }
 
     @Override

@@ -54,6 +54,12 @@ public class ConnectCommand extends AbstractJolokiaCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        // for CLI only (we are enabled even if we do not have a jolokia url, as this command is for connecting first)
+        return !context.getProvider().isGUI();
+    }
+
+    @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         builder.add(url).add(username).add(password);
     }

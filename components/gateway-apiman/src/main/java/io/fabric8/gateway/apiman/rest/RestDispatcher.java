@@ -15,8 +15,11 @@
  */
 package io.fabric8.gateway.apiman.rest;
 
+import io.apiman.gateway.engine.async.IAsyncResult;
+import io.apiman.gateway.engine.async.IAsyncResultHandler;
 import io.apiman.gateway.engine.beans.Application;
 import io.apiman.gateway.engine.beans.Service;
+import io.apiman.gateway.engine.beans.ServiceEndpoint;
 import io.fabric8.gateway.apiman.ApiManEngine;
 
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RestDispatcher {
@@ -70,42 +74,52 @@ public class RestDispatcher {
 					String uri = request.uri().substring(1);
 					if (uri.contains("?")) uri = uri.substring(0, uri.indexOf("?"));
 					String[] pathSegment = uri.split("/");
-					
+
+					// The async response handler used for all the void IRegistry calls
+                    IAsyncResultHandler<Void> voidHandler = new IAsyncResultHandler<Void>() {
+                        @Override
+                        public void handle(IAsyncResult<Void> result) {
+                            if (result.isError()) {
+                                Throwable e = result.getError();
+                                writeError(request, e);
+                            } else {
+                                request.response().setStatusCode(200);
+                                request.response().end();
+                            }
+                        }
+                    };
+
 					if (uri.startsWith("rest/apimanager/applications")) {
-						ApplicationResource applicationResource = new ApplicationResource(engine);
-						
 						if (request.method().equals("PUT")) {
 							Application application = getObjectMapper().readValue(body, Application.class);
-							applicationResource.register(application);
-						} 
-						else if (request.method().equals("DELETE"))  {
+                            engine.getRegistry().registerApplication(application, voidHandler);
+						} else if (request.method().equals("DELETE"))  {
 							//path {organizationId}/{applicationId}/{version}
-							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
-									+ "expecting /rest/apimanager/applications/{organizationId}/{applicationId}/{version}");	
-							String organizationId = pathSegment[3];
-							String applicationId = pathSegment[4];
-					        String version = pathSegment[5];
-							applicationResource.unregister(organizationId, applicationId, version);
+							if (pathSegment.length < 6) {
+							    throw new UserException("Query Parse Exception , expecting /rest/apimanager/applications/{organizationId}/{applicationId}/{version}");
+							}
+							Application application = new Application();
+					        application.setOrganizationId(pathSegment[3]);
+					        application.setApplicationId(pathSegment[4]);
+					        application.setVersion(pathSegment[5]);
+                            engine.getRegistry().unregisterApplication(application, voidHandler);
 						} else {
 							throw new UserException("Method not Supported");
 						}
-						
 					} else if (uri.startsWith("rest/apimanager/services")) {
-						ServiceResource serviceResource = new ServiceResource(engine);
-						
 						if (request.method().equals("PUT")) {
 							Service service = getObjectMapper().readValue(body, Service.class);
-							serviceResource.publish(service);
-						} 
+							engine.getRegistry().publishService(service, voidHandler);
+						}
 						else if (request.method().equals("DELETE"))  {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
 									+ "expecting /rest/apimanager/applications/{organizationId}/{serviceId}/{version}");
-					        String organizationId = pathSegment[3];
-							String serviceId = pathSegment[4];
-					        String version = pathSegment[5];
-							serviceResource.retire(organizationId, serviceId, version);
-							request.response().setStatusCode(200);
+					        Service service = new Service();
+					        service.setOrganizationId(pathSegment[3]);
+					        service.setServiceId(pathSegment[4]);
+					        service.setVersion(pathSegment[5]);
+                            engine.getRegistry().retireService(service , voidHandler);
 						} else if (request.method().equals("GET")) {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 7) throw new UserException("Query Parse Exception , "
@@ -113,10 +127,30 @@ public class RestDispatcher {
 							String organizationId = pathSegment[3];
 							String serviceId = pathSegment[4];
 					        String version = pathSegment[5];
-					        String json = getObjectMapper().writeValueAsString(serviceResource.getServiceEndpoint(organizationId, serviceId, version));
-					        request.response().headers().set("ContentType", "application/json");
-					        request.response().headers().set("Content-Length", String.valueOf(json.length()));
-							request.response().write(json);
+					        
+					        engine.getRegistry().getService(organizationId, serviceId, version, new IAsyncResultHandler<Service>() {
+                                @Override
+                                public void handle(IAsyncResult<Service> result) {
+                                    if (result.isError()) {
+                                        Throwable e = result.getError();
+                                        writeError(request, e);
+                                    } else {
+                                        Service service = result.getResult();
+                                        ServiceEndpoint serviceEndpoint = new ServiceEndpoint();
+                                        serviceEndpoint.setEndpoint(engine.serviceMapping(service));
+                                        try {
+                                            String json = getObjectMapper().writeValueAsString(serviceEndpoint);
+                                            request.response().headers().set("ContentType", "application/json");
+                                            request.response().headers().set("Content-Length", String.valueOf(json.length()));
+                                            request.response().write(json);
+                                            request.response().setStatusCode(200);
+                                            request.response().end();
+                                        } catch (JsonProcessingException e) {
+                                            writeError(request, e);
+                                        }
+                                    }
+                                }
+                            });
 						} else {
 							throw new UserException("Method not Supported");
 						}
@@ -127,24 +161,29 @@ public class RestDispatcher {
 						request.response().headers().set("ContentType", "application/json");
 						request.response().headers().set("Content-Length", String.valueOf(json.length()));
 						request.response().write(json);
+	                    request.response().setStatusCode(200);
+	                    request.response().end();
 					} else {
 						throw new UserException("No Such Service");
 					}
-					request.response().setStatusCode(200);
-					request.response().end();
 				} catch (UserException e) {
 					LOG.error(e.getMessage(),e);
 					request.response().setStatusCode(404);
 					request.response().setStatusMessage(e.getMessage());
 					request.response().end();
 				} catch (Throwable e) {
-					LOG.error(e.getMessage(),e);
-					request.response().setStatusCode(500);
-					request.response().setStatusMessage(e.getMessage());
-					request.response().end();
+				    writeError(request, e);
 				}
 			}
 			
 		});
 	}
+	
+    protected static void writeError(final HttpServerRequest request, Throwable e) {
+        LOG.error(e.getMessage(), e);
+        request.response().setStatusCode(500);
+        request.response().setStatusMessage(e.getMessage());
+        request.response().end();
+    }
+
 }

@@ -36,7 +36,7 @@ public class CamelListComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelListComponentCommand.class).name(
-                "project-camel-component-list").category(Categories.create(CATEGORY))
+                "Camel: List Component").category(Categories.create(CATEGORY))
                 .description("Lists all the components the current project includes");
     }
 

@@ -91,7 +91,7 @@
         <aether.version>1.11</aether.version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr.version>3.3</antlr.version>
-        <apiman.version>1.0.1.Final</apiman.version>
+        <apiman.version>1.1.0.RC1</apiman.version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-api.version>1.0.1</aries-blueprint-api.version>
         <aries-blueprint-cm.version>1.0.4</aries-blueprint-cm.version>
@@ -105,8 +105,8 @@
         <aries-proxy-impl.version>1.0.3</aries-proxy-impl.version>
         <aries-proxy.version>1.0.1</aries-proxy.version>
         <aries-util.version>1.1.0</aries-util.version>
-        <arquillian-core.version>1.1.1.Final</arquillian-core.version>
-        <arquillian-junit-container.version>1.0.0.CR7</arquillian-junit-container.version>
+        <arquillian-core.version>1.1.7.Final</arquillian-core.version>
+        <arquillian-junit-container.version>1.1.7.Final</arquillian-junit-container.version>
         <arquillian-osgi.version>2.1.0.CR17</arquillian-osgi.version>
         <arquillian-tomcat.version>1.0.0.CR7</arquillian-tomcat.version>
         <arquillian-weld-ee-embedded.version>1.0.0.CR3</arquillian-weld-ee-embedded.version>
@@ -208,7 +208,7 @@
         <jaxb-api.version>2.1</jaxb-api.version>
         <jaxb.version>2.2.7</jaxb.version>
         <jboss-javaee-6.version>1.0.0.Final</jboss-javaee-6.version>
-        <jboss.forge.version>2.14.0.Final</jboss.forge.version>
+        <jboss.forge.version>2.15.0.Final</jboss.forge.version>
 <!-- use same version of forge as in eclipse
         <jboss.forge.version>2.13.0.Final</jboss.forge.version>
 -->

@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -42,7 +41,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     private UISelectOne<String> filter;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of component to add.")
+    @WithAttributes(label = "name", required = true, description = "Name of component to add")
     private UISelectOne<String> name;
 
     @Inject
@@ -51,25 +50,28 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddComponentCommand.class).name(
-                "project-camel-component-add").category(Categories.create(CATEGORY))
+                "Camel: New Component").category(Categories.create(CATEGORY))
                 .description("Adds a Camel component to your project");
+    }
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (enabled) {
+            Project project = getSelectedProject(context);
+            return !CamelCommands.isCdiProject(project) && !CamelCommands.isSpringProject(project);
+        }
+        return false;
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        filter.setValueChoices(new CamelComponentsLabelCompleter(project).getValueChoices());
+        filter.setValueChoices(CamelCommands.createComponentNameValues(project));
         filter.setDefaultValue("<all>");
 
-        // use callbable so we can live update the filter
-        name.setValueChoices(new Callable<Iterable<String>>() {
-            @Override
-            public Iterable<String> call() throws Exception {
-                String label = filter.getValue();
-                return new CamelComponentsCompleter(project, null).getValueChoices(label);
-            }
-        });
+        name.setValueChoices(CamelCommands.createComponentNameValues(project, filter, true));
 
         builder.add(filter);
         builder.add(name);

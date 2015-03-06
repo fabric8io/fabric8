@@ -17,6 +17,8 @@
 package io.fabric8.forge.camel.commands.project;
 
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.event.Observes;
@@ -31,7 +33,6 @@ import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
-import org.jboss.forge.addon.parser.xml.resources.XMLResource;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
 import org.jboss.forge.furnace.services.Imported;
@@ -70,18 +71,21 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
                     .setGroupId("io.fabric8.archetypes")
                     .setArtifactId("archetypes-catalog")
                     .setVersion(version)
-                    .setClassifier("archetype-catalog")
-                    .setPackaging("xml");
+                    .setPackaging("jar");
 
+            // load the archetype-catalog.xml from inside the JAR
             Dependency dependency = resolver.get().resolveArtifact(DependencyQueryBuilder.create(coordinate));
             if (dependency != null) {
-                XMLResource xml = (XMLResource) dependency.getArtifact();
-                if (xml != null) {
-                    try (InputStream is = xml.getResourceInputStream()) {
+                try {
+                    String name = dependency.getArtifact().getFullyQualifiedName();
+                    URL url = new URL("file", null, name);
+                    URLClassLoader loader = new URLClassLoader(new URL[]{url});
+                    InputStream is = loader.getResourceAsStream("archetype-catalog.xml");
+                    if (is != null) {
                         cachedArchetypes = new ArchetypeCatalogXpp3Reader().read(is);
-                    } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Error while retrieving archetypes", e);
                     }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "Error while retrieving archetypes", e);
                 }
             }
         }

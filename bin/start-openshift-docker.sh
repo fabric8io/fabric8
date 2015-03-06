@@ -122,11 +122,11 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
-export KUBERNETES=http://$DOCKER_IP:8443
+export KUBERNETES=https://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
-KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged openshift/origin:${OPENSHIFT_VERSION} --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig ex"
+KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} cli --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
+KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} ex --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
@@ -153,30 +153,30 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
 fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
-  cat $APP_BASE/fabric8.json | $KUBE cli create -f -
-  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  cat $APP_BASE/fabric8.json | $KUBE create -f -
+  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE cli create -f -
-    cat $APP_BASE/elasticsearch.json | $KUBE cli create -f -
-    cat $APP_BASE/logspout.yml | $KUBE cli create -f -
-    cat $APP_BASE/kibana.yml | $KUBE cli create -f -
-    cat $APP_BASE/grafana.yml | $KUBE cli create -f -
+    cat $APP_BASE/influxdb.json | $KUBE create -f -
+    cat $APP_BASE/elasticsearch.json | $KUBE create -f -
+    cat $APP_BASE/logspout.yml | $KUBE create -f -
+    cat $APP_BASE/kibana.yml | $KUBE create -f -
+    cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
 else
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE cli create -f -
-  $KUBE cli create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE create -f -
+  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE cli create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE cli create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
   fi
 fi
 
-K8S_SERVICES=$($KUBE cli get services)
+K8S_SERVICES=$($KUBE get services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
@@ -193,7 +193,7 @@ getServiceIp()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
-DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
+DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
@@ -252,7 +252,6 @@ function printHostEnvVars {
   if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
     printf "%s\n" "export DOCKER_IP=$FABRIC8_VAGRANT_IP"
     printf "%s\n" "export DOCKER_HOST=tcp://$FABRIC8_VAGRANT_IP:2375"
-    printf "%s\n" "export KUBERNETES_MASTER=https://$FABRIC8_VAGRANT_IP:8443"
   else
     if [[ $IPS  = *[[:space:]]* ]]; then
       printf "\n"
@@ -261,13 +260,11 @@ function printHostEnvVars {
         printf "%s\n" "#---"
         printf "%s\n" "export DOCKER_IP=$IP"
         printf "%s\n" "export DOCKER_HOST=tcp://$IP:2375"
-        printf "%s\n" "export KUBERNETES_MASTER=https://$IP:8443"
         printf "%s\n" "#---"
       done
      else
        printf "%s\n" "export DOCKER_IP=$IPS"
        printf "%s\n" "export DOCKER_HOST=tcp://$IPS:2375"
-       printf "%s\n" "export KUBERNETES_MASTER=https://$IPS:8443"
     fi
   fi
 }
@@ -279,6 +276,7 @@ header="%-20s | %-60s\n"
 format="%-20s | %-60s\n"
 printf "${header}" Service URL
 printf "${header}" "-------" "---"
+printf "${format}" "Kubernetes master" $KUBERNETES
 printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
 printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
@@ -286,7 +284,6 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
-  printf "${format}" "Kubernetes master" $KUBERNETES
   printf "${format}" "Cadvisor" $CADVISOR
 fi
 
@@ -297,8 +294,11 @@ printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
+printf "%s\n" "export KUBERNETES_MASTER=$KUBERNETES"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
-printHostEnvVars
+if [[ -z "${DOCKER_HOST}" ]]; then
+  printHostEnvVars
+fi
 
 if [[ $OSTYPE == darwin* ]]; then
   open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
