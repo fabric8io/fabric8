@@ -38,7 +38,7 @@ public class CamelInfoCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelInfoCommand.class).name(
-                "project-camel-info").category(Categories.create(CATEGORY))
+                "Camel: Info").category(Categories.create(CATEGORY))
                 .description("Displays what the current project includes of Camel components");
     }
 
@@ -84,7 +84,7 @@ public class CamelInfoCommand extends AbstractCamelProjectCommand {
 
             Set<String> dataFormats = dataFormatsFromArtifact(d.getCoordinate().getArtifactId());
             if (!dataFormats.isEmpty()) {
-                out.print("   data format: ");
+                out.print("   dataformat: ");
                 for (String df : dataFormats) {
                     out.print(df);
                     out.print(" ");

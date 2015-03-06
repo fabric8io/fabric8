@@ -50,11 +50,11 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
     private UISelectOne<String> componentNameFilter;
 
     @Inject
-    @WithAttributes(label = "componentName", required = true, description = "Name of component type to add.")
+    @WithAttributes(label = "componentName", required = true, description = "Name of component type to add")
     private UISelectOne<String> componentName;
 
     @Inject
-    @WithAttributes(label = "instanceName", required = true, description = "Name of component instance to add.")
+    @WithAttributes(label = "instanceName", required = true, description = "Name of component instance to add")
     private UISelectOne<String> instanceName;
 
     @Inject

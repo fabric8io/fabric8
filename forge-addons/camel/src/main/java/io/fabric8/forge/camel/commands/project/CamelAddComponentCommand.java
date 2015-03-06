@@ -41,7 +41,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     private UISelectOne<String> filter;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of component to add.")
+    @WithAttributes(label = "name", required = true, description = "Name of component to add")
     private UISelectOne<String> name;
 
     @Inject

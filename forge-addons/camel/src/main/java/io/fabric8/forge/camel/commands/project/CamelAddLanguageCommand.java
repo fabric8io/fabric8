@@ -37,7 +37,7 @@ import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findLan
 public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of language to add.")
+    @WithAttributes(label = "name", required = true, description = "Name of language to add")
     private UISelectOne<String> name;
 
     @Inject
@@ -46,7 +46,7 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddLanguageCommand.class).name(
-                "project-camel-language-add").category(Categories.create(CATEGORY))
+                "Camel: New Language").category(Categories.create(CATEGORY))
                 .description("Adds a Camel language to your project");
     }
 

@@ -37,7 +37,7 @@ import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findDat
 public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of data format to add.")
+    @WithAttributes(label = "name", required = true, description = "Name of dataformat to add")
     private UISelectOne<String> name;
 
     @Inject
@@ -46,7 +46,7 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddDataFormatCommand.class).name(
-                "project-camel-dataformat-add").category(Categories.create(CATEGORY))
+                "Camel: New DataFormat").category(Categories.create(CATEGORY))
                 .description("Adds a Camel dataformat to your project");
     }
 
@@ -71,7 +71,7 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         // name -> artifactId
         String artifactId = findDataFormatArchetype(name.getValue());
         if (artifactId == null) {
-            return Results.fail("Camel data format " + name.getValue() + " is unknown.");
+            return Results.fail("Camel dataformat " + name.getValue() + " is unknown.");
         }
 
         DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
@@ -80,6 +80,6 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         // install the component
         dependencyInstaller.install(project, component);
 
-        return Results.success("Added Camel data format " + name.getValue() + " (" + artifactId + ") to the project");
+        return Results.success("Added Camel dataformat " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }

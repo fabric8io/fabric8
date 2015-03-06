@@ -50,7 +50,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
-                "project-camel-add-route-builder").category(Categories.create(CATEGORY))
+                "Camel: New RouteBuilder").category(Categories.create(CATEGORY))
                 .description("Adds a Camel RouteBuilder class to your project");
     }
 

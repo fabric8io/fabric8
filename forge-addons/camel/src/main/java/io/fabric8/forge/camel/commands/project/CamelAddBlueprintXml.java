@@ -69,8 +69,8 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
-                "project-camel-add-blueprint-xml").category(Categories.create(CATEGORY))
-                .description("Adds a Blueprint XML file with CamelContext included to your project");
+                "Camel: New XML blueprint").category(Categories.create(CATEGORY))
+                .description("Adds a new Blueprint XML file with CamelContext to your project");
     }
 
     @Override

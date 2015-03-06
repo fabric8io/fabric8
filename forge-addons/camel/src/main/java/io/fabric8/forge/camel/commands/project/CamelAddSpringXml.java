@@ -71,8 +71,8 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddRouteBuilder.class).name(
-                "project-camel-add-spring-xml").category(Categories.create(CATEGORY))
-                .description("Adds a Spring XML file with CamelContext included to your project");
+                "Camel: New XML spring").category(Categories.create(CATEGORY))
+                .description("Adds a new Spring XML file with CamelContext to your project");
     }
 
     @Override
