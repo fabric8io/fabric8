@@ -310,10 +310,10 @@
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
         <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.logging.version>1.8.1</pax.logging.version>
+        <pax.logging.version>1.8.2</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
-        <pax.url.version>2.3.0</pax.url.version>
+        <pax.url.version>2.4.0</pax.url.version>
         <!-- aligned to pax-web 3.1.4 -->
         <pax.url.war.version>1.4.2</pax.url.war.version>
         <pax.url.commons.version>${pax.url.war.version}</pax.url.commons.version>
