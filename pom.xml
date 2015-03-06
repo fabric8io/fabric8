@@ -302,7 +302,7 @@
         <ops4j-pax-swissbox.version>1.8.0</ops4j-pax-swissbox.version>
         <ops4j-pax-swissbox-bnd.version>1.8.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.8.0</ops4j-pax-swissbox-property.version>
-        <ops4j-pax-web-version>3.1.4</ops4j-pax-web-version>
+        <ops4j-pax-web-version>3.2.0</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
         <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
