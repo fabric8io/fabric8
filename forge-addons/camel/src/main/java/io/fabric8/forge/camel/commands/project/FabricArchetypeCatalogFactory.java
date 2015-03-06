@@ -21,7 +21,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
@@ -32,9 +31,6 @@ import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
-import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
-import org.jboss.forge.furnace.container.cdi.events.Local;
-import org.jboss.forge.furnace.event.PostStartup;
 import org.jboss.forge.furnace.services.Imported;
 
 /**
@@ -49,13 +45,6 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     Imported<DependencyResolver> resolver;
 
     private ArchetypeCatalog cachedArchetypes;
-
-    void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
-        // must use this to trigger startup event so we can add ourselves
-        if (registry.getArchetypeCatalogFactory(NAME) == null) {
-            registry.addArchetypeCatalogFactory(this);
-        }
-    }
 
     @Override
     public String getName() {

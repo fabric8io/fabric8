@@ -19,15 +19,11 @@ package io.fabric8.forge.camel.commands.project;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.event.Observes;
 
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
 import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactory;
-import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
-import org.jboss.forge.furnace.container.cdi.events.Local;
-import org.jboss.forge.furnace.event.PostStartup;
 
 /**
  * The Apache Camel archetypes
@@ -38,13 +34,6 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     private static final String NAME = "camel";
 
     private ArchetypeCatalog cachedArchetypes;
-
-    void startup(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) {
-        // must use this to trigger startup event so we can add ourselves
-        if (registry.getArchetypeCatalogFactory(NAME) == null) {
-            registry.addArchetypeCatalogFactory(this);
-        }
-    }
 
     @Override
     public String getName() {
