@@ -1,19 +1,17 @@
 /**
+ *  Copyright 2005-2014 Red Hat, Inc.
  *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
 package io.fabric8.forge.camel.commands;
 
@@ -81,24 +79,17 @@ public class NewComponentInstanceTest {
             Project project = projectFactory.createTempProject();
             Assert.assertNotNull("Should have created a project", project);
 
-            CommandController command = testHarness.createCommandController(CamelSetupCommand.class);
+            CommandController command = testHarness.createCommandController(CamelSetupCommand.class, project.getRoot());
             command.initialize();
 
             Result result = command.execute();
             Assert.assertFalse("Should setup Camel in the project", result instanceof Failed);
 
-            command = testHarness.createCommandController(CamelListComponentCommand.class);
+            command = testHarness.createCommandController(CamelListComponentCommand.class, project.getRoot());
             command.initialize();
-/*
-           Assert.assertFalse(command.canMoveToNextStep());
-           command.setValueFor("named", "test");
-           command.setValueFor("targetLocation", tempDir);
-           command.setValueFor("topLevelPackage", "org.example");
-           command.setValueFor("type", "norequirements");
-           Assert.assertEquals("norequirements", InputComponents.getValueFor(command.getInputs().get("type")).toString());
-*/
+
             result = command.execute();
-            System.out.println("Got result: " + result);
+            Assert.assertFalse("Should not fail", result instanceof Failed);
         } finally {
             tempDir.delete();
         }
