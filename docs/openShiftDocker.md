@@ -84,9 +84,10 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
     `exit`  
     `vagrant snapshot take default cleanstart` 
 
-    __Now at any point you can reset to the cleanstart snapshot via:__
+    Now at any point you can reset to the cleanstart snapshot via:
 
     `vagrant snapshot go default cleanstart`
+    
 ---
 
 ### Run the Start Script
