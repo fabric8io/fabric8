@@ -37,6 +37,10 @@ public class CamelProjectHelper {
         return findCamelArtifactDependency(project, "camel-cdi");
     }
 
+    public static Dependency findCamelBlueprintDependency(Project project) {
+        return findCamelArtifactDependency(project, "camel-blueprint");
+    }
+
     public static Dependency findCamelArtifactDependency(Project project, String artifactId) {
         List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies) {

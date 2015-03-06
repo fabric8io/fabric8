@@ -65,6 +65,7 @@ public class CamelInfoCommand extends AbstractCamelProjectCommand {
 
         PrintStream out = getOutput(context);
 
+        out.println("");
         out.println("Camel Project Information");
         out.println("=========================");
 
@@ -84,7 +85,7 @@ public class CamelInfoCommand extends AbstractCamelProjectCommand {
 
             Set<String> dataFormats = dataFormatsFromArtifact(d.getCoordinate().getArtifactId());
             if (!dataFormats.isEmpty()) {
-                out.print("   dataformat: ");
+                out.print("    dataformat: ");
                 for (String df : dataFormats) {
                     out.print(df);
                     out.print(" ");
