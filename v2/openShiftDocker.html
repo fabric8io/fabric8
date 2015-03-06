@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1425459834081">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1425657593985">
     
 
 <div class="book-summary">
@@ -870,11 +870,13 @@ sudo route -n add 172.0.0.0/8 $DOCKER_IP
 <pre><code>route add 172.0.0.0 MASK 255.0.0.0 $DOCKER_IP
 </code></pre><p>You should now be able to access the Fabric8 console using the address defined in the previously set $FABRIC8_CONSOLE environment variable.</p>
 <h4 id="using-the-osc-command-line"><a name="using-the-osc-command-line" class="anchor" href="#using-the-osc-command-line"><span class="fa fa-link"></span></a>Using the osc command line</h4>
-<p>On Linux you can create an alias to access the osc command line (an extended version of &apos;kube&apos;). Run the following or add it to your ~/.bashrc</p>
+<p>The OpenShift container includes the OpenShift Command Line (osc). Therefore, you can use the osc via a docker &apos;run&apos; command.</p>
+<p>The easiest way to do this is to create an alias in your ~/.bashrc.</p>
+<p><strong>Note:</strong> In the aliases below you&apos;ll need to update the openshift/origin container tag to be whatever version Fabric8 is currently using. Run <code>docker ps | grep openshift/origin:</code> to find this out</p>
 <p><strong>Native Install</strong></p>
-<pre><code>alias osc=&quot;docker run --rm -i --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify&quot;
+<pre><code>alias osc=&quot;docker run --rm -i --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify&quot;
 </code></pre><p><strong>Non-Native Install</strong></p>
-<pre><code>alias osc=&quot;docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:latest --insecure-skip-tls-verify&quot;
+<pre><code>alias osc=&quot;docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify&quot;
 </code></pre><p>You can now use the osc command line to list pods, replication controllers and services; delete or create resources etc:</p>
 <pre><code>osc get pods
 osc get replicationControllers
