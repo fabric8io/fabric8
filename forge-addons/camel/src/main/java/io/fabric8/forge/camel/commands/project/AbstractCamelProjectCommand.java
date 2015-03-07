@@ -24,6 +24,7 @@ import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
+import org.jboss.forge.addon.projects.Projects;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -44,12 +45,17 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
     public boolean isEnabled(UIContext context) {
         if (requiresCamelSetup()) {
             // requires camel is already setup
-            Project project = getSelectedProject(context);
-            return super.isEnabled(context) && findCamelCoreDependency(project) != null;
+            Project project = getSelectedProjectOrNull(context);
+            return project != null && super.isEnabled(context) && findCamelCoreDependency(project) != null;
         } else {
             return super.isEnabled(context);
         }
     }
+
+    protected Project getSelectedProjectOrNull(UIContext context) {
+        return Projects.getSelectedProject(this.getProjectFactory(), context);
+    }
+
 
     protected boolean requiresCamelSetup() {
         return true;

@@ -58,8 +58,8 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public boolean isEnabled(UIContext context) {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
-            Project project = getSelectedProject(context);
-            return !CamelCommands.isCdiProject(project) && !CamelCommands.isSpringProject(project);
+            Project project = getSelectedProjectOrNull(context);
+            return project != null && !CamelCommands.isCdiProject(project) && !CamelCommands.isSpringProject(project);
         }
         return false;
     }
