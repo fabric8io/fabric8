@@ -113,14 +113,23 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
 
         String fromImage = from != null ? from.getValue() : "fabric8/java";
 
-        ConfigurationElement assembly = ConfigurationElementBuilder.create().setName("assembly").addChild("descriptorRef").setText("artifact-with-dependencies");
+        ConfigurationElement name = ConfigurationElementBuilder.create().setName("name").setText("${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
         ConfigurationElement from = ConfigurationElementBuilder.create().setName("from").setText(fromImage);
+        ConfigurationElement descriptorRef = ConfigurationElementBuilder.create().setName("descriptorRef").setText("${docker.assemblyDescriptorRef}");
 
-        ConfigurationElement image = ConfigurationElementBuilder.create().setName("image").addChild("name").setText("${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
-        image.getChildren().add(from);
-        image.getChildren().add(assembly);
+        ConfigurationElement assembly = ConfigurationElementBuilder.create().setName("assembly");
+        assembly.getChildren().add(descriptorRef);
 
-        ConfigurationElement images = ConfigurationElementBuilder.create().setName("images").addChild(image);
+        ConfigurationElement build = ConfigurationElementBuilder.create().setName("build");
+        build.getChildren().add(from);
+        build.getChildren().add(assembly);
+
+        ConfigurationElement image = ConfigurationElementBuilder.create().setName("image");
+        image.getChildren().add(name);
+        image.getChildren().add(build);
+
+        ConfigurationElement images = ConfigurationElementBuilder.create().setName("images");
+        images.getChildren().add(image);
 
         // TODO: all all properties with docker.env. as prefix as ENV
 
