@@ -125,32 +125,12 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         ConfigurationElement cfgImages = ConfigurationElementBuilder.create().setName("images");
         cfgImages.getChildren().add(cfgImage);
 
-        // TODO: all all properties with docker.env. as prefix as ENV
-
-        /*
-
-        <configuration>
-          <images>
-            <image>
-              <name>${docker.image}</name>
-              <build>
-                <from>${docker.from}</from>
-                <assembly>
-                  <descriptorRef>${docker.assemblyDescriptorRef}</descriptorRef>
-                </assembly>
-                <env>
-                  <MAIN>${docker.env.MAIN}</MAIN>
-                </env>
-              </build>
-            </image>
-          </images>
-        </configuration>
-         */
-
         String packaging = getProjectPackaging(project);
         String fromImage = from != null ? from.getValue() : "fabric8/java";
+
         boolean war = packaging != null && packaging.equals("war");
-        String descriptorRef = war ? "rootWar" : "artifact-with-dependencies";
+        boolean bundle = packaging != null && packaging.equals("bundle");
+        boolean jar = packaging != null && packaging.equals("jar");
 
         // update properties section in pom.xml
         MavenFacet maven = project.getFacet(MavenFacet.class);
@@ -159,10 +139,15 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         properties.put("docker.registryPrefix", "${env.DOCKER_REGISTRY}/");
         properties.put("docker.from", fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
-        properties.put("docker.assemblyDescriptorRef", descriptorRef);
         properties.put("docker.port.container.jolokia", "8778");
         if (war) {
+            properties.put("docker.assemblyDescriptorRef", "rootWar");
             properties.put("docker.port.container.http", "8080");
+        } else if (bundle) {
+            properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
+            properties.put("docker.port.container.http", "8181");
+        } else {
+            properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
         }
 
         // to save then set the model
