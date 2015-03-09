@@ -116,8 +116,11 @@ if [[ $OSTYPE == darwin* ]]; then
     fi
 
     echo "Adding network routes to 172.17.0.0/24, 172.30.17.0/24 & 172.121.17.0/24 via $DOCKER_IP so that the host operating system can see pods and services inside OpenShift"
+    sudo route delete 172.17.0.0
     sudo route -n add 172.17.0.0/24 $DOCKER_IP
+    sudo route delete 172.30.17.0
     sudo route -n add 172.30.17.0/24 $DOCKER_IP
+    sudo route delete 172.121.17.0
     sudo route -n add 172.121.17.0/24 $DOCKER_IP
 fi
 
