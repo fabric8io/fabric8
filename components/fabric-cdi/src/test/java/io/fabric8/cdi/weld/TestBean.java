@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi;
+package io.fabric8.cdi.weld;
 
 
 import io.fabric8.cdi.annotations.Service;

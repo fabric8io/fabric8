@@ -14,13 +14,14 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi;
+package io.fabric8.cdi.weld;
 
+import io.fabric8.cdi.Fabric8Extension;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.Before;
 
-public class CdiTestBase {
+public class WeldTestBase {
 
      WeldContainer container;
     

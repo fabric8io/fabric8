@@ -14,14 +14,15 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi;
+package io.fabric8.cdi.weld;
 
+import io.fabric8.cdi.ServiceConverters;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ExtensionTest extends CdiTestBase {
+public class ExtensionTest extends WeldTestBase {
     
     @Test
     public void testClientInjection() {
