@@ -39,6 +39,7 @@ import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.jledit.ConsoleEditor;
 import org.jledit.ContentManager;
@@ -568,8 +569,7 @@ public class ProfileEditAction extends AbstractAction {
     }
 
     private Map<String, String> getConfigurationFromBuilder(ProfileBuilder builder, String pid) {
-        Map<String, String> config = builder.getConfiguration(pid);
-        return config != null ? new HashMap<>(config) : new HashMap<String, String>();
+        return builder.getConfiguration(pid);
     }
 
     static class DatastoreContentManager implements ContentManager {

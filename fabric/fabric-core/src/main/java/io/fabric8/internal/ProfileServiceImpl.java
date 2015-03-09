@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import io.fabric8.utils.FabricValidations;
 import org.apache.felix.scr.annotations.Activate;
@@ -49,6 +48,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.utils.properties.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -320,7 +320,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                 for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                     SupplementControl ctrl = entry.getValue();
                     if (ctrl.props != null) {
-                        rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
+                        rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), ctrl.props);
                     }
                 }
                 return rc;
@@ -364,13 +364,13 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                     SupplementControl ctrl = aggregate.get(fileName);
                     if (ctrl != null) {
                         // we can update the file..
-                        Properties childMap = DataStoreUtils.toProperties(value);
+                        Properties childMap = ProfileUtils.toProperties(value);
                         if (childMap.remove(Profile.DELETED) != null) {
                             ctrl.props.clear();
                         }
 
                         // Update the entries...
-                        for (Map.Entry<Object, Object> p : childMap.entrySet()) {
+                        for (Map.Entry<String, String> p : childMap.entrySet()) {
                             if (Profile.DELETED.equals(p.getValue())) {
                                 ctrl.props.remove(p.getKey());
                             } else {
@@ -381,7 +381,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                     } else {
                         // new file..
                         ctrl = new SupplementControl();
-                        ctrl.props = DataStoreUtils.toProperties(value);
+                        ctrl.props = ProfileUtils.toProperties(value);
                         aggregate.put(fileName, ctrl);
                     }
                 } else {

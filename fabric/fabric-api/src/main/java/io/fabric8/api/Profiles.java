@@ -432,11 +432,7 @@ public final class Profiles {
         
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        Map<String, String> agentConfiguration = new HashMap<String, String>();
-        Map<String, String> oldValue = builder.getConfiguration(Constants.AGENT_PID);
-        if (oldValue != null) {
-            agentConfiguration.putAll(oldValue);
-        }
+        Map<String, String> agentConfiguration = builder.getConfiguration(Constants.AGENT_PID);
         agentConfiguration.put("lastRefresh." + profile.getId(), String.valueOf(System.currentTimeMillis()));
         builder.addConfiguration(Constants.AGENT_PID, agentConfiguration);
         profileService.updateProfile(builder.getProfile());

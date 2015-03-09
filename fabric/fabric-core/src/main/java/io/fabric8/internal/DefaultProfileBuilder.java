@@ -22,7 +22,6 @@ import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.internal.ProfileImpl.ConfigListType;
-import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.FabricValidations;
 
 import java.util.ArrayList;
@@ -196,7 +195,7 @@ public final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder>
 
     @Override
     public ProfileBuilder addConfiguration(String pid, Map<String, String> config) {
-        fileMapping.put(pid + Profile.PROPERTIES_SUFFIX, DataStoreUtils.toBytes(config));
+        fileMapping.put(pid + Profile.PROPERTIES_SUFFIX, ProfileUtils.toBytes(config));
         return this;
     }
 
@@ -221,13 +220,12 @@ public final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder>
 
     @Override
     public Map<String, String> getConfiguration(String pid) {
-        Map<String, String> config = getConfigurationInternal(pid);
-        return Collections.unmodifiableMap(config);
+        return getConfigurationInternal(pid);
     }
 
     private Map<String, String> getConfigurationInternal(String pid) {
         byte[] bytes = fileMapping.get(pid + Profile.PROPERTIES_SUFFIX);
-        return new HashMap<>(DataStoreUtils.toMap(bytes));
+        return ProfileUtils.toProperties(bytes);
     }
     
     @Override
