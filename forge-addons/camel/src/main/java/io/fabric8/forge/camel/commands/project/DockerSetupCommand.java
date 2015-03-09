@@ -17,11 +17,13 @@ package io.fabric8.forge.camel.commands.project;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
+import org.apache.maven.model.Model;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElement;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElementBuilder;
@@ -111,25 +113,23 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
             return Results.success("Docker is already setup");
         }
 
-        String fromImage = from != null ? from.getValue() : "fabric8/java";
+        ConfigurationElement cfgName = ConfigurationElementBuilder.create().setName("name").setText("${docker.image}");
+        ConfigurationElement cfgFrom = ConfigurationElementBuilder.create().setName("from").setText("${docker.from}");
+        ConfigurationElement cfgDescriptorRef = ConfigurationElementBuilder.create().setName("descriptorRef").setText("${docker.assemblyDescriptorRef}");
 
-        ConfigurationElement name = ConfigurationElementBuilder.create().setName("name").setText("${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
-        ConfigurationElement from = ConfigurationElementBuilder.create().setName("from").setText(fromImage);
-        ConfigurationElement descriptorRef = ConfigurationElementBuilder.create().setName("descriptorRef").setText("${docker.assemblyDescriptorRef}");
+        ConfigurationElement cfgAssembly = ConfigurationElementBuilder.create().setName("assembly");
+        cfgAssembly.getChildren().add(cfgDescriptorRef);
 
-        ConfigurationElement assembly = ConfigurationElementBuilder.create().setName("assembly");
-        assembly.getChildren().add(descriptorRef);
+        ConfigurationElement cfgBuild = ConfigurationElementBuilder.create().setName("build");
+        cfgBuild.getChildren().add(cfgFrom);
+        cfgBuild.getChildren().add(cfgAssembly);
 
-        ConfigurationElement build = ConfigurationElementBuilder.create().setName("build");
-        build.getChildren().add(from);
-        build.getChildren().add(assembly);
+        ConfigurationElement cfgImage = ConfigurationElementBuilder.create().setName("image");
+        cfgImage.getChildren().add(cfgName);
+        cfgImage.getChildren().add(cfgBuild);
 
-        ConfigurationElement image = ConfigurationElementBuilder.create().setName("image");
-        image.getChildren().add(name);
-        image.getChildren().add(build);
-
-        ConfigurationElement images = ConfigurationElementBuilder.create().setName("images");
-        images.getChildren().add(image);
+        ConfigurationElement cfgImages = ConfigurationElementBuilder.create().setName("images");
+        cfgImages.getChildren().add(cfgImage);
 
         // TODO: all all properties with docker.env. as prefix as ENV
 
@@ -153,8 +153,23 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         </configuration>
          */
 
+        String fromImage = from != null ? from.getValue() : "fabric8/java";
+
+        // update properties section in pom.xml
+        MavenFacet maven = project.getFacet(MavenFacet.class);
+        Model pom = maven.getModel();
+        Properties properties = pom.getProperties();
+        properties.put("docker.registryPrefix", "${env.DOCKER_REGISTRY}/");
+        properties.put("docker.from", fromImage);
+        properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
+        properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
+        properties.put("docker.port.container.jolokia", "8778");
+
+        // to save then set the model
+        maven.setModel(pom);
+
         // add docker-maven-plugin using latest version
-        plugin.createConfiguration().addConfigurationElement(images);
+        plugin.createConfiguration().addConfigurationElement(cfgImages);
         pluginFacet.addPlugin(plugin);
 
         return Results.success("Added Docker to the project");
