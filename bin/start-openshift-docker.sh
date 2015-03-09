@@ -21,11 +21,12 @@ FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
+LOGSTASH_IMAGE=fabric8/logstash:latest
 GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${LOGSTASH_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -160,6 +161,7 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/influxdb.json | $KUBE create -f -
     cat $APP_BASE/elasticsearch.json | $KUBE create -f -
     cat $APP_BASE/logspout.yml | $KUBE create -f -
+    cat $APP_BASE/logstash.yml | $KUBE create -f -
     cat $APP_BASE/kibana.yml | $KUBE create -f -
     cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
@@ -171,6 +173,7 @@ else
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logstash.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
   fi
@@ -196,6 +199,7 @@ FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
 DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
+LOGSTASH=tcp://$(getServiceIpAndPort "$K8S_SERVICES" logstash-service)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 CADVISOR=http://$DOCKER_IP:4194
@@ -287,6 +291,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
+  printf "${format}" "Logstash" $LOGSTASH
   printf "${format}" "Cadvisor" $CADVISOR
 fi
 
