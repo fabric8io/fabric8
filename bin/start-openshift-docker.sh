@@ -20,12 +20,12 @@ INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
-LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
+FLUENTD_IMAGE=fabric8/fluentd-kubernetes:latest
 GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -162,7 +162,7 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     cat $APP_BASE/influxdb.json | $KUBE create -f -
     cat $APP_BASE/elasticsearch.json | $KUBE create -f -
-    cat $APP_BASE/logspout.yml | $KUBE create -f -
+    cat $APP_BASE/fluentd.yml | $KUBE create -f -
     cat $APP_BASE/kibana.yml | $KUBE create -f -
     cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
@@ -173,7 +173,7 @@ else
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE create -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
   fi

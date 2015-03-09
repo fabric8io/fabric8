@@ -4,29 +4,36 @@ id: conf
 items:
   - apiVersion: v1beta1
     kind: Pod
-    id: fluentd-elasticsearch-pod
+    id: fluentd
     desiredState:
       manifest:
         version: v1beta2
-        id: fluentd-to-elasticsearch
+        id: fluentd
         containers:
-          - name: fluentd-es
-            image: kubernetes/fluentd-elasticsearch
+          - name: fluentd
+            image: fabric8/fluentd-kubernetes:latest
             imagePullPolicy: PullIfNotPresent
+            env:
+              - name: ELASTICSEARCH_SERVICE_NAME
+                value: ELASTICSEARCH
+              - name: FLUENTD_FLUSH_INTERVAL
+                value: 10s
             volumeMounts:
-              - name: containers
-                mountPath: /var/lib/docker/containers
-              - name: hosts
-                mountPath: /outerhost
+              - name: docker-sock
+                mountPath: /var/run/docker.sock
                 readOnly: true
+              - name: docker-containers
+                mountPath: /var/lib/docker/containers
+                readOnly: true
+            privileged: true
         volumes:
-          - name: containers
+          - name: docker-sock
+            source:
+              hostDir:
+                path: /var/run/docker.sock
+          - name: docker-containers
             source:
               hostDir:
                 path: /var/lib/docker/containers
-          - name: hosts
-            source:
-              hostDir:
-                path: /etc/hosts
     labels:
-      app: fluentd-elasticsearch
+      app: fluentd
