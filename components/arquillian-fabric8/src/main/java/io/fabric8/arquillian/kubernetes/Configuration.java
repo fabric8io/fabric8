@@ -101,7 +101,7 @@ public class Configuration {
             configuration.timeout = getLongProperty(TIMEOUT, map, DEFAULT_TIMEOUT);
             configuration.pollInterval = getLongProperty(POLL_INTERVAL, map, DEFAULT_POLL_INTERVAL);
             configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
-            configuration.waitForServiceConnection = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, false);
+            configuration.waitForServiceConnection = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, true);
             configuration.waitForServices = Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICES, map, ""), " ");
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
         } catch (Throwable t) {
