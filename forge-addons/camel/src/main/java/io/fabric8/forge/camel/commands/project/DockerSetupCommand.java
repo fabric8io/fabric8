@@ -82,20 +82,14 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
             public String call() throws Exception {
                 String answer = null;
 
-                Project project = getSelectedProject(builder);
-                if (project != null) {
-                    // figure out if its a jar / war / bundle project and pick best-effort default
-                    MavenFacet maven = project.getFacet(MavenFacet.class);
-                    String packaging = maven.getModel().getPackaging();
-                    if ("jar".equals(packaging)) {
-                        answer = jarImages[0];
-                    } else if ("bundle".equals(packaging)) {
-                        answer = bundleImages[0];
-                    } else if ("war".equals(packaging)) {
-                        answer = warImages[0];
-                    }
+                String packaging = getProjectPackaging(getSelectedProject(builder));
+                if ("jar".equals(packaging)) {
+                    answer = jarImages[0];
+                } else if ("bundle".equals(packaging)) {
+                    answer = bundleImages[0];
+                } else if ("war".equals(packaging)) {
+                    answer = warImages[0];
                 }
-
                 return answer;
             }
         });
@@ -153,7 +147,10 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         </configuration>
          */
 
+        String packaging = getProjectPackaging(project);
         String fromImage = from != null ? from.getValue() : "fabric8/java";
+        boolean war = packaging != null && packaging.equals("war");
+        String descriptorRef = war ? "rootWar" : "artifact-with-dependencies";
 
         // update properties section in pom.xml
         MavenFacet maven = project.getFacet(MavenFacet.class);
@@ -162,8 +159,11 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         properties.put("docker.registryPrefix", "${env.DOCKER_REGISTRY}/");
         properties.put("docker.from", fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
-        properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
+        properties.put("docker.assemblyDescriptorRef", descriptorRef);
         properties.put("docker.port.container.jolokia", "8778");
+        if (war) {
+            properties.put("docker.port.container.http", "8080");
+        }
 
         // to save then set the model
         maven.setModel(pom);
@@ -173,6 +173,14 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         pluginFacet.addPlugin(plugin);
 
         return Results.success("Added Docker to the project");
+    }
+
+    protected String getProjectPackaging(Project project) {
+        if (project != null) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            return maven.getModel().getPackaging();
+        }
+        return null;
     }
 
 }
