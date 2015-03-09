@@ -252,6 +252,7 @@ function printHostEnvVars {
   if echo "$IPS" | grep -q "$FABRIC8_VAGRANT_IP"; then
     printf "%s\n" "export DOCKER_IP=$FABRIC8_VAGRANT_IP"
     printf "%s\n" "export DOCKER_HOST=tcp://$FABRIC8_VAGRANT_IP:2375"
+    printf "%s\n" "export KUBERNETES_MASTER=https://$FABRIC8_VAGRANT_IP:8443"
   else
     if [[ $IPS  = *[[:space:]]* ]]; then
       printf "\n"
@@ -260,11 +261,13 @@ function printHostEnvVars {
         printf "%s\n" "#---"
         printf "%s\n" "export DOCKER_IP=$IP"
         printf "%s\n" "export DOCKER_HOST=tcp://$IP:2375"
+        printf "%s\n" "export KUBERNETES_MASTER=https://$IP:8443"
         printf "%s\n" "#---"
       done
      else
        printf "%s\n" "export DOCKER_IP=$IPS"
        printf "%s\n" "export DOCKER_HOST=tcp://$IPS:2375"
+       printf "%s\n" "export KUBERNETES_MASTER=https://$IPS:8443"
     fi
   fi
 }
@@ -294,7 +297,6 @@ printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
-printf "%s\n" "export KUBERNETES_MASTER=$KUBERNETES"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
 if [[ -z "${DOCKER_HOST}" ]]; then
   printHostEnvVars
