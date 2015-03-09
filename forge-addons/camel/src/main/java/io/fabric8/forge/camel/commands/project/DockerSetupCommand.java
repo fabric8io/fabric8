@@ -15,18 +15,24 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
+import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElement;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElementBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -34,11 +40,16 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
+@FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
 public class DockerSetupCommand extends AbstractDockerProjectCommand {
 
+    private String[] jarImages = new String[]{"fabric8/java"};
+    private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
+    private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+
     @Inject
-    @WithAttributes(label = "from", required = false, description = "The docker image to use as base line")
-    private UIInput<String> from;
+    @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
+    private UISelectOne<String> from;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -48,9 +59,44 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
     }
 
     @Override
-    public void initializeUI(UIBuilder builder) throws Exception {
-        // TODO: list of known images from we support, and allow to type in image
+    public void initializeUI(final UIBuilder builder) throws Exception {
         builder.add(from);
+
+        // the from image values
+        from.setValueChoices(new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator() {
+                Set<String> choices = new LinkedHashSet<String>();
+                choices.add(jarImages[0]);
+                choices.add(bundleImages[0]);
+                choices.add(warImages[0]);
+                choices.add(warImages[1]);
+                return choices.iterator();
+            }
+        });
+
+        from.setDefaultValue(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                String answer = null;
+
+                Project project = getSelectedProject(builder);
+                if (project != null) {
+                    // figure out if its a jar / war / bundle project and pick best-effort default
+                    MavenFacet maven = project.getFacet(MavenFacet.class);
+                    String packaging = maven.getModel().getPackaging();
+                    if ("jar".equals(packaging)) {
+                        answer = jarImages[0];
+                    } else if ("bundle".equals(packaging)) {
+                        answer = bundleImages[0];
+                    } else if ("war".equals(packaging)) {
+                        answer = warImages[0];
+                    }
+                }
+
+                return answer;
+            }
+        });
     }
 
     @Override
@@ -65,9 +111,10 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
             return Results.success("Docker is already setup");
         }
 
+        String fromImage = from != null ? from.getValue() : "fabric8/java";
 
         ConfigurationElement assembly = ConfigurationElementBuilder.create().setName("assembly").addChild("descriptorRef").setText("artifact-with-dependencies");
-        ConfigurationElement from = ConfigurationElementBuilder.create().setName("from").setText("fabric8/tomcat-8.0");
+        ConfigurationElement from = ConfigurationElementBuilder.create().setName("from").setText(fromImage);
 
         ConfigurationElement image = ConfigurationElementBuilder.create().setName("image").addChild("name").setText("${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
         image.getChildren().add(from);
