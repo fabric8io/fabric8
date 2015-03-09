@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -137,7 +139,7 @@ public class DeploymentAgent implements ManagedService {
             public FabricService addingService(ServiceReference<FabricService> reference) {
                 FabricService service = systemBundleContext.getService(reference);
                 if (provisioningStatus != null) {
-                    updateStatus(service, provisioningStatus, provisioningError, provisionList);
+                    updateStatus(service, provisioningStatus, provisioningError);
                 }
                 return service;
             }
@@ -145,7 +147,7 @@ public class DeploymentAgent implements ManagedService {
             @Override
             public void modifiedService(ServiceReference<FabricService> reference, FabricService service) {
                 if (provisioningStatus != null) {
-                    updateStatus(service, provisioningStatus, provisioningError, provisionList);
+                    updateStatus(service, provisioningStatus, provisioningError);
                 }
             }
 
@@ -220,17 +222,17 @@ public class DeploymentAgent implements ManagedService {
                 }
                 // This update is critical, so
                 if (success || result != null) {
-                    updateStatus(success ? Container.PROVISION_SUCCESS : Container.PROVISION_ERROR, result, null, true);
+                    updateStatus(success ? Container.PROVISION_SUCCESS : Container.PROVISION_ERROR, result, true);
                 }
             }
         });
     }
 
     private void updateStatus(String status, Throwable result) {
-        updateStatus(status, result, null, false);
+        updateStatus(status, result, false);
     }
 
-    private void updateStatus(String status, Throwable result, Collection<Resource> resources, boolean force) {
+    private void updateStatus(String status, Throwable result, boolean force) {
         try {
             FabricService fs;
             if (force) {
@@ -238,17 +240,16 @@ public class DeploymentAgent implements ManagedService {
             } else {
                 fs = fabricService.getService();
             }
-            updateStatus(fs, status, result, resources);
+            updateStatus(fs, status, result);
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
         }
     }
 
-    private void updateStatus(FabricService fs, String status, Throwable result, Collection<Resource> resources) {
+    private void updateStatus(FabricService fs, String status, Throwable result) {
         try {
             provisioningStatus = status;
             provisioningError = result;
-            provisionList = resources;
 
             if (fs != null) {
                 fabricNotAvailableLogged = false;
@@ -261,12 +262,12 @@ public class DeploymentAgent implements ManagedService {
                     result.printStackTrace(new PrintWriter(sw));
                     e = sw.toString();
                 }
-                if (resources != null) {
-                    List<String> uris = new ArrayList<>();
-                    for (Resource res : resources) {
+                if (provisionList != null) {
+                    Set<String> uris = new TreeSet<>();
+                    for (Resource res : provisionList) {
                         uris.add(getUri(res));
                     }
-                    container.setProvisionList(uris);
+                    container.setProvisionList(new ArrayList<>(uris));
                 }
                 container.setProvisionResult(status);
                 container.setProvisionException(e);
@@ -564,6 +565,10 @@ public class DeploymentAgent implements ManagedService {
             protected void saveState(State newState) throws IOException {
                 super.saveState(newState);
                 DeploymentAgent.this.state.replace(newState);
+            }
+
+            protected void provisionList(Set<Resource> resources) {
+                DeploymentAgent.this.provisionList = resources;
             }
         };
         agent.provision(

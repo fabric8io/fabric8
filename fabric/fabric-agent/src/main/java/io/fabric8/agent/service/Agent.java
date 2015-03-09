@@ -328,6 +328,10 @@ public class Agent {
                             LOGGER.warn("Error storing agent state", e);
                         }
                     }
+                    @Override
+                    public void provisionList(Set<Resource> resources) {
+                        Agent.this.provisionList(resources);
+                    }
                 };
 
                 // FABRIC-790, FABRIC-981 - wait for ProfileUrlHandler before attempting to load bundles (in subsystem.resolve())
@@ -362,6 +366,9 @@ public class Agent {
 
     protected void saveState(State newState) throws IOException {
         storage.save(newState);
+    }
+
+    protected void provisionList(Set<Resource> resources) {
     }
 
     public void setOptions(EnumSet<Option> options) {

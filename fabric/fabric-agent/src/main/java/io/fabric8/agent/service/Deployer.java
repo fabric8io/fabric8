@@ -120,6 +120,8 @@ public class Deployer {
         void resolveBundles(Set<Bundle> bundles, Map<Resource, List<Wire>> wiring, Map<Resource, Bundle> resToBnd);
 
         void replaceDigraph(Map<String, Map<String, Map<String, Set<String>>>> policies, Map<String, Set<Long>> bundles) throws BundleException, InvalidSyntaxException;
+
+        void provisionList(Set<Resource> resources);
     }
 
     public static class PartialDeploymentException extends Exception {
@@ -816,6 +818,9 @@ public class Deployer {
                 throw new MultiException("Error restarting bundles", exceptions);
             }
         }
+
+        // Info about final list of deployed bundles
+        callback.provisionList(deployment.resToBnd.keySet());
 
         print("Done.", display);
     }
