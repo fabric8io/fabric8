@@ -85,6 +85,35 @@ public final class VersionHelper {
         return version;
     }
 
+    /**
+     * Retrieves the version of docker to use
+     */
+    public static String dockerVersion() {
+        String version = null;
+
+        InputStream is = null;
+        try {
+            // try to load from maven properties first as they have the version
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.xml");
+            if (is != null) {
+                String text = loadText(is);
+                version = between(text, "<docker.version>", "</docker.version>");
+            }
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        return version;
+    }
+
     public static String after(String text, String after) {
         if (!text.contains(after)) {
             return null;

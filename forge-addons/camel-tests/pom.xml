@@ -34,7 +34,7 @@
     <!-- to include hawtio version in pom.xml which is needed by camel setup command -->
     <hawtio.version>1.4.47</hawtio.version>
     <!-- we need Camel 2.15 -->
-    <camel.version>2.15-SNAPSHOT</camel.version>
+    <camel.version>2.16-SNAPSHOT</camel.version>
   </properties>
 
   <dependencyManagement>
