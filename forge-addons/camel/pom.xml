@@ -36,7 +36,7 @@
     <!-- we need Camel 2.15 -->
     <camel.version>2.16-SNAPSHOT</camel.version>
     <!-- docker maven plugin -->
-    <docker.version>0.11.1</docker.version>
+    <docker.version>0.11.2</docker.version>
   </properties>
 
   <dependencyManagement>
