@@ -66,7 +66,9 @@ public class ProfileChangeParentsAction extends AbstractAction {
         }
         //remove old parent profiles
         for (String oldParent : oldParents) {
-            builder.removeParent(oldParent);
+            if (!parentIds.contains(oldParent)) {
+                builder.removeParent(oldParent);
+            }
         }
         profileService.updateProfile(builder.getProfile());
         return null;
