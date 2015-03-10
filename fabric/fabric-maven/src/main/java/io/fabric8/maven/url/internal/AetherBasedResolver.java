@@ -22,11 +22,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -115,7 +119,9 @@ import org.eclipse.aether.util.repository.DefaultMirrorSelector;
 import org.eclipse.aether.util.repository.DefaultProxySelector;
 import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 import org.eclipse.aether.util.version.GenericVersionScheme;
+import org.eclipse.aether.version.InvalidVersionSpecificationException;
 import org.eclipse.aether.version.Version;
+import org.eclipse.aether.version.VersionConstraint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,6 +144,10 @@ public class AetherBasedResolver implements MavenResolver {
     final private ProxySelector m_proxySelector;
     private Settings m_settings;
     private SettingsDecrypter decrypter;
+
+    private LocalRepository localRepository;
+    private final ConcurrentMap<LocalRepository, Deque<DefaultRepositorySystemSession>> sessions
+            = new ConcurrentHashMap<LocalRepository, Deque<DefaultRepositorySystemSession>>();
 
     /**
      * Create a AetherBasedResolver
@@ -177,7 +187,7 @@ public class AetherBasedResolver implements MavenResolver {
     {
         SettingsDecryptionRequest request = new DefaultSettingsDecryptionRequest( m_settings );
         SettingsDecryptionResult result = decrypter.decrypt( request );
-        m_settings.setProxies( result.getProxies() );
+        m_settings.setProxies(result.getProxies());
         m_settings.setServers( result.getServers() );
     }
 
@@ -258,7 +268,7 @@ public class AetherBasedResolver implements MavenResolver {
                     map.put( key, new ArrayList<String>() );
                 }
                 List<String> mirrored = map.get( key );
-                mirrored.add( r.getId() );
+                mirrored.add(r.getId());
             }
         }
 
@@ -278,6 +288,27 @@ public class AetherBasedResolver implements MavenResolver {
 
         remoteRepos.clear();
         remoteRepos.addAll( resultingRepos );
+    }
+
+    List<LocalRepository> selectDefaultRepositories() {
+        List<LocalRepository> list = new ArrayList<LocalRepository>();
+        List<MavenRepositoryURL> urls = Collections.emptyList();
+        try {
+            urls = m_config.getDefaultRepositories();
+        }
+        catch( MalformedURLException exc ) {
+            LOG.error( "invalid repository URLs", exc );
+        }
+        for( MavenRepositoryURL r : urls ) {
+            if( r.isMulti() ) {
+                addLocalSubDirs(list, r.getFile());
+            }
+            else {
+                addLocalRepo(list, r);
+            }
+        }
+
+        return list;
     }
 
     private void addSubDirs( List<RemoteRepository> list, File parentDir ) {
@@ -330,7 +361,34 @@ public class AetherBasedResolver implements MavenResolver {
         }
         list.add( builder.build() );
     }
-    
+
+    private void addLocalSubDirs( List<LocalRepository> list, File parentDir ) {
+        if( !parentDir.isDirectory() ) {
+            LOG.debug( "Repository marked with @multi does not resolve to a directory: "
+                    + parentDir );
+            return;
+        }
+        for( File repo : parentDir.listFiles() ) {
+            if( repo.isDirectory() ) {
+                try {
+                    String repoURI = repo.toURI().toString() + "@id=" + repo.getName();
+                    LOG.debug( "Adding repo from inside multi dir: " + repoURI );
+                    addLocalRepo(list, new MavenRepositoryURL(repoURI));
+                }
+                catch( MalformedURLException e ) {
+                    LOG.error( "Error resolving repo url of a multi repo " + repo.toURI() );
+                }
+            }
+        }
+    }
+
+    private void addLocalRepo( List<LocalRepository> list, MavenRepositoryURL repo ) {
+        if (repo.getFile() != null) {
+            LocalRepository local = new LocalRepository( repo.getFile(), "simple" );
+            list.add( local );
+        }
+    }
+
     /**
      * Resolve maven artifact as input stream.
      */
@@ -386,6 +444,21 @@ public class AetherBasedResolver implements MavenResolver {
     public File resolveFile( Artifact artifact,
                              MavenRepositoryURL repositoryURL ) throws IOException {
 
+        List<LocalRepository> defaultRepos = selectDefaultRepositories();
+        List<RemoteRepository> remoteRepos = selectRepositories();
+        if (repositoryURL != null) {
+            addRepo(remoteRepos, repositoryURL);
+        }
+        assignProxyAndMirrors( remoteRepos );
+        File resolved = resolve( defaultRepos, remoteRepos, artifact );
+
+        LOG.debug( "Resolved ({}) as {}", artifact.toString(), resolved.getAbsolutePath() );
+        return resolved;
+    }
+
+    private File resolve( List<LocalRepository> defaultRepos,
+                          List<RemoteRepository> remoteRepos,
+                          Artifact artifact ) throws IOException {
         if (artifact.getExtension().isEmpty()) {
             artifact = new DefaultArtifact(
                     artifact.getGroupId(),
@@ -396,12 +469,31 @@ public class AetherBasedResolver implements MavenResolver {
             );
         }
 
-        List<RemoteRepository> remoteRepos = getRepositories();
-        if (repositoryURL != null) {
-            addRepo(remoteRepos, repositoryURL);
-        }
+        // Try with default repositories
         try {
-            RepositorySystemSession session = createSession();
+            VersionConstraint vc = new GenericVersionScheme().parseVersionConstraint(artifact.getVersion());
+            if (vc.getVersion() != null && !vc.getVersion().toString().endsWith("SNAPSHOT")) {
+                for (LocalRepository repo : defaultRepos) {
+                    DefaultRepositorySystemSession session = newSession( repo );
+                    try {
+                        return m_repoSystem
+                                .resolveArtifact(session, new ArtifactRequest(artifact, null, null))
+                                .getArtifact().getFile();
+                    }
+                    catch( ArtifactResolutionException e ) {
+                        // Ignore
+                    } finally {
+                        releaseSession(session);
+                    }
+                }
+            }
+        }
+        catch( InvalidVersionSpecificationException e ) {
+            // Should not happen
+        }
+
+        DefaultRepositorySystemSession session = newSession(null);
+        try {
             artifact = resolveLatestVersionRange( session, remoteRepos, artifact );
             ArtifactResult result = m_repoSystem
                     .resolveArtifact( session, new ArtifactRequest( artifact, remoteRepos, null ) );
@@ -422,6 +514,9 @@ public class AetherBasedResolver implements MavenResolver {
         }
         catch( RepositoryException e ) {
             throw new IOException( "Error resolving artifact " + artifact.toString(), e );
+        }
+        finally {
+            releaseSession(session);
         }
     }
 
@@ -462,17 +557,64 @@ public class AetherBasedResolver implements MavenResolver {
         return artifact;
     }
 
-    public DefaultRepositorySystemSession createSession() {
-        DefaultRepositorySystemSession session = newSession();
+    public DefaultRepositorySystemSession newSession() {
+        return newSession(null);
+    }
 
-        File local;
-        if( m_config.getLocalRepository() != null ) {
-            local = m_config.getLocalRepository().getFile();
-        } else {
-            local = new File( System.getProperty("user.home"), ".m2/repository" );
+    private DefaultRepositorySystemSession newSession(LocalRepository repo) {
+        if (repo == null) {
+            if (localRepository == null) {
+                File local;
+                if( m_config.getLocalRepository() != null ) {
+                    local = m_config.getLocalRepository().getFile();
+                } else {
+                    local = new File( System.getProperty( "user.home" ), ".m2/repository" );
+                }
+                localRepository = new LocalRepository( local );
+            }
+            repo = localRepository;
         }
-        LocalRepository localRepo = new LocalRepository( local );
-        session.setLocalRepositoryManager( m_repoSystem.newLocalRepositoryManager( session, localRepo ) );
+        Deque<DefaultRepositorySystemSession> deque = sessions.get(repo);
+        DefaultRepositorySystemSession session = null;
+        if (deque != null) {
+            session = deque.pollFirst();
+        }
+        if (session == null) {
+            session = createSession(repo);
+        }
+        return session;
+    }
+
+    private void releaseSession(DefaultRepositorySystemSession session) {
+        LocalRepository repo = session.getLocalRepository();
+        Deque<DefaultRepositorySystemSession> deque = sessions.get(repo);
+        if (deque == null) {
+            sessions.putIfAbsent(repo, new ConcurrentLinkedDeque<DefaultRepositorySystemSession>());
+            deque = sessions.get(repo);
+        }
+        deque.add(session);
+    }
+
+    @Override
+    public RepositorySystemSession createSession() {
+        return createSession(null);
+    }
+
+    public DefaultRepositorySystemSession createSession(LocalRepository repo) {
+        DefaultRepositorySystemSession session = newRepositorySystemSession();
+
+        if( repo != null ) {
+            session.setLocalRepositoryManager( m_repoSystem.newLocalRepositoryManager( session, repo ) );
+        } else {
+            File local;
+            if (m_config.getLocalRepository() != null) {
+                local = m_config.getLocalRepository().getFile();
+            } else {
+                local = new File(System.getProperty("user.home"), ".m2/repository");
+            }
+            LocalRepository localRepo = new LocalRepository(local);
+            session.setLocalRepositoryManager(m_repoSystem.newLocalRepositoryManager(session, localRepo));
+        }
 
         session.setMirrorSelector( m_mirrorSelector );
         session.setProxySelector( m_proxySelector );
@@ -499,7 +641,7 @@ public class AetherBasedResolver implements MavenResolver {
         return session;
     }
 
-    private static DefaultRepositorySystemSession newSession()
+    private static DefaultRepositorySystemSession newRepositorySystemSession()
     {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
 
@@ -614,86 +756,90 @@ public class AetherBasedResolver implements MavenResolver {
     }
 
     protected DependencyNode collectDependencies(Artifact root, String pomVersion, final Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
-        final DefaultRepositorySystemSession session = createSession();
-        List<RemoteRepository> repos = selectRepositories();
-        assignProxyAndMirrors(repos);
+        final DefaultRepositorySystemSession session = newSession();
+        try {
+            List<RemoteRepository> repos = selectRepositories();
+            assignProxyAndMirrors(repos);
 
-        ArtifactDescriptorResult artifactDescriptorResult = m_repoSystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
-        repos.addAll(artifactDescriptorResult.getRepositories());
+            ArtifactDescriptorResult artifactDescriptorResult = m_repoSystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
+            repos.addAll(artifactDescriptorResult.getRepositories());
 
-        Dependency rootDependency = new Dependency(root, null);
+            Dependency rootDependency = new Dependency(root, null);
 
-        List<Dependency> dependencies = artifactDescriptorResult.getDependencies();
+            List<Dependency> dependencies = artifactDescriptorResult.getDependencies();
 
-        final DefaultDependencyNode rootNode = new DefaultDependencyNode(rootDependency);
-        GenericVersionScheme versionScheme = new GenericVersionScheme();
-        rootNode.setVersion(versionScheme.parseVersion(pomVersion));
-        rootNode.setVersionConstraint(versionScheme.parseVersionConstraint(pomVersion));
-        DependencyNode pomNode = rootNode;
+            final DefaultDependencyNode rootNode = new DefaultDependencyNode(rootDependency);
+            GenericVersionScheme versionScheme = new GenericVersionScheme();
+            rootNode.setVersion(versionScheme.parseVersion(pomVersion));
+            rootNode.setVersionConstraint(versionScheme.parseVersionConstraint(pomVersion));
+            DependencyNode pomNode = rootNode;
 
-        //final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter, new NewerVersionExistsFilter(rootNode));
-        final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter);
-        DependencySelector dependencySelector = new AndDependencySelector(
-                new ScopeDependencySelector("test"),
-                new ExclusionDependencySelector(),
-                new DependencySelector() {
-                    @Override
-                    public DependencySelector deriveChildSelector(DependencyCollectionContext context) {
-                        return this;
-                    }
-
-                    @Override
-                    public boolean selectDependency(Dependency dependency) {
-                        try {
-                            return !DependencyFilters.matches(dependency, shouldExclude);
-                        } catch (Exception e) {
-                            failedToMakeDependencyTree(dependency, e);
-                            return false;
+            //final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter, new NewerVersionExistsFilter(rootNode));
+            final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter);
+            DependencySelector dependencySelector = new AndDependencySelector(
+                    new ScopeDependencySelector("test"),
+                    new ExclusionDependencySelector(),
+                    new DependencySelector() {
+                        @Override
+                        public DependencySelector deriveChildSelector(DependencyCollectionContext context) {
+                            return this;
                         }
-                    }
-                });
-        session.setDependencySelector(dependencySelector);
 
-        // TODO no idea why we have to iterate through the dependencies; why can't we just
-        // work on the root dependency directly?
-        if (true) {
-            for (Dependency dependency : dependencies) {
-                DependencyNode node = resolveDependencies(session, repos, pomNode, dependency, shouldExclude);
+                        @Override
+                        public boolean selectDependency(Dependency dependency) {
+                            try {
+                                return !DependencyFilters.matches(dependency, shouldExclude);
+                            } catch (Exception e) {
+                                failedToMakeDependencyTree(dependency, e);
+                                return false;
+                            }
+                        }
+                    });
+            session.setDependencySelector(dependencySelector);
+
+            // TODO no idea why we have to iterate through the dependencies; why can't we just
+            // work on the root dependency directly?
+            if (true) {
+                for (Dependency dependency : dependencies) {
+                    DependencyNode node = resolveDependencies(session, repos, pomNode, dependency, shouldExclude);
+                    if (node != null) {
+                        pomNode.getChildren().add(node);
+                    }
+                }
+            } else {
+                DependencyNode node = resolveDependencies(session, repos, pomNode, rootDependency, shouldExclude);
                 if (node != null) {
-                    pomNode.getChildren().add(node);
+                    pomNode = node;
                 }
             }
-        } else {
-            DependencyNode node = resolveDependencies(session, repos, pomNode, rootDependency, shouldExclude);
-            if (node != null) {
-                pomNode = node;
-            }
+
+            // now lets transform the dependency tree to remove different versions for the same artifact
+            final DependencyGraphTransformationContext tranformContext = new DependencyGraphTransformationContext() {
+                Map map = new HashMap();
+
+                public RepositorySystemSession getSession() {
+                    return session;
+                }
+
+                public Object get(Object key) {
+                    return map.get(key);
+                }
+
+                public Object put(Object key, Object value) {
+                    return map.put(key, value);
+                }
+            };
+
+            DependencyGraphTransformer transformer = new ReplaceConflictingVersionResolver();
+            pomNode = transformer.transformGraph(pomNode, tranformContext);
+
+            transformer = new DuplicateTransformer();
+            pomNode = transformer.transformGraph(pomNode, tranformContext);
+
+            return pomNode;
+        } finally {
+            releaseSession(session);
         }
-
-        // now lets transform the dependency tree to remove different versions for the same artifact
-        final DependencyGraphTransformationContext tranformContext = new DependencyGraphTransformationContext() {
-            Map map = new HashMap();
-
-            public RepositorySystemSession getSession() {
-                return session;
-            }
-
-            public Object get(Object key) {
-                return map.get(key);
-            }
-
-            public Object put(Object key, Object value) {
-                return map.put(key, value);
-            }
-        };
-
-        DependencyGraphTransformer transformer = new ReplaceConflictingVersionResolver();
-        pomNode = transformer.transformGraph(pomNode, tranformContext);
-
-        transformer = new DuplicateTransformer();
-        pomNode = transformer.transformGraph(pomNode, tranformContext);
-
-        return pomNode;
     }
 
     public PomDetails findPomFile(File jar) throws IOException {

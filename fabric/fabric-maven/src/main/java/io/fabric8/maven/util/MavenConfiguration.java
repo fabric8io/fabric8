@@ -49,6 +49,14 @@ public interface MavenConfiguration {
     URL getSettingsFileUrl();
 
     /**
+     * Returns a list of default repositories to be searched before any other repositories.
+     *
+     * @return a list of default repositories.  List can be null or empty if there are not default repositories to be searched.
+     */
+    List<MavenRepositoryURL> getDefaultRepositories()
+        throws MalformedURLException;
+
+    /**
      * Returns a list of repositories to be searched.
      *
      * @return a list of repositories. List can be null or empty if there are no repositories to be searched.
@@ -123,4 +131,5 @@ public interface MavenConfiguration {
     Settings getSettings();
     
     String getSecuritySettings();
+
 }

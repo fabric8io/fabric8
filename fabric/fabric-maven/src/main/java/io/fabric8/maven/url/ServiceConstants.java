@@ -85,7 +85,12 @@ public interface ServiceConstants
      * LocalRepository configuration property name.
      */
     String PROPERTY_LOCAL_REPOSITORY = "localRepository";
-    
+
+    /**
+     * DefaultRepositories configuration property name
+     */
+    String PROPERTY_DEFAULT_REPOSITORIES = "defaultRepositories";
+
     /**
      * Repositories configuration property name.
      */

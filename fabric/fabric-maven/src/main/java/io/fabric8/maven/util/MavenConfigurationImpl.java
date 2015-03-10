@@ -193,6 +193,26 @@ public class MavenConfigurationImpl extends PropertyStore implements MavenConfig
         return null;
     }
 
+    public List<MavenRepositoryURL> getDefaultRepositories() throws MalformedURLException {
+        if (!contains(m_pid + ServiceConstants.PROPERTY_DEFAULT_REPOSITORIES)) {
+            // look for repositories property
+            String defaultRepositoriesProp = m_propertyResolver.get(m_pid
+                    + ServiceConstants.PROPERTY_DEFAULT_REPOSITORIES);
+            // build repositories list
+            final List<MavenRepositoryURL> defaultRepositoriesProperty = new ArrayList<MavenRepositoryURL>();
+            if (defaultRepositoriesProp != null && defaultRepositoriesProp.trim().length() > 0) {
+                String[] repositories = defaultRepositoriesProp.split(REPOSITORIES_SEPARATOR);
+                for (String repositoryURL : repositories) {
+                    defaultRepositoriesProperty.add(new MavenRepositoryURL(repositoryURL.trim()));
+                }
+            }
+            LOGGER.trace("Using repositories [" + defaultRepositoriesProperty + "]");
+            return set(m_pid + ServiceConstants.PROPERTY_DEFAULT_REPOSITORIES,
+                    defaultRepositoriesProperty);
+        }
+        return get(m_pid + ServiceConstants.PROPERTY_DEFAULT_REPOSITORIES);
+    }
+
     /**
      * Repository is a comma separated list of repositories to be used. If repository acces requests
      * authentication the user name and password must be specified in the repository url as for
