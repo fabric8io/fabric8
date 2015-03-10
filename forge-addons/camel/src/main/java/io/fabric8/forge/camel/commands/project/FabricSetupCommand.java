@@ -81,13 +81,17 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
         pluginFacet.addPlugin(plugin);
 
         String container = null;
+        String icon = null;
         String packaging = getProjectPackaging(project);
         if ("jar".equals(packaging)) {
             container = "java";
+            icon = "icons/java.svg";
         } else if ("bundle".equals(packaging)) {
             container = "karaf";
+            icon = "icons/karaf.svg";
         } else if ("war".equals(packaging)) {
             container = "tomcat";
+            icon = "icons/tomcat.svg";
         }
 
         // update properties section in pom.xml
@@ -99,6 +103,10 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
             properties.put("fabric8.label.container", container);
             updated = true;
         }
+        if (icon != null) {
+            properties.put("fabric8.iconRef", icon);
+            updated = true;
+        }
         if (group.getValue() != null) {
             properties.put("fabric8.label.group", group.getValue());
             updated = true;
@@ -108,9 +116,6 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
         if (updated) {
             maven.setModel(pom);
         }
-
-        // TODO: icon?
-        // <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
 
         return Results.success("Added Fabric8 to the project");
     }
