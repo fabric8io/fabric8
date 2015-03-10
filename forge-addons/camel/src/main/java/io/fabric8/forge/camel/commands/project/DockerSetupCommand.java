@@ -75,17 +75,7 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         from.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                String answer = null;
-
-                String packaging = getProjectPackaging(getSelectedProject(builder));
-                if ("jar".equals(packaging)) {
-                    answer = jarImages[0];
-                } else if ("bundle".equals(packaging)) {
-                    answer = bundleImages[0];
-                } else if ("war".equals(packaging)) {
-                    answer = warImages[0];
-                }
-                return answer;
+                return DockerSetupHelper.defaultDockerImage(getSelectedProject(builder));
             }
         });
     }

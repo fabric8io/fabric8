@@ -29,6 +29,10 @@ import org.jboss.forge.addon.projects.Project;
 
 public class DockerSetupHelper {
 
+    private static String[] jarImages = new String[]{"fabric8/java"};
+    private static String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
+    private static String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+
     public static void setupDocker(Project project, String fromImage) {
         MavenPluginBuilder plugin = MavenPluginBuilder.create()
                 .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
@@ -82,6 +86,18 @@ public class DockerSetupHelper {
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
         plugin.createConfiguration().addConfigurationElement(cfgImages);
         pluginFacet.addPlugin(plugin);
+    }
+
+    public static String defaultDockerImage(Project project) {
+        String packaging = getProjectPackaging(project);
+        if ("jar".equals(packaging)) {
+            return jarImages[0];
+        } else if ("bundle".equals(packaging)) {
+            return bundleImages[0];
+        } else if ("war".equals(packaging)) {
+            return warImages[0];
+        }
+        return null;
     }
 
     private static String getProjectPackaging(Project project) {

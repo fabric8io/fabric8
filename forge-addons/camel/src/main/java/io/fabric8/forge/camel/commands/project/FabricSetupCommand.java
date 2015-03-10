@@ -15,7 +15,10 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
@@ -34,6 +37,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -43,6 +47,12 @@ import org.jboss.forge.addon.ui.util.Metadata;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
 public class FabricSetupCommand extends AbstractFabricProjectCommand {
+
+    private String[] platforms = new String[]{"Docker", "Jube", "Both"};
+
+    @Inject
+    @WithAttributes(label = "platform", required = true, description = "The runtime platform")
+    private UISelectOne<String> platform;
 
     @Inject
     @WithAttributes(label = "label", required = false, description = "Label to use for the app")
@@ -60,12 +70,39 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
+        builder.add(platform);
+        platform.setValueChoices(Arrays.asList(platforms));
+        platform.setDefaultValue(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                // if windows use jube, otherwise docker
+                if (isPlatform("windows")) {
+                    return "Jube";
+                } else {
+                    return "Docker";
+                }
+            }
+        });
+
         builder.add(group);
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Project project = getSelectedProject(context);
+
+        boolean docker = false;
+        boolean jube = false;
+
+        if ("Docker".equals(platform.getValue()) || "Both".equals(platform.getValue())) {
+            // install docker first
+            String fromImage = DockerSetupHelper.defaultDockerImage(project);
+            if (fromImage == null) {
+                fromImage = "fabric8/java";
+            }
+            docker = true;
+            DockerSetupHelper.setupDocker(project, fromImage);
+        }
 
         // install fabric8 bom
         Dependency bom = DependencyBuilder.create()
@@ -117,7 +154,13 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
             maven.setModel(pom);
         }
 
-        return Results.success("Added Fabric8 to the project");
+        if (docker && jube) {
+            return Results.success("Added Fabric8 wtih Docker and Jube to the project");
+        } else if (docker) {
+            return Results.success("Added Fabric8 wtih Docker to the project");
+        } else {
+            return Results.success("Added Fabric8 wtih Jube to the project");
+        }
     }
 
     protected String getProjectPackaging(Project project) {
@@ -126,6 +169,11 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
             return maven.getModel().getPackaging();
         }
         return null;
+    }
+
+    public static boolean isPlatform(String platform) {
+        String osName = System.getProperty("os.name").toLowerCase(Locale.US);
+        return osName.contains(platform.toLowerCase(Locale.US));
     }
 
 }
