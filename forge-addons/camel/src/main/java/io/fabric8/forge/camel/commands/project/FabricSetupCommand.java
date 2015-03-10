@@ -21,6 +21,9 @@ import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
+import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPlugin;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -58,11 +61,22 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
 
         // install fabric8 bom
         Dependency bom = DependencyBuilder.create()
-                .setCoordinate(createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "bom"))
+                .setCoordinate(createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
                 .setScopeType("import");
         dependencyInstaller.installManaged(project, bom);
 
-        // TODO: add fabric8 plugin
+        // add fabric8 plugin
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+        MavenPlugin plugin = MavenPluginBuilder.create()
+                .setCoordinate(createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
+                .addExecution(ExecutionBuilder.create().setId("json").addGoal("json"));
+        pluginFacet.addPlugin(plugin);
+
+        // TODO: add some fabric8 properties
+        //  <fabric8.version>2.0.30</fabric8.version>
+        // <fabric8.label.container>java</fabric8.label.container>
+        // <fabric8.label.group>quickstarts</fabric8.label.group>
+        // <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
 
         return Results.success("Added Fabric8 to the project");
     }
