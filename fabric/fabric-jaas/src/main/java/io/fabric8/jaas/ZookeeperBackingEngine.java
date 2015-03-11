@@ -21,12 +21,12 @@ import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     public static final String USERS_NODE = "/fabric/authentication/users";
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(PropertiesBackingEngine.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(ZookeeperBackingEngine.class);
 
     private Map<String, String> users;
     private EncryptionSupport encryptionSupport;
@@ -64,7 +64,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
         String newPassword = password;
 
-        //If encryption support is enabled, encrypt password
+        // If encryption support is enabled, encrypt password
         if (encryptionSupport != null && encryptionSupport.getEncryption() != null) {
             newPassword = encryptionSupport.getEncryption().encryptPassword(password);
             if (encryptionSupport.getEncryptionPrefix() != null) {
@@ -77,7 +77,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
         String userInfos = users.get(username);
 
-        //If user already exists, update password
+        // If user already exists, update password
         if (userInfos != null && userInfos.length() > 0) {
             infos = userInfos.split(",");
             userInfoBuffer.append(newPassword);
@@ -114,7 +114,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
     public List<UserPrincipal> listUsers() {
         List<UserPrincipal> result = new ArrayList<UserPrincipal>();
 
-        for (String userName :	users.keySet()) {
+        for (String userName : users.keySet()) {
             if (userName.startsWith(GROUP_PREFIX)) {
                 continue;
             }
@@ -126,7 +126,9 @@ public class ZookeeperBackingEngine implements BackingEngine {
     }
 
     /**
-     * List the Roles of the {@param user}
+     * List the Roles of the
+     * 
+     * @param user}
      */
     public List<RolePrincipal> listRoles(Principal principal) {
         String userName = principal.getName();
@@ -184,7 +186,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
         String userInfos = users.get(username);
 
-        //If user already exists, remove the role
+        // If user already exists, remove the role
         if (userInfos != null && userInfos.length() > 0) {
             infos = userInfos.split(",");
             String password = infos[0];
@@ -203,70 +205,89 @@ public class ZookeeperBackingEngine implements BackingEngine {
         saveUserProperties();
     }
 
-       @Override
-       public List<GroupPrincipal> listGroups(UserPrincipal user) {
-               String userName = user.getName();
-               return listGroups(userName);
-           }
-   
-               private List<GroupPrincipal> listGroups(String userName) {
-               List<GroupPrincipal> result = new ArrayList<GroupPrincipal>();
-               String userInfo = (String) users.get(userName);
-               if (userInfo != null) {
-                       String[] infos = userInfo.split(",");
-                       for (int i = 1; i < infos.length; i++) {
-                               String name = infos[i];
-                               if (name.startsWith(GROUP_PREFIX)) {
-                                       result.add(new GroupPrincipal(name.substring(GROUP_PREFIX.length())));
-                                   }
-                           }
-                   }
-               return result;
-           }
-   
-               @Override
-       public void addGroup(String username, String group) {
-               String groupName = GROUP_PREFIX + group;
-               if (users.get(groupName) == null) {
-                       addUserInternal(groupName, "group");
-                   }
-               addRole(username, groupName);
-           }
-   
-               @Override
-       public void deleteGroup(String username, String group) {
-               deleteRole(username, GROUP_PREFIX + group);
-       
-                       // garbage collection, clean up the groups if needed
-                               for (UserPrincipal user : listUsers()) {
-                       for (GroupPrincipal g : listGroups(user)) {
-                               if (group.equals(g.getName())) {
-                                       // there is another user of this group, nothing to clean up
-                                               return;
-                                   }
-                           }
-                   }
-       
-                       // nobody is using this group any more, remote it
-                               deleteUser(GROUP_PREFIX + group);
-           }
-   
-               @Override
-       public void addGroupRole(String group, String role) {
-               addRole(GROUP_PREFIX + group, role);
-           }
-   
-               @Override
-       public void deleteGroupRole(String group, String role) {
-               deleteRole(GROUP_PREFIX + group, role);
-           }
-   
-           
+    @Override
+    public List<GroupPrincipal> listGroups(UserPrincipal user) {
+        String userName = user.getName();
+        return listGroups(userName);
+    }
+
+    private List<GroupPrincipal> listGroups(String userName) {
+        List<GroupPrincipal> result = new ArrayList<GroupPrincipal>();
+        String userInfo = (String)users.get(userName);
+        if (userInfo != null) {
+            String[] infos = userInfo.split(",");
+            for (int i = 1; i < infos.length; i++) {
+                String name = infos[i];
+                if (name.startsWith(GROUP_PREFIX)) {
+                    result.add(new GroupPrincipal(name.substring(GROUP_PREFIX.length())));
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void addGroup(String username, String group) {
+        String groupName = GROUP_PREFIX + group;
+        if (users.get(groupName) == null) {
+            addUserInternal(groupName, "group");
+        }
+        addRole(username, groupName);
+    }
+
+    @Override
+    public void deleteGroup(String username, String group) {
+        deleteRole(username, GROUP_PREFIX + group);
+
+        // garbage collection, clean up the groups if needed
+        for (UserPrincipal user : listUsers()) {
+            for (GroupPrincipal g : listGroups(user)) {
+                if (group.equals(g.getName())) {
+                    // there is another user of this group, nothing to clean up
+                    return;
+                }
+            }
+        }
+
+        // nobody is using this group any more, remote it
+        deleteUser(GROUP_PREFIX + group);
+    }
+
+    @Override
+    public void addGroupRole(String group, String role) {
+        addRole(GROUP_PREFIX + group, role);
+    }
+
+    @Override
+    public void deleteGroupRole(String group, String role) {
+        deleteRole(GROUP_PREFIX + group, role);
+    }
+
     private void saveUserProperties() {
         try {
-            ((Properties) users).save();
+            ((Properties)users).save();
         } catch (Exception ex) {
             LOGGER.error("Cannot update users file,", ex);
         }
     }
+
+    public Map<GroupPrincipal, String> listGroups() {
+        Map<GroupPrincipal, String> result = new HashMap<GroupPrincipal, String>();
+        for (String name : users.keySet()) {
+            if (name.startsWith(GROUP_PREFIX)) {
+                result.put(new GroupPrincipal(name.substring(GROUP_PREFIX.length())), users.get(name));
+            }
+        }
+        return result;
+    }
+
+    public void createGroup(String group) {
+        String groupName = GROUP_PREFIX + group;
+        if (users.get(groupName) == null) {
+            addUserInternal(groupName, "group");
+        } else {
+            throw new IllegalArgumentException("Group: " + group + " already exist");
+        }
+    }
+
 }
