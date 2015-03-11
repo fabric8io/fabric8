@@ -146,7 +146,8 @@ public class MQServiceImpl implements MQService {
                     configs.put("keystore.file", "profile:keystore.jks");
 
                 } catch (IOException e) {
-                    LOG.info("Failed to generate keystore.jks: "+e, e);
+                    LOG.error("Failed to generate keystore.jks: " + e.getMessage(), e);
+                    throw new RuntimeException(e.getMessage(), e);
                 }
 
             }
@@ -198,8 +199,9 @@ public class MQServiceImpl implements MQService {
                     configs.put("truststore.file", "profile:truststore.jks");
 
                 } catch (IOException e) {
-                    LOG.info("Failed to generate truststore.jks due: " + e.getMessage(), e);
-                }
+                   LOG.error("Failed to generate truststore.jks due: " + e.getMessage(), e);
+                   throw new RuntimeException(e.getMessage(), e);
+               }
             }
         }
 
