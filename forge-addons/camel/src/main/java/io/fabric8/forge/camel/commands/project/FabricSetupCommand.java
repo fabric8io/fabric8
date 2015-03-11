@@ -155,11 +155,11 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
         }
 
         if (docker && jube) {
-            return Results.success("Added Fabric8 wtih Docker and Jube to the project");
+            return Results.success("Added Fabric8 with Docker and Jube to the project");
         } else if (docker) {
-            return Results.success("Added Fabric8 wtih Docker to the project");
+            return Results.success("Added Fabric8 with Docker to the project");
         } else {
-            return Results.success("Added Fabric8 wtih Jube to the project");
+            return Results.success("Added Fabric8 with Jube to the project");
         }
     }
 
