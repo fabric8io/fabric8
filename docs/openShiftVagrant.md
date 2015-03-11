@@ -20,7 +20,14 @@ vagrant up
 
 You now should have a master node running on **10.245.2.2**.
 
-You can test this by querying the REST API for the pods at: [https://10.245.2.2:8443/api/v1beta1/pods](https://10.245.2.2:8443/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
+You can test this by querying the REST API for the pods:
+```
+$ curl --key openshift.local.certificates/admin/key.key \
+      --cert openshift.local.certificates/admin/cert.crt \
+      --cacert openshift.local.certificates/admin/root.crt \
+      https://10.245.2.2:8443/api/v1beta1/pods
+```
+It should return some valid JSON (but be mostly empty).
 
 ## Setup your machine
 
@@ -87,15 +94,16 @@ If for any reason OpenShift stops running you can start it again via:
 
 ### Recreating OpenShift
 
-If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run this from your openshift-origin folder:
+To discard any state stored by your vagrant VMs, just run this from your openshift-origin folder:
 
     cd openshift-origin
-    vagrant-restart-openshift.sh
+    export OPENSHIFT_DEV_CLUSTER=true OPENSHIFT_NUM_MINIONS=1
+    vagrant halt
+    rm -Rf openshift.local.*
+    vagrant destroy -f
+    make clean
 
-which will reload your VMs, delete any temporary volumes and start up the services.
-
-Note you must have the **fabric8/bin** folder on your PATH to find the [vagrant-restart-openshift.sh script](https://github.com/fabric8io/fabric8/blob/master/bin/vagrant-restart-openshift.sh)
-
+After that, you can start from scratch by running `vagrant up` again.
 
 ### OpenShift logs
 
