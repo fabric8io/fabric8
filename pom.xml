@@ -208,7 +208,7 @@
         <jaxb-api.version>2.1</jaxb-api.version>
         <jaxb.version>2.2.7</jaxb.version>
         <jboss-javaee-6.version>1.0.0.Final</jboss-javaee-6.version>
-        <jboss.forge.version>2.15.0.Final</jboss.forge.version>
+        <jboss.forge.version>2.15.1.Final</jboss.forge.version>
 <!-- use same version of forge as in eclipse
         <jboss.forge.version>2.13.0.Final</jboss.forge.version>
 -->
