@@ -16,7 +16,8 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
@@ -30,25 +31,19 @@
   <packaging>pom</packaging>
   <name>Fabric8 :: Forge Addons</name>
 
-  <!-- the camel add-on requires Camel 2.15, so we need to use a snapshot until its released -->
+  <modules>
+    <module>camel</module>
+    <module>kubernetes</module>
+  </modules>
+
   <profiles>
-     <profile>
-        <id>camel-snapshot</id>
-         <modules>
-            <module>camel</module>
-            <module>camel-tests</module>
-             <module>kubernetes</module>
-         </modules>
-      </profile>
-      <profile>
-         <id>default</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
-         <modules>
-            <module>kubernetes</module>
-         </modules>
-      </profile>
-   </profiles>
+    <!-- the camel integration tests don't yet work! :) -->
+    <profile>
+      <id>camel-tests</id>
+      <modules>
+        <module>camel-tests</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>
