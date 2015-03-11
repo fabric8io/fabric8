@@ -1,0 +1,24 @@
+$provisionScript = <<SCRIPT
+
+# add some user aliases
+echo >> ~/.bashrc
+echo alias osc="docker run --rm -i --net=host --entrypoint=osc openshift/origin" >> ~/.bashrc
+
+SCRIPT
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "jimmidyson/fedora21-atomic"
+  config.vm.box_version = "= 2015.03.10"
+
+  config.vm.hostname = "master.localnet"
+
+  config.vm.network "private_network", ip: "172.28.128.4"
+  config.vm.network "private_network", ip: "172.28.128.5"
+
+  config.vm.provision "docker"
+
+  config.vm.provision "shell", inline: $provisionScript
+
+end
+
+# vim: set filetype=ruby : #
