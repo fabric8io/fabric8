@@ -35,6 +35,10 @@ public class CamelArchetypeCatalogFactory implements ArchetypeCatalogFactory {
 
     private ArchetypeCatalog cachedArchetypes;
 
+    public String toString() {
+        return NAME;
+    }
+
     @Override
     public String getName() {
         return NAME;
