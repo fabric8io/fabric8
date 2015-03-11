@@ -67,6 +67,9 @@ public class ServiceConverters {
                 }
             }
         }
+        if (srv == null) {
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + id + " in namespace: " + namespace);
+        }
         return (srv.getProtocol() + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
     }
 
