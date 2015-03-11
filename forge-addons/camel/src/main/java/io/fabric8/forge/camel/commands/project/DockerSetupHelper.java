@@ -33,7 +33,7 @@ public class DockerSetupHelper {
     private static String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
     private static String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
 
-    public static void setupDocker(Project project, String fromImage) {
+    public static void setupDocker(Project project, String fromImage, String main) {
         MavenPluginBuilder plugin = MavenPluginBuilder.create()
                 .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
 
@@ -47,6 +47,13 @@ public class DockerSetupHelper {
         ConfigurationElement cfgBuild = ConfigurationElementBuilder.create().setName("build");
         cfgBuild.getChildren().add(cfgFrom);
         cfgBuild.getChildren().add(cfgAssembly);
+
+        if (main != null) {
+            ConfigurationElement cfgMain = ConfigurationElementBuilder.create().setName("MAIN").setText("${docker.env.MAIN}");
+            ConfigurationElement cfgEnv = ConfigurationElementBuilder.create().setName("env");
+            cfgEnv.getChildren().add(cfgMain);
+            cfgBuild.getChildren().add(cfgMain);
+        }
 
         ConfigurationElement cfgImage = ConfigurationElementBuilder.create().setName("image");
         cfgImage.getChildren().add(cfgName);

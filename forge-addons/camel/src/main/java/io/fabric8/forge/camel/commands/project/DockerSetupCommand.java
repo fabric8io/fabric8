@@ -29,6 +29,7 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -47,6 +48,10 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
     @Inject
     @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
     private UISelectOne<String> from;
+
+    @Inject
+    @WithAttributes(label = "main", required = false, description = "Main class for standalone Java projects")
+    private UIInput<String> main;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -78,6 +83,21 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
                 return DockerSetupHelper.defaultDockerImage(getSelectedProject(builder));
             }
         });
+
+        builder.add(main);
+        main.addValidator(new ClassNameValidator(true));
+        main.setRequired(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                // when using docker and java standalone we need a main class
+                Project project = getSelectedProjectOrNull(builder.getUIContext());
+                if (project != null) {
+                    String packaging = getProjectPackaging(project);
+                    return "jar".equals(packaging);
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -85,7 +105,8 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         Project project = getSelectedProject(context);
 
         String fromImage = from != null ? from.getValue() : "fabric8/java";
-        DockerSetupHelper.setupDocker(project, fromImage);
+        String mainClass = main.getValue() != null ? main.getValue() : null;
+        DockerSetupHelper.setupDocker(project, fromImage, mainClass);
 
         return Results.success("Added Docker to the project");
     }

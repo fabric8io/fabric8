@@ -59,6 +59,10 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
     private UIInput<String> group;
 
     @Inject
+    @WithAttributes(label = "main", required = false, description = "Main class for standalone Java projects")
+    private UIInput<String> main;
+
+    @Inject
     private DependencyInstaller dependencyInstaller;
 
     @Override
@@ -71,6 +75,7 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         builder.add(platform);
+
         platform.setValueChoices(Arrays.asList(platforms));
         platform.setDefaultValue(new Callable<String>() {
             @Override
@@ -81,6 +86,23 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
                 } else {
                     return "Docker";
                 }
+            }
+        });
+
+        builder.add(main);
+        main.addValidator(new ClassNameValidator(true));
+        main.setRequired(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                // when using docker and java standalone we need a main class
+                if ("Docker".equals(platform.getValue()) || "Both".equals(platform.getValue())) {
+                    Project project = getSelectedProjectOrNull(builder.getUIContext());
+                    if (project != null) {
+                        String packaging = getProjectPackaging(project);
+                        return "jar".equals(packaging);
+                    }
+                }
+                return false;
             }
         });
 
@@ -101,7 +123,8 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
                 fromImage = "fabric8/java";
             }
             docker = true;
-            DockerSetupHelper.setupDocker(project, fromImage);
+            String mainClass = main.getValue() != null ? main.getValue() : null;
+            DockerSetupHelper.setupDocker(project, fromImage, mainClass);
         }
 
         // install fabric8 bom
@@ -146,6 +169,10 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand {
         }
         if (group.getValue() != null) {
             properties.put("fabric8.label.group", group.getValue());
+            updated = true;
+        }
+        if (main.getValue() != null) {
+            properties.put("docker.env.MAIN", main.getValue());
             updated = true;
         }
 
