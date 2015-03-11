@@ -61,7 +61,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
 
         targetPackage.setCompleter(new PackageNameCompleter(facet));
         targetPackage.addValidator(new PackageNameValidator());
-        name.addValidator(new ClassNameValidator());
+        name.addValidator(new ClassNameValidator(false));
 
         builder.add(targetPackage).add(name);
     }

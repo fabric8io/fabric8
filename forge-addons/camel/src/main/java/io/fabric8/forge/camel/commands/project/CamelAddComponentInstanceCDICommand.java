@@ -110,7 +110,7 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
         targetPackage.addValidator(new PackageNameValidator());
         targetPackage.setDefaultValue("org.apache.camel.cdi.producers");
 
-        className.addValidator(new ClassNameValidator());
+        className.addValidator(new ClassNameValidator(false));
         className.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {

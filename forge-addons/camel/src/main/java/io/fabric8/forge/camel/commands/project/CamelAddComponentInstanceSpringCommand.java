@@ -111,7 +111,7 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
         targetPackage.addValidator(new PackageNameValidator());
         targetPackage.setDefaultValue("org.apache.camel.spring.components");
 
-        className.addValidator(new ClassNameValidator());
+        className.addValidator(new ClassNameValidator(false));
         className.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {

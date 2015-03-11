@@ -21,6 +21,12 @@ import org.jboss.forge.addon.parser.java.utils.ValidationResult;
 
 public class ClassNameValidator extends AbstractJLSUIValidator {
 
+    private boolean allowPackageName;
+
+    public ClassNameValidator(boolean allowPackageName) {
+        this.allowPackageName = allowPackageName;
+    }
+
     @Override
     protected ValidationResult validate(String s) {
         if (s == null) {
@@ -31,13 +37,23 @@ public class ClassNameValidator extends AbstractJLSUIValidator {
         char[] chars = s.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char ch = chars[i];
+            if (allowPackageName && ch == '.') {
+                continue;
+            }
             if (!Character.isJavaIdentifierPart(ch)) {
                 return new ValidationResult(ResultType.ERROR, "The class name [" + s + "] is invalid at position " + (i + 1));
             }
-            // first must be upper case alpha
-            if (i == 0 && !Character.isUpperCase(ch)) {
-                return new ValidationResult(ResultType.ERROR, "The class name [" + s + "] must start with an upper case alphabetic character");
-            }
+        }
+
+        int idx = 0;
+        if (allowPackageName && s.lastIndexOf('.') != -1) {
+            idx = s.lastIndexOf('.') + 1;
+        }
+        char ch = s.charAt(idx);
+
+        // first must be upper case alpha
+        if (!Character.isUpperCase(ch)) {
+            return new ValidationResult(ResultType.ERROR, "The class name [" + s + "] must start with an upper case alphabetic character at index " + idx);
         }
 
         return new ValidationResult(ResultType.INFO);
