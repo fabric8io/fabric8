@@ -50,8 +50,6 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        builder.add(from).add(main);
-
         // the from image values
         from.setValueChoices(new Iterable<String>() {
             @Override
@@ -99,6 +97,8 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
             }
         });
         main.addValidator(new ClassNameValidator(true));
+
+        builder.add(from).add(main);
     }
 
     @Override

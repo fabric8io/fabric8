@@ -60,8 +60,6 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        builder.add(container).add(group).add(icon);
-
         container.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -113,7 +111,7 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
             }
         });
 
-        // set default values for all of them based on previous selection
+        builder.add(container).add(group).add(icon);
     }
 
     @Override
@@ -143,7 +141,7 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
             updated = true;
         }
         if (icon.getValue() != null) {
-            properties.put("fabric8.iconRef", icon.getValue());
+            properties.put("fabric8.iconRef", "icons/" + icon.getValue());
             updated = true;
         }
         if (group.getValue() != null) {
