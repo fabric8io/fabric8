@@ -24,7 +24,7 @@
     <artifactId>forge-parent</artifactId>
     <version>2.2-SNAPSHOT</version>
   </parent>
-  <artifactId>camel</artifactId>
+  <artifactId>rest-core</artifactId>
   <name>Fabric8 :: Forge :: REST CORE</name>
 
   <properties>
