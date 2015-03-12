@@ -21,7 +21,6 @@ import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
-import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
@@ -37,23 +36,15 @@ public class JubeSetupHelper {
 
         // add jube plugin
         MavenPluginBuilder plugin = MavenPluginBuilder.create()
-                .setCoordinate(createCoordinate("io.fabric8.jube", "jube-maven-plugin", VersionHelper.fabric8Version(), null, null));
+                .setCoordinate(createCoordinate("io.fabric8.jube", "jube-maven-plugin", VersionHelper.jubeVersion(), null, null));
         plugin.addExecution(ExecutionBuilder.create().addGoal("build").setPhase("package"));
         pluginFacet.addPlugin(plugin);
 
         // install jube image
         String jubeImage = asJubeImage(fromImage);
         Dependency bom = DependencyBuilder.create()
-                .setCoordinate(createCoordinate("io.fabric8.jube.images.fabric8", jubeImage, VersionHelper.fabric8Version(), "image", "zip"));
+                .setCoordinate(createCoordinate("io.fabric8.jube.images.fabric8", jubeImage, VersionHelper.jubeVersion(), "image", "zip"));
         dependencyInstaller.installManaged(project, bom);
-    }
-
-    private static String getProjectPackaging(Project project) {
-        if (project != null) {
-            MavenFacet maven = project.getFacet(MavenFacet.class);
-            return maven.getModel().getPackaging();
-        }
-        return null;
     }
 
     private static Coordinate createCoordinate(String groupId, String artifactId, String version, String classifier, String type) {
@@ -76,7 +67,7 @@ public class JubeSetupHelper {
     private static String asJubeImage(String fromImage) {
         int idx = fromImage.indexOf('/');
         if (idx > 0) {
-            return fromImage.substring(idx);
+            return fromImage.substring(idx + 1);
         }
         return fromImage;
     }

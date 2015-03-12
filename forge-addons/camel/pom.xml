@@ -34,6 +34,8 @@
     <hawtio.version>1.4.47</hawtio.version>
     <!-- docker maven plugin -->
     <docker.version>0.11.2</docker.version>
+    <!-- jube version -->
+    <jube.version>2.0.32</jube.version>
   </properties>
 
   <dependencyManagement>

@@ -114,6 +114,35 @@ public final class VersionHelper {
         return version;
     }
 
+    /**
+     * Retrieves the version of jube to use
+     */
+    public static String jubeVersion() {
+        String version = null;
+
+        InputStream is = null;
+        try {
+            // try to load from maven properties first as they have the version
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.xml");
+            if (is != null) {
+                String text = loadText(is);
+                version = between(text, "<jube.version>", "</jube.version>");
+            }
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        return version;
+    }
+
     public static String after(String text, String after) {
         if (!text.contains(after)) {
             return null;
