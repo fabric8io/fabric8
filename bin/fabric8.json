@@ -3,7 +3,7 @@
   "kind": "Config",
   "apiVersion": "v1beta1",
   "name": "fabric8-config",
-  "description": "Creates a hawtio console and private docker registry",
+  "description": "Creates a hawtio console",
   "items": [
     {
       "apiVersion": "v1beta1",
