@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1425657593985">
+    <div class="book" data-level="2.2.2" data-basepath="." data-revision="1426167063089">
     
 
 <div class="book-summary">
@@ -183,13 +183,29 @@
         </li>
     
         
-        <li class="chapter " data-level="1.7" data-path="builds.html">
+        <li class="chapter " data-level="1.7" data-path="environments.html">
+            
+                
+                    <a href="./environments.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.7.</b>
+                        
+                         Environments
+                    </a>
+                
+            
+            
+        </li>
+    
+        
+        <li class="chapter " data-level="1.8" data-path="builds.html">
             
                 
                     <a href="./builds.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>1.7.</b>
+                            <b>1.8.</b>
                         
                          Builds
                     </a>
@@ -447,13 +463,29 @@
         </li>
     
         
-        <li class="chapter " data-level="3.5" data-path="testing.html">
+        <li class="chapter " data-level="3.5" data-path="cdi.html">
+            
+                
+                    <a href="./cdi.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.5.</b>
+                        
+                         CDI
+                    </a>
+                
+            
+            
+        </li>
+    
+        
+        <li class="chapter " data-level="3.6" data-path="testing.html">
             
                 
                     <a href="./testing.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.5.</b>
+                            <b>3.6.</b>
                         
                          Testing
                     </a>
@@ -760,7 +792,7 @@
                 <div class="page-inner">
                 
                 
-                    <section class="normal" id="section-gitbook_32">
+                    <section class="normal" id="section-gitbook_34">
                     
                         <h2 id="run-openshift-v3-using-vagrant"><a name="run-openshift-v3-using-vagrant" class="anchor" href="#run-openshift-v3-using-vagrant"><span class="fa fa-link"></span></a>Run OpenShift V3 using Vagrant</h2>
 <p>Let&apos;s run OpenShift V3 using Vagrant. Be sure to check the latest <a href="https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-on-virtual-machine-using-vagrant" target="_blank">OpenShift docs</a> just in case!.</p>
@@ -777,7 +809,12 @@
 export OPENSHIFT_NUM_MINIONS=1
 vagrant up
 </code></pre><p>You now should have a master node running on <strong>10.245.2.2</strong>.</p>
-<p>You can test this by querying the REST API for the pods at: <a href="https://10.245.2.2:8443/api/v1beta1/pods" target="_blank">https://10.245.2.2:8443/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
+<p>You can test this by querying the REST API for the pods:</p>
+<pre><code>$ curl --key openshift.local.certificates/admin/key.key \
+      --cert openshift.local.certificates/admin/cert.crt \
+      --cacert openshift.local.certificates/admin/root.crt \
+      https://10.245.2.2:8443/api/v1beta1/pods
+</code></pre><p>It should return some valid JSON (but be mostly empty).</p>
 <h2 id="setup-your-machine"><a name="setup-your-machine" class="anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h2>
 <p>There&apos;s a few things that will make it easier for you to work with OpenShift on vagrant on your host machine:</p>
 <p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
@@ -817,11 +854,14 @@ sudo systemctl start openshift-node.service
 vagrant ssh minion-2
 sudo systemctl start openshift-node.service
 </code></pre><h3 id="recreating-openshift"><a name="recreating-openshift" class="anchor" href="#recreating-openshift"><span class="fa fa-link"></span></a>Recreating OpenShift</h3>
-<p>If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run this from your openshift-origin folder:</p>
+<p>To discard any state stored by your vagrant VMs, just run this from your openshift-origin folder:</p>
 <pre><code>cd openshift-origin
-vagrant-restart-openshift.sh
-</code></pre><p>which will reload your VMs, delete any temporary volumes and start up the services.</p>
-<p>Note you must have the <strong>fabric8/bin</strong> folder on your PATH to find the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/vagrant-restart-openshift.sh" target="_blank">vagrant-restart-openshift.sh script</a></p>
+export OPENSHIFT_DEV_CLUSTER=true OPENSHIFT_NUM_MINIONS=1
+vagrant halt
+rm -Rf openshift.local.*
+vagrant destroy -f
+make clean
+</code></pre><p>After that, you can start from scratch by running <code>vagrant up</code> again.</p>
 <h3 id="openshift-logs"><a name="openshift-logs" class="anchor" href="#openshift-logs"><span class="fa fa-link"></span></a>OpenShift logs</h3>
 <p>To view the openshift logs in the master or minions use:</p>
 <pre><code>journalctl -f

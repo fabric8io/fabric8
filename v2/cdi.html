@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>Replication Controllers | Fabric8 Documentation</title>
+        <title>CDI | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 1.5.0">
@@ -19,10 +19,10 @@
         
     
     
-    <link rel="next" href="./labels.html" />
+    <link rel="next" href="./testing.html" />
     
     
-    <link rel="prev" href="./pods.html" />
+    <link rel="prev" href="./javaLibraries.html" />
     
 
         
@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="1.2" data-basepath="." data-revision="1426167063089">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="1426167063089">
     
 
 <div class="book-summary">
@@ -103,7 +103,7 @@
         </li>
     
         
-        <li class="chapter active" data-level="1.2" data-path="replicationControllers.html">
+        <li class="chapter " data-level="1.2" data-path="replicationControllers.html">
             
                 
                     <a href="./replicationControllers.html">
@@ -463,7 +463,7 @@
         </li>
     
         
-        <li class="chapter " data-level="3.5" data-path="cdi.html">
+        <li class="chapter active" data-level="3.5" data-path="cdi.html">
             
                 
                     <a href="./cdi.html">
@@ -792,13 +792,77 @@
                 <div class="page-inner">
                 
                 
-                    <section class="normal" id="section-gitbook_37">
+                    <section class="normal" id="section-gitbook_8">
                     
-                        <h2 id="replication-controller"><a name="replication-controller" class="anchor" href="#replication-controller"><span class="fa fa-link"></span></a>Replication Controller</h2>
-<p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Replication Controller</a> is a Kubernetes abstraction which ensures that a specific number of <a href="pods.html">pods</a> are running at all times. If a pod or host goes down, the replication controller ensures enough pods get recreated elsewhere. </p>
-<p>A <em>pod template</em> is used to define what each pod should look like (e.g. the docker container image to use, it&apos;s ports and environment variables etc).</p>
-<p>The containers generated can have <a href="labels.html">labels</a> so that containers can be filtered to create <a href="services.html">Services</a>.</p>
+                        <h2 id="cdi"><a name="cdi" class="anchor" href="#cdi"><span class="fa fa-link"></span></a>CDI</h2>
+<p>Fabric8 provides a CDI extension which is meant to make developing CDI apps for kubernetes easier.</p>
+<p>Using CDI it is possible to:</p>
+<ul>
+<li>Inject a fabric8 managed kubernetes client.</li>
+<li>Inject coordinates to kubernetes service using the @Service.</li>
+<li>Inject a client for a kubernetes service using the @Service.</li>
+<li>Inject configuration provided as Environamnt Variables.</li>
+</ul>
+<p>The CDI extension works for application that live both inside and outside of kubernetes. So it can be used safely in kubernetes and hybrid deployments for easier consumption of kubernetes managed services.</p>
+<h3 id="the-service-annotation"><a name="the-service-annotation" class="anchor" href="#the-service-annotation"><span class="fa fa-link"></span></a>The @Service annotation</h3>
+<p>In kubernetes, each service has a host and a port and they are passed to container as environment variable. Containers that live inside Kubernetes
+can lookup for services using their environment variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.</p>
+<p>The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @Service qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.</p>
+<pre><code>@Inject
+@Service(&quot;my-service&quot;)
+private String service.
+</code></pre><h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
+<p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
+<p>If your Java code is running outside of Kubernetes then @Service will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
+<h3 id="creating-custom-objects"><a name="creating-custom-objects" class="anchor" href="#creating-custom-objects"><span class="fa fa-link"></span></a>Creating custom objects</h3>
+<p>In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.</p>
+<pre><code>@Inject
+@New
+ServiceConverters converters; 
 
+@Produces
+@Service
+public MyClient create(InjectionPoint ip) {
+    MyClient result;
+    String coords = converters.serviceToString(ip);
+    //create the client
+    return client;
+}
+</code></pre><h3 id="integration-with-apache-deltaspike"><a name="integration-with-apache-deltaspike" class="anchor" href="#integration-with-apache-deltaspike"><span class="fa fa-link"></span></a>Integration with Apache Deltaspike</h3>
+<p>In kubernetes its quite common to pass around configuration via Environment Variables. Outside of kubernetes java developers often use System properties, property files and what not.
+DeltaSpike provides an awesome extension which works great along with the fabric8 extension that allows the user to inject configuration form various sources:</p>
+<ul>
+<li>System Properties</li>
+<li>Environment Variables</li>
+<li>JNDI values</li>
+<li>Property Files</li>
+</ul>
+<h4 id="the-configproperty-annotation"><a name="the-configproperty-annotation" class="anchor" href="#the-configproperty-annotation"><span class="fa fa-link"></span></a>The @ConfigProperty annotation</h4>
+<p>Using the @ConfigProperty annotation the user can inject configuration from the sources mentioned above. The lookup is performed in the exact same order provided above.
+It&apos;s use is pretty straight-forward:</p>
+<pre><code>@Inject
+@ConfigProperty(name=&quot;MY_KEY&quot;, defaultValue=&quot;MY_VALUE&quot;)
+private String key;
+</code></pre><h4 id="putting-it-all-together"><a name="putting-it-all-together" class="anchor" href="#putting-it-all-together"><span class="fa fa-link"></span></a>Putting it all together</h4>
+<p>In most case, when we need to consume a service we need both the coordinates of the service and static configuration data, like thread pool configuration, maximum number of connections etc.
+So it makes sense when we create the &quot;factory&quot; for our client, to also inject configuration. For example:</p>
+<pre><code>@Inject
+@New
+ServiceConverters converters; 
+
+@Inject
+@ConfigProperty(name=&quot;CONNECTION_TIMEOUT&quot;, defaultValue=&quot;10000L&quot;)
+private Long timeout; 
+
+@Produces
+@Service
+public MyClient create(InjectionPoint ip) {
+    MyClient result;
+    String coords = converters.serviceToString(ip);
+    //create the client with time out.
+    return client;
+}
+</code></pre>
                     
                     </section>
                 
@@ -808,10 +872,10 @@
         </div>
 
         
-        <a href="./pods.html" class="navigation navigation-prev " aria-label="Previous page: Pods"><i class="fa fa-angle-left"></i></a>
+        <a href="./javaLibraries.html" class="navigation navigation-prev " aria-label="Previous page: Java Libraries"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./labels.html" class="navigation navigation-next " aria-label="Next page: Labels"><i class="fa fa-angle-right"></i></a>
+        <a href="./testing.html" class="navigation navigation-next " aria-label="Next page: Testing"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
