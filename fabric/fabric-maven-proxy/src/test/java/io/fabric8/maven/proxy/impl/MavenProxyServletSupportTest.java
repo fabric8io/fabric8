@@ -18,6 +18,7 @@ package io.fabric8.maven.proxy.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -46,14 +47,25 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractRuntimeProperties;
 import io.fabric8.deployer.ProjectDeployer;
+import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.settings.Proxy;
+import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.easymock.internal.matchers.Captures;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -65,8 +77,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.fabric8.common.util.Strings.join;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.*;
 
 public class MavenProxyServletSupportTest {
 
@@ -743,6 +756,78 @@ public class MavenProxyServletSupportTest {
         testUpload(warPath, contents, true);
     }
 
+    @Test
+    public void testUploadWithMimeMultipartFormData() throws Exception {
+        new File("target/maven/proxy/tmp/multipart").mkdirs();
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n".getBytes());
+        addEntry(jas, "META-INF/maven/io.fabric8/mybundle/pom.properties", "groupId=io.fabric8\nartifactId=mybundle\nversion=1.0\n".getBytes());
+        jas.close();
+        byte[] jarBytes = baos.toByteArray();
+
+        RuntimeProperties props = new MockRuntimeProperties();
+        MavenResolver resolver = EasyMock.createMock(MavenResolver.class);
+        MavenUploadProxyServlet servlet = new MavenUploadProxyServlet(resolver, props, projectDeployer, new File("target/upload"));
+        servlet.setFileItemFactory(new DiskFileItemFactory(0, new File("target/maven/proxy/tmp/multipart")));
+
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+
+        FilePart part = new FilePart("file[]", new ByteArrayPartSource("mybundle-1.0.jar", jarBytes));
+        MultipartRequestEntity entity = new MultipartRequestEntity(new Part[] { part }, new HttpMethodParams());
+        final ByteArrayOutputStream requestBytes = new ByteArrayOutputStream();
+        entity.writeRequest(requestBytes);
+        final byte[] multipartRequestBytes = requestBytes.toByteArray();
+
+        EasyMock.expect(request.getPathInfo()).andReturn("/mybundle-1.0.jar");
+        EasyMock.expect(request.getHeader(MavenProxyServletSupport.LOCATION_HEADER)).andReturn(null);
+        EasyMock.expect(request.getParameter("profile")).andReturn("my");
+        EasyMock.expect(request.getParameter("version")).andReturn("1.0");
+        EasyMock.expect(request.getContentType()).andReturn(entity.getContentType()).anyTimes();
+        EasyMock.expect(request.getHeader("Content-length")).andReturn(Long.toString(entity.getContentLength())).anyTimes();
+        EasyMock.expect(request.getContentLength()).andReturn((int) entity.getContentLength()).anyTimes();
+        EasyMock.expect(request.getCharacterEncoding()).andReturn("ISO-8859-1").anyTimes();
+
+        Capture<String> location = EasyMock.newCapture(CaptureType.ALL);
+        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+
+        EasyMock.expect(request.getInputStream()).andReturn(new ServletInputStream() {
+            private int pos = 0;
+
+            @Override
+            public int read() throws IOException {
+                return pos >= multipartRequestBytes.length ? -1 : (multipartRequestBytes[pos++] & 0xFF);
+            }
+        });
+
+        Capture<ProjectRequirements> requirementsCapture = EasyMock.newCapture(CaptureType.FIRST);
+        EasyMock.expect(projectDeployer.deployProject(EasyMock.capture(requirementsCapture), EasyMock.eq(true))).andReturn(null);
+
+        EasyMock.replay(resolver, request, response, projectDeployer);
+
+        servlet.doPut(request, response);
+
+        FileInputStream fis = new FileInputStream("target/upload/io.fabric8/mybundle/1.0/mybundle-1.0.jar");
+        ByteArrayOutputStream storedBundleBytes = new ByteArrayOutputStream();
+        IOUtils.copy(fis, storedBundleBytes);
+        fis.close();
+        Assert.assertArrayEquals(jarBytes, storedBundleBytes.toByteArray());
+
+        ProjectRequirements pr = requirementsCapture.getValue();
+        List<String> bundles = pr.getBundles();
+        assertThat(bundles.size(), equalTo(1));
+        assertThat(bundles.get(0), equalTo("mvn:io.fabric8/mybundle/1.0"));
+        assertThat(pr.getProfileId(), equalTo("my"));
+        assertThat(pr.getVersion(), equalTo("1.0"));
+        assertThat(pr.getGroupId(), nullValue());
+        assertThat(pr.getArtifactId(), nullValue());
+
+        EasyMock.verify(resolver, request, response, projectDeployer);
+    }
+
     private static void addEntry(JarOutputStream jas, String name, byte[] content) throws Exception {
         JarEntry entry = new JarEntry(name);
         jas.putNextEntry(entry);
@@ -793,6 +878,7 @@ public class MavenProxyServletSupportTest {
 
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getPathInfo()).andReturn(path);
+            EasyMock.expect(request.getContentType()).andReturn("text/plain").anyTimes();
             EasyMock.expect(request.getInputStream()).andReturn(new ServletInputStream() {
                 private int i;
 

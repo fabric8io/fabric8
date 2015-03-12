@@ -20,6 +20,12 @@ import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenResolver;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUpload;
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.servlet.ServletRequestContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +39,17 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
+    protected File tmpMultipartFolder = new File(tmpFolder, "multipart");
+    private DiskFileItemFactory fileItemFactory = new DiskFileItemFactory(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD, tmpMultipartFolder);
+
     public MavenUploadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, File uploadRepository) {
         super(resolver, runtimeProperties, projectDeployer, uploadRepository, 0);
+    }
+
+    @Override
+    public synchronized void start() throws IOException {
+        super.start();
+        tmpMultipartFolder.mkdirs();
     }
 
     @Override
@@ -51,16 +66,27 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
                 path = path.substring(1);
             }
 
-            UploadContext result;
+            UploadContext result = null;
             // handle move
             String location = req.getHeader(LOCATION_HEADER);
             if (location != null) {
                 result = move(location, path);
             } else {
-                result = doUpload(req.getInputStream(), path);
+                // is it multipart data?
+                if (FileUploadBase.isMultipartContent(new ServletRequestContext(req))) {
+                    List<FileItem> items = new ServletFileUpload(fileItemFactory).parseRequest(req);
+                    // What to do with multiple paths?
+                    if (items != null && items.size() > 0) {
+                        FileItem item = items.get(0);
+                        result = doUpload(item.getInputStream(), path);
+                        item.delete();
+                    }
+                } else {
+                    result = doUpload(req.getInputStream(), path);
+                }
             }
 
-            if (result.status()) {
+            if (result != null && result.status()) {
                 handleDeploy(req, result);
 
                 addHeaders(resp, result.headers());
@@ -101,4 +127,9 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
             resp.addHeader(entry.getKey(), entry.getValue());
         }
     }
+
+    protected void setFileItemFactory(DiskFileItemFactory fileItemFactory) {
+        this.fileItemFactory = fileItemFactory;
+    }
+
 }

@@ -38,10 +38,14 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.apache.felix.utils.version;
-            io.fabric8.utils;
-            io.fabric8.maven.proxy.impl;
-            -split-package:=first,
+            org.apache.felix.utils.version,
+            io.fabric8.utils,
+            io.fabric8.maven.proxy.impl;-split-package:=first,
+            org.apache.commons.fileupload,
+            org.apache.commons.fileupload.disk,
+            org.apache.commons.fileupload.servlet,
+            org.apache.commons.fileupload.util,
+            org.apache.commons.fileupload.util.mime
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -143,6 +147,10 @@
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
