@@ -1,0 +1,84 @@
+/**
+ *  Copyright 2005-2014 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
+package io.fabric8.forge.camel.commands.project;
+
+import org.jboss.forge.addon.dependencies.Coordinate;
+import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
+import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+
+public class JubeSetupHelper {
+
+    private String[] jarImages = new String[]{"fabric8/java"};
+    private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
+    private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+
+    public static void setupJube(DependencyInstaller dependencyInstaller, Project project, String fromImage, String main) {
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+
+        // add jube plugin
+        MavenPluginBuilder plugin = MavenPluginBuilder.create()
+                .setCoordinate(createCoordinate("io.fabric8.jube", "jube-maven-plugin", VersionHelper.fabric8Version(), null, null));
+        plugin.addExecution(ExecutionBuilder.create().addGoal("build").setPhase("package"));
+        pluginFacet.addPlugin(plugin);
+
+        // install jube image
+        String jubeImage = asJubeImage(fromImage);
+        Dependency bom = DependencyBuilder.create()
+                .setCoordinate(createCoordinate("io.fabric8.jube.images.fabric8", jubeImage, VersionHelper.fabric8Version(), "image", "zip"));
+        dependencyInstaller.installManaged(project, bom);
+    }
+
+    private static String getProjectPackaging(Project project) {
+        if (project != null) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            return maven.getModel().getPackaging();
+        }
+        return null;
+    }
+
+    private static Coordinate createCoordinate(String groupId, String artifactId, String version, String classifier, String type) {
+        CoordinateBuilder builder = CoordinateBuilder.create()
+                .setGroupId(groupId)
+                .setArtifactId(artifactId);
+        if (version != null) {
+            builder = builder.setVersion(version);
+        }
+        if (classifier != null) {
+            builder = builder.setClassifier(classifier);
+        }
+        if (type != null) {
+            builder = builder.setPackaging(type);
+        }
+
+        return builder;
+    }
+
+    private static String asJubeImage(String fromImage) {
+        int idx = fromImage.indexOf('/');
+        if (idx > 0) {
+            return fromImage.substring(idx);
+        }
+        return fromImage;
+    }
+
+}
