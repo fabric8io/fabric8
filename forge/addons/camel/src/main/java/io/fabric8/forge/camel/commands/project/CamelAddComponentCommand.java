@@ -37,12 +37,12 @@ import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findCom
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "filter", required = false, description = "To filter components")
-    private UISelectOne<String> filter;
+    @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
+    private UISelectOne<String> componentNameFilter;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of component to add")
-    private UISelectOne<String> name;
+    @WithAttributes(label = "componentName", required = true, description = "Name of component type to add")
+    private UISelectOne<String> componentName;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -68,13 +68,11 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        filter.setValueChoices(CamelCommands.createComponentNameValues(project));
-        filter.setDefaultValue("<all>");
+        componentNameFilter.setValueChoices(CamelCommands.createComponentNameValues(project));
+        componentNameFilter.setDefaultValue("<all>");
+        componentName.setValueChoices(CamelCommands.createComponentNameValues(project, componentNameFilter, false));
 
-        name.setValueChoices(CamelCommands.createComponentNameValues(project, filter, true));
-
-        builder.add(filter);
-        builder.add(name);
+        builder.add(componentNameFilter).add(componentName);
     }
 
     @Override
@@ -88,9 +86,9 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = findComponentArchetype(name.getValue());
+        String artifactId = findComponentArchetype(componentName.getValue());
         if (artifactId == null) {
-            return Results.fail("Camel component " + name.getValue() + " is unknown.");
+            return Results.fail("Camel component " + componentName.getValue() + " is unknown.");
         }
 
         DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
@@ -99,6 +97,6 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         // install the component
         dependencyInstaller.install(project, component);
 
-        return Results.success("Added Camel component " + name.getValue() + " (" + artifactId + ") to the project");
+        return Results.success("Added Camel component " + componentName.getValue() + " (" + artifactId + ") to the project");
     }
 }

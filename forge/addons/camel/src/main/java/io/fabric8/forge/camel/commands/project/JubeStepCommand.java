@@ -24,6 +24,7 @@ import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
@@ -52,6 +53,12 @@ public class JubeStepCommand extends AbstractDockerProjectCommand implements UIW
 
     @Inject
     private DependencyInstaller dependencyInstaller;
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        // this is a step in a wizard, you cannot run this standalone
+        return false;
+    }
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {

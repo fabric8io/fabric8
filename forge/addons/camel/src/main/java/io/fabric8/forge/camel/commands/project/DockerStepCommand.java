@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
@@ -49,6 +50,12 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     @Inject
     @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
     private UIInput<String> main;
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        // this is a step in a wizard, you cannot run this standalone
+        return false;
+    }
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
