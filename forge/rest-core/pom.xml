@@ -25,7 +25,7 @@
     <version>2.2-SNAPSHOT</version>
   </parent>
   <artifactId>rest-core</artifactId>
-  <name>Fabric8 :: Forge :: REST CORE</name>
+  <name>Fabric8 :: Forge :: REST Core</name>
 
   <properties>
     <addon.repository>${project.build.directory}/addon-repository</addon.repository>
