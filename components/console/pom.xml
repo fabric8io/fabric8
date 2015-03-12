@@ -31,7 +31,6 @@
 
   <properties>
     <blueprint-web-version>1.0.0</blueprint-web-version>
-    <fabric8.release.version>2.0.21</fabric8.release.version>
   </properties>
 
   <dependencies>

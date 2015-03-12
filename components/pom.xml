@@ -60,6 +60,7 @@
     <module>kubernetes-mbeans</module>
     <module>kubernetes-template</module>
     <module>mq</module>
+    <module>rest-utils</module>
     <module>swagger-model</module>
     <module>zookeeper-client</module>
     <module>fabric-jgroups</module>

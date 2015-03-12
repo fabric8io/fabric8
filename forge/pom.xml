@@ -32,9 +32,7 @@
 
   <modules>
     <module>addons</module>
-<!--
     <module>rest-core</module>
--->
   </modules>
 
 </project>
