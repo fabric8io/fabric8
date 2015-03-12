@@ -34,6 +34,7 @@
     <module>arquillian-fabric8</module>
     <module>console</module>
     <module>docker-api</module>
+    <module>fabric8-cdi</module>
     <module>fabric-cxf</module>
     <!--
             TODO
@@ -65,7 +66,6 @@
     <module>zookeeper-client</module>
     <module>fabric-jgroups</module>
     <module>fabric-apm</module>
-    <module>fabric-cdi</module>
   </modules>
 
   <profiles>
