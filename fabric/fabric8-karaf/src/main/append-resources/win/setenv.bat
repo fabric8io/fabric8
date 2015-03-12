@@ -40,16 +40,16 @@ rem Window name of the windows console
 rem SET KARAF_TITLE
 
 rem Minimum memory for the JVM
-rem SET JAVA_MIN_MEM=512M
+SET JAVA_MIN_MEM=512M
 
 rem Maximum memory for the JVM
-rem SET JAVA_MAX_MEM=512M
+SET JAVA_MAX_MEM=512M
 
 rem Minimum perm memory for the JVM
-rem SET JAVA_PERM_MEM=128M
+SET JAVA_PERM_MEM=128M
 
 rem Maximum memory for the JVM
-rem SET JAVA_MAX_PERM_MEM=128M
+SET JAVA_MAX_PERM_MEM=256M
 
 rem Additional JVM options
 rem SET EXTRA_JAVA_OPTS
