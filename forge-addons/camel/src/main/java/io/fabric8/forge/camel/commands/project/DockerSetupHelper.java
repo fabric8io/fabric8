@@ -102,7 +102,8 @@ public class DockerSetupHelper {
         } else if ("bundle".equals(packaging)) {
             return bundleImages[0];
         } else if ("war".equals(packaging)) {
-            return warImages[0];
+            // we have both tomcat or jboss
+            return null;
         }
         return null;
     }

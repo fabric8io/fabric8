@@ -29,17 +29,20 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
-public class DockerSetupCommand extends AbstractDockerProjectCommand {
+public class DockerSetupCommand extends AbstractDockerProjectCommand implements UIWizardStep {
 
     private String[] jarImages = new String[]{"fabric8/java"};
     private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
@@ -102,13 +105,17 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        Project project = getSelectedProject(context);
+        return Results.success();
+    }
 
+    @Override
+    public NavigationResult next(UINavigationContext context) throws Exception {
         String fromImage = from != null ? from.getValue() : "fabric8/java";
         String mainClass = main.getValue() != null ? main.getValue() : null;
-        DockerSetupHelper.setupDocker(project, fromImage, mainClass);
 
-        return Results.success("Added Docker to the project");
+        context.getUIContext().getAttributeMap().put("fromImage", fromImage);
+        context.getUIContext().getAttributeMap().put("mainClass", mainClass);
+        return Results.navigateTo(FabricSetupCommand.class);
     }
 
     protected String getProjectPackaging(Project project) {
@@ -118,5 +125,4 @@ public class DockerSetupCommand extends AbstractDockerProjectCommand {
         }
         return null;
     }
-
 }

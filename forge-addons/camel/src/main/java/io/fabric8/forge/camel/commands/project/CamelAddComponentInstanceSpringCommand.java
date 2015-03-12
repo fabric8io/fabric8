@@ -133,11 +133,12 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
         return Results.navigateTo(ConfigureComponentPropertiesStep.class);
     }
 
-
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         return Results.success();
-    }    protected String getDefaultProducerClassName() {
+    }
+
+    protected String getDefaultProducerClassName() {
         String name = instanceName.getValue();
         if (!Strings.isBlank(name)) {
             return Strings.capitalize(name) + "ComponentFactory";
