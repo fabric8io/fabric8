@@ -2878,7 +2878,7 @@
         <module>fabric8-maven-plugin</module>
         <module>components</module>
         <module>tooling</module>
-        <module>forge-addons</module>
+        <module>forge</module>
         <module>wiki</module>
         <module>itests</module>
     </modules>
