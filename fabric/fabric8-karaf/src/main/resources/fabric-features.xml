@@ -153,6 +153,7 @@
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
+        <bundle dependency="true">mvn:commons-io/commons-io/${commons-io2-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-maven-proxy/${project.version}</bundle>
     </feature>
