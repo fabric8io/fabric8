@@ -42,6 +42,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
+@Deprecated
 public class DockerSetupCommand extends AbstractDockerProjectCommand implements UIWizardStep {
 
     private String[] jarImages = new String[]{"fabric8/java"};

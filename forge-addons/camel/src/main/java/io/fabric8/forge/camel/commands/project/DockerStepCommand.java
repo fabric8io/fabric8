@@ -73,6 +73,7 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
         from.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
+                // use a listener so the jube step knows what we selected as it want to reuse
                 builder.getUIContext().getAttributeMap().put("docker.from", event.getNewValue());
             }
         });
@@ -81,13 +82,19 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
             @Override
             public Boolean call() throws Exception {
                 // is required for jar images
-                return ("fabric8/java".equals(from.getValue()));
+                for (String jar : jarImages) {
+                    if (jar.equals(from.getValue())) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
         main.addValidator(new ClassNameValidator(true));
         main.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
+                // use a listener so the jube step knows what we selected as it want to reuse
                 builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
             }
         });
@@ -95,9 +102,6 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        context.getUIContext().getAttributeMap().put("docker.from", from.getValue());
-        context.getUIContext().getAttributeMap().put("docker.main", main.getValue());
-
         DockerSetupHelper.setupDocker(getSelectedProject(context), from.getValue(), main.getValue());
         return Results.success("Adding Docker using image " + from.getValue());
     }

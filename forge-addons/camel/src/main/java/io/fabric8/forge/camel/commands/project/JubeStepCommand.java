@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
@@ -43,6 +44,9 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
     @Inject
     @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
     private UIInput<String> main;
+
+    @Inject
+    private DependencyInstaller dependencyInstaller;
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
@@ -76,7 +80,12 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
             @Override
             public Boolean call() throws Exception {
                 // is required for jar images
-                return ("fabric8/java".equals(from.getValue()));
+                for (String jar : jarImages) {
+                    if (jar.equals(from.getValue())) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
         main.setDefaultValue(new Callable<String>() {
@@ -94,6 +103,7 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
+        JubeSetupHelper.setupJube(dependencyInstaller, getSelectedProject(context), from.getValue(), main.getValue());
         return Results.success("Adding Jube using image " + from.getValue());
     }
 
