@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
@@ -48,18 +50,24 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        builder.add(from).add(main);
-
         // the from image values
         from.setValueChoices(new Iterable<String>() {
             @Override
             public Iterator<String> iterator() {
+                String packaging = getProjectPackaging(getSelectedProject(builder));
+
+                // limit the choices depending on the project packaging
                 Set<String> choices = new LinkedHashSet<String>();
-                // TODO: limit the choices based on project type jar / war / bundle
-                choices.add(jarImages[0]);
-                choices.add(bundleImages[0]);
-                choices.add(warImages[0]);
-                choices.add(warImages[1]);
+                if (packaging == null || "jar".equals(packaging)) {
+                    choices.add(jarImages[0]);
+                }
+                if (packaging == null || "bundle".equals(packaging)) {
+                    choices.add(bundleImages[0]);
+                }
+                if (packaging == null || "war".equals(packaging)) {
+                    choices.add(warImages[0]);
+                    choices.add(warImages[1]);
+                }
                 return choices.iterator();
             }
         });
@@ -90,6 +98,9 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
                 return false;
             }
         });
+        // only enable main if its required
+        main.setEnabled(main.isRequired());
+
         main.addValidator(new ClassNameValidator(true));
         main.addValueChangeListener(new ValueChangeListener() {
             @Override
@@ -98,12 +109,22 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
                 builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
             }
         });
+
+        builder.add(from).add(main);
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         DockerSetupHelper.setupDocker(getSelectedProject(context), from.getValue(), main.getValue());
         return Results.success("Adding Docker using image " + from.getValue());
+    }
+
+    private static String getProjectPackaging(Project project) {
+        if (project != null) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            return maven.getModel().getPackaging();
+        }
+        return null;
     }
 
 }
