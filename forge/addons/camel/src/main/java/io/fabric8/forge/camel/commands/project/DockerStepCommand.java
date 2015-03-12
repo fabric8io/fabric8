@@ -108,6 +108,11 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
         // only enable main if its required
         main.setEnabled(main.isRequired());
 
+        // TODO: main class lets try to default to
+        // org.apache.camel.cdi.Main
+        // org.apache.camel.spring.Main
+        // // others?
+
         main.addValidator(new ClassNameValidator(true));
         main.addValueChangeListener(new ValueChangeListener() {
             @Override
