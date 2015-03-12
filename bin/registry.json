@@ -70,6 +70,16 @@
       "labels": {
         "name": "registry-controller"
       }
+    },
+    {
+      "id": "registry-route",
+      "metadata": {
+        "name": "registry-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "registry.fabric8.local",
+      "serviceName": "docker-registry"
     }
   ]
 }
