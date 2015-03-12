@@ -27,11 +27,7 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 
 public class JubeSetupHelper {
 
-    private String[] jarImages = new String[]{"fabric8/java"};
-    private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
-    private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
-
-    public static void setupJube(DependencyInstaller dependencyInstaller, Project project, String fromImage, String main) {
+    public static void setupJube(DependencyInstaller dependencyInstaller, Project project, String fromImage) {
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
 
         // add jube plugin
