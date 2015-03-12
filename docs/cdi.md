@@ -13,17 +13,24 @@ The CDI extension works for application that live both inside and outside of kub
 
 ### The @Service annotation
 In kubernetes, each service has a host and a port and they are passed to container as environment variable. Containers that live inside Kubernetes
-can lookup for services using their environemnt variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.
+can lookup for services using their environment variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.
 
-The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @Service qualifier which can be used to inject the coordinates as a String or as a URL by just refering to the id of the serivce.
+The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @Service qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.
 
     @Inject
     @Service("my-service")
-    private String Serivce.
-    
+    private String service.
+
+### Running inside and outside of Kubernetes
+
+Under the covers the code will default to using the **MY_SERVICE_SERVICE_HOST** and **MY_SERVICE_SERVICE_PORT** environment variables exposed by [kubernetes services](services.html) to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.
+
+If your Java code is running outside of Kubernetes then @Service will use the environment variable **KUBERNETES_MASTER** to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.
+
+### Creating custom objects
+
 In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.
-        
-   
+
     @Inject
     @New
     ServiceConverters converters; 
