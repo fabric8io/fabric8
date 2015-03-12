@@ -30,6 +30,10 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 
 * [etcd-api](https://github.com/fabric8io/fabric8/blob/master/components/fabric-etcd/) provides a Java API for working with [etcd](https://github.com/coreos/etcd/blob/master/README.md)
 
+### Git Repos
+
+* [gitrepo-api](https://github.com/fabric8io/fabric8/blob/master/components/gitrepo-etcd/) provides a Java API for working with git repositories such as  <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
+
 ### ActiveMQ
 
 * [mq-client](https://github.com/fabric8io/fabric8/tree/master/components/mq/mq-client) provides the the **io.fabric8.mq.core.MQConnectionFactory** class which implements the JMS ConnectionFactory to connect to ActiveMQ using the [Kubernetes Service](http://fabric8.io/v2/services.html) discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)

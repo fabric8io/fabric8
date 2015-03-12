@@ -51,6 +51,7 @@
     <module>gateway-model</module>
     <module>gateway-servlet</module>
     <module>gateway-servlet-example</module>
+    <module>gitrepo-api</module>
     <module>jolokia-assertions</module>
     <module>karaf-features</module>
     <module>kubernetes-api</module>
