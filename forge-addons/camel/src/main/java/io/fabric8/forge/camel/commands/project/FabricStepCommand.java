@@ -138,12 +138,12 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
         Model pom = maven.getModel();
         Properties properties = pom.getProperties();
         boolean updated = false;
-        if (container != null) {
-            properties.put("fabric8.label.container", container);
+        if (container.getValue() != null) {
+            properties.put("fabric8.label.container", container.getValue());
             updated = true;
         }
-        if (icon != null) {
-            properties.put("fabric8.iconRef", icon);
+        if (icon.getValue() != null) {
+            properties.put("fabric8.iconRef", icon.getValue());
             updated = true;
         }
         if (group.getValue() != null) {
