@@ -22,4 +22,6 @@ public interface ProjectDeployer {
 
     DeployResults deployProject(ProjectRequirements requirements) throws Exception;
 
+    DeployResults deployProject(ProjectRequirements requirements, boolean merge) throws Exception;
+
 }

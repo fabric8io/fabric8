@@ -161,6 +161,11 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
     @Override
     public DeployResults deployProject(ProjectRequirements requirements) throws Exception {
+        return deployProject(requirements, false);
+    }
+
+    @Override
+    public DeployResults deployProject(ProjectRequirements requirements, boolean merge) throws Exception {
         Version version = getOrCreateVersion(requirements);
 
         // validate that all the parent profiles exists
@@ -176,7 +181,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         builder.addAttribute(Profile.ABSTRACT, "" + isAbstract);
 
         ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile, builder);
-        updateProfileConfiguration(version, profile, requirements, oldRequirements, builder);
+        updateProfileConfiguration(version, profile, requirements, oldRequirements, builder, merge);
 
         return resolveProfileDeployments(requirements, fabricService.get(), profile, builder);
     }
@@ -184,12 +189,12 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     /**
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
-    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
+    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder, boolean merge) {
         List<String> parentProfiles = Lists.mutableList(profile.getParentIds());
         List<String> bundles = Lists.mutableList(profile.getBundles());
         List<String> features = Lists.mutableList(profile.getFeatures());
         List<String> repositories = Lists.mutableList(profile.getRepositories());
-        if (oldRequirements != null) {
+        if (!merge && oldRequirements != null) {
             removeAll(parentProfiles, oldRequirements.getParentProfiles());
             removeAll(bundles, oldRequirements.getBundles());
             removeAll(features, oldRequirements.getFeatures());

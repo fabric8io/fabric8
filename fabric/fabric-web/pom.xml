@@ -70,6 +70,12 @@
             <artifactId>pax-web-spi</artifactId>
             <version>${ops4j-pax-web-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-jetty</artifactId>
+            <version>${ops4j-pax-web-version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

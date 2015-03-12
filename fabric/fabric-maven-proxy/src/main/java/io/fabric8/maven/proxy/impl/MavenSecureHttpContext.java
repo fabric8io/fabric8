@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.util.concurrent.TimeUnit;
 
 public class MavenSecureHttpContext implements HttpContext {
 
@@ -129,6 +130,20 @@ public class MavenSecureHttpContext implements HttpContext {
 
     //TODO: We might want to clean this up a bit.
     public boolean authenticate(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getHeader("Origin") != null) {
+            response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            String headers = request.getHeader("Access-Control-Request-Headers");
+            if (headers != null) {
+                response.addHeader("Access-Control-Allow-Headers", headers);
+            }
+            response.addHeader("Access-Control-Max-Age", "" + TimeUnit.DAYS.toSeconds(1));
+            response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+            response.addHeader("Access-Control-Allow-Credentials", "true");
+            if ("OPTIONS".equals(request.getMethod())) {
+                // CORS pre-fetch request
+                return true;
+            }
+        }
         // Return immediately if the header is missing
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         if (authHeader != null && authHeader.length() > 0) {

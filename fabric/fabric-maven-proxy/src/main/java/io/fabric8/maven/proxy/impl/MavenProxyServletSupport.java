@@ -22,9 +22,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -38,7 +40,6 @@ import javax.servlet.http.HttpServlet;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Files;
 import io.fabric8.deployer.ProjectDeployer;
-import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenResolver;
@@ -396,18 +397,17 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         requirements.setParentProfiles(Collections.<String>emptyList());
 
-        DependencyDTO rootDependency = new DependencyDTO();
-        rootDependency.setGroupId(context.getGroupId());
-        rootDependency.setArtifactId(context.getArtifactId());
-        rootDependency.setVersion(context.getVersion());
-        rootDependency.setType(context.getType());
-        requirements.setRootDependency(rootDependency);
+        String url = String.format("mvn:%s/%s/%s", context.getGroupId(), context.getArtifactId(), context.getVersion());
+        if (!"jar".equals(context.getType())) {
+            url += "/" + context.getType();
+        }
+        requirements.setBundles(Arrays.asList(url));
 
         return requirements;
     }
 
     protected DeployResults addToProfile(ProjectRequirements requirements) throws Exception {
-        return projectDeployer.deployProject(requirements);
+        return projectDeployer.deployProject(requirements, true);
     }
 
     /**
