@@ -25,15 +25,18 @@ import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
 import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-public class DockerStepCommand extends AbstractDockerProjectCommand {
+public class DockerStepCommand extends AbstractDockerProjectCommand implements UIWizard {
 
     private String[] jarImages = new String[]{"fabric8/java"};
     private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
@@ -46,6 +49,17 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
     @Inject
     @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
     private UIInput<String> main;
+
+    @Override
+    public NavigationResult next(UINavigationContext context) throws Exception {
+        // should we also include jube?
+        String platform = (String) context.getUIContext().getAttributeMap().get("platform");
+        if ("Both".equals(platform)) {
+            return Results.navigateTo(JubeStepCommand.class);
+        } else {
+            return Results.navigateTo(FabricStepCommand.class);
+        }
+    }
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {

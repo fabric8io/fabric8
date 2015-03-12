@@ -35,13 +35,16 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-public class FabricStepCommand extends AbstractDockerProjectCommand {
+public class FabricStepCommand extends AbstractDockerProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "container", required = false, description = "Container label to use for the app")
@@ -57,6 +60,12 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
 
     @Inject
     private DependencyInstaller dependencyInstaller;
+
+    @Override
+    public NavigationResult next(UINavigationContext context) throws Exception {
+        // no more steps
+        return null;
+    }
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
@@ -173,5 +182,4 @@ public class FabricStepCommand extends AbstractDockerProjectCommand {
         }
         return fromImage;
     }
-
 }

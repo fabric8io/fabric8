@@ -17,7 +17,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
@@ -56,12 +55,14 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
+        context.getUIContext().getAttributeMap().put("platform", platform.getValue());
+
         if ("Both".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class, JubeStepCommand.class, FabricStepCommand.class);
+            return Results.navigateTo(DockerStepCommand.class);
         } else if ("Docker".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class, FabricStepCommand.class);
+            return Results.navigateTo(DockerStepCommand.class);
         } else {
-            return Results.navigateTo(JubeStepCommand.class, FabricSetupCommand.class);
+            return Results.navigateTo(JubeStepCommand.class);
         }
     }
 
@@ -70,17 +71,13 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
         builder.add(platform);
 
         platform.setValueChoices(Arrays.asList(platforms));
-        platform.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                // if windows use jube, otherwise docker
-                if (isPlatform("windows")) {
-                    return "Jube";
-                } else {
-                    return "Docker";
-                }
-            }
-        });
+
+        // if windows use jube, otherwise docker
+        if (isPlatform("windows")) {
+            platform.setDefaultValue("Jube");
+        } else {
+            platform.setDefaultValue("Docker");
+        }
     }
 
     @Override
