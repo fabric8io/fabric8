@@ -157,11 +157,6 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
             properties.put("fabric8.label.group", group.getValue());
             updated = true;
         }
-        String main = (String) context.getUIContext().getAttributeMap().get("docker.main");
-        if (main != null) {
-            properties.put("docker.env.MAIN", main);
-            updated = true;
-        }
 
         // to save then set the model
         if (updated) {

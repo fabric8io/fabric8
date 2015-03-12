@@ -62,6 +62,15 @@ public class DockerSetupHelper {
         ConfigurationElement cfgImages = ConfigurationElementBuilder.create().setName("images");
         cfgImages.getChildren().add(cfgImage);
 
+        setupDockerProperties(project, fromImage, main);
+
+        // add docker-maven-plugin using latest version
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+        plugin.createConfiguration().addConfigurationElement(cfgImages);
+        pluginFacet.addPlugin(plugin);
+    }
+
+    public static void setupDockerProperties(Project project, String fromImage, String main) {
         String packaging = getProjectPackaging(project);
 
         boolean war = packaging != null && packaging.equals("war");
@@ -85,14 +94,12 @@ public class DockerSetupHelper {
         } else {
             properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
         }
+        if (main != null) {
+            properties.put("docker.env.MAIN", main);
+        }
 
         // to save then set the model
         maven.setModel(pom);
-
-        // add docker-maven-plugin using latest version
-        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
-        plugin.createConfiguration().addConfigurationElement(cfgImages);
-        pluginFacet.addPlugin(plugin);
     }
 
     public static String defaultDockerImage(Project project) {
@@ -126,6 +133,5 @@ public class DockerSetupHelper {
 
         return builder;
     }
-
 
 }

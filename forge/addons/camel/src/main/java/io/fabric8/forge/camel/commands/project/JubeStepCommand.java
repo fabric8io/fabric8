@@ -18,7 +18,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.maven.projects.MavenFacet;
@@ -29,6 +28,8 @@ import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
+import org.jboss.forge.addon.ui.input.ValueChangeListener;
+import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
@@ -76,40 +77,54 @@ public class JubeStepCommand extends AbstractDockerProjectCommand implements UIW
         }
         from.setValueChoices(choices);
 
+        from.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                // use a listener so the fabric step knows what we selected as it want to reuse
+                builder.getUIContext().getAttributeMap().put("docker.from", event.getNewValue());
+                // main is optional required, and need to be updated if we change the from image
+                main.setRequired(isMainRequired((String) event.getNewValue()));
+            }
+        });
+
         String existing = (String) builder.getUIContext().getAttributeMap().get("docker.from");
         if (existing == null) {
             // docker was not setup, so select if we only have one choice
             if (choices.size() == 1) {
                 from.setDefaultValue(choices.get(0));
             }
+        } else {
+            from.setDefaultValue(existing);
         }
-        from.setDefaultValue(existing);
-
-        main.setRequired(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                // is required for jar images
-                for (String jar : jarImages) {
-                    if (jar.equals(from.getValue())) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-        // only enable main if its required
-        main.setEnabled(main.isRequired());
 
         existing = (String) builder.getUIContext().getAttributeMap().get("docker.main");
         main.setDefaultValue(existing);
+        main.setRequired(isMainRequired(from.getValue()));
         main.addValidator(new ClassNameValidator(true));
+        main.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                // use a listener so the fabric step knows what we selected as it want to reuse
+                builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
+            }
+        });
 
         builder.add(from).add(main);
+    }
+
+    private boolean isMainRequired(String from) {
+        for (String jar : jarImages) {
+            if (jar.equals(from)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         JubeSetupHelper.setupJube(dependencyInstaller, getSelectedProject(context), from.getValue());
+        DockerSetupHelper.setupDockerProperties(getSelectedProject(context), from.getValue(), main.getValue());
         return Results.success("Adding Jube using image " + from.getValue());
     }
 
