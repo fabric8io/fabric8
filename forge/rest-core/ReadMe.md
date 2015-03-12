@@ -8,10 +8,25 @@ This project provides a REST service implemented via JAX-RS for interacting with
 
     mvn install
     cd main
-    mvn install exec:java
+    mvn install
+
+### Running
+
+You need to define a few environment variables. e.g. point KUBERNETES_MASTER at a running kubernetes environment or specify where the [gogs](http://gogs.io/) git hosting service is running:
+
+    export GOGS_HTTP_SERVICE_SERVICE_HOST=localhost
+    export GOGS_HTTP_SERVICE_SERVICE_PORT=3000
+
+Currently you also have to define a default login/pwd (which should go away soon1)
+
+    export GIT_DEFAULT_USER=foo
+    export GIT_DEFAULT_PASSWORD=bar
+
+Then run:
+
+    mvn compile exec:java
 
 The REST API should be running now at [http://localhost:8599/](http://localhost:8599/) which should list some APIs you can invoke to try it out.
-
 
 ### HTML5 Console
 
