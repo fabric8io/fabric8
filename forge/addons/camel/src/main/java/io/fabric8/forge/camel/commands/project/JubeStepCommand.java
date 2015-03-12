@@ -16,12 +16,13 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -50,29 +51,24 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        // the from image values
-        from.setValueChoices(new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                Set<String> choices = new LinkedHashSet<String>();
-                choices.add(jarImages[0]);
-                choices.add(bundleImages[0]);
-                choices.add(warImages[0]);
-                choices.add(warImages[1]);
-                return choices.iterator();
-            }
-        });
+        String packaging = getProjectPackaging(getSelectedProject(builder));
 
-        from.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String existing = (String) builder.getUIContext().getAttributeMap().get("docker.from");
-                if (existing != null) {
-                    return existing;
-                }
-                return DockerSetupHelper.defaultDockerImage(getSelectedProject(builder));
-            }
-        });
+        // limit the choices depending on the project packaging
+        List<String> choices = new ArrayList<String>();
+        if (packaging == null || "jar".equals(packaging)) {
+            choices.add(jarImages[0]);
+        }
+        if (packaging == null || "bundle".equals(packaging)) {
+            choices.add(bundleImages[0]);
+        }
+        if (packaging == null || "war".equals(packaging)) {
+            choices.add(warImages[0]);
+            choices.add(warImages[1]);
+        }
+        from.setValueChoices(choices);
+
+        String existing = (String) builder.getUIContext().getAttributeMap().get("docker.from");
+        from.setDefaultValue(existing);
 
         main.setRequired(new Callable<Boolean>() {
             @Override
@@ -86,16 +82,8 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
                 return false;
             }
         });
-        main.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String existing = (String) builder.getUIContext().getAttributeMap().get("docker.main");
-                if (existing != null) {
-                    return existing;
-                }
-                return null;
-            }
-        });
+        existing = (String) builder.getUIContext().getAttributeMap().get("docker.main");
+        main.setDefaultValue(existing);
         main.addValidator(new ClassNameValidator(true));
 
         builder.add(from).add(main);
@@ -105,6 +93,14 @@ public class JubeStepCommand extends AbstractDockerProjectCommand {
     public Result execute(UIExecutionContext context) throws Exception {
         JubeSetupHelper.setupJube(dependencyInstaller, getSelectedProject(context), from.getValue());
         return Results.success("Adding Jube using image " + from.getValue());
+    }
+
+    private static String getProjectPackaging(Project project) {
+        if (project != null) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            return maven.getModel().getPackaging();
+        }
+        return null;
     }
 
 }

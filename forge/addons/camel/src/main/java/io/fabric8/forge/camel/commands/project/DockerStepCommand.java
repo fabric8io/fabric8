@@ -16,9 +16,8 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
@@ -50,34 +49,28 @@ public class DockerStepCommand extends AbstractDockerProjectCommand {
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        // the from image values
-        from.setValueChoices(new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                String packaging = getProjectPackaging(getSelectedProject(builder));
+        String packaging = getProjectPackaging(getSelectedProject(builder));
 
-                // limit the choices depending on the project packaging
-                Set<String> choices = new LinkedHashSet<String>();
-                if (packaging == null || "jar".equals(packaging)) {
-                    choices.add(jarImages[0]);
-                }
-                if (packaging == null || "bundle".equals(packaging)) {
-                    choices.add(bundleImages[0]);
-                }
-                if (packaging == null || "war".equals(packaging)) {
-                    choices.add(warImages[0]);
-                    choices.add(warImages[1]);
-                }
-                return choices.iterator();
-            }
-        });
+        // limit the choices depending on the project packaging
+        List<String> choices = new ArrayList<String>();
+        if (packaging == null || "jar".equals(packaging)) {
+            choices.add(jarImages[0]);
+        }
+        if (packaging == null || "bundle".equals(packaging)) {
+            choices.add(bundleImages[0]);
+        }
+        if (packaging == null || "war".equals(packaging)) {
+            choices.add(warImages[0]);
+            choices.add(warImages[1]);
+        }
+        from.setValueChoices(choices);
 
-        from.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return DockerSetupHelper.defaultDockerImage(getSelectedProject(builder));
-            }
-        });
+        // is it possible to pre select a choice?
+        String defaultChoice = DockerSetupHelper.defaultDockerImage(getSelectedProject(builder));
+        if (defaultChoice != null && choices.contains(defaultChoice)) {
+            from.setDefaultValue(defaultChoice);
+        }
+
         from.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
