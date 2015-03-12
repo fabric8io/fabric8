@@ -24,13 +24,10 @@ import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -50,13 +47,6 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
     @WithAttributes(label = "platform", required = true, description = "The runtime platform")
     private UISelectOne<String> platform;
 
-    @Inject
-    @WithAttributes(label = "label", required = false, description = "Label to use for the app")
-    private UIInput<String> group;
-
-    @Inject
-    private DependencyInstaller dependencyInstaller;
-
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
@@ -67,11 +57,11 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         if ("Both".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class, JubeStepCommand.class);
+            return Results.navigateTo(DockerStepCommand.class, JubeStepCommand.class, FabricStepCommand.class);
         } else if ("Docker".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class);
+            return Results.navigateTo(DockerStepCommand.class, FabricStepCommand.class);
         } else {
-            return Results.navigateTo(JubeStepCommand.class);
+            return Results.navigateTo(JubeStepCommand.class, FabricSetupCommand.class);
         }
     }
 
@@ -91,21 +81,11 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
                 }
             }
         });
-
-        builder.add(group);
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         return Results.success();
-    }
-
-    protected String getProjectPackaging(Project project) {
-        if (project != null) {
-            MavenFacet maven = project.getFacet(MavenFacet.class);
-            return maven.getModel().getPackaging();
-        }
-        return null;
     }
 
     public static boolean isPlatform(String platform) {
