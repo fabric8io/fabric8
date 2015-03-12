@@ -38,4 +38,14 @@ public class ExtensionTest extends WeldTestBase {
         Assert.assertNotNull(testBean.getKubernetesUrl());
         Assert.assertNotNull(testBean.getConsoleUrl());
     }
+
+    @Test
+    public void testConfigInjection() {
+        System.setProperty("MY_CONFIG_TEST.1", "value1");
+        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
+        TestBean testBean = container.instance().select(TestBean.class).get();
+        Assert.assertNotNull(testBean);
+        Assert.assertEquals("value1", testBean.getConfigBean().getProperty());
+        Assert.assertEquals("value2", testBean.getOtherConfigBean().getProperty());
+    }
 }

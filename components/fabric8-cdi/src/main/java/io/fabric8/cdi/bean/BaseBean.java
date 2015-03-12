@@ -77,6 +77,20 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_QUALIFIERS)));
     }
 
+    public BaseBean(String name, Type beanType, Annotation ... annotations) {
+        this.name = name;
+        this.beanType = beanType;
+        List<Type> allTypes = new ArrayList<>();
+        allTypes.add(beanType);
+
+        for (Type t = ((Class) beanType).getSuperclass(); !allTypes.contains(Object.class); t = ((Class) t).getSuperclass()) {
+            allTypes.add(t);
+        }
+
+        types = Collections.unmodifiableSet(new HashSet<>(allTypes));
+        qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(annotations)));
+    }
+
 
     @Override
     public String getName() {

@@ -16,54 +16,18 @@
 
 package io.fabric8.cdi.weld;
 
-
-import io.fabric8.cdi.annotations.Configuration;
-import io.fabric8.cdi.annotations.Service;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 import javax.inject.Inject;
 
-public class TestBean {
-
-    @Inject
-    @Service("kubernetes")
-    String kubernetesUrl;
-
-    @Inject
-    @Service("fabric8-console-service")
-    String consoleUrl;
+public class ConfigBean {
     
-    @Inject
-    @Configuration("MY_CONFIG")
-    ConfigBean configBean;
+    @Inject 
+    @ConfigProperty(name = "TEST", defaultValue = "value")
+    private String property;
 
-    @Inject
-    @Configuration("MY_OTHER_CONFIG")
-    ConfigBean otherConfigBean;
 
-    public TestBean() {
-    }
-
-    public String getKubernetesUrl() {
-        return kubernetesUrl;
-    }
-
-    public String getConsoleUrl() {
-        return consoleUrl;
-    }
-
-    public ConfigBean getConfigBean() {
-        return configBean;
-    }
-
-    public void setConfigBean(ConfigBean configBean) {
-        this.configBean = configBean;
-    }
-
-    public ConfigBean getOtherConfigBean() {
-        return otherConfigBean;
-    }
-
-    public void setOtherConfigBean(ConfigBean otherConfigBean) {
-        this.otherConfigBean = otherConfigBean;
+    public String getProperty() {
+        return property;
     }
 }
