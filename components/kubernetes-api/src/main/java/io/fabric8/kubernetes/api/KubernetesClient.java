@@ -20,6 +20,8 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
+import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageRepositoryList;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
@@ -457,6 +459,42 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("buildConfigs")
     public String createBuildConfig(BuildConfig entity) throws Exception {
         return getKubernetesExtensions().createBuildConfig(entity);
+    }
+
+    @Override
+    @GET
+    @Path("imageRepositories/{name}")
+    public ImageRepository getImageRepository(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().getImageRepository(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("imageRepositories")
+    public ImageRepositoryList getImageRepositories(String namespace) {
+        return getKubernetesExtensions().getImageRepositories(namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("imageRepositories/{name}")
+    @Consumes("application/json")
+    public String updateImageRepository(@NotNull String name, ImageRepository entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateImageRepository(name, entity, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("imageRepositories/{name}")
+    public String deleteImageRepository(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteImageRepository(name, namespace);
+    }
+
+    @Override
+    @POST
+    @Path("imageRepositories")
+    public String createImageRepository(ImageRepository entity) throws Exception {
+        return getKubernetesExtensions().createImageRepository(entity);
     }
 
     // Helper methods

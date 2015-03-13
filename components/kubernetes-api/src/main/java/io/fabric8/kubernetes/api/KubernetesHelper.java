@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.utils.*;
 import io.fabric8.utils.Objects;
 import org.apache.commons.lang.StringUtils;
@@ -244,6 +247,12 @@ public class KubernetesHelper {
             return objectMapper.reader(ReplicationController.class).readValue(json);
         } else if (Objects.equal("Service", kind)) {
             return objectMapper.reader(Service.class).readValue(json);
+        } else if (Objects.equal("BuildConfig", kind)) {
+            return objectMapper.reader(BuildConfig.class).readValue(json);
+        } else if (Objects.equal("DeploymentConfig", kind)) {
+            return objectMapper.reader(DeploymentConfig.class).readValue(json);
+        } else if (Objects.equal("ImageRepository", kind)) {
+            return objectMapper.reader(ImageRepository.class).readValue(json);
         } else if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
             return loadList(json);
 /*

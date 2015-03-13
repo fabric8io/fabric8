@@ -20,6 +20,8 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
+import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageRepositoryList;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -79,6 +81,31 @@ public interface KubernetesExtensions {
     @DELETE
     @Path("buildConfigs/{name}")
     String deleteBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+
+    // ImageRepositorys
+    //-------------------------------------------------------------------------
+
+    @GET
+    @Path("imageRepositories")
+    ImageRepositoryList getImageRepositories(@QueryParam("namespace") String namespace);
+
+    @POST
+    @Path("imageRepositories")
+    String createImageRepository(ImageRepository entity) throws Exception;
+
+    @GET
+    @Path("imageRepositories/{name}")
+    ImageRepository getImageRepository(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+    @PUT
+    @Path("imageRepositories/{name}")
+    @Consumes("application/json")
+    String updateImageRepository(@PathParam("name") @NotNull String name, ImageRepository entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("imageRepositories/{name}")
+    String deleteImageRepository(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 
     // DeploymentConfigs

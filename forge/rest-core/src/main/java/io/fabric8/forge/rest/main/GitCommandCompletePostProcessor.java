@@ -21,6 +21,10 @@ import io.fabric8.cdi.annotations.Service;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
+import io.fabric8.kubernetes.api.Config;
+import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.JsonHelper;
@@ -32,8 +36,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -56,61 +62,68 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
     private final String gitUser;
     private final String gitPassword;
+    private final KubernetesClient kubernetes;
     private final String gogsUrl;
+    private String address;
 
     @Inject
-    public GitCommandCompletePostProcessor(@Service("GOGS_HTTP_SERVICE") String gogsUrl,
+    public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
+                                           @Service("GOGS_HTTP_SERVICE") String gogsUrl,
                                            @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                                            @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
+        this.kubernetes = kubernetes;
         this.gogsUrl = gogsUrl;
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
+        this.address = gogsUrl.toString();
+        int idx = address.indexOf("://");
+        if (idx > 0) {
+            address = "http" + address.substring(idx);
+        }
+        if (!address.endsWith("/")) {
+            address += "/";
+        }
     }
 
     @Override
     public void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results) {
-        if (name.equals("project-new")) {
-            String targetLocation = null;
-            String named = null;
-            List<Map<String, String>> inputList = executionRequest.getInputList();
-            for (Map<String, String> map : inputList) {
+        // TODO take these from the request?
+        String user = gitUser;
+        String password = gitPassword;
+        String authorEmail = "dummy@gmail.com";
+        String branch = "master";
+
+        try {
+            CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(user, password);
+            PersonIdent personIdent = new PersonIdent(user, authorEmail);
+
+            if (name.equals("project-new")) {
+                String targetLocation = null;
+                String named = null;
+                List<Map<String, String>> inputList = executionRequest.getInputList();
+                for (Map<String, String> map : inputList) {
+                    if (Strings.isNullOrEmpty(targetLocation)) {
+                        targetLocation = map.get("targetLocation");
+                    }
+                    if (Strings.isNullOrEmpty(named)) {
+                        named = map.get("named");
+                    }
+                }
                 if (Strings.isNullOrEmpty(targetLocation)) {
-                    targetLocation = map.get("targetLocation");
-                }
-                if (Strings.isNullOrEmpty(named)) {
-                    named = map.get("named");
-                }
-            }
-            if (Strings.isNullOrEmpty(targetLocation)) {
-                LOG.warn("No targetLocation could be found!");
-            } else if (Strings.isNullOrEmpty(named)) {
-                LOG.warn("No named could be found!");
-            } else {
-                File basedir = new File(targetLocation, named);
-                if (!basedir.isDirectory() || !basedir.exists()) {
-                    LOG.warn("Generated project folder does not exist: " + basedir.getAbsolutePath());
+                    LOG.warn("No targetLocation could be found!");
+                } else if (Strings.isNullOrEmpty(named)) {
+                    LOG.warn("No named could be found!");
                 } else {
-                    // lets git init...
-                    System.out.println("About to git init folder " + basedir.getAbsolutePath());
-                    InitCommand initCommand = Git.init();
-                    initCommand.setDirectory(basedir);
-                    try {
+                    File basedir = new File(targetLocation, named);
+                    if (!basedir.isDirectory() || !basedir.exists()) {
+                        LOG.warn("Generated project folder does not exist: " + basedir.getAbsolutePath());
+                    } else {
+                        // lets git init...
+                        System.out.println("About to git init folder " + basedir.getAbsolutePath());
+                        InitCommand initCommand = Git.init();
+                        initCommand.setDirectory(basedir);
                         Git git = initCommand.call();
                         LOG.info("Initialised an empty git configuration repo at {}", basedir.getAbsolutePath());
-
-                        String address = gogsUrl.toString();
-                        int idx = address.indexOf("://");
-                        if (idx > 0) {
-                            address = "http" + address.substring(idx);
-                        }
-                        if (!address.endsWith("/")) {
-                            address += "/";
-                        }
-
-                        // TODO take these from the request?
-                        String user = gitUser;
-                        String password = gitPassword;
-                        String authorEmail = "dummy@gmail.com";
 
                         // lets create the repository
                         GitRepoClient repoClient = new GitRepoClient(address, user, password);
@@ -136,31 +149,285 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         // now lets import the code and publish
                         LOG.info("Using remote: " + remote);
-                        String branch = "master";
                         configureBranch(git, branch, remote);
 
-                        CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(user, password);
-                        PersonIdent personIdent = new PersonIdent(user, authorEmail);
-
                         doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
-                    } catch (Exception e) {
-                        handleException(e);
-                    }
 
+                        createKubernetesResources(user, named, remote, branch);
+                    }
+                }
+            } else {
+                File basedir = context.getInitialSelectionFile();
+                String absolutePath = basedir != null ? basedir.getAbsolutePath() : null;
+                System.out.println("===== added or mutated files in folder: " + absolutePath);
+                if (basedir != null) {
+                    File gitFolder = new File(basedir, ".git");
+                    if (gitFolder.exists() && gitFolder.isDirectory()) {
+                        System.out.println("======== has .git folder so lets add/commit files then push!");
+                        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+                        Repository repository = builder.setGitDir(gitFolder)
+                                .readEnvironment() // scan environment GIT_* variables
+                                .findGitDir() // scan up the file system tree
+                                .build();
+
+                        Git git = new Git(repository);
+                        String remote = getRemote(git, branch);
+                        if (remote == null) {
+                            LOG.warn("Could not find remote git URL for folder " + basedir.getAbsolutePath());
+                        } else {
+                            doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
+                        }
+                    }
                 }
             }
-        } else {
-            File basedir = context.getInitialSelectionFile();
-            String absolutePath = basedir != null ? basedir.getAbsolutePath() : null;
-            System.out.println("===== added or mutated files in folder: " + absolutePath);
-            if (basedir != null) {
-                File gitFolder = new File(basedir, ".git");
-                if (gitFolder.exists() && gitFolder.isDirectory()) {
-                    System.out.println("======== has .git folder so lets add/commit files then push!");
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
 
+    /**
+     * Lets create an ImageRegistry, BuildConfig and DeploymentConfig for the new project
+     */
+    protected void createKubernetesResources(String user, String buildName, String remote, String branch) throws Exception {
+        String imageTag = "test";
+        String secret = "secret101";
+        String builderImage = "fabric8/java-main";
+        String osapiVersion = "v1beta1";
+        String namespace = "default";
+        String gitServiceName = "gogs-http-service";
+
+
+        // TODO we should replace the remote with the actual service IP address???
+
+        io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(gitServiceName, namespace);
+
+        String gitAddress = null;
+        if (service != null) {
+            String portalIP = service.getPortalIP();
+            if (!Strings.isNullOrEmpty(portalIP)) {
+                Integer port = service.getPort();
+                String prefix = "http://";
+                String postfix = "";
+                if (port != null) {
+                    if (port == 443) {
+                        prefix = "https://";
+                    } else if (port != 80) {
+                        postfix = ":" + port;
+                    }
                 }
+                gitAddress = prefix + portalIP + postfix;
             }
         }
+        if (gitAddress == null) {
+            LOG.warn("Could not find service " + gitServiceName + " for namespace " + namespace);
+            gitAddress = address;
+        }
+
+        String json = "\n" +
+                "{\n" +
+                "   \"annotations\":{\n" +
+                "      \"description\":\"This is an end to end example of a Continuous Delivery pipeline running on OpenShift v3\"\n" +
+                "   },\n" +
+                "   \"apiVersion\":\"" + osapiVersion + "\",\n" +
+                "   \"kind\":\"List\",\n" +
+                "   \"items\":[\n" +
+                "      {\n" +
+                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
+                "         \"kind\":\"ImageRepository\",\n" +
+                "         \"metadata\":{\n" +
+                "            \"labels\":{\n" +
+                "               \"name\":\"" + buildName + "\",\n" +
+                "               \"user\":\"" + user + "\"\n" +
+                "            },\n" +
+                "            \"name\":\"" + buildName + "\"\n" +
+                "         }\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
+                "         \"kind\":\"BuildConfig\",\n" +
+                "         \"metadata\":{\n" +
+                "            \"labels\":{\n" +
+                "               \"name\":\"" + buildName + "\",\n" +
+                "               \"user\":\"" + user + "\"\n" +
+                "            },\n" +
+                "            \"name\":\"" + buildName + "\"\n" +
+                "         },\n" +
+                "         \"parameters\":{\n" +
+                "            \"output\":{\n" +
+                "               \"to\":{\n" +
+                "                  \"name\":\"" + buildName + "\"\n" +
+                "               },\n" +
+                "               \"tag\":\"test\"\n" +
+                "            },\n" +
+                "            \"source\":{\n" +
+                "               \"git\":{\n" +
+                "                  \"uri\":\"" + gitAddress + "/" + user + "/" + buildName + ".git\"\n" +
+                "               },\n" +
+                "               \"type\":\"Git\"\n" +
+                "            },\n" +
+                "            \"strategy\":{\n" +
+                "               \"stiStrategy\":{\n" +
+                "                  \"builderImage\":\"" + builderImage + "\",\n" +
+                "                  \"image\":\"" + builderImage + "\"\n" +
+                "               },\n" +
+                "               \"type\":\"STI\"\n" +
+                "            }\n" +
+                "         },\n" +
+                "         \"triggers\":[\n" +
+                "            {\n" +
+                "               \"github\":{\n" +
+                "                  \"secret\":\"" + secret + "\"\n" +
+                "               },\n" +
+                "               \"type\":\"github\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "               \"generic\":{\n" +
+                "                  \"secret\":\"" + secret + "\"\n" +
+                "               },\n" +
+                "               \"type\":\"generic\"\n" +
+                "            }\n" +
+                "         ]\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
+                "         \"kind\":\"DeploymentConfig\",\n" +
+                "         \"metadata\":{\n" +
+                "            \"name\":\"" + buildName + "-deploy\"\n" +
+                "         },\n" +
+                "         \"template\":{\n" +
+                "            \"controllerTemplate\":{\n" +
+                "               \"podTemplate\":{\n" +
+                "                  \"desiredState\":{\n" +
+                "                     \"manifest\":{\n" +
+                "                        \"containers\":[\n" +
+                "                           {\n" +
+                "                              \"image\":\"" + buildName + "\",\n" +
+                "                              \"name\":\"" + buildName + "\",\n" +
+                "                              \"ports\":[\n" +
+                "                                 {\n" +
+                "                                    \"containerPort\":8778\n" +
+                "                                 }\n" +
+                "                              ]\n" +
+                "                           }\n" +
+                "                        ],\n" +
+                "                        \"version\":\"" + imageTag + "\"\n" +
+                "                     }\n" +
+                "                  },\n" +
+                "                  \"labels\":{\n" +
+                "                     \"name\":\"" + buildName + "\",\n" +
+                "                     \"user\":\"" + user + "\"\n" +
+                "                  }\n" +
+                "               },\n" +
+                "               \"replicaSelector\":{\n" +
+                "                  \"name\":\"" + buildName + "\",\n" +
+                "                  \"user\":\"" + user + "\"\n" +
+                "               },\n" +
+                "               \"replicas\":1\n" +
+                "            },\n" +
+                "            \"strategy\":{\n" +
+                "               \"type\":\"Recreate\"\n" +
+                "            }\n" +
+                "         },\n" +
+                "         \"triggers\":[\n" +
+                "            {\n" +
+                "               \"type\":\"ImageChange\",\n" +
+                "               \"imageChangeParams\":{\n" +
+                "                  \"automatic\":true,\n" +
+                "                  \"containerNames\":[\n" +
+                "                     \"" + buildName + "\"\n" +
+                "                  ],\n" +
+                "                  \"from\":{\n" +
+                "                     \"name\":\"" + buildName + "\"\n" +
+                "                  },\n" +
+                "                  \"tag\":\"" + imageTag + "\"\n" +
+                "               }\n" +
+                "            }\n" +
+                "         ]\n" +
+                "      }" +
+                "   ]\n" +
+                "}";
+
+        Controller controller = new Controller(kubernetes);
+        controller.applyJson(json);
+
+
+/*        Map<String,String> labels = new LinkedHashMap<>();
+        labels.put("name", buildName);
+        labels.put("user", user);
+
+        Map<String,String> to = new LinkedHashMap<>();
+        to.put("name", buildName);
+
+        ImageRepository imageRepository = new ImageRepository();
+        imageRepository.setKind("ImageRepository");
+        imageRepository.setApiVersion(osapiVersion);
+        imageRepository.setName(buildName);
+        imageRepository.setLabels(labels);
+        handleKubernetesResourceCreation(imageRepository.getKind(), imageRepository, kubernetes.createImageRepository(imageRepository));
+
+        BuildConfig buildConfig = new BuildConfig();
+        buildConfig.setKind("BuildConfig");
+        buildConfig.setApiVersion(osapiVersion);
+        buildConfig.setName(buildName);
+        buildConfig.setLabels(labels);
+
+        BuildOutput output = new BuildOutput();
+        // TODO should be to: { labels }
+        //output.setRegistry(buildName);
+        output.getAdditionalProperties().put("to", to);
+        output.setImageTag(imageTag);
+
+        BuildSource source = new BuildSource();
+        source.setType("Git");
+        GitBuildSource git = new GitBuildSource();
+        git.setUri(remote);
+        source.setGit(git);
+
+        BuildStrategy strategy = new BuildStrategy();
+        strategy.setType("STI");
+        STIBuildStrategy stiStrategy = new STIBuildStrategy();
+        stiStrategy.setImage(builderImage);
+        // TODO
+        //stiStrategy.setBuilderImage(builderImage);
+        stiStrategy.getAdditionalProperties().put("builderImage", builderImage);
+        strategy.setStiStrategy(stiStrategy);
+
+        BuildParameters parameters = new BuildParameters();
+        parameters.setOutput(output);
+        parameters.setSource(source);
+        parameters.setStrategy(strategy);
+        buildConfig.setParameters(parameters);
+
+        BuildTriggerPolicy github = new BuildTriggerPolicy();
+        github.setType("github");
+        WebHookTrigger githubTrigger = new WebHookTrigger();
+        githubTrigger.setSecret(secret);
+        github.setGithub(githubTrigger);
+
+        BuildTriggerPolicy generic = new BuildTriggerPolicy();
+        generic.setType("generic");
+        WebHookTrigger genericTrigger = new WebHookTrigger();
+        genericTrigger.setSecret(secret);
+        generic.setGeneric(genericTrigger);
+
+        List<BuildTriggerPolicy> triggers = new ArrayList<>();
+        triggers.add(github);
+        triggers.add(generic);
+        buildConfig.setTriggers(triggers);
+        
+        handleKubernetesResourceCreation(buildConfig.getKind(), buildConfig, kubernetes.createBuildConfig(buildConfig));*/
+    }
+
+    protected void handleKubernetesResourceCreation(String kind, Object entity, String results) {
+        System.out.println("Created " + entity + ". Results: " + results);
+    }
+
+    /**
+     * Returns the remote git URL for the given branch
+     */
+    protected String getRemote(Git git, String branch) {
+        StoredConfig config = git.getRepository().getConfig();
+        return config.getString("branch", branch, "remote");
     }
 
     protected void configureBranch(Git git, String branch, String remote) {
@@ -198,18 +465,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
 
     protected void doAddCommitAndPushFiles(Git git, CredentialsProvider credentials, PersonIdent personIdent, String remote, String branch) throws IOException, GitAPIException {
-/*
-        File rootDir = GitHelpers.getRootGitDirectory(git);
-        File[] files = rootDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (!ignoreRootFile(file)) {
-                    String relativePath = getFilePattern(rootDir, file);
-                    git.add().addFilepattern(relativePath).call();
-                }
-            }
-        }
-*/
         git.add().addFilepattern(".").call();
         doCommitAndPush(git, "Initial import", credentials, personIdent, remote, branch);
     }
@@ -234,16 +489,10 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         }
         return answer;
-
     }
 
     protected boolean isPushOnCommit() {
         return true;
-    }
-
-    protected boolean ignoreRootFile(File file) {
-        String name = file.getName().toLowerCase();
-        return name.equals(".git") || name.equals("tmp") || name.equals("target");
     }
 
     protected void handleException(Throwable e) {

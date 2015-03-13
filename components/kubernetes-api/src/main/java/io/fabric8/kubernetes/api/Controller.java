@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -146,8 +149,6 @@ public class Controller {
     public void apply(Object dto, String sourceName) throws IOException {
         if (dto instanceof Config) {
             applyConfig((Config) dto, sourceName);
-        } else if (dto instanceof Entity) {
-            applyEntity((Entity) dto, sourceName);
         } else if (dto instanceof JsonNode) {
             JsonNode tree = (JsonNode) dto;
             JsonNode kindNode = tree.get("kind");
@@ -163,8 +164,8 @@ public class Controller {
             } else {
                 LOG.warn("No JSON kind for: " + tree);
             }
-        } else {
-            LOG.warn("Unknown Kublelet from " + sourceName + ". Object: " + dto);
+        } else if (dto instanceof Entity) {
+            applyEntity(dto, sourceName);
         }
     }
 
@@ -178,6 +179,12 @@ public class Controller {
             applyReplicationController((ReplicationController) dto, sourceName);
         } else if (dto instanceof Service) {
             applyService((Service) dto, sourceName);
+        } else if (dto instanceof BuildConfig) {
+            applyBuildConfig((BuildConfig) dto, sourceName);
+        } else if (dto instanceof DeploymentConfig) {
+            applyDeploymentConfig((DeploymentConfig) dto, sourceName);
+        } else if (dto instanceof ImageRepository) {
+            applyImageRepository((ImageRepository) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -190,6 +197,32 @@ public class Controller {
             LOG.error("Failed to create controller from " + sourceName + ". " + e, e);
         }
     }
+
+    public void applyBuildConfig(BuildConfig entity, String sourceName) {
+        try {
+            kubernetes.createBuildConfig(entity);
+        } catch (Exception e) {
+            LOG.error("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+        }
+    }
+
+    public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
+        try {
+            kubernetes.createDeploymentConfig(entity);
+        } catch (Exception e) {
+            LOG.error("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
+        }
+    }
+
+    public void applyImageRepository(ImageRepository entity, String sourceName) {
+        try {
+            kubernetes.createImageRepository(entity);
+        } catch (Exception e) {
+            LOG.error("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+        }
+    }
+
+
 
     public void applyConfig(Config config, String sourceName) throws IOException {
         List<Object> entities = getEntities(config);
