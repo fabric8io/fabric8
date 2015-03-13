@@ -1,4 +1,7 @@
 
+### 2.0.32
+* Fixes [these 60 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.32)
+
 ### 2.0.29
 
 * Migrated to hawtio 2.x for the console making it small and lightweight with [optional modular services](fabric8Apps.md)
