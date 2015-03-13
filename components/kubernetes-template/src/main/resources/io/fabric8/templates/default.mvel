@@ -1,7 +1,7 @@
 {
-  "id": "@{name}-config",
-  "kind": "Config",
-  "apiVersion": "v1beta1",
+  "id": "@{name}-list",
+  "kind": "List",
+  "apiVersion": "v1beta2",
   "name": "@{name}-config",
   "description": "Configuration for @{name}",
   "items": [

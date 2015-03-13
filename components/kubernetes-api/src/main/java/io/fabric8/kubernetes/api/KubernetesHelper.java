@@ -244,8 +244,8 @@ public class KubernetesHelper {
             return objectMapper.reader(ReplicationController.class).readValue(json);
         } else if (Objects.equal("Service", kind)) {
             return objectMapper.reader(Service.class).readValue(json);
-        } else if (Objects.equal("Config", kind)) {
-            return loadConfig(json);
+        } else if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
+            return loadList(json);
 /*
         } else if (Objects.equal("Template", kind)) {
             return objectMapper.reader(Template.class).readValue(json);
@@ -255,7 +255,7 @@ public class KubernetesHelper {
         }
     }
 
-    protected static Config loadConfig(byte[] data) throws IOException {
+    protected static Config loadList(byte[] data) throws IOException {
         Config config = new Config();
         List<Object> itemList = new ArrayList<>();
         config.setItems(itemList);
@@ -924,11 +924,12 @@ public class KubernetesHelper {
                 }
             }
         }
-        // lets create a new config
+
+        // lets create a new list
         JsonNodeFactory factory = createNodeFactory();
         ObjectNode config = factory.objectNode();
         config.set("apiVersion", factory.textNode("v1beta2"));
-        config.set("kind", factory.textNode("Config"));
+        config.set("kind", factory.textNode("List"));
         config.set("items", factory.arrayNode());
         return config;
     }

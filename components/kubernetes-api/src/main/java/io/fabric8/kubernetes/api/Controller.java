@@ -153,8 +153,8 @@ public class Controller {
             JsonNode kindNode = tree.get("kind");
             if (kindNode != null) {
                 String kind = kindNode.asText();
-                if (Objects.equal("Config", kind)) {
-                    applyConfig(tree, sourceName);
+                if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
+                    applyList(tree, sourceName);
                 } else if (Objects.equal("Template", kind)) {
                     applyTemplateConfig(tree, sourceName);
                 } else {
@@ -198,7 +198,7 @@ public class Controller {
         }
     }
 
-    public void applyConfig(JsonNode entity, String sourceName) throws IOException {
+    public void applyList(JsonNode entity, String sourceName) throws IOException {
         JsonNode items = entity.get("items");
         if (items != null) {
             for (JsonNode item : items) {

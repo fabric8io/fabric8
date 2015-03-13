@@ -173,7 +173,7 @@ public class TemplateGeneratorTest {
         LOG.info("Loaded json DTO: " + loadedDTO);
 
 
-        assertTrue("Loaded DTO should be an ObjectNode but was " + loadedDTO, loadedDTO instanceof Config);
+        assertThat(loadedDTO).describedAs("loaded DTO").isNotNull().isInstanceOf(Config.class);
         Config config = (Config) loadedDTO;
         return KubernetesHelper.getEntities(config);
     }
