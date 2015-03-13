@@ -16,6 +16,10 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
@@ -369,6 +373,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetesExtensions().createConfig(entity);
     }
 
+    @Override
+    @POST
+    @Path("deploymentConfigs")
+    public String createDeploymentConfig(DeploymentConfig entity) throws Exception {
+        return getKubernetesExtensions().createDeploymentConfig(entity);
+    }
+
     @POST
     @Path("template")
     @Consumes("application/json")
@@ -381,6 +392,71 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Consumes("application/json")
     public String createTemplateConfig(Object entity) throws Exception {
         return getKubernetesExtensions().createTemplateConfig(entity);
+    }
+
+    @Override
+    @DELETE
+    @Path("buildConfigs/{name}")
+    public String deleteBuildConfig(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteBuildConfig(name, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("deploymentConfigs/{name}")
+    public String deleteDeploymentConfig(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteDeploymentConfig(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("buildConfigs/{name}")
+    public BuildConfig getBuildConfig(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().getBuildConfig(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("buildConfigs")
+    public BuildConfigList getBuildConfigs(String namespace) {
+        return getKubernetesExtensions().getBuildConfigs(namespace);
+    }
+
+    @Override
+    @GET
+    @Path("deploymentConfigs/{name}")
+    public DeploymentConfig getDeploymentConfig(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().getDeploymentConfig(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("deploymentConfigs")
+    public DeploymentConfigList getDeploymentConfigs(String namespace) {
+        return getKubernetesExtensions().getDeploymentConfigs(namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("buildConfigs/{name}")
+    @Consumes("application/json")
+    public String updateBuildConfig(@NotNull String name, BuildConfig entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateBuildConfig(name, entity, namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("deploymentConfigs/{name}")
+    @Consumes("application/json")
+    public String updateDeploymentConfig(@NotNull String name, DeploymentConfig entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateDeploymentConfig(name, entity, namespace);
+    }
+
+    @Override
+    @POST
+    @Path("buildConfigs")
+    public String createBuildConfig(BuildConfig entity) throws Exception {
+        return getKubernetesExtensions().createBuildConfig(entity);
     }
 
     // Helper methods

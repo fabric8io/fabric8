@@ -15,10 +15,22 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigList;
+
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 /**
  * Various Kubernetes extensions defined in the OpenShift project
@@ -42,4 +54,56 @@ public interface KubernetesExtensions {
     @Path("template")
     @Consumes("application/json")
     String createTemplate(Object entity) throws Exception;
+
+
+    // BuildConfigs
+    //-------------------------------------------------------------------------
+
+    @GET
+    @Path("buildConfigs")
+    BuildConfigList getBuildConfigs(@QueryParam("namespace") String namespace);
+
+    @POST
+    @Path("buildConfigs")
+    String createBuildConfig(BuildConfig entity) throws Exception;
+
+    @GET
+    @Path("buildConfigs/{name}")
+    BuildConfig getBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+    @PUT
+    @Path("buildConfigs/{name}")
+    @Consumes("application/json")
+    String updateBuildConfig(@PathParam("name") @NotNull String name, BuildConfig entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("buildConfigs/{name}")
+    String deleteBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+
+    // DeploymentConfigs
+    //-------------------------------------------------------------------------
+
+    @GET
+    @Path("deploymentConfigs")
+    DeploymentConfigList getDeploymentConfigs(@QueryParam("namespace") String namespace);
+
+    @POST
+    @Path("deploymentConfigs")
+    String createDeploymentConfig(DeploymentConfig entity) throws Exception;
+
+    @GET
+    @Path("deploymentConfigs/{name}")
+    DeploymentConfig getDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+    @PUT
+    @Path("deploymentConfigs/{name}")
+    @Consumes("application/json")
+    String updateDeploymentConfig(@PathParam("name") @NotNull String name, DeploymentConfig entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("deploymentConfigs/{name}")
+    String deleteDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+
 }
