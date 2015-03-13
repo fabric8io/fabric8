@@ -17,34 +17,25 @@
  */
 package io.fabric8.repo.git;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import java.util.List;
-
 /**
- * REST API for working with git hosted repositories using back ends like
- * <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
  */
-@Path("api/v1")
-@Produces("application/json")
-@Consumes("application/json")
-public interface GitApi {
+public class WebhookConfig extends DtoSupport {
+    private String url;
+    private String contentType = "json";
 
-    @GET
-    @Path("user/repos")
-    public List<RepositoryDTO> listRepositories();
+    public String getContentType() {
+        return contentType;
+    }
 
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
 
-    @POST
-    @Path("user/repos")
-    public RepositoryDTO createRepository(CreateRepositoryDTO dto);
+    public String getUrl() {
+        return url;
+    }
 
-
-    @POST
-    @Path("repos/{owner}/{repo}/hooks")
-    public WebHookDTO createWebhook(@PathParam("owner") String owner, @PathParam("repo") String repo, CreateWebhookDTO dto);
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

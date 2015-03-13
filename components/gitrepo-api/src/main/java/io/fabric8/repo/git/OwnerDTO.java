@@ -19,7 +19,7 @@ package io.fabric8.repo.git;
 
 /**
  */
-public class OwnerDTO extends DtoSupport {
+public class OwnerDTO extends EntitySupport {
     private String login;
     private String username;
     private String fullName;

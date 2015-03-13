@@ -55,6 +55,9 @@ public class KubernetesHelper {
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
 
+    public static final String defaultApiVersion = "v1beta2";
+    public static final String defaultOsApiVersion = "v1beta1";
+
     public static String getId(Pod entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());

@@ -17,34 +17,19 @@
  */
 package io.fabric8.repo.git;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import java.util.List;
-
 /**
- * REST API for working with git hosted repositories using back ends like
- * <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
+ * A helper base class for entity DTOs with an id returned from
+ * the remote API
  */
-@Path("api/v1")
-@Produces("application/json")
-@Consumes("application/json")
-public interface GitApi {
+public abstract class EntitySupport extends DtoSupport {
+    private Long id;
 
-    @GET
-    @Path("user/repos")
-    public List<RepositoryDTO> listRepositories();
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    @POST
-    @Path("user/repos")
-    public RepositoryDTO createRepository(CreateRepositoryDTO dto);
-
-
-    @POST
-    @Path("repos/{owner}/{repo}/hooks")
-    public WebHookDTO createWebhook(@PathParam("owner") String owner, @PathParam("repo") String repo, CreateWebhookDTO dto);
 }

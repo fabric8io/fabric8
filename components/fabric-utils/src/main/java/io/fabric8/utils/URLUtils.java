@@ -168,4 +168,22 @@ public class URLUtils {
         }
     }
 
+    /**
+     * Joins all the given strings, ignoring nulls so that they form a URL with / between the paths without a // if the previous path ends with / and the next path starts with / unless a path item is blank
+     *
+     * @returns the strings concatenated together with / while avoiding a double // between non blank strings.
+     */
+    public static String pathJoin(String... strings) {
+        StringBuilder buffer = new StringBuilder();
+        for (String string : strings) {
+            if (string == null) {
+                continue;
+            }
+            if (buffer.length() > 0 && !buffer.toString().endsWith("/") && !string.startsWith("/")) {
+                buffer.append("/");
+            }
+            buffer.append(string);
+        }
+        return buffer.toString();
+    }
 }

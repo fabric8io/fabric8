@@ -19,17 +19,19 @@ package io.fabric8.forge.rest.main;
 
 import io.fabric8.cdi.annotations.Service;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
+import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
-import io.fabric8.kubernetes.api.Config;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.repo.git.CreateRepositoryDTO;
+import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
-import io.fabric8.repo.git.JsonHelper;
 import io.fabric8.repo.git.RepositoryDTO;
+import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.URLUtils;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -45,7 +47,6 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
-import io.fabric8.forge.rest.dto.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.repo.git.JsonHelper.toJson;
 
 /**
  * For new projects; lets git add, git commit, git push otherwise lets git add/commit/push any new/udpated changes
@@ -133,7 +136,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         String fullName = null;
                         RepositoryDTO repository = repoClient.createRepository(createRepository);
                         if (repository != null) {
-                            System.out.println("Got repository: " + JsonHelper.toJson(repository));
+                            System.out.println("Got repository: " + toJson(repository));
                             fullName = repository.getFullName();
                         }
                         if (Strings.isNullOrEmpty(fullName)) {
@@ -153,7 +156,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
 
-                        createKubernetesResources(user, named, remote, branch);
+                        createKubernetesResources(user, named, remote, branch, repoClient);
                     }
                 }
             } else {
@@ -188,7 +191,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     /**
      * Lets create an ImageRegistry, BuildConfig and DeploymentConfig for the new project
      */
-    protected void createKubernetesResources(String user, String buildName, String remote, String branch) throws Exception {
+    protected void createKubernetesResources(String user, String buildName, String remote, String branch, GitRepoClient repoClient) throws Exception {
         String imageTag = "test";
         String secret = "secret101";
         String builderImage = "fabric8/java-main";
@@ -199,25 +202,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         // TODO we should replace the remote with the actual service IP address???
 
-        io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(gitServiceName, namespace);
-
-        String gitAddress = null;
-        if (service != null) {
-            String portalIP = service.getPortalIP();
-            if (!Strings.isNullOrEmpty(portalIP)) {
-                Integer port = service.getPort();
-                String prefix = "http://";
-                String postfix = "";
-                if (port != null) {
-                    if (port == 443) {
-                        prefix = "https://";
-                    } else if (port != 80) {
-                        postfix = ":" + port;
-                    }
-                }
-                gitAddress = prefix + portalIP + postfix;
-            }
-        }
+        String gitAddress = getServiceAddress(gitServiceName, namespace);
         if (gitAddress == null) {
             LOG.warn("Could not find service " + gitServiceName + " for namespace " + namespace);
             gitAddress = address;
@@ -351,6 +336,28 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         controller.applyJson(json);
 
 
+        String type = "generic";
+
+        String kubeAddress = getServiceAddress("kubernetes", namespace);
+        if (kubeAddress == null) {
+            kubeAddress = kubernetes.getAddress();
+        }
+
+        String webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
+
+        System.out.println("creating a web hook at: " + webhookUrl);
+        try {
+            CreateWebhookDTO createWebhook = new CreateWebhookDTO();
+            createWebhook.setType("gogs");
+            createWebhook.getConfig().setUrl(webhookUrl);
+            WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
+            System.out.println("Got web hook: " + toJson(webhook));
+        } catch (Exception e) {
+            LOG.warn("Failed to create web hook in git repo: " + e, e);
+        }
+
+
+
 /*        Map<String,String> labels = new LinkedHashMap<>();
         labels.put("name", buildName);
         labels.put("user", user);
@@ -416,6 +423,31 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         buildConfig.setTriggers(triggers);
         
         handleKubernetesResourceCreation(buildConfig.getKind(), buildConfig, kubernetes.createBuildConfig(buildConfig));*/
+    }
+
+    protected String getServiceAddress(String serviceName, String namespace) {
+        io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(serviceName, namespace);
+
+        String gitAddress = null;
+        if (service != null) {
+            String portalIP = service.getPortalIP();
+            if (!Strings.isNullOrEmpty(portalIP)) {
+                Integer port = service.getPort();
+                String prefix = "http://";
+                String postfix = "";
+                if (port != null) {
+                    if (port == 443) {
+                        prefix = "https://";
+                    }
+
+                    if (port != 80) {
+                        postfix = ":" + port;
+                    }
+                }
+                gitAddress = prefix + portalIP + postfix;
+            }
+        }
+        return gitAddress;
     }
 
     protected void handleKubernetesResourceCreation(String kind, Object entity, String results) {

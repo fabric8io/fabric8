@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  */
-public class RepositoryDTO extends DtoSupport {
+public class RepositoryDTO extends EntitySupport {
     private String name;
     private OwnerDTO owner;
     private String fullName;

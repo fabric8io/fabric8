@@ -28,23 +28,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A helper base class for DTOs returning data from
- * the remote API
+ * A helper base class for DTOs
  */
 @JsonNaming(value = PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public abstract class DtoSupport {
-    private Long id;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
