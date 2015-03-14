@@ -17,7 +17,6 @@
 package io.fabric8.cdi.producers;
 
 import io.fabric8.cdi.Services;
-import io.fabric8.utils.Systems;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.InjectionPoint;
