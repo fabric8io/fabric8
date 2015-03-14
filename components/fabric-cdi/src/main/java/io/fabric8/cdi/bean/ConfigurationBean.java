@@ -16,80 +16,74 @@
 
 package io.fabric8.cdi.bean;
 
-import io.fabric8.cdi.annotations.Configuration;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
+import io.fabric8.cdi.producers.ConfigurationProducer;
+import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.util.AnnotationLiteral;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ConfigurationBean<T> extends BaseBean<T> {
+public class ConfigurationBean<T> extends ProducerBean<T> {
 
-    private final String configurationGroup;
+    private static final String SUFFIX = "-config-bean";
+    private static final Map<Key, ConfigurationBean> BEANS = new HashMap<>();
 
-    public ConfigurationBean(Type beanType, String configurationGroup) {
-        super(configurationGroup+"."+beanType, beanType, new ConfigurationQualifier(configurationGroup));
-        this.configurationGroup = configurationGroup;
-    }
+    private final String configurationId;
 
-
-    @Override
-    public T create(CreationalContext<T> creationalContext) {
-        try {
-            T bean = (T) getBeanClass().newInstance();
-            for (Field f : getBeanClass().getDeclaredFields()) {
-                ConfigProperty configProperty = f.getAnnotation(ConfigProperty.class);
-                String name = configProperty.name();
-                String defaultValue = configProperty.defaultValue();
-                String value = ConfigResolver.getPropertyValue(configurationGroup.toUpperCase() + "_" + name, defaultValue);
-                if (f.getType().isAssignableFrom(String.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, value);
-                } else if (f.getType().isAssignableFrom(Boolean.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Boolean.parseBoolean(value));
-                } else if (f.getType().isAssignableFrom(Short.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Short.parseShort(value));
-                } else if (f.getType().isAssignableFrom(Integer.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Integer.parseInt(value));
-                } else if (f.getType().isAssignableFrom(Long.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Long.parseLong(value));
-                } else if (f.getType().isAssignableFrom(Double.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Double.parseDouble(value));
-                } else if (f.getType().isAssignableFrom(Float.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Float.parseFloat(value));
-                }
-            }
-            return bean;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+    public static ConfigurationBean getBean(String configurationId, Class type) {
+        Key key = new Key(configurationId, type);
+        if (BEANS.containsKey(key)) {
+            return BEANS.get(key);
         }
+        ConfigurationBean bean = new ConfigurationBean(configurationId, type);
+        BEANS.put(key, bean);
+        return bean;
     }
 
-    @Override
-    public void destroy(T instance, CreationalContext<T> creationalContext) {
-
+    public static Collection<ConfigurationBean> getBeans() {
+        return BEANS.values();
     }
 
-    private static class ConfigurationQualifier extends AnnotationLiteral<Configuration> implements Configuration {
-        private final String value;
+    private ConfigurationBean(String configurationId, Class<T> type) {
+        super(configurationId + SUFFIX,
+                type,
+                new ConfigurationProducer<T>(configurationId, type),
+                new ConfigurationQualifier(configurationId));
+        this.configurationId = configurationId;
+    }
 
-        private ConfigurationQualifier(String value) {
-            this.value = value;
+    public String getConfigurationId() {
+        return configurationId;
+    }
+
+    private static class Key<T> {
+        private final String configurationId;
+        private final Class<T> type;
+
+        private Key(String configurationId, Class<T> type) {
+            this.configurationId = configurationId;
+            this.type = type;
         }
 
         @Override
-        public String value() {
-            return value;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Key key = (Key) o;
+
+            if (configurationId != null ? !configurationId.equals(key.configurationId) : key.configurationId != null)
+                return false;
+            if (type != null ? !type.equals(key.type) : key.type != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = configurationId != null ? configurationId.hashCode() : 0;
+            result = 31 * result + (type != null ? type.hashCode() : 0);
+            return result;
         }
     }
 }

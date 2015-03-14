@@ -14,23 +14,22 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.weld;
+package io.fabric8.cdi.qualifiers;
 
-import io.fabric8.cdi.Fabric8Extension;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
-import org.junit.Before;
+import io.fabric8.cdi.annotations.Configuration;
 
-public class WeldTestBase {
+import javax.enterprise.util.AnnotationLiteral;
 
-     WeldContainer container;
+public class ConfigurationQualifier extends AnnotationLiteral<Configuration> implements Configuration {
     
-    @Before
-    public void setup() {
-        Weld weld = new Weld();
-        weld.addExtension(new Fabric8Extension());
-        container = weld.initialize();
+    private final String value;
+
+    public ConfigurationQualifier(String value) {
+        this.value = value;
     }
-    
-    
+
+    @Override
+    public String value() {
+        return value;
+    }
 }

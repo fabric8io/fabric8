@@ -18,7 +18,7 @@ package io.fabric8.cdi;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
 
-class KubernetesHolder {
+public class KubernetesHolder {
     
-    static final KubernetesClient KUBERNETES = new KubernetesClient();
+    public static final KubernetesClient KUBERNETES = new KubernetesClient();
 }

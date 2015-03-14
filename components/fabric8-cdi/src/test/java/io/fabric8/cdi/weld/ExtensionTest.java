@@ -16,36 +16,85 @@
 
 package io.fabric8.cdi.weld;
 
-import io.fabric8.cdi.ServiceConverters;
-import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ArchivePaths;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class ExtensionTest extends WeldTestBase {
+import javax.enterprise.inject.New;
+import javax.inject.Inject;
+import java.io.File;
+
+@RunWith(Arquillian.class)
+public class ExtensionTest  {
+    
+    @BeforeClass
+    public static void setUp() {
+        System.setProperty("MY_CONFIG_TEST", "value1");
+        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
+        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
+        System.setProperty("KUBERNETES_PROTOCOL", "https");
+    }
+
+    @Deployment
+    public static WebArchive createDeployment() {
+        return ShrinkWrap.create(WebArchive.class)
+                .addClasses(StringToURL.class, ServiceStringBean.class, ServiceUrlBean.class)
+                .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
+                .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml").resolve("org.apache.deltaspike.core:deltaspike-core-impl").withTransitivity().as(File.class));
+    }
+    
+    @Inject
+    private KubernetesClient kubernetesClient;
+    
+    @Inject
+    @New
+    private ServiceStringBean serviceLocationBean;
+
+    @Inject
+    @New
+    private ServiceUrlBean serviceUrlBean;
+    
+    @Inject
+    @New
+    private StringToURL stringToURL;
     
     @Test
     public void testClientInjection() {
-        container.instance().select(ServiceConverters.class).get();
-        Kubernetes client =  container.instance().select(KubernetesClient.class).get();
-        Assert.assertNotNull(client);
+        Assert.assertNotNull(kubernetesClient);
     }
 
     @Test
     public void testServiceInjection() {
-        TestBean testBean = container.instance().select(TestBean.class).get();
-        Assert.assertNotNull(testBean);
-        Assert.assertNotNull(testBean.getKubernetesUrl());
-        Assert.assertNotNull(testBean.getConsoleUrl());
+        Assert.assertNotNull(serviceLocationBean);
+        Assert.assertNotNull(serviceLocationBean.getKubernetesUrl());
+        Assert.assertNotNull(serviceLocationBean.getConsoleUrl());
     }
 
     @Test
     public void testConfigInjection() {
-        System.setProperty("MY_CONFIG_TEST.1", "value1");
-        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
-        TestBean testBean = container.instance().select(TestBean.class).get();
-        Assert.assertNotNull(testBean);
-        Assert.assertEquals("value1", testBean.getConfigBean().getProperty());
-        Assert.assertEquals("value2", testBean.getOtherConfigBean().getProperty());
+        Assert.assertNotNull(serviceLocationBean);
+        Assert.assertEquals("value1", serviceLocationBean.getConfigBean().getProperty());
+        Assert.assertEquals("value2", serviceLocationBean.getOtherConfigBean().getProperty());
+    }
+
+
+    @Test
+    public void testFactory() {
+        Assert.assertNotNull(serviceUrlBean);
+        Assert.assertNotNull(serviceUrlBean.getKubernetesUrl());
+        Assert.assertNotNull(serviceUrlBean.getConsoleUrl());
+        Assert.assertTrue(serviceUrlBean.getConsoleUrl().toString().startsWith("https"));
+        Assert.assertTrue(serviceUrlBean.getKubernetesUrl().toString().startsWith("https"));
     }
 }

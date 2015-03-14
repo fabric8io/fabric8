@@ -16,6 +16,12 @@
 
 package io.fabric8.cdi.deltaspike;
 
+import org.apache.deltaspike.core.impl.scope.conversation.ConversationBeanHolder;
+import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessBeanAccessHistory;
+import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessBeanHolder;
+import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessViewHistory;
+import org.apache.deltaspike.core.impl.scope.window.WindowBeanHolder;
+import org.apache.deltaspike.core.impl.scope.window.WindowIdHolder;
 import org.apache.deltaspike.core.spi.config.ConfigSourceProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -29,6 +35,10 @@ import java.io.File;
 public class DeltaspikeTestBase {
 
 
+    public static Class[] getDeltaSpikeHolders() {
+        return new Class<?>[]{WindowBeanHolder.class,WindowIdHolder.class,ConversationBeanHolder.class,ViewAccessBeanHolder.class,ViewAccessBeanAccessHistory.class,ViewAccessViewHistory.class};
+    }
+    
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)

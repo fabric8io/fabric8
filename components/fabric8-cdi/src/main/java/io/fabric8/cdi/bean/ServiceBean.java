@@ -17,48 +17,98 @@
 package io.fabric8.cdi.bean;
 
 
-import io.fabric8.cdi.annotations.Service;
+import io.fabric8.cdi.qualifiers.ServiceQualifier;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.util.AnnotationLiteral;
-import java.lang.annotation.Annotation;
+import javax.enterprise.inject.spi.Producer;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ServiceBean extends BaseBean<io.fabric8.kubernetes.api.model.Service> {
+public class ServiceBean<X> extends ProducerBean<X> {
 
-    private final io.fabric8.kubernetes.api.model.Service service;
-
-    public ServiceBean(io.fabric8.kubernetes.api.model.Service service) {
-        super(service.getId(), new ServiceQualifier(service.getId()));
-        this.service = service;
-    }
-
-
-    @Override
-    public String getName() {
-        return service.getId();
-    }
-
-    @Override
-    public io.fabric8.kubernetes.api.model.Service create(CreationalContext<io.fabric8.kubernetes.api.model.Service> creationalContext) {
-        return service;
-    }
-
-    @Override
-    public void destroy(io.fabric8.kubernetes.api.model.Service instance, CreationalContext<io.fabric8.kubernetes.api.model.Service> creationalContext) {
-
+    private static final String SUFFIX = "-service-bean";
+    private static final Map<Key, ServiceBean> BEANS = new ConcurrentHashMap<>();
+    private final String serviceId;
+    
+    public static final ServiceBean getBean(String serviceId, Class type) {
+        for (Key k : BEANS.keySet()) {
+            if (serviceId.equals(k.serviceId) && type.equals(type)) {
+                return BEANS.get(k);
+            }
+        }
+        Key key = new Key(serviceId, type, null);
+        ServiceBean bean = new ServiceBean(serviceId, type, null);
+        BEANS.put(key, bean);
+        return bean;
     }
     
-    private static class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
-        private final String value;
+    
+    public static final Collection<ServiceBean> getBeans() {
+        return BEANS.values();
+    }
 
-        private ServiceQualifier(String value) {
-            this.value = value;
+    public static void doWith(Type type, Callback callback) {
+        for (Map.Entry<Key, ServiceBean> entry : BEANS.entrySet()) {
+            Key key = entry.getKey();
+            if (type.equals(key.type)) {
+                ServiceBean newBean = callback.apply(BEANS.remove(key));
+                Key newKey = new Key(newBean.getId(), newBean.getBeanClass(), newBean.getProducer());
+                BEANS.put(newKey, newBean);
+            }
+        }
+    }
+    
+    private ServiceBean(String serviceId, Class type, Producer<X> producer) {
+        super(serviceId + SUFFIX, type, producer, new ServiceQualifier(serviceId));
+        this.serviceId = serviceId;
+    }
+
+    public ServiceBean withProducer(Producer producer) {
+        return new ServiceBean(serviceId, getBeanClass(), producer);
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    private static final class Key {
+        private final String serviceId;
+        private final Class type;
+        private final Producer producer;
+
+
+        private Key(String serviceId, Class type, Producer producer) {
+            this.serviceId = serviceId;
+            this.type = type;
+            this.producer = producer;
         }
 
         @Override
-        public String value() {
-            return value;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Key key = (Key) o;
+
+            if (producer != null ? !producer.equals(key.producer) : key.producer != null) return false;
+            if (serviceId != null ? !serviceId.equals(key.serviceId) : key.serviceId != null) return false;
+            if (type != null ? !type.equals(key.type) : key.type != null) return false;
+
+            return true;
         }
+
+        @Override
+        public int hashCode() {
+            int result = serviceId != null ? serviceId.hashCode() : 0;
+            result = 31 * result + (type != null ? type.hashCode() : 0);
+            result = 31 * result + (producer != null ? producer.hashCode() : 0);
+            return result;
+        }
+    }
+    
+    public static interface Callback {
+        public ServiceBean apply(ServiceBean bean);
+        
     }
 }

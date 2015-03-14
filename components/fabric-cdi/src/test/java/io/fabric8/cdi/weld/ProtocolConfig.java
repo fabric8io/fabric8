@@ -14,20 +14,16 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.annotations;
+package io.fabric8.cdi.weld;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Documented
-public @interface Service {
+public class ProtocolConfig {
+    
+    @ConfigProperty(name = "protocol", defaultValue = "http")
+    private String protocol;
 
-    String value() default "";
+    public String getProtocol() {
+        return protocol;
+    }
 }

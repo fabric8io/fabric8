@@ -14,20 +14,22 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.annotations;
+package io.fabric8.cdi.qualifiers;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.fabric8.cdi.annotations.Service;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Documented
-public @interface Service {
+import javax.enterprise.util.AnnotationLiteral;
 
-    String value() default "";
+public class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
+
+    private final String value;
+
+    public ServiceQualifier(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String value() {
+        return value;
+    }
 }

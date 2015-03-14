@@ -20,9 +20,13 @@ package io.fabric8.cdi.weld;
 import io.fabric8.cdi.annotations.Configuration;
 import io.fabric8.cdi.annotations.Service;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class TestBean {
+@Singleton
+public class ServiceStringBean {
 
     @Inject
     @Service("kubernetes")
@@ -40,7 +44,7 @@ public class TestBean {
     @Configuration("MY_OTHER_CONFIG")
     ConfigBean otherConfigBean;
 
-    public TestBean() {
+    public ServiceStringBean() {
     }
 
     public String getKubernetesUrl() {

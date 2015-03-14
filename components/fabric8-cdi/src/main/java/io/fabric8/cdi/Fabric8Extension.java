@@ -17,77 +17,110 @@
 package io.fabric8.cdi;
 
 import io.fabric8.cdi.annotations.Configuration;
+import io.fabric8.cdi.annotations.Factory;
+import io.fabric8.cdi.annotations.Service;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.KubernetesClientBean;
 import io.fabric8.cdi.bean.KubernetesFactoryBean;
 import io.fabric8.cdi.bean.ServiceBean;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.cdi.bean.ServiceUrlBean;
+import io.fabric8.cdi.producers.FactoryMethodProducer;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.AnnotatedMethod;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
+import javax.enterprise.inject.spi.ProcessManagedBean;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import static io.fabric8.cdi.KubernetesHolder.KUBERNETES;
 
 public class Fabric8Extension implements Extension {
 
-    private final Map<String, io.fabric8.kubernetes.api.model.Service> servicesById;
-    private final Set<ConfigurationBean> configurationBeans = new HashSet<>();
-    
-    
+    public void afterDiscovery(final @Observes AfterBeanDiscovery event) {
+        event.addBean(new KubernetesFactoryBean());
+        event.addBean(new KubernetesClientBean());
 
-    public Fabric8Extension() {
-        Map<String, io.fabric8.kubernetes.api.model.Service> servicesMap = new HashMap<>();
-        for (io.fabric8.kubernetes.api.model.Service service : KUBERNETES.getServices().getItems()) {
-            servicesMap.put(service.getId(), service);
+        for (ServiceUrlBean bean : ServiceUrlBean.getBeans()) {
+            event.addBean(bean);
         }
-        servicesById = Collections.unmodifiableMap(servicesMap);
-    }
-
-    public void init(final @Observes AfterBeanDiscovery discovery) {
-        discovery.addBean(new KubernetesFactoryBean());
-        discovery.addBean(new KubernetesClientBean());
-        for (Map.Entry<String, Service> entry : servicesById.entrySet()) {
-            discovery.addBean(new ServiceBean(entry.getValue()));
+        for (ServiceBean bean : ServiceBean.getBeans()) {
+            if (bean.getProducer() != null) {
+                event.addBean(bean);
+            }
         }
-        
-        for (ConfigurationBean bean : configurationBeans) {
-            discovery.addBean(bean);
+        for (ConfigurationBean b : ConfigurationBean.getBeans()) {
+            event.addBean(b);
         }
     }
 
 
-    public <X,Y> void onInjectionTarget(@Observes ProcessInjectionPoint<X,Y> event, BeanManager beanManager) {
+    public <T, X> void onInjectionPoint(@Observes ProcessInjectionPoint<T, X> event) {
         final InjectionPoint injectionPoint = event.getInjectionPoint();
-        if (isConfigurationInjectionPoint(injectionPoint)) {
+        if (isServiceInjectionPoint(injectionPoint)) {
+            Annotated annotated = injectionPoint.getAnnotated();
+            Service service = annotated.getAnnotation(Service.class);
+            String serviceId = service.value();
+            Type type = annotated.getBaseType();
+            if (type.equals(String.class)) {
+                ServiceUrlBean.getBean(serviceId);
+            } else {
+                ServiceBean.getBean(serviceId, (Class) type);
+            }
+        } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
             Configuration configuration = annotated.getAnnotation(Configuration.class);
             Type type = injectionPoint.getType();
-            String configurationGroup = configuration.value();
-            configurationBeans.add(new ConfigurationBean(type, configurationGroup));
+            String configurationId = configuration.value();
+            ConfigurationBean.getBean(configurationId, (Class) type);
+        }
+    }
+
+    public <X> void onManagedBean(final @Observes ProcessManagedBean<X> event) {
+        for (final AnnotatedMethod<?> method : event.getAnnotatedBeanClass().getMethods()) {
+            final Factory factory = method.getAnnotation(Factory.class);
+            if (factory != null) {
+                Type returnType = method.getJavaMember().getReturnType();
+                ServiceBean.doWith(returnType, new ServiceBean.Callback() {
+                    @Override
+                    public ServiceBean apply(ServiceBean bean) {
+                        String serviceId = bean.getServiceId();
+                        return bean.withProducer(new FactoryMethodProducer(event.getBean(), method, serviceId));
+                    }
+                });
+            }
         }
     }
 
     /**
      * Checks if the InjectionPoint is annotated with the @Configuration qualifier.
-     * @param injectionPoint    The injection point.
+     *
+     * @param injectionPoint The injection point.
      * @return
      */
     public boolean isConfigurationInjectionPoint(InjectionPoint injectionPoint) {
         Set<Annotation> qualifiers = injectionPoint.getQualifiers();
         for (Annotation annotation : qualifiers) {
             if (annotation.annotationType().isAssignableFrom(Configuration.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the InjectionPoint is annotated with the @Service qualifier.
+     *
+     * @param injectionPoint The injection point.
+     * @return
+     */
+    public boolean isServiceInjectionPoint(InjectionPoint injectionPoint) {
+        Set<Annotation> qualifiers = injectionPoint.getQualifiers();
+        for (Annotation annotation : qualifiers) {
+            if (annotation.annotationType().isAssignableFrom(Service.class)) {
                 return true;
             }
         }

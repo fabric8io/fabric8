@@ -42,7 +42,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
             }
     };
 
-    private Type beanType;
+    private Class<T> beanType;
     private final String name;
     private final Set<Type> types;
     private final Set<Annotation> qualifiers;
@@ -54,7 +54,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Type t = ((Class) beanType).getSuperclass(); !allTypes.contains(Object.class); t = ((Class) t).getSuperclass()) {
+        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
             allTypes.add(t);
         }
 
@@ -69,7 +69,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Type t = ((Class) beanType).getSuperclass(); !allTypes.contains(Object.class); t = ((Class) t).getSuperclass()) {
+        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
             allTypes.add(t);
         }
 
@@ -77,20 +77,19 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_QUALIFIERS)));
     }
 
-    public BaseBean(String name, Type beanType, Annotation ... annotations) {
+    public BaseBean(String name, Class beanType, Annotation ... annotations) {
         this.name = name;
         this.beanType = beanType;
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Type t = ((Class) beanType).getSuperclass(); !allTypes.contains(Object.class); t = ((Class) t).getSuperclass()) {
+        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
             allTypes.add(t);
         }
 
         types = Collections.unmodifiableSet(new HashSet<>(allTypes));
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(annotations)));
     }
-
 
     @Override
     public String getName() {
@@ -131,7 +130,6 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
     public Class<? extends Annotation> getScope() {
         return ApplicationScoped.class;
     }
-
 
     @Override
     public Set<Class<? extends Annotation>> getStereotypes() {
