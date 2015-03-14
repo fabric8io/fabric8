@@ -71,7 +71,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
     @Inject
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
-                                           @Service("GOGS_HTTP_SERVICE") String gogsUrl,
+                                           @Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
                                            @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                                            @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
         this.kubernetes = kubernetes;
@@ -79,10 +79,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
         this.address = gogsUrl.toString();
-        int idx = address.indexOf("://");
-        if (idx > 0) {
-            address = "http" + address.substring(idx);
-        }
         if (!address.endsWith("/")) {
             address += "/";
         }
