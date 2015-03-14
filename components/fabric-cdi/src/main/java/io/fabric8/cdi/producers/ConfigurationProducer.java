@@ -45,33 +45,35 @@ public class ConfigurationProducer<T> implements Producer<T> {
             T bean = (T) type.newInstance();
             for (Field f : type.getDeclaredFields()) {
                 ConfigProperty configProperty = f.getAnnotation(ConfigProperty.class);
-                String name = configProperty.name();
-                String defaultValue = configProperty.defaultValue();
+                if (configProperty != null) {
+                    String name = configProperty.name();
+                    String defaultValue = configProperty.defaultValue();
 
-                String value = ConfigResolver.getPropertyValue((configurationId + "_" + name)
-                        .replaceAll("-", "_")
-                        .toUpperCase(), defaultValue);
-                if (f.getType().isAssignableFrom(String.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, value);
-                } else if (f.getType().isAssignableFrom(Boolean.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Boolean.parseBoolean(value));
-                } else if (f.getType().isAssignableFrom(Short.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Short.parseShort(value));
-                } else if (f.getType().isAssignableFrom(Integer.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Integer.parseInt(value));
-                } else if (f.getType().isAssignableFrom(Long.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Long.parseLong(value));
-                } else if (f.getType().isAssignableFrom(Double.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Double.parseDouble(value));
-                } else if (f.getType().isAssignableFrom(Float.class)) {
-                    f.setAccessible(true);
-                    f.set(bean, Float.parseFloat(value));
+                    String value = ConfigResolver.getPropertyValue((configurationId + "_" + name)
+                            .replaceAll("-", "_")
+                            .toUpperCase(), defaultValue);
+                    if (f.getType().isAssignableFrom(String.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, value);
+                    } else if (f.getType().isAssignableFrom(Boolean.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Boolean.parseBoolean(value));
+                    } else if (f.getType().isAssignableFrom(Short.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Short.parseShort(value));
+                    } else if (f.getType().isAssignableFrom(Integer.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Integer.parseInt(value));
+                    } else if (f.getType().isAssignableFrom(Long.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Long.parseLong(value));
+                    } else if (f.getType().isAssignableFrom(Double.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Double.parseDouble(value));
+                    } else if (f.getType().isAssignableFrom(Float.class)) {
+                        f.setAccessible(true);
+                        f.set(bean, Float.parseFloat(value));
+                    }
                 }
             }
             return bean;
