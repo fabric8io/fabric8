@@ -29,16 +29,18 @@ public class ServiceBean<X> extends ProducerBean<X> {
 
     private static final String SUFFIX = "-service-bean";
     private static final Map<Key, ServiceBean> BEANS = new ConcurrentHashMap<>();
-    private final String serviceId;
     
-    public static final ServiceBean getBean(String serviceId, Class type) {
+    private final String serviceId;
+    private final String serviceProtocol;
+    
+    public static final ServiceBean getBean(String serviceId, String serviceProtocol, Class type) {
         for (Key k : BEANS.keySet()) {
             if (serviceId.equals(k.serviceId) && type.equals(type)) {
                 return BEANS.get(k);
             }
         }
-        Key key = new Key(serviceId, type, null);
-        ServiceBean bean = new ServiceBean(serviceId, type, null);
+        Key key = new Key(serviceId, serviceProtocol, type, null);
+        ServiceBean bean = new ServiceBean(serviceId, serviceProtocol, type, null);
         BEANS.put(key, bean);
         return bean;
     }
@@ -53,33 +55,40 @@ public class ServiceBean<X> extends ProducerBean<X> {
             Key key = entry.getKey();
             if (type.equals(key.type)) {
                 ServiceBean newBean = callback.apply(BEANS.remove(key));
-                Key newKey = new Key(newBean.getId(), newBean.getBeanClass(), newBean.getProducer());
+                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getBeanClass(), newBean.getProducer());
                 BEANS.put(newKey, newBean);
             }
         }
     }
     
-    private ServiceBean(String serviceId, Class type, Producer<X> producer) {
-        super(serviceId + SUFFIX, type, producer, new ServiceQualifier(serviceId));
+    private ServiceBean(String serviceId, String serviceProtocol, Class type, Producer<X> producer) {
+        super(serviceId + SUFFIX, type, producer, new ServiceQualifier(serviceId, serviceProtocol));
         this.serviceId = serviceId;
+        this.serviceProtocol = serviceProtocol;
     }
 
     public ServiceBean withProducer(Producer producer) {
-        return new ServiceBean(serviceId, getBeanClass(), producer);
+        return new ServiceBean(serviceId, serviceProtocol, getBeanClass(), producer);
     }
 
     public String getServiceId() {
         return serviceId;
     }
 
+    public String getServiceProtocol() {
+        return serviceProtocol;
+    }
+
     private static final class Key {
         private final String serviceId;
+        private final String serviceProtocol;
         private final Class type;
         private final Producer producer;
 
 
-        private Key(String serviceId, Class type, Producer producer) {
+        private Key(String serviceId, String serviceProtocol, Class type, Producer producer) {
             this.serviceId = serviceId;
+            this.serviceProtocol = serviceProtocol;
             this.type = type;
             this.producer = producer;
         }
@@ -93,6 +102,8 @@ public class ServiceBean<X> extends ProducerBean<X> {
 
             if (producer != null ? !producer.equals(key.producer) : key.producer != null) return false;
             if (serviceId != null ? !serviceId.equals(key.serviceId) : key.serviceId != null) return false;
+            if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null)
+                return false;
             if (type != null ? !type.equals(key.type) : key.type != null) return false;
 
             return true;
@@ -101,6 +112,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
         @Override
         public int hashCode() {
             int result = serviceId != null ? serviceId.hashCode() : 0;
+            result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
             result = 31 * result + (type != null ? type.hashCode() : 0);
             result = 31 * result + (producer != null ? producer.hashCode() : 0);
             return result;

@@ -82,6 +82,11 @@ public class ExtensionTest  {
     }
 
     @Test
+    public void testProtocolOveride() {
+        Assert.assertTrue(serviceLocationBean.getTestUrl().startsWith("tst"));
+    }
+
+    @Test
     public void testConfigInjection() {
         Assert.assertNotNull(serviceLocationBean);
         Assert.assertEquals("value1", serviceLocationBean.getConfigBean().getProperty());

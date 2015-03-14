@@ -27,20 +27,16 @@ import java.util.Set;
 
 public class ServiceUrlProducer implements Producer<String> {
 
-    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
-    private static final String HOST_SUFFIX = "_SERVICE_HOST";
-    private static final String PORT_SUFFIX = "_SERVICE_PORT";
-    private static final String PROTO_SUFFIX = "_TCP_PROTO";
-    private static final String DEFAULT_PROTO = "tcp";
-    
     private final String serviceId;
+    private final String serviceProtocol;
 
     public ServiceUrlProducer(String serviceId) {
-        this.serviceId = serviceId;
+        this(serviceId, Services.DEFAULT_PROTO);
     }
     
-    public ServiceUrlProducer withServiceId(String serviceId) {
-        return new ServiceUrlProducer(serviceId);
+    public ServiceUrlProducer(String serviceId, String serviceProtocol) {
+        this.serviceId = serviceId;
+        this.serviceProtocol = serviceProtocol;
     }
 
     @Override
@@ -48,7 +44,7 @@ public class ServiceUrlProducer implements Producer<String> {
         if (serviceId == null) {
             throw new IllegalArgumentException("No service id has been specified.");
         }
-        return Services.toServiceUrl(serviceId);
+        return Services.toServiceUrl(serviceId, serviceProtocol);
     }
 
     @Override
@@ -59,21 +55,5 @@ public class ServiceUrlProducer implements Producer<String> {
     @Override
     public Set<InjectionPoint> getInjectionPoints() {
         return Collections.emptySet();
-    }
-
-    private static String toEnv(String str) {
-        return str.toUpperCase().replaceAll("-", "_");
-    }
-
-    private static String hostOfService(String id) {
-        return Systems.getEnvVarOrSystemProperty(toEnv(id + HOST_SUFFIX), "");
-    }
-
-    private static String portOfService(String id) {
-        return Systems.getEnvVarOrSystemProperty(toEnv(id + PORT_SUFFIX), "");
-    }
-
-    private static String protocolOfService(String id, String servicePort) {
-        return Systems.getEnvVarOrSystemProperty(toEnv(id + PORT_SUFFIX + "_" + servicePort + PROTO_SUFFIX), DEFAULT_PROTO);
     }
 }

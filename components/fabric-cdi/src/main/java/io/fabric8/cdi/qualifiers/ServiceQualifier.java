@@ -22,14 +22,21 @@ import javax.enterprise.util.AnnotationLiteral;
 
 public class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
 
-    private final String value;
+    private final String id;
+    private final String protocol;
 
-    public ServiceQualifier(String value) {
-        this.value = value;
+    public ServiceQualifier(String id, String protocol) {
+        this.id = id;
+        this.protocol = protocol;
     }
 
     @Override
-    public String value() {
-        return value;
+    public String id() {
+        return id;
+    }
+
+    @Override
+    public String protocol() {
+        return protocol;
     }
 }

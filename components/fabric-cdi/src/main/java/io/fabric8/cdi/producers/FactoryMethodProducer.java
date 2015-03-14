@@ -42,15 +42,17 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     private final Bean<T> bean;
     private final AnnotatedMethod<X> factoryMethod;
     private final String serviceId;
+    private final String serviceProtocol;
 
-    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId) {
+    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId, String serviceProtocol) {
         this.bean = bean;
         this.factoryMethod = factoryMethod;
         this.serviceId = serviceId;
+        this.serviceProtocol = serviceProtocol;
     }
 
     public FactoryMethodProducer<T, X> withServiceId(String serviceId) {
-        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId);
+        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId, serviceProtocol);
     }
 
     @Override
@@ -62,7 +64,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             Service service = parameter.getAnnotation(Service.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
             if (service != null) {
-                String serviceUrl = getServiceUrl(serviceId, ctx);
+                String serviceUrl = getServiceUrl(serviceId, serviceProtocol,  ctx);
                 arguments.add(serviceUrl);
             } else if (configuration != null) {
                 Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
@@ -92,15 +94,16 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     /**
      * Get Service URL from the context or create a producer. 
      * @param serviceId
+     * @param serviceProtocol 
      * @param context
      * @return
      */
-    private String getServiceUrl(String serviceId, CreationalContext context) {
+    private String getServiceUrl(String serviceId, String serviceProtocol, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, new ServiceQualifier(serviceId));
+            return (String) BeanProvider.getContextualReference((Class) String.class, new ServiceQualifier(serviceId, serviceProtocol));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            return ServiceUrlBean.getBean(serviceId).getProducer().produce(context);
+            return ServiceUrlBean.getBean(serviceId, serviceProtocol).getProducer().produce(context);
         }
     }
 

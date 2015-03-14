@@ -63,12 +63,13 @@ public class Fabric8Extension implements Extension {
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
             Service service = annotated.getAnnotation(Service.class);
-            String serviceId = service.value();
+            String serviceId = service.id();
+            String serviceProtocol = service.protocol();
             Type type = annotated.getBaseType();
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceId);
+                ServiceUrlBean.getBean(serviceId, serviceProtocol);
             } else {
-                ServiceBean.getBean(serviceId, (Class) type);
+                ServiceBean.getBean(serviceId, serviceProtocol, (Class) type);
             }
         } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
@@ -88,7 +89,8 @@ public class Fabric8Extension implements Extension {
                     @Override
                     public ServiceBean apply(ServiceBean bean) {
                         String serviceId = bean.getServiceId();
-                        return bean.withProducer(new FactoryMethodProducer(event.getBean(), method, serviceId));
+                        String serviceProtocol = bean.getServiceProtocol();
+                        return bean.withProducer(new FactoryMethodProducer(event.getBean(), method, serviceId, serviceProtocol));
                     }
                 });
             }

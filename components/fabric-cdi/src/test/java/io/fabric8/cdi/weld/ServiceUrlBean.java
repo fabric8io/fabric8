@@ -20,7 +20,6 @@ package io.fabric8.cdi.weld;
 import io.fabric8.cdi.annotations.Configuration;
 import io.fabric8.cdi.annotations.Service;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.net.URL;
@@ -29,11 +28,11 @@ import java.net.URL;
 public class ServiceUrlBean {
 
     @Inject
-    @Service("kubernetes")
+    @Service(id = "kubernetes")
     URL kubernetesUrl;
 
     @Inject
-    @Service("fabric8-console-service")
+    @Service(id = "fabric8-console-service")
     URL consoleUrl;
 
     @Inject

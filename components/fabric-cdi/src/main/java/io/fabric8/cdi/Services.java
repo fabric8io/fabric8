@@ -28,14 +28,14 @@ public class Services {
     private static final String HOST_SUFFIX = "_SERVICE_HOST";
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
-    private static final String DEFAULT_PROTO = "tcp";
+    public static final String DEFAULT_PROTO = "tcp";
 
-    public static String toServiceUrl(String serviceId) {
+    public static String toServiceUrl(String serviceId, String serviceProtocol) {
         io.fabric8.kubernetes.api.model.Service srv = null;
         String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, (String) null);
         String serviceHost = serviceToHost(serviceId);
         String servicePort = serviceToPort(serviceId);
-        String serviceProtocol = serviceToProtocol(serviceId, servicePort);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceId, servicePort);
 
         //1. Inside Kubernetes: Services as ENV vars
         if (Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
@@ -43,8 +43,6 @@ public class Services {
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(namespace)) {
             srv = KUBERNETES.getService(serviceId, namespace);
-            //3. Fallback
-            //TODO: Check if we really need to fallback or fail.
         } else {
             for (io.fabric8.kubernetes.api.model.Service s : KUBERNETES.getServices().getItems()) {
                 if (s.getId().equals(serviceId)) {
@@ -56,7 +54,7 @@ public class Services {
         if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceId + " in namespace: " + namespace);
         }
-        return (srv.getProtocol() + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
+        return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
     }
 
     public static String serviceToHost(String id) {

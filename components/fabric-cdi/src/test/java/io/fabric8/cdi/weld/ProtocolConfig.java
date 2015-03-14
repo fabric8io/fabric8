@@ -18,8 +18,11 @@ package io.fabric8.cdi.weld;
 
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
+import javax.inject.Inject;
+
 public class ProtocolConfig {
     
+    @Inject
     @ConfigProperty(name = "protocol", defaultValue = "http")
     private String protocol;
 

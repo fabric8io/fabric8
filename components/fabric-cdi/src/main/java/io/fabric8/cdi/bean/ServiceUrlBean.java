@@ -27,13 +27,14 @@ import java.util.Map;
 public class ServiceUrlBean extends ProducerBean<String> {
 
     private static final String SUFFIX = "-service-url-bean";
-    private static final Map<String, ServiceUrlBean> BEANS = new HashMap<>();
+    private static final Map<Key, ServiceUrlBean> BEANS = new HashMap<>();
 
-    public static ServiceUrlBean getBean(String key) {
+    public static ServiceUrlBean getBean(String id, String protocol) {
+        Key key = new Key(id, protocol);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceUrlBean bean = new ServiceUrlBean(key);
+        ServiceUrlBean bean = new ServiceUrlBean(id, protocol);
         BEANS.put(key, bean);
         return bean;
     }
@@ -42,14 +43,51 @@ public class ServiceUrlBean extends ProducerBean<String> {
         return BEANS.values();
     }
     private final String serviceId;
+    private final String serviceProtocol;
 
-    private ServiceUrlBean(String serviceId) {
-        super(serviceId + SUFFIX, String.class, new ServiceUrlProducer(serviceId), new ServiceQualifier(serviceId));
+    private ServiceUrlBean(String serviceId, String serviceProtocol) {
+        super(serviceProtocol + serviceId + SUFFIX, String.class, new ServiceUrlProducer(serviceId, serviceProtocol), new ServiceQualifier(serviceId, serviceProtocol));
         this.serviceId = serviceId;
+        this.serviceProtocol = serviceProtocol;
     }
 
     public String getServiceId() {
         return serviceId;
+    }
+
+    public String getServiceProtocol() {
+        return serviceProtocol;
+    }
+    
+    private static final class Key {
+        private final String serviceId;
+        private final String serviceProtocol;
+
+        private Key(String serviceId, String serviceProtocol) {
+            this.serviceId = serviceId;
+            this.serviceProtocol = serviceProtocol;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Key key = (Key) o;
+
+            if (serviceId != null ? !serviceId.equals(key.serviceId) : key.serviceId != null) return false;
+            if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null)
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = serviceId != null ? serviceId.hashCode() : 0;
+            result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
+            return result;
+        }
     }
 }
 
