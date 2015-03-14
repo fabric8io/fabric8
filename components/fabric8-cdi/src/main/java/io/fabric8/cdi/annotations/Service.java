@@ -18,7 +18,6 @@ package io.fabric8.cdi.annotations;
 
 import io.fabric8.cdi.Services;
 
-import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
