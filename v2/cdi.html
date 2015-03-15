@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.5" data-basepath="." data-revision="1426233402813">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="1426394124489">
     
 
 <div class="book-summary">
@@ -799,9 +799,10 @@
 <p>Using CDI it is possible to:</p>
 <ul>
 <li>Inject a fabric8 managed kubernetes client.</li>
-<li>Inject coordinates to kubernetes service using the @Service.</li>
-<li>Inject a client for a kubernetes service using the @Service.</li>
+<li>Inject URL to kubernetes service using the @Service.</li>
+<li>Inject a client for a kubernetes service using the @Service and @Factory.</li>
 <li>Inject configuration provided as Environamnt Variables.</li>
+<li>Create scopes of configuration using the @Configuration.</li>
 </ul>
 <p>The CDI extension works for application that live both inside and outside of kubernetes. So it can be used safely in kubernetes and hybrid deployments for easier consumption of kubernetes managed services.</p>
 <h3 id="the-service-annotation"><a name="the-service-annotation" class="anchor" href="#the-service-annotation"><span class="fa fa-link"></span></a>The @Service annotation</h3>
@@ -816,18 +817,21 @@ private String service.
 <p>If your Java code is running outside of Kubernetes then @Service will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
 <h3 id="creating-custom-objects"><a name="creating-custom-objects" class="anchor" href="#creating-custom-objects"><span class="fa fa-link"></span></a>Creating custom objects</h3>
 <p>In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.</p>
-<pre><code>@Inject
-@New
-ServiceConverters converters; 
-
-@Produces
+<pre><code>@Produces
 @Service
 public MyClient create(InjectionPoint ip) {
-    MyClient result;
-    String coords = converters.serviceToString(ip);
-    //create the client
-    return client;
+    Service service = ip.getAnnotated().getAnnotation(Service.class);
+    String url = Services.toServiceUrl(service.getId(), service.getProtocol());
+    return new MyClient(url);
 }
+</code></pre><h3 id="using-factories"><a name="using-factories" class="anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
+<p>The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
+To simplify the code Fabric8 provides the @Factory annotation.</p>
+<pre><code>   @Factory
+   @Service
+   public MyClient create(@Service String url) {
+       return new MyClient(url);
+   }
 </code></pre><h3 id="integration-with-apache-deltaspike"><a name="integration-with-apache-deltaspike" class="anchor" href="#integration-with-apache-deltaspike"><span class="fa fa-link"></span></a>Integration with Apache Deltaspike</h3>
 <p>In kubernetes its quite common to pass around configuration via Environment Variables. Outside of kubernetes java developers often use System properties, property files and what not.
 DeltaSpike provides an awesome extension which works great along with the fabric8 extension that allows the user to inject configuration form various sources:</p>
@@ -840,29 +844,65 @@ DeltaSpike provides an awesome extension which works great along with the fabric
 <h4 id="the-configproperty-annotation"><a name="the-configproperty-annotation" class="anchor" href="#the-configproperty-annotation"><span class="fa fa-link"></span></a>The @ConfigProperty annotation</h4>
 <p>Using the @ConfigProperty annotation the user can inject configuration from the sources mentioned above. The lookup is performed in the exact same order provided above.
 It&apos;s use is pretty straight-forward:</p>
-<pre><code>@Inject
-@ConfigProperty(name=&quot;MY_KEY&quot;, defaultValue=&quot;MY_VALUE&quot;)
-private String key;
-</code></pre><h4 id="putting-it-all-together"><a name="putting-it-all-together" class="anchor" href="#putting-it-all-together"><span class="fa fa-link"></span></a>Putting it all together</h4>
+<h4 id="putting-it-all-together"><a name="putting-it-all-together" class="anchor" href="#putting-it-all-together"><span class="fa fa-link"></span></a>Putting it all together</h4>
 <p>In most case, when we need to consume a service we need both the coordinates of the service and static configuration data, like thread pool configuration, maximum number of connections etc.
 So it makes sense when we create the &quot;factory&quot; for our client, to also inject configuration. For example:</p>
 <pre><code>@Inject
-@New
-ServiceConverters converters; 
-
-@Inject
 @ConfigProperty(name=&quot;CONNECTION_TIMEOUT&quot;, defaultValue=&quot;10000L&quot;)
 private Long timeout; 
 
 @Produces
 @Service
-public MyClient create(InjectionPoint ip) {
-    MyClient result;
-    String coords = converters.serviceToString(ip);
-    //create the client with time out.
-    return client;
+public MyClient create(@Service url) {
+    return new MyClient(url, timeout);
 }
-</code></pre>
+</code></pre><p>But what happens if we need  to create multiple instances of MyClient each configured differently?</p>
+<h4 id="the-configuration-annotation"><a name="the-configuration-annotation" class="anchor" href="#the-configuration-annotation"><span class="fa fa-link"></span></a>The @Configuration annotation</h4>
+<p>The configuration annotation allows you to group a set of configuration properties together as part of a bean and instantiate it with different configuration values, depending the context.</p>
+<p>For example let&apos;s assume that <strong>MyClient</strong> which has been used in the previous examples, requires a timeout and a pool size for its configuration. And we need to configure multiple instances of MyClient.
+The configuration of MyClient can be encapsulated like this:</p>
+<pre><code>public class MyConfig {
+    private final Integer poolSize;
+    private final Long timeout;
+}
+</code></pre><p>The obvious way would be to create 2 classes for MyConfig each using a different set of annotations. The worst part is that then we would also need to create 2 instances of @Produces each consuming a different set of configuration. Which becomes really painful even for a simple example like this.</p>
+<p>The alternative approach is to use the @Configuration annotation and a simple convention: &quot;For all configuration sets, keys are named the same and use a descriminator prefix&quot;. This would allow use to use a single MyConfig class and only specifiy the <strong>descriminator</strong> where we need to.</p>
+<pre><code> public class MyConfig {
+     @Inject
+     @ConfigProperty(name=&quot;POOL_SIZE&quot;, defaultValue=&quot;10&quot;)         
+     private final Integer poolSize;
+
+     @Inject
+     @ConfigProperty(name=&quot;CONNECTION_TIMEOUT&quot;, defaultValue=&quot;10000L&quot;)
+     private final Long timeout;
+ }
+</code></pre><p>The discriminator only needs to be specified at the point where configuration is consumed.</p>
+<pre><code>    @Inject
+    @Configuration(&quot;SERVICE_1&quot;)
+    private MyConfig cfg1;
+
+    @Inject
+    @Configuration(&quot;SERVICE_2&quot;)
+    private MyConfig cfg2;
+</code></pre><h4 id="combining-factory-service-and-configuration-annotations"><a name="combining-factory-service-and-configuration-annotations" class="anchor" href="#combining-factory-service-and-configuration-annotations"><span class="fa fa-link"></span></a>Combining @Factory, @Service and @Configuration annotations</h4>
+<p>To further reduce the amount of boilerplate one could use all of the annotations to create generic factories that accepts as parameters service urls and configuration.</p>
+<pre><code>public class MyFactory {
+    @Factory
+    @Service
+    MyClient create(@Service String url, @Configuration MyConfig cfg) {
+        return MyClient(url, cfg);  
+    }
+}
+</code></pre><p>The you can directly inject the client:</p>
+<pre><code>    @Inject
+    @Service(&quot;SERVICE_1&quot;)
+    private MyClient cl1;
+
+    @Inject
+    @Service(&quot;SERVICE_2&quot;)
+    private MyClient cl2;        
+</code></pre><p>In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.</p>
+
                     
                     </section>
                 
