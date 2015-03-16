@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1426394124489">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1426506181515">
     
 
 <div class="book-summary">
@@ -829,8 +829,11 @@
  Copy the following line into <code>/etc/default/docker</code></p>
 <pre><code> DOCKER_OPTS=&quot;--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8&quot;
 </code></pre></li>
-<li><p>Restart the docker service  </p>
+<li><p>Restart the docker service</p>
 <p> <code>service docker restart</code></p>
+</li>
+<li><p>If you are running on Fedora or other distro using <code>firewalld</code>, you will need to add <code>docker0</code> interface to the trusted zone like this:</p>
+<p> <code>firewall-cmd --zone=trusted --change-interface=docker0</code></p>
 </li>
 </ol>
 <h4 id="non-native-docker-install-pre-requisites"><a name="non-native-docker-install-pre-requisites" class="anchor" href="#non-native-docker-install-pre-requisites"><span class="fa fa-link"></span></a>Non-Native Docker Install Pre Requisites</h4>
@@ -841,21 +844,24 @@
 <li>Install the <a href="https://docs.docker.com/installation/" target="_blank">Docker client</a> to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn&apos;t currently a binary distribution for Windows)</li>
 <li>Install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
 <li><p>Check out the Fabric8 Git Repo or download a <a href="https://github.com/fabric8io/fabric8/archive/master.zip" target="_blank">repository snapshot zip</a>:</p>
-<p> <code>git clone git@github.com:fabric8io/fabric8.git</code>  </p>
+<p> <code>git clone git@github.com:fabric8io/fabric8.git</code></p>
 </li>
 <li><p>Create a VM using the Fabric8 VagrantFile at the root of the repository:</p>
-<p> <code>cd fabric8</code><br> <code>vagrant up</code><br> <code>vagrant ssh</code></p>
+<p> <code>cd fabric8</code>
+ <code>vagrant up</code>
+ <code>vagrant ssh</code></p>
 <p>Note: There are alternative Vagrant images available in the <a href="https://github.com/fabric8io/fabric8/tree/master/support/vagrant" target="_blank">Fabric8 Repo</a></p>
 </li>
 <li><p>We recommend priming the docker registry with the images used by Fabric8, and then using Vagrant to take a snapshot so we can revert back to a clean start without re-downloading gigabites of docker images.</p>
 <p> first install the snapshot plugin</p>
-<p> <code>vagrant plugin install vagrant-vbox-snapshot</code>  </p>
-<p> now prime the registry  </p>
-<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p</code>  </p>
+<p> <code>vagrant plugin install vagrant-vbox-snapshot</code></p>
+<p> now prime the registry</p>
+<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p</code></p>
 <p> or if you want to pull down all the docker images for the kitchen sink</p>
-<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -pk</code>  </p>
+<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -pk</code></p>
 <p> take a snapshot of the vagrant image:</p>
-<p> <code>exit</code><br> <code>vagrant snapshot take default cleanstart</code> </p>
+<p> <code>exit</code>
+ <code>vagrant snapshot take default cleanstart</code></p>
 <p> <strong>Now at any point you can reset to the cleanstart snapshot via:</strong></p>
 <p> <code>vagrant snapshot go default cleanstart</code></p>
 </li>
@@ -896,7 +902,7 @@ KUBERNETES_MASTER  - used to interact with the Kubernetes Rest API
 </code></pre><p>These environment variables are presented to you on succesfull completion of the start scirpt, so the easiest thing to do is copy them from the output into your ~/.bashrc (linux) or ~/.profile (mac). Windows users will need to set them individually via the Environment Variables dialog.</p>
 <h4 id="setup-network-routes-non-native-install-only"><a name="setup-network-routes-non-native-install-only" class="anchor" href="#setup-network-routes-non-native-install-only"><span class="fa fa-link"></span></a>Setup Network Routes (Non-Native Install Only)</h4>
 <p>To make sure you can access the IP addresses of services and pods hosted in your Virtual Machine (e.g. the Fabric8 Console), you&apos;ll need to add a network route for the 172.X.X.X IP range:</p>
-<pre><code>sudo route -n delete 172.0.0.0/8  
+<pre><code>sudo route -n delete 172.0.0.0/8
 sudo route -n add 172.0.0.0/8 $DOCKER_IP
 </code></pre><p>Or on Windows run the following from a DOS prompt as an Administrator:</p>
 <pre><code>route add 172.0.0.0 MASK 255.0.0.0 $DOCKER_IP
