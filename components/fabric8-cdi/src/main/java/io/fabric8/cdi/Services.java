@@ -17,6 +17,8 @@
 package io.fabric8.cdi;
 
 
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 
@@ -53,6 +55,12 @@ public class Services {
         }
         if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceId + " in namespace: " + namespace);
+        }
+        RouteList routeList = KUBERNETES.getRoutes(namespace);
+        for (Route route : routeList.getItems()) {
+            if (route.getServiceName().equals(serviceId)) {
+                return (serviceProto + "://" + route.getHost() + ":" + srv.getPort()).toLowerCase();
+            }
         }
         return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
     }
