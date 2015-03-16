@@ -66,6 +66,7 @@
     <module>zookeeper-client</module>
     <module>fabric-jgroups</module>
     <module>fabric-apm</module>
+    <module>fabric-agent</module>
   </modules>
 
   <profiles>
