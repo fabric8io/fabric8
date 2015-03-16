@@ -47,6 +47,7 @@ You will need:
 5. If you are running on Fedora or other distro using `firewalld`, you will need to add `docker0` interface to the trusted zone like this:
 
     `firewall-cmd --zone=trusted --change-interface=docker0`
+    `firewall-cmd --zone=trusted --change-interface=docker0 --permanent`
 
 #### Non-Native Docker Install Pre Requisites
 
