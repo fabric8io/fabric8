@@ -22,6 +22,7 @@ package io.fabric8.repo.git;
 public class WebhookConfig extends DtoSupport {
     private String url;
     private String contentType = "json";
+    private String secret;
 
     public String getContentType() {
         return contentType;
@@ -37,5 +38,13 @@ public class WebhookConfig extends DtoSupport {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }
