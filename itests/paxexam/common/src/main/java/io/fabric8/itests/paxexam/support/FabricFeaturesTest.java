@@ -68,7 +68,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         Provision.containerStatus(containers, PROVISION_TIMEOUT);
 
         for (String featureName : featureNames.split(" ")) {
-            System.out.println(executeCommand("fabric:profile-edit --features "+featureName+" "+targetProfile.getId()));
+            System.out.println(executeCommand("fabric:profile-edit --feature "+featureName+" "+targetProfile.getId()));
         }
 
         System.out.println(executeCommand("fabric:profile-display "+ profileName));
@@ -104,7 +104,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
 
         Provision.containerStatus(containers, PROVISION_TIMEOUT);
         for (String featureName : featureNames.split(" ")) {
-            System.out.println(executeCommand("fabric:profile-edit --delete --features "+featureName+" "+targetProfile.getId()));
+            System.out.println(executeCommand("fabric:profile-edit --delete --feature "+featureName+" "+targetProfile.getId()));
         }
     }
 

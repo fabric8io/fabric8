@@ -59,7 +59,7 @@ public class MQCreateAction extends AbstractAction {
     @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'mq-client-base'")
     protected String clientParentProfile;
 
-    @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile", multiValued = true)
+    @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile. To specify multiple properties, use this flag multiple times.", multiValued = true)
     List<String> properties;
 
     @Option(name = "--config", description = "Configuration to use")
@@ -68,13 +68,13 @@ public class MQCreateAction extends AbstractAction {
     @Option(name = "--data", description = "Data directory for the broker")
     protected String data;
 
-    @Option(name = "--ports", multiValued = true, description = "Port number for the transport connectors")
+    @Option(name = "--port", multiValued = true, description = "Port number for the transport connectors. To specify multiple ports, use this flag multiple times.")
     protected String[] ports;
 
     @Option(name = "--group", description = "Broker group")
     protected String group;
 
-    @Option(name = "--networks", multiValued = true, description = "Broker networks")
+    @Option(name = "--network", multiValued = true, description = "Broker networks. To specify multiple networks, use this flag multiple times.")
     protected String[] networks;
 
     @Option(name = "--networks-username", description = "Broker networks UserName")

@@ -35,7 +35,7 @@ import org.jclouds.compute.domain.NodeMetadata;
 @Command(name = "cloud-firewall-edit", scope = "fabric", description = "Manages the firewall of a cloud container.")
 public class CloudFirewallEdit extends FabricCommand {
 
-    @Option( name = "--port", required = false, multiValued = true, description = "The target port.")
+    @Option( name = "--port", required = false, multiValued = true, description = "The target port. To specify multiple ports, use this flag multiple times.")
     private int[] port;
 
     @Option( name = "--flush", required = false, description = "Flush all rules.")

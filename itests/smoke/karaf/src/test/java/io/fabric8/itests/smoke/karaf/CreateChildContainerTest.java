@@ -98,8 +98,8 @@ public class CreateChildContainerTest {
     @Test
     public void testCreateChildContainerWithCustomZKServerPort() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
-        System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
-        System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
+        System.err.println(CommandSupport.executeCommand("fabric:profile-create --parent default p1"));
+        System.err.println(CommandSupport.executeCommand("fabric:profile-edit --feature fabric-zookeeper-commands p1"));
         BundleContext moduleContext = ServiceLocator.getSystemContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
@@ -121,7 +121,7 @@ public class CreateChildContainerTest {
     @Test
     public void testCreateChildWithMergedConfiguration() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
-        CommandSupport.executeCommand("fabric:profile-create --parents karaf test");
+        CommandSupport.executeCommand("fabric:profile-create --parent karaf test");
         // will wipe out other properties
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.log/size=102 test");
         // will *not* wipe out other properties

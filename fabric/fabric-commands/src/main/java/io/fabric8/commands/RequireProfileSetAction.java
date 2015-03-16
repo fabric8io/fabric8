@@ -32,7 +32,7 @@ public class RequireProfileSetAction extends ChangeRequirementSupport {
     protected Integer minimumInstances;
     @Option(name = "--maximum", multiValued = false, required = false, description = "The maximum number of instances expected of this profile in the fabric")
     protected Integer maximumInstances;
-    @Option(name = "--dependsOn", multiValued = true, required = false, description = "The profile IDs which need to be provisioned before this profile")
+    @Option(name = "--dependsOn", multiValued = true, required = false, description = "The profile IDs which need to be provisioned before this profile. To specify multiple profiles, use this flag multiple times.")
     protected List<String> dependentProfiles;
 
     @Argument(index = 0, required = true, description = "Profile ID")

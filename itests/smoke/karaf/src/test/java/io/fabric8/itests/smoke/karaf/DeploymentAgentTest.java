@@ -84,10 +84,10 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
 
         //We are just want to use a feature repository that is not part of the distribution.
-        CommandSupport.executeCommand("fabric:profile-create --parents feature-camel test-profile");
+        CommandSupport.executeCommand("fabric:profile-create --parent feature-camel test-profile");
         CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
-        CommandSupport.executeCommand("fabric:profile-edit --repositories mvn:io.fabric8.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
-        CommandSupport.executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1");
+        CommandSupport.executeCommand("fabric:profile-edit --repository mvn:io.fabric8.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
+        CommandSupport.executeCommand("fabric:profile-edit --feature fabric-dosgi test-profile 1.1");
         //We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
         //Also remove local repository
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
@@ -125,9 +125,9 @@ public class DeploymentAgentTest {
     public void testResolveOptionalImports() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
 
-        CommandSupport.executeCommand("fabric:profile-create --parents default test-profile");
+        CommandSupport.executeCommand("fabric:profile-create --parent default test-profile");
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/resolve.optional.imports=true test-profile");
-        CommandSupport.executeCommand("fabric:profile-edit --features spring-struts test-profile");
+        CommandSupport.executeCommand("fabric:profile-edit --feature spring-struts test-profile");
 
         BundleContext moduleContext = ServiceLocator.getSystemContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);

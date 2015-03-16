@@ -46,10 +46,10 @@ public class ImportAction extends ZooKeeperCommandSupport {
     @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
     boolean verbose = false;
 
-    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the import. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the import. For multiple include expressions, use this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
 
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the import. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the import. For multiple exclude expressions, use this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     protected String[] nregex;
 
     @Option(name="--dry-run", description="Log the actions that would be performed during an import, but do not actually perform the import.")

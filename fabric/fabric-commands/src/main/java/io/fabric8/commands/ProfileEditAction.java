@@ -74,37 +74,37 @@ public class ProfileEditAction extends AbstractAction {
     static final String FILE_INSTALL_FILENAME_PROPERTY = "felix.fileinstall.filename";
 
 
-    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories. To specify multiple repositories, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-r", aliases = {"--repository"}, description = "Edit the features repositories. To specify multiple repositories, use this flag multiple times.", required = false, multiValued = true)
     private String[] repositories;
 
-    @Option(name = "-f", aliases = {"--features"}, description = "Edit features. To specify multiple features, specify this flag multiple times. For example, --features foo --features bar.", required = false, multiValued = true)
+    @Option(name = "-f", aliases = {"--feature"}, description = "Edit features. To specify multiple features, use this flag multiple times. For example, --feature foo --feature bar.", required = false, multiValued = true)
     private String[] features;
 
-    @Option(name = "-l", aliases = {"--libs"}, description = "Edit libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-l", aliases = {"--lib"}, description = "Edit libraries. To specify multiple libraries, use this flag multiple times.", required = false, multiValued = true)
     private String[] libs;
 
-    @Option(name = "-n", aliases = {"--endorsed"}, description = "Edit endorsed libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-n", aliases = {"--endorsed"}, description = "Edit endorsed libraries. To specify multiple libraries, use this flag multiple times.", required = false, multiValued = true)
     private String[] endorsed;
 
-    @Option(name = "-x", aliases = {"--extension"}, description = "Edit extension libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-x", aliases = {"--extension"}, description = "Edit extension libraries. To specify multiple libraries, use this flag multiple times.", required = false, multiValued = true)
     private String[] extension;
 
-    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles. To specify multiple bundles, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-b", aliases = {"--bundle"}, description = "Edit bundles. To specify multiple bundles, use this flag multiple times.", required = false, multiValued = true)
     private String[] bundles;
 
-    @Option(name = "--fabs", description = "Edit fabs. To specify multiple fabs, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "--fabs", description = "Edit fabs. To specify multiple fabs, use this flag multiple times.", required = false, multiValued = true)
     private String[] fabs;
 
-    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides. To specify multiple libraries, use this flag multiple times.", required = false, multiValued = true)
     private String[] overrides;
 
-    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>. To specify multiple properties, specify this flag multiple times.", required = false, multiValued = true)
+    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>. To specify multiple properties, use this flag multiple times.", required = false, multiValued = true)
     private String[] pidProperties;
 
-    @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container).", required = false, multiValued = true)
+    @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container). To specify multiple properties, use this flag multiple times.", required = false, multiValued = true)
     private String[] systemProperties;
 
-    @Option(name = "-c", aliases = {"--config"}, description = "Edit the Java system properties that affect the karaf container (analogous to editing etc/config.properties in a root container).", required = false, multiValued = true)
+    @Option(name = "-c", aliases = {"--config"}, description = "Edit the Java system properties that affect the karaf container (analogous to editing etc/config.properties in a root container). To specify multiple properties, use this flag multiple times.", required = false, multiValued = true)
     private String[] configProperties;
 
     @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local OSGi config admin", required = false, multiValued = false)

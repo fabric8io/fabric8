@@ -40,7 +40,7 @@ public class ContainerCreateSshAction extends AbstractContainerCreateAction {
     private String host;
     @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
     private String path;
-    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
+    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. To specify multiple variables, use this flag multiple times.")
     private List<String> environmentalVariables;
     @Option(name = "--user", description = "User name for login.")
     private String user;

@@ -51,7 +51,7 @@ public class CloudServiceAdd extends FabricCommand {
     @Option(name = "--owner", required = false, description = "EC2 AMI owner.")
     private String owner;
 
-    @Option(name = "--option", required = false, multiValued = true, description = "Provider specific properties. Example: --option jclouds.regions=us-east-1.")
+    @Option(name = "--option", required = false, multiValued = true, description = "Provider specific properties. To specify multiple properties, use this flag multiple times. Example: --option jclouds.regions=us-east-1 --option x=y")
     private String[] options;
 
     private ComputeRegistry computeRegistry;

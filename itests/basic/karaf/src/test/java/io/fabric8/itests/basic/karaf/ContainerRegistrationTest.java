@@ -87,7 +87,7 @@ public class ContainerRegistrationTest {
         try {
             FabricService fabricService = fabricProxy.getService();
             
-            System.out.println(CommandSupport.executeCommand("fabric:profile-create --parents default child-profile"));
+            System.out.println(CommandSupport.executeCommand("fabric:profile-create --parent default child-profile"));
             Assert.assertTrue(ProvisionSupport.profileAvailable("child-profile", "1.0", ProvisionSupport.PROVISION_TIMEOUT));
 
             Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cntA").withProfiles("child-profile").assertProvisioningResult().build(fabricService);

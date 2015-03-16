@@ -41,10 +41,10 @@ public class ExportAction extends ZooKeeperCommandSupport {
     @Argument(description="Path of the directory to export to")
     String target = System.getProperty("runtime.home") + File.separator + "fabric" + File.separator + "export";
 
-    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, use this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
 
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, use this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String nregex[];
 
     @Option(name="-p", aliases={"--path"}, description="Top level znode to export")

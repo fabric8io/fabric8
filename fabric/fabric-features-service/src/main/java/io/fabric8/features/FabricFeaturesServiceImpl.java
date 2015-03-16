@@ -133,7 +133,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     private void unsupportedAddRepository(URI uri) {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --repositories %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --repository %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
     }
 
     @Override
@@ -147,7 +147,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     private void unsupportedRemoveRepository(URI uri) {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --repositories %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --repository %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
     }
 
     @Override
@@ -215,7 +215,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     private void unsupportedInstallFeature(String s) {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --feature %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
 
     @Override
@@ -243,7 +243,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     private void unsupportedUninstallFeature(String s) {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --feature %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
 
     @Override

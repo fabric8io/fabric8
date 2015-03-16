@@ -92,7 +92,7 @@ public class CreateScriptMojo extends AbstractProfileMojo {
                 writer.write("profile-create");
                 List<String> parentProfiles = notNullList(requirements.getParentProfiles());
                     for (String parentProfile : parentProfiles) {
-                        writer.write(" --parents ");
+                        writer.write(" --parent ");
                         writer.write(parentProfile);
                     }
                 writer.write(" ");
@@ -102,17 +102,17 @@ public class CreateScriptMojo extends AbstractProfileMojo {
             List<String> repos = notNullList(requirements.getFeatureRepositories());
             for (String bundle : bundles) {
                 if (Strings.isNotBlank(bundle)) {
-                    writer.println("profile-edit --bundles " + bundle + " " + profileId);
+                    writer.println("profile-edit --bundle " + bundle + " " + profileId);
                 }
             }
             for (String feature : features) {
                 if (Strings.isNotBlank(feature)) {
-                    writer.println("profile-edit --features " + feature + " " + profileId);
+                    writer.println("profile-edit --feature " + feature + " " + profileId);
                 }
             }
             for (String repo : repos) {
                 if (Strings.isNotBlank(repo)) {
-                    writer.println("profile-edit --repositories " + repo + " " + profileId);
+                    writer.println("profile-edit --repository " + repo + " " + profileId);
                 }
             }
         } finally {

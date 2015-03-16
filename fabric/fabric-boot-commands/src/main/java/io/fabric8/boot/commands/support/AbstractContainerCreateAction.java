@@ -39,7 +39,7 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
 
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
-    @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
+    @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named \"default\".")
     protected Set<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
     protected String resolver;
@@ -53,7 +53,7 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
-    @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
+    @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore. To specify multiple options, use this flag multiple times.")
     protected String[] dataStoreOption;
 
     protected final FabricService fabricService;

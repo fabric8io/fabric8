@@ -33,7 +33,7 @@ public class ContainerResolverSetAction extends AbstractAction {
     @Option(name = "--all", description = "Apply the resolver policy to all containers in the fabric.")
     private boolean all;
 
-    @Option(name = "--container", required = false, multiValued = true, description = "Apply the resolver policy to the specified container.")
+    @Option(name = "--container", required = false, multiValued = true, description = "Apply the resolver policy to the specified container. To specify multiple containers, use this flag multiple times.")
     private List<String> containerIds;
 
     @Argument(index = 0, required = true, multiValued = false, name = "resolver", description = "The resolver policy to set on the specified container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip.")

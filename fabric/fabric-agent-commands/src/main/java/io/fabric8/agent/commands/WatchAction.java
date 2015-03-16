@@ -32,7 +32,7 @@ import static io.fabric8.agent.commands.support.Utils.isSnapshot;
 @Command(name = "watch", scope = "fabric", description = "Watches and updates bundles", detailedDescription = "classpath:watch.txt")
 public class WatchAction extends OsgiCommandSupport {
 
-    @Argument(index = 0, name = "urls", description = "The bundle URLs", required = false, multiValued = true)
+    @Argument(index = 0, name = "url", description = "The bundle URL. To specify multiple URLs, use this flag multiple times.", required = false, multiValued = true)
     List<String> urls;
 
     @Option(name = "-i", aliases = {}, description = "Watch interval", required = false, multiValued = false)

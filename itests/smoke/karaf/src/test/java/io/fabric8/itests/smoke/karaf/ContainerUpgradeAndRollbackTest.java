@@ -96,7 +96,7 @@ public class ContainerUpgradeAndRollbackTest {
 
                 //Make sure that the profile change has been applied before changing the version
                 CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
-                CommandSupport.executeCommand("fabric:profile-edit --features camel-script --features camel-hazelcast feature-camel 1.1");
+                CommandSupport.executeCommand("fabric:profile-edit --feature camel-script --feature camel-hazelcast feature-camel 1.1");
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
                 CommandSupport.executeCommand("fabric:profile-display --version 1.1 feature-camel");

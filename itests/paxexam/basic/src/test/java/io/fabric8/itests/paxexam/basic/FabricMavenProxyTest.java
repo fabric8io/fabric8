@@ -99,8 +99,8 @@ public class FabricMavenProxyTest extends FabricTestSupport {
                 System.out.println("Response:" + response.getStatusLine());
                 Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
 
-                System.out.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
-                System.out.println(executeCommand("fabric:profile-edit --features example-cbr default"));
+                System.out.println(executeCommand("fabric:profile-edit --repository mvn:itest/itest/1.0/xml/features default"));
+                System.out.println(executeCommand("fabric:profile-edit --feature example-cbr default"));
                 Provision.containerStatus(containers, PROVISION_TIMEOUT);
             } finally {
                 ContainerBuilder.destroy(containers);

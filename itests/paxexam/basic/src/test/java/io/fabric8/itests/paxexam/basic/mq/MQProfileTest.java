@@ -114,8 +114,8 @@ public class MQProfileTest extends FabricTestSupport {
         //System.out.println(executeCommand("fabric:info"));
         //System.out.println(executeCommand("fabric:profile-list"));
 
-        executeCommand("mq-create --no-ssl --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
-        executeCommand("mq-create --no-ssl --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
+        executeCommand("mq-create --no-ssl --group us-east --network us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
+        executeCommand("mq-create --no-ssl --group us-west --network us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 4).withName("child").withProfiles("default").assertProvisioningResult().build();

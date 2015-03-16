@@ -48,7 +48,7 @@ public class ContainerCreateCloud extends AbstractContainerCreateAction {
 
     @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
     private String path;
-    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
+    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. To specify multiple variables, use this flag multiple times.")
     private List<String> environmentalVariables;
     @Option(name = "--name", required = true, description = "The context name. Used to distinct between multiple services of the same provider/api.")
     protected String contextName;
@@ -82,7 +82,7 @@ public class ContainerCreateCloud extends AbstractContainerCreateAction {
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
-    @Option(name = "--add-option", required = false, multiValued = true, description = "Node specific properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
+    @Option(name = "--add-option", required = false, multiValued = true, description = "Node specific properties. These options are provider specific. To specify multiple options, use this flag multiple times. Example: --option withSubnetId=someAwsSubnetId.")
     private String[] options;
     @Option(name = "--group", description = "The group tag to use on the new node(s)")
     private String group = "fabric";

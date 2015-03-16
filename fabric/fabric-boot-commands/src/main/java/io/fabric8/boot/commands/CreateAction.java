@@ -75,7 +75,7 @@ class CreateAction extends AbstractAction {
     private long bootstrapTimeout =120000L;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
-    @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
+    @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container. To specify multiple profiles, use this flag multiple times.")
     private Set<String> profiles = null;
     @Option(name = "-v", aliases = "--version", multiValued = false, description = "Chooses the default version.")
     private String version = ContainerOptions.DEFAULT_VERSION;
