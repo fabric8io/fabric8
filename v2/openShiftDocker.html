@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1426506181515">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1426511036891">
     
 
 <div class="book-summary">
@@ -833,7 +833,8 @@
 <p> <code>service docker restart</code></p>
 </li>
 <li><p>If you are running on Fedora or other distro using <code>firewalld</code>, you will need to add <code>docker0</code> interface to the trusted zone like this:</p>
-<p> <code>firewall-cmd --zone=trusted --change-interface=docker0</code></p>
+<p> <code>firewall-cmd --zone=trusted --change-interface=docker0</code>
+ <code>firewall-cmd --zone=trusted --change-interface=docker0 --permanent</code></p>
 </li>
 </ol>
 <h4 id="non-native-docker-install-pre-requisites"><a name="non-native-docker-install-pre-requisites" class="anchor" href="#non-native-docker-install-pre-requisites"><span class="fa fa-link"></span></a>Non-Native Docker Install Pre Requisites</h4>
