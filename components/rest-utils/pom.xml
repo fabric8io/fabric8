@@ -28,7 +28,7 @@
   <artifactId>rest-utils</artifactId>
   <packaging>jar</packaging>
 
-  <name>Rest Utils</name>
+  <name>Fabric8 :: Rest Utils</name>
   <description>A bunch of utility functions to create REST based micro services</description>
 
   <properties>
