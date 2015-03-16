@@ -30,6 +30,7 @@ import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.repo.git.WebHookDTO;
+import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.URLUtils;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
@@ -334,18 +335,24 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         String type = "generic";
 
-        String kubeAddress = getServiceAddress("kubernetes", namespace);
-        if (kubeAddress == null) {
+        //String kubeAddress = getServiceAddress("kubernetes", namespace);
+        String kubeAddress = getServiceAddress("fabric8-console-service", namespace);
+        String webhookUrl;
+        if (kubeAddress != null) {
+            webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
+        } else {
             kubeAddress = kubernetes.getAddress();
+            webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
         }
 
-        String webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
 
         System.out.println("creating a web hook at: " + webhookUrl);
         try {
             CreateWebhookDTO createWebhook = new CreateWebhookDTO();
             createWebhook.setType("gogs");
-            createWebhook.getConfig().setUrl(webhookUrl);
+            WebhookConfig config = createWebhook.getConfig();
+            config.setUrl(webhookUrl);
+            config.setSecret(secret);
             WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
             System.out.println("Got web hook: " + toJson(webhook));
         } catch (Exception e) {
