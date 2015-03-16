@@ -69,6 +69,11 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     }
 
     @Override
+    protected boolean isProjectRequired() {
+        return super.isProjectRequired();
+    }
+
+    @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         String packaging = getProjectPackaging(getSelectedProject(builder));
 
@@ -114,12 +119,7 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
         });
         // only enable main if its required
         main.setEnabled(main.isRequired());
-
-        // TODO: main class lets try to default to
-        // org.apache.camel.cdi.Main
-        // org.apache.camel.spring.Main
-        // // others?
-
+        main.setDefaultValue(DockerSetupHelper.defaultMainClass(getSelectedProject(builder)));
         main.addValidator(new ClassNameValidator(true));
         main.addValueChangeListener(new ValueChangeListener() {
             @Override

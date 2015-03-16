@@ -134,4 +134,26 @@ public class DockerSetupHelper {
         return builder;
     }
 
+    /**
+     * Tries to guess a good default main class to use based on the project.
+     *
+     * @return the suggested main class, or <tt>null</tt> if not possible to guess/find a good candidate
+     */
+    public static String defaultMainClass(Project project) {
+        // try to guess a default main class
+
+        // if camel-spring is on classpath
+        if (CamelProjectHelper.findCamelCDIDependency(project) != null) {
+            return "org.apache.camel.cdi.Main";
+        } else if (CamelProjectHelper.findCamelSpringDependency(project) != null) {
+            return "org.apache.camel.spring.Main";
+        } else if (CamelProjectHelper.findCamelBlueprintDependency(project) != null) {
+            return "org.apache.camel.test.blueprint.Main";
+        }
+
+        // TODO: what about camel-spring-boot ?
+
+        return null;
+    }
+
 }

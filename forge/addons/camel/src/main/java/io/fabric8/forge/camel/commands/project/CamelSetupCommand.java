@@ -15,6 +15,8 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Arrays;
+import java.util.Set;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
@@ -28,6 +30,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -36,6 +39,12 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 public class CamelSetupCommand extends AbstractCamelProjectCommand {
+
+    private String[] choices = new String[]{"camel-core", "camel-blueprint", "camel-cdi", "camel-spring", "camel-spring-boot"};
+
+    @Inject
+    @WithAttributes(label = "kind", required = true, description = "Camel project kind.")
+    private UISelectOne<String> kind;
 
     @Inject
     @WithAttributes(label = "version", required = false, description = "Camel version to use. If none provided then the latest version will be used.")
@@ -66,7 +75,8 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(version);
+        kind.setValueChoices(Arrays.asList(choices));
+        builder.add(kind).add(version);
     }
 
     @Override
@@ -86,6 +96,41 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
 
         core = findCamelCoreDependency(project);
         String camelVersion = core.getCoordinate().getVersion();
+
+        // add additional dependencies based on kind
+        boolean found = false;
+        Set<Dependency> existing = findCamelArtifacts(project);
+        for (Dependency dependency : existing) {
+            if (dependency.getCoordinate().getArtifactId().equals(kind.getValue())) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
+                    .setArtifactId(kind.getValue()).setVersion(core.getCoordinate().getVersion());
+            dependencyInstaller.install(project, component);
+
+            if ("camel-core".equals(kind.getValue())) {
+                // install test dependency
+                DependencyBuilder testComponent = DependencyBuilder.create().setGroupId("org.apache.camel")
+                        .setArtifactId("camel-test").setVersion(core.getCoordinate().getVersion())
+                        .setScopeType("test");
+                dependencyInstaller.install(project, testComponent);
+            } else if ("camel-spring".equals(kind.getValue()) || "camel-spring-boot".equals(kind.getValue())) {
+                // install test dependency
+                DependencyBuilder testComponent = DependencyBuilder.create().setGroupId("org.apache.camel")
+                        .setArtifactId("camel-test-spring").setVersion(core.getCoordinate().getVersion())
+                        .setScopeType("test");
+                dependencyInstaller.install(project, testComponent);
+            } else if ("camel-blueprint".equals(kind.getValue())) {
+                // install test dependency
+                DependencyBuilder testComponent = DependencyBuilder.create().setGroupId("org.apache.camel")
+                        .setArtifactId("camel-test-blueprint").setVersion(core.getCoordinate().getVersion())
+                        .setScopeType("test");
+                dependencyInstaller.install(project, testComponent);
+            }
+        }
 
         // add camel-maven-plugin
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
