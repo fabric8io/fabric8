@@ -81,6 +81,7 @@ public class NewComponentInstanceTest {
 
             CommandController command = testHarness.createCommandController(CamelSetupCommand.class, project.getRoot());
             command.initialize();
+            command.setValueFor("kind", "camel-spring");
 
             Result result = command.execute();
             Assert.assertFalse("Should setup Camel in the project", result instanceof Failed);
