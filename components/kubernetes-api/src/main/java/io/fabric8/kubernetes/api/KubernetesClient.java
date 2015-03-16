@@ -22,6 +22,8 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.ImageRepositoryList;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
@@ -408,6 +410,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("deploymentConfigs/{name}")
     public String deleteDeploymentConfig(@NotNull String name, String namespace) {
         return getKubernetesExtensions().deleteDeploymentConfig(name, namespace);
+    }
+
+    @Override
+    public RouteList getRoutes(@QueryParam("namespace") String namespace) {
+        return getKubernetesExtensions().getRoutes(namespace);
+    }
+
+    @Override
+    public Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace) {
+        return getKubernetesExtensions().getRoute(name, namespace);
     }
 
     @Override

@@ -15,13 +15,14 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.ImageRepositoryList;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -132,5 +133,12 @@ public interface KubernetesExtensions {
     @Path("deploymentConfigs/{name}")
     String deleteDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
+    @GET
+    @Path("routes")
+    RouteList getRoutes(@QueryParam("namespace") String namespace);
+
+    @GET
+    @Path("routes/{name}")
+    Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 }
