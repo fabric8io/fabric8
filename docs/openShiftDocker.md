@@ -40,9 +40,13 @@ You will need:
     Copy the following line into `/etc/default/docker`
 
         DOCKER_OPTS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
-4. Restart the docker service  
-    
+4. Restart the docker service
+
     `service docker restart`
+
+5. If you are running on Fedora or other distro using `firewalld`, you will need to add `docker0` interface to the trusted zone like this:
+
+    `firewall-cmd --zone=trusted --change-interface=docker0`
 
 #### Non-Native Docker Install Pre Requisites
 
@@ -56,11 +60,11 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html)
 3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip):
 
-    `git clone git@github.com:fabric8io/fabric8.git`  
+    `git clone git@github.com:fabric8io/fabric8.git`
 4. Create a VM using the Fabric8 VagrantFile at the root of the repository:
 
-    `cd fabric8`  
-    `vagrant up`   
+    `cd fabric8`
+    `vagrant up`
     `vagrant ssh`
 
    Note: There are alternative Vagrant images available in the [Fabric8 Repo](https://github.com/fabric8io/fabric8/tree/master/support/vagrant)
@@ -69,20 +73,20 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
 
     first install the snapshot plugin
 
-    `vagrant plugin install vagrant-vbox-snapshot`  
+    `vagrant plugin install vagrant-vbox-snapshot`
 
-    now prime the registry  
+    now prime the registry
 
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -p`  
+    `bash <(curl -sSL https://bit.ly/get-fabric8) -p`
 
     or if you want to pull down all the docker images for the kitchen sink
 
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -pk`  
+    `bash <(curl -sSL https://bit.ly/get-fabric8) -pk`
 
     take a snapshot of the vagrant image:
 
-    `exit`  
-    `vagrant snapshot take default cleanstart` 
+    `exit`
+    `vagrant snapshot take default cleanstart`
 
     __Now at any point you can reset to the cleanstart snapshot via:__
 
@@ -133,9 +137,9 @@ And of course flags can be combined, to start from scratch & update all images a
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -kuf
 
----  
+---
 
-### Post Install Steps
+### Post Install Steps
 
 #### Set Environment variables
 
@@ -154,7 +158,7 @@ These environment variables are presented to you on succesfull completion of the
 
 To make sure you can access the IP addresses of services and pods hosted in your Virtual Machine (e.g. the Fabric8 Console), you'll need to add a network route for the 172.X.X.X IP range:
 
-    sudo route -n delete 172.0.0.0/8  
+    sudo route -n delete 172.0.0.0/8
     sudo route -n add 172.0.0.0/8 $DOCKER_IP
 
 Or on Windows run the following from a DOS prompt as an Administrator:
@@ -196,7 +200,7 @@ However you can pipe them into the command line via
     cat mything.json | osc create -f -
 ---
 
-### Miscellaneous 
+### Miscellaneous
 
 #### Restarting OpenShift
 
