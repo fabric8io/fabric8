@@ -105,6 +105,10 @@ public class JubeStepCommand extends AbstractDockerProjectCommand implements UIW
         }
 
         existing = (String) builder.getUIContext().getAttributeMap().get("docker.main");
+        if (existing == null) {
+            // if no main was setup from docker (maybe we are jube only) then try to pick based on project dependencies
+            existing = DockerSetupHelper.defaultMainClass(getSelectedProject(builder));
+        }
         main.setDefaultValue(existing);
         main.setRequired(isMainRequired(from.getValue()));
         main.addValidator(new ClassNameValidator(true));
