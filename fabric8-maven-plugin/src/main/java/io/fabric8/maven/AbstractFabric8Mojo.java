@@ -121,6 +121,9 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
         if (answer == null) {
             answer = getTestClassLoader().getResourceAsStream(iconRef);
         }
+        if (answer == null) {
+            answer = this.getClass().getResourceAsStream(iconRef);
+        }
         return answer;
     }
 
