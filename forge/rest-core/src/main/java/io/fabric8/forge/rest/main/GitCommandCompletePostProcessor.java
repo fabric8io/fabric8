@@ -56,6 +56,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.fabric8.repo.git.JsonHelper.toJson;
 
@@ -64,8 +65,11 @@ import static io.fabric8.repo.git.JsonHelper.toJson;
  */
 public class GitCommandCompletePostProcessor implements CommandCompletePostProcessor {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
+    public static final String PROJECT_NEW_COMMAND = "project-new";
+    public static final String TARGET_LOCATION_PROPERTY = "targetLocation";
     private final String gitUser;
     private final String gitPassword;
+    private final String rootProjectFolder;
     private final KubernetesClient kubernetes;
     private final String gogsUrl;
     private String address;
@@ -74,15 +78,39 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
                                            @Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
                                            @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
-                                           @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
+                                           @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword,
+                                           @ConfigProperty(name = "PROJECT_FOLDER", defaultValue = "/tmp") String rootProjectFolder) {
         this.kubernetes = kubernetes;
         this.gogsUrl = gogsUrl;
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
+        this.rootProjectFolder = rootProjectFolder;
         this.address = gogsUrl.toString();
         if (!address.endsWith("/")) {
             address += "/";
         }
+    }
+
+    @Override
+    public void preprocessRequest(String name, ExecutionRequest executionRequest) {
+        if (Objects.equals(name, PROJECT_NEW_COMMAND)) {
+            List<Map<String, String>> inputList = executionRequest.getInputList();
+            if (inputList != null) {
+                Map<String, String> page1 = inputList.get(0);
+                if (page1 != null) {
+                    if (page1.containsKey(TARGET_LOCATION_PROPERTY)) {
+                        page1.put(TARGET_LOCATION_PROPERTY, getProjectFolderLocation());
+                    }
+                }
+            }
+        }
+    }
+
+    protected String getProjectFolderLocation() {
+        File root = new File(rootProjectFolder);
+        File projectFolder = new File(root, gitUser);
+        projectFolder.mkdirs();
+        return projectFolder.getAbsolutePath();
     }
 
     @Override
@@ -97,7 +125,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(user, password);
             PersonIdent personIdent = new PersonIdent(user, authorEmail);
 
-            if (name.equals("project-new")) {
+            if (name.equals(PROJECT_NEW_COMMAND)) {
                 String targetLocation = null;
                 String named = null;
                 List<Map<String, String>> inputList = executionRequest.getInputList();

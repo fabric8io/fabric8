@@ -167,6 +167,9 @@ public class CommandsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response executeCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
+            if (commandCompletePostProcessor != null) {
+                commandCompletePostProcessor.preprocessRequest(name, executionRequest);
+            }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {
                 UICommand command = getCommandByName(context, name);
@@ -262,6 +265,9 @@ public class CommandsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
+            if (commandCompletePostProcessor != null) {
+                commandCompletePostProcessor.preprocessRequest(name, executionRequest);
+            }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {
                 UICommand command = getCommandByName(context, name);

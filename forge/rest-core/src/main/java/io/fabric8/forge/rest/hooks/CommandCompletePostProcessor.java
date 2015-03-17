@@ -27,4 +27,6 @@ import io.fabric8.forge.rest.dto.ExecutionResult;
  */
 public interface CommandCompletePostProcessor {
     void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results);
+
+    void preprocessRequest(String name, ExecutionRequest executionRequest);
 }
