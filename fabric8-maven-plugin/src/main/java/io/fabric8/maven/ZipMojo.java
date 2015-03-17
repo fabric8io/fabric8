@@ -72,6 +72,8 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 @Mojo(name = "zip", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class ZipMojo extends AbstractFabric8Mojo {
 
+    private static String[] ICON_EXTENSIONS = new String[]{".svg", ".png", ".gif", ".jpg", ".jpeg"};
+
     /**
      * Name of the directory used to create the app configuration zip
      */
@@ -243,13 +245,28 @@ public class ZipMojo extends AbstractFabric8Mojo {
                             return false;
                         }
                         String lower = name.toLowerCase();
-                        return lower.startsWith("icon.") &&
-                                (lower.endsWith(".svg") || lower.endsWith(".png") || lower.endsWith(".gif") || lower.endsWith(".jpg") || lower.endsWith(".jpeg"));
+                        if (lower.startsWith("icon.")) {
+                            for (String ext : ICON_EXTENSIONS) {
+                                if (lower.endsWith(ext)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
                     }
                 });
                 if (icons == null || icons.length == 0) {
                     // lets copy the iconRef
                     InputStream in = loadPluginResource(iconRef);
+                    // maybe it dont have extension so try to find it
+                    for (String ext : ICON_EXTENSIONS) {
+                        String name = iconRef + ext;
+                        in = loadPluginResource(name);
+                        if (in != null) {
+                            iconRef = name;
+                            break;
+                        }
+                    }
                     if (in == null) {
                         getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
                     } else {
