@@ -161,7 +161,8 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
         MavenPlugin plugin = MavenPluginBuilder.create()
                 .setCoordinate(createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
-                .addExecution(ExecutionBuilder.create().setId("json").addGoal("json"));
+                .addExecution(ExecutionBuilder.create().setId("json").addGoal("json"))
+                .addExecution(ExecutionBuilder.create().setId("zip").addGoal("zip"));
         pluginFacet.addPlugin(plugin);
 
         // update properties section in pom.xml
