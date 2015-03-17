@@ -60,6 +60,10 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
     private UISelectOne<String> icon;
 
     @Inject
+    @WithAttributes(label = "test", required = false, defaultValue = "true", description = "Include test dependencies")
+    private UIInput<Boolean> test;
+
+    @Inject
     private DependencyInstaller dependencyInstaller;
 
     @Override
@@ -127,7 +131,7 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
             }
         });
 
-        builder.add(container).add(group).add(icon);
+        builder.add(container).add(group).add(icon).add(test);
     }
 
     @Override
@@ -139,6 +143,19 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
                 .setCoordinate(createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
                 .setScopeType("import");
         dependencyInstaller.installManaged(project, bom);
+
+        // include test dependencies?
+        if (test.getValue() != null && test.getValue()) {
+            Dependency dependency = DependencyBuilder.create()
+                    .setCoordinate(createCoordinate("io.fabric8", "arquillian-fabric8", null))
+                    .setScopeType("test");
+            dependencyInstaller.installManaged(project, dependency);
+
+            dependency = DependencyBuilder.create()
+                    .setCoordinate(createCoordinate("org.jboss.arquillian.junit", "arquillian-junit-container", null))
+                    .setScopeType("test");
+            dependencyInstaller.installManaged(project, dependency);
+        }
 
         // add fabric8 plugin
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
