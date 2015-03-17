@@ -40,7 +40,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
 public class FabricSetupCommand extends AbstractFabricProjectCommand implements UIWizard {
 
-    private String[] platforms = new String[]{"Docker", "Jube", "Both"};
+    private String[] platforms = new String[]{"Docker", "Jube", "Docker-and-Jube"};
 
     @Inject
     @WithAttributes(label = "platform", required = true, description = "The runtime platform")
@@ -57,7 +57,7 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
     public NavigationResult next(UINavigationContext context) throws Exception {
         context.getUIContext().getAttributeMap().put("platform", platform.getValue());
 
-        if ("Both".equals(platform.getValue())) {
+        if ("Docker-and-Jube".equals(platform.getValue())) {
             return Results.navigateTo(DockerStepCommand.class);
         } else if ("Docker".equals(platform.getValue())) {
             return Results.navigateTo(DockerStepCommand.class);

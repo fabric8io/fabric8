@@ -61,7 +61,7 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     public NavigationResult next(UINavigationContext context) throws Exception {
         // should we also include jube?
         String platform = (String) context.getUIContext().getAttributeMap().get("platform");
-        if ("Both".equals(platform)) {
+        if ("Docker-and-Jube".equals(platform)) {
             return Results.navigateTo(JubeStepCommand.class);
         } else {
             return Results.navigateTo(FabricStepCommand.class);
