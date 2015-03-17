@@ -151,9 +151,9 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Using remote: " + remote);
                         configureBranch(git, branch, remote);
 
-                        doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
-
                         createKubernetesResources(user, named, remote, branch, repoClient);
+
+                        doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
                     }
                 }
             } else {
@@ -335,6 +335,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         String type = "generic";
 
+        // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
+        // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
         //String kubeAddress = getServiceAddress("kubernetes", namespace);
         String kubeAddress = getServiceAddress("fabric8-console-service", namespace);
         String webhookUrl;
