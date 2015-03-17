@@ -36,6 +36,7 @@ public class JubeSetupHelper {
         plugin.addExecution(ExecutionBuilder.create().addGoal("build").setPhase("package"));
         pluginFacet.addPlugin(plugin);
 
+        // TODO: the jube plugin can auto download the image, so we may not need to include this in the future
         // install jube image
         String jubeImage = asJubeImage(fromImage);
         Dependency bom = DependencyBuilder.create()
