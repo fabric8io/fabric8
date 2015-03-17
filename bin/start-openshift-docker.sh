@@ -11,7 +11,7 @@ fi
 
 OPENSHIFT_VERSION=v0.3.4
 
-FABRIC8_VERSION=2.0.32
+FABRIC8_VERSION=2.0.33
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
 REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
@@ -168,7 +168,6 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   fi
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE create -f -
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
@@ -177,6 +176,8 @@ else
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
   fi
+
+  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 fi
 
 K8S_SERVICES=$($KUBE get services)
