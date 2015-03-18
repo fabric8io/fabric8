@@ -20,10 +20,10 @@ package io.fabric8.forge.rest;
 import io.fabric8.forge.rest.main.GitUserHelper;
 import io.fabric8.forge.rest.main.RepositoryCache;
 import io.fabric8.forge.rest.main.UserDetails;
-import io.fabric8.forge.rest.model.ProjectsModel;
 import io.fabric8.forge.rest.dto.ProjectDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +46,6 @@ import java.util.List;
 public class ProjectsResource {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectsResource.class);
 
-    @Inject
-    private ProjectsModel projectsModel;
 
     @Inject
     private GitUserHelper gitUserHelper;
@@ -79,7 +77,16 @@ public class ProjectsResource {
 
     protected ProjectDTO createProject(RepositoryDTO repositoryDTO) {
         ProjectDTO project = new ProjectDTO();
-        project.setPath("user/" + repositoryDTO.getFullName());
+        String fullName = repositoryDTO.getFullName();
+        if (Strings.isNotBlank(fullName)) {
+            String[] split = fullName.split("/", 2);
+            if (split != null && split.length > 1) {
+                String user = split[0];
+                String name = split[1];
+                project.setUser(user);
+                project.setName(name);
+            }
+        }
         return project;
     }
 

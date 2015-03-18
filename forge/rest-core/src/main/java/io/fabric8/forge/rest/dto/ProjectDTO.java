@@ -20,13 +20,22 @@ package io.fabric8.forge.rest.dto;
 /**
  */
 public class ProjectDTO {
-    private String path;
+    private String user;
+    private String name;
 
-    public String getPath() {
-        return path;
+    public String getName() {
+        return name;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }
