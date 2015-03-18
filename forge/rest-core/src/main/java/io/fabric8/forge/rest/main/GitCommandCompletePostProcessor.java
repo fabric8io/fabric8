@@ -46,7 +46,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.util.Base64;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
@@ -56,7 +55,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,25 +68,17 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
     public static final String PROJECT_NEW_COMMAND = "project-new";
     public static final String TARGET_LOCATION_PROPERTY = "targetLocation";
-    private final String rootProjectFolder;
     private final KubernetesClient kubernetes;
     private final GitUserHelper gitUserHelper;
-    private final String gogsUrl;
-    private String address;
+    private final ProjectFileSystem projectFileSystem;
 
     @Inject
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
                                            GitUserHelper gitUserHelper,
-                                           @Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
-                                           @ConfigProperty(name = "PROJECT_FOLDER", defaultValue = "/tmp") String rootProjectFolder) {
+                                           ProjectFileSystem projectFileSystem) {
         this.kubernetes = kubernetes;
         this.gitUserHelper = gitUserHelper;
-        this.gogsUrl = gogsUrl;
-        this.rootProjectFolder = rootProjectFolder;
-        this.address = gogsUrl.toString();
-        if (!address.endsWith("/")) {
-            address += "/";
-        }
+        this.projectFileSystem = projectFileSystem;
     }
 
     @Override
@@ -101,21 +91,13 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 Map<String, String> page1 = inputList.get(0);
                 if (page1 != null) {
                     if (page1.containsKey(TARGET_LOCATION_PROPERTY)) {
-                        page1.put(TARGET_LOCATION_PROPERTY, getProjectFolderLocation(userDetails));
+                        page1.put(TARGET_LOCATION_PROPERTY, projectFileSystem.getUserProjectFolderLocation(userDetails));
                     }
                 }
             }
         }
-        System.out.println("preprocess has request " + request);
     }
 
-    protected String getProjectFolderLocation(UserDetails userDetails) {
-        String gitUser = userDetails.getUser();
-        File root = new File(rootProjectFolder);
-        File projectFolder = new File(root, gitUser);
-        projectFolder.mkdirs();
-        return projectFolder.getAbsolutePath();
-    }
 
     @Override
     public void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results, HttpServletRequest request) {
@@ -124,12 +106,11 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String user = userDetails.getUser();
         String password = userDetails.getPassword();
         String authorEmail = userDetails.getEmail();
+        String address = userDetails.getAddress();
         String branch = "master";
 
-        System.out.println("execute has request " + request);
-
         try {
-            CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(user, password);
+            CredentialsProvider credentials = userDetails.createCredentialsProfivder();
             PersonIdent personIdent = new PersonIdent(user, authorEmail);
 
             if (name.equals(PROJECT_NEW_COMMAND)) {
@@ -153,22 +134,22 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     if (!basedir.isDirectory() || !basedir.exists()) {
                         LOG.warn("Generated project folder does not exist: " + basedir.getAbsolutePath());
                     } else {
-                        // lets git init...
-                        System.out.println("About to git init folder " + basedir.getAbsolutePath());
                         InitCommand initCommand = Git.init();
                         initCommand.setDirectory(basedir);
                         Git git = initCommand.call();
                         LOG.info("Initialised an empty git configuration repo at {}", basedir.getAbsolutePath());
 
                         // lets create the repository
-                        GitRepoClient repoClient = new GitRepoClient(address, user, password);
+                        GitRepoClient repoClient = userDetails.createRepoClient();
                         CreateRepositoryDTO createRepository = new CreateRepositoryDTO();
                         createRepository.setName(named);
 
                         String fullName = null;
                         RepositoryDTO repository = repoClient.createRepository(createRepository);
                         if (repository != null) {
-                            System.out.println("Got repository: " + toJson(repository));
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Got repository: " + toJson(repository));
+                            }
                             fullName = repository.getFullName();
                         }
                         if (Strings.isNullOrEmpty(fullName)) {
@@ -186,7 +167,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Using remote: " + remote);
                         configureBranch(git, branch, remote);
 
-                        createKubernetesResources(user, named, remote, branch, repoClient);
+                        createKubernetesResources(user, named, remote, branch, repoClient, address);
 
                         doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
                     }
@@ -194,11 +175,9 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             } else {
                 File basedir = context.getInitialSelectionFile();
                 String absolutePath = basedir != null ? basedir.getAbsolutePath() : null;
-                System.out.println("===== added or mutated files in folder: " + absolutePath);
                 if (basedir != null) {
                     File gitFolder = new File(basedir, ".git");
                     if (gitFolder.exists() && gitFolder.isDirectory()) {
-                        System.out.println("======== has .git folder so lets add/commit files then push!");
                         FileRepositoryBuilder builder = new FileRepositoryBuilder();
                         Repository repository = builder.setGitDir(gitFolder)
                                 .readEnvironment() // scan environment GIT_* variables
@@ -223,7 +202,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     /**
      * Lets create an ImageRegistry, BuildConfig and DeploymentConfig for the new project
      */
-    protected void createKubernetesResources(String user, String buildName, String remote, String branch, GitRepoClient repoClient) throws Exception {
+    protected void createKubernetesResources(String user, String buildName, String remote, String branch, GitRepoClient repoClient, String address) throws Exception {
         String imageTag = "test";
         String secret = "secret101";
         String builderImage = "fabric8/java-main";
@@ -383,7 +362,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
 
 
-        System.out.println("creating a web hook at: " + webhookUrl);
+        LOG.info("creating a web hook at: " + webhookUrl);
         try {
             CreateWebhookDTO createWebhook = new CreateWebhookDTO();
             createWebhook.setType("gogs");
@@ -391,7 +370,9 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             config.setUrl(webhookUrl);
             config.setSecret(secret);
             WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
-            System.out.println("Got web hook: " + toJson(webhook));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Got web hook: " + toJson(webhook));
+            }
         } catch (Exception e) {
             LOG.warn("Failed to create web hook in git repo: " + e, e);
         }
@@ -491,7 +472,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     protected void handleKubernetesResourceCreation(String kind, Object entity, String results) {
-        System.out.println("Created " + entity + ". Results: " + results);
+        LOG.warn("Created " + entity + ". Results: " + results);
     }
 
     /**

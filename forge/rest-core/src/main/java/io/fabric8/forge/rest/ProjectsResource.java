@@ -17,19 +17,25 @@
  */
 package io.fabric8.forge.rest;
 
+import io.fabric8.forge.rest.main.GitUserHelper;
+import io.fabric8.forge.rest.main.RepositoryCache;
+import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.forge.rest.model.ProjectsModel;
 import io.fabric8.forge.rest.dto.ProjectDTO;
+import io.fabric8.repo.git.GitRepoClient;
+import io.fabric8.repo.git.RepositoryDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,12 +44,43 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProjectsResource {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ProjectsResource.class);
+
     @Inject
     private ProjectsModel projectsModel;
 
+    @Inject
+    private GitUserHelper gitUserHelper;
+
+    @Inject
+    private RepositoryCache repositoryCache;
+
+
+    @Context
+    private HttpServletRequest request;
+
     @GET
-    public List<ProjectDTO> getProjects() {
-        return projectsModel.getProjects();
+    public List<ProjectDTO> getUserProjects() {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        GitRepoClient repoClient = userDetails.createRepoClient();
+        LOG.debug("Listing repos for " + userDetails.getUser());
+        List<RepositoryDTO> repositoryDTOs = repoClient.listRepositories();
+        repositoryCache.updateUserRepositories(repositoryDTOs);
+
+        List<ProjectDTO> answer = new ArrayList<>();
+        for (RepositoryDTO repositoryDTO : repositoryDTOs) {
+            ProjectDTO project = createProject(repositoryDTO);
+            if (project != null) {
+                answer.add(project);
+            }
+        }
+        return answer;
+    }
+
+    protected ProjectDTO createProject(RepositoryDTO repositoryDTO) {
+        ProjectDTO project = new ProjectDTO();
+        project.setPath("user/" + repositoryDTO.getFullName());
+        return project;
     }
 
     @GET
@@ -52,6 +89,7 @@ public class ProjectsResource {
         return "true";
     }
 
+/*
     @POST
     public void addProject(ProjectDTO project) throws IOException {
         projectsModel.add(project);
@@ -62,10 +100,13 @@ public class ProjectsResource {
     public void removeProject(@PathParam("path") String path) throws IOException {
         projectsModel.remove(path);
     }
+*/
 
+/*
     @GET
     @Path("{path: .+}")
     public ProjectDTO getProject(@PathParam("path") String path) throws IOException {
         return projectsModel.findByPath(path);
     }
+*/
 }

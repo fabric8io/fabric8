@@ -8,8 +8,12 @@ import io.fabric8.forge.rest.dto.UICommands;
 import io.fabric8.forge.rest.dto.ValidationResult;
 import io.fabric8.forge.rest.dto.WizardResultsDTO;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
+import io.fabric8.forge.rest.main.GitUserHelper;
+import io.fabric8.forge.rest.main.ProjectFileSystem;
+import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.forge.rest.ui.RestUIContext;
 import io.fabric8.forge.rest.ui.RestUIRuntime;
+import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.resource.Resource;
@@ -61,6 +65,12 @@ public class CommandsResource {
 
     @Inject
     private CommandCompletePostProcessor commandCompletePostProcessor;
+
+    @Inject
+    private ProjectFileSystem projectFileSystem;
+
+    @Inject
+    private GitUserHelper gitUserHelper;
 
     @Context
     private HttpServletRequest request;
@@ -263,7 +273,6 @@ public class CommandsResource {
     }
 
 
-
     @POST
     @Path("/command/validate/{name}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -380,15 +389,26 @@ public class CommandsResource {
         ResourceFactory resourceFactory = resourceFactoryImport.get();
         Resource<?> selection = null;
         if (Strings.isNotBlank(resourcePath) && resourceFactory != null) {
-            File file = new File(resourcePath);
-            if (!file.exists() && !resourcePath.startsWith("/")) {
-                resourcePath = "/" + resourcePath;
-                file = new File(resourcePath);
-            }
-            if (file.exists()) {
-                selection = resourceFactory.create(file);
+            // lets split out user repositories
+            String path = Strings.stripPrefix(resourcePath, "/");
+            String userFolder = "user/";
+            if (path.startsWith(userFolder)) {
+                path = Strings.stripPrefix(path, userFolder);
+                String[] userAndPath = path.split("/", 2);
+                if (userAndPath.length < 2) {
+                    LOG.warn("Could not extract user name and path from resource: " + resourcePath);
+                } else {
+                    String userId = userAndPath[0];
+                    String repositoryName = userAndPath[1];
+
+                    UserDetails userDetails = gitUserHelper.createUserDetails(request);
+
+
+                    File file = projectFileSystem.getOrCloneUserProjectFolder(userId, repositoryName, userDetails);
+                    selection = resourceFactory.create(file);
+                }
             } else {
-                selection = resourceFactory.create(resourcePath);
+                LOG.warn("Unknown path of the form user/{userId}/{repositoryName}");
             }
         }
         return new RestUIContext(selection);

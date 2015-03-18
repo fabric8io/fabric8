@@ -26,14 +26,10 @@ public class RestUIContext extends AbstractUIContext {
             if (fullyQualifiedName != null) {
                 return new File(fullyQualifiedName);
             }
-            System.out.println("==== no fully qualified name!");
             String name = selection.getName();
             if (name != null) {
                 return new File(name);
             }
-            System.out.println("=========== Resource has no name! " + selection);
-        } else {
-            System.out.println("============ no selection!");
         }
         return null;
     }

@@ -17,6 +17,7 @@
  */
 package io.fabric8.forge.rest.main;
 
+import io.fabric8.cdi.annotations.Service;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.util.Base64;
 import org.jboss.forge.furnace.util.Strings;
@@ -34,12 +35,18 @@ public class GitUserHelper {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitUserHelper.class);
     private final String gitUser;
     private final String gitPassword;
+    private String address;
 
     @Inject
-    public GitUserHelper(@ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
+    public GitUserHelper(@Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
+    @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                          @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
+        this.address = gogsUrl.toString();
+        if (!address.endsWith("/")) {
+            address += "/";
+        }
     }
 
     public UserDetails createUserDetails(HttpServletRequest request) {
@@ -61,6 +68,6 @@ public class GitUserHelper {
                 }
             }
         }
-        return new UserDetails(user, password);
+        return new UserDetails(address, user, password);
     }
 }

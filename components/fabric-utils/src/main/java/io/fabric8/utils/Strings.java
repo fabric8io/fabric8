@@ -200,6 +200,13 @@ public class Strings {
         return !isNullOrBlank(text);
     }
 
+    public static String stripPrefix(String value, String suffix) {
+        if (!value.startsWith(suffix)) {
+            return value;
+        } else {
+            return value.substring(suffix.length());
+        }
+    }
     public static String stripSuffix(String value, String suffix) {
         if (!value.endsWith(suffix)) {
             return value;

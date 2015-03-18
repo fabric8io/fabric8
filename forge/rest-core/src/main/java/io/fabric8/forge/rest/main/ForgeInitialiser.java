@@ -39,9 +39,6 @@ public class ForgeInitialiser {
     @Inject
     public ForgeInitialiser(@ConfigProperty(name = "FORGE_ADDON_DIRECTORY", defaultValue = "./addon-repository") String addOnDir, FurnaceProducer furnaceProducer) {
         // lets ensure that the addons folder is initialised
-        // TODO this is intended for the stand alone micro service; not for the WAR
-
-        System.out.println();
         File repoDir = new File(addOnDir);
         repoDir.mkdirs();
         LOG.info("initialising furnace with folder: " + repoDir);

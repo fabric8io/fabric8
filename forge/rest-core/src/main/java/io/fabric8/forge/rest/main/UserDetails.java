@@ -17,19 +17,26 @@
  */
 package io.fabric8.forge.rest.main;
 
+import io.fabric8.repo.git.GitRepoClient;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
 /**
  */
 public class UserDetails {
     private final String user;
     private final String password;
+    private final String address;
 
     // TODO
     private String email = "dummy@gmail.com";
 
-    public UserDetails(String user, String password) {
+    public UserDetails(String address, String user, String password) {
         this.user = user;
         this.password = password;
+        this.address = address;
     }
+
 
     public String getEmail() {
         return email;
@@ -41,5 +48,20 @@ public class UserDetails {
 
     public String getUser() {
         return user;
+    }
+
+    /**
+     * Returns the address of the gogs REST API
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    public GitRepoClient createRepoClient() {
+        return new GitRepoClient(address, user, password);
+    }
+
+    public CredentialsProvider createCredentialsProfivder() {
+        return  new UsernamePasswordCredentialsProvider(user, password);
     }
 }
