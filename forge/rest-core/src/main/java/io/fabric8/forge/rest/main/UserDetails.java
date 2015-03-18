@@ -15,20 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.forge.rest.hooks;
-
-import io.fabric8.forge.rest.dto.ExecutionRequest;
-import io.fabric8.forge.rest.ui.RestUIContext;
-import org.jboss.forge.addon.ui.controller.CommandController;
-import io.fabric8.forge.rest.dto.ExecutionResult;
-
-import javax.servlet.http.HttpServletRequest;
+package io.fabric8.forge.rest.main;
 
 /**
- * Perform any hooks after a command has completed such as working with a source control system
  */
-public interface CommandCompletePostProcessor {
-    void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results, HttpServletRequest request);
+public class UserDetails {
+    private final String user;
+    private final String password;
 
-    void preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request);
+    // TODO
+    private String email = "dummy@gmail.com";
+
+    public UserDetails(String user, String password) {
+        this.user = user;
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUser() {
+        return user;
+    }
 }

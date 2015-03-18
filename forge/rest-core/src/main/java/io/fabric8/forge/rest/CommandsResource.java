@@ -29,12 +29,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -59,6 +61,9 @@ public class CommandsResource {
 
     @Inject
     private CommandCompletePostProcessor commandCompletePostProcessor;
+
+    @Context
+    private HttpServletRequest request;
 
     private ConverterFactory converterFactory;
 
@@ -168,7 +173,7 @@ public class CommandsResource {
     public Response executeCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
             if (commandCompletePostProcessor != null) {
-                commandCompletePostProcessor.preprocessRequest(name, executionRequest);
+                commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
             }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {
@@ -247,7 +252,7 @@ public class CommandsResource {
                     answer = UICommands.createExecutionResult(context, result, false);
                 }
                 if (answer.isCommandCompleted() && commandCompletePostProcessor != null) {
-                    commandCompletePostProcessor.firePostCompleteActions(name, executionRequest, context, controller, answer);
+                    commandCompletePostProcessor.firePostCompleteActions(name, executionRequest, context, controller, answer, request);
                 }
                 return Response.ok(answer).build();
             }
@@ -266,7 +271,7 @@ public class CommandsResource {
     public Response validateCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
             if (commandCompletePostProcessor != null) {
-                commandCompletePostProcessor.preprocessRequest(name, executionRequest);
+                commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
             }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {

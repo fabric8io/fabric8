@@ -46,14 +46,17 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.util.Base64;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,23 +70,20 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
     public static final String PROJECT_NEW_COMMAND = "project-new";
     public static final String TARGET_LOCATION_PROPERTY = "targetLocation";
-    private final String gitUser;
-    private final String gitPassword;
     private final String rootProjectFolder;
     private final KubernetesClient kubernetes;
+    private final GitUserHelper gitUserHelper;
     private final String gogsUrl;
     private String address;
 
     @Inject
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
+                                           GitUserHelper gitUserHelper,
                                            @Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
-                                           @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
-                                           @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword,
                                            @ConfigProperty(name = "PROJECT_FOLDER", defaultValue = "/tmp") String rootProjectFolder) {
         this.kubernetes = kubernetes;
+        this.gitUserHelper = gitUserHelper;
         this.gogsUrl = gogsUrl;
-        this.gitUser = gitUser;
-        this.gitPassword = gitPassword;
         this.rootProjectFolder = rootProjectFolder;
         this.address = gogsUrl.toString();
         if (!address.endsWith("/")) {
@@ -92,21 +92,25 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     @Override
-    public void preprocessRequest(String name, ExecutionRequest executionRequest) {
+    public void preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request) {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+
         if (Objects.equals(name, PROJECT_NEW_COMMAND)) {
             List<Map<String, String>> inputList = executionRequest.getInputList();
             if (inputList != null) {
                 Map<String, String> page1 = inputList.get(0);
                 if (page1 != null) {
                     if (page1.containsKey(TARGET_LOCATION_PROPERTY)) {
-                        page1.put(TARGET_LOCATION_PROPERTY, getProjectFolderLocation());
+                        page1.put(TARGET_LOCATION_PROPERTY, getProjectFolderLocation(userDetails));
                     }
                 }
             }
         }
+        System.out.println("preprocess has request " + request);
     }
 
-    protected String getProjectFolderLocation() {
+    protected String getProjectFolderLocation(UserDetails userDetails) {
+        String gitUser = userDetails.getUser();
         File root = new File(rootProjectFolder);
         File projectFolder = new File(root, gitUser);
         projectFolder.mkdirs();
@@ -114,12 +118,15 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     @Override
-    public void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results) {
-        // TODO take these from the request?
-        String user = gitUser;
-        String password = gitPassword;
-        String authorEmail = "dummy@gmail.com";
+    public void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results, HttpServletRequest request) {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+
+        String user = userDetails.getUser();
+        String password = userDetails.getPassword();
+        String authorEmail = userDetails.getEmail();
         String branch = "master";
+
+        System.out.println("execute has request " + request);
 
         try {
             CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(user, password);
