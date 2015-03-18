@@ -38,6 +38,13 @@ public interface GitApi {
     @Path("user/repos")
     public List<RepositoryDTO> listRepositories();
 
+    @GET
+    @Path("user/orgs")
+    public List<OrganisationDTO> listUserOrganisations();
+
+    @GET
+    @Path("orgs/{org}/repos")
+    public List<RepositoryDTO> listOrganisationRepositories(@PathParam("org") String organisation);
 
     @POST
     @Path("user/repos")

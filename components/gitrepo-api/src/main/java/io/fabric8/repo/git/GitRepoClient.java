@@ -25,6 +25,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.util.ArrayList;
@@ -54,6 +55,14 @@ public class GitRepoClient {
 
     public List<RepositoryDTO> listRepositories() {
         return getApi().listRepositories();
+    }
+
+    public List<RepositoryDTO> listOrganisationRepositories(String organisation) {
+        return getApi().listOrganisationRepositories(organisation);
+    }
+
+    public List<OrganisationDTO> listUserOrganisations() {
+        return getApi().listUserOrganisations();
     }
 
     public WebHookDTO createWebhook(String owner, String repo, CreateWebhookDTO dto) {
