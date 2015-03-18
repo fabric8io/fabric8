@@ -82,6 +82,9 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
                 String required = propertyMap.get("required");
+                // TODO: requires Camel 2.16 for default values
+                String defaultValue = propertyMap.get("default");
+                String description = propertyMap.get("description");
 
                 if (!Strings.isNullOrEmpty(name)) {
                     Class<?> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
@@ -92,7 +95,9 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                                 if (Objects.equals("true", required)) {
                                     input.setRequired(true);
                                 }
-                                System.out.println("Adding input for name: " + name);
+                                input.setLabel(name);
+                                // must use an empty description otherwise the UI prints null
+                                input.setDescription(description != null ? description : "");
                                 builder.add(input);
                                 inputs.add(input);
                             }
