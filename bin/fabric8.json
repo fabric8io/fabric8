@@ -80,6 +80,16 @@
       "kind": "Route",
       "host": "fabric8.local",
       "serviceName": "fabric8-console-service"
+    },
+    {
+      "kind": "OAuthClient",
+      "apiVersion": "v1beta1",
+      "metadata": {
+        "name": "fabric8-console"
+      },
+      "redirectURIs": [
+        "http://fabric8.local"
+      ]
     }
   ]
 }
