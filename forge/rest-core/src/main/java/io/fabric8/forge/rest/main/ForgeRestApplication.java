@@ -4,7 +4,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.fabric8.forge.rest.RootResource;
 import org.apache.cxf.feature.LoggingFeature;
 import io.fabric8.forge.rest.CommandsResource;
-import io.fabric8.forge.rest.ProjectsResource;
+import io.fabric8.forge.rest.RepositoriesResource;
 
 import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
@@ -25,7 +25,7 @@ public class ForgeRestApplication extends Application {
     CommandsResource forgeResource;
 
     @Inject
-    ProjectsResource projectsResource;
+    RepositoriesResource repositoriesResource;
 
     @Override
     public Set<Object> getSingletons() {
@@ -33,7 +33,7 @@ public class ForgeRestApplication extends Application {
                 Arrays.asList(
                         rootResource,
                         forgeResource,
-                        projectsResource,
+                        repositoriesResource,
                         new JacksonJsonProvider(),
 /*
                         new SwaggerFeature(),

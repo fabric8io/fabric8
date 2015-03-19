@@ -20,7 +20,6 @@ package io.fabric8.forge.rest;
 import io.fabric8.forge.rest.main.GitUserHelper;
 import io.fabric8.forge.rest.main.RepositoryCache;
 import io.fabric8.forge.rest.main.UserDetails;
-import io.fabric8.forge.rest.dto.ProjectDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.utils.Strings;
@@ -32,20 +31,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  */
-@Path("/api/forge/projects")
+@Path("/api/forge/repos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ProjectsResource {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ProjectsResource.class);
-
+public class RepositoriesResource {
+    private static final transient Logger LOG = LoggerFactory.getLogger(RepositoriesResource.class);
 
     @Inject
     private GitUserHelper gitUserHelper;
@@ -53,42 +51,8 @@ public class ProjectsResource {
     @Inject
     private RepositoryCache repositoryCache;
 
-
     @Context
     private HttpServletRequest request;
-
-    @GET
-    public List<ProjectDTO> getUserProjects() {
-        UserDetails userDetails = gitUserHelper.createUserDetails(request);
-        GitRepoClient repoClient = userDetails.createRepoClient();
-        LOG.debug("Listing repos for " + userDetails.getUser());
-        List<RepositoryDTO> repositoryDTOs = repoClient.listRepositories();
-        repositoryCache.updateUserRepositories(repositoryDTOs);
-
-        List<ProjectDTO> answer = new ArrayList<>();
-        for (RepositoryDTO repositoryDTO : repositoryDTOs) {
-            ProjectDTO project = createProject(repositoryDTO);
-            if (project != null) {
-                answer.add(project);
-            }
-        }
-        return answer;
-    }
-
-    protected ProjectDTO createProject(RepositoryDTO repositoryDTO) {
-        ProjectDTO project = new ProjectDTO();
-        String fullName = repositoryDTO.getFullName();
-        if (Strings.isNotBlank(fullName)) {
-            String[] split = fullName.split("/", 2);
-            if (split != null && split.length > 1) {
-                String user = split[0];
-                String name = split[1];
-                project.setUser(user);
-                project.setName(name);
-            }
-        }
-        return project;
-    }
 
     @GET
     @Path("_ping")
@@ -96,24 +60,46 @@ public class ProjectsResource {
         return "true";
     }
 
-/*
-    @POST
-    public void addProject(ProjectDTO project) throws IOException {
-        projectsModel.add(project);
-    }
-
-    @DELETE
-    @Path("{path: .+}")
-    public void removeProject(@PathParam("path") String path) throws IOException {
-        projectsModel.remove(path);
-    }
-*/
-
-/*
     @GET
-    @Path("{path: .+}")
-    public ProjectDTO getProject(@PathParam("path") String path) throws IOException {
-        return projectsModel.findByPath(path);
+    public List<RepositoryDTO> getUserRepositories() {
+        GitRepoClient repoClient = createGitRepoClient();
+        List<RepositoryDTO> repositoryDTOs = repoClient.listRepositories();
+        repositoryCache.updateUserRepositories(repositoryDTOs);
+
+        for (RepositoryDTO repositoryDTO : repositoryDTOs) {
+            enrichRepository(repositoryDTO);
+        }
+        return repositoryDTOs;
     }
-*/
+
+    @GET
+    @Path("user/repo/{name}")
+    public RepositoryDTO getUserRepository(@PathParam("name") String name) {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        String user = userDetails.getUser();
+        GitRepoClient repoClient = userDetails.createRepoClient();
+        return repositoryCache.getOrFindUserRepository(user, name, repoClient);
+    }
+
+    protected void enrichRepository(RepositoryDTO repositoryDTO) {
+        String repoName = repositoryDTO.getName();
+        if (Strings.isNullOrBlank(repoName)) {
+            String fullName = repositoryDTO.getFullName();
+            if (Strings.isNotBlank(fullName)) {
+                String[] split = fullName.split("/", 2);
+                if (split != null && split.length > 1) {
+                    String user = split[0];
+                    String name = split[1];
+                    //repositoryDTO.setUser(user);
+                    repositoryDTO.setName(name);
+                }
+            }
+        }
+    }
+
+    protected GitRepoClient createGitRepoClient() {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        return userDetails.createRepoClient();
+    }
+
 }
