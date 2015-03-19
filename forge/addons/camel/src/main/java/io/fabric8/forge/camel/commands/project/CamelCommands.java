@@ -15,6 +15,11 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -28,13 +33,6 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findComponentArchetype;
 
 public final class CamelCommands {
 
@@ -107,7 +105,7 @@ public final class CamelCommands {
 
     public static boolean isSpringProject(Project project) {
         return (!validateClassPathForProjectValidation || JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext")) &&
-                        CamelProjectHelper.findCamelSpringDependency(project) != null;
+                CamelProjectHelper.findCamelSpringDependency(project) != null;
     }
 
     public static boolean isBlueprintProject(Project project) {
@@ -167,15 +165,67 @@ public final class CamelCommands {
     /**
      * Converts a java type as a string to a valid input type and returns the class or null if its not supported
      */
-    protected static  Class<?> loadValidInputTypes(String javaType, String type) {
+    protected static Class<Object> loadValidInputTypes(String javaType, String type) {
         try {
-            Class<?> clazz = Class.forName(javaType);
+            Class<Object> clazz = loadPrimitiveType(javaType);
+            if (clazz == null) {
+                clazz = (Class<Object>) Class.forName(javaType);
+            }
             if (clazz.equals(String.class) || clazz.equals(Date.class)
                     || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz)) {
                 return clazz;
             }
         } catch (ClassNotFoundException e) {
             // ignore errors
+        }
+        return null;
+    }
+
+    private static Class loadPrimitiveType(String name) {
+        // special for byte[] or Object[] as its common to use
+        if ("java.lang.byte[]".equals(name) || "byte[]".equals(name)) {
+            return byte[].class;
+        } else if ("java.lang.Byte[]".equals(name) || "Byte[]".equals(name)) {
+            return Byte[].class;
+        } else if ("java.lang.Object[]".equals(name) || "Object[]".equals(name)) {
+            return Object[].class;
+        } else if ("java.lang.String[]".equals(name) || "String[]".equals(name)) {
+            return String[].class;
+            // and these is common as well
+        } else if ("java.lang.String".equals(name) || "String".equals(name)) {
+            return String.class;
+        } else if ("java.lang.Boolean".equals(name) || "Boolean".equals(name)) {
+            return Boolean.class;
+        } else if ("boolean".equals(name)) {
+            return boolean.class;
+        } else if ("java.lang.Integer".equals(name) || "Integer".equals(name)) {
+            return Integer.class;
+        } else if ("int".equals(name)) {
+            return int.class;
+        } else if ("java.lang.Long".equals(name) || "Long".equals(name)) {
+            return Long.class;
+        } else if ("long".equals(name)) {
+            return long.class;
+        } else if ("java.lang.Short".equals(name) || "Short".equals(name)) {
+            return Short.class;
+        } else if ("short".equals(name)) {
+            return short.class;
+        } else if ("java.lang.Byte".equals(name) || "Byte".equals(name)) {
+            return Byte.class;
+        } else if ("byte".equals(name)) {
+            return byte.class;
+        } else if ("java.lang.Float".equals(name) || "Float".equals(name)) {
+            return Float.class;
+        } else if ("float".equals(name)) {
+            return float.class;
+        } else if ("java.lang.Double".equals(name) || "Double".equals(name)) {
+            return Double.class;
+        } else if ("double".equals(name)) {
+            return double.class;
+        } else if ("java.lang.Character".equals(name) || "Character".equals(name)) {
+            return Character.class;
+        } else if ("char".equals(name)) {
+            return char.class;
         }
         return null;
     }
