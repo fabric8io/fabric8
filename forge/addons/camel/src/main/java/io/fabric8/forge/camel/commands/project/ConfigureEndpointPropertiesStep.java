@@ -136,11 +136,12 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 }
             }
 
+            /* TODO: requires Camel 2.15.1
             CamelCatalog catalog = new DefaultCamelCatalog();
             String uri = catalog.asEndpointUri(camelComponentName, options);
             if (uri != null) {
                 return Results.success("Endpoint uri: " + uri);
-            }
+            }*/
 
             // TODO: find the route builder, and then add the endpoint to its source code somehow
             String fqn = routeBuilder;
@@ -151,7 +152,6 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
 
             // TODO: generate uri to add
-
 
             return Results.success("Added endpoint " + endpointInstanceName + " to " + routeBuilder);
         } catch (IllegalArgumentException e) {
