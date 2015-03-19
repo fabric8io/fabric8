@@ -94,8 +94,6 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                                 input.setLabel(name);
                                 // must use an empty description otherwise the UI prints null
                                 input.setDescription(description != null ? description : "");
-                                // try with empty description
-                                input.setDescription("");
                                 if (defaultValue != null) {
                                     input.setDefaultValue(defaultValue);
                                 }

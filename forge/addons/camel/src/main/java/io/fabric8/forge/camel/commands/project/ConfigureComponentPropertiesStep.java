@@ -82,15 +82,14 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
                 String required = propertyMap.get("required");
-                // TODO: requires Camel 2.16 for default values
-                String defaultValue = propertyMap.get("default");
+                String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
 
                 if (!Strings.isNullOrEmpty(name)) {
-                    Class<?> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
+                    Class<Object> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            UIInput<?> input = componentFactory.createInput(name, inputClazz);
+                            UIInput<Object> input = componentFactory.createInput(name, inputClazz);
                             if (input != null) {
                                 if (Objects.equals("true", required)) {
                                     input.setRequired(true);
@@ -98,6 +97,9 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                                 input.setLabel(name);
                                 // must use an empty description otherwise the UI prints null
                                 input.setDescription(description != null ? description : "");
+                                if (defaultValue != null) {
+                                    input.setDefaultValue(defaultValue);
+                                }
                                 builder.add(input);
                                 inputs.add(input);
                             }
@@ -162,26 +164,30 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
             // generate the correct class payload based on the style...
             StringBuilder buffer = new StringBuilder();
             for (UIInput input : inputs) {
-                String valueExpression = null;
-                Object value = input.getValue();
-                if (value != null) {
-                    if (value instanceof String) {
-                        String text = value.toString();
-                        if (!Strings.isBlank(text)) {
-                            valueExpression = "\"" + text + "\"";
+                // only use value if there was a value set
+                if (input.hasValue()) {
+                    String valueExpression = null;
+
+                    Object value = input.getValue();
+                    if (value != null) {
+                        if (value instanceof String) {
+                            String text = value.toString();
+                            if (!Strings.isBlank(text)) {
+                                valueExpression = "\"" + text + "\"";
+                            }
+                        }
+                        if (value instanceof Number) {
+                            valueExpression = value.toString();
                         }
                     }
-                    if (value instanceof Number) {
-                        valueExpression = value.toString();
+                    if (valueExpression != null) {
+                        buffer.append("\n");
+                        buffer.append("component.set");
+                        buffer.append(Strings.capitalize(input.getName()));
+                        buffer.append("(");
+                        buffer.append(valueExpression);
+                        buffer.append(");");
                     }
-                }
-                if (valueExpression != null) {
-                    buffer.append("\n");
-                    buffer.append("component.set");
-                    buffer.append(Strings.capitalize(input.getName()));
-                    buffer.append("(");
-                    buffer.append(valueExpression);
-                    buffer.append(");");
                 }
             }
             String configurationCode = buffer.toString();
