@@ -16,12 +16,10 @@
 package io.fabric8.forge.camel.commands.project;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import javax.inject.Inject;
 
@@ -39,13 +37,13 @@ import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
-import org.jboss.forge.addon.ui.input.UIInput;
-import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.util.Strings;
+
+import static io.fabric8.forge.camel.commands.project.UIHelper.createUIInput;
 
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
@@ -90,31 +88,8 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     Class<Object> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            // if its an enum then use selectOne
-                            InputComponent input;
-                            if (enums != null) {
-                                UISelectOne ui = componentFactory.createSelectOne(name, inputClazz);
-                                if (defaultValue != null) {
-                                    ui.setDefaultValue(defaultValue);
-                                }
-                                // the enums are comma separated
-                                String[] values = enums.split(",");
-                                ui.setValueChoices(Arrays.asList(values));
-                                input = ui;
-                            } else {
-                                UIInput ui = componentFactory.createInput(name, inputClazz);
-                                if (defaultValue != null) {
-                                    ui.setDefaultValue(defaultValue);
-                                }
-                                input = ui;
-                            }
+                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, defaultValue, enums, description);
                             if (input != null) {
-                                if (Objects.equals("true", required)) {
-                                    input.setRequired(true);
-                                }
-                                input.setLabel(name);
-                                // must use an empty description otherwise the UI prints null
-                                input.setDescription(description != null ? description : "");
                                 builder.add(input);
                                 inputs.add(input);
                             }

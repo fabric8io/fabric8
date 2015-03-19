@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import javax.inject.Inject;
 
@@ -35,8 +34,8 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
-import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
@@ -47,6 +46,7 @@ import org.jboss.forge.roaster.model.util.Strings;
 
 import static io.fabric8.forge.camel.commands.project.CamelCommands.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.CamelCommands.loadCamelComponentDetails;
+import static io.fabric8.forge.camel.commands.project.UIHelper.createUIInput;
 
 public class ConfigureComponentPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
@@ -59,7 +59,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
     @Inject
     private DependencyResolver dependencyResolver;
 
-    private List<UIInput> inputs = new ArrayList<>();
+    private List<InputComponent> inputs = new ArrayList<>();
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
@@ -84,22 +84,14 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                 String required = propertyMap.get("required");
                 String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
+                String enums = propertyMap.get("enum");
 
                 if (!Strings.isNullOrEmpty(name)) {
                     Class<Object> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            UIInput<Object> input = componentFactory.createInput(name, inputClazz);
+                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, defaultValue, enums, description);
                             if (input != null) {
-                                if (Objects.equals("true", required)) {
-                                    input.setRequired(true);
-                                }
-                                input.setLabel(name);
-                                // must use an empty description otherwise the UI prints null
-                                input.setDescription(description != null ? description : "");
-                                if (defaultValue != null) {
-                                    input.setDefaultValue(defaultValue);
-                                }
                                 builder.add(input);
                                 inputs.add(input);
                             }
@@ -163,7 +155,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
 
             // generate the correct class payload based on the style...
             StringBuilder buffer = new StringBuilder();
-            for (UIInput input : inputs) {
+            for (InputComponent input : inputs) {
                 // only use value if there was a value set
                 if (input.hasValue()) {
                     String valueExpression = null;
