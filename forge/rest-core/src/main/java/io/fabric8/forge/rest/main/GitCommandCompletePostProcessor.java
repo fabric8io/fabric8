@@ -17,7 +17,6 @@
  */
 package io.fabric8.forge.rest.main;
 
-import io.fabric8.cdi.annotations.Service;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
@@ -33,7 +32,6 @@ import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.URLUtils;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
@@ -45,7 +43,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
@@ -58,6 +55,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.fabric8.repo.git.JsonHelper.toJson;
 
@@ -169,7 +167,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         createKubernetesResources(user, named, remote, branch, repoClient, address);
 
-                        doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
+                        String message = createCommitMessage(name, executionRequest);
+                        doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch, message);
                     }
                 }
             } else {
@@ -187,9 +186,10 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         Git git = new Git(repository);
                         String remote = getRemote(git, branch);
                         if (remote == null) {
-                            LOG.warn("Could not find remote git URL for folder " + basedir.getAbsolutePath());
+                            LOG.warn("Could not find remote git URL for folder " + absolutePath);
                         } else {
-                            doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch);
+                            String message = createCommitMessage(name, executionRequest);
+                            doAddCommitAndPushFiles(git, credentials, personIdent, remote, branch, message);
                         }
                     }
                 }
@@ -197,6 +197,28 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         } catch (Exception e) {
             handleException(e);
         }
+    }
+
+    /**
+     * Lets generate a commit message with the command name and all the parameters we specify
+     */
+    protected String createCommitMessage(String name, ExecutionRequest executionRequest) {
+        StringBuilder builder = new StringBuilder(name);
+        List<Map<String, String>> inputList = executionRequest.getInputList();
+        for (Map<String, String> map : inputList) {
+            Set<Map.Entry<String, String>> entries = map.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (!Strings.isNullOrEmpty(value) && !value.equals("0") && !value.toLowerCase().equals("false")) {
+                    builder.append(" --");
+                    builder.append(key);
+                    builder.append("=");
+                    builder.append(value);
+                }
+            }
+        }
+        return builder.toString();
     }
 
     /**
@@ -516,10 +538,9 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         return relativePath.replace(File.separatorChar, '/');
     }
 
-
-    protected void doAddCommitAndPushFiles(Git git, CredentialsProvider credentials, PersonIdent personIdent, String remote, String branch) throws IOException, GitAPIException {
+    protected void doAddCommitAndPushFiles(Git git, CredentialsProvider credentials, PersonIdent personIdent, String remote, String branch, String message) throws GitAPIException, IOException {
         git.add().addFilepattern(".").call();
-        doCommitAndPush(git, "Initial import", credentials, personIdent, remote, branch);
+        doCommitAndPush(git, message, credentials, personIdent, remote, branch);
     }
 
     protected RevCommit doCommitAndPush(Git git, String message, CredentialsProvider credentials, PersonIdent author, String remote, String branch) throws IOException, GitAPIException {
