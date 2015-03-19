@@ -167,7 +167,10 @@ public final class CamelCommands {
      */
     protected static Class<Object> loadValidInputTypes(String javaType, String type) {
         try {
-            Class<Object> clazz = loadPrimitiveType(javaType);
+            Class<Object> clazz = getPrimitiveClassType(type);
+            if (clazz == null) {
+                clazz = loadPrimitiveType(javaType);
+            }
             if (clazz == null) {
                 clazz = (Class<Object>) Class.forName(javaType);
             }
@@ -178,6 +181,27 @@ public final class CamelCommands {
         } catch (ClassNotFoundException e) {
             // ignore errors
         }
+        return null;
+    }
+
+
+    /**
+     * Gets the JSon schema primitive type.
+     *
+     * @param   name the json type
+     * @return  the primitive Java Class type
+     */
+    public static Class getPrimitiveClassType(String name) {
+        if ("string".equals(name)) {
+            return String.class;
+        } else if ("boolean".equals(name)) {
+            return boolean.class;
+        } else if ("integer".equals(name)) {
+            return int.class;
+        } else if ("number".equals(name)) {
+            return float.class;
+        }
+
         return null;
     }
 
