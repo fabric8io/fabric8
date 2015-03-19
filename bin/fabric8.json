@@ -88,7 +88,10 @@
         "name": "fabric8-console"
       },
       "redirectURIs": [
-        "http://fabric8.local"
+        "http://fabric8.local",
+        "http://localhost:9090",
+        "http://localhost:2772",
+        "http://localhost:9000"
       ]
     }
   ]
