@@ -212,6 +212,23 @@ KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 CADVISOR=http://$DOCKER_IP:4194
 
+cat <<EOF | $KUBE create -f -
+{
+  "kind": "OAuthClient",
+  "apiVersion": "v1beta1",
+  "metadata": {
+    "name": "fabric8-console"
+  },
+  "redirectURIs": [
+    "http://fabric8.local",
+    "http://localhost:9090",
+    "http://localhost:2772",
+    "http://localhost:9000",
+    "${FABRIC8_CONSOLE}"
+  ]
+}
+EOF
+
 validateService "Fabric8 console" $FABRIC8_CONSOLE
 validateService "Docker registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
