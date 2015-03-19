@@ -33,7 +33,7 @@ CLEANUP=0
 DONT_RUN=0
 FABRIC8_VAGRANT_IP=172.28.128.4
 
-while getopts "fud:kp" opt; do
+while getopts "fud:kpm:" opt; do
   case $opt in
     k)
       DEPLOY_IMAGES="${ALL_IMAGES}"
@@ -56,6 +56,9 @@ while getopts "fud:kp" opt; do
       ;;
     d)
       DOCKER_IP=$OPTARG
+      ;;
+    m)
+      OPENSHIFT_MASTER_URL=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -131,7 +134,11 @@ export KUBERNETES=https://$DOCKER_IP:8443
 KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} cli --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
 KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} ex --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
+if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
+  PUBLIC_MASTER_ARG="--public-master=${OPENSHIFT_MASTER_URL}"
+fi
+
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
 
 validateService()
 {

@@ -132,11 +132,19 @@ To update all the relevant images (corresponds to docker pull latest docker imag
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -u
 
+#### Public master address
+
+By default, OpenShift will create certificates for your master which will be valid for all local addresses of the
+server you have deployed on. If you would like to add a public address that the master will be accessed on, you
+can pass the `-m` flag & specify the public address:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -m fabric8.local
+
 #### Combination
 
 And of course flags can be combined, to start from scratch & update all images at once:
 
-    bash <(curl -sSL https://bit.ly/get-fabric8) -kuf
+    bash <(curl -sSL https://bit.ly/get-fabric8) -kuf -m fabric8.local
 
 ---
 
