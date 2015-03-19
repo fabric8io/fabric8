@@ -73,7 +73,7 @@ public class RepositoriesResource {
     }
 
     @GET
-    @Path("user/repo/{name}")
+    @Path("user/{name}")
     public RepositoryDTO getUserRepository(@PathParam("name") String name) {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
         String user = userDetails.getUser();
