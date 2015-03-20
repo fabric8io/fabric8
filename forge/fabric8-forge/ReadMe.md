@@ -1,13 +1,11 @@
-# Forge REST Service
+# Fabric8 Forge
 
-This project provides a REST service implemented via JAX-RS for interacting with Forge so that web based tooling can be created.
+This project provides a REST service implemented via JAX-RS for interacting with [JBoss Forge](http://forge.jboss.org/) and a github style hosted git repository provifder like github or [gogs](http://gogs.io/).
 
 ### Building
 
 [Install maven](http://maven.apache.org/download.cgi) then run:
 
-    mvn install
-    cd main
     mvn install
 
 ### Running
@@ -16,11 +14,6 @@ You need to define a few environment variables. e.g. point KUBERNETES_MASTER at 
 
     export GOGS_HTTP_SERVICE_SERVICE_HOST=localhost
     export GOGS_HTTP_SERVICE_SERVICE_PORT=3000
-
-Currently you also have to define a default login/pwd (which should go away soon1)
-
-    export GIT_DEFAULT_USER=foo
-    export GIT_DEFAULT_PASSWORD=bar
 
 Then run:
 
