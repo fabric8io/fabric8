@@ -275,6 +275,8 @@ KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 CADVISOR=http://$DOCKER_IP:4194
 
+validateService "Fabric8 console" $FABRIC8_CONSOLE
+
 if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   FABRIC8_CONSOLE=${OPENSHIFT_MASTER_URL}
 
@@ -314,7 +316,6 @@ EOF
 
 echo
 
-validateService "Fabric8 console" $FABRIC8_CONSOLE
 validateService "Docker registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Influxdb" $INFLUXDB
