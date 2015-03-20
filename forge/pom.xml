@@ -32,7 +32,7 @@
 
   <modules>
     <module>addons</module>
-    <module>rest-core</module>
+    <module>fabric8-forge</module>
   </modules>
 
 </project>
