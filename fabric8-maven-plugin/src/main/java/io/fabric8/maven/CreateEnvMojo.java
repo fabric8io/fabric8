@@ -51,7 +51,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     private static final String DOCKE_ENV_PREFIX = "docker.env.";
-    private static final String DOCKE_NAME = "docker.name";
+    private static final String DOCKER_NAME = "docker.name";
     
     private final KubernetesClient kubernetes = new KubernetesClient();
 
@@ -78,7 +78,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 getProject().getProperties().setProperty(DOCKE_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
-            getProject().getProperties().setProperty(DOCKE_NAME, name);
+            getProject().getProperties().setProperty(DOCKER_NAME, name);
             Properties envProperties = new Properties();
             envProperties.putAll(env);
             saveProperties(envProperties, propertiesFile);
