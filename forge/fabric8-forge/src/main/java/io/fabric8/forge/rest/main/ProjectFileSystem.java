@@ -24,13 +24,16 @@ import io.fabric8.utils.Strings;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
 import java.io.File;
 
 /**
@@ -49,6 +52,10 @@ public class ProjectFileSystem {
         this.repositoryCache = repositoryCache;
         this.rootProjectFolder = rootProjectFolder;
         this.remote = remote;
+    }
+
+    public String getRemote() {
+        return remote;
     }
 
     public String getUserProjectFolderLocation(UserDetails userDetails) {
@@ -75,9 +82,10 @@ public class ProjectFileSystem {
         return projectFolder;
     }
 
-    public File getOrCloneUserProjectFolder(String user, String repositoryName, UserDetails userDetails) {
+    public File cloneOrPullProjetFolder(String user, String repositoryName, UserDetails userDetails) {
         File projectFolder = getUserProjectFolder(user, repositoryName);
         File gitFolder = new File(projectFolder, ".git");
+        CredentialsProvider credentialsProvider = userDetails.createCredentialsProvider();
         if (!Files.isDirectory(gitFolder) || !Files.isDirectory(projectFolder)) {
             GitRepoClient repoClient = userDetails.createRepoClient();
 
@@ -94,8 +102,7 @@ public class ProjectFileSystem {
             // clone the repo!
             boolean cloneAll = true;
             LOG.info("Cloning git repo " + cloneUrl + " into directory " + projectFolder.getAbsolutePath() + " cloneAllBranches: " + cloneAll);
-            CredentialsProvider credentialsProfivder = userDetails.createCredentialsProfivder();
-            CloneCommand command = Git.cloneRepository().setCredentialsProvider(credentialsProfivder).
+            CloneCommand command = Git.cloneRepository().setCredentialsProvider(credentialsProvider).
                     setCloneAllBranches(cloneAll).setURI(cloneUrl).setDirectory(projectFolder).setRemote(remote);
             try {
                 Git git = command.call();
@@ -103,7 +110,45 @@ public class ProjectFileSystem {
                 LOG.error("Failed to command remote repo " + cloneUrl + " due: " + e.getMessage(), e);
                 throw new RuntimeException("Failed to command remote repo " + cloneUrl + " due: " + e.getMessage());
             }
+        } else {
+            doPull(gitFolder, credentialsProvider, userDetails.getBranch());
         }
         return projectFolder;
     }
+
+    protected void doPull(File gitFolder, CredentialsProvider cp, String branch) {
+        try {
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            Repository repository = builder.setGitDir(gitFolder)
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
+
+            Git git = new Git(repository);
+
+            File projectFolder = repository.getDirectory();
+
+            StoredConfig config = repository.getConfig();
+            String url = config.getString("remote", remote, "url");
+            if (Strings.isNullOrBlank(url)) {
+                LOG.warn("No remote repository url for " + branch + " defined for the git repository at " + projectFolder.getCanonicalPath() + " so cannot pull");
+                //return;
+            }
+            String mergeUrl = config.getString("branch", branch, "merge");
+            if (Strings.isNullOrBlank(mergeUrl)) {
+                LOG.warn("No merge spec for branch." + branch + ".merge in the git repository at " + projectFolder.getCanonicalPath() + " so not doing a pull");
+                //return;
+            }
+
+            // lets trash any failed changes
+            LOG.info("Resetting the repo");
+            git.reset().setMode(ResetCommand.ResetType.HARD).call();
+
+            LOG.info("Performing a pull in git repository " + projectFolder.getCanonicalPath() + " on remote URL: " + url);
+            git.pull().setCredentialsProvider(cp).setRebase(true).call();
+        } catch (Throwable e) {
+            LOG.error("Failed to pull from the remote git repo with credentials " + cp + " due: " + e.getMessage() + ". This exception is ignored.", e);
+        }
+    }
+
 }

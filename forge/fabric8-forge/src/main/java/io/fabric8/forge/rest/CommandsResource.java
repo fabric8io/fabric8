@@ -13,7 +13,6 @@ import io.fabric8.forge.rest.main.ProjectFileSystem;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.forge.rest.ui.RestUIContext;
 import io.fabric8.forge.rest.ui.RestUIRuntime;
-import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.resource.Resource;
@@ -403,12 +402,14 @@ public class CommandsResource {
 
                     UserDetails userDetails = gitUserHelper.createUserDetails(request);
 
+                    File file = projectFileSystem.cloneOrPullProjetFolder(userId, repositoryName, userDetails);
 
-                    File file = projectFileSystem.getOrCloneUserProjectFolder(userId, repositoryName, userDetails);
+
                     selection = resourceFactory.create(file);
                 }
             } else {
                 LOG.warn("Unknown path of the form user/{userId}/{repositoryName}");
+                throw new RuntimeException("Expected path of the form user/{userId}/{repositoryName} but got: " + path);
             }
         }
         return new RestUIContext(selection);

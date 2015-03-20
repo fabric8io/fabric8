@@ -28,6 +28,7 @@ public class UserDetails {
     private final String password;
     private final String address;
     private final String email;
+    private String branch = "master";
 
     public UserDetails(String address, String user, String password, String email) {
         this.user = user;
@@ -56,11 +57,19 @@ public class UserDetails {
         return address;
     }
 
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
     public GitRepoClient createRepoClient() {
         return new GitRepoClient(address, user, password);
     }
 
-    public CredentialsProvider createCredentialsProfivder() {
+    public CredentialsProvider createCredentialsProvider() {
         return  new UsernamePasswordCredentialsProvider(user, password);
     }
 }
