@@ -10,7 +10,7 @@ These JSON schema files will also be used by the [fabric8:json maven goal](maven
 
 If you have transitive dependencies which include the generated **io/fabric8/environment/schema.json** file in their jars you can view the overall list of environment variable injection points for a project via:
 
-      mvn fabric8:env
+      mvn fabric8:describe-env
 
 This will then list all the environment variables, their default value, type and description.
 
