@@ -28,7 +28,7 @@
     <artifactId>fabric8-agent</artifactId>
     <packaging>jar</packaging>
 
-    <name>Fabric8 ::Agent</name>
+    <name>Fabric8 :: Agent</name>
 
     <dependencies>
         <dependency>
