@@ -86,8 +86,11 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
             @Override
             public String call() throws Exception {
                 String value = componentName.getValue();
-                // TODO if we already have a component instance of the same name
-                // then lets return null
+                if (value != null) {
+                    // the component may have a dash, so remove it
+                    value = value.replaceAll("-", "");
+                }
+                // TODO if we already have a instance of the same name then lets return null
                 return value;
             }
         });

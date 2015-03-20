@@ -41,8 +41,12 @@ import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+import org.jboss.forge.roaster.model.source.JavaClassSource;
+import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
 
+import static io.fabric8.forge.camel.commands.project.CamelCommands.ensureCamelArtifactIdAdded;
+import static io.fabric8.forge.camel.commands.project.CamelCommands.loadCamelComponentDetails;
 import static io.fabric8.forge.camel.commands.project.UIHelper.createUIInput;
 
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
@@ -123,7 +127,19 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 return Results.fail("The project does not include camel-core");
             }
 
-            // just build the uri and print to concole
+            // lets find the camel component class
+            CamelComponentDetails details = new CamelComponentDetails();
+            Result result = loadCamelComponentDetails(camelComponentName, details);
+            if (result != null) {
+                return result;
+            }
+            // and make sure its dependency is added
+            result = ensureCamelArtifactIdAdded(project, details, dependencyInstaller);
+            if (result != null) {
+                return result;
+            }
+
+            // collect all the options that was set
             Map<String, String> options = new HashMap<String, String>();
             for (InputComponent input : inputs) {
                 String key = input.getName();
@@ -136,22 +152,37 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 }
             }
 
-            /* TODO: requires Camel 2.15.1
-            CamelCatalog catalog = new DefaultCamelCatalog();
+            // TODO: require Camel 2.15.1
+            /*CamelCatalog catalog = new DefaultCamelCatalog();
             String uri = catalog.asEndpointUri(camelComponentName, options);
-            if (uri != null) {
-                return Results.success("Endpoint uri: " + uri);
+            if (uri == null) {
+                return Results.fail("Cannot create endpoint uri");
             }*/
+            String uri = "We need Camel 2.15.1";
 
-            // TODO: find the route builder, and then add the endpoint to its source code somehow
-            String fqn = routeBuilder;
-
-            JavaResource existing = facet.getJavaResource(fqn);
-            if (existing != null && existing.exists()) {
-                return Results.fail("A class with name " + fqn + " already exists");
+            JavaResource existing = facet.getJavaResource(routeBuilder);
+            if (existing == null || !existing.exists()) {
+                return Results.fail("RouteBuilder " + routeBuilder + " does not exist");
             }
 
-            // TODO: generate uri to add
+            JavaClassSource clazz = existing.getJavaType();
+            MethodSource configure = clazz.getMethod("configure");
+            String body = configure.getBody();
+
+            // make sure to import the Camel endpoint
+            clazz.addImport("org.apache.camel.Endpoint");
+
+            // insert the endpoint code
+            StringBuilder sb = new StringBuilder(body);
+            String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
+            sb.insert(0, line);
+            body = sb.toString();
+
+            // set the updated body
+            configure.setBody(body);
+
+            // update source code
+            facet.saveJavaSource(clazz);
 
             return Results.success("Added endpoint " + endpointInstanceName + " to " + routeBuilder);
         } catch (IllegalArgumentException e) {
