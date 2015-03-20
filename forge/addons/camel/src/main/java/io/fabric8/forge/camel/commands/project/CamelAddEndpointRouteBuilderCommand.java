@@ -92,8 +92,7 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
             }
         });
 
-        // TODO: a completer for RouteBuilder classes
-        routeBuilder.setCompleter(null);
+        routeBuilder.setCompleter(new RouteBuilderCompleter(facet));
 
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(routeBuilder);
     }
