@@ -134,8 +134,7 @@ export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
 export KUBERNETES=https://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} cli --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
-KUBE_EX="docker run --rm -i --net=host -v /var/lib/openshift:/var/lib/openshift --privileged ${OPENSHIFT_IMAGE} ex --kubeconfig=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig --credentials=/var/lib/openshift/openshift.local.certificates/admin/.kubeconfig"
+KUBE="docker exec -i openshift openshift cli"
 
 if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   PUBLIC_MASTER_ARG="--public-master=${OPENSHIFT_MASTER_URL}"
@@ -159,8 +158,9 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
-$KUBE_EX router --create --ports=80:80,443:443
-$KUBE_EX registry --create
+docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG router --create"
+docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG registry --create"
+docker exec -i openshift sh -c "openshift ex policy add-user cluster-admin htpasswd:admin -n master"
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
