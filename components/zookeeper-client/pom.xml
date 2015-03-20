@@ -57,7 +57,7 @@
             </fuse.osgi.private.pkg>
     -->
 
-    <fabric8.env.DUMMY>used to test mvn fabric8:env</fabric8.env.DUMMY>
+    <fabric8.env.DUMMY>used to test mvn fabric8:describe-env</fabric8.env.DUMMY>
   </properties>
 
   <dependencies>

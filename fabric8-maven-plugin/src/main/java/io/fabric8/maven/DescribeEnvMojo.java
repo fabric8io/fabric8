@@ -36,8 +36,8 @@ import java.util.TreeMap;
  * known maven properties and any detected <code>io/fabric8/environment/schema.json</code> files
  * found on the classpath
  */
-@Mojo(name = "env", defaultPhase = LifecyclePhase.COMPILE)
-public class EnvironmentMojo extends AbstractFabric8Mojo {
+@Mojo(name = "describe-env", defaultPhase = LifecyclePhase.COMPILE)
+public class DescribeEnvMojo extends AbstractFabric8Mojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
