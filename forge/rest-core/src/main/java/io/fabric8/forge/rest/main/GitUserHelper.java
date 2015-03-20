@@ -68,6 +68,11 @@ public class GitUserHelper {
                 }
             }
         }
-        return new UserDetails(address, user, password);
+        String email = "dummy@gmail.com";
+        String emailHeader = request.getHeader("Email");
+        if (!Strings.isNullOrEmpty(emailHeader)) {
+            email = emailHeader;
+        }
+        return new UserDetails(address, user, password, email);
     }
 }

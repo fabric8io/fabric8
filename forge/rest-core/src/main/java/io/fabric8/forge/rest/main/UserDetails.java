@@ -27,14 +27,13 @@ public class UserDetails {
     private final String user;
     private final String password;
     private final String address;
+    private final String email;
 
-    // TODO
-    private String email = "dummy@gmail.com";
-
-    public UserDetails(String address, String user, String password) {
+    public UserDetails(String address, String user, String password, String email) {
         this.user = user;
         this.password = password;
         this.address = address;
+        this.email = email;
     }
 
 
