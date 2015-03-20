@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -78,9 +80,9 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
         Project project = getSelectedProject(builder.getUIContext());
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
-        componentNameFilter.setValueChoices(CamelCommands.createComponentNameValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommands.createComponentNameValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
 
         instanceName.setDefaultValue(new Callable<String>() {
             @Override

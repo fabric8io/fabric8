@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -32,7 +33,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findComponentArchetype;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findComponentArchetype;
 
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
@@ -59,7 +60,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
             Project project = getSelectedProjectOrNull(context);
-            return project != null && !CamelCommands.isCdiProject(project) && !CamelCommands.isSpringProject(project);
+            return project != null && !CamelCommandsHelper.isCdiProject(project) && !CamelCommandsHelper.isSpringProject(project);
         }
         return false;
     }
@@ -68,9 +69,9 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        componentNameFilter.setValueChoices(CamelCommands.createComponentNameValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommands.createComponentNameValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
 
         builder.add(componentNameFilter).add(componentName);
     }

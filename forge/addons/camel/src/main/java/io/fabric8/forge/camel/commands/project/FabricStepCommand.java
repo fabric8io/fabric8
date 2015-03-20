@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;

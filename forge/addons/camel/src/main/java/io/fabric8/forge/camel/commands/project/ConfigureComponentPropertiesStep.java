@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -44,9 +46,10 @@ import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.util.Strings;
 
-import static io.fabric8.forge.camel.commands.project.CamelCommands.ensureCamelArtifactIdAdded;
-import static io.fabric8.forge.camel.commands.project.CamelCommands.loadCamelComponentDetails;
-import static io.fabric8.forge.camel.commands.project.UIHelper.createUIInput;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadValidInputTypes;
+import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
 
 public class ConfigureComponentPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
@@ -87,7 +90,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                 String enums = propertyMap.get("enum");
 
                 if (!Strings.isNullOrEmpty(name)) {
-                    Class<Object> inputClazz = CamelCommands.loadValidInputTypes(javaType, type);
+                    Class<Object> inputClazz = loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
                             InputComponent input = createUIInput(componentFactory, name, inputClazz, required, defaultValue, enums, description);
@@ -184,9 +187,9 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
             }
             String configurationCode = buffer.toString();
             if (kind.equals("cdi")) {
-                CamelCommands.createCdiComponentProducerClass(javaClass, details, camelComponentName, componentInstanceName, configurationCode);
+                CamelCommandsHelper.createCdiComponentProducerClass(javaClass, details, camelComponentName, componentInstanceName, configurationCode);
             } else {
-                CamelCommands.createSpringComponentFactoryClass(javaClass, details, camelComponentName, componentInstanceName, configurationCode);
+                CamelCommandsHelper.createSpringComponentFactoryClass(javaClass, details, camelComponentName, componentInstanceName, configurationCode);
             }
 
             facet.saveJavaSource(javaClass);

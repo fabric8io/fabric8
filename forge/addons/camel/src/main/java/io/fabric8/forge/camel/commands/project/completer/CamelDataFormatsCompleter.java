@@ -13,13 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.camel.commands.project.completer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -29,8 +30,8 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.dataFormatsFromArtifact;
-import static io.fabric8.forge.camel.commands.project.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.dataFormatsFromArtifact;
+import static io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper.findCamelArtifacts;
 
 public class CamelDataFormatsCompleter implements UICompleter<String> {
 

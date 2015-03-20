@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.completer.CamelDataFormatsCompleter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -32,7 +33,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findDataFormatArchetype;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findDataFormatArchetype;
 
 public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 

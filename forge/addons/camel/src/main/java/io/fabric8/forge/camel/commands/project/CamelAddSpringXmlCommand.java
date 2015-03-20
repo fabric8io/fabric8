@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import io.fabric8.forge.camel.commands.project.validator.ResourceNameValidator;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
@@ -45,10 +47,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findComponentArchetype;
-
 @FacetConstraint({ResourcesFacet.class})
-public class CamelAddSpringXml extends AbstractCamelProjectCommand {
+public class CamelAddSpringXmlCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "directory", required = false, defaultValue = "META-INF/spring",
@@ -74,8 +74,8 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
         if (enabled) {
             Project project = getSelectedProject(context);
             // not enable for cdi or blueprint projects
-            boolean cdi = CamelCommands.isCdiProject(project);
-            boolean blueprint = CamelCommands.isBlueprintProject(project);
+            boolean cdi = CamelCommandsHelper.isCdiProject(project);
+            boolean blueprint = CamelCommandsHelper.isBlueprintProject(project);
             return !cdi && !blueprint;
         }
         return false;
@@ -83,7 +83,7 @@ public class CamelAddSpringXml extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddRouteBuilder.class).name(
+        return Metadata.forCommand(CamelAddRouteBuilderCommand.class).name(
                 "Camel: New XML spring").category(Categories.create(CATEGORY))
                 .description("Adds a new Spring XML file with CamelContext to your project");
     }

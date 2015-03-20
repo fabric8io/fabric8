@@ -13,13 +13,19 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.camel.commands.project.validator;
 
 import org.jboss.forge.addon.parser.java.ui.validators.AbstractJLSUIValidator;
 import org.jboss.forge.addon.parser.java.utils.ResultType;
 import org.jboss.forge.addon.parser.java.utils.ValidationResult;
 
-public class PackageNameValidator extends AbstractJLSUIValidator {
+public class ResourceNameValidator extends AbstractJLSUIValidator {
+
+    private String extension;
+
+    public ResourceNameValidator(String extension) {
+        this.extension = extension;
+    }
 
     @Override
     protected ValidationResult validate(String s) {
@@ -27,22 +33,14 @@ public class PackageNameValidator extends AbstractJLSUIValidator {
             return new ValidationResult(ResultType.INFO);
         }
 
-        // is it a valid class name
-        char[] chars = s.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char ch = chars[i];
+        if (extension != null && !s.endsWith("." + extension)) {
+            return new ValidationResult(ResultType.ERROR, "The file name [" + s + "] must be a " + extension + " file");
+        }
 
-            if (i > 0 && ch == '.') {
-                // a dot is valid as its a package name separator
-                continue;
-            }
-            if (!Character.isJavaIdentifierPart(ch)) {
-                return new ValidationResult(ResultType.ERROR, "The package name [" + s + "] is invalid at position " + (i + 1));
-            }
-            // they must all be lower case for alphas
-            if (Character.isAlphabetic(ch) && !Character.isLowerCase(ch)) {
-                return new ValidationResult(ResultType.ERROR, "The package name [" + s + "] must be lower case alphabetic character");
-            }
+        // min length
+        int min = extension != null ? extension.length() + 2 : 1;
+        if (s.length() < min) {
+            return new ValidationResult(ResultType.ERROR, "The file name [" + s + "] must be at least " + min + " characters");
         }
 
         return new ValidationResult(ResultType.INFO);

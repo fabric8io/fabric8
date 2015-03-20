@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import io.fabric8.forge.camel.commands.project.validator.ResourceNameValidator;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
@@ -46,7 +48,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 @FacetConstraint({ResourcesFacet.class})
-public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
+public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "directory", required = false, defaultValue = "OSGI-INF/blueprint",
@@ -72,8 +74,8 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
         if (enabled) {
             Project project = getSelectedProject(context);
             // not enable for cdi or spring projects
-            boolean cdi = CamelCommands.isCdiProject(project);
-            boolean spring = CamelCommands.isSpringProject(project);
+            boolean cdi = CamelCommandsHelper.isCdiProject(project);
+            boolean spring = CamelCommandsHelper.isSpringProject(project);
             return !cdi && !spring;
         }
         return false;
@@ -81,7 +83,7 @@ public class CamelAddBlueprintXml extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddRouteBuilder.class).name(
+        return Metadata.forCommand(CamelAddRouteBuilderCommand.class).name(
                 "Camel: New XML blueprint").category(Categories.create(CATEGORY))
                 .description("Adds a new Blueprint XML file with CamelContext to your project");
     }

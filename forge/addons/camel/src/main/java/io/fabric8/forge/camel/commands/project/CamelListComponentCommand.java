@@ -29,7 +29,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.componentsFromArtifact;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
 
 public class CamelListComponentCommand extends AbstractCamelProjectCommand {
 

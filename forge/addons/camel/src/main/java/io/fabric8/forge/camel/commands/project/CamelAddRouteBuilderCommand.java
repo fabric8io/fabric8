@@ -17,6 +17,9 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.completer.PackageNameCompleter;
+import io.fabric8.forge.camel.commands.project.validator.ClassNameValidator;
+import io.fabric8.forge.camel.commands.project.validator.PackageNameValidator;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -37,7 +40,7 @@ import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class})
-public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
+public class CamelAddRouteBuilderCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "targetPackage", required = false, description = "The package name where this type will be created")
@@ -49,7 +52,7 @@ public class CamelAddRouteBuilder extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddRouteBuilder.class).name(
+        return Metadata.forCommand(CamelAddRouteBuilderCommand.class).name(
                 "Camel: New RouteBuilder").category(Categories.create(CATEGORY))
                 .description("Adds a Camel RouteBuilder class to your project");
     }

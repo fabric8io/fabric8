@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.completer.CamelLanguagesCompleter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -32,7 +33,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findLanguageArchetype;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findLanguageArchetype;
 
 public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 

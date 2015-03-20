@@ -15,6 +15,10 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import io.fabric8.forge.camel.commands.project.completer.PackageNameCompleter;
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import io.fabric8.forge.camel.commands.project.validator.ClassNameValidator;
+import io.fabric8.forge.camel.commands.project.validator.PackageNameValidator;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -82,7 +86,7 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
     public boolean isEnabled(UIContext context) {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
-            return CamelCommands.isCdiProject(getSelectedProject(context));
+            return CamelCommandsHelper.isCdiProject(getSelectedProject(context));
         }
         return false;
     }
@@ -92,9 +96,9 @@ public class CamelAddComponentInstanceCDICommand extends AbstractCamelProjectCom
         Project project = getSelectedProject(builder.getUIContext());
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
-        componentNameFilter.setValueChoices(CamelCommands.createComponentNameValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommands.createComponentNameValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
 
         instanceName.setDefaultValue(new Callable<String>() {
             @Override

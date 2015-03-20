@@ -13,12 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.camel.commands.project.completer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.Dependency;

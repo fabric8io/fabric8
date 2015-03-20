@@ -13,13 +13,18 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.camel.commands.project.helper;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.fabric8.forge.camel.commands.project.CamelComponentDetails;
+import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
+import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
+import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.camel.commands.project.helper.JavaHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -34,7 +39,7 @@ import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
 
-public final class CamelCommands {
+public final class CamelCommandsHelper {
 
     // to speed up performance on command line completion lets not perform a full classpath validation of the project until its being used on a command
     private static final boolean validateClassPathForProjectValidation = false;
@@ -112,7 +117,7 @@ public final class CamelCommands {
         return CamelProjectHelper.findCamelBlueprintDependency(project) != null;
     }
 
-    protected static void createCdiComponentProducerClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
+    public static void createCdiComponentProducerClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
         javaClass.addImport("javax.enterprise.inject.Produces");
         javaClass.addImport("javax.inject.Singleton");
         javaClass.addImport("javax.inject.Named");
@@ -135,7 +140,7 @@ public final class CamelCommands {
         method.addAnnotation("Singleton");
     }
 
-    protected static void createSpringComponentFactoryClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
+    public static void createSpringComponentFactoryClass(JavaClassSource javaClass, CamelComponentDetails details, String camelComponentName, String componentInstanceName, String configurationCode) {
         javaClass.addAnnotation("Component");
 
         javaClass.addImport("org.springframework.beans.factory.config.BeanDefinition");
@@ -165,7 +170,7 @@ public final class CamelCommands {
     /**
      * Converts a java type as a string to a valid input type and returns the class or null if its not supported
      */
-    protected static Class<Object> loadValidInputTypes(String javaType, String type) {
+    public static Class<Object> loadValidInputTypes(String javaType, String type) {
         try {
             Class<Object> clazz = getPrimitiveClassType(type);
             if (clazz == null) {
