@@ -23,8 +23,8 @@
     <artifactId>forge-parent</artifactId>
     <version>2.2-SNAPSHOT</version>
   </parent>
-  <artifactId>rest-core</artifactId>
-  <name>Fabric8 :: Forge :: REST Core</name>
+  <artifactId>fabric8-forge</artifactId>
+  <name>Fabric8 :: Forge :: REST Service</name>
 
   <properties>
     <addon.repository>${project.build.directory}/addon-repository</addon.repository>
