@@ -33,7 +33,7 @@ CLEANUP=0
 DONT_RUN=0
 FABRIC8_VAGRANT_IP=172.28.128.4
 
-while getopts "fud:kpm:" opt; do
+while getopts "fud:kpm:P:" opt; do
   case $opt in
     k)
       DEPLOY_IMAGES="${ALL_IMAGES}"
@@ -58,7 +58,10 @@ while getopts "fud:kpm:" opt; do
       DOCKER_IP=$OPTARG
       ;;
     m)
-      OPENSHIFT_MASTER_URL=$OPTARG
+      OPENSHIFT_MASTER_URL=${OPTARG##http*://}
+      ;;
+    P)
+      OPENSHIFT_ADMIN_PASSWORD=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -138,7 +141,14 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   PUBLIC_MASTER_ARG="--public-master=${OPENSHIFT_MASTER_URL}"
 fi
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
+if [ -n "${OPENSHIFT_ADMIN_PASSWORD}" ]; then
+  echo "Configuring OpenShift authentication"
+  docker run -v /openshift gliderlabs/alpine:3.1 sh -c "apk-install apache2-utils && htpasswd -bc /openshift/htpasswd admin ${OPENSHIFT_ADMIN_PASSWORD}" &> /dev/null
+  OPENSHIFT_VOLUME_MOUNT="--volumes-from=$(docker ps -ql)"
+  OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
+fi
+
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
 
 validateService()
 {
@@ -162,8 +172,63 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
     ${CADVISOR_IMAGE})
 fi
 
-if [ -f "$APP_BASE/fabric8.json" ]; then
-  cat $APP_BASE/fabric8.json | $KUBE create -f -
+deployFabric8Console() {
+  cat <<EOF | $KUBE create -f -
+---
+  id: "fabric8-config"
+  kind: "Config"
+  apiVersion: "v1beta1"
+  name: "fabric8-config"
+  description: "Creates a hawtio console"
+  items:
+    - apiVersion: "v1beta1"
+      containerPort: 9090
+      id: "fabric8-console-service"
+      kind: "Service"
+      port: 80
+      selector:
+        component: "fabric8Console"
+    - apiVersion: "v1beta1"
+      desiredState:
+        podTemplate:
+          desiredState:
+            manifest:
+              containers:
+                - image: "fabric8/hawtio-kubernetes:latest"
+                  name: "fabric8-console-container"
+                  imagePullPolicy: "PullIfNotPresent"
+                  env:
+                    - name: "KUBERNETES_TRUST_CERT"
+                      value: "true"
+                    - name: "PROXY_DISABLE_CERT_VALIDATION"
+                      value: "true"
+                  command:
+                    - --insecure
+                    - -w
+                    - /site
+                    - --api-prefix=/kubernetes/api/
+                    - --osapi-prefix=/kubernetes/osapi/
+                    - --404=/index.html
+                    $(test -n "${OPENSHIFT_MASTER_URL}" && echo "- --oauth-authorize-uri=https://${OPENSHIFT_MASTER_URL}:8443/oauth/authorize")
+                  ports:
+                    - containerPort: 9090
+                      protocol: "TCP"
+              id: "hawtioPod"
+              version: "v1beta1"
+          labels:
+            component: "fabric8Console"
+        replicaSelector:
+          component: "fabric8Console"
+        replicas: 1
+      id: "fabric8-console-controller"
+      kind: "ReplicationController"
+      labels:
+        component: "fabric8ConsoleController"
+EOF
+}
+
+deployFabric8Console
+if [ -f "$APP_BASE/influxdb.json" ]; then
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
   if [ ${DEPLOY_ALL} -eq 1 ]; then
@@ -174,8 +239,6 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
 else
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE create -f -
-
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
@@ -204,13 +267,34 @@ getServiceIp()
   echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $4 }'`
 }
 
-FABRIC8_CONSOLE=http://$(getServiceIp "$K8S_SERVICES" fabric8-console)/
+FABRIC8_CONSOLE=$(getServiceIp "$K8S_SERVICES" fabric8-console)/
 DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 CADVISOR=http://$DOCKER_IP:4194
+
+if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
+  FABRIC8_CONSOLE=${OPENSHIFT_MASTER_URL}
+
+  echo "Configuring OpenShift route"
+
+  cat <<EOF | $KUBE create -f -
+{
+  "id": "fabric8-console-route",
+  "metadata": {
+    "name": "fabric8-console-route"
+  },
+  "apiVersion": "v1beta1",
+  "kind": "Route",
+  "host": "${FABRIC8_CONSOLE}",
+  "serviceName": "fabric8-console-service"
+}
+EOF
+fi
+
+echo "Configuring OpenShift oauth"
 
 cat <<EOF | $KUBE create -f -
 {
@@ -220,14 +304,15 @@ cat <<EOF | $KUBE create -f -
     "name": "fabric8-console"
   },
   "redirectURIs": [
-    "http://fabric8.local",
     "http://localhost:9090",
     "http://localhost:2772",
     "http://localhost:9000",
-    "${FABRIC8_CONSOLE}"
+    "http://${FABRIC8_CONSOLE}"
   ]
 }
 EOF
+
+echo
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
 validateService "Docker registry" $DOCKER_REGISTRY
@@ -325,7 +410,7 @@ format="%-20s | %-60s\n"
 printf "${header}" Service URL
 printf "${header}" "-------" "---"
 printf "${format}" "Kubernetes master" $KUBERNETES
-printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
+printf "${format}" "Fabric8 console" http://$FABRIC8_CONSOLE
 printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Kibana console" $KIBANA_CONSOLE
@@ -340,7 +425,7 @@ printf "$SERVICE_TABLE" | column -t -s '|'
 printf "\n"
 printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
-printf "%s\n" "export FABRIC8_CONSOLE=$FABRIC8_CONSOLE"
+printf "%s\n" "export FABRIC8_CONSOLE=http://$FABRIC8_CONSOLE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
 printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
 if [[ -z "${DOCKER_HOST}" ]]; then
@@ -348,7 +433,7 @@ if [[ -z "${DOCKER_HOST}" ]]; then
 fi
 
 if [[ $OSTYPE == darwin* ]]; then
-  open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
+  open "http://${FABRIC8_CONSOLE}/kubernetes/overview" &> /dev/null &
 else
-  xdg-open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
+  xdg-open "http://${FABRIC8_CONSOLE}/kubernetes/overview" &> /dev/null &
 fi

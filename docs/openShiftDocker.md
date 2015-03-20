@@ -140,11 +140,19 @@ can pass the `-m` flag & specify the public address:
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -m fabric8.local
 
+#### OpenShift admin password
+
+By default, OpenShift uses an `anypassword` policy which means that you can use...any password. This is great for quick
+setups, but not great for security obviously. If you want to set up a password for the default `admin` user, use the
+`-P` flag:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -P password123
+
 #### Combination
 
 And of course flags can be combined, to start from scratch & update all images at once:
 
-    bash <(curl -sSL https://bit.ly/get-fabric8) -kuf -m fabric8.local
+    bash <(curl -sSL https://bit.ly/get-fabric8) -kuf -m fabric8.local -P password123
 
 ---
 
