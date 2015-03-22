@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.utils.Strings;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -29,9 +30,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,12 +60,14 @@ public class KubernetesFactory {
     public static final String KUBERNETES_RO_SERVICE_HOST_ENV_VAR = "KUBERNETES_RO_SERVICE_HOST";
     public static final String KUBERNETES_RO_SERVICE_PORT_ENV_VAR = "KUBERNETES_RO_SERVICE_PORT";
     public static final String KUBERNETES_MASTER_ENV_VAR = "KUBERNETES_MASTER";
+    public static final String KUBERNETES_CA_CERTIFICATE_ENV_VAR = "KUBERNETES_CA_CERTIFICATE";
     public static final String KUBERNETES_MASTER_SYSTEM_PROPERTY = "kubernetes.master";
 
     private String address;
     private boolean verifyAddress = true;
     private boolean trustAllCerts = false;
 
+    private File caCertFile;
     private String username;
     private String password;
 
@@ -106,6 +114,13 @@ public class KubernetesFactory {
     private void init() {
         if (System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES) != null) {
             this.trustAllCerts = Boolean.valueOf(System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES));
+        } else if (System.getenv(KUBERNETES_CA_CERTIFICATE_ENV_VAR) != null) {
+            File possibleCaCertFile = new File(System.getenv(KUBERNETES_CA_CERTIFICATE_ENV_VAR));
+            if (possibleCaCertFile.exists() && possibleCaCertFile.canRead()) {
+                this.caCertFile = possibleCaCertFile;
+            } else {
+                log.error("Specified CA certificate file {} does not exist or is not readable", possibleCaCertFile);
+            }
         }
 
         if (System.getenv(KUBERNETES_USERNAME) != null) {
@@ -139,6 +154,8 @@ public class KubernetesFactory {
         configureAuthDetails(webClient);
         if (trustAllCerts) {
             disableSslChecks(webClient);
+        } else if (caCertFile != null) {
+            configureCaCert(webClient);
         }
         return JAXRSClientFactory.fromClient(webClient, clientType);
     }
@@ -281,6 +298,48 @@ public class KubernetesFactory {
         }
     }
 
+    private void configureCaCert(WebClient webClient) {
+        try {
+            FileInputStream pemFileStream = new FileInputStream(caCertFile);
+            CertificateFactory certFactory = CertificateFactory.getInstance("X509");
+            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(pemFileStream);
+
+            KeyStore trustStore = KeyStore.getInstance("JKS");
+            trustStore.load(null);
+
+            String alias = cert.getSubjectX500Principal().getName();
+            trustStore.setCertificateEntry(alias, cert);
+
+            TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+
+            HTTPConduit conduit = WebClient.getConfig(webClient)
+                    .getHttpConduit();
+
+            TLSClientParameters params = conduit.getTlsClientParameters();
+
+            if (params == null) {
+                params = new TLSClientParameters();
+                conduit.setTlsClientParameters(params);
+            }
+
+            TrustManager[] existingTrustManagers = params.getTrustManagers();
+            TrustManager[] trustManagers;
+
+            if (existingTrustManagers == null || ArrayUtils.isEmpty(existingTrustManagers)) {
+                trustManagers = trustManagerFactory.getTrustManagers();
+            } else {
+                trustManagers = (TrustManager[]) ArrayUtils.addAll(existingTrustManagers, trustManagerFactory.getTrustManagers());
+            }
+
+            params.setTrustManagers(trustManagers);
+
+        } catch (Exception e) {
+            log.error("Could not create trust manager for " + caCertFile, e);
+        }
+    }
+
     private void disableSslChecks(WebClient webClient) {
         HTTPConduit conduit = WebClient.getConfig(webClient)
                 .getHttpConduit();
@@ -317,13 +376,14 @@ public class KubernetesFactory {
          * Returns an SSLSocketFactory that will trust all SSL certificates; this is suitable for passing to
          * HttpsURLConnection, either to its instance method setSSLSocketFactory, or to its static method
          * setDefaultSSLSocketFactory.
+         *
+         * @return SSLSocketFactory suitable for passing to HttpsUrlConnection
          * @see HttpsURLConnection#setSSLSocketFactory(SSLSocketFactory)
          * @see HttpsURLConnection#setDefaultSSLSocketFactory(SSLSocketFactory)
-         * @return SSLSocketFactory suitable for passing to HttpsUrlConnection
          */
         public synchronized static SSLSocketFactory getTrustingSSLSocketFactory() {
             if (socketFactory != null) return socketFactory;
-            TrustManager[] trustManagers = new TrustManager[] { new TrustEverythingSSLTrustManager() };
+            TrustManager[] trustManagers = new TrustManager[]{new TrustEverythingSSLTrustManager()};
             SSLContext sc;
             try {
                 sc = SSLContext.getInstance("SSL");
@@ -335,8 +395,10 @@ public class KubernetesFactory {
             return socketFactory;
         }
 
-        /** Automatically trusts all SSL certificates in the current process; this is dangerous.  You should
+        /**
+         * Automatically trusts all SSL certificates in the current process; this is dangerous.  You should
          * probably prefer to configure individual HttpsURLConnections with trustAllSSLCertificates
+         *
          * @see #trustAllSSLCertificates(HttpsURLConnection)
          */
         public static void trustAllSSLCertificatesUniversally() {
@@ -344,7 +406,8 @@ public class KubernetesFactory {
             HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
         }
 
-        /** Configures a single HttpsURLConnection to trust all SSL certificates.
+        /**
+         * Configures a single HttpsURLConnection to trust all SSL certificates.
          *
          * @param connection an HttpsURLConnection which will be configured to trust all certs
          */
