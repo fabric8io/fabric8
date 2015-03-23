@@ -42,7 +42,7 @@ public class XmlFileCompleter implements UICompleter<String> {
                     // must contain <camelContext...
                     boolean camel = resource.getContents().contains("<camelContext");
                     if (camel) {
-                        files.add(resource.getFullyQualifiedName());
+                        files.add(resource.getName());
                     }
                 }
             }

@@ -15,6 +15,7 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,8 @@ import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+import org.jboss.forge.addon.projects.facets.ResourcesFacet;
+import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
@@ -43,6 +46,8 @@ import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+import org.jboss.forge.parser.xml.Node;
+import org.jboss.forge.parser.xml.XMLParser;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
@@ -202,11 +207,100 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         String xml = mandatoryAttributeValue(attributeMap, "xml");
 
         Project project = getSelectedProject(context);
+        ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
 
-        // TODO: implement me
+        // does the project already have camel?
+        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+        if (core == null) {
+            return Results.fail("The project does not include camel-core");
+        }
 
-        return Results.success("Added endpoint " + endpointInstanceName + " to " + xml);
+        // lets find the camel component class
+        CamelComponentDetails details = new CamelComponentDetails();
+        Result result = loadCamelComponentDetails(camelComponentName, details);
+        if (result != null) {
+            return result;
+        }
+        // and make sure its dependency is added
+        result = ensureCamelArtifactIdAdded(project, details, dependencyInstaller);
+        if (result != null) {
+            return result;
+        }
+
+        // collect all the options that was set
+        Map<String, String> options = new HashMap<String, String>();
+        for (InputComponent input : inputs) {
+            String key = input.getName();
+            // only use the value if a value was set
+            if (input.hasValue()) {
+                String value = input.getValue().toString();
+                if (value != null) {
+                    options.put(key, value);
+                }
+            }
+        }
+
+        // TODO: require Camel 2.15.1
+            /*CamelCatalog catalog = new DefaultCamelCatalog();
+            String uri = catalog.asEndpointUri(camelComponentName, options);
+            if (uri == null) {
+                return Results.fail("Cannot create endpoint uri");
+            }*/
+        String uri = "We need Camel 2.15.1";
+
+        FileResource file = facet.getResource(xml);
+        if (!file.exists()) {
+            return Results.fail("Cannot find XML file " + xml);
+        }
+
+        // TODO: Need this implemented: https://issues.jboss.org/browse/FORGE-2293
+        // TODO: endpoints need to be inserted into correct order, eg if there is <routes> etc.
+        Node root = XMLParser.parse(file.getResourceInputStream());
+        if (root != null) {
+            Node camel = root.getSingle("camelContext");
+            if (camel != null) {
+
+                // find existing by id
+                Node found = null;
+                for (Node endpoint : camel.get("endpoint")) {
+                    if (endpointInstanceName.equals(endpoint.getAttribute("id"))) {
+                        found = endpoint;
+                        break;
+                    }
+                }
+
+                // TODO: need to insert this at correct position!
+                if (found == null) {
+                    found = camel.createChild("endpoint");
+                }
+                found.attribute("id", endpointInstanceName);
+                found.attribute("uri", uri);
+            }
+
+            InputStream is = XMLParser.toXMLInputStream(root);
+            if (is != null) {
+                // save data back to file
+                file.setContents(is);
+                is.close();
+            }
+
+            return Results.success("Added endpoint " + endpointInstanceName + " to xml file " + xml);
+        } else {
+            return Results.fail("Cannot parse XML file " + xml);
+        }
     }
+
+//    <xs:element minOccurs="0" ref="tns:dataFormats"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:redeliveryPolicyProfile"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:onException"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:onCompletion"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:intercept"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:interceptFrom"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:interceptSendToEndpoint"/>
+//    <xs:element minOccurs="0" ref="tns:restConfiguration"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:rest"/>
+//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:route"/>
+
 
     /**
      * Returns the mandatory String value of the given name
