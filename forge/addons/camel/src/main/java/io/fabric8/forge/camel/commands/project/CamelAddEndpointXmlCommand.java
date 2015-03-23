@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
+import io.fabric8.forge.camel.commands.project.completer.XmlFileCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
@@ -78,7 +78,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
-        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
+        ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
 
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
@@ -97,8 +97,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             }
         });
 
-        xml.setCompleter(new RouteBuilderCompleter(facet));
-
+        xml.setCompleter(new XmlFileCompleter(resourcesFacet));
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(xml);
     }
 
