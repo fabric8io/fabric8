@@ -44,7 +44,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
-public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCommand implements UIWizard {
+public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
@@ -59,8 +59,8 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
     private UISelectOne<String> instanceName;
 
     @Inject
-    @WithAttributes(label = "routeBuilder", required = true, description = "The RouteBuilder class to use")
-    private UIInput<String> routeBuilder;
+    @WithAttributes(label = "file", required = true, description = "The XML file to use (either Spring or Blueprint)")
+    private UIInput<String> xml;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -70,9 +70,9 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddEndpointRouteBuilderCommand.class).name(
-                "Camel: Add Endpoint RouteBuilder").category(Categories.create(CATEGORY))
-                .description("Adds a Camel endpoint to an existing RouteBuilder");
+        return Metadata.forCommand(CamelAddEndpointXmlCommand.class).name(
+                "Camel: Add Endpoint XML").category(Categories.create(CATEGORY))
+                .description("Adds a Camel endpoint to an existing XML file");
     }
 
     @Override
@@ -97,9 +97,9 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
             }
         });
 
-        routeBuilder.setCompleter(new RouteBuilderCompleter(facet));
+        xml.setCompleter(new RouteBuilderCompleter(facet));
 
-        builder.add(componentNameFilter).add(componentName).add(instanceName).add(routeBuilder);
+        builder.add(componentNameFilter).add(componentName).add(instanceName).add(xml);
     }
 
     @Override
@@ -107,8 +107,8 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
         attributeMap.put("componentName", componentName.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
-        attributeMap.put("routeBuilder", routeBuilder.getValue());
-        attributeMap.put("kind", "java");
+        attributeMap.put("xml", xml.getValue());
+        attributeMap.put("kind", "xml");
         return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
     }
 
