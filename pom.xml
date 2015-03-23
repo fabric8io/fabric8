@@ -115,7 +115,7 @@
         <assertj.core.version>1.7.0</assertj.core.version>
         <blueprint-web.version>1.0.0</blueprint-web.version>
         <bndlib.version>2.1.0</bndlib.version>
-        <bouncycastle.version>1.49</bouncycastle.version>
+        <bouncycastle.version>1.52</bouncycastle.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
         <camel.version-range>[2.15,3)</camel.version-range>
         <camel.version>2.15.0</camel.version>
@@ -2883,6 +2883,12 @@
               <groupId>org.jolokia</groupId>
               <artifactId>jolokia-jvm</artifactId>
               <version>${jolokia.version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>net.oauth.core</groupId>
+              <artifactId>oauth</artifactId>
+              <version>20100527</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
