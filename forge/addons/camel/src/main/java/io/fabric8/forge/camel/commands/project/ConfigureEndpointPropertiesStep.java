@@ -114,82 +114,98 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-        try {
-            String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
-            String endpointInstanceName = mandatoryAttributeValue(attributeMap, "instanceName");
-            String routeBuilder = mandatoryAttributeValue(attributeMap, "routeBuilder");
-            String kind = mandatoryAttributeValue(attributeMap, "kind");
+        String kind = mandatoryAttributeValue(attributeMap, "kind");
+        if ("xml".equals(kind)) {
+            return executeXml(context, attributeMap);
+        } else {
+            return executeJava(context, attributeMap);
+        }
+    }
 
-            Project project = getSelectedProject(context);
-            JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
+    protected Result executeJava(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
+        String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
+        String endpointInstanceName = mandatoryAttributeValue(attributeMap, "instanceName");
+        String routeBuilder = mandatoryAttributeValue(attributeMap, "routeBuilder");
 
-            // does the project already have camel?
-            Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
-            if (core == null) {
-                return Results.fail("The project does not include camel-core");
-            }
+        Project project = getSelectedProject(context);
+        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
-            // lets find the camel component class
-            CamelComponentDetails details = new CamelComponentDetails();
-            Result result = loadCamelComponentDetails(camelComponentName, details);
-            if (result != null) {
-                return result;
-            }
-            // and make sure its dependency is added
-            result = ensureCamelArtifactIdAdded(project, details, dependencyInstaller);
-            if (result != null) {
-                return result;
-            }
+        // does the project already have camel?
+        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+        if (core == null) {
+            return Results.fail("The project does not include camel-core");
+        }
 
-            // collect all the options that was set
-            Map<String, String> options = new HashMap<String, String>();
-            for (InputComponent input : inputs) {
-                String key = input.getName();
-                // only use the value if a value was set
-                if (input.hasValue()) {
-                    String value = input.getValue().toString();
-                    if (value != null) {
-                        options.put(key, value);
-                    }
+        // lets find the camel component class
+        CamelComponentDetails details = new CamelComponentDetails();
+        Result result = loadCamelComponentDetails(camelComponentName, details);
+        if (result != null) {
+            return result;
+        }
+        // and make sure its dependency is added
+        result = ensureCamelArtifactIdAdded(project, details, dependencyInstaller);
+        if (result != null) {
+            return result;
+        }
+
+        // collect all the options that was set
+        Map<String, String> options = new HashMap<String, String>();
+        for (InputComponent input : inputs) {
+            String key = input.getName();
+            // only use the value if a value was set
+            if (input.hasValue()) {
+                String value = input.getValue().toString();
+                if (value != null) {
+                    options.put(key, value);
                 }
             }
+        }
 
-            // TODO: require Camel 2.15.1
+        // TODO: require Camel 2.15.1
             /*CamelCatalog catalog = new DefaultCamelCatalog();
             String uri = catalog.asEndpointUri(camelComponentName, options);
             if (uri == null) {
                 return Results.fail("Cannot create endpoint uri");
             }*/
-            String uri = "We need Camel 2.15.1";
+        String uri = "We need Camel 2.15.1";
 
-            JavaResource existing = facet.getJavaResource(routeBuilder);
-            if (existing == null || !existing.exists()) {
-                return Results.fail("RouteBuilder " + routeBuilder + " does not exist");
-            }
-
-            JavaClassSource clazz = existing.getJavaType();
-            MethodSource configure = clazz.getMethod("configure");
-            String body = configure.getBody();
-
-            // make sure to import the Camel endpoint
-            clazz.addImport("org.apache.camel.Endpoint");
-
-            // insert the endpoint code
-            StringBuilder sb = new StringBuilder(body);
-            String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
-            sb.insert(0, line);
-            body = sb.toString();
-
-            // set the updated body
-            configure.setBody(body);
-
-            // update source code
-            facet.saveJavaSource(clazz);
-
-            return Results.success("Added endpoint " + endpointInstanceName + " to " + routeBuilder);
-        } catch (IllegalArgumentException e) {
-            return Results.fail(e.getMessage());
+        JavaResource existing = facet.getJavaResource(routeBuilder);
+        if (existing == null || !existing.exists()) {
+            return Results.fail("RouteBuilder " + routeBuilder + " does not exist");
         }
+
+        JavaClassSource clazz = existing.getJavaType();
+        MethodSource configure = clazz.getMethod("configure");
+        String body = configure.getBody();
+
+        // make sure to import the Camel endpoint
+        clazz.addImport("org.apache.camel.Endpoint");
+
+        // insert the endpoint code
+        StringBuilder sb = new StringBuilder(body);
+        String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
+        sb.insert(0, line);
+        body = sb.toString();
+
+        // set the updated body
+        configure.setBody(body);
+
+        // update source code
+        facet.saveJavaSource(clazz);
+
+        return Results.success("Added endpoint " + endpointInstanceName + " to " + routeBuilder);
+    }
+
+    protected Result executeXml(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
+        String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
+        String endpointInstanceName = mandatoryAttributeValue(attributeMap, "instanceName");
+        String xml = mandatoryAttributeValue(attributeMap, "xml");
+
+        Project project = getSelectedProject(context);
+
+        // TODO: implement me
+
+        return Results.success("Added endpoint " + endpointInstanceName + " to " + xml);
     }
 
     /**
