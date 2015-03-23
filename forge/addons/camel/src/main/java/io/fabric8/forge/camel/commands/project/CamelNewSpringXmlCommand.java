@@ -48,10 +48,10 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 @FacetConstraint({ResourcesFacet.class})
-public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
+public class CamelNewSpringXmlCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "directory", required = false, defaultValue = "OSGI-INF/blueprint",
+    @WithAttributes(label = "directory", required = false, defaultValue = "META-INF/spring",
             description = "The directory name where this type will be created")
     private UIInput<String> directory;
 
@@ -73,19 +73,19 @@ public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
             Project project = getSelectedProject(context);
-            // not enable for cdi or spring projects
+            // not enable for cdi or blueprint projects
             boolean cdi = CamelCommandsHelper.isCdiProject(project);
-            boolean spring = CamelCommandsHelper.isSpringProject(project);
-            return !cdi && !spring;
+            boolean blueprint = CamelCommandsHelper.isBlueprintProject(project);
+            return !cdi && !blueprint;
         }
         return false;
     }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddRouteBuilderCommand.class).name(
-                "Camel: New XML blueprint").category(Categories.create(CATEGORY))
-                .description("Adds a new Blueprint XML file with CamelContext to your project");
+        return Metadata.forCommand(CamelNewRouteBuilderCommand.class).name(
+                "Camel: New XML spring").category(Categories.create(CATEGORY))
+                .description("Creates a new Spring XML file with CamelContext to your project");
     }
 
     @Override
@@ -107,7 +107,7 @@ public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
         FileResource<?> fileResource = facet.getResource(fileName);
 
         if (fileResource.exists()) {
-            return Results.fail("Blueprint XML file " + fullName + " already exists");
+            return Results.fail("Spring XML file " + fullName + " already exists");
         }
 
         // does the project already have camel?
@@ -117,14 +117,14 @@ public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
         }
 
         DependencyBuilder spring = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId("camel-blueprint").setVersion(core.getCoordinate().getVersion());
+                .setArtifactId("camel-spring").setVersion(core.getCoordinate().getVersion());
 
-        // install camel-blueprint if missing
+        // install camel-spring if missing
         if (!dependencyInstaller.isManaged(project, spring)) {
             dependencyInstaller.install(project, spring);
         }
 
-        Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/camel-blueprint.ftl")).reify(URLResource.class);
+        Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/camel-spring.ftl")).reify(URLResource.class);
         Template template = factory.create(xml, FreemarkerTemplate.class);
 
         // any dynamic options goes into the params map
@@ -136,6 +136,6 @@ public class CamelAddBlueprintXmlCommand extends AbstractCamelProjectCommand {
         fileResource.createNewFile();
         fileResource.setContents(output);
 
-        return Results.success("Added Blueprint XML file " + fullName + " to the project");
+        return Results.success("Created new Spring XML file " + fullName);
     }
 }

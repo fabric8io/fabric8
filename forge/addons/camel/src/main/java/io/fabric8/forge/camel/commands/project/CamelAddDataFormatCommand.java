@@ -47,7 +47,7 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddDataFormatCommand.class).name(
-                "Camel: New DataFormat").category(Categories.create(CATEGORY))
+                "Camel: Add DataFormat").category(Categories.create(CATEGORY))
                 .description("Adds a Camel dataformat to your project");
     }
 

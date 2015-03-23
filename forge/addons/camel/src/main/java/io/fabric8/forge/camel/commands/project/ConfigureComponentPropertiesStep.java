@@ -194,7 +194,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
 
             facet.saveJavaSource(javaClass);
 
-            return Results.success("Added class " + generateClassName + " to the project");
+            return Results.success("Created new class " + generateClassName);
         } catch (IllegalArgumentException e) {
             return Results.fail(e.getMessage());
         }

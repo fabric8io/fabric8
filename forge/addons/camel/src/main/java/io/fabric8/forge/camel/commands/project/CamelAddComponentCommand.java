@@ -51,7 +51,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddComponentCommand.class).name(
-                "Camel: New Component").category(Categories.create(CATEGORY))
+                "Camel: Add Component").category(Categories.create(CATEGORY))
                 .description("Adds a Camel component to your project");
     }
 

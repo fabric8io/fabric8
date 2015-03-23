@@ -47,8 +47,8 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddLanguageCommand.class).name(
-                "Camel: New Language").category(Categories.create(CATEGORY))
-                .description("Adds a Camel language to your project");
+                "Camel: Add Language").category(Categories.create(CATEGORY))
+                .description("Adds a Camel language component to your project");
     }
 
     @Override

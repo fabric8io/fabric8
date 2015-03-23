@@ -40,7 +40,7 @@ import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class})
-public class CamelAddRouteBuilderCommand extends AbstractCamelProjectCommand {
+public class CamelNewRouteBuilderCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "targetPackage", required = false, description = "The package name where this type will be created")
@@ -52,9 +52,9 @@ public class CamelAddRouteBuilderCommand extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddRouteBuilderCommand.class).name(
+        return Metadata.forCommand(CamelNewRouteBuilderCommand.class).name(
                 "Camel: New RouteBuilder").category(Categories.create(CATEGORY))
-                .description("Adds a Camel RouteBuilder class to your project");
+                .description("Creates a new Camel RouteBuilder class");
     }
 
     @Override
@@ -101,11 +101,10 @@ public class CamelAddRouteBuilderCommand extends AbstractCamelProjectCommand {
                 .setPublic()
                 .setReturnTypeVoid()
                 .setName("configure")
-                .setBody("// add routes here")
                 .addThrows(Exception.class);
 
         facet.saveJavaSource(javaClass);
 
-        return Results.success("Added RouteBuilder " + name.getValue() + " to the project");
+        return Results.success("Created new RouteBuilder class " + name.getValue());
     }
 }

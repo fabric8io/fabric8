@@ -71,7 +71,7 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelAddEndpointRouteBuilderCommand.class).name(
-                "Camel: New Endpoint RouteBuilder").category(Categories.create(CATEGORY))
+                "Camel: Add Endpoint RouteBuilder").category(Categories.create(CATEGORY))
                 .description("Adds a Camel endpoint to an existing RouteBuilder");
     }
 

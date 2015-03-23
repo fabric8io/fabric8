@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
-public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProjectCommand implements UIWizard {
+public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
@@ -66,7 +66,7 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
     private UIInput<String> targetPackage;
 
     @Inject
-    @WithAttributes(label = "className", required = true, description = "Name of the Spring Component class to generate")
+    @WithAttributes(label = "className", required = true, description = "Name of @Producer class")
     private UIInput<String> className;
 
     @Inject
@@ -77,20 +77,19 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddComponentInstanceSpringCommand.class).name(
-                "Camel: New Component Spring").category(Categories.create(CATEGORY))
-                .description("Adds a Camel component instance configuration using Spring to your project");
+        return Metadata.forCommand(CamelNewComponentInstanceCDICommand.class).name(
+                "Camel: New Component CDI").category(Categories.create(CATEGORY))
+                .description("Creates a new Camel component instance configuration using CDI");
     }
 
     @Override
     public boolean isEnabled(UIContext context) {
         boolean enabled = super.isEnabled(context);
         if (enabled) {
-            return CamelCommandsHelper.isSpringProject(getSelectedProject(context));
+            return CamelCommandsHelper.isCdiProject(getSelectedProject(context));
         }
         return false;
     }
-
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
@@ -109,14 +108,14 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
                     // the component may have a dash, so remove it
                     value = value.replaceAll("-", "");
                 }
-                // TODO if we already have a endpoint instance of the same name then lets return null
+                // TODO if we already have a instance of the same name then lets return null
                 return value;
             }
         });
 
         targetPackage.setCompleter(new PackageNameCompleter(facet));
         targetPackage.addValidator(new PackageNameValidator());
-        targetPackage.setDefaultValue("org.apache.camel.spring.components");
+        targetPackage.setDefaultValue("org.apache.camel.cdi.producers");
 
         className.addValidator(new ClassNameValidator(false));
         className.setDefaultValue(new Callable<String>() {
@@ -136,7 +135,7 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("targetPackage", targetPackage.getValue());
         attributeMap.put("className", className.getValue());
-        attributeMap.put("kind", "spring");
+        attributeMap.put("kind", "cdi");
         return Results.navigateTo(ConfigureComponentPropertiesStep.class);
     }
 
@@ -148,10 +147,9 @@ public class CamelAddComponentInstanceSpringCommand extends AbstractCamelProject
     protected String getDefaultProducerClassName() {
         String name = instanceName.getValue();
         if (!Strings.isBlank(name)) {
-            return Strings.capitalize(name) + "ComponentFactory";
+            return Strings.capitalize(name) + "ComponentProducer";
         }
         return null;
     }
-
 
 }
