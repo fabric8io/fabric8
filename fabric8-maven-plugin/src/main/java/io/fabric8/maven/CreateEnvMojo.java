@@ -52,6 +52,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     private static final String DOCKE_ENV_PREFIX = "docker.env.";
     private static final String DOCKER_NAME = "docker.name";
+    private static final String EXEC_ENV_SCRIPT = "environmentScript";
+
     
     private final KubernetesClient kubernetes = new KubernetesClient();
 
@@ -59,7 +61,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     private String namespace;
 
     @Parameter(property = "fabric8.envFile", defaultValue = "env.properties")
-    private String envFileName;
+    private String envPropertiesFileName;
+
+    @Parameter(property = "fabric8.envScript", defaultValue = "env.sh")
+    private String envScriptFileName;
 
     @Parameter(property = "docker.image")
     private String name;
@@ -68,7 +73,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             String basedir = System.getProperty("basedir", ".");
-            File propertiesFile = new File(basedir + "/target/" + envFileName).getCanonicalFile();
+            File propertiesFile = new File(basedir + "/target/" + envPropertiesFileName).getCanonicalFile();
+            File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
 
             Config config = (Config) loadKubernetesJson();
             Map<String, String> env = getEnvFromConfig(config);
@@ -79,9 +85,12 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
                 getProject().getProperties().setProperty(DOCKE_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
             getProject().getProperties().setProperty(DOCKER_NAME, name);
+            getProject().getProperties().setProperty(EXEC_ENV_SCRIPT, scriptFile.getAbsolutePath());
             Properties envProperties = new Properties();
             envProperties.putAll(env);
+            saveScript(env, scriptFile);
             saveProperties(envProperties, propertiesFile);
+
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to load environment schemas: " + e, e);
         }
@@ -188,6 +197,16 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     private static void saveProperties(Properties properties, File propertiesFile) throws IOException {
         try (FileWriter writer = new FileWriter(propertiesFile)) {
             properties.store(writer, "Generated Environment Variables");
+        }
+    }
+
+    private static void saveScript(Map<String, String> map, File scroptFile) throws IOException {
+        try (FileWriter writer = new FileWriter(scroptFile)) {
+            writer.append("#!/bin/bash").append("\n");
+            for (Map.Entry<String, String> entry: map.entrySet()) {
+                writer.append("export ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+            }
+            writer.flush();
         }
     }
 }
