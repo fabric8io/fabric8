@@ -2,7 +2,7 @@
 
 This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0 similar to the [Fabric8 Docker API](https://github.com/fabric8io/fabric8/blob/master/components/docker-api/ReadMe.md).
 
-### Add it to your Maven pom.xml
+### Add it to your Maven pom.xml
 
 To be able to use the Java code in your [Apache Maven](http://maven.apache.org/) based project add this into your pom.xml
 
@@ -12,7 +12,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
                 <version>2.0.32</version>
             </dependency>
 
-### Try an example
+### Try an example
 
 If you clone the source code:
 
@@ -47,3 +47,17 @@ If you wish to use a specific URL in your Java code just pass it into the factor
     PodListSchema pods = kube.getPods();
 
 To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/main/java/io/fabric8/kubernetes/api/Kubernetes.java#L46) in action [check out this example](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/test/java/io/fabric8/kubernetes/api/Example.java#L48)
+
+### Configuration
+
+All configuration is done via the following environment variables:
+
+* `KUBERNETES_CA_CERTIFICATE_DATA` - the full Kubernetes CA certificate as a string (only this or `KUBERNETES_CA_CERTIFICATE_FILE` should be specified)
+* `KUBERNETES_CA_CERTIFICATE_FILE` - the path to the Kubernetes CA certificate file (only this or `KUBERNETES_CA_CERTIFICATE_DATA` should be specified)
+* `KUBERNETES_CLIENT_CERTIFICATE_DATA` - the full Kubernetes client certificate as a string (only this or `KUBERNETES_CLIENT_CERTIFICATE_FILE` should be specified)
+* `KUBERNETES_CLIENT_CERTIFICATE_FILE` - the path to the Kubernetes client certificate file (only this or `KUBERNETES_CLIENT_CERTIFICATE_DATA` should be specified)
+* `KUBERNETES_CLIENT_KEY_DATA` - the full Kubernetes client private key as a string (only this or `KUBERNETES_CLIENT_KEY_FILE` should be specified)
+* `KUBERNETES_CLIENT_KEY_FILE` - the path to the Kubernetes client private key file (only this or `KUBERNETES_CLIENT_KEY_DATA` should be specified)
+* `KUBERNETES_TRUST_CERT` - whether to trust the Kubernetes server certificate (this is insecure so please try to configure certificates properly via the other environment variables if at all possible)
+
+The `*_DATA` variants take precedence over the `*_FILE` variants.
