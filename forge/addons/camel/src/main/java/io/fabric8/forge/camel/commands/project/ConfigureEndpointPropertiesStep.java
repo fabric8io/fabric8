@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.camel.commands.project.helper.XmlHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -46,11 +48,14 @@ import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
-import org.jboss.forge.parser.xml.Node;
-import org.jboss.forge.parser.xml.XMLParser;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
@@ -253,31 +258,54 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             return Results.fail("Cannot find XML file " + xml);
         }
 
-        // TODO: Need this implemented: https://issues.jboss.org/browse/FORGE-2293
-        // TODO: endpoints need to be inserted into correct order, eg if there is <routes> etc.
-        Node root = XMLParser.parse(file.getResourceInputStream());
+        Document root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file.getResourceInputStream());
         if (root != null) {
-            Node camel = root.getSingle("camelContext");
-            if (camel != null) {
+            NodeList camels = root.getElementsByTagName("camelContext");
+            // TODO: what about 2+ camel's ?
+            if (camels != null && camels.getLength() == 1) {
+                Node camel = camels.item(0);
+                boolean created = false;
 
                 // find existing by id
                 Node found = null;
-                for (Node endpoint : camel.get("endpoint")) {
-                    if (endpointInstanceName.equals(endpoint.getAttribute("id"))) {
-                        found = endpoint;
-                        break;
+                for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
+                    Node child = camel.getChildNodes().item(i);
+                    if ("endpoint".equals(child.getNodeName())) {
+                        // okay its an endpoint so if we can match by id attribute
+                        String id = child.getAttributes().getNamedItem("id").getNodeValue();
+                        if (endpointInstanceName.equals(id)) {
+                            found = child;
+                            break;
+                        }
                     }
                 }
 
-                // TODO: need to insert this at correct position!
                 if (found == null) {
-                    found = camel.createChild("endpoint");
+                    created = true;
+                    found = root.createElement("endpoint");
                 }
-                found.attribute("id", endpointInstanceName);
-                found.attribute("uri", uri);
+
+                // set/update the attributes
+                Attr attrId = root.createAttribute("id");
+                attrId.setValue(endpointInstanceName);
+                Attr attrUri = root.createAttribute("uri");
+                attrUri.setValue(uri);
+                found.getAttributes().setNamedItem(attrId);
+                found.getAttributes().setNamedItem(attrUri);
+
+                // if we created a new endpoint then make sure to insert it at the correct spot
+                if (created) {
+                    Node cutoff = insertEndpointBefore(camel);
+                    if (cutoff != null) {
+                        cutoff.getParentNode().insertBefore(found, cutoff);
+                    } else {
+                        // insert at end
+                        camel.appendChild(found);
+                    }
+                }
             }
 
-            InputStream is = XMLParser.toXMLInputStream(root);
+            InputStream is = XmlHelper.documentToPrettyInputStream(root);
             if (is != null) {
                 // save data back to file
                 file.setContents(is);
@@ -290,17 +318,24 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
     }
 
-//    <xs:element minOccurs="0" ref="tns:dataFormats"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:redeliveryPolicyProfile"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:onException"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:onCompletion"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:intercept"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:interceptFrom"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:interceptSendToEndpoint"/>
-//    <xs:element minOccurs="0" ref="tns:restConfiguration"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:rest"/>
-//    <xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:route"/>
-
+    /**
+     * To find the closet node that we need to insert the endpoints before, so the Camel schema is valid.
+     */
+    private Node insertEndpointBefore(Node camel) {
+        Node found = null;
+        for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
+            found = camel.getChildNodes().item(i);
+            String name = found.getNodeName();
+            if ("dataFormats".equals(name) || "redeliveryPolicyProfile".equals(name)
+                || "onException".equals(name) || "onCompletion".equals(name)
+                || "intercept".equals(name) || "interceptFrom".equals(name)
+                || "interceptSendToEndpoint".equals(name) || "restConfiguration".equals(name)
+                || "rest".equals(name) || "route".equals(name)) {
+                break;
+            }
+        }
+        return found;
+    }
 
     /**
      * Returns the mandatory String value of the given name
