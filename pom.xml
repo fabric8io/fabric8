@@ -210,9 +210,6 @@
         <jaxb.version>2.2.7</jaxb.version>
         <jboss-javaee-6.version>1.0.0.Final</jboss-javaee-6.version>
         <jboss.forge.version>2.15.2.Final</jboss.forge.version>
-<!-- use same version of forge as in eclipse
-        <jboss.forge.version>2.13.0.Final</jboss.forge.version>
--->
         <!-- TODO is this always the same as drools.version? -->
         <jbpm.version>6.1.0.CR1</jbpm.version>
         <jclouds-karaf.version>1.7.2</jclouds-karaf.version>
