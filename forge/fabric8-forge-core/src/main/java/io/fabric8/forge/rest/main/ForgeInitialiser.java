@@ -30,6 +30,8 @@ import java.io.File;
  * Initialises Forge add on repository
  */
 @Singleton
+@javax.ejb.Singleton
+@javax.ejb.Startup
 public class ForgeInitialiser {
     private static final transient Logger LOG = LoggerFactory.getLogger(ForgeInitialiser.class);
 
@@ -41,7 +43,13 @@ public class ForgeInitialiser {
         // lets ensure that the addons folder is initialised
         File repoDir = new File(addOnDir);
         repoDir.mkdirs();
-        LOG.info("initialising furnace with folder: " + repoDir);
+        LOG.info("initialising furnace with folder: " + repoDir.getAbsolutePath());
+        File[] files = repoDir.listFiles();
+        if (files == null || files.length == 0) {
+            LOG.warn("No files found in the addon directory: " + repoDir.getAbsolutePath());
+        } else {
+            LOG.warn("Found " + files.length + " addon files in directory: " + repoDir.getAbsolutePath());
+        }
         furnaceProducer.setup(repoDir);
     }
 

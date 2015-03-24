@@ -1,12 +1,12 @@
 # Fabric8 Forge
 
-This project provides a REST service implemented via JAX-RS for interacting with [JBoss Forge](http://forge.jboss.org/) and a github style hosted git repository provifder like github or [gogs](http://gogs.io/).
+This project provides a REST service implemented via JAX-RS for interacting with [JBoss Forge](http://forge.jboss.org/) and a github style hosted git repository provider like github or [gogs](http://gogs.io/).
 
 ### Building
 
 [Install maven](http://maven.apache.org/download.cgi) then run:
 
-    mvn install
+    mvn install jetty:run-war
 
 ### Running
 
@@ -19,7 +19,7 @@ Then run:
 
     mvn compile exec:java
 
-The REST API should be running now at [http://localhost:8599/](http://localhost:8599/) which should list some APIs you can invoke to try it out.
+The REST API should be running now at [http://localhost:8080/](http://localhost:8080/) which should list some APIs you can invoke to try it out.
 
 ### HTML5 Console
 
@@ -29,7 +29,7 @@ For more details check out the [hawtio-forge documentation](https://github.com/h
 
 #### Invoking commands
 
-To invoke a command **my-command* POST an ExecutionRequest as JSON to the URI **http://localhost:8599/api/forge/commands/my-command** of the form:
+To invoke a command **my-command* POST an ExecutionRequest as JSON to the URI **http://localhost:8080/api/forge/commands/my-command** of the form:
 
 ```
 {

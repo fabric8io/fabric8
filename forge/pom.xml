@@ -32,7 +32,8 @@
 
   <modules>
     <module>addons</module>
-    <module>fabric8-forge</module>
+    <module>fabric8-forge-core</module>
+    <module>fabric8-forge-web</module>
   </modules>
 
 </project>

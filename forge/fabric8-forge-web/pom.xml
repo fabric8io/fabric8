@@ -23,7 +23,8 @@
     <artifactId>forge-parent</artifactId>
     <version>2.2-SNAPSHOT</version>
   </parent>
-  <artifactId>fabric8-forge</artifactId>
+  <artifactId>fabric8-forge-web</artifactId>
+  <packaging>war</packaging>
   <name>Fabric8 :: Forge :: REST Service</name>
 
   <properties>
@@ -32,6 +33,7 @@
 
   <dependencyManagement>
     <dependencies>
+<!--
       <dependency>
         <groupId>org.jboss.forge</groupId>
         <artifactId>forge-bom</artifactId>
@@ -39,6 +41,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+-->
 <!--
       <dependency>
         <groupId>org.jboss.spec</groupId>
@@ -51,87 +54,51 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-cdi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>gitrepo-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>rest-utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-se</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>environment-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>ui-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>ui-spi</artifactId>
-      <classifier>forge-addon</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>convert-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>facets-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>resources-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>dependencies-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>projects-api</artifactId>
-    </dependency>
 
+  <dependencies>
+<!--
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-api</artifactId>
-      <version>7.0</version>
+      <scope>provided</scope>
+    </dependency>
+-->
+
+
+    <dependency>
+      <groupId>io.fabric8.forge</groupId>
+      <artifactId>fabric8-forge-core</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-json-provider</artifactId>
-<!--
-      <version>${jackson.version}</version>
--->
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-service-description</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.deltaspike.core</groupId>
-      <artifactId>deltaspike-core-api</artifactId>
-<!--
-      <version>${deltaspike.version}</version>
--->
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-integration-cdi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-management</artifactId>
     </dependency>
 
+
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet</artifactId>
+    </dependency>
+
+
+    <!-- testing -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -147,7 +114,22 @@
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+    </testResources>
+
     <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.jboss.forge.furnace</groupId>
         <artifactId>furnace-maven-plugin</artifactId>
@@ -171,23 +153,26 @@
         </executions>
       </plugin>
 
+
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>9.3.0.M2</version>
         <configuration>
-          <mainClass>io.fabric8.forge.rest.main.Main</mainClass>
-          <includePluginDependencies>false</includePluginDependencies>
-          <systemProperties>
-            <systemProperty>
-              <key>FORGE_ADDON_DIRECTORY</key>
-              <value>${addon.repository}</value>
-            </systemProperty>
-          </systemProperties>
-        </configuration>
+            <systemProperties>
+              <systemProperty>
+                <name>FORGE_ADDON_DIRECTORY</name>
+                <value>${addon.repository}</value>
+              </systemProperty>
+            </systemProperties>
+            <webApp>
+              <contextPath>/</contextPath>
+            </webApp>
+          </configuration>
       </plugin>
+
+
     </plugins>
   </build>
-
 
 </project>

@@ -169,7 +169,7 @@
         <felix-utils.version>1.6.0</felix-utils.version>
         <felix.obr.version>1.0.2</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
-        <furnace.version>${jboss.forge.version}</furnace.version>
+        <furnace.version>2.15.3.Final</furnace.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
@@ -471,6 +471,11 @@
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-cdi</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8.forge</groupId>
+              <artifactId>fabric8-forge-core</artifactId>
               <version>${project.version}</version>
             </dependency>
             <dependency>

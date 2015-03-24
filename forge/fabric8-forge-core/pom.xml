@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.fabric8.forge</groupId>
+    <artifactId>forge-parent</artifactId>
+    <version>2.2-SNAPSHOT</version>
+  </parent>
+  <artifactId>fabric8-forge-core</artifactId>
+  <name>Fabric8 :: Forge :: REST Service</name>
+
+  <properties>
+    <addon.repository>${project.build.directory}/addon-repository</addon.repository>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.forge</groupId>
+        <artifactId>forge-bom</artifactId>
+        <version>${jboss.forge.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+<!--
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>3.0.2.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+-->
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-cdi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>gitrepo-api</artifactId>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>rest-utils</artifactId>
+    </dependency>
+-->
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.furnace</groupId>
+      <artifactId>furnace</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.furnace</groupId>
+      <artifactId>furnace-se</artifactId>
+    </dependency>
+
+    <!-- possible hack... -->
+<!--
+    <dependency>
+      <groupId>org.jboss.forge.furnace</groupId>
+      <artifactId>furnace-manager-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.furnace</groupId>
+      <artifactId>furnace-manager-spi</artifactId>
+    </dependency>
+-->
+
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>environment-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>ui-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>ui-spi</artifactId>
+      <classifier>forge-addon</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>convert-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>facets-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>resources-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>dependencies-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>projects-api</artifactId>
+    </dependency>
+
+<!--
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>7.0</version>
+    </dependency>
+-->
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+    </testResources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <mainClass>io.fabric8.forge.rest.main.Main</mainClass>
+          <includePluginDependencies>false</includePluginDependencies>
+          <systemProperties>
+            <systemProperty>
+              <key>FORGE_ADDON_DIRECTORY</key>
+              <value>${addon.repository}</value>
+            </systemProperty>
+            <systemProperty>
+              <key>java.util.logging.config.file</key>
+              <value>${basedir}/src/main/resources/logging.properties</value>
+            </systemProperty>
+          </systemProperties>
+
+<!--
+          <classpathScope>test</classpathScope>
+            <executable>java</executable>
+            <arguments>
+              <argument>-classpath</argument>
+              <classpath/>
+              <argument>io.fabric8.forge.rest.main.Main</argument>
+            </arguments>
+-->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+  <profiles>
+    <profile>
+      <id>exec</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>-Djava.util.logging.config.file=${basedir}/src/main/resources/logging.properties</argument>
+                <argument>-Dorg.jboss.logging.provider=slf4j</argument>
+                <argument>-DFORGE_ADDON_DIRECTORY=${addon.repository}</argument>
+                <argument>-Dguice.disable.misplaced.annotation.check=true</argument>
+                <argument>-Dclassworlds.conf=/usr/local/apache-maven-3.2.5/bin/m2.conf</argument>
+                <argument>-Dcom.sun.management.jmxremote =</argument>
+                <argument>-Djava.rmi.server.randomIDs=true</argument>
+                <argument>-Dmaven.home=/usr/local/apache-maven-3.2.5</argument>
+                <argument>-Duser.timezone=Europe/London</argument>
+                <argument>io.fabric8.forge.rest.main.Main</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
