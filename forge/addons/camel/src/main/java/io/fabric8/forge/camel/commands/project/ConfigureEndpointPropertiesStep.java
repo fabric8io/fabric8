@@ -15,6 +15,7 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -168,13 +169,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
         }
 
-        // TODO: require Camel 2.15.1
-            /*CamelCatalog catalog = new DefaultCamelCatalog();
-            String uri = catalog.asEndpointUri(camelComponentName, options);
-            if (uri == null) {
-                return Results.fail("Cannot create endpoint uri");
-            }*/
-        String uri = "We need Camel 2.15.1";
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
 
         JavaResource existing = facet.getJavaResource(routeBuilder);
         if (existing == null || !existing.exists()) {
@@ -189,18 +188,43 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         clazz.addImport("org.apache.camel.Endpoint");
 
         // insert the endpoint code
-        StringBuilder sb = new StringBuilder(body);
-        String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
-        sb.insert(0, line);
-        body = sb.toString();
+        if (body == null) {
+            body = "";
+        }
 
-        // set the updated body
-        configure.setBody(body);
+        // find if we have the endpoint already
+        String match = String.format("Endpoint %s=", endpointInstanceName);
+        List<String> lines = LineNumberHelper.readLines(new StringReader(body));
+        int index = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.trim().startsWith(match)) {
+                index = i;
+                break;
+            }
+        }
+
+        // the line to add/update
+        String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
+
+        if (index == -1) {
+            // add new line in top
+            lines.add(0, line);
+        } else {
+            // update existing
+            lines.set(index, line);
+        }
 
         // update source code
+        String content = LineNumberHelper.linesToString(lines);
+        configure.setBody(content);
         facet.saveJavaSource(clazz);
 
-        return Results.success("Added endpoint " + endpointInstanceName + " to " + routeBuilder);
+        if (index == -1) {
+            return Results.success("Updated endpoint " + endpointInstanceName + " in " + routeBuilder);
+        } else {
+            return Results.success("Added endpoint " + endpointInstanceName + " in " + routeBuilder);
+        }
     }
 
     protected Result executeXml(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
@@ -242,13 +266,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
         }
 
-        // TODO: require Camel 2.15.1
-            /*CamelCatalog catalog = new DefaultCamelCatalog();
-            String uri = catalog.asEndpointUri(camelComponentName, options);
-            if (uri == null) {
-                return Results.fail("Cannot create endpoint uri");
-            }*/
-        String uri = "We need Camel 2.15.1";
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
 
         FileResource file = facet.getResource(xml);
         if (!file.exists()) {
@@ -258,7 +280,6 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         Document root = XmlLineNumberParser.parseXml(file.getResourceInputStream());
 
         String lineNumber;
-        String columnNumber;
 
         // The DOM api is so fucking terrible!
         if (root != null) {
@@ -372,10 +393,10 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             Node found = camel.getChildNodes().item(i);
             String name = found.getNodeName();
             if ("dataFormats".equals(name) || "redeliveryPolicyProfile".equals(name)
-                || "onException".equals(name) || "onCompletion".equals(name)
-                || "intercept".equals(name) || "interceptFrom".equals(name)
-                || "interceptSendToEndpoint".equals(name) || "restConfiguration".equals(name)
-                || "rest".equals(name) || "route".equals(name)) {
+                    || "onException".equals(name) || "onCompletion".equals(name)
+                    || "intercept".equals(name) || "interceptFrom".equals(name)
+                    || "interceptSendToEndpoint".equals(name) || "restConfiguration".equals(name)
+                    || "rest".equals(name) || "route".equals(name)) {
                 return found;
             }
             if (found.getNodeType() == Node.ELEMENT_NODE) {
