@@ -60,7 +60,7 @@ public class LineNumberHelper {
     public static int leadingSpaces(List<String> lines, int index) {
         int spaces = 0;
         // get the last indent used so we can use same indent
-        for (int i = 0; i < index; i++) {
+        for (int i = 0; i <= index; i++) {
             String line = lines.get(i);
             if (!line.isEmpty()) {
                 spaces = 0;

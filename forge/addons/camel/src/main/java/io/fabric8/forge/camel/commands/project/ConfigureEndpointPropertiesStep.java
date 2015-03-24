@@ -290,7 +290,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     }
                     if (found == null) {
                         // empty so use <camelContext> node
-                        found = camel;
+                        found = root.getElementById("camelContext");
                     }
                 }
                 lineNumber = (String) found.getUserData(XmlLineNumberParser.LINE_NUMBER);
@@ -301,10 +301,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
 
                     // the list is 0-based, and line number is 1-based
-                    int idx = Integer.valueOf(lineNumber) - 1;
+                    int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
                     int spaces = LineNumberHelper.leadingSpaces(lines, idx);
                     line = LineNumberHelper.padString(line, spaces);
-                    lines.add(idx, line);
+                    // insert after
+                    lines.add(idx + 1, line);
 
                     // and save the file back
                     String content = LineNumberHelper.linesToString(lines);
@@ -317,8 +318,8 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
 
                     // the list is 0-based, and line number is 1-based
-                    int idx = Integer.valueOf(lineNumber) - 1;
-                    int spaces = LineNumberHelper.leadingSpaces(lines, idx - 1);
+                    int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
+                    int spaces = LineNumberHelper.leadingSpaces(lines, idx);
                     line = LineNumberHelper.padString(line, spaces);
                     lines.set(idx, line);
 
