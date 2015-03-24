@@ -32,7 +32,7 @@ public class XmlFileCompleter implements UICompleter<String> {
 
     private final Set<String> files = new TreeSet<String>();
 
-    public XmlFileCompleter(ResourcesFacet facet) {
+    public XmlFileCompleter(final ResourcesFacet facet) {
         // find package names in the source code
         facet.visitResources(new ResourceVisitor() {
             @Override
@@ -42,7 +42,14 @@ public class XmlFileCompleter implements UICompleter<String> {
                     // must contain <camelContext...
                     boolean camel = resource.getContents().contains("<camelContext");
                     if (camel) {
-                        files.add(resource.getName());
+                        // we only want the relative dir name from the resource directory, eg META-INF/spring/foo.xml
+                        String baseDir = facet.getResourceDirectory().getFullyQualifiedName();
+                        String fqn = resource.getFullyQualifiedName();
+                        if (fqn.startsWith(baseDir)) {
+                            fqn = fqn.substring(baseDir.length() + 1);
+                        }
+
+                        files.add(fqn);
                     }
                 }
             }
