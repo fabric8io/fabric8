@@ -260,17 +260,26 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         String lineNumber;
         String columnNumber;
 
+        // The DOM api is so fucking terrible!
         if (root != null) {
             NodeList camels = root.getElementsByTagName("camelContext");
             // TODO: what about 2+ camel's ?
             if (camels != null && camels.getLength() == 1) {
                 Node camel = camels.item(0);
+                Node camelContext = null;
                 boolean created = false;
 
                 // find existing by id
                 Node found = null;
                 for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
+                    if ("camelContext".equals(camel.getNodeName())) {
+                        camelContext = camel;
+                    }
+
                     Node child = camel.getChildNodes().item(i);
+                    if ("camelContext".equals(child.getNodeName())) {
+                        camelContext = child;
+                    }
                     if ("endpoint".equals(child.getNodeName())) {
                         // okay its an endpoint so if we can match by id attribute
                         String id = child.getAttributes().getNamedItem("id").getNodeValue();
@@ -281,18 +290,21 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     }
                 }
 
+                int extraSpaces = 0;
                 if (found == null) {
                     created = true;
                     found = insertEndpointBefore(camel);
                     if (found == null) {
-                        // just insert after last child
-                        found = camel.getLastChild();
-                    }
-                    if (found == null) {
                         // empty so use <camelContext> node
-                        found = root.getElementById("camelContext");
+                        found = camelContext;
+                        extraSpaces = 2;
                     }
                 }
+
+                if (found == null) {
+                    return Results.fail("Cannot find <camelContext> in XML file " + xml);
+                }
+
                 lineNumber = (String) found.getUserData(XmlLineNumberParser.LINE_NUMBER);
 
                 // if we created a new endpoint, then insert a new line with the endpoint details
@@ -302,7 +314,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
                     // the list is 0-based, and line number is 1-based
                     int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
-                    int spaces = LineNumberHelper.leadingSpaces(lines, idx);
+                    int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
                     line = LineNumberHelper.padString(line, spaces);
                     // insert after
                     lines.add(idx + 1, line);
@@ -319,7 +331,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
                     // the list is 0-based, and line number is 1-based
                     int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
-                    int spaces = LineNumberHelper.leadingSpaces(lines, idx);
+                    int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
                     line = LineNumberHelper.padString(line, spaces);
                     lines.set(idx, line);
 
@@ -354,6 +366,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             return endpoint;
         }
 
+        Node last = null;
         // if no endpoints then try to find cut-off according the XSD rules
         for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
             Node found = camel.getChildNodes().item(i);
@@ -365,9 +378,12 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 || "rest".equals(name) || "route".equals(name)) {
                 return found;
             }
+            if (found.getNodeType() == Node.ELEMENT_NODE) {
+                last = found;
+            }
         }
 
-        return null;
+        return last;
     }
 
     /**
