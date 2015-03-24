@@ -27,7 +27,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>bom</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.0.34</version>
     <packaging>pom</packaging>
     <name>Fabric8 :: Bill of material</name>
     <description>A list of the artifacts that are released.</description>
@@ -68,55 +68,55 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-cxf</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-cxf-plugins</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-api</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
 
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric-etcd-api</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric-etcd-core</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
                 <artifactId>fabric-etcd-reader-gson</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
                 <artifactId>fabric-etcd-reader-jackson</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
             </dependency>
 
             <!-- Internal testing modules -->
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric-etcd-core</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.0.34</version>
                 <type>test-jar</type>
             </dependency>
         </dependencies>
@@ -126,7 +126,7 @@
         <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
         <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
         <url>http://github.com/fabric8io/fabric8/</url>
-      <tag>fabric8-project-2.0.20</tag>
+      <tag>fabric8-project-2.0.34</tag>
   </scm>
 
     <build>

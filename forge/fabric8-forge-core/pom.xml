@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.fabric8.forge</groupId>
     <artifactId>forge-parent</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.0.34</version>
   </parent>
   <artifactId>fabric8-forge-core</artifactId>
   <name>Fabric8 :: Forge :: REST Service</name>
@@ -197,7 +197,7 @@
             <executable>java</executable>
             <arguments>
               <argument>-classpath</argument>
-              <classpath/>
+              <classpath />
               <argument>io.fabric8.forge.rest.main.Main</argument>
             </arguments>
 -->
@@ -220,7 +220,7 @@
               <executable>java</executable>
               <arguments>
                 <argument>-classpath</argument>
-                <classpath/>
+                <classpath />
                 <argument>-Djava.util.logging.config.file=${basedir}/src/main/resources/logging.properties</argument>
                 <argument>-Dorg.jboss.logging.provider=slf4j</argument>
                 <argument>-DFORGE_ADDON_DIRECTORY=${addon.repository}</argument>
