@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +25,8 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.helper.XmlHelper;
+import io.fabric8.forge.camel.commands.project.helper.LineNumberHelper;
+import io.fabric8.forge.camel.commands.project.helper.XmlLineNumberParser;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -50,7 +50,6 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -256,7 +255,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             return Results.fail("Cannot find XML file " + xml);
         }
 
-        Document root = XmlHelper.inputStreamToDocument(file.getResourceInputStream());
+        Document root = XmlLineNumberParser.parseXml(file.getResourceInputStream());
+
+        String lineNumber;
+        String columnNumber;
+
         if (root != null) {
             NodeList camels = root.getElementsByTagName("camelContext");
             // TODO: what about 2+ camel's ?
@@ -280,37 +283,54 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
                 if (found == null) {
                     created = true;
-                    found = root.createElement("endpoint");
-                }
-
-                // set/update the attributes
-                Attr attrId = root.createAttribute("id");
-                attrId.setValue(endpointInstanceName);
-                Attr attrUri = root.createAttribute("uri");
-                attrUri.setValue(uri);
-                found.getAttributes().setNamedItem(attrId);
-                found.getAttributes().setNamedItem(attrUri);
-
-                // if we created a new endpoint then make sure to insert it at the correct spot
-                if (created) {
-                    Node cutoff = insertEndpointBefore(camel);
-                    if (cutoff != null) {
-                        cutoff.getParentNode().insertBefore(found, cutoff);
-                    } else {
-                        // insert at end
-                        camel.appendChild(found);
+                    found = insertEndpointBefore(camel);
+                    if (found == null) {
+                        // just insert after last child
+                        found = camel.getLastChild();
+                    }
+                    if (found == null) {
+                        // empty so use <camelContext> node
+                        found = camel;
                     }
                 }
+                lineNumber = (String) found.getUserData(XmlLineNumberParser.LINE_NUMBER);
+
+                // if we created a new endpoint, then insert a new line with the endpoint details
+                if (created) {
+                    List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
+                    String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
+
+                    // the list is 0-based, and line number is 1-based
+                    int idx = Integer.valueOf(lineNumber) - 1;
+                    int spaces = LineNumberHelper.leadingSpaces(lines, idx);
+                    line = LineNumberHelper.padString(line, spaces);
+                    lines.add(idx, line);
+
+                    // and save the file back
+                    String content = LineNumberHelper.linesToString(lines);
+                    file.setContents(content);
+
+                    return Results.success("Added endpoint: " + endpointInstanceName + " with uri: " + uri);
+                } else {
+                    // update existing
+                    List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
+                    String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
+
+                    // the list is 0-based, and line number is 1-based
+                    int idx = Integer.valueOf(lineNumber) - 1;
+                    int spaces = LineNumberHelper.leadingSpaces(lines, idx - 1);
+                    line = LineNumberHelper.padString(line, spaces);
+                    lines.set(idx, line);
+
+                    // and save the file back
+                    String content = LineNumberHelper.linesToString(lines);
+                    file.setContents(content);
+
+                    return Results.success("Update endpoint: " + endpointInstanceName + " with uri: " + uri);
+                }
             }
 
-            InputStream is = XmlHelper.documentToPrettyInputStream(root);
-            if (is != null) {
-                // save data back to file
-                file.setContents(is);
-                is.close();
-            }
-
-            return Results.success("Added endpoint " + endpointInstanceName + " to xml file " + xml);
+            return Results.fail("Cannot find <camelContext> in XML file " + xml);
         } else {
             return Results.fail("Cannot parse XML file " + xml);
         }
@@ -320,19 +340,33 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
      * To find the closet node that we need to insert the endpoints before, so the Camel schema is valid.
      */
     private Node insertEndpointBefore(Node camel) {
-        Node found = null;
+        // if there is endpoints then the cut-off is after the last
+        Node endpoint = null;
         for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
-            found = camel.getChildNodes().item(i);
+            Node found = camel.getChildNodes().item(i);
+            String name = found.getNodeName();
+            if ("endpoint".equals(name)) {
+                endpoint = found;
+            }
+        }
+        if (endpoint != null) {
+            return endpoint;
+        }
+
+        // if no endpoints then try to find cut-off according the XSD rules
+        for (int i = 0; i < camel.getChildNodes().getLength(); i++) {
+            Node found = camel.getChildNodes().item(i);
             String name = found.getNodeName();
             if ("dataFormats".equals(name) || "redeliveryPolicyProfile".equals(name)
                 || "onException".equals(name) || "onCompletion".equals(name)
                 || "intercept".equals(name) || "interceptFrom".equals(name)
                 || "interceptSendToEndpoint".equals(name) || "restConfiguration".equals(name)
                 || "rest".equals(name) || "route".equals(name)) {
-                break;
+                return found;
             }
         }
-        return found;
+
+        return null;
     }
 
     /**
