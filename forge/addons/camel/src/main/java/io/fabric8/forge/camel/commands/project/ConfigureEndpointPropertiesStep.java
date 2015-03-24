@@ -170,10 +170,12 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUri(camelComponentName, options);
-        if (uri == null) {
-            return Results.fail("Cannot create endpoint uri");
-        }
+        // TODO: need Camel 2.15.1
+        //String uri = catalog.asEndpointUri(camelComponentName, options);
+        //if (uri == null) {
+        //    return Results.fail("Cannot create endpoint uri");
+        //}
+        String uri = "Need Camel 2.15.1";
 
         JavaResource existing = facet.getJavaResource(routeBuilder);
         if (existing == null || !existing.exists()) {
@@ -267,10 +269,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUri(camelComponentName, options);
-        if (uri == null) {
-            return Results.fail("Cannot create endpoint uri");
-        }
+        // String uri = catalog.asEndpointUri(camelComponentName, options);
+        // if (uri == null) {
+        //     return Results.fail("Cannot create endpoint uri");
+        // }
+        String uri = "Need Camel 2.15.1";
 
         FileResource file = facet.getResource(xml);
         if (!file.exists()) {
