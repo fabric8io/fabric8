@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
@@ -51,7 +50,6 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -258,7 +256,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             return Results.fail("Cannot find XML file " + xml);
         }
 
-        Document root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file.getResourceInputStream());
+        Document root = XmlHelper.inputStreamToDocument(file.getResourceInputStream());
         if (root != null) {
             NodeList camels = root.getElementsByTagName("camelContext");
             // TODO: what about 2+ camel's ?

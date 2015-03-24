@@ -18,6 +18,8 @@ package io.fabric8.forge.camel.commands.project.helper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -32,8 +34,6 @@ public final class XmlHelper {
 
     /**
      * To output a DOM as a stream.
-     * <p/>
-     * Its amazing how crap the JDK DOM api is for such a common task!
      */
     public static InputStream documentToPrettyInputStream(Document document) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -47,6 +47,24 @@ public final class XmlHelper {
 
         InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
         return is;
+    }
+
+    /**
+     * To parse an input stream to DOM
+     * <p/>
+     * This implementation attempts to preserve the xml structure as-is with whitespace etc
+     */
+    public static Document inputStreamToDocument(InputStream is) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(false);
+        factory.setIgnoringComments(false);
+        factory.setIgnoringElementContentWhitespace(false);
+        factory.setValidating(false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document root = builder.parse(is);
+
+        return root;
     }
 
 }
