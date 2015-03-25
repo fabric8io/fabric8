@@ -17,7 +17,7 @@
  */
 package io.fabric8.forge.rest.main;
 
-import io.fabric8.cdi.annotations.Service;
+import io.fabric8.annotations.Service;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.util.Base64;
 import org.jboss.forge.furnace.util.Strings;

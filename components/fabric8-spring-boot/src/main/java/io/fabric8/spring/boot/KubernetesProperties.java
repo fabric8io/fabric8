@@ -14,22 +14,22 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.qualifiers;
+package io.fabric8.spring.boot;
 
-import io.fabric8.annotations.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import javax.enterprise.util.AnnotationLiteral;
-
-public class ConfigurationQualifier extends AnnotationLiteral<Configuration> implements Configuration {
+@Component
+public class KubernetesProperties {
     
-    private final String value;
+    @Value("${kubernetes.master}")
+    private String kubernetesMasterUrl;
 
-    public ConfigurationQualifier(String value) {
-        this.value = value;
+    public String getKubernetesMasterUrl() {
+        return kubernetesMasterUrl;
     }
 
-    @Override
-    public String value() {
-        return value;
+    public void setKubernetesMasterUrl(String kubernetesMasterUrl) {
+        this.kubernetesMasterUrl = kubernetesMasterUrl;
     }
 }

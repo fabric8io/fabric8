@@ -14,20 +14,21 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.annotations;
+package io.fabric8.spring.boot;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.fabric8.annotations.Configuration;
+import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.model.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Documented
-public @interface Configuration {
-
-    String value() default "";
+@Configuration
+@EnableAutoConfiguration()
+public class Fabric8Application {
+    
+    public static void main(String[] args) {
+        SpringApplication.run(Fabric8Application.class, args);
+    }
 }

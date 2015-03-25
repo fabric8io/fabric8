@@ -14,29 +14,24 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.qualifiers;
+package io.fabric8.spring.boot.condition;
 
-import io.fabric8.annotations.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
-import javax.enterprise.util.AnnotationLiteral;
+public class OnKubernetesAvailableCondition extends SpringBootCondition {
 
-public class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
-
-    private final String id;
-    private final String protocol;
-
-    public ServiceQualifier(String id, String protocol) {
-        this.id = id;
-        this.protocol = protocol;
-    }
+    private final String KUBERNETES_MASTER = "KUBERNETES_MASTER";
 
     @Override
-    public String id() {
-        return id;
-    }
-
-    @Override
-    public String protocol() {
-        return protocol;
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        if (System.getenv().containsKey(KUBERNETES_MASTER)) {
+            return ConditionOutcome.match();
+        } else if (System.getProperties().containsKey(KUBERNETES_MASTER)) {
+            return ConditionOutcome.match();
+        }
+        return ConditionOutcome.noMatch("Url to kubernetes master, not found in environment variables or system properties.");
     }
 }

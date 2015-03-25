@@ -16,9 +16,9 @@
 
 package io.fabric8.cdi.weld;
 
-import io.fabric8.cdi.annotations.Configuration;
-import io.fabric8.cdi.annotations.Factory;
-import io.fabric8.cdi.annotations.Service;
+import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Factory;
+import io.fabric8.annotations.Service;
 
 import javax.inject.Singleton;
 import java.net.MalformedURLException;

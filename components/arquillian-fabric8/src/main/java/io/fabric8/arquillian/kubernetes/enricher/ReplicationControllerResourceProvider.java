@@ -17,10 +17,8 @@
 package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.arquillian.kubernetes.annotation.Id;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -59,8 +57,8 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
 
     private boolean qualifies(ReplicationController r, Annotation... qualifiers) {
         for (Annotation annotation : qualifiers) {
-            if (annotation instanceof Id) {
-                String id = ((Id) annotation).value();
+            if (annotation instanceof io.fabric8.annotations.ReplicationController) {
+                String id = ((io.fabric8.annotations.ReplicationController) annotation).value();
                 return id.equals(r.getId());
             }
         }

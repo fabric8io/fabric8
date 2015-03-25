@@ -16,9 +16,9 @@
 
 package io.fabric8.cdi;
 
-import io.fabric8.cdi.annotations.Configuration;
-import io.fabric8.cdi.annotations.Factory;
-import io.fabric8.cdi.annotations.Service;
+import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Factory;
+import io.fabric8.annotations.Service;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.KubernetesClientBean;
 import io.fabric8.cdi.bean.KubernetesFactoryBean;
@@ -63,7 +63,7 @@ public class Fabric8Extension implements Extension {
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
             Service service = annotated.getAnnotation(Service.class);
-            String serviceId = service.id();
+            String serviceId = service.value();
             String serviceProtocol = service.protocol();
             Type type = annotated.getBaseType();
             if (type.equals(String.class)) {

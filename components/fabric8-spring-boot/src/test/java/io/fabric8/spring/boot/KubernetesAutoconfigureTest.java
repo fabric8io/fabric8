@@ -14,16 +14,14 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.arquillian.kubernetes.annotation;
+package io.fabric8.spring.boot;
 
+import org.junit.Test;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class KubernetesAutoconfigureTest {
+    
+    @Test
+    public void testProcess() throws Exception {
 
-@Target(value = {ElementType.FIELD, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Id {
-    String value();
+    }
 }

@@ -14,29 +14,15 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.qualifiers;
+package io.fabric8.spring.boot.internal;
 
-import io.fabric8.annotations.Service;
+import io.fabric8.spring.boot.annotations.ConditionalOnInsideKubernetes;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import javax.enterprise.util.AnnotationLiteral;
+@Configuration
+@ConditionalOnInsideKubernetes
+@Import(InternalServiceRegistar.class)
+public class InternalServiceConfigurer {
 
-public class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
-
-    private final String id;
-    private final String protocol;
-
-    public ServiceQualifier(String id, String protocol) {
-        this.id = id;
-        this.protocol = protocol;
-    }
-
-    @Override
-    public String id() {
-        return id;
-    }
-
-    @Override
-    public String protocol() {
-        return protocol;
-    }
 }

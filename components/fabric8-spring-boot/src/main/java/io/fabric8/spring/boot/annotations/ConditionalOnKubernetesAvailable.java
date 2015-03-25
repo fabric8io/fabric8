@@ -14,24 +14,20 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.annotations;
+package io.fabric8.spring.boot.annotations;
 
-import io.fabric8.cdi.Services;
+import io.fabric8.spring.boot.condition.OnKubernetesAvailableCondition;
+import org.springframework.context.annotation.Conditional;
 
-import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Qualifier
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Documented
-public @interface Service {
-
-    String id() default "";
-
-    String protocol() default Services.DEFAULT_PROTO;
+@Conditional(OnKubernetesAvailableCondition.class)
+public @interface ConditionalOnKubernetesAvailable {
 }

@@ -29,6 +29,10 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-api</artifactId>
         </dependency>
         <dependency>

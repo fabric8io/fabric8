@@ -17,8 +17,8 @@
 package io.fabric8.cdi.weld;
 
 
-import io.fabric8.cdi.annotations.Configuration;
-import io.fabric8.cdi.annotations.Service;
+import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Service;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,15 +27,15 @@ import javax.inject.Singleton;
 public class ServiceStringBean {
 
     @Inject
-    @Service(id = "kubernetes")
+    @Service("kubernetes")
     String kubernetesUrl;
 
     @Inject
-    @Service(id = "fabric8-console-service")
+    @Service("fabric8-console-service")
     String consoleUrl;
 
     @Inject
-    @Service(id = "fabric8-console-service", protocol = "tst")
+    @Service(value = "fabric8-console-service", protocol = "tst")
     String testUrl;
 
     public String getTestUrl() {

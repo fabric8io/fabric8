@@ -67,6 +67,8 @@
     <module>fabric-jgroups</module>
     <module>fabric-apm</module>
     <module>fabric-agent</module>
+    <module>fabric8-annotations</module>
+    <module>fabric8-spring-boot</module>
   </modules>
 
   <profiles>

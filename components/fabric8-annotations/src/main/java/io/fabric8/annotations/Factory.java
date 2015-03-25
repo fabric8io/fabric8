@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.annotations;
+package io.fabric8.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
