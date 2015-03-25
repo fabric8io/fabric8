@@ -1,7 +1,7 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.Status;
+import io.fabric8.kubernetes.api.model.base.Status;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
