@@ -64,8 +64,16 @@ public class XmlEndpointsCompleter implements UICompleter<String> {
                                     String id = getSafeAttribute(node, "id");
                                     String lineNumber = (String) node.getUserData(XmlLineNumberParser.LINE_NUMBER);
 
+                                    // we only want the relative dir name from the resource directory, eg META-INF/spring/foo.xml
+                                    String baseDir = facet.getResourceDirectory().getFullyQualifiedName();
+                                    String fileName = resource.getFullyQualifiedName();
+                                    if (fileName.startsWith(baseDir)) {
+                                        fileName = fileName.substring(baseDir.length() + 1);
+                                    }
+
                                     CamelEndpointDetails detail = new CamelEndpointDetails();
                                     detail.setResource(resource);
+                                    detail.setFileName(fileName);
                                     detail.setLineNumber(lineNumber);
                                     detail.setEndpointInstance(id);
                                     detail.setEndpointUri(uri);

@@ -23,8 +23,6 @@ import java.util.concurrent.Callable;
 import io.fabric8.forge.camel.commands.project.CamelComponentDetails;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.helper.JavaHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -177,6 +175,9 @@ public final class CamelCommandsHelper {
                 clazz = loadPrimitiveType(javaType);
             }
             if (clazz == null) {
+                clazz = loadStringSupportedType(javaType);
+            }
+            if (clazz == null) {
                 clazz = (Class<Object>) Class.forName(javaType);
             }
             if (clazz.equals(String.class) || clazz.equals(Date.class)
@@ -185,6 +186,17 @@ public final class CamelCommandsHelper {
             }
         } catch (ClassNotFoundException e) {
             // ignore errors
+        }
+        return null;
+    }
+
+    private static Class loadStringSupportedType(String javaType) {
+        if ("java.io.File".equals(javaType)) {
+            return String.class;
+        } else if ("java.net.URL".equals(javaType)) {
+            return String.class;
+        } else if ("java.net.URI".equals(javaType)) {
+            return String.class;
         }
         return null;
     }

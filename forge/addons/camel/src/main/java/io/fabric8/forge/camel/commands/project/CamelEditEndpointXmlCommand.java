@@ -86,10 +86,10 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         attributeMap.put("componentName", detail.getEndpointComponentName());
         attributeMap.put("instanceName", detail.getEndpointInstance());
         attributeMap.put("endpointUri", detail.getEndpointUri());
+        attributeMap.put("lineNumber", detail.getLineNumber());
+        attributeMap.put("xml", detail.getFileName());
         attributeMap.put("kind", "xml");
-        // TODO: resource as relative path name
-        attributeMap.put("xml", "META-INF/spring/foo.xml");
-        return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
+        return Results.navigateTo(ConfigureEditEndpointPropertiesStep.class);
     }
 
     @Override

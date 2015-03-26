@@ -21,6 +21,7 @@ import org.jboss.forge.addon.resource.Resource;
 public class CamelEndpointDetails {
 
     private Resource resource;
+    private String fileName;
     private String lineNumber;
     private String endpointComponentName;
     private String endpointInstance;
@@ -32,6 +33,14 @@ public class CamelEndpointDetails {
 
     public void setResource(Resource resource) {
         this.resource = resource;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getLineNumber() {
