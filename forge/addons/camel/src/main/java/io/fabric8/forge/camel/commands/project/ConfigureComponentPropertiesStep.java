@@ -85,6 +85,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
                 String required = propertyMap.get("required");
+                String currentValue = null;
                 String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
                 String enums = propertyMap.get("enum");
@@ -93,7 +94,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                     Class<Object> inputClazz = loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, defaultValue, enums, description);
+                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 builder.add(input);
                                 inputs.add(input);

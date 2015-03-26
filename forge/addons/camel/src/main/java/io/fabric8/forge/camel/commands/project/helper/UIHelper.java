@@ -31,13 +31,15 @@ public final class UIHelper {
      * @return the input widget, or <tt>null</tt> if not supported because of inputClazz not possible to be used
      */
     public static InputComponent createUIInput(InputComponentFactory factory, String name, Class inputClazz,
-                                               String required, String defaultValue, String enums, String description) {
+                                               String required, String currentValue, String defaultValue, String enums, String description) {
+
+        String usedValue = currentValue != null ? currentValue : defaultValue;
 
         InputComponent input;
         if (enums != null) {
             UISelectOne ui = factory.createSelectOne(name, inputClazz);
-            if (defaultValue != null) {
-                ui.setDefaultValue(defaultValue);
+            if (usedValue != null) {
+                ui.setDefaultValue(usedValue);
             }
             // the enums are comma separated
             String[] values = enums.split(",");
@@ -46,8 +48,8 @@ public final class UIHelper {
             input = ui;
         } else {
             UIInput ui = factory.createInput(name, inputClazz);
-            if (defaultValue != null) {
-                ui.setDefaultValue(defaultValue);
+            if (usedValue != null) {
+                ui.setDefaultValue(usedValue);
             }
 
             input = ui;
