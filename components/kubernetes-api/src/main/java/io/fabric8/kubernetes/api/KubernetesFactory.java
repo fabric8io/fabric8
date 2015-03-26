@@ -368,8 +368,7 @@ public class KubernetesFactory {
     }
 
     private void configureClientCert(WebClient webClient) {
-        try {
-            InputStream certInputStream = getInputStreamFromDataOrFile(clientCertData, clientCertFile);
+        try (InputStream certInputStream = getInputStreamFromDataOrFile(clientCertData, clientCertFile)) {
             CertificateFactory certFactory = CertificateFactory.getInstance("X509");
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certInputStream);
 
@@ -416,8 +415,7 @@ public class KubernetesFactory {
     }
 
     private void configureCaCert(WebClient webClient) {
-        try {
-            InputStream pemInputStream = getInputStreamFromDataOrFile(caCertData, caCertFile);
+        try (InputStream pemInputStream = getInputStreamFromDataOrFile(caCertData, caCertFile)) {
             CertificateFactory certFactory = CertificateFactory.getInstance("X509");
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(pemInputStream);
 
