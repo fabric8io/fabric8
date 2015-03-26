@@ -15,14 +15,12 @@
  */
 package io.fabric8.forge.camel.commands.project.completer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.fabric8.forge.camel.commands.project.CamelEndpointDetails;
-import io.fabric8.forge.camel.commands.project.helper.LineNumberHelper;
+import io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper;
+import io.fabric8.forge.camel.commands.project.helper.XmlLineNumberParser;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
@@ -32,13 +30,15 @@ import org.jboss.forge.addon.resource.visit.VisitContext;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.getSafeAttribute;
 
 /**
  * XML endpoints completer that finds all endpoints in Camel XML files
  */
 public class XmlEndpointsCompleter implements UICompleter<String> {
-
-    private static final Pattern pattern = Pattern.compile("<endpoint\\s+id=\"(\\w+)\"\\s+uri=\"(.*)\"/>");
 
     private final List<CamelEndpointDetails> endpoints = new ArrayList<>();
     private final CamelCatalog camelCatalog = new DefaultCamelCatalog();
@@ -53,25 +53,27 @@ public class XmlEndpointsCompleter implements UICompleter<String> {
                     // must contain <camelContext...
                     boolean camel = resource.getContents().contains("<camelContext");
                     if (camel) {
-                        // find all the endpoints (currently only <endpoint>
+                        // find all the endpoints (currently only <endpoint> and within <route>)
                         try {
-                            List<String> lines = LineNumberHelper.readLines(resource.getResourceInputStream());
-                            for (String line : lines) {
-                                line = line.trim();
-                                Matcher matcher = pattern.matcher(line);
-                                if (matcher.matches() && matcher.groupCount() == 2) {
-                                    String id = matcher.group(1);
-                                    String uri = matcher.group(2);
+                            // try parse it as dom
+                            Document dom = XmlLineNumberParser.parseXml(resource.getResourceInputStream());
+                            if (dom != null) {
+                                List<Node> nodes = CamelXmlHelper.findAllEndpoints(dom);
+                                for (Node node : nodes) {
+                                    String uri = getSafeAttribute(node, "uri");
+                                    String id = getSafeAttribute(node, "id");
+                                    String lineNumber = (String) node.getUserData(XmlLineNumberParser.LINE_NUMBER);
 
                                     CamelEndpointDetails detail = new CamelEndpointDetails();
                                     detail.setResource(resource);
+                                    detail.setLineNumber(lineNumber);
                                     detail.setEndpointInstance(id);
                                     detail.setEndpointUri(uri);
                                     detail.setEndpointComponentName(camelCatalog.endpointComponentName(uri));
                                     endpoints.add(detail);
                                 }
                             }
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             // ignore
                         }
                     }
