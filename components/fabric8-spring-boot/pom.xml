@@ -27,6 +27,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-springboot</artifactId>
+    <name>Fabric8 :: Spring Boot</name>
 
 
     <dependencies>
@@ -43,12 +44,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -61,4 +56,30 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
