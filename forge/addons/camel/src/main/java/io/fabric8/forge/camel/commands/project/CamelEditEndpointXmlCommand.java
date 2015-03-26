@@ -15,11 +15,10 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -54,6 +53,8 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     @Inject
     private DependencyResolver dependencyResolver;
 
+    private XmlEndpointsCompleter completer;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelEditEndpointXmlCommand.class).name(
@@ -66,11 +67,8 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
 
-        List<String> dummy = new ArrayList<>();
-        dummy.add("timer:foo?perdiod=5000");
-        dummy.add("seda:bar?timeout=10000");
-
-        endpoints.setValueChoices(dummy);
+        completer = new XmlEndpointsCompleter(resourcesFacet);
+        endpoints.setValueChoices(completer.getEndpointUris());
 
         builder.add(endpoints);
     }
@@ -78,18 +76,30 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-        // TODO:
-        attributeMap.put("componentName", "timer");
-        attributeMap.put("instanceName", "mytimer");
-        attributeMap.put("endpointUri", endpoints.getValue());
+
+        String selectedUri = endpoints.getValue();
+        CamelEndpointDetails detail = completer.getEndpointDetail(selectedUri);
+        if (detail == null) {
+            return null;
+        }
+
+        attributeMap.put("componentName", detail.getEndpointComponentName());
+        attributeMap.put("instanceName", detail.getEndpointInstance());
+        attributeMap.put("endpointUri", detail.getEndpointUri());
         attributeMap.put("kind", "xml");
+        // TODO: resource as relative path name
         attributeMap.put("xml", "META-INF/spring/foo.xml");
         return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        return Results.success();
+        boolean empty = !endpoints.getValueChoices().iterator().hasNext();
+        if (empty) {
+            return Results.fail("No Camel endpoints found");
+        } else {
+            return Results.success();
+        }
     }
 
 }
