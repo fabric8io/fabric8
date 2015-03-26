@@ -60,6 +60,9 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
 
+// TODO: merge with ConfigureEditEndpointPropertiesStep or keep separated
+// this one is the older for adding new endpoints
+
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
     @Inject

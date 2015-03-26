@@ -33,13 +33,14 @@ public final class UIHelper {
     public static InputComponent createUIInput(InputComponentFactory factory, String name, Class inputClazz,
                                                String required, String currentValue, String defaultValue, String enums, String description) {
 
-        String usedValue = currentValue != null ? currentValue : defaultValue;
-
         InputComponent input;
         if (enums != null) {
             UISelectOne ui = factory.createSelectOne(name, inputClazz);
-            if (usedValue != null) {
-                ui.setDefaultValue(usedValue);
+            if (defaultValue != null) {
+                ui.setDefaultValue(defaultValue);
+            }
+            if (currentValue != null) {
+                ui.setValue(currentValue);
             }
             // the enums are comma separated
             String[] values = enums.split(",");
@@ -48,8 +49,11 @@ public final class UIHelper {
             input = ui;
         } else {
             UIInput ui = factory.createInput(name, inputClazz);
-            if (usedValue != null) {
-                ui.setDefaultValue(usedValue);
+            if (defaultValue != null) {
+                ui.setDefaultValue(defaultValue);
+            }
+            if (currentValue != null) {
+                ui.setValue(currentValue);
             }
 
             input = ui;
