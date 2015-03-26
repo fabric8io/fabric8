@@ -28,6 +28,9 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
+/**
+ * XML file completer that finds all XML files which includes &lt;camelContext&gt;
+ */
 public class XmlFileCompleter implements UICompleter<String> {
 
     private final Set<String> files = new TreeSet<String>();
@@ -54,6 +57,10 @@ public class XmlFileCompleter implements UICompleter<String> {
                 }
             }
         });
+    }
+
+    public Set<String> getFiles() {
+        return files;
     }
 
     @Override
