@@ -20,7 +20,7 @@ FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
 FLUENTD_IMAGE=fabric8/fluentd-kubernetes:latest
-GRAFANA_IMAGE=jimmidyson/grafana:latest
+#GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
@@ -241,7 +241,7 @@ if [ -f "$APP_BASE/influxdb.json" ]; then
     cat $APP_BASE/elasticsearch.json | $KUBE create -f -
     cat $APP_BASE/fluentd.yml | $KUBE create -f -
     cat $APP_BASE/kibana.yml | $KUBE create -f -
-    cat $APP_BASE/grafana.yml | $KUBE create -f -
+#    cat $APP_BASE/grafana.yml | $KUBE create -f -
   fi
 else
   if [ ${DEPLOY_ALL} -eq 1 ]; then
@@ -249,7 +249,7 @@ else
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
+#    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/gogs/${FABRIC8_VERSION}/gogs-${FABRIC8_VERSION}-kubernetes.json
   fi
 
@@ -277,7 +277,7 @@ DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
-GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
+#GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
 
@@ -325,7 +325,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Influxdb" $INFLUXDB
   validateService "Elasticsearch" $ELASTICSEARCH
   validateService "Kibana console" $KIBANA_CONSOLE
-  validateService "Grafana console" $GRAFANA_CONSOLE
+#  validateService "Grafana console" $GRAFANA_CONSOLE
 
   # Set up Kibana default index
   if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null) ]; then
@@ -418,7 +418,7 @@ printf "${format}" "Fabric8 console" http://$FABRIC8_CONSOLE
 printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Kibana console" $KIBANA_CONSOLE
-  printf "${format}" "Grafana console" $GRAFANA_CONSOLE
+#  printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
 fi
