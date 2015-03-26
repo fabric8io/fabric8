@@ -15,8 +15,10 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageRepository;
@@ -57,6 +59,31 @@ public interface KubernetesExtensions {
     @Path("template")
     @Consumes("application/json")
     String createTemplate(Object entity) throws Exception;
+
+
+    // Builds
+    //-------------------------------------------------------------------------
+
+    @GET
+    @Path("builds")
+    BuildList getBuilds(@QueryParam("namespace") String namespace);
+
+    @POST
+    @Path("builds")
+    String createBuild(Build entity) throws Exception;
+
+    @GET
+    @Path("builds/{name}")
+    Build getBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+    @PUT
+    @Path("builds/{name}")
+    @Consumes("application/json")
+    String updateBuild(@PathParam("name") @NotNull String name, Build entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("builds/{name}")
+    String deleteBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 
     // BuildConfigs

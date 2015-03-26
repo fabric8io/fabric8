@@ -16,8 +16,10 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.openshift.api.model.BuildTriggerPolicy;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
@@ -426,6 +428,42 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     public Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace) {
         return getKubernetesExtensions().getRoute(name, namespace);
+    }
+
+    @Override
+    @POST
+    @Path("builds")
+    public String createBuild(Build entity) throws Exception {
+        return getKubernetesExtensions().createBuild(entity);
+    }
+
+    @Override
+    @DELETE
+    @Path("builds/{name}")
+    public String deleteBuild(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteBuild(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("builds/{name}")
+    public Build getBuild(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().getBuild(name, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("builds")
+    public BuildList getBuilds(String namespace) {
+        return getKubernetesExtensions().getBuilds(namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("builds/{name}")
+    @Consumes("application/json")
+    public String updateBuild(@NotNull String name, Build entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateBuild(name, entity, namespace);
     }
 
     @Override
