@@ -18,15 +18,19 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.BuildTriggerPolicy;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.ImageRepositoryList;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.WebHookTrigger;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -40,6 +44,8 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
  * the core {@link io.fabric8.kubernetes.api.Kubernetes} API and the {@link io.fabric8.kubernetes.api.KubernetesExtensions}
  */
 public class KubernetesClient implements Kubernetes, KubernetesExtensions {
+    private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
+
     private KubernetesFactory factoryReadOnly;
     private KubernetesFactory factoryWriteable;
     private Kubernetes kubernetes;
@@ -509,6 +515,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetesExtensions().createImageRepository(entity);
     }
 
+    @Override
+    @POST
+    @Path("buildConfigHooks/{name}/{secret}/{type}")
+    public String triggerBuild(@NotNull String name, String namespace, @NotNull String secret, @NotNull String type, Object body) {
+        return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, body);
+    }
+
     // Helper methods
     //-------------------------------------------------------------------------
     public void deletePod(Pod entity) throws Exception {
@@ -622,6 +635,54 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             return getPodsForService(service);
         }
     }
+
+
+    // Extension helper methods
+    //-------------------------------------------------------------------------
+    public void triggerBuild(@NotNull String name, String namespace) {
+        BuildConfig buildConfig = getBuildConfig(name, namespace);
+        if (buildConfig != null) {
+            List<BuildTriggerPolicy> triggers = buildConfig.getTriggers();
+            String type = null;
+            String secret = null;
+            for (BuildTriggerPolicy trigger : triggers) {
+                WebHookTrigger hook = trigger.getGeneric();
+                if (hook != null) {
+                    secret = hook.getSecret();
+                    String aType = trigger.getType();
+                    if (Strings.isNotBlank(secret) && Strings.isNotBlank(aType)) {
+                        type = aType;
+                    }
+                }
+            }
+            if (Strings.isNullOrBlank(secret) || Strings.isNullOrBlank(type)) {
+                for (BuildTriggerPolicy trigger : triggers) {
+                    WebHookTrigger hook = trigger.getGithub();
+                    if (hook != null) {
+                        secret = hook.getSecret();
+                        String aType = trigger.getType();
+                        if (Strings.isNotBlank(secret) && Strings.isNotBlank(aType)) {
+                            type = aType;
+                        }
+                    }
+                }
+            }
+            if (Strings.isNullOrBlank(type)) {
+                throw new IllegalArgumentException("BuildConfig does not have a generic or github trigger for build: " + name + " namespace: "+ namespace);
+            }
+            if (Strings.isNullOrBlank(secret)) {
+                throw new IllegalArgumentException("BuildConfig does not have secret for build: " + name + " namespace: "+ namespace);
+            }
+            LOG.info("Triggering build " + name + " namespace: " + namespace + " type: " + type);
+            getKubernetesExtensions().triggerBuild(name, namespace, secret, type, null);
+        } else {
+            throw new IllegalArgumentException("No BuildConfig for build: " + name + " namespace: "+ namespace);
+        }
+    }
+
+
+    // implementation methods
+    //-------------------------------------------------------------------------
 
     protected Kubernetes getWriteableKubernetes() {
         return getKubernetes(true);

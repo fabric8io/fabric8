@@ -84,6 +84,17 @@ public interface KubernetesExtensions {
     String deleteBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 
+    // BuildConfigHooks
+    //-------------------------------------------------------------------------
+    @POST
+    @Path("buildConfigHooks/{name}/{secret}/{type}")
+    String triggerBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace,
+                        @PathParam("secret") @NotNull String secret,
+                        @PathParam("type") @NotNull String type,
+                        Object body);
+
+
+
     // ImageRepositorys
     //-------------------------------------------------------------------------
 
