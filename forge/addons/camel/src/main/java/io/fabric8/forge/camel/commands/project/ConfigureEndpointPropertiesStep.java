@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,18 +74,35 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     private List<InputComponent> inputs = new ArrayList<>();
 
     @Override
+    @SuppressWarnings("unchecked")
     public void initializeUI(UIBuilder builder) throws Exception {
         // lets create a field for each property on the component
 
-        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
-        String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
         CamelCatalog catalog = new DefaultCamelCatalog();
+
+        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
+
+        // either we have an uri from an existing endpoint to edit, or we only have the component name to create a new endpoint
+
+        String camelComponentName = optionalAttributeValue(attributeMap, "componentName");
+        String uri = optionalAttributeValue(attributeMap, "endpointUri");
+
+        if (camelComponentName == null && uri != null) {
+            camelComponentName = catalog.endpointComponentName(uri);
+        }
+
+        if (camelComponentName == null && uri == null) {
+            throw new IllegalArgumentException("Component name or endpoint uri did not get passed on from the previous wizard page");
+        }
+
         String json = catalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
+        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
+
         if (data != null) {
             Set<String> namesAdded = new HashSet<>();
             for (Map<String, String> propertyMap : data) {
@@ -94,6 +112,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
                 String required = propertyMap.get("required");
+                String currentValue = currentValues.get(name);
                 String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
                 String enums = propertyMap.get("enum");
@@ -102,7 +121,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                     Class<Object> inputClazz = CamelCommandsHelper.loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, defaultValue, enums, description);
+                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 builder.add(input);
                                 inputs.add(input);
@@ -171,11 +190,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         CamelCatalog catalog = new DefaultCamelCatalog();
         // TODO: need Camel 2.15.1
-        //String uri = catalog.asEndpointUri(camelComponentName, options);
-        //if (uri == null) {
-        //    return Results.fail("Cannot create endpoint uri");
-        //}
-        String uri = "Need Camel 2.15.1";
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
+        //String uri = "Need Camel 2.15.1";
 
         JavaResource existing = facet.getJavaResource(routeBuilder);
         if (existing == null || !existing.exists()) {
@@ -269,11 +288,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        // String uri = catalog.asEndpointUri(camelComponentName, options);
-        // if (uri == null) {
-        //     return Results.fail("Cannot create endpoint uri");
-        // }
-        String uri = "Need Camel 2.15.1";
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
+        //String uri = "Need Camel 2.15.1";
 
         FileResource file = facet.getResource(xml);
         if (!file.exists()) {
@@ -413,5 +432,19 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
         }
         throw new IllegalArgumentException("The attribute value '" + name + "' did not get passed on from the previous wizard page");
+    }
+
+    /**
+     * Returns the optional String value of the given name
+     */
+    public static String optionalAttributeValue(Map<Object, Object> attributeMap, String name) {
+        Object value = attributeMap.get(name);
+        if (value != null) {
+            String text = value.toString();
+            if (!Strings.isBlank(text)) {
+                return text;
+            }
+        }
+        return null;
     }
 }
