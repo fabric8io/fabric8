@@ -103,4 +103,19 @@ public class BuildWatcher {
         }
     }
 
+    /**
+     * Waits until this watcher is finished (which by default is forever)
+     */
+    public void join() {
+        Object lock = new Object();
+        while (true) {
+            synchronized(lock) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        }
+    }
 }

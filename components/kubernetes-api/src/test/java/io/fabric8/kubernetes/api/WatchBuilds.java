@@ -18,9 +18,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
-import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.builds.Links;
-import io.fabric8.openshift.api.model.Build;
 
 /**
  * Triggers a build using the Java API
@@ -49,15 +47,6 @@ public class WatchBuilds {
         long pollTime = 3000;
         watcher.schedule(pollTime);
 
-        Object lock = new Object();
-        while (true) {
-            synchronized(lock) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-            }
-        }
+        watcher.join();
     }
 }
