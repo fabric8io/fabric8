@@ -27,10 +27,11 @@
                "type":"Git"
             },
             "strategy":{
-               "dockerStrategy":{
-                  "baseImage":"jimmidyson/k8s-proxy"
+               "customStrategy":{
+                  "image":"fabric8/fabric8-hawtio-builder",
+                  "exposeDockerSocket": true
                },
-               "type":"Docker"
+               "type":"Custom"
             }
          },
          "triggers":[
@@ -45,16 +46,6 @@
                   "secret":"secret101"
                },
                "type":"generic"
-            },
-            {
-               "type":"imageChange",
-               "imageChange":{
-                  "image":"fabric8Console",
-                  "from":{
-                     "name":"jimmidyson/k8s-proxy"
-                  },
-                  "tag":"latest"
-               }
             }
          ]
       },
@@ -66,17 +57,6 @@
                "component":"fabric8Console"
             },
             "name":"console"
-         }
-      },
-      {
-         "apiVersion":"v1beta1",
-         "containerPort":9090,
-         "creationTimestamp":null,
-         "id":"console-service",
-         "kind":"Service",
-         "port":80,
-         "selector":{
-            "component":"fabric8Console"
          }
       },
       {
@@ -96,16 +76,12 @@
                               "name":"fabric8-console-container",
                               "env":[
                                  {
-                                    "name":"DOCKER_REGISTRY",
-                                    "value":"$REGISTRY_SERVICE_HOST:$REGISTRY_SERVICE_PORT"
+                                    "name":"OAUTH_CLIENT_ID",
+                                    "value":"fabric8-console"
                                  },
                                  {
-                                    "name":"KUBERNETES_TRUST_CERT",
-                                    "value":"true"
-                                 },
-                                 {
-                                    "name":"PROXY_DISABLE_CERT_VALIDATION",
-                                    "value":"true"
+                                    "name":"OAUTH_AUTHORIZE_URI",
+                                    "value":"https://fabric8.local:8443/oauth/authorize"
                                  }
                               ],
                               "ports":[
