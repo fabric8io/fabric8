@@ -18,11 +18,11 @@ package io.fabric8.cdi.producers;
 
 
 import io.fabric8.annotations.Configuration;
-import io.fabric8.annotations.Service;
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
-import io.fabric8.cdi.qualifiers.ServiceQualifier;
+import io.fabric8.cdi.qualifiers.ServiceNameQualifier;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -61,9 +61,9 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
 
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
             Type type = parameter.getBaseType();
-            Service service = parameter.getAnnotation(Service.class);
+            ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
-            if (service != null) {
+            if (serviceName != null) {
                 String serviceUrl = getServiceUrl(serviceId, serviceProtocol,  ctx);
                 arguments.add(serviceUrl);
             } else if (configuration != null) {
@@ -100,7 +100,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      */
     private String getServiceUrl(String serviceId, String serviceProtocol, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, new ServiceQualifier(serviceId, serviceProtocol));
+            return (String) BeanProvider.getContextualReference((Class) String.class, new ServiceNameQualifier(serviceId, serviceProtocol));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
             return ServiceUrlBean.getBean(serviceId, serviceProtocol).getProducer().produce(context);

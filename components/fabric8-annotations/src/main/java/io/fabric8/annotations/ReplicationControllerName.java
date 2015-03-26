@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Documented
-public @interface ReplicationController {
+public @interface ReplicationControllerName {
 
     String value() default "";
 

@@ -16,6 +16,7 @@
 
 package io.fabric8.spring.boot.external;
 
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.Service;
@@ -34,7 +35,7 @@ public class ExtenralServiceRegistar implements ImportBeanDefinitionRegistrar {
         Kubernetes kubernetes = kubernetesFactory.createKubernetes();
         for (final Service service : kubernetes.getServices("default").getItems()) {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(Service.class);
-            beanDefinition.addQualifier(new AutowireCandidateQualifier(io.fabric8.annotations.Service.class, service.getId()));
+            beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service.getId()));
             beanDefinition.getPropertyValues().addPropertyValue("id", service.getId());
             beanDefinition.getPropertyValues().addPropertyValue("port", service.getPort());
             beanDefinition.getPropertyValues().addPropertyValue("portalIP", service.getPortalIP());

@@ -16,6 +16,7 @@
 
 package io.fabric8.spring.boot.internal;
 
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.model.Service;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -54,7 +55,7 @@ public class InternalServiceRegistar implements ImportBeanDefinitionRegistrar {
                     String port = env.get(service + PORT_SUFFIX);
                     String protocol = env.get(service + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
 
-                    beanDefinition.addQualifier(new AutowireCandidateQualifier(io.fabric8.annotations.Service.class, service));
+                    beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service));
                     beanDefinition.getPropertyValues().addPropertyValue("id", service);
                     beanDefinition.getPropertyValues().addPropertyValue("port", port);
                     beanDefinition.getPropertyValues().addPropertyValue("portalIP", serviceHost);

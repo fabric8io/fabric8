@@ -14,29 +14,20 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.qualifiers;
+package io.fabric8.annotations;
 
-import io.fabric8.annotations.Service;
+import javax.inject.Qualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import javax.enterprise.util.AnnotationLiteral;
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Documented
+public @interface ServiceName {
 
-public class ServiceQualifier extends AnnotationLiteral<Service> implements Service {
-
-    private final String id;
-    private final String protocol;
-
-    public ServiceQualifier(String id, String protocol) {
-        this.id = id;
-        this.protocol = protocol;
-    }
-
-    @Override
-    public String id() {
-        return id;
-    }
-
-    @Override
-    public String protocol() {
-        return protocol;
-    }
+    String value() default "";
 }

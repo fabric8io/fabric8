@@ -18,7 +18,7 @@ package io.fabric8.cdi.weld;
 
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Factory;
-import io.fabric8.annotations.Service;
+import io.fabric8.annotations.ServiceName;
 
 import javax.inject.Singleton;
 import java.net.MalformedURLException;
@@ -28,8 +28,8 @@ import java.net.URL;
 public class StringToURL {
     
     @Factory
-    @Service
-    public URL toUrl(@Service String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
+    @ServiceName
+    public URL toUrl(@ServiceName String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
         String protocol = protocolConfig.getProtocol();
         return new URL(protocol+"://" + service.substring(service.lastIndexOf("/")));
     }

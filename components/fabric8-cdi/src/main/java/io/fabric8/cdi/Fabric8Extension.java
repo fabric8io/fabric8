@@ -18,7 +18,8 @@ package io.fabric8.cdi;
 
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Factory;
-import io.fabric8.annotations.Service;
+import io.fabric8.annotations.Protocol;
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.KubernetesClientBean;
 import io.fabric8.cdi.bean.KubernetesFactoryBean;
@@ -62,9 +63,10 @@ public class Fabric8Extension implements Extension {
         final InjectionPoint injectionPoint = event.getInjectionPoint();
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
-            Service service = annotated.getAnnotation(Service.class);
-            String serviceId = service.value();
-            String serviceProtocol = service.protocol();
+            ServiceName serviceName = annotated.getAnnotation(ServiceName.class);
+            Protocol protocol = annotated.getAnnotation(Protocol.class);
+            String serviceId = serviceName.value();
+            String serviceProtocol = protocol != null ? protocol.value() : "tcp";
             Type type = annotated.getBaseType();
             if (type.equals(String.class)) {
                 ServiceUrlBean.getBean(serviceId, serviceProtocol);
@@ -122,7 +124,7 @@ public class Fabric8Extension implements Extension {
     public boolean isServiceInjectionPoint(InjectionPoint injectionPoint) {
         Set<Annotation> qualifiers = injectionPoint.getQualifiers();
         for (Annotation annotation : qualifiers) {
-            if (annotation.annotationType().isAssignableFrom(Service.class)) {
+            if (annotation.annotationType().isAssignableFrom(ServiceName.class)) {
                 return true;
             }
         }

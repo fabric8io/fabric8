@@ -17,7 +17,8 @@
  */
 package io.fabric8.forge.rest.main;
 
-import io.fabric8.annotations.Service;
+import io.fabric8.annotations.Protocol;
+import io.fabric8.annotations.ServiceName;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.util.Base64;
 import org.jboss.forge.furnace.util.Strings;
@@ -38,7 +39,7 @@ public class GitUserHelper {
     private String address;
 
     @Inject
-    public GitUserHelper(@Service(id ="GOGS_HTTP_SERVICE", protocol="http") String gogsUrl,
+    public GitUserHelper(@ServiceName("GOGS_HTTP_SERVICE")@Protocol("http") String gogsUrl,
     @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                          @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;
