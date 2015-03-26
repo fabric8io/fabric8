@@ -332,37 +332,26 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 lineNumber = (String) found.getUserData(XmlLineNumberParser.LINE_NUMBER);
 
                 // if we created a new endpoint, then insert a new line with the endpoint details
+                List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
+                String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
+
+                // the list is 0-based, and line number is 1-based
+                int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
+                int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
+                line = LineNumberHelper.padString(line, spaces);
                 if (created) {
-                    List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
-                    String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
+                    lines.add(idx, line);
+                } else {
+                    lines.set(idx, line);
+                }
 
-                    // the list is 0-based, and line number is 1-based
-                    int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
-                    int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
-                    line = LineNumberHelper.padString(line, spaces);
-                    // insert after
-                    lines.add(idx + 1, line);
+                // and save the file back
+                String content = LineNumberHelper.linesToString(lines);
+                file.setContents(content);
 
-                    // and save the file back
-                    String content = LineNumberHelper.linesToString(lines);
-                    file.setContents(content);
-
+                if (created) {
                     return Results.success("Added endpoint: " + endpointInstanceName + " with uri: " + uri);
                 } else {
-                    // update existing
-                    List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
-                    String line = String.format("<endpoint id=\"%s\" uri=\"%s\"/>", endpointInstanceName, uri);
-
-                    // the list is 0-based, and line number is 1-based
-                    int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
-                    int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
-                    line = LineNumberHelper.padString(line, spaces);
-                    lines.set(idx, line);
-
-                    // and save the file back
-                    String content = LineNumberHelper.linesToString(lines);
-                    file.setContents(content);
-
                     return Results.success("Update endpoint: " + endpointInstanceName + " with uri: " + uri);
                 }
             }
