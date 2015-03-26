@@ -15,7 +15,6 @@ FABRIC8_VERSION=2.0.33.1
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
 REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
-CADVISOR_IMAGE=google/cadvisor:0.8.0
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
@@ -25,13 +24,14 @@ GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE} ${GRAFANA_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
 CLEANUP=0
 DONT_RUN=0
 FABRIC8_VAGRANT_IP=172.28.128.4
+OPENSHIFT_ADMIN_PASSWORD=admin
 
 while getopts "fud:kpm:P:" opt; do
   case $opt in
@@ -41,7 +41,7 @@ while getopts "fud:kpm:P:" opt; do
       ;;
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -fv openshift cadvisor || true
+      docker rm -fv openshift || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -z "$RUNNING_CONTAINERS" || docker rm -fv $RUNNING_CONTAINERS
       CLEANUP=1
@@ -147,7 +147,7 @@ if [ -n "${OPENSHIFT_ADMIN_PASSWORD}" ]; then
   OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
 fi
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG} --loglevel=4)
 
 validateService()
 {
@@ -162,15 +162,16 @@ docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG router -
 docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG registry --create"
 docker exec -i openshift sh -c "openshift ex policy add-user cluster-admin htpasswd:admin -n master"
 
-if [ ${DEPLOY_ALL} -eq 1 ]; then
-  # Have to run it privileged otherwise not working on CentOS7
-  CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
-    --volume=/:/rootfs:ro \
-    --volume=/var/run:/var/run:rw \
-    --volume=/sys:/sys:ro \
-    --volume=/var/lib/docker/:/var/lib/docker:ro \
-    ${CADVISOR_IMAGE})
-fi
+#cat <<EOF | $KUBE create -f -
+#---
+#  apiVersion: "v1beta2"
+#  kind: "Secret"
+#  id: "openshift-cert-secrets"
+#  data:
+#    root-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/ca/cert.crt)"
+#    admin-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/cert.crt)"
+#    admin-key: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/key.key)"
+#EOF
 
 deployFabric8Console() {
   cat <<EOF | $KUBE create -f -
@@ -198,23 +199,27 @@ deployFabric8Console() {
                   name: "fabric8-console-container"
                   imagePullPolicy: "PullIfNotPresent"
                   env:
-                    - name: "KUBERNETES_TRUST_CERT"
-                      value: "true"
-                    - name: "PROXY_DISABLE_CERT_VALIDATION"
-                      value: "true"
-                  command:
-                    - --insecure
-                    - -w
-                    - /site
-                    - --api-prefix=/kubernetes/api/
-                    - --osapi-prefix=/kubernetes/osapi/
-                    - --404=/index.html
-                    $(test -n "${OPENSHIFT_MASTER_URL}" && echo "- --oauth-authorize-uri=https://${OPENSHIFT_MASTER_URL}:8443/oauth/authorize")
+                    - name: OAUTH_CLIENT_ID
+                      value: fabric8-console
+                    - name: OAUTH_AUTHORIZE_URI
+                      value: https://${OPENSHIFT_MASTER_URL}:8443/oauth/authorize
                   ports:
                     - containerPort: 9090
                       protocol: "TCP"
+ #                 volumeMounts:
+ #                   - name: openshift-cert-secrets
+ #                     mountPath: /etc/secret-volume
+ #                     readOnly: true
               id: "hawtioPod"
               version: "v1beta1"
+ #             volumes:
+ #               - name: openshift-cert-secrets
+ #                 source:
+ #                   secret:
+ #                     target:
+ #                       kind: Secret
+ #                       namespace: default
+ #                       name: openshift-cert-secrets
           labels:
             component: "fabric8Console"
         replicaSelector:
@@ -273,7 +278,6 @@ INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
-CADVISOR=http://$DOCKER_IP:4194
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
 
@@ -320,7 +324,6 @@ validateService "Docker registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Influxdb" $INFLUXDB
   validateService "Elasticsearch" $ELASTICSEARCH
-  validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
   validateService "Grafana console" $GRAFANA_CONSOLE
 
@@ -418,7 +421,6 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
-  printf "${format}" "Cadvisor" $CADVISOR
 fi
 
 printf "$SERVICE_TABLE" | column -t -s '|'
