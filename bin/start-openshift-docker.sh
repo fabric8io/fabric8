@@ -147,7 +147,7 @@ if [ -n "${OPENSHIFT_ADMIN_PASSWORD}" ]; then
   OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
 fi
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG} --loglevel=4)
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
 
 validateService()
 {
@@ -338,8 +338,8 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
     }' > /dev/null
   fi
 
-  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/config/4.0.0" -w "%{http_code}" -o /dev/null) ]; then
-    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0" -d '{
+  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/config/4.0.1" -w "%{http_code}" -o /dev/null) ]; then
+    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.1" -d '{
       "defaultIndex": "[logstash-]YYYY.MM.DD"
     }' > /dev/null
   fi
