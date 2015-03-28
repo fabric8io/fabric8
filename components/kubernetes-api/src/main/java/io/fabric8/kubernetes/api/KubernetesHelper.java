@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -36,6 +37,8 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static io.fabric8.utils.Lists.notNullList;
@@ -50,8 +53,10 @@ import io.fabric8.kubernetes.api.model.Template;
 /**
  */
 public class KubernetesHelper {
-    public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
+
+    public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
+    protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
 
@@ -1185,5 +1190,14 @@ public class KubernetesHelper {
             }
         }
         return currentValue;
+    }
+
+    public static Date parseDate(String text) {
+        try {
+            return dateTimeFormat.parse(text);
+        } catch (ParseException e) {
+            LOG.warn("Failed to parse date: " + text + ". Reason: " + e);
+            return null;
+        }
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
@@ -47,6 +48,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
  */
 public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
+    private static final long DEFAULT_TRIGGER_TIMEOUT = 60 * 1000;
 
     private KubernetesFactory factoryReadOnly;
     private KubernetesFactory factoryWriteable;
@@ -677,7 +679,98 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     // Extension helper methods
     //-------------------------------------------------------------------------
-    public void triggerBuild(@NotNull String name, String namespace) {
+
+    /**
+     * Triggers a build and returns the UID of the newly created build if it can be found within the default time period
+     */
+    public String triggerBuildAndGetUuid(@NotNull String name, String namespace) {
+        return triggerBuildAndGetUuid(name, namespace, DEFAULT_TRIGGER_TIMEOUT);
+    }
+
+    /**
+     * Triggers a build and returns the UID of the newly created build if it can be found within the given time period
+     */
+    public String triggerBuildAndGetUuid(@NotNull String name, String namespace, long maxTimeoutMs) {
+        String answer = triggerBuild(name, namespace);
+        if (Strings.isNullOrBlank(answer)) {
+            // lets poll the builds to find the latest build for this name
+            int sleepMillis = 2000;
+            long endTime = System.currentTimeMillis() + maxTimeoutMs;
+            while (true) {
+                Build build = findLatestBuild(name, namespace);
+                // lets assume that the build is created immediately on the webhook
+                if (build != null) {
+                    String uid = Builds.getUid(build);
+                    answer = uid;
+                    break;
+                }
+                if (System.currentTimeMillis() > endTime) {
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(sleepMillis);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+        return answer;
+    }
+
+    /**
+     * Returns all the builds for the given buildConfigName and namespace
+     */
+    public List<Build> findBuilds(String buildConfigName, String namespace) {
+        List<Build> answer = new ArrayList<>();
+        BuildList buildList = getBuilds(namespace);
+        if (buildList != null) {
+            List<Build> items = buildList.getItems();
+            if (items != null) {
+                for (Build build : items) {
+                    String namespace2 = Builds.getNamespace(build);
+                    String name2 = Builds.getBuildConfigName(build);
+                    if (Objects.equals(namespace, namespace2) && Objects.equals(buildConfigName, name2)) {
+                        answer.add(build);
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    public Build findLatestBuild(String name, String namespace) {
+        List<Build> builds = findBuilds(name, namespace);
+        int size = builds.size();
+        if (size < 1) {
+            return null;
+        } else if (size == 1) {
+            return builds.get(0);
+        } else {
+            // TODO add each build and sort by date...
+            SortedMap<Date, Build> map = new TreeMap<>();
+            for (Build build : builds) {
+                Date date = Builds.getCreationTimestampDate(build);
+                if (date != null) {
+                    Build otherBuild = map.get(date);
+                    if (otherBuild != null) {
+                        LOG.warn("Got 2 builds at the same time: " + build + " and " + otherBuild);
+                    } else {
+                        map.put(date, build);
+                    }
+                }
+            }
+            Date lastKey = map.lastKey();
+            Build build = map.get(lastKey);
+            if (build == null) {
+                LOG.warn("Should have a value for the last key " + lastKey + " for builds " + map);
+            }
+            return build;
+        }
+    }
+
+    public String triggerBuild(@NotNull String name, String namespace) {
         BuildConfig buildConfig = getBuildConfig(name, namespace);
         if (buildConfig != null) {
             List<BuildTriggerPolicy> triggers = buildConfig.getTriggers();
@@ -712,7 +805,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
                 throw new IllegalArgumentException("BuildConfig does not have secret for build: " + name + " namespace: "+ namespace);
             }
             LOG.info("Triggering build " + name + " namespace: " + namespace + " type: " + type);
-            getKubernetesExtensions().triggerBuild(name, namespace, secret, type, null);
+            return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, null);
         } else {
             throw new IllegalArgumentException("No BuildConfig for build: " + name + " namespace: "+ namespace);
         }

@@ -34,7 +34,12 @@
     <module>arquillian-fabric8</module>
     <module>console</module>
     <module>docker-api</module>
+    <module>fabric8-annotations</module>
+    <module>fabric8-build-workflow</module>
     <module>fabric8-cdi</module>
+    <module>fabric8-spring-boot</module>
+    <module>fabric-agent</module>
+    <module>fabric-apm</module>
     <module>fabric-cxf</module>
     <!--
             TODO
@@ -43,6 +48,7 @@
     <module>fabric-cxf-plugins</module>
     <module>fabric-etcd</module>
     <module>fabric-groups</module>
+    <module>fabric-jgroups</module>
     <module>fabric-utils</module>
     <module>fabric-vertx</module>
     <module>gateway-api</module>
@@ -64,11 +70,6 @@
     <module>rest-utils</module>
     <module>swagger-model</module>
     <module>zookeeper-client</module>
-    <module>fabric-jgroups</module>
-    <module>fabric-apm</module>
-    <module>fabric-agent</module>
-    <module>fabric8-annotations</module>
-    <module>fabric8-spring-boot</module>
   </modules>
 
   <profiles>

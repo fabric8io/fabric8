@@ -17,11 +17,13 @@
  */
 package io.fabric8.kubernetes.api.builds;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -106,6 +108,41 @@ public class Builds {
         }
         return answer;
     }
+
+    public static String getNamespace(Build build) {
+        String answer = null;
+        if (build != null) {
+            Map<String, Object> metadata = getMetadata(build);
+            answer = getString(metadata, "namespace");
+            if (Strings.isNullOrBlank(answer))  {
+                answer = build.getNamespace();
+            }
+        }
+        return answer;
+    }
+
+
+    public static String getCreationTimestamp(Build build) {
+        String answer = null;
+        if (build != null) {
+            Map<String, Object> metadata = getMetadata(build);
+            answer = getString(metadata, "creationTimestamp");
+            if (Strings.isNullOrBlank(answer))  {
+                answer = build.getCreationTimestamp();
+            }
+        }
+        return answer;
+    }
+
+    public static Date getCreationTimestampDate(Build build) {
+        String text = getCreationTimestamp(build);
+        if (Strings.isNullOrBlank(text)) {
+            return null;
+        } else {
+            return KubernetesHelper.parseDate(text);
+        }
+    }
+
 
     public static String getBuildConfigName(Build build) {
         if (build != null) {

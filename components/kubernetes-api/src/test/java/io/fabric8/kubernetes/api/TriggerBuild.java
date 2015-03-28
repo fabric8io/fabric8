@@ -35,7 +35,8 @@ public class TriggerBuild {
         System.out.println("Connecting to kubernetes on: " + client.getAddress());
 
         try {
-            client.triggerBuild(name, namespace);
+            String uuid = client.triggerBuildAndGetUuid(name, namespace);
+            System.out.println("Build triggered: got UUID: " + uuid);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();

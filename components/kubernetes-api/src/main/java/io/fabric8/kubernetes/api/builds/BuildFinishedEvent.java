@@ -58,4 +58,7 @@ public class BuildFinishedEvent {
         return Builds.getBuildConfigName(build);
     }
 
+    public String getNamespace() {
+        return Builds.getNamespace(build);
+    }
 }
