@@ -21,21 +21,23 @@ This library consists of 3 main parts:
 
 #### BuildWorkItemHandler
 
-This WorkItemHandler triggers a build from inside the BPM flow.
+The [BuildWorkItemHandler](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/trigger/BuildWorkItemHandler.java#L30) implements the jBPM WorkItemHandler interface to trigger a build from inside the BPM flow.
+
+Once the build is triggered the [BuildCorrelationKey](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/BuildCorrelationKey.java#L23) of the newly created build is registered into the [BuildProcessCorrelator](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/correlate/BuildProcessCorrelator.java#L29) for later use by the [BuildSignaller](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignaller.java#L37).
 
 #### BuildSignaller and BuildSignallerService
 
-The BuildSignaller receives BuildFinishedEvent events from the underlying BuildWatcher and then signals the BPM flows; either creating new process instances or signalling existing process instances
+The [BuildSignaller](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignaller.java#L37) receives [BuildFinishedEvent](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignaller.java#L57)) events from the underlying BuildWatcher and then signals the BPM flows; either creating new process instances or signalling existing process instances
 
-To start the BuildSignallerService just run the following pseudo code:
+To start the [BuildSignallerService](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignallerService.java#L31) just run the following pseudo code:
 
-BuildSignallerService signallerService = new BuildSignallerService();
-signallerService.start();
+    BuildSignallerService signallerService = new BuildSignallerService();
+    signallerService.start();
 
-// lets block the main thread until its terminated
-signallerService.join();
+    // lets block the main thread until its terminated
+    signallerService.join();
 
 #### BuildProcessCorrelator
 
-The BuildProcessCorrelator is used to store the mappings of a BuildCorrelationKey to a BPM process instance ID; so that when the BuildSignaller has been notified of a build completing it can find the correlated BPM Process instance ID to signal; otherwise it signals with no process ID which usually results in a new process starting.
+The [BuildProcessCorrelator](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/correlate/BuildProcessCorrelator.java#L29) is used to store the mappings of a [BuildCorrelationKey](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/BuildCorrelationKey.java#L23) to a BPM process instance ID; so that when the [BuildSignaller](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignaller.java#L37) has been notified of a build completing it can find the correlated BPM Process instance ID to signal; otherwise it signals with no process ID which usually results in a new process starting.
 

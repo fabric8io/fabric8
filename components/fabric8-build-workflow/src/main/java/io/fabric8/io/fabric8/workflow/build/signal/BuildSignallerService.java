@@ -28,6 +28,13 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import java.util.Timer;
 
 /**
+ * A service which listens to {@link io.fabric8.kubernetes.api.builds.BuildFinishedEvent} events from
+ * the OpenShift build watcher and then signals the correlated jBPM process instances or
+ * signals new processes to start.
+ *
+ * This service is a helper class to create a configured instance of a
+ * {@link io.fabric8.io.fabric8.workflow.build.signal.BuildSignaller} using the
+ * {@link io.fabric8.kubernetes.api.builds.BuildWatcher} helper class.
  */
 public class BuildSignallerService {
     private final KieBase kbase;

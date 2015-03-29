@@ -20,7 +20,7 @@ package io.fabric8.io.fabric8.workflow.build;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 
 /**
- * Represents a build correlation key to identify a unique build
+ * Represents a build correlation key to uniquely identify a build job
  */
 public class BuildCorrelationKey {
     private final String namespace;

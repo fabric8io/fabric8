@@ -27,6 +27,11 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Invoked from inside a jBPM process to trigger a new build in OpenShift and register
+ * the {@link io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey}
+ * of the new build into the {@link BuildProcessCorrelator}
+ */
 public class BuildWorkItemHandler implements WorkItemHandler {
     private static final transient Logger LOG = LoggerFactory.getLogger(BuildWorkItemHandler.class);
 
