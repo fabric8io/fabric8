@@ -1,5 +1,5 @@
 <kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
 
-  <kbase name="kbase" packages="io.fabric8.workflow"/>
+  <kbase name="kbase" />
 
 </kmodule>
