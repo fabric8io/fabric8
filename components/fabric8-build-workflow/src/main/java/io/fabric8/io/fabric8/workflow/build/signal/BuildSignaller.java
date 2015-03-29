@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 //import org.jbpm.ruleflow.core.RuleFlowProcess;
@@ -44,7 +43,6 @@ public class BuildSignaller implements BuildListener {
     private final RuntimeEngine engine;
     private final BuildProcessCorrelator buildProcessCorrelator;
     private final KieSession ksession;
-    private boolean initialised = false;
 
     public BuildSignaller(KieBase kbase, RuntimeEngine engine, BuildProcessCorrelator buildProcessCorrelator) {
         this.kbase = kbase;
@@ -71,17 +69,13 @@ public class BuildSignaller implements BuildListener {
         signalObject.put("buildUuid", buildUuid);
         signalObject.put("buildLink", buildLink);
 
-        List<Long> processIds = buildProcessCorrelator.findProcessInstancesForBuild(key);
-        if (processIds.isEmpty()) {
+        Long processId = buildProcessCorrelator.findProcessInstanceIdForBuild(key);
+        if (processId == null) {
             LOG.info("No existing processes associated with build " + key + " so lets signal a new process to start");
             ksession.signalEvent(buildName, signalObject);
         } else {
-            for (Long processId : processIds) {
-                LOG.info("Signalling event on process id: " + processId + " for " + key + " with data: " + signalObject);
-                ksession.signalEvent(buildName, signalObject, processId);
-            }
+            LOG.info("Signalling event on process id: " + processId + " for " + key + " with data: " + signalObject);
+            ksession.signalEvent(buildName, signalObject, processId);
         }
-
     }
-
 }

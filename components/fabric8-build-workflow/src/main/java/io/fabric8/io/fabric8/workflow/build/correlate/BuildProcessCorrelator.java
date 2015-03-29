@@ -35,7 +35,7 @@ public interface BuildProcessCorrelator {
     void putBuildProcessInstanceId(BuildCorrelationKey key, long processInstanceId);
 
     /**
-     * Finds all the jBPM process instance IDs which are related to the given build key
+     * Finds the process instance ID for the given build key
      */
-    List<Long> findProcessInstancesForBuild(BuildCorrelationKey buildKey);
+    Long findProcessInstanceIdForBuild(BuildCorrelationKey buildKey);
 }

@@ -18,6 +18,8 @@
 package io.fabric8.io.fabric8.workflow.build.correlate;
 
 import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,20 +30,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * A simple in memory implementation for testing.
  */
 public class MemoryBuildProcessCorrelator implements BuildProcessCorrelator {
+    private static final transient Logger LOG = LoggerFactory.getLogger(MemoryBuildProcessCorrelator.class);
+
     private Map<BuildCorrelationKey, Long> map = new ConcurrentHashMap<>();
 
     @Override
     public void putBuildProcessInstanceId(BuildCorrelationKey buildKey, long processInstanceId) {
+        Long oldPid = map.get(buildKey);
+        if (oldPid != null) {
+            LOG.warn("Already associated build key " + buildKey + " with processID: " + oldPid + " so ignoring newer process: " + processInstanceId);
+            return;
+        }
         map.put(buildKey, processInstanceId);
     }
 
     @Override
-    public List<Long> findProcessInstancesForBuild(BuildCorrelationKey buildKey) {
-        List<Long> answer = new ArrayList<>();
-        Long id = map.get(buildKey);
-        if (id != null) {
-            answer.add(id);
-        }
-        return answer;
+    public Long findProcessInstanceIdForBuild(BuildCorrelationKey buildKey) {
+        return map.get(buildKey);
     }
 }
