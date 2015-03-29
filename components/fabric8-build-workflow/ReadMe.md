@@ -41,3 +41,18 @@ To start the [BuildSignallerService](https://github.com/fabric8io/fabric8/blob/m
 
 The [BuildProcessCorrelator](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/correlate/BuildProcessCorrelator.java#L29) is used to store the mappings of a [BuildCorrelationKey](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/BuildCorrelationKey.java#L23) to a BPM process instance ID; so that when the [BuildSignaller](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-build-workflow/src/main/java/io/fabric8/io/fabric8/workflow/build/signal/BuildSignaller.java#L37) has been notified of a build completing it can find the correlated BPM Process instance ID to signal; otherwise it signals with no process ID which usually results in a new process starting.
 
+
+#### Simulator
+
+The simulator allows you to test out the jBPM side of things without having a full OpenShift environment and set of builds to play with.
+
+To try out the simulator setup your environment variables:
+
+    export FABRIC8_SIMULATOR_ENABLED=true
+    export FABRIC8_SIMULATOR_START_BUILD_NAME=MyBuild
+
+Where **MyBuild** is the name of the first build to trigger in a workflow.
+
+You can run it via:
+
+    mvn test-compile exec:java

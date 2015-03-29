@@ -15,28 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.trigger;
+package io.fabric8.io.fabric8.workflow.build.simulator;
 
-import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
-import io.fabric8.io.fabric8.workflow.build.simulator.SimulatorBuildTrigger;
+import io.fabric8.io.fabric8.workflow.build.trigger.BuildTrigger;
 
 /**
+ * Triggers a build in the simulator
  */
-public class BuildTriggers {
-    private static BuildTrigger singleton;
+public class SimulatorBuildTrigger implements BuildTrigger {
 
-    public static BuildTrigger getSingleton() {
-        if (singleton == null) {
-            if (BuildSimulator.isEnabled()) {
-                singleton = new SimulatorBuildTrigger();
-            } else {
-                singleton = new DefaultBuildTrigger();
-            }
-        }
-        return singleton;
-    }
-
-    public static void setSingleton(BuildTrigger singleton) {
-        BuildTriggers.singleton = singleton;
+    @Override
+    public String trigger(String namespace, String buildName) {
+        return BuildSimulator.getSingleton().triggerBuild(namespace, buildName);
     }
 }

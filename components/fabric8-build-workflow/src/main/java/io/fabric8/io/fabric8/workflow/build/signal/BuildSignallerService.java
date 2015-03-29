@@ -19,6 +19,7 @@ package io.fabric8.io.fabric8.workflow.build.signal;
 
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
+import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
@@ -43,6 +44,7 @@ public class BuildSignallerService {
     private Timer timer = new Timer();
     private BuildProcessCorrelator buildProcessCorrelator = BuildProcessCorrelators.getSingleton();
     private BuildWatcher watcher;
+    private BuildSimulator simulator;
 
     public BuildSignallerService(KieBase kbase, RuntimeEngine engine) {
         this.kbase = kbase;
@@ -53,10 +55,17 @@ public class BuildSignallerService {
         String consoleLink = Links.getFabric8ConsoleLink();
         String namespace = null;
 
-        watcher = new BuildWatcher(client, new BuildSignaller(kbase, engine, buildProcessCorrelator), namespace, consoleLink);
+        BuildSignaller buildListener = new BuildSignaller(kbase, engine, buildProcessCorrelator);
 
         long pollTime = 3000;
-        watcher.schedule(timer, pollTime);
+
+        if (BuildSimulator.isEnabled()) {
+            simulator = BuildSimulator.getSingleton();
+            simulator.schedule(timer, pollTime, buildListener, consoleLink);
+        } else {
+            watcher = new BuildWatcher(client, buildListener, namespace, consoleLink);
+            watcher.schedule(timer, pollTime);
+        }
     }
 
     public void stop() {
@@ -64,7 +73,11 @@ public class BuildSignallerService {
     }
 
     public void join() {
-        watcher.join();
+        if (watcher != null) {
+            watcher.join();
+        } else if (simulator != null) {
+            simulator.join();
+        }
     }
 
     public BuildProcessCorrelator getBuildProcessCorrelator() {
