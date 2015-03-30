@@ -59,7 +59,7 @@ public class Services {
         RouteList routeList = KUBERNETES.getRoutes(namespace);
         for (Route route : routeList.getItems()) {
             if (route.getServiceName().equals(serviceId)) {
-                return (serviceProto + "://" + route.getHost() + ":" + srv.getPort()).toLowerCase();
+                return (serviceProto + "://" + route.getHost()).toLowerCase();
             }
         }
         return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
