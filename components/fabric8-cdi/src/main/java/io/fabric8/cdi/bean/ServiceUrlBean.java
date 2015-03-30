@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ServiceUrlBean extends ProducerBean<String> {
 
-    private static final String SUFFIX = "-service-url-bean";
+    private static final String SUFFIX = "-url";
     private static final Map<Key, ServiceUrlBean> BEANS = new HashMap<>();
 
     public static ServiceUrlBean getBean(String id, String protocol) {

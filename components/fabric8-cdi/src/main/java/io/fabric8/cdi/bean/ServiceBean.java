@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceBean<X> extends ProducerBean<X> {
 
-    private static final String SUFFIX = "-service-bean";
     private static final Map<Key, ServiceBean> BEANS = new ConcurrentHashMap<>();
     
     private final String serviceId;
@@ -62,7 +61,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
     }
     
     private ServiceBean(String serviceId, String serviceProtocol, Class type, Producer<X> producer) {
-        super(serviceId + SUFFIX, type, producer, new ServiceNameQualifier(serviceId, serviceProtocol));
+        super(serviceId, type, producer, new ServiceNameQualifier(serviceId, serviceProtocol));
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
     }
