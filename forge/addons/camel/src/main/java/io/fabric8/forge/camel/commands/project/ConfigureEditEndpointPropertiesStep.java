@@ -39,6 +39,7 @@ import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.facets.HintsFacet;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.result.NavigationResult;
@@ -47,6 +48,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.util.Strings;
 
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
@@ -79,7 +81,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         String uri = mandatoryAttributeValue(attributeMap, "endpointUri");
 
         if (camelComponentName == null && uri != null) {
-            camelComponentName = catalog.endpointComponentName(uri);
+            camelComponentName = endpointComponentName(uri);
         }
 
         String json = catalog.componentJSonSchema(camelComponentName);

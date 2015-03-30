@@ -56,6 +56,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
@@ -91,7 +92,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         String uri = optionalAttributeValue(attributeMap, "endpointUri");
 
         if (camelComponentName == null && uri != null) {
-            camelComponentName = catalog.endpointComponentName(uri);
+            camelComponentName = endpointComponentName(uri);
         }
 
         if (camelComponentName == null && uri == null) {
