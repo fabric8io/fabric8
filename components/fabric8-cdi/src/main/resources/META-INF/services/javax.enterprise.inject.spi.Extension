@@ -15,3 +15,4 @@
 #
 
 io.fabric8.cdi.Fabric8Extension
+io.fabric8.cdi.eager.EagerCDIExtension
