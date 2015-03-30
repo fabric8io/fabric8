@@ -16,8 +16,11 @@
 package io.fabric8.forge.camel.commands.project.helper;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
+import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.ui.facets.HintsFacet;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.input.UIInput;
@@ -46,6 +49,16 @@ public final class UIHelper {
             String[] values = enums.split(",");
             ui.setValueChoices(Arrays.asList(values));
 
+            // This will always prompt, regardless if there is a value set
+            // TODO: requires new forge version
+            /*Iterator it = ui.getFacets().iterator();
+            while (it.hasNext()) {
+                Object facet = it.next();
+                if (facet instanceof HintsFacet) {
+                    ((HintsFacet) facet).setPromptInInteractiveMode(true);
+                }
+            }*/
+
             input = ui;
         } else {
             UIInput ui = factory.createInput(name, inputClazz);
@@ -55,6 +68,16 @@ public final class UIHelper {
             if (currentValue != null) {
                 ui.setValue(currentValue);
             }
+
+            // This will always prompt, regardless if there is a value set
+            // TODO: requires new forge version
+            /*Iterator it = ui.getFacets().iterator();
+            while (it.hasNext()) {
+                Object facet = it.next();
+                if (facet instanceof HintsFacet) {
+                    ((HintsFacet) facet).setPromptInInteractiveMode(true);
+                }
+            }*/
 
             input = ui;
         }

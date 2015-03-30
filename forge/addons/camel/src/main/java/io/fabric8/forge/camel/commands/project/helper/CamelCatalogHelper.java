@@ -26,6 +26,16 @@ import org.apache.camel.catalog.JSonSchemaHelper;
 
 public final class CamelCatalogHelper {
 
+    public static String endpointComponentName(String uri) {
+        if (uri != null) {
+            int idx = uri.indexOf(":");
+            if (idx > 0) {
+                return uri.substring(0, idx);
+            }
+        }
+        return null;
+    }
+
     /**
      * Attempts to find the maven archetype name for the given Camel component name.
      *

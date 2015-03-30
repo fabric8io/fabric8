@@ -33,6 +33,7 @@ import org.jboss.forge.addon.ui.input.UICompleter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.getSafeAttribute;
 
 /**
@@ -77,7 +78,7 @@ public class XmlEndpointsCompleter implements UICompleter<String> {
                                     detail.setLineNumber(lineNumber);
                                     detail.setEndpointInstance(id);
                                     detail.setEndpointUri(uri);
-                                    detail.setEndpointComponentName(camelCatalog.endpointComponentName(uri));
+                                    detail.setEndpointComponentName(endpointComponentName(uri));
                                     endpoints.add(detail);
                                 }
                             }
