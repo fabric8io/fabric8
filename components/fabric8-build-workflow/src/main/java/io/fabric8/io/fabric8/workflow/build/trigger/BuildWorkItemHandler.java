@@ -27,6 +27,9 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Invoked from inside a jBPM process to trigger a new build in OpenShift and register
  * the {@link io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey}
@@ -66,9 +69,13 @@ public class BuildWorkItemHandler implements WorkItemHandler {
     }
 
     protected void fail(WorkItem workItem, WorkItemManager manager, String reason) {
-        // TODO how best to signal the failure of the work item?
         LOG.error("Failed to complete work item " + workItem.getId() + " due to: " + reason);
-        workItem.getResults().put("Failed", reason);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("Failed", reason);
+
+        // complete with error or abort
+        manager.completeWorkItem(workItem.getId(), result);
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
