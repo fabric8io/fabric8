@@ -6,26 +6,14 @@ package io.fabric8.workflow.build;
 
 import java.util.Collection;
 
-	import javax.persistence.Persistence;
-
-	
-
-
-import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
-import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
-import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
-import org.kie.api.runtime.manager.RuntimeManagerFactory;
-import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 
 	/**
@@ -98,10 +86,11 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 	    	processEngine.init();
 	    	RuntimeManager runtimeManager = processEngine.getRuntimeManager();
 	    	RuntimeEngine engine = runtimeManager.getRuntimeEngine(EmptyContext.get());
-	    	//KieSession ksession = engine.getKieSession();
 	    	KieBase kbase = engine.getKieSession().getKieBase();
 	    	//ksession.signalEvent("buildSignalevent", "buildaStarted");
-	    	System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalevent");
+	    	//System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalevent");
+	    	System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalAevent");
+	    	
 	    	System.setProperty("FABRIC8_SIMULATOR_ENABLED", "true");
 	    	
 	    	BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);
