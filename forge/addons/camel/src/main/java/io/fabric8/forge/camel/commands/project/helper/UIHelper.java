@@ -15,8 +15,8 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.jboss.forge.addon.maven.projects.MavenFacet;
@@ -46,8 +46,12 @@ public final class UIHelper {
                 ui.setValue(currentValue);
             }
             // the enums are comma separated
+            List<String> list  = new ArrayList<>();
             String[] values = enums.split(",");
-            ui.setValueChoices(Arrays.asList(values));
+            for (String v : values) {
+                list.add(v);
+            }
+            ui.setValueChoices(list);
 
             // This will always prompt, regardless if there is a value set
             // TODO: requires new forge version
