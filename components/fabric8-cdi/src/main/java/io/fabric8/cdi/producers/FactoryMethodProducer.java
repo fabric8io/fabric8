@@ -22,7 +22,7 @@ import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
-import io.fabric8.cdi.qualifiers.ServiceNameQualifier;
+import io.fabric8.cdi.qualifiers.Qualifiers;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -64,7 +64,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
             if (serviceName != null) {
-                String serviceUrl = getServiceUrl(serviceId, serviceProtocol,  ctx);
+                String serviceUrl = getServiceUrl(serviceId, serviceProtocol, ctx);
                 arguments.add(serviceUrl);
             } else if (configuration != null) {
                 Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
@@ -100,7 +100,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      */
     private String getServiceUrl(String serviceId, String serviceProtocol, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, new ServiceNameQualifier(serviceId, serviceProtocol));
+            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
             return ServiceUrlBean.getBean(serviceId, serviceProtocol).getProducer().produce(context);

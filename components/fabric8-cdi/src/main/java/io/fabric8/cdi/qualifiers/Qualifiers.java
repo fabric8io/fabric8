@@ -14,21 +14,23 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.annotations;
+package io.fabric8.cdi.qualifiers;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Documented
-public @interface Protocol {
-
-    String value() default "";
-
+public final class Qualifiers {
+    
+    private Qualifiers() {
+        //Utility
+    }
+   
+    public static Annotation[] create(String serviceId, String protocol) {
+        if (serviceId == null) {
+            throw new IllegalArgumentException("Service Id cannot be null.");
+        } else if (protocol == null) {
+            return new Annotation[]{new ServiceNameQualifier(serviceId)};
+        } else {
+            return new Annotation[]{new ServiceNameQualifier(serviceId), new ProtocolQualifier(protocol)};
+        }
+    }
 }

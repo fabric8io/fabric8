@@ -18,7 +18,7 @@ package io.fabric8.cdi.bean;
 
 
 import io.fabric8.cdi.producers.ServiceUrlProducer;
-import io.fabric8.cdi.qualifiers.ServiceNameQualifier;
+import io.fabric8.cdi.qualifiers.Qualifiers;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
     private final String serviceProtocol;
 
     private ServiceUrlBean(String serviceId, String serviceProtocol) {
-        super(serviceProtocol + serviceId + SUFFIX, String.class, new ServiceUrlProducer(serviceId, serviceProtocol), new ServiceNameQualifier(serviceId, serviceProtocol));
+        super(serviceProtocol + serviceId + SUFFIX, String.class, new ServiceUrlProducer(serviceId, serviceProtocol), Qualifiers.create(serviceId, serviceProtocol));
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
     }
@@ -58,7 +58,15 @@ public class ServiceUrlBean extends ProducerBean<String> {
     public String getServiceProtocol() {
         return serviceProtocol;
     }
-    
+
+    @Override
+    public String toString() {
+        return "ServiceUrlBean[" +
+                "serviceId='" + serviceId + '\'' +
+                ", serviceProtocol='" + serviceProtocol + '\'' +
+                ']';
+    }
+
     private static final class Key {
         private final String serviceId;
         private final String serviceProtocol;

@@ -26,17 +26,22 @@ import io.fabric8.cdi.bean.KubernetesFactoryBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
+import io.fabric8.cdi.qualifiers.ProtocolQualifier;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.AnnotatedMethod;
+import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import javax.enterprise.inject.spi.ProcessManagedBean;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Fabric8Extension implements Extension {
@@ -72,6 +77,18 @@ public class Fabric8Extension implements Extension {
                 ServiceUrlBean.getBean(serviceId, serviceProtocol);
             } else {
                 ServiceBean.getBean(serviceId, serviceProtocol, (Class) type);
+            }
+
+            if (protocol == null) {
+                //if protocol is not specified decorate injection point with "default" protocol.
+                event.setInjectionPoint(new DelegatingInjectionPoint(injectionPoint) {
+                    @Override
+                    public Set<Annotation> getQualifiers() {
+                        Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
+                        qualifiers.add(new ProtocolQualifier("tcp"));
+                        return Collections.unmodifiableSet(qualifiers);
+                    }
+                });
             }
         } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();

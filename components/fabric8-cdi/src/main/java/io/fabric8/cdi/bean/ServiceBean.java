@@ -17,7 +17,7 @@
 package io.fabric8.cdi.bean;
 
 
-import io.fabric8.cdi.qualifiers.ServiceNameQualifier;
+import io.fabric8.cdi.qualifiers.Qualifiers;
 
 import javax.enterprise.inject.spi.Producer;
 import java.lang.reflect.Type;
@@ -61,7 +61,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
     }
     
     private ServiceBean(String serviceId, String serviceProtocol, Class type, Producer<X> producer) {
-        super(serviceId, type, producer, new ServiceNameQualifier(serviceId, serviceProtocol));
+        super(serviceId, type, producer, Qualifiers.create(serviceId, serviceProtocol));
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
     }

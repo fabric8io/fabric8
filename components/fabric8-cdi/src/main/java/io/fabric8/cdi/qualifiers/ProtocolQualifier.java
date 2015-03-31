@@ -14,21 +14,23 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.annotations;
+package io.fabric8.cdi.qualifiers;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Documented
-public @interface Protocol {
+import io.fabric8.annotations.Protocol;
 
-    String value() default "";
+import javax.enterprise.util.AnnotationLiteral;
 
+public class ProtocolQualifier extends AnnotationLiteral<Protocol> implements Protocol {
+
+    private final String id;
+
+    public ProtocolQualifier(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String value() {
+        return id;
+    }
 }

@@ -23,16 +23,13 @@ import javax.enterprise.util.AnnotationLiteral;
 public class ServiceNameQualifier extends AnnotationLiteral<ServiceName> implements ServiceName {
 
     private final String id;
-    private final String protocol;
 
-    public ServiceNameQualifier(String id, String protocol) {
+    public ServiceNameQualifier(String id) {
         this.id = id;
-        this.protocol = protocol;
     }
 
     @Override
     public String value() {
         return id;
     }
-
 }
