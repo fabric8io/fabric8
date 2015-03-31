@@ -340,6 +340,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 }
 
                 int extraSpaces = 0;
+                int extraLines = 0;
                 if (found == null) {
                     created = true;
                     found = insertEndpointBefore(camel);
@@ -347,6 +348,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                         // empty so use <camelContext> node
                         found = camelContext;
                         extraSpaces = 2;
+                        extraLines = 1;
                     }
                 }
 
@@ -362,6 +364,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
                 // the list is 0-based, and line number is 1-based
                 int idx = lineNumber != null ? Integer.valueOf(lineNumber) - 1 : 0;
+                idx += extraLines;
                 int spaces = LineNumberHelper.leadingSpaces(lines, idx) + extraSpaces;
                 line = LineNumberHelper.padString(line, spaces);
                 if (created) {
