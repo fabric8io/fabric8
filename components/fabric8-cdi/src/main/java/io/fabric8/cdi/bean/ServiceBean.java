@@ -35,7 +35,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
     private final String serviceAlias;
     
     public static <S> ServiceBean<S> getBean(String id, String protocol, String alias, Class<S> type) {
-        String serviceAlias = alias != null ? alias : id + "-" + protocol + SUFFIX;
+        String serviceAlias = alias != null ? alias : id + "-" + type.getName() +"-"+ protocol + SUFFIX;
         Key key = new Key(id, protocol, serviceAlias, type, null);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);

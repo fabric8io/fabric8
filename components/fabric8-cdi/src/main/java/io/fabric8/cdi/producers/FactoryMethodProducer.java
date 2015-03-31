@@ -20,6 +20,7 @@ package io.fabric8.cdi.producers;
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
+import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 import io.fabric8.cdi.qualifiers.Qualifiers;
@@ -63,9 +64,12 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             Type type = parameter.getBaseType();
             ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
-            if (serviceName != null) {
+            if (serviceName != null && String.class.equals(type)) {
                 String serviceUrl = getServiceUrl(serviceId, serviceProtocol, ctx);
                 arguments.add(serviceUrl);
+            } else if (serviceName != null && !String.class.equals(type)) {
+                Object serviceBean = getServiceBean(serviceId, serviceProtocol, (Class<Object>) type,  ctx);
+                arguments.add(serviceBean);
             } else if (configuration != null) {
                 Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
                 arguments.add(config);
@@ -106,6 +110,23 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             return ServiceUrlBean.anyBean(serviceId, serviceProtocol).getProducer().produce(context);
         }
     }
+
+    /**
+     * Get Service Bean from the context or create a producer.
+     * @param serviceId
+     * @param serviceProtocol
+     * @param context
+     * @return
+     */
+    private <S> S getServiceBean(String serviceId, String serviceProtocol, Class<S> serviceType, CreationalContext context) {
+        try {
+            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol));
+        } catch (IllegalStateException e) {
+            //Contextual Refernece not found, let's fallback to Configuration Producer.
+            return (S) ServiceBean.anyBean(serviceId, serviceProtocol, serviceType).getProducer().produce(context);
+        }
+    }
+
 
     /**
      * Get Configuration from context or create a producer.

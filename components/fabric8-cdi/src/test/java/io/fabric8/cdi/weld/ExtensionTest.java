@@ -52,7 +52,7 @@ public class ExtensionTest {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(StringToURL.class, ServiceStringBean.class, ServiceUrlBean.class)
+                .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, ServiceStringBean.class, ServiceUrlBean.class)
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml").resolve("org.apache.deltaspike.core:deltaspike-core-impl").withTransitivity().as(File.class));
@@ -72,6 +72,10 @@ public class ExtensionTest {
     @Inject
     @New
     private StringToURL stringToURL;
+
+    @Inject
+    @New
+    private NestingFactoryBean nestingFactoryBean;
 
     @Test
     public void testClientInjection() {
@@ -113,5 +117,13 @@ public class ExtensionTest {
         Assert.assertNotNull(beans);
         Assert.assertEquals(1, beans.size());
         Assert.assertEquals(URL.class, beans.iterator().next().getBeanClass());
+    }
+
+
+    @Test
+    public void testNestingFacvtories() {
+        Assert.assertNotNull(nestingFactoryBean);
+        Assert.assertNotNull(nestingFactoryBean.getConsoleConnection());
+        Assert.assertNotNull(nestingFactoryBean.getKubernetesConnections());
     }
 }
