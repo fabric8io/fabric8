@@ -17,10 +17,13 @@
 package io.fabric8.cdi.weld;
 
 
+import io.fabric8.annotations.Alias;
 import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.net.URL;
 
@@ -35,6 +38,17 @@ public class ServiceUrlBean {
     @ServiceName("fabric8-console-service")
     URL consoleUrl;
 
+    @Inject
+    @ServiceName("fabric8-console-service")
+    @Protocol("tst")
+    URL testUrl;
+
+    @Inject
+    @ServiceName("fabric8-console-service")
+    @Protocol("prtcl")
+    @Alias("cool-id")
+    URL aliasedUrl;
+    
     @Inject
     @Configuration("MY_CONFIG")
     ConfigBean configBean;

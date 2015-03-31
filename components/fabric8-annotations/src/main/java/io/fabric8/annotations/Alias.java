@@ -14,23 +14,18 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.weld;
+package io.fabric8.annotations;
 
-import io.fabric8.annotations.Configuration;
-import io.fabric8.annotations.Factory;
-import io.fabric8.annotations.ServiceName;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import javax.inject.Singleton;
-import java.net.MalformedURLException;
-import java.net.URL;
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Documented
+public @interface Alias {
 
-@Singleton
-public class StringToURL {
-    
-    @Factory
-    @ServiceName
-    public URL toUrl(@ServiceName String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
-        String protocol = protocolConfig.getProtocol();
-        return new URL(protocol+"://" + service.substring(service.lastIndexOf("/")));
-    }
+    String value();
 }

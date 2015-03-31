@@ -25,7 +25,7 @@ public class ProducerBean<X> extends BaseBean<X> {
 
     private final Producer<X> producer;
 
-    public ProducerBean(String name, Class type, Producer<X> producer, Annotation... annotations) {
+    public ProducerBean(String name, Class<X> type, Producer<X> producer, Annotation... annotations) {
         super(name, type, annotations);
         this.producer = producer;
     }

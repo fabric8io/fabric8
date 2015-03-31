@@ -31,12 +31,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.enterprise.inject.New;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import java.io.File;
+import java.net.URL;
+import java.util.Set;
 
 @RunWith(Arquillian.class)
-public class ExtensionTest  {
-    
+public class ExtensionTest {
+
     @BeforeClass
     public static void setUp() {
         System.setProperty("MY_CONFIG_TEST", "value1");
@@ -53,10 +57,10 @@ public class ExtensionTest  {
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml").resolve("org.apache.deltaspike.core:deltaspike-core-impl").withTransitivity().as(File.class));
     }
-    
+
     @Inject
     private KubernetesClient kubernetesClient;
-    
+
     @Inject
     @New
     private ServiceStringBean serviceLocationBean;
@@ -64,11 +68,11 @@ public class ExtensionTest  {
     @Inject
     @New
     private ServiceUrlBean serviceUrlBean;
-    
+
     @Inject
     @New
     private StringToURL stringToURL;
-    
+
     @Test
     public void testClientInjection() {
         Assert.assertNotNull(kubernetesClient);
@@ -101,5 +105,13 @@ public class ExtensionTest  {
         Assert.assertNotNull(serviceUrlBean.getConsoleUrl());
         Assert.assertTrue(serviceUrlBean.getConsoleUrl().toString().startsWith("https"));
         Assert.assertTrue(serviceUrlBean.getKubernetesUrl().toString().startsWith("https"));
+    }
+
+    @Test
+    public void testAlias() {
+        Set<Bean<?>> beans = CDI.current().getBeanManager().getBeans("cool-id");
+        Assert.assertNotNull(beans);
+        Assert.assertEquals(1, beans.size());
+        Assert.assertEquals(URL.class, beans.iterator().next().getBeanClass());
     }
 }

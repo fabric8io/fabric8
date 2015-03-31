@@ -16,6 +16,7 @@
 
 package io.fabric8.cdi;
 
+import io.fabric8.annotations.Alias;
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Factory;
 import io.fabric8.annotations.Protocol;
@@ -68,15 +69,19 @@ public class Fabric8Extension implements Extension {
         final InjectionPoint injectionPoint = event.getInjectionPoint();
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
+            Alias alias = annotated.getAnnotation(Alias.class);
             ServiceName serviceName = annotated.getAnnotation(ServiceName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
+            
             String serviceId = serviceName.value();
             String serviceProtocol = protocol != null ? protocol.value() : "tcp";
+            String serviceAlias = alias != null ?  alias.value() : null;
+            
             Type type = annotated.getBaseType();
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceId, serviceProtocol);
+                ServiceUrlBean.getBean(serviceId, serviceProtocol, serviceAlias);
             } else {
-                ServiceBean.getBean(serviceId, serviceProtocol, (Class) type);
+                ServiceBean.getBean(serviceId, serviceProtocol, serviceAlias, (Class) type);
             }
 
             if (protocol == null) {

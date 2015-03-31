@@ -103,7 +103,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            return ServiceUrlBean.getBean(serviceId, serviceProtocol).getProducer().produce(context);
+            return ServiceUrlBean.anyBean(serviceId, serviceProtocol).getProducer().produce(context);
         }
     }
 
