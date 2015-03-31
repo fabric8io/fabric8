@@ -2,6 +2,7 @@ package io.fabric8.workflow.build;
 
 
 import io.fabric8.io.fabric8.workflow.build.signal.BuildSignallerService;
+import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
@@ -33,7 +34,7 @@ public class ProcessEngineWithNoPersistance {
         //KieSession ksession = engine.getKieSession();
         KieBase kbase = engine.getKieSession().getKieBase();
         //ksession.signalEvent("buildSignalevent", "buildaStarted");
-        System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalAevent");
+        System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "MyBuild");
         System.setProperty("FABRIC8_SIMULATOR_ENABLED", "true");
 
         BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);
@@ -55,7 +56,7 @@ public class ProcessEngineWithNoPersistance {
             kieBase = kContainer.getKieBase("kbase");
 
             SimpleRegisterableItemsFactory factory = new SimpleRegisterableItemsFactory();
-            //factory.addWorkItemHandler("Manual Task", MockManualTaskHandler.class);
+            factory.addWorkItemHandler("OpenShiftBuildTrigger", BuildWorkItemHandler.class);
 
             RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
                     .persistence(false).knowledgeBase(kieBase)

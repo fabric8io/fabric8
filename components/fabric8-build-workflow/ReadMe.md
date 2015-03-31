@@ -49,7 +49,7 @@ The simulator allows you to test out the jBPM side of things without having a fu
 To try out the simulator setup your environment variables:
 
     export FABRIC8_SIMULATOR_ENABLED=true
-    export FABRIC8_SIMULATOR_START_BUILD_NAME=buildSignalAevent
+    export FABRIC8_SIMULATOR_START_BUILD_NAME=MyBuild
 
 Where **MyBuild** is the name of the first build to trigger in a workflow.
 

@@ -45,7 +45,7 @@ public class BuildSimulator {
     private String startBuildName = "A";
     private String startBuildNamespace = "default";
     private long initialBuildDelay = 1000;
-    private long startBuildPeriod = 20 * 1000;
+    private long startBuildPeriod = 30 * 1000;
 
     /**
      * Returns true if the build simulator is enabled via the {@link FABRIC8_SIMULATOR_ENABLED}

@@ -32,10 +32,10 @@ public interface BuildProcessCorrelator {
      * Associates the build correlation key with the given jBPM process instance ID
      * so that it can be later correlated when we detect a build has finished
      */
-    void putBuildProcessInstanceId(BuildCorrelationKey key, long processInstanceId);
+    void putBuildWorkItemId(BuildCorrelationKey key, long processInstanceId);
 
     /**
      * Finds the process instance ID for the given build key
      */
-    Long findProcessInstanceIdForBuild(BuildCorrelationKey buildKey);
+    Long findWorkItemIdForBuild(BuildCorrelationKey buildKey);
 }

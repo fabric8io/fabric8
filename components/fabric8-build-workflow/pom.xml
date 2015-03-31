@@ -15,65 +15,85 @@
   ~ permissions and limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>components</artifactId>
-        <groupId>io.fabric8</groupId>
-        <version>2.2-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>components</artifactId>
     <groupId>io.fabric8</groupId>
-    <artifactId>fabric8-build-workflow</artifactId>
-    <packaging>jar</packaging>
-    <name>Fabric8 :: Build Workflow</name>
+    <version>2.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <dependencies>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-api</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.kie</groupId>
-        <artifactId>kie-api</artifactId>
-      </dependency>
+  <groupId>io.fabric8</groupId>
+  <artifactId>fabric8-build-workflow</artifactId>
+  <packaging>jar</packaging>
+  <name>Fabric8 :: Build Workflow</name>
 
-      <!-- testing -->
-      <dependency>
-        <groupId>org.jbpm</groupId>
-        <artifactId>jbpm-test</artifactId>
-        <scope>test</scope>
-      </dependency>
+  <properties>
+    <mainClass>io.fabric8.workflow.build.Main</mainClass>
+  </properties>
 
-      <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-api</artifactId>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.6.1</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}</directory>
+              <includes>
+                <include>btm*.tlog</include>
+              </includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.2.1</version>
         <configuration>
-          <mainClass>io.fabric8.workflow.build.Main</mainClass>
+          <mainClass>${mainClass}</mainClass>
           <classpathScope>test</classpathScope>
           <includePluginDependencies>false</includePluginDependencies>
           <systemProperties>
-<!--
-            <systemProperty>
-              <key>IMPORT_APP_URLS</key>
-              <value>${docker.env.IMPORT_APP_URLS}</value>
-            </systemProperty>
--->
+            <!--
+                        <systemProperty>
+                          <key>IMPORT_APP_URLS</key>
+                          <value>${docker.env.IMPORT_APP_URLS}</value>
+                        </systemProperty>
+            -->
           </systemProperties>
         </configuration>
       </plugin>
@@ -81,4 +101,12 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>nodb</id>
+      <properties>
+        <mainClass>io.fabric8.workflow.build.ProcessEngineWithNoPersistance</mainClass>
+      </properties>
+    </profile>
+  </profiles>
 </project>

@@ -47,7 +47,7 @@ public class BuildWorkItemHandler implements WorkItemHandler {
         String buildName = (String) workItem.getParameter("BuildName");
         String namespace = (String) workItem.getParameter("Namespace");
 
-        LOG.info("Executing namespace: " + namespace + " build: " + buildName
+        System.out.println("BuildWorkItemHandler: Executing namespace: " + namespace + " build: " + buildName
                 + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
 
         if (Strings.isNullOrBlank(namespace)) {
@@ -60,7 +60,7 @@ public class BuildWorkItemHandler implements WorkItemHandler {
                 fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName);
             } else {
                 BuildCorrelationKey key = new BuildCorrelationKey(namespace, buildName, buildUuid);
-                buildProcessCorrelator.putBuildProcessInstanceId(key, processInstanceId);
+                buildProcessCorrelator.putBuildWorkItemId(key, workItem.getId());
             }
         }
 

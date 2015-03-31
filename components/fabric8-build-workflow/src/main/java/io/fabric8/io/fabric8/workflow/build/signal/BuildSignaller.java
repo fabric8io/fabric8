@@ -19,17 +19,22 @@ package io.fabric8.io.fabric8.workflow.build.signal;
 
 import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
+import io.fabric8.io.fabric8.workflow.build.dto.BuildFinishedDTO;
 import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
 import org.kie.api.KieBase;
+import org.kie.api.definition.process.*;
+import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 //import org.jbpm.ruleflow.core.RuleFlowProcess;
 
@@ -56,6 +61,7 @@ public class BuildSignaller implements BuildListener {
 
     @Override
     public void onBuildFinished(BuildFinishedEvent event) {
+        String namespace = event.getNamespace();
         String buildName = event.getConfigName();
         String buildUuid = event.getUid();
         String buildLink = event.getBuildLink();
@@ -72,13 +78,62 @@ public class BuildSignaller implements BuildListener {
         signalObject.put("buildUuid", buildUuid);
         signalObject.put("buildLink", buildLink);
 
-        Long processId = buildProcessCorrelator.findProcessInstanceIdForBuild(key);
-        if (processId == null) {
+        BuildFinishedDTO buildFinishedDTO = new BuildFinishedDTO(event);
+
+        Long workItemId = buildProcessCorrelator.findWorkItemIdForBuild(key);
+        if (workItemId == null) {
+            String startNodeName = getStartSignalName(namespace, buildName);
             LOG.info("No existing processes associated with build " + key + " so lets signal a new process to start");
             ksession.signalEvent(buildName, signalObject);
+            Map<String, Object> inputParameters = new HashMap<>();
+            // TODO
+            // inputParameters.put("buildObject", buildFinishedDTO);
+            populateParameters(inputParameters, buildFinishedDTO);
+            Collection<Process> processes = ksession.getKieBase().getProcesses();
+            int startCount = 0;
+            for (Process process : processes) {
+                if (process instanceof WorkflowProcess) {
+                    WorkflowProcess workflowProcess = (WorkflowProcess) process;
+                    Node[] nodes = workflowProcess.getNodes();
+                    if (nodes != null) {
+                        for (Node node : nodes) {
+                            String name = node.getName();
+                            if (Objects.equals(startNodeName, name)) {
+                                String processId = process.getId();
+                                LOG.info("Starting process " + processId + " with parameters: " + inputParameters);
+                                startCount++;
+                                ksession.startProcess(processId, inputParameters);
+                            }
+                        }
+                    }
+                }
+            }
+            if (startCount == 0) {
+                LOG.warn("No business process starts with signal of name: " + startNodeName);
+            }
         } else {
-            LOG.info("Signalling event on process id: " + processId + " for " + key + " with data: " + signalObject);
-            ksession.signalEvent(buildName, signalObject, processId);
+            ksession.signalEvent(buildName, signalObject, workItemId);
+            Map<String, Object> results = new HashMap<>();
+            //results.put("response", buildFinishedDTO);
+            populateParameters(results, buildFinishedDTO);
+
+            LOG.info("Completing work item id: " + workItemId + " for " + key + " with data: " + results);
+            ksession.getWorkItemManager().completeWorkItem(workItemId, results);
         }
+    }
+
+    protected static void populateParameters(Map<String, Object> parameters, BuildFinishedDTO buildFinishedDTO) {
+        parameters.put("namespace", buildFinishedDTO.getNamespace());
+        parameters.put("buildName", buildFinishedDTO.getBuildName());
+        parameters.put("buildUuid", buildFinishedDTO.getBuildUuid());
+        parameters.put("buildLink", buildFinishedDTO.getBuildLink());
+        parameters.put("status", buildFinishedDTO.getStatus());
+    }
+
+    /**
+     * Returns the start signal name for the namespace and build name
+     */
+    public static String getStartSignalName(String namespace, String buildName) {
+        return namespace + "/" + buildName;
     }
 }

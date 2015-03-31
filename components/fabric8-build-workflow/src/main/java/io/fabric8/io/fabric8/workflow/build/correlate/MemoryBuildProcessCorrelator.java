@@ -35,7 +35,7 @@ public class MemoryBuildProcessCorrelator implements BuildProcessCorrelator {
     private Map<BuildCorrelationKey, Long> map = new ConcurrentHashMap<>();
 
     @Override
-    public void putBuildProcessInstanceId(BuildCorrelationKey buildKey, long processInstanceId) {
+    public void putBuildWorkItemId(BuildCorrelationKey buildKey, long processInstanceId) {
         Long oldPid = map.get(buildKey);
         if (oldPid != null) {
             LOG.warn("Already associated build key " + buildKey + " with processID: " + oldPid + " so ignoring newer process: " + processInstanceId);
@@ -45,7 +45,7 @@ public class MemoryBuildProcessCorrelator implements BuildProcessCorrelator {
     }
 
     @Override
-    public Long findProcessInstanceIdForBuild(BuildCorrelationKey buildKey) {
+    public Long findWorkItemIdForBuild(BuildCorrelationKey buildKey) {
         return map.get(buildKey);
     }
 }
