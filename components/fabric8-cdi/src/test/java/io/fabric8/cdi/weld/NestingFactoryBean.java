@@ -32,9 +32,9 @@ public class NestingFactoryBean {
     URLConnection consoleConnection;
 
     @Inject
-    @ServiceName("kubernetes")
-    @Alias("cool-name")
-    URLConnection kubernetesConnections;
+    @ServiceName("app-library")
+    @Alias("cool-library")
+    URLConnection appLibraryConnection;
 
 
     public NestingFactoryBean() {
@@ -44,8 +44,8 @@ public class NestingFactoryBean {
         return consoleConnection;
     }
 
-    public URLConnection getKubernetesConnections() {
-        return kubernetesConnections;
+    public URLConnection getAppLibraryConnection() {
+        return appLibraryConnection;
     }
 }
 

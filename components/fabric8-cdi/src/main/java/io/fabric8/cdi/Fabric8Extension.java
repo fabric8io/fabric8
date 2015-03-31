@@ -33,24 +33,47 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.AnnotatedMethod;
-import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.AnnotatedParameter;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import javax.enterprise.inject.spi.ProcessManagedBean;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Fabric8Extension implements Extension {
+    
+    private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event) {
         event.addBean(new KubernetesFactoryBean());
         event.addBean(new KubernetesClientBean());
 
+        //We need to process factories in reverse order so that we make feasible forwarding for service id etc.
+        List<FactoryMethodContext> reverseFactories = new ArrayList<>(FactoryMethodContext.sort(factories));
+        Collections.reverse(reverseFactories);
+        
+        for (final FactoryMethodContext factoryMethodContext : reverseFactories) {
+            ServiceBean.doWith(factoryMethodContext.getReturnType(), new ServiceBean.Callback() {
+                @Override
+                public ServiceBean apply(ServiceBean bean) {
+                    String serviceId = bean.getServiceId();
+                    String serviceProtocol = bean.getServiceProtocol();
+                    
+                    //Ensure that there is a factory String -> sourceType before adding producer.
+                    if (!String.class.equals(factoryMethodContext.getSourceType())) {
+                        ServiceBean.getBean(serviceId, serviceProtocol, null, (Class<Object>) factoryMethodContext.getSourceType());
+                    }
+                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol));
+                }
+            }); 
+        }
+        
         for (ServiceUrlBean bean : ServiceUrlBean.getBeans()) {
             event.addBean(bean);
         }
@@ -108,17 +131,20 @@ public class Fabric8Extension implements Extension {
         for (final AnnotatedMethod<?> method : event.getAnnotatedBeanClass().getMethods()) {
             final Factory factory = method.getAnnotation(Factory.class);
             if (factory != null) {
-                Type returnType = method.getJavaMember().getReturnType();
-                ServiceBean.doWith(returnType, new ServiceBean.Callback() {
-                    @Override
-                    public ServiceBean apply(ServiceBean bean) {
-                        String serviceId = bean.getServiceId();
-                        String serviceProtocol = bean.getServiceProtocol();
-                        return bean.withProducer(new FactoryMethodProducer(event.getBean(), method, serviceId, serviceProtocol));
-                    }
-                });
+                final Type sourceType = getSourceType(method);
+                final Type returnType = method.getJavaMember().getReturnType();
+                factories.add(new FactoryMethodContext(event.getBean(), (Class) sourceType, (Class) returnType, method));
             }
         }
+    }
+
+    private static <T> Type getSourceType(AnnotatedMethod<T> method) {
+        for (AnnotatedParameter<T> parameter : method.getParameters()) {
+            if (parameter.isAnnotationPresent(ServiceName.class)) {
+                return parameter.getBaseType();
+            }
+        }
+        return String.class;
     }
 
     /**
@@ -127,7 +153,7 @@ public class Fabric8Extension implements Extension {
      * @param injectionPoint The injection point.
      * @return
      */
-    public boolean isConfigurationInjectionPoint(InjectionPoint injectionPoint) {
+    private static boolean isConfigurationInjectionPoint(InjectionPoint injectionPoint) {
         Set<Annotation> qualifiers = injectionPoint.getQualifiers();
         for (Annotation annotation : qualifiers) {
             if (annotation.annotationType().isAssignableFrom(Configuration.class)) {
@@ -143,7 +169,7 @@ public class Fabric8Extension implements Extension {
      * @param injectionPoint The injection point.
      * @return
      */
-    public boolean isServiceInjectionPoint(InjectionPoint injectionPoint) {
+    public static boolean isServiceInjectionPoint(InjectionPoint injectionPoint) {
         Set<Annotation> qualifiers = injectionPoint.getQualifiers();
         for (Annotation annotation : qualifiers) {
             if (annotation.annotationType().isAssignableFrom(ServiceName.class)) {

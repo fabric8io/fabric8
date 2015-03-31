@@ -124,6 +124,6 @@ public class ExtensionTest {
     public void testNestingFacvtories() {
         Assert.assertNotNull(nestingFactoryBean);
         Assert.assertNotNull(nestingFactoryBean.getConsoleConnection());
-        Assert.assertNotNull(nestingFactoryBean.getKubernetesConnections());
+        Assert.assertNotNull(nestingFactoryBean.getAppLibraryConnection());
     }
 }
