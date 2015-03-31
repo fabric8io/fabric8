@@ -1,4 +1,7 @@
 
+### 2.0.36
+* Fixes [these 20 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.36)
+
 ### 2.0.32
 * Fixes [these 60 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.32)
 
