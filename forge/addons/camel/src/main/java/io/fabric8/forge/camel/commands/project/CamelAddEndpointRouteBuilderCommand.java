@@ -60,7 +60,7 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
 
     @Inject
     @WithAttributes(label = "routeBuilder", required = true, description = "The RouteBuilder class to use")
-    private UIInput<String> routeBuilder;
+    private UISelectOne<String> routeBuilder;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -97,8 +97,8 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
             }
         });
 
-        routeBuilder.setCompleter(new RouteBuilderCompleter(facet));
-
+        // use value choices instead of completer as that works better in web console
+        routeBuilder.setValueChoices(new RouteBuilderCompleter(facet).getRouteBuilders());
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(routeBuilder);
     }
 

@@ -54,6 +54,7 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder);
+        // use value choices instead of completer as that works better in web console
         name.setValueChoices(new CamelDataFormatsCompleter(project).getValueChoices());
 
         builder.add(name);

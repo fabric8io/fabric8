@@ -60,7 +60,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
 
     @Inject
     @WithAttributes(label = "file", required = true, description = "The XML file to use (either Spring or Blueprint)")
-    private UIInput<String> xml;
+    private UISelectOne<String> xml;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -97,7 +97,8 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             }
         });
 
-        xml.setCompleter(new XmlFileCompleter(resourcesFacet));
+        // use value choices instead of completer as that works better in web console
+        xml.setValueChoices(new XmlFileCompleter(resourcesFacet).getFiles());
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(xml);
     }
 

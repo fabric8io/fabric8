@@ -53,6 +53,10 @@ public class RouteBuilderCompleter implements UICompleter<String> {
         });
     }
 
+    public Set<String> getRouteBuilders() {
+        return routeBuilders;
+    }
+
     @Override
     public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
         List<String> answer = new ArrayList<String>();

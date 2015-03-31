@@ -67,6 +67,7 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
 
+        // use value choices instead of completer as that works better in web console
         completer = new XmlEndpointsCompleter(resourcesFacet);
         endpoints.setValueChoices(completer.getEndpointUris());
 
