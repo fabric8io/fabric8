@@ -33,7 +33,7 @@ public class ProcessEngineWithNoPersistance {
         //KieSession ksession = engine.getKieSession();
         KieBase kbase = engine.getKieSession().getKieBase();
         //ksession.signalEvent("buildSignalevent", "buildaStarted");
-        System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalevent");
+        System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "buildSignalAevent");
         System.setProperty("FABRIC8_SIMULATOR_ENABLED", "true");
 
         BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);

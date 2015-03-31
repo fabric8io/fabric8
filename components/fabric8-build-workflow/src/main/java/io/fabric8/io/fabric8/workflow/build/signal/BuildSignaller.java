@@ -19,6 +19,7 @@ package io.fabric8.io.fabric8.workflow.build.signal;
 
 import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
+import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
 import org.kie.api.KieBase;
@@ -49,6 +50,8 @@ public class BuildSignaller implements BuildListener {
         this.engine = engine;
         this.buildProcessCorrelator = buildProcessCorrelator;
         ksession = engine.getKieSession();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("OpenShiftBuildTrigger", new BuildWorkItemHandler());
     }
 
     @Override
