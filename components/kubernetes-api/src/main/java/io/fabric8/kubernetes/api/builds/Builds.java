@@ -34,10 +34,15 @@ public class Builds {
         public static final String COMPLETE = "Complete";
         public static final String FAIL = "Fail";
         public static final String ERROR = "Error";
+        public static final String CANCELLED = "Cancelled";
     }
 
     public static boolean isCompleted(String status) {
         return Objects.equal(Status.COMPLETE, status);
+    }
+
+    public static boolean isCancelled(String status) {
+        return Objects.equal(Status.CANCELLED, status);
     }
 
     public static boolean isFailed(String status) {
@@ -48,7 +53,7 @@ public class Builds {
     }
 
     public static boolean isFinished(String status) {
-        return isCompleted(status) || isFailed(status);
+        return isCompleted(status) || isFailed(status) || isCancelled(status);
     }
 
     /**
