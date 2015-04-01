@@ -58,8 +58,8 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelEditEndpointXmlCommand.class).name(
-                "Camel: Edit Endpoint").category(Categories.create(CATEGORY))
-                .description("Edit Camel endpoint");
+                "Camel: Edit Endpoint XML").category(Categories.create(CATEGORY))
+                .description("Edit Camel endpoint to an existing XML file");
     }
 
     @Override
