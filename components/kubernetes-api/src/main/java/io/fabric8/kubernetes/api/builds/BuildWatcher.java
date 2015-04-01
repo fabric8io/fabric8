@@ -94,8 +94,8 @@ public class BuildWatcher {
                     LOG.warn("Ignoring bad build which has no UID: " + build);
                 } else {
                     if (seenBuildIds.add(uid)) {
-                        String name = Builds.getBuildConfigName(build);
-                        String buildLink = URLUtils.pathJoin(fabric8ConsoleLink, "kubernetes/builds", name + "-" + uid);
+                        String name = Builds.getName(build);
+                        String buildLink = URLUtils.pathJoin(fabric8ConsoleLink, "kubernetes/builds", name);
                         BuildFinishedEvent event = new BuildFinishedEvent(uid, build, loading, buildLink);
                         buildListener.onBuildFinished(event);
                     }
