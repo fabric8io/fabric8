@@ -33,9 +33,6 @@ public class MainWithNoPersistence {
         KieSession ksession = engine.getKieSession();
         KieBase kbase = engine.getKieSession().getKieBase();
 
-        System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "MyBuild");
-        System.setProperty("FABRIC8_SIMULATOR_ENABLED", "true");
-
         BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);
         signallerService.start();
 
