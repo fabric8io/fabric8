@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
 import io.fabric8.forge.camel.commands.project.helper.LineNumberHelper;
+import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -39,7 +40,6 @@ import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.facets.HintsFacet;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.result.NavigationResult;
@@ -205,8 +205,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         String line = lines.get(idx);
 
         // replace uri with new value
-        // TODO: regexp replace not as good as a simple indexOf and then concat/remove it
-        line = line.replace(endpointUrl, uri);
+        line = StringHelper.replaceAll(line, endpointUrl, uri);
         lines.set(idx, line);
 
         // and save the file back
