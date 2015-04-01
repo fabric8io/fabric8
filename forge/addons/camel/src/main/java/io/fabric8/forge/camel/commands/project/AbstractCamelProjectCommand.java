@@ -57,7 +57,6 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
         return Projects.getSelectedProject(this.getProjectFactory(), context);
     }
 
-
     protected boolean requiresCamelSetup() {
         return true;
     }
