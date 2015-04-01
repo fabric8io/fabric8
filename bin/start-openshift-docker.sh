@@ -22,9 +22,15 @@ ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
 FLUENTD_IMAGE=fabric8/fluentd-kubernetes:latest
 #GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
+FORGE_IMAGE=fabric8/fabric8-forge:${FABRIC8_VERSION}
+KIWIIRC_IMAGE=fabric8/fabric8-kiwiirc:latest
+REDIS_IMAGE=redis:latest
+GOIRC_SERVER_IMAGE=lonli078/go-irc-server:latest
+HUBOT_IMAGE=fabric8/hubot:latest
+HUBOT_NOTIFIER=fabric8/hubot-notifier:${FABRIC8_VERSION}
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${APP_LIBRARY_IMAGE} ${REGISTRY_IMAGE} ${OPENSHIFT_ROUTER_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE} ${GRAFANA_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE} ${GRAFANA_IMAGE} ${FORGE_IMAGE} ${KIWIIRC_IMAGE} ${REDIS_IMAGE} ${GOIRC_SERVER_IMAGE} ${HUBOT_IMAGE} ${HUBOT_NOTIFIER}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -242,6 +248,11 @@ if [ -f "$APP_BASE/influxdb.json" ]; then
     cat $APP_BASE/fluentd.yml | $KUBE create -f -
     cat $APP_BASE/kibana.yml | $KUBE create -f -
 #    cat $APP_BASE/grafana.yml | $KUBE create -f -
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/gogs/${FABRIC8_VERSION}/gogs-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
+
   fi
 else
   if [ ${DEPLOY_ALL} -eq 1 ]; then
@@ -251,13 +262,14 @@ else
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
 #    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/gogs/${FABRIC8_VERSION}/gogs-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
   fi
 
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/fabric8-forge/${FABRIC8_VERSION}/fabric8-forge-${FABRIC8_VERSION}-kubernetes.json
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
+
 fi
 
 K8S_SERVICES=$($KUBE get services)
