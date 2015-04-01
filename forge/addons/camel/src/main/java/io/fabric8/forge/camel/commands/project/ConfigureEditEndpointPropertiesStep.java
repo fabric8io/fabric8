@@ -90,9 +90,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         }
 
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
-        // TODO: camel 2.151.
-//        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
-        Map<String, String> currentValues = Collections.EMPTY_MAP;
+        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
 
         if (data != null) {
             Set<String> namesAdded = new HashSet<>();
@@ -187,13 +185,11 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
             }
         }
 
-        // TODO: Need 2.15.1
-        // CamelCatalog catalog = new DefaultCamelCatalog();
-        // String uri = catalog.asEndpointUri(camelComponentName, options);
-        // if (uri == null) {
-        //     return Results.fail("Cannot create endpoint uri");
-        // }
-        String uri = "Need Camel 2.15.1";
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
 
         FileResource file = facet.getResource(xml);
         if (!file.exists()) {
