@@ -34,6 +34,6 @@ public class DefaultBuildTrigger implements BuildTrigger {
 
     @Override
     public String trigger(String namespace, String buildName) {
-        return kubernetes.triggerBuild(buildName, namespace);
+        return kubernetes.triggerBuildAndGetUuid(buildName, namespace);
     }
 }

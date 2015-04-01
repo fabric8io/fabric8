@@ -23,6 +23,7 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +41,29 @@ public class WorkItemHandlers {
         return answer;
     }
 
-    public static void fail(WorkItem workItem, WorkItemManager manager, String reason) {
-        LOG.error("Failed work item " + workItem.getId() + ":" + workItem.getName() + " due to: " + reason);
+    public static void fail(WorkItem workItem, WorkItemManager manager, String message, Throwable exception) {
+        // lets unwrap the exception
+        if (exception instanceof UndeclaredThrowableException ) {
+            UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException) exception;
+            Throwable undeclaredThrowable = undeclaredThrowableException.getUndeclaredThrowable();
+            if (undeclaredThrowable != null && !undeclaredThrowable.equals(exception)) {
+                exception = undeclaredThrowable;
+            }
+        }
 
+        String reason = message + ". Exception: " + exception;
+        LOG.error("Failed work item " + workItem.getId() + ":" + workItem.getName() + ":  " + reason, exception);
+
+        completeWithFailureReason(workItem, manager, reason);
+    }
+
+    public static void fail(WorkItem workItem, WorkItemManager manager, String reason) {
+        LOG.error("Failed work item " + workItem.getId() + ":" + workItem.getName() + ":  " + reason);
+
+        completeWithFailureReason(workItem, manager, reason);
+    }
+
+    protected static void completeWithFailureReason(WorkItem workItem, WorkItemManager manager, String reason) {
         Map<String, Object> result = new HashMap<>();
         result.put("Failed", reason);
 

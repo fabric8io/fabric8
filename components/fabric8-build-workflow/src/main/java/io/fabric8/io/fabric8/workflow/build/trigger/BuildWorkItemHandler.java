@@ -44,10 +44,18 @@ public class BuildWorkItemHandler implements WorkItemHandler {
         String buildName = WorkItemHandlers.getMandatoryParameter(workItem, manager, "buildName");
         String namespace = WorkItemHandlers.getMandatoryParameter(workItem, manager, "namespace");
 
-        System.out.println("BuildWorkItemHandler: Executing namespace: " + namespace + " build: " + buildName
+        LOG.info("Executing build: " + namespace + "/" + buildName
                 + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
 
-        String buildUuid = buildTrigger.trigger(namespace, buildName);
+        String buildUuid = null;
+        try {
+            buildUuid = buildTrigger.trigger(namespace, buildName);
+            LOG.info("Created " + buildUuid + " from build: " + namespace + "/" + buildName
+                            + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
+        } catch (Exception e) {
+            WorkItemHandlers.fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName, e);
+            return;
+        }
         if (Strings.isNullOrBlank(buildUuid)) {
             WorkItemHandlers.fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName);
         } else {

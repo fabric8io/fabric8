@@ -103,7 +103,11 @@ public class BuildSignaller implements BuildListener {
                                 String processId = process.getId();
                                 LOG.info("Starting process " + processId + " with parameters: " + inputParameters);
                                 startCount++;
-                                ksession.startProcess(processId, inputParameters);
+                                try {
+                                    ksession.startProcess(processId, inputParameters);
+                                } catch (Exception e) {
+                                    LOG.error("Could not start process " + processId + " with parameters " + inputParameters + ". Reason: " + e, e);
+                                }
                             }
                         }
                     }
@@ -113,13 +117,17 @@ public class BuildSignaller implements BuildListener {
                 LOG.warn("No business process starts with signal of name: " + startNodeName);
             }
         } else {
-            ksession.signalEvent(buildName, signalObject, workItemId);
+            //ksession.signalEvent(buildName, signalObject, workItemId);
             Map<String, Object> results = new HashMap<>();
             //results.put("response", buildFinishedDTO);
             populateParameters(results, buildFinishedDTO);
 
             LOG.info("Completing work item id: " + workItemId + " for " + key + " with data: " + results);
-            ksession.getWorkItemManager().completeWorkItem(workItemId, results);
+            try {
+                ksession.getWorkItemManager().completeWorkItem(workItemId, results);
+            } catch (Exception e) {
+                LOG.error("Could not complete work item " + workItemId + " for " + key + " with data: " + results + ". Reason: " + e, e);
+            }
         }
     }
 
