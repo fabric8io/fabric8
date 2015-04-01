@@ -162,4 +162,44 @@
       </plugin>
     </plugins>
   </build>
+
+
+  <profiles>
+    <profile>
+      <id>trigger</id>
+      <properties>
+        <build>console-build</build>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>java</executable>
+              <classpathScope>test</classpathScope>
+
+              <!-- TODO for some reason this fails when running inside maven - wacky! -->
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>io.fabric8.kubernetes.api.TriggerBuild</argument>
+                <argument>${build}</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+
+      </build>
+    </profile>
+  </profiles>
 </project>

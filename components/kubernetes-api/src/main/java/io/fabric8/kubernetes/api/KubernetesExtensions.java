@@ -115,11 +115,12 @@ public interface KubernetesExtensions {
     //-------------------------------------------------------------------------
     @POST
     @Path("buildConfigHooks/{name}/{secret}/{type}")
+    @Produces("text/plain")
+    @Consumes("application/json")
     String triggerBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace,
                         @PathParam("secret") @NotNull String secret,
                         @PathParam("type") @NotNull String type,
-                        Object body);
-
+                        byte[] body);
 
 
     // ImageRepositorys

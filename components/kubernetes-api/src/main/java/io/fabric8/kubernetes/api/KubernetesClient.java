@@ -32,11 +32,15 @@ import io.fabric8.openshift.api.model.WebHookTrigger;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import java.util.*;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
@@ -558,7 +562,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     @POST
     @Path("buildConfigHooks/{name}/{secret}/{type}")
-    public String triggerBuild(@NotNull String name, String namespace, @NotNull String secret, @NotNull String type, Object body) {
+    public String triggerBuild(@NotNull String name, String namespace, @NotNull String secret, @NotNull String type, byte[] body) {
         return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, body);
     }
 
@@ -805,10 +809,36 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
                 throw new IllegalArgumentException("BuildConfig does not have secret for build: " + name + " namespace: "+ namespace);
             }
             LOG.info("Triggering build " + name + " namespace: " + namespace + " type: " + type);
-            return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, null);
+            return doTriggerBuild(name, namespace, type, secret);
         } else {
             throw new IllegalArgumentException("No BuildConfig for build: " + name + " namespace: "+ namespace);
         }
+    }
+
+    protected String doTriggerBuild(String name, String namespace, String type, String secret) {
+        WebClient webClient = getFactory(true).createWebClient();
+        String url = URLUtils.pathJoin("/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+        LOG.debug("Triggering build by posting to: " + url);
+
+        webClient.getHeaders().remove(HttpHeaders.ACCEPT);
+        webClient = webClient.path(url).
+                header(HttpHeaders.CONTENT_TYPE, "application/json");
+
+        Response response = webClient.
+                post(null);
+        int status = response.getStatus();
+        if (status != 200) {
+            Object entity = response.getEntity();
+            if (entity != null) {
+                String message = ExceptionResponseMapper.extractErrorMessage(entity);
+                throw new WebApplicationException(status + ": " + message, status);
+            } else {
+                throw new WebApplicationException(status);
+            }
+        }
+        return null;
+
+        //return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, new byte[0]);
     }
 
 

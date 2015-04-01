@@ -205,6 +205,11 @@ public class KubernetesFactory {
      * Creates a JAXRS web client for the given JAXRS client
      */
     public <T> T createWebClient(Class<T> clientType) {
+        WebClient webClient = createWebClient();
+        return JAXRSClientFactory.fromClient(webClient, clientType);
+    }
+
+    public WebClient createWebClient() {
         List<Object> providers = createProviders();
         WebClient webClient = WebClient.create(address, providers);
         configureAuthDetails(webClient);
@@ -216,7 +221,7 @@ public class KubernetesFactory {
         if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
             configureClientCert(webClient);
         }
-        return JAXRSClientFactory.fromClient(webClient, clientType);
+        return webClient;
     }
 
     protected List<Object> createProviders() {
