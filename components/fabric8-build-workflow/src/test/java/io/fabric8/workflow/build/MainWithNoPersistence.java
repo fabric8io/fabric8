@@ -2,11 +2,10 @@ package io.fabric8.workflow.build;
 
 
 import io.fabric8.io.fabric8.workflow.build.signal.BuildSignallerService;
-import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
-import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
@@ -20,20 +19,20 @@ import java.util.Collection;
  * It maintains single <code>RuntimeManager</code> instance that is the actual
  * Process Engine with all assets deployed to it.
  */
-public class ProcessEngineWithNoPersistance {
+public class MainWithNoPersistence {
 
 
     private RuntimeManager runtimeManager;
     private KieBase kieBase;
 
     public static void main(String[] a) {
-        ProcessEngineWithNoPersistance processEngine = new ProcessEngineWithNoPersistance();
+        MainWithNoPersistence processEngine = new MainWithNoPersistence();
         processEngine.init();
         RuntimeManager runtimeManager = processEngine.getRuntimeManager();
         RuntimeEngine engine = runtimeManager.getRuntimeEngine(EmptyContext.get());
-        //KieSession ksession = engine.getKieSession();
+        KieSession ksession = engine.getKieSession();
         KieBase kbase = engine.getKieSession().getKieBase();
-        //ksession.signalEvent("buildSignalevent", "buildaStarted");
+
         System.setProperty("FABRIC8_SIMULATOR_START_BUILD_NAME", "MyBuild");
         System.setProperty("FABRIC8_SIMULATOR_ENABLED", "true");
 
@@ -55,12 +54,8 @@ public class ProcessEngineWithNoPersistance {
             KieContainer kContainer = ks.getKieClasspathContainer();
             kieBase = kContainer.getKieBase("kbase");
 
-            SimpleRegisterableItemsFactory factory = new SimpleRegisterableItemsFactory();
-            factory.addWorkItemHandler("OpenShiftBuildTrigger", BuildWorkItemHandler.class);
-
             RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
-                    .persistence(false).knowledgeBase(kieBase)
-                    .registerableItemsFactory(factory);
+                    .persistence(false).knowledgeBase(kieBase);
 
             runtimeManager = org.kie.internal.runtime.manager.RuntimeManagerFactory.Factory.get()
                     .newSingletonRuntimeManager(builder.get(), "com.sample:example:1.0");

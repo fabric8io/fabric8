@@ -27,9 +27,6 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Invoked from inside a jBPM process to trigger a new build in OpenShift and register
  * the {@link io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey}
@@ -44,38 +41,22 @@ public class BuildWorkItemHandler implements WorkItemHandler {
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         long processInstanceId = workItem.getProcessInstanceId();
 
-        String buildName = (String) workItem.getParameter("BuildName");
-        String namespace = (String) workItem.getParameter("Namespace");
+        String buildName = WorkItemHandlers.getMandatoryParameter(workItem, manager, "buildName");
+        String namespace = WorkItemHandlers.getMandatoryParameter(workItem, manager, "namespace");
 
         System.out.println("BuildWorkItemHandler: Executing namespace: " + namespace + " build: " + buildName
                 + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
 
-        if (Strings.isNullOrBlank(namespace)) {
-            fail(workItem, manager, "Missing workflow configuration for Namespace");
-        } else if (Strings.isNullOrBlank(buildName)) {
-            fail(workItem, manager, "Missing workflow configuration for BuildName");
+        String buildUuid = buildTrigger.trigger(namespace, buildName);
+        if (Strings.isNullOrBlank(buildUuid)) {
+            WorkItemHandlers.fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName);
         } else {
-            String buildUuid = buildTrigger.trigger(namespace, buildName);
-            if (Strings.isNullOrBlank(buildUuid)) {
-                fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName);
-            } else {
-                BuildCorrelationKey key = new BuildCorrelationKey(namespace, buildName, buildUuid);
-                buildProcessCorrelator.putBuildWorkItemId(key, workItem.getId());
-            }
+            BuildCorrelationKey key = new BuildCorrelationKey(namespace, buildName, buildUuid);
+            buildProcessCorrelator.putBuildWorkItemId(key, workItem.getId());
         }
 
         // TODO else you could trigger completion using:
         // POST http://localhost:8080/jbpm-console/rest/runtime/demo:Build:1.0/workitem/INSERT_WORKITEMID_HERE/complete?map_Outcome=Success&map_ResultUrl=www.jbpm.org
-    }
-
-    protected void fail(WorkItem workItem, WorkItemManager manager, String reason) {
-        LOG.error("Failed to complete work item " + workItem.getId() + " due to: " + reason);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("Failed", reason);
-
-        // complete with error or abort
-        manager.completeWorkItem(workItem.getId(), result);
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {

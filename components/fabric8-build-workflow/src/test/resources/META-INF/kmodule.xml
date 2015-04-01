@@ -1,9 +1,11 @@
-<kmodule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xmlns="http://jboss.org/kie/6.0.0/kmodule">
-  <kbase name="kbase" default="true" eventProcessingMode="stream" equalsBehavior="identity" declarativeAgenda="disabled" scope="javax.enterprise.context.ApplicationScoped">
-    <ksession name="openshift_KSession" type="stateful" default="true" clockType="realtime" beliefSystem="simple" scope="javax.enterprise.context.ApplicationScoped">
+<kmodule
+        xmlns="http://jboss.org/kie/6.0.0/kmodule">
+  <kbase name="kbase" default="true" eventProcessingMode="stream" equalsBehavior="identity" declarativeAgenda="disabled"
+         scope="javax.enterprise.context.ApplicationScoped">
+    <ksession name="openshift_KSession" type="stateful" default="true" clockType="realtime" beliefSystem="simple"
+              scope="javax.enterprise.context.ApplicationScoped">
       <workItemHandlers>
-        <workItemHandler name="OpenShiftBuildTrigger" type="new io.fabric8.workflow.build.trigger.BuildWorkItemHandler()"/>
+        <workItemHandler name="BuildTrigger" type="new io.fabric8.workflow.build.trigger.BuildWorkItemHandler()"/>
       </workItemHandlers>
     </ksession>
   </kbase>

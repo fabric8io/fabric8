@@ -30,7 +30,7 @@
   <name>Fabric8 :: Build Workflow</name>
 
   <properties>
-    <mainClass>io.fabric8.workflow.build.Main</mainClass>
+    <mainClass>io.fabric8.workflow.build.MainWithNoPersistence</mainClass>
   </properties>
 
   <dependencies>
@@ -103,9 +103,9 @@
 
   <profiles>
     <profile>
-      <id>nodb</id>
+      <id>usedb</id>
       <properties>
-        <mainClass>io.fabric8.workflow.build.ProcessEngineWithNoPersistance</mainClass>
+        <mainClass>io.fabric8.workflow.build.MainWithPersistence</mainClass>
       </properties>
     </profile>
   </profiles>

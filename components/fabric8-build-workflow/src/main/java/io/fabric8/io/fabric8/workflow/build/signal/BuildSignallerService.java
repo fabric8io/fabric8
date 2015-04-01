@@ -17,6 +17,7 @@
  */
 package io.fabric8.io.fabric8.workflow.build.signal;
 
+import io.fabric8.io.fabric8.workflow.build.CustomWorkItemHandlers;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
 import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
@@ -25,6 +26,7 @@ import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.process.WorkItemManager;
 
 import java.util.Timer;
 
@@ -32,7 +34,7 @@ import java.util.Timer;
  * A service which listens to {@link io.fabric8.kubernetes.api.builds.BuildFinishedEvent} events from
  * the OpenShift build watcher and then signals the correlated jBPM process instances or
  * signals new processes to start.
- *
+ * <p/>
  * This service is a helper class to create a configured instance of a
  * {@link io.fabric8.io.fabric8.workflow.build.signal.BuildSignaller} using the
  * {@link io.fabric8.kubernetes.api.builds.BuildWatcher} helper class.
@@ -52,6 +54,10 @@ public class BuildSignallerService {
     }
 
     public void start() {
+        // lets register the custom work items
+        WorkItemManager workItemManager = engine.getKieSession().getWorkItemManager();
+        CustomWorkItemHandlers.register(workItemManager);
+
         String consoleLink = Links.getFabric8ConsoleLink();
         String namespace = null;
 

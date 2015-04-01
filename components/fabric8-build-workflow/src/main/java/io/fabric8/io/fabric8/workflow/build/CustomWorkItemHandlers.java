@@ -15,25 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.correlate;
+package io.fabric8.io.fabric8.workflow.build;
 
-import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
+import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
 
 /**
- * Correlates a triggered build with a jBPM process id
- * so that later on when a build completes or fails we can signal
- * the related process instance; or create a new process via a signal
+ * Registers the custom {@link org.kie.api.runtime.process.WorkItemHandler} instances
  */
-public interface BuildProcessCorrelator {
-
-    /**
-     * Associates the build correlation key with the given jBPM process instance ID
-     * so that it can be later correlated when we detect a build has finished
-     */
-    void putBuildWorkItemId(BuildCorrelationKey key, long processInstanceId);
-
-    /**
-     * Finds the process instance ID for the given build key
-     */
-    Long findWorkItemIdForBuild(BuildCorrelationKey buildKey);
+public class CustomWorkItemHandlers {
+    public static void register(WorkItemManager manager) {
+        manager.registerWorkItemHandler("BuildTrigger", new BuildWorkItemHandler());
+    }
 }

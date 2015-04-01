@@ -91,11 +91,11 @@ public class BuildSimulator {
         startBuildName = Systems.getEnvVarOrSystemProperty(FABRIC8_SIMULATOR_START_BUILD_NAME, startBuildName);
 
         TimerTask startBuildTask = new TimerTask() {
-                   @Override
-                   public void run() {
-                       triggerBuild(startBuildNamespace, startBuildName);
-                   }
-               };
+            @Override
+            public void run() {
+                triggerBuild(startBuildNamespace, startBuildName);
+            }
+        };
         // lets trigger a start build every now and again
         timer.schedule(startBuildTask, initialBuildDelay, startBuildPeriod);
     }
@@ -111,7 +111,7 @@ public class BuildSimulator {
     public void join() {
         Object lock = new Object();
         while (true) {
-            synchronized(lock) {
+            synchronized (lock) {
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
