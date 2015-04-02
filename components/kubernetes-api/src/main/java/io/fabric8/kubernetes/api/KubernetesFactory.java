@@ -210,8 +210,12 @@ public class KubernetesFactory {
     }
 
     public WebClient createWebClient() {
+        return createWebClient(address);
+    }
+
+    public WebClient createWebClient(String serviceAddress) {
         List<Object> providers = createProviders();
-        WebClient webClient = WebClient.create(address, providers);
+        WebClient webClient = WebClient.create(serviceAddress, providers);
         configureAuthDetails(webClient);
         if (trustAllCerts) {
             disableSslChecks(webClient);
