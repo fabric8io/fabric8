@@ -17,14 +17,19 @@
  */
 package io.fabric8.io.fabric8.workflow.build;
 
+import io.fabric8.io.fabric8.workflow.build.signal.SignalServiceWorkItemHandler;
 import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
  * Registers the custom {@link org.kie.api.runtime.process.WorkItemHandler} instances
  */
 public class CustomWorkItemHandlers {
-    public static void register(WorkItemManager manager) {
+    public static void register(KieSession ksession, WorkItemManager manager) {
         manager.registerWorkItemHandler("BuildTrigger", new BuildWorkItemHandler());
+
+        // TODO we may have already registered?
+        manager.registerWorkItemHandler("BuildSignalService", new SignalServiceWorkItemHandler(ksession));
     }
 }

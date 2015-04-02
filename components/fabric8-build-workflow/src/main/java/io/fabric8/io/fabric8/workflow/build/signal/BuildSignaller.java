@@ -46,18 +46,12 @@ import java.util.Objects;
 public class BuildSignaller implements BuildListener {
     private static final transient Logger LOG = LoggerFactory.getLogger(BuildSignaller.class);
 
-    private final KieBase kbase;
-    private final RuntimeEngine engine;
-    private final BuildProcessCorrelator buildProcessCorrelator;
     private final KieSession ksession;
+    private final BuildProcessCorrelator buildProcessCorrelator;
 
-    public BuildSignaller(KieBase kbase, RuntimeEngine engine, BuildProcessCorrelator buildProcessCorrelator) {
-        this.kbase = kbase;
-        this.engine = engine;
+    public BuildSignaller(KieSession ksession, BuildProcessCorrelator buildProcessCorrelator) {
+        this.ksession = ksession;
         this.buildProcessCorrelator = buildProcessCorrelator;
-        ksession = engine.getKieSession();
-
-        ksession.getWorkItemManager().registerWorkItemHandler("OpenShiftBuildTrigger", new BuildWorkItemHandler());
     }
 
     @Override

@@ -33,7 +33,7 @@ public class MainWithNoPersistence {
         KieSession ksession = engine.getKieSession();
         KieBase kbase = engine.getKieSession().getKieBase();
 
-        BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);
+        BuildSignallerService signallerService = new BuildSignallerService(ksession);
         signallerService.start();
 
         signallerService.join();

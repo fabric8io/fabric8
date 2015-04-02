@@ -5,6 +5,7 @@ import org.jbpm.test.JBPMHelper;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
@@ -22,9 +23,10 @@ public class MainWithPersistence {
 
         RuntimeManager manager = createRuntimeManager(kbase);
         RuntimeEngine engine = manager.getRuntimeEngine(null);
+        KieSession ksession = engine.getKieSession();
 
 
-        BuildSignallerService signallerService = new BuildSignallerService(kbase, engine);
+        BuildSignallerService signallerService = new BuildSignallerService(ksession);
         signallerService.start();
 
         signallerService.join();

@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
 import org.kie.api.KieBase;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.WorkItemManager;
 
@@ -40,28 +41,27 @@ import java.util.Timer;
  * {@link io.fabric8.kubernetes.api.builds.BuildWatcher} helper class.
  */
 public class BuildSignallerService {
-    private final KieBase kbase;
-    private final RuntimeEngine engine;
+    private final KieSession ksession;
     private KubernetesClient client = new KubernetesClient();
     private Timer timer = new Timer();
     private BuildProcessCorrelator buildProcessCorrelator = BuildProcessCorrelators.getSingleton();
     private BuildWatcher watcher;
     private BuildSimulator simulator;
 
-    public BuildSignallerService(KieBase kbase, RuntimeEngine engine) {
-        this.kbase = kbase;
-        this.engine = engine;
+
+    public BuildSignallerService(KieSession ksession) {
+        this.ksession = ksession;
     }
 
     public void start() {
         // lets register the custom work items
-        WorkItemManager workItemManager = engine.getKieSession().getWorkItemManager();
-        CustomWorkItemHandlers.register(workItemManager);
+        WorkItemManager workItemManager = ksession.getWorkItemManager();
+        CustomWorkItemHandlers.register(ksession, workItemManager);
 
         String consoleLink = Links.getFabric8ConsoleLink();
         String namespace = null;
 
-        BuildSignaller buildListener = new BuildSignaller(kbase, engine, buildProcessCorrelator);
+        BuildSignaller buildListener = new BuildSignaller(ksession, buildProcessCorrelator);
 
         long pollTime = 3000;
 
