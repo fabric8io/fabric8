@@ -47,6 +47,7 @@ public class BuildSignallerService {
     private BuildProcessCorrelator buildProcessCorrelator = BuildProcessCorrelators.getSingleton();
     private BuildWatcher watcher;
     private BuildSimulator simulator;
+    private String consoleLink;
 
 
     public BuildSignallerService(KieSession ksession) {
@@ -54,11 +55,7 @@ public class BuildSignallerService {
     }
 
     public void start() {
-        // lets register the custom work items
-        WorkItemManager workItemManager = ksession.getWorkItemManager();
-        CustomWorkItemHandlers.register(ksession, workItemManager);
-
-        String consoleLink = Links.getFabric8ConsoleLink();
+        String consoleLink = getConsoleLink();
         String namespace = null;
 
         BuildSignaller buildListener = new BuildSignaller(ksession, buildProcessCorrelator);
@@ -108,5 +105,16 @@ public class BuildSignallerService {
 
     public void setTimer(Timer timer) {
         this.timer = timer;
+    }
+
+    public String getConsoleLink() {
+        if (consoleLink == null) {
+            consoleLink = Links.getFabric8ConsoleLink();
+        }
+        return consoleLink;
+    }
+
+    public void setConsoleLink(String consoleLink) {
+        this.consoleLink = consoleLink;
     }
 }

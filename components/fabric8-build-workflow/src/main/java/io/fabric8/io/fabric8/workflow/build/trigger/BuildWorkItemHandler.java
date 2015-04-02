@@ -41,30 +41,44 @@ public class BuildWorkItemHandler implements WorkItemHandler {
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         long processInstanceId = workItem.getProcessInstanceId();
 
-        String buildName = WorkItemHandlers.getMandatoryParameter(workItem, manager, "buildName");
+        long workItemId = workItem.getId();
+
         String namespace = WorkItemHandlers.getMandatoryParameter(workItem, manager, "namespace");
+        String buildName = WorkItemHandlers.getMandatoryParameter(workItem, manager, "buildName");
 
         LOG.info("Executing build: " + namespace + "/" + buildName
-                + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
+                + " processInstanceId: " + processInstanceId + " workItemId: " + workItemId);
 
         String buildUuid = null;
         try {
-            buildUuid = buildTrigger.trigger(namespace, buildName);
-            LOG.info("Created " + buildUuid + " from build: " + namespace + "/" + buildName
-                            + " processInstanceId: " + processInstanceId + " workItemId: " + workItem.getId());
+            buildUuid = triggerBuild(processInstanceId, workItemId, namespace, buildName);
         } catch (Exception e) {
             WorkItemHandlers.fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName, e);
             return;
         }
+
         if (Strings.isNullOrBlank(buildUuid)) {
             WorkItemHandlers.fail(workItem, manager, "Could not trigger build for namespace: " + namespace + " build: " + buildName);
-        } else {
-            BuildCorrelationKey key = new BuildCorrelationKey(namespace, buildName, buildUuid);
-            buildProcessCorrelator.putBuildWorkItemId(key, workItem.getId());
         }
 
         // TODO else you could trigger completion using:
         // POST http://localhost:8080/jbpm-console/rest/runtime/demo:Build:1.0/workitem/INSERT_WORKITEMID_HERE/complete?map_Outcome=Success&map_ResultUrl=www.jbpm.org
+    }
+
+    /**
+     * API to be invoked from the remote REST API
+     */
+    public String triggerBuild(long processInstanceId, long workItemId, String namespace, String buildName) {
+        String buildUuid;
+        buildUuid = buildTrigger.trigger(namespace, buildName);
+        LOG.info("Created " + buildUuid + " from build: " + namespace + "/" + buildName
+                        + " processInstanceId: " + processInstanceId + " workItemId: " + workItemId);
+
+        if (Strings.isNotBlank(buildUuid)) {
+            BuildCorrelationKey key = new BuildCorrelationKey(namespace, buildName, buildUuid);
+            buildProcessCorrelator.putBuildWorkItemId(key, workItemId);
+        }
+        return buildUuid;
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {

@@ -12,29 +12,32 @@ import org.drools.core.process.core.datatype.impl.type.ObjectDataType;
     ],
     "displayName" : "Email",
     "icon" : "defaultemailicon.gif"
-  ], 
+  ],
   [
     "name" : "BuildTrigger",
     "parameters" : [
         "namespace" : new StringDataType(),
-        "buildName" : new StringDataType()
+        "buildName" : new StringDataType(),
+
     ],
     "results" : [
         "status" : new StringDataType(),
-        "buildLink" : new StringDataType()
+        "buildLink" : new StringDataType(),
     ],
     "displayName" : "BuildTrigger",
     "category":"OpenShift",
     "icon" : "defaultservicenodeicon.png"
   ],
   [
-    "name" : "BuildSignalService",
+    "name" : "StartBuildProcess",
     "parameters" : [
+        "startSignalName" : new StringDataType()
     ],
     "results" : [
     ],
-    "displayName" : "BuildSignalService",
+    "displayName" : "StartBuildProcess",
     "category":"OpenShift",
     "icon" : "defaultservicenodeicon.png"
   ]
+
 ]

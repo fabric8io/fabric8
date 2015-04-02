@@ -29,6 +29,7 @@ import org.kie.api.definition.process.Process;
 import org.kie.api.definition.process.WorkflowProcess;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ public class BuildSignaller implements BuildListener {
 
     private final KieSession ksession;
     private final BuildProcessCorrelator buildProcessCorrelator;
+    private String startBuildProcessId = "io.fabric8.cdelivery.StartBuildProcess";
 
     public BuildSignaller(KieSession ksession, BuildProcessCorrelator buildProcessCorrelator) {
         this.ksession = ksession;
@@ -79,37 +81,10 @@ public class BuildSignaller implements BuildListener {
         if (workItemId == null) {
             String startNodeName = getStartSignalName(namespace, buildName);
             LOG.info("No existing processes associated with build " + key + " so lets signal a new process to start");
-            ksession.signalEvent(buildName, signalObject);
             Map<String, Object> inputParameters = new HashMap<>();
-            // TODO
-            // inputParameters.put("buildObject", buildFinishedDTO);
-            populateParameters(inputParameters, buildFinishedDTO);
-            Collection<Process> processes = ksession.getKieBase().getProcesses();
-            int startCount = 0;
-            for (Process process : processes) {
-                if (process instanceof WorkflowProcess) {
-                    WorkflowProcess workflowProcess = (WorkflowProcess) process;
-                    Node[] nodes = workflowProcess.getNodes();
-                    if (nodes != null) {
-                        for (Node node : nodes) {
-                            String name = node.getName();
-                            if (Objects.equals(startNodeName, name)) {
-                                String processId = process.getId();
-                                LOG.info("Starting process " + processId + " with parameters: " + inputParameters);
-                                startCount++;
-                                try {
-                                    ksession.startProcess(processId, inputParameters);
-                                } catch (Exception e) {
-                                    LOG.error("Could not start process " + processId + " with parameters " + inputParameters + ". Reason: " + e, e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (startCount == 0) {
-                LOG.warn("No business process starts with signal of name: " + startNodeName);
-            }
+            inputParameters.put("startSignalName", startNodeName);
+            LOG.info("Starting process: " + startBuildProcessId + " with inputParameters: " + inputParameters);
+            ProcessInstance processInstance = ksession.startProcess(startBuildProcessId, inputParameters);
         } else {
             //ksession.signalEvent(buildName, signalObject, workItemId);
             Map<String, Object> results = new HashMap<>();

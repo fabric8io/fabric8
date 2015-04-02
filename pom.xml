@@ -1431,15 +1431,19 @@
               <artifactId>kie-api</artifactId>
               <version>${kie.version}</version>
             </dependency>
+            <dependency>
+              <groupId>org.kie.remote</groupId>
+              <artifactId>kie-remote-client</artifactId>
+              <version>${kie.version}</version>
+            </dependency>
 
-            <!-- testing -->
             <dependency>
               <groupId>org.jbpm</groupId>
               <artifactId>jbpm-test</artifactId>
               <version>${kie.version}</version>
             </dependency>
 
-            <!-- Weld -->
+          <!-- Weld -->
             <dependency>
               <groupId>org.jboss.weld.se</groupId>
               <artifactId>weld-se</artifactId>
