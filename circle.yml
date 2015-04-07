@@ -11,7 +11,7 @@ dependencies:
   pre:
     - npm install -g gulp
   override:
-    - echo disabled: mvn install
+    - echo disabled mvn install
 
 test:
   override:
