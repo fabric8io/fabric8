@@ -1,0 +1,46 @@
+{
+  "name": "gitbook-plugin-anchors",
+  "description": "Add Github style heading anchors to your Gitbook",
+  "main": "index.js",
+  "version": "0.3.0",
+  "license": "Apache 2",
+  "author": {
+    "name": "Bo Marchman",
+    "email": "bo.marchman@gmail.com"
+  },
+  "engines": {
+    "gitbook": "*"
+  },
+  "homepage": "https://github.com/rlmv/gitbook-plugin-anchors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rlmv/gitbook-plugin-anchors.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rlmv/gitbook-plugin-anchors/issues"
+  },
+  "dependencies": {
+    "cheerio": "*",
+    "underscore": "*"
+  },
+  "_id": "gitbook-plugin-anchors@0.3.0",
+  "dist": {
+    "shasum": "be455c6a292bce024013c68e01fbee58a7871259",
+    "tarball": "http://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.3.0.tgz"
+  },
+  "_from": "gitbook-plugin-anchors@0.3.0",
+  "_npmVersion": "1.3.21",
+  "_npmUser": {
+    "name": "rlmv",
+    "email": "bo.marchman@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "rlmv",
+      "email": "bo.marchman@gmail.com"
+    }
+  ],
+  "directories": {},
+  "_shasum": "be455c6a292bce024013c68e01fbee58a7871259",
+  "_resolved": "https://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.3.0.tgz"
+}
