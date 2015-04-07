@@ -30,17 +30,7 @@
 
   <modules>
     <module>camel</module>
-<!--
-    TODO fix me ASAP!
-
-    Disabling for now as some odd CI server / release plugin issue has started failing for some odd reason!
-    We're getting:
-
-    Could not resolve dependencies for project io.fabric8.forge:camel-tests:jar:2.0.40: Failed to collect dependencies at org.jboss.forge.furnace.container:cdi:jar:forge-addon:2.15.2.Final: Failed to read artifact descriptor for org.jboss.forge.furnace.container:cdi:jar:forge-addon:2.15.2.Final: Could not transfer artifact org.jboss.forge.furnace.container:cdi:pom:2.15.2.Final from/to central (https://repo.maven.apache.org/maven2): /home/slave/.m2/repository/org/jboss/forge/furnace/container/cdi/2.15.2.Final/cdi-2.15.2.Final.pom.part.lock (No such file or directory) -> [Help 1]
-
-
     <module>camel-tests</module>
--->
     <module>kubernetes</module>
   </modules>
 
