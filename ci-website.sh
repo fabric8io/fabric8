@@ -5,6 +5,7 @@ echo Deploying fabric8 website
 echo ============================================================================
 
 cd website && \
+npm install -g gitbook && \
 npm install && \
 mvn clean && \
 mkdir -p target && \
