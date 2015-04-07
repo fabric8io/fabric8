@@ -8,9 +8,6 @@ $provisionScript = <<SCRIPT
 
 systemctl enable docker
 
-groupadd docker
-usermod -a -G docker vagrant
-
 # update limits
 echo >> /etc/security/limits.conf
 echo *        hard    nproc           8192 >> /etc/security/limits.conf
@@ -25,7 +22,8 @@ systemctl restart docker
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "chef/centos-7.0"
+  config.vm.box = "puppetlabs/centos-7.0-64-nocm"
+  config.vm.box_version = "= 1.0.1"
 
   config.vm.network "private_network", ip: "172.28.128.4"
 
@@ -37,6 +35,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
+
+  config.vm.provision "shell", inline: "groupadd docker; usermod -a -G docker vagrant; yum update -y"
 
   config.vm.provision "docker"
 
