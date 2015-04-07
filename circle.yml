@@ -26,7 +26,7 @@ general:
 deployment:
   website:
     branch: master
-    owner: hawtio
+    owner: fabric8io
     commands:
       - git config --global user.email "circleci@mail.com"
       - git config --global user.name "CircleCI"
