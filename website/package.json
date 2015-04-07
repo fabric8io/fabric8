@@ -8,6 +8,7 @@
     "gulp-load-plugins": "^0.8.0"
   },
   "dependencies": {
+    "gitbook-cli": "^0.3.3",
     "gulp-git": "^1.1.0"
   }
 }
