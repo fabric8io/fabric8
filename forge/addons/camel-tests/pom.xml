@@ -55,62 +55,69 @@
 
   <dependencies>
     <dependency>
-       <groupId>io.fabric8.forge</groupId>
-       <artifactId>camel</artifactId>
-       <classifier>forge-addon</classifier>
-       <version>${project.version}</version>
+      <groupId>io.fabric8.forge</groupId>
+      <artifactId>camel</artifactId>
+      <classifier>forge-addon</classifier>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>maven</artifactId>
-       <classifier>forge-addon</classifier>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>maven</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>parser-java</artifactId>
-       <classifier>forge-addon</classifier>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>parser-java</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>ui</artifactId>
-       <classifier>forge-addon</classifier>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>ui</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>projects</artifactId>
-       <classifier>forge-addon</classifier>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>projects</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
     </dependency>
 
     <!-- testing -->
     <dependency>
-       <groupId>org.jboss.forge.furnace.test</groupId>
-       <artifactId>furnace-test-harness</artifactId>
-       <scope>test</scope>
+      <groupId>org.jboss.forge.furnace.test</groupId>
+      <artifactId>furnace-test-harness</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.furnace.test</groupId>
-       <artifactId>arquillian-furnace-classpath</artifactId>
-       <scope>test</scope>
+      <groupId>org.jboss.forge.furnace.test</groupId>
+      <artifactId>arquillian-furnace-classpath</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>shell-test-harness</artifactId>
-       <classifier>forge-addon</classifier>
-       <scope>test</scope>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>shell-test-harness</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
+      <scope>test</scope>
     </dependency>
     <dependency>
-       <groupId>org.jboss.forge.addon</groupId>
-       <artifactId>ui-test-harness</artifactId>
-       <classifier>forge-addon</classifier>
-       <scope>test</scope>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>ui-test-harness</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
+      <scope>test</scope>
     </dependency>
 
     <!-- Furnace Container -->
     <dependency>
-       <groupId>org.jboss.forge.furnace.container</groupId>
-       <artifactId>cdi</artifactId>
-       <classifier>forge-addon</classifier>
-       <scope>provided</scope>
+      <groupId>org.jboss.forge.furnace.container</groupId>
+      <artifactId>cdi</artifactId>
+      <version>${jboss.forge.version}</version>
+      <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
