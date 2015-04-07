@@ -258,13 +258,15 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 if (icons == null || icons.length == 0) {
                     // lets copy the iconRef
                     InputStream in = loadPluginResource(iconRef);
-                    // maybe it dont have extension so try to find it
-                    for (String ext : ICON_EXTENSIONS) {
-                        String name = iconRef + ext;
-                        in = loadPluginResource(name);
-                        if (in != null) {
-                            iconRef = name;
-                            break;
+                    if (in == null) {
+                        // maybe it dont have extension so try to find it
+                        for (String ext : ICON_EXTENSIONS) {
+                            String name = iconRef + ext;
+                            in = loadPluginResource(name);
+                            if (in != null) {
+                                iconRef = name;
+                                break;
+                            }
                         }
                     }
                     if (in == null) {
