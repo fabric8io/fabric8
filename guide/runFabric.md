@@ -59,7 +59,7 @@ So you should have now an empty OpenShift environment with the core of fabric8 i
 
 Now you could try:
 
- * [deploying an example quickstart project](http://fabric8.io/v2/example.html)
+ * [deploying an example quickstart project](http://fabric8.io/guide/example.html)
 
 
 ### Resetting OpenShift
@@ -84,8 +84,8 @@ For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940
 
 #### Try QuickStarts
 
-New users to Fabric8 should try the [QuickStarts](/v2/quickstarts.html).
+New users to Fabric8 should try the [QuickStarts](/guide/quickstarts.html).
 
 #### Read the documentation
 
-Check out the [Overview](/v2/overview.html) and [User Guide](/v2/index.html).
+Check out the [Overview](/guide/overview.html) and [User Guide](/guide/index.html).

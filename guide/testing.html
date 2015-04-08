@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed Apr 08 2015 10:02:37 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed Apr 08 2015 15:02:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -872,7 +872,7 @@ This means that the arquillian.xml configuration file is completely optional.</p
 Then it will treat those as dependencies and apply them along with the configuration.</p>
 <p>One thing to be careful of is that adding test dependencies on kubernetes.json will add transitive dependencies to your test project; so you may want to add exclusions as <a href="https://github.com/fabric8io/fabric8/blob/master/itests/pom.xml#L57" target="_blank">this example shows</a>.</p>
 <h3 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
-<p>There are lots of examples in the <a href="http://fabric8.io/v2/quickstarts.html" target="_blank">quickstarts</a>.</p>
+<p>There are lots of examples in the <a href="http://fabric8.io/guide/quickstarts.html" target="_blank">quickstarts</a>.</p>
 <p>Here is an <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">example Arquillian Fabric8 integration test</a> that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.</p>
 <p>In particular <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74" target="_blank">here is the code that does JMX assertions via jolokia on the containers</a> that are created by the integration test.</p>
 <h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
@@ -891,7 +891,7 @@ Waiting for: SomeException....
 <ul>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="http://fabric8.io/v2/pods.html" target="_blank">Pods</a> inside Kubernetes which expose the Jolokia port</li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="http://fabric8.io/guide/pods.html" target="_blank">Pods</a> inside Kubernetes which expose the Jolokia port</li>
 </ul>
 <h3 id="add-it-to-your-maven-pom-xml"><a name="add-it-to-your-maven-pom-xml" class="plugin-anchor" href="#add-it-to-your-maven-pom-xml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
 <p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>

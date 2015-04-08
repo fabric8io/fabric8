@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Wed Apr 08 2015 10:02:37 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Wed Apr 08 2015 15:02:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -793,7 +793,7 @@ mvn install
 cd quickstarts/java/camel-spring
 mvn clean install fabric8:json fabric8:run
 </code></pre><p>If the above fails it could be you have not setup your <a href="getStartedJube.html#setting-environment-variables">environment variables</a> so that the maven plugin can communicate with kubernetes REST API.</p>
-<p>Once you have run the <strong>mvn fabric8:run</strong> command you should see it succeed. If you hit any issues check out the <a href="http://fabric8.io/v2/FAQ.html" target="_blank">FAQ</a>, <a href="http://fabric8.io/community/index.html" target="_blank">get in touch</a> or <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a></p>
+<p>Once you have run the <strong>mvn fabric8:run</strong> command you should see it succeed. If you hit any issues check out the <a href="http://fabric8.io/guide/FAQ.html" target="_blank">FAQ</a>, <a href="http://fabric8.io/community/index.html" target="_blank">get in touch</a> or <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a></p>
 <p>Now you should be able to see any created kubernetes resources in the tabs: <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods</a>, <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers</a> or <a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services</a> in the web console. Note that the first thing to be created are the <a href="replicationControllers.html">replication controllers</a> which then try to start the pods.</p>
 <h4 id="what-just-happened"><a name="what-just-happened" class="plugin-anchor" href="#what-just-happened"><span class="fa fa-link"></span></a>What just happened?</h4>
 <p>Jube supports the Kubernetes REST API for orchestrating containers which uses JSON to define <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a>.</p>
