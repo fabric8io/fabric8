@@ -327,6 +327,16 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "kind": "Route",
       "host": "irc.${FABRIC8_CONSOLE}",
       "serviceName": "kiwiirc"
+    },
+    {
+      "id": "jbpm-designer-route",
+      "metadata": {
+        "name": "jbpm-designer-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "jbpm.${FABRIC8_CONSOLE}",
+      "serviceName": "jbpm-designer"
     }
   ]
 }
