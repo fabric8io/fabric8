@@ -13,6 +13,7 @@ git clone -b gh-pages git@github.com:fabric8io/fabric8.git sitegen && \
 cd .. && \
 mvn scalate:sitegen && \
 mkdir -p target/sitegen/gitbook && \
+gitbook install ../docs --output=target/sitegen/guide && \
 gitbook build ../docs --output=target/sitegen/guide && \
 cd target/sitegen && \
 git add *  && \
