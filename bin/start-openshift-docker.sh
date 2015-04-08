@@ -326,7 +326,7 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "irc.${FABRIC8_CONSOLE}",
-      "serviceName": "kiwiirc-service"
+      "serviceName": "kiwiirc"
     }
   ]
 }
