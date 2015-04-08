@@ -1,9 +1,8 @@
 {
   "name": "fabric8-website",
   "version": "2.0.0",
-  "devDependencies": {
-    "gulp": "^3.8.10",
-    "gulp-debug": "^2.0.1",
-    "gulp-load-plugins": "^0.8.0"
+  "devDependencies": {},
+  "dependencies": {
+    "gitbook-plugin-anchors": "^0.4.0"
   }
 }

@@ -6,19 +6,24 @@ echo ===========================================================================
 
 cd website && \
 npm install -g gitbook-cli && \
+npm install && \
 mvn clean && \
 mkdir -p target && \
 cd target && \
 git clone -b gh-pages git@github.com:fabric8io/fabric8.git sitegen && \
 cd .. && \
 mvn scalate:sitegen && \
-mkdir -p target/sitegen/gitbook && \
-gitbook install ../docs --output=target/sitegen/guide && \
-gitbook build ../docs --output=target/sitegen/guide && \
+mkdir -p target/sitegen/guide && \
+gitbook install ../docs  && \
+gitbook build ../docs && \
+cp -r ../docs/_book/* target/sitegen/guide && \
 cd target/sitegen && \
-git add *  && \
+git add * guide/* && \
 git commit -m "generated website" && \
 git push
+
+#gitbook install ../docs --output=target/sitegen/guide && \
+
 
 echo ============================================================================
 echo Deployed fabric8 website

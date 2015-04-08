@@ -4,6 +4,7 @@
   "extension": "pdf",
   "github": "fabric8io/fabric8",
   "githubHost": "https://github.com/",
+  "gitbook": ">=2.0.0",
 
   "links": {
     "home": "http://fabric8.io/",
