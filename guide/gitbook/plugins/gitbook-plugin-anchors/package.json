@@ -2,7 +2,7 @@
   "name": "gitbook-plugin-anchors",
   "description": "Add Github style heading anchors to your Gitbook",
   "main": "index.js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "Apache 2",
   "author": {
     "name": "Bo Marchman",
@@ -23,13 +23,12 @@
     "cheerio": "*",
     "underscore": "*"
   },
-  "_id": "gitbook-plugin-anchors@0.3.0",
-  "dist": {
-    "shasum": "be455c6a292bce024013c68e01fbee58a7871259",
-    "tarball": "http://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.3.0.tgz"
-  },
-  "_from": "gitbook-plugin-anchors@0.3.0",
-  "_npmVersion": "1.3.21",
+  "gitHead": "120977b4220537033131fd361b492a736723a1e5",
+  "_id": "gitbook-plugin-anchors@0.4.0",
+  "scripts": {},
+  "_shasum": "9f2b1729a8470c129f6803c22d12be38ffbcdfc0",
+  "_from": "gitbook-plugin-anchors@0.4.0",
+  "_npmVersion": "1.4.23",
   "_npmUser": {
     "name": "rlmv",
     "email": "bo.marchman@gmail.com"
@@ -40,7 +39,11 @@
       "email": "bo.marchman@gmail.com"
     }
   ],
+  "dist": {
+    "shasum": "9f2b1729a8470c129f6803c22d12be38ffbcdfc0",
+    "tarball": "http://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.4.0.tgz"
+  },
   "directories": {},
-  "_shasum": "be455c6a292bce024013c68e01fbee58a7871259",
-  "_resolved": "https://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.3.0.tgz"
+  "_resolved": "https://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.4.0.tgz",
+  "readme": "ERROR: No README data found!"
 }

@@ -1,12 +1,14 @@
 Gitbook Anchors Plugin
 ==============
 
-A plugin which adds Github style heading anchors to your book.
+Add Github style heading anchors to your book.
 
-Install using
+![](https://cloud.githubusercontent.com/assets/2666107/3465465/9fc9a502-0266-11e4-80ca-09a1dad1473e.png)
+
+Install in your book using
 	 
 ```
-$ npm install -g gitbook-plugin-anchors
+$ npm install --save gitbook-plugin-anchors
 ```
 
 Add the plugin to your `book.json`:
