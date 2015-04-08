@@ -9,7 +9,7 @@ branches:
 
 dependencies:
   pre:
-    - npm install -g gulp
+    - echo disabled npm install -g gulp
   override:
     - echo disabled mvn install
 
