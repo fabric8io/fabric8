@@ -1,5 +1,7 @@
 
 ### 2.0.40
+
+* Includes [Chat support](http://fabric8.io/guide/chat.html) via [hubot](https://hubot.github.com/) for notifying chat rooms in IRC, Slack, HipChat or Campfire on build completion or failure etc.
 * Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.40)
 
 ### 2.0.36
