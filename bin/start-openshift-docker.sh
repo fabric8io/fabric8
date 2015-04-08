@@ -11,7 +11,7 @@ fi
 
 OPENSHIFT_VERSION=v0.3.4
 
-FABRIC8_VERSION=2.0.39
+FABRIC8_VERSION=2.0.40
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
 REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
@@ -252,6 +252,8 @@ if [ -f "$APP_BASE/influxdb.json" ]; then
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/cdelivery/${FABRIC8_VERSION}/cdelivery-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/jbpm-designer/${FABRIC8_VERSION}/jbpm-designer-${FABRIC8_VERSION}-kubernetes.json
 
   fi
 else
@@ -265,6 +267,8 @@ else
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/cdelivery/${FABRIC8_VERSION}/cdelivery-${FABRIC8_VERSION}-kubernetes.json
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/jbpm-designer/${FABRIC8_VERSION}/jbpm-designer-${FABRIC8_VERSION}-kubernetes.json
   fi
 
   $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
