@@ -16,7 +16,8 @@ mvn scalate:sitegen && \
 mkdir -p target/sitegen/guide && \
 gitbook install ../docs  && \
 gitbook build ../docs && \
-cp -r ../docs/_book/* target/sitegen/guide && \
+echo "copying generated gitbook"
+cp -rv ../docs/_book/* target/sitegen/guide && \
 cd target/sitegen && \
 git add * guide/* && \
 git commit -m "generated website" && \
