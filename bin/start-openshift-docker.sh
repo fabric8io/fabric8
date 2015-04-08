@@ -329,6 +329,16 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "serviceName": "kiwiirc"
     },
     {
+      "id": "gogs-http-service-route",
+      "metadata": {
+        "name": "gogs-http-service-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "gogs.${FABRIC8_CONSOLE}",
+      "serviceName": "gogs-http-service"
+    },
+    {
       "id": "jbpm-designer-route",
       "metadata": {
         "name": "jbpm-designer-route"
