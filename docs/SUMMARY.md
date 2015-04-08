@@ -27,6 +27,7 @@
     * [Console](console.md)
     * [Logging](logging.md)
     * [Metrics](metrics.md)
+    * [Chat](chat.md)
     * [API Registry](apiRegistry.md)
     * [App Library](appLibrary.md)
     * [MQ](fabric8MQ.md)
