@@ -18,7 +18,7 @@ REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
 INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio-kubernetes:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
-ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.4.4
+ELASTICSEARCH_IMAGE=fabric8/elasticsearch-k8s:1.5.0
 FLUENTD_IMAGE=fabric8/fluentd-kubernetes:latest
 #GRAFANA_IMAGE=jimmidyson/grafana:latest
 APP_LIBRARY_IMAGE=fabric8/app-library:${FABRIC8_VERSION}
@@ -238,42 +238,17 @@ deployFabric8Console() {
 EOF
 }
 
+for app in app-library fabric8-forge; do
+  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
+done
+
 deployFabric8Console
-if [ -f "$APP_BASE/influxdb.json" ]; then
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
 
-  if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE create -f -
-    cat $APP_BASE/elasticsearch.json | $KUBE create -f -
-    cat $APP_BASE/fluentd.yml | $KUBE create -f -
-    cat $APP_BASE/kibana.yml | $KUBE create -f -
-#    cat $APP_BASE/grafana.yml | $KUBE create -f -
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/gogs/${FABRIC8_VERSION}/gogs-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/cdelivery/${FABRIC8_VERSION}/cdelivery-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/jbpm-designer/${FABRIC8_VERSION}/jbpm-designer-${FABRIC8_VERSION}-kubernetes.json
-
-  fi
-else
-  if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create -f -
-#    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE create -f -
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/gogs/${FABRIC8_VERSION}/gogs-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot/${FABRIC8_VERSION}/hubot-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-notifier/${FABRIC8_VERSION}/hubot-notifier-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/kiwiirc/${FABRIC8_VERSION}/kiwiirc-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/cdelivery/${FABRIC8_VERSION}/cdelivery-${FABRIC8_VERSION}-kubernetes.json
-    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/jbpm-designer/${FABRIC8_VERSION}/jbpm-designer-${FABRIC8_VERSION}-kubernetes.json
-  fi
-
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/${FABRIC8_VERSION}/app-library-${FABRIC8_VERSION}-kubernetes.json
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/fabric8-forge/${FABRIC8_VERSION}/fabric8-forge-${FABRIC8_VERSION}-kubernetes.json
-
+if [ ${DEPLOY_ALL} -eq 1 ]; then
+  for app in gogs hubot hubot-notifier kiwiirc cdelivery jbpm-designer influxdb elasticsearch kibana; do
+    $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
+  done
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
 fi
 
 K8S_SERVICES=$($KUBE get services)
@@ -304,18 +279,56 @@ validateService "Fabric8 console" $FABRIC8_CONSOLE
 if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   FABRIC8_CONSOLE=${OPENSHIFT_MASTER_URL}
 
-  echo "Configuring OpenShift route"
+  echo "Configuring OpenShift routes for Fabric8"
 
   cat <<EOF | $KUBE create -f -
 {
-  "id": "fabric8-console-route",
-  "metadata": {
-    "name": "fabric8-console-route"
-  },
-  "apiVersion": "v1beta1",
-  "kind": "Route",
-  "host": "${FABRIC8_CONSOLE}",
-  "serviceName": "fabric8-console-service"
+  "id": "routes-list",
+  "kind": "List",
+  "apiVersion": "v1beta2",
+  "name": "routes-config",
+  "items": [
+    {
+      "id": "fabric8-console-route",
+      "metadata": {
+        "name": "fabric8-console-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "${FABRIC8_CONSOLE}",
+      "serviceName": "fabric8-console-service"
+    },
+    {
+      "id": "fabric8-logs-route",
+      "metadata": {
+        "name": "fabric8-logs-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "logs.${FABRIC8_CONSOLE}",
+      "serviceName": "kibana-service"
+    },
+    {
+      "id": "fabric8-metrics-route",
+      "metadata": {
+        "name": "fabric8-metrics-console-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "metrics.${FABRIC8_CONSOLE}",
+      "serviceName": "grafana-service"
+    },
+    {
+      "id": "fabric8-irc-route",
+      "metadata": {
+        "name": "fabric8-irc-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "irc.${FABRIC8_CONSOLE}",
+      "serviceName": "kiwiirc-service"
+    }
+  ]
 }
 EOF
 fi
