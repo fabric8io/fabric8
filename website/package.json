@@ -4,12 +4,6 @@
   "devDependencies": {
     "gulp": "^3.8.10",
     "gulp-debug": "^2.0.1",
-    "gulp-gh-pages": "^0.5.0",
     "gulp-load-plugins": "^0.8.0"
-  },
-  "dependencies": {
-    "gitbook": "^2.0.1",
-    "gitbook-cli": "^0.3.3",
-    "gulp-git": "^1.1.0"
   }
 }
