@@ -9,7 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-OPENSHIFT_VERSION=v0.3.4
+OPENSHIFT_VERSION=v0.4.2
 
 FABRIC8_VERSION=2.0.40
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
@@ -38,6 +38,7 @@ CLEANUP=0
 DONT_RUN=0
 FABRIC8_VAGRANT_IP=172.28.128.4
 OPENSHIFT_ADMIN_PASSWORD=admin
+OPENSHIFT_MASTER_URL=localhost
 
 while getopts "fud:kpm:P:" opt; do
   case $opt in
@@ -166,18 +167,18 @@ validateService()
 validateService "Kubernetes master" $KUBERNETES
 docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG router --create"
 docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG registry --create"
-docker exec -i openshift sh -c "openshift ex policy add-user cluster-admin htpasswd:admin -n master"
+docker exec -i openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
 
-#cat <<EOF | $KUBE create -f -
-#---
-#  apiVersion: "v1beta2"
-#  kind: "Secret"
-#  id: "openshift-cert-secrets"
-#  data:
-#    root-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/ca/cert.crt)"
-#    admin-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/cert.crt)"
-#    admin-key: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/key.key)"
-#EOF
+cat <<EOF | $KUBE create -f -
+---
+  apiVersion: "v1beta2"
+  kind: "Secret"
+  id: "openshift-cert-secrets"
+  data:
+    root-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/ca/cert.crt)"
+    admin-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/cert.crt)"
+    admin-key: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/key.key)"
+EOF
 
 deployFabric8Console() {
   cat <<EOF | $KUBE create -f -
@@ -212,20 +213,20 @@ deployFabric8Console() {
                   ports:
                     - containerPort: 9090
                       protocol: "TCP"
- #                 volumeMounts:
- #                   - name: openshift-cert-secrets
- #                     mountPath: /etc/secret-volume
- #                     readOnly: true
+                  volumeMounts:
+                    - name: openshift-cert-secrets
+                      mountPath: /etc/secret-volume
+                      readOnly: true
               id: "hawtioPod"
               version: "v1beta1"
- #             volumes:
- #               - name: openshift-cert-secrets
- #                 source:
- #                   secret:
- #                     target:
- #                       kind: Secret
- #                       namespace: default
- #                       name: openshift-cert-secrets
+              volumes:
+                - name: openshift-cert-secrets
+                  source:
+                    secret:
+                      target:
+                        kind: Secret
+                        namespace: default
+                        name: openshift-cert-secrets
           labels:
             component: "fabric8Console"
         replicaSelector:
