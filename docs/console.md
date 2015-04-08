@@ -50,7 +50,7 @@ e.g.
 
 So now in this case you can open the console at [http://172.121.17.3:8080](http://172.121.17.3:8080). The actual IP address may vary based on your installation. (We will use DNS names soon instead.)
 
-Note that if you use the [single command installer](http://fabric8.io/v2/openShiftDocker.html#run-openshift-v3-using-docker) then a browser window with the console should open automatically.
+Note that if you use the [single command installer](http://fabric8.io/guide/openShiftDocker.html#run-openshift-v3-using-docker) then a browser window with the console should open automatically.
 
 ### Using Jube
 

@@ -10,7 +10,7 @@ We are going to run a quickstart in Jube using the [mvn fabric8:run goal](mavenP
 
 If the above fails it could be you have not setup your [environment variables](getStartedJube.html#setting-environment-variables) so that the maven plugin can communicate with kubernetes REST API.
 
-Once you have run the **mvn fabric8:run** command you should see it succeed. If you hit any issues check out the [FAQ](http://fabric8.io/v2/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)
+Once you have run the **mvn fabric8:run** command you should see it succeed. If you hit any issues check out the [FAQ](http://fabric8.io/guide/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)
 
 Now you should be able to see any created kubernetes resources in the tabs: [Pods](http://localhost:8585/hawtio/kubernetes/pods), [Replication Controllers](http://localhost:8585/hawtio/kubernetes/replicationControllers) or [Services](http://localhost:8585/hawtio/kubernetes/services) in the web console. Note that the first thing to be created are the [replication controllers](replicationControllers.html) which then try to start the pods.
 

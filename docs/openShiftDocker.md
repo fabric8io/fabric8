@@ -160,7 +160,7 @@ And of course flags can be combined, to start from scratch & update all images a
 
 #### Set Environment variables
 
-You'll need to set the following environment variables on your host to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
+You'll need to set the following environment variables on your host to be able use the [Tools](http://fabric8.io/guide/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html), the [Forge Addons](http://fabric8.io/guide/forge.html) and the [java libraries](javaLibraries.html):
 
     FABRIC8_CONSOLE - used to interact with the faberic8 console to deploy and run apps
     DOCKER_REGISTRY  - used to push images to the private docker registry

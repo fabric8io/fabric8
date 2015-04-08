@@ -57,7 +57,7 @@ Add the following to your ~/.profile or ~./bashrc
 
     export KUBERNETES_MASTER=https://10.245.2.2:8443
 
-You now should be able to use the various [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html) to work on your local OpenShift.
+You now should be able to use the various [Tools](http://fabric8.io/guide/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html), the [Forge Addons](http://fabric8.io/guide/forge.html) and the [java libraries](javaLibraries.html) to work on your local OpenShift.
 
 
 ### Adding the master and minion hosts to /etc/hosts

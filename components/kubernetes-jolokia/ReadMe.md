@@ -20,7 +20,7 @@ If you clone the source code:
     git clone https://github.com/fabric8io/fabric8.git
     cd fabric8
 
-And if you are running Kubernetes (e.g. [try run fabric8](http://fabric8.io/v2/getStarted.html)) so that $KUBERNETES_MASTER is pointing to the Kubernetes REST API then the following should work:
+And if you are running Kubernetes (e.g. [try run fabric8](http://fabric8.io/guide/getStarted.html)) so that $KUBERNETES_MASTER is pointing to the Kubernetes REST API then the following should work:
 
     cd components/kubernetes-jolokia
     mvn clean test-compile exec:java

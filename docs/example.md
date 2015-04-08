@@ -2,7 +2,7 @@
 
 The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.
 
-Make sure you have followed the [Get Started Guide](http://fabric8.io/v2/getStarted.html) so you should have things running.
+Make sure you have followed the [Get Started Guide](http://fabric8.io/guide/getStarted.html) so you should have things running.
 
 You should be able to check if the docker registry is running OK via this command (which should return 'true'):
 

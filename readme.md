@@ -4,8 +4,8 @@ Welcome to [fabric8](http://fabric8.io/), the open source integration platform f
 
 ### Documentation
 
-* [Overview](http://fabric8.io/v2/overview.html)
-* [Differences in 2.x from 1.x](http://fabric8.io/v2/v2-changes.html)
+* [Overview](http://fabric8.io/guide/overview.html)
+* [Differences in 2.x from 1.x](http://fabric8.io/guide/v2-changes.html)
 
 ### Demos
 

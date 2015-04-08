@@ -19,7 +19,7 @@ If you clone the source code:
     git clone https://github.com/fabric8io/fabric8.git
     cd fabric8
 
-And if you are running Kubernetes (e.g. [try run fabric8](http://fabric8.io/v2/getStarted.html)) so that $KUBERNETES_MASTER is pointing to the Kubernetes REST API then the following should work:
+And if you are running Kubernetes (e.g. [try run fabric8](http://fabric8.io/guide/getStarted.html)) so that $KUBERNETES_MASTER is pointing to the Kubernetes REST API then the following should work:
 
     cd components/kubernetes-api
     mvn clean test-compile exec:java
@@ -38,7 +38,7 @@ For example:
 
 The **KubernetesFactory** defaults to using the **KUBERNETES_MASTER** environment variable.
 
-If your Java code is running inside of a Kubernetes environment the KubernetesFactory will use the environment variables: **KUBERNETES_SERVICE_HOST** and **KUBERNETES_SERVICE_PORT** to communicate with the [kubernetes service](http://fabric8.io/v2/services.html) for the REST API.
+If your Java code is running inside of a Kubernetes environment the KubernetesFactory will use the environment variables: **KUBERNETES_SERVICE_HOST** and **KUBERNETES_SERVICE_PORT** to communicate with the [kubernetes service](http://fabric8.io/guide/services.html) for the REST API.
 
 If you wish to use a specific URL in your Java code just pass it into the factory constructor (though usually you don't need to!).
 

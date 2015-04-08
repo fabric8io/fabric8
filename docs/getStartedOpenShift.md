@@ -20,9 +20,9 @@ Or you could try install OpenShift directly on your laptop. Note that this curre
 
 Now lets run the Fabric8 services and deploy an application:
 
-1. [Deploy an example quickstart project](http://fabric8.io/v2/example.html)
+1. [Deploy an example quickstart project](http://fabric8.io/guide/example.html)
 1. [Check out the Quickstarts](quickstarts.html)
 
 Steps 1 and 2 only need to be done once per machine.
 
-Hopefully that will get you started quickly; if you hit any issues check out the [FAQ](http://fabric8.io/v2/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)
+Hopefully that will get you started quickly; if you hit any issues check out the [FAQ](http://fabric8.io/guide/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)

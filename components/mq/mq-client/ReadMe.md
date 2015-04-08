@@ -1,10 +1,10 @@
 ## MQ Client
 
-This library provides the **io.fabric8.mq.core.MQConnectionFactory** class which is a JMS ConnectionFactory which connects to ActiveMQ using the [Kubernetes Service]http://fabric8.io/v2/(services.html) discovery mechanism described.
+This library provides the **io.fabric8.mq.core.MQConnectionFactory** class which is a JMS ConnectionFactory which connects to ActiveMQ using the [Kubernetes Service]http://fabric8.io/guide/(services.html) discovery mechanism described.
 
 Just create the MQConnectionFactory and it will use the environment variables of the current process to discover the ActiveMQ brokers.
 
-For more information check out the [Fabric8 MQ documentation](http://fabric8.io/v2/fabric8MQ.html)
+For more information check out the [Fabric8 MQ documentation](http://fabric8.io/guide/fabric8MQ.html)
 
 ### Add it to your Maven pom.xml
 

@@ -66,7 +66,7 @@
 
 ### 2.0.9
 
-* Ported the [API console to work on Kubernetes](https://github.com/hawtio/hawtio/issues/1743) so that the APIs tab appears on the [Fabric8 Console](http://fabric8.io/v2/console.html) if you run hawtio inside Kubernetes and are running the [API Registry service](https://github.com/fabric8io/quickstarts/tree/master/apps/api-registry)
+* Ported the [API console to work on Kubernetes](https://github.com/hawtio/hawtio/issues/1743) so that the APIs tab appears on the [Fabric8 Console](http://fabric8.io/guide/console.html) if you run hawtio inside Kubernetes and are running the [API Registry service](https://github.com/fabric8io/quickstarts/tree/master/apps/api-registry)
 * Adds [Service wiring for Kubernetes](https://github.com/hawtio/hawtio/blob/master/docs/Services.md) so that its easy to dynamically link nav bars, buttons and menus to remote services running inside Kubernetes (e.g. to link nicely to Kibana, Grafana etc).
 * Fixes [these 10 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.9+is%3Aclosed)
 
@@ -88,17 +88,17 @@
 
 ### 2.0.2
 
-* Nicer layouts and icons in the [Console](http://fabric8.io/v2/console.html) (and the Wiki tab is now called Library as in an Application Library)
+* Nicer layouts and icons in the [Console](http://fabric8.io/guide/console.html) (and the Wiki tab is now called Library as in an Application Library)
 * Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.2+is%3Aclosed)
 
 ### 2.0.1
 
-* Improve the appearance of [App Zips](http://fabric8.io/v2/appzip.html) when deployed (or dragged and dropped) into the [Console](http://fabric8.io/v2/console.html) Wiki tab
+* Improve the appearance of [App Zips](http://fabric8.io/guide/appzip.html) when deployed (or dragged and dropped) into the [Console](http://fabric8.io/guide/console.html) Wiki tab
 * Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.1+is%3Aclosed)
 
 ### 2.0.0
 
-* First release of the [Kubernetes based Fabric8](http://fabric8.io/v2/overview.html) which reuses the standard [Kubernetes](http://kubernetes.io/) REST APIs for container orchestration and either [Docker container images](http://docker.com) or [Jube image zips](http://fabric8.io/jube/imageZips.html) for container provisioning.
+* First release of the [Kubernetes based Fabric8](http://fabric8.io/guide/overview.html) which reuses the standard [Kubernetes](http://kubernetes.io/) REST APIs for container orchestration and either [Docker container images](http://docker.com) or [Jube image zips](http://fabric8.io/jube/imageZips.html) for container provisioning.
 * Fixes [these 8 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.0)
 
 ### 1.2.0.Beta5
