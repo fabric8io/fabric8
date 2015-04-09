@@ -9,7 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-OPENSHIFT_VERSION=v0.4.2
+OPENSHIFT_VERSION=v0.4.3
 
 FABRIC8_VERSION=2.0.40.1
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
@@ -147,14 +147,14 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   PUBLIC_MASTER_ARG="--public-master=${OPENSHIFT_MASTER_URL}"
 fi
 
-if [ -n "${OPENSHIFT_ADMIN_PASSWORD}" ]; then
-  echo "Configuring OpenShift authentication"
-  docker run -v /openshift gliderlabs/alpine:3.1 sh -c "apk-install apache2-utils && htpasswd -bc /openshift/htpasswd admin ${OPENSHIFT_ADMIN_PASSWORD}" &> /dev/null
-  OPENSHIFT_VOLUME_MOUNT="--volumes-from=$(docker ps -ql)"
-  OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
-fi
+#if [ -n "${OPENSHIFT_ADMIN_PASSWORD}" ]; then
+#  echo "Configuring OpenShift authentication"
+#  docker run -v /openshift gliderlabs/alpine:3.1 sh -c "apk-install apache2-utils && htpasswd -bc /openshift/htpasswd admin ${OPENSHIFT_ADMIN_PASSWORD}" &> /dev/null
+#  OPENSHIFT_VOLUME_MOUNT="--volumes-from=$(docker ps -ql)"
+#  OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
+#fi
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_OAUTH_ARGS} ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
 
 validateService()
 {
