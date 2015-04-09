@@ -165,8 +165,8 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
-docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG router --create"
-docker exec -i openshift sh -c "openshift ex --credentials=\$KUBECONFIG registry --create"
+docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-router/.kubeconfig router --create"
+docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-registry/.kubeconfig registry --create"
 docker exec -i openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
 docker exec -i openshift sh -c "openshift admin policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
 
