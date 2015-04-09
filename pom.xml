@@ -140,7 +140,7 @@
         <cxf.version>3.0.4</cxf.version>
         <cxf.version-range>[3.0,4)</cxf.version-range>
         <deltaspike.version>1.0.3</deltaspike.version>
-        <dnsjava.version>2.1.1</dnsjava.version>
+        <dnsjava.version>2.1.7</dnsjava.version>
         <docker.maven.plugin.version>0.11.2</docker.maven.plugin.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
@@ -2925,6 +2925,11 @@
               <groupId>net.oauth.core</groupId>
               <artifactId>oauth</artifactId>
               <version>20100527</version>
+            </dependency>
+            <dependency>
+              <groupId>dnsjava</groupId>
+              <artifactId>dnsjava</artifactId>
+              <version>${dnsjava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

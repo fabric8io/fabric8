@@ -72,6 +72,10 @@
       <groupId>net.oauth.core</groupId>
       <artifactId>oauth</artifactId>
     </dependency>
+    <dependency>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+    </dependency>
     
       <!-- testing -->
     <dependency>

@@ -1,17 +1,17 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Copyright 2005-2014 Red Hat, Inc.
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.kubernetes.api;
 
@@ -22,9 +22,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.fabric8.kubernetes.api.builds.Builds;
-import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
@@ -33,11 +32,16 @@ import io.fabric8.utils.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xbill.DNS.ARecord;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.TextParseException;
 
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1129,6 +1133,35 @@ public class KubernetesHelper {
         Map<String, String> selector = getSelector(service);
         Filter<Pod> podFilter = KubernetesHelper.createPodFilter(selector);
         return Filters.filter(pods, podFilter);
+    }
+
+    /**
+     * Looks up the service in DNS.
+     * If this is a headless service, this call returns the endpoint IPs from DNS.
+     * If this is a non-headless service, this call returns the service IP only.
+     * <p/>
+     * See https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#headless-services
+     */
+    public static Set<String> lookupServiceInDns(String serviceName) throws IllegalArgumentException, UnknownHostException {
+        try {
+            Lookup l = new Lookup(serviceName);
+            Record[] records = l.run();
+            if (l.getResult() == Lookup.SUCCESSFUL) {
+                Set<String> endpointAddresses = new HashSet<>(records.length);
+                for (int i = 0; i < records.length; i++) {
+                    ARecord aRecord = (ARecord) records[i];
+                    endpointAddresses.add(aRecord.getAddress().getHostAddress());
+                }
+                return endpointAddresses;
+            } else {
+                LOG.warn("Lookup {} result: {}", serviceName, l.getErrorString());
+            }
+        } catch (TextParseException e) {
+            LOG.error("Unparseable service name: {}", serviceName, e);
+        } catch (ClassCastException e) {
+            LOG.error("Invalid response from DNS server - should have been A records", e);
+        }
+        return Collections.EMPTY_SET;
     }
 
     public static boolean isServiceSsl(String host, int port, boolean trustAllCerts) {
