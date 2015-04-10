@@ -356,7 +356,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @GET
     @Path("endpoints")
     public EndpointsList getEndpoints(String namespace) {
-        return getEndpoints(namespace);
+        return getKubernetes().getEndpoints(namespace);
     }
 
     @Override
