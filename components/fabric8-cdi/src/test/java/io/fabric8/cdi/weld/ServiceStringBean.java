@@ -18,11 +18,13 @@ package io.fabric8.cdi.weld;
 
 
 import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class ServiceStringBean {
@@ -30,6 +32,11 @@ public class ServiceStringBean {
     @Inject
     @ServiceName("kubernetes")
     String kubernetesUrl;
+
+    @Inject
+    @Endpoint
+    @ServiceName("kubernetes")
+    List<String> kubernetesEndpointsUrl;
 
     @Inject
     @ServiceName("fabric8-console-service")

@@ -18,6 +18,7 @@ package io.fabric8.cdi;
 
 import io.fabric8.annotations.Alias;
 import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.Factory;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
@@ -26,6 +27,7 @@ import io.fabric8.cdi.bean.KubernetesClientBean;
 import io.fabric8.cdi.bean.KubernetesFactoryBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
+import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
 import io.fabric8.cdi.qualifiers.ProtocolQualifier;
 
@@ -39,6 +41,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import javax.enterprise.inject.spi.ProcessManagedBean;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +50,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Fabric8Extension implements Extension {
-    
+
     private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event) {
@@ -57,26 +60,31 @@ public class Fabric8Extension implements Extension {
         //We need to process factories in reverse order so that we make feasible forwarding for service id etc.
         List<FactoryMethodContext> reverseFactories = new ArrayList<>(FactoryMethodContext.sort(factories));
         Collections.reverse(reverseFactories);
-        
+
         for (final FactoryMethodContext factoryMethodContext : reverseFactories) {
             ServiceBean.doWith(factoryMethodContext.getReturnType(), new ServiceBean.Callback() {
                 @Override
                 public ServiceBean apply(ServiceBean bean) {
                     String serviceId = bean.getServiceId();
                     String serviceProtocol = bean.getServiceProtocol();
-                    
+
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
                         ServiceBean.getBean(serviceId, serviceProtocol, null, (Class<Object>) factoryMethodContext.getSourceType());
                     }
                     return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol));
                 }
-            }); 
+            });
         }
-        
+
         for (ServiceUrlBean bean : ServiceUrlBean.getBeans()) {
             event.addBean(bean);
         }
+
+        for (ServiceUrlCollectionBean bean : ServiceUrlCollectionBean.getBeans()) {
+            event.addBean(bean);
+        }
+        
         for (ServiceBean bean : ServiceBean.getBeans()) {
             if (bean.getProducer() != null) {
                 event.addBean(bean);
@@ -95,28 +103,30 @@ public class Fabric8Extension implements Extension {
             Alias alias = annotated.getAnnotation(Alias.class);
             ServiceName serviceName = annotated.getAnnotation(ServiceName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
-            
+            Boolean serviceEndpoint = annotated.getAnnotation(Endpoint.class) != null;
+
             String serviceId = serviceName.value();
             String serviceProtocol = protocol != null ? protocol.value() : "tcp";
-            String serviceAlias = alias != null ?  alias.value() : null;
-            
+            String serviceAlias = alias != null ? alias.value() : null;
+
             Type type = annotated.getBaseType();
+
             if (type.equals(String.class)) {
                 ServiceUrlBean.getBean(serviceId, serviceProtocol, serviceAlias);
+            } else if (serviceEndpoint && isGenericOf(type, List.class, String.class)) {
+                ServiceUrlCollectionBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
+            } else if (serviceEndpoint && isGenericOf(type, List.class, null)) {
+                //TODO: Integrate with Factories(?)
+            } else if (serviceEndpoint && isGenericOf(type, Set.class, String.class)) {
+                ServiceUrlCollectionBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceEndpoint, Types.SET_OF_STRINGS);
+            } else if (serviceEndpoint && isGenericOf(type, Set.class, null)) {
+                //TODO: Integrate with Factories(?)
             } else {
                 ServiceBean.getBean(serviceId, serviceProtocol, serviceAlias, (Class) type);
             }
 
             if (protocol == null) {
-                //if protocol is not specified decorate injection point with "default" protocol.
-                event.setInjectionPoint(new DelegatingInjectionPoint(injectionPoint) {
-                    @Override
-                    public Set<Annotation> getQualifiers() {
-                        Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
-                        qualifiers.add(new ProtocolQualifier("tcp"));
-                        return Collections.unmodifiableSet(qualifiers);
-                    }
-                });
+                setDefaultProtocol(event);
             }
         } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
@@ -162,6 +172,34 @@ public class Fabric8Extension implements Extension {
         }
         return false;
     }
+    
+    
+    private <T, X> void setDefaultProtocol(ProcessInjectionPoint<T, X> event) {
+        //if protocol is not specified decorate injection point with "default" protocol.
+        event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
+            @Override
+            public Set<Annotation> getQualifiers() {
+                Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
+                qualifiers.add(new ProtocolQualifier("tcp"));
+                return Collections.unmodifiableSet(qualifiers);
+            }
+        });
+    }
+
+    private static boolean isGenericOf(Type type, Type raw, Type argument) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType p = (ParameterizedType) type;
+            return p.getRawType() != null
+                    && p.getRawType().equals(raw)
+                    && p.getActualTypeArguments().length == 1
+                    && (p.getActualTypeArguments()[0].equals(argument) || argument == null);
+        } else if (type instanceof Class) {
+            return argument == null && type.equals(raw);
+        } else {
+            return false;
+        }
+    }
+    
 
     /**
      * Checks if the InjectionPoint is annotated with the @Service qualifier.

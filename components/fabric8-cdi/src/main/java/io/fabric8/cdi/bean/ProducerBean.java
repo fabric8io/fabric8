@@ -20,12 +20,13 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Producer;
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 
 public class ProducerBean<X> extends BaseBean<X> {
 
     private final Producer<X> producer;
 
-    public ProducerBean(String name, Class<X> type, Producer<X> producer, Annotation... annotations) {
+    public ProducerBean(String name, Type type, Producer<X> producer, Annotation... annotations) {
         super(name, type, annotations);
         this.producer = producer;
     }

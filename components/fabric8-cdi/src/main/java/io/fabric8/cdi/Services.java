@@ -22,6 +22,9 @@ import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static io.fabric8.cdi.KubernetesHolder.KUBERNETES;
 
 public class Services {
@@ -63,6 +66,22 @@ public class Services {
             }
         }
         return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
+    }
+
+    public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
+        List<String> endpoints = new ArrayList<>();
+        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, (String) null);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
+        
+        for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.getEndpoints().getItems()) {
+            if (item.getId().equals(serviceId) && (namespace == null || namespace.equals(item.getNamespace()))) {
+                for (String endpoint : item.getEndpoints()) {
+                    endpoints.add(serviceProto + "://" + endpoint);
+                }
+                break;
+            }
+        }
+        return endpoints;
     }
 
     public static String serviceToHost(String id) {

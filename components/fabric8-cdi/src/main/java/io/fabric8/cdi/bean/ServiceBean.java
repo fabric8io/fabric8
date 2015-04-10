@@ -74,7 +74,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
     }
     
     private ServiceBean(String serviceId, String serviceProtocol, String serviceAlias, Class type, Producer<X> producer) {
-        super(serviceAlias, type, producer, Qualifiers.create(serviceId, serviceProtocol));
+        super(serviceAlias, type, producer, Qualifiers.create(serviceId, serviceProtocol, false));
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
         this.serviceAlias = serviceAlias;

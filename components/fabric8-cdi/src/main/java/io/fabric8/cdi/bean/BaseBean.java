@@ -16,6 +16,8 @@
 
 package io.fabric8.cdi.bean;
 
+import io.fabric8.cdi.Types;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
@@ -42,7 +44,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
             }
     };
 
-    private Class<T> beanType;
+    private Type beanType;
     private final String name;
     private final Set<Type> types;
     private final Set<Annotation> qualifiers;
@@ -54,7 +56,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
             allTypes.add(t);
         }
 
@@ -69,7 +71,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
             allTypes.add(t);
         }
 
@@ -77,13 +79,13 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_QUALIFIERS)));
     }
 
-    public BaseBean(String name, Class beanType, Annotation ... annotations) {
+    public BaseBean(String name, Type beanType, Annotation ... annotations) {
         this.name = name;
         this.beanType = beanType;
         List<Type> allTypes = new ArrayList<>();
         allTypes.add(beanType);
 
-        for (Class t =  beanType.getSuperclass(); !allTypes.contains(Object.class) && t != null; t =  t.getSuperclass()) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
             allTypes.add(t);
         }
 
@@ -98,7 +100,7 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public Class<?> getBeanClass() {
-        return (Class<T>) beanType;
+        return Types.asClass(beanType);
     }
 
     @Override

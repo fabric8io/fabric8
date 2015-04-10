@@ -16,31 +16,11 @@
 
 package io.fabric8.cdi.qualifiers;
 
-import io.fabric8.utils.Strings;
+import io.fabric8.annotations.Endpoint;
+import io.fabric8.annotations.ServiceName;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
+import javax.enterprise.util.AnnotationLiteral;
 
-public final class Qualifiers {
+public class EndpointQualifier extends AnnotationLiteral<Endpoint> implements Endpoint {
 
-    private Qualifiers() {
-        //Utility
-    }
-
-    public static Annotation[] create(String serviceId, String protocol, Boolean endpoint) {
-        if (serviceId == null) {
-            throw new IllegalArgumentException("Service Id cannot be null.");
-        }
-        List<Annotation> qualifiers = new ArrayList<>();
-        
-        qualifiers.add(new ServiceNameQualifier(serviceId));
-        if (!Strings.isNullOrBlank(protocol)) {
-            qualifiers.add(new ProtocolQualifier(protocol));
-        }
-        if (endpoint) {
-            qualifiers.add(new EndpointQualifier());
-        }
-        return qualifiers.toArray(new Annotation[qualifiers.size()]);
-    }
 }
