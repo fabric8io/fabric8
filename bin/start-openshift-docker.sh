@@ -11,7 +11,7 @@ fi
 
 OPENSHIFT_VERSION=v0.4.3
 
-FABRIC8_VERSION=2.0.40.1
+FABRIC8_VERSION=2.0.41
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
 REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
@@ -165,6 +165,7 @@ validateService()
 }
 
 validateService "Kubernetes master" $KUBERNETES
+sleep 5
 docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-router/.kubeconfig router --create"
 docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-registry/.kubeconfig registry --create"
 docker exec -i openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
@@ -261,7 +262,7 @@ echo
 
 getServiceIpAndPort()
 {
-  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
+  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
 }
 
 getServiceIp()
@@ -272,7 +273,7 @@ getServiceIp()
 FABRIC8_CONSOLE=$(getServiceIp "$K8S_SERVICES" fabric8-console)/
 DOCKER_REGISTRY=$(getServiceIpAndPort "$K8S_SERVICES" docker-registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
-ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
+ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" 'elasticsearch ')
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 #GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 
