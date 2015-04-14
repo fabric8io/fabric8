@@ -17,11 +17,13 @@
 package io.fabric8.cdi;
 
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +36,11 @@ public class Services {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     public static final String DEFAULT_PROTO = "tcp";
+    public static final String DEFAULT_NAMESPACE = "default";
 
     public static String toServiceUrl(String serviceId, String serviceProtocol) {
         io.fabric8.kubernetes.api.model.Service srv = null;
-        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, (String) null);
+        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
         String serviceHost = serviceToHost(serviceId);
         String servicePort = serviceToPort(serviceId);
         String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceId, servicePort);
@@ -49,7 +52,7 @@ public class Services {
         } else if (Strings.isNotBlank(namespace)) {
             srv = KUBERNETES.getService(serviceId, namespace);
         } else {
-            for (io.fabric8.kubernetes.api.model.Service s : KUBERNETES.getServices().getItems()) {
+            for (io.fabric8.kubernetes.api.model.Service s : KUBERNETES.getServices(namespace).getItems()) {
                 if (s.getId().equals(serviceId)) {
                     srv = s;
                     break;
@@ -70,10 +73,22 @@ public class Services {
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
         List<String> endpoints = new ArrayList<>();
-        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, (String) null);
+        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
         String serviceProto = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
+
+        try {
+            for (String endpoint : KubernetesHelper.lookupServiceInDns(serviceId)) {
+                endpoints.add(serviceProto + "://" + endpoint);
+            }
+        } catch (UnknownHostException e) {
+            //ignore and fallback to the api.
+        }
         
-        for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.getEndpoints().getItems()) {
+        if (!endpoints.isEmpty()) {
+            return endpoints;
+        }
+        
+        for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.getEndpoints(namespace).getItems()) {
             if (item.getId().equals(serviceId) && (namespace == null || namespace.equals(item.getNamespace()))) {
                 for (String endpoint : item.getEndpoints()) {
                     endpoints.add(serviceProto + "://" + endpoint);
