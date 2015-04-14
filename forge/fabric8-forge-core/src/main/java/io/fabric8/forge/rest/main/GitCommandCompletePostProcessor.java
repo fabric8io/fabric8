@@ -378,16 +378,19 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
         // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
-        //String kubeAddress = getServiceAddress("kubernetes", namespace);
-        String kubeAddress = getServiceAddress("fabric8-console-service", namespace);
         String webhookUrl;
-        if (kubeAddress != null) {
+        String kubeAddress;
+        try {
+            kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http");
             webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
-        } else {
+        } catch (Exception e) {
+            LOG.warn("failed to find fabric8 console service URL: " + e, e);
             kubeAddress = kubernetes.getAddress();
             webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
         }
-
+        if (!Strings.isNullOrEmpty(namespace)) {
+            webhookUrl += "?namespace=" + namespace;
+        }
 
         LOG.info("creating a web hook at: " + webhookUrl);
         try {

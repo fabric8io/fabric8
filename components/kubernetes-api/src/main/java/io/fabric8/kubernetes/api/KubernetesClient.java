@@ -16,7 +16,17 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Minion;
+import io.fabric8.kubernetes.api.model.MinionList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
@@ -38,12 +48,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToHost;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToProtocol;
 
 /**
  * A simple client interface abstracting away the details of working with
@@ -680,6 +715,44 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
     }
 
+    /**
+     * Returns the URL to access the service; using the environment variables, routes
+     * or service portalIP address
+     *
+     * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
+     */
+    public String getServiceURL(String serviceName, String namespace, String serviceProtocol) {
+        Service srv = null;
+        String serviceHost = serviceToHost(serviceName);
+        String servicePort = serviceToPort(serviceName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+
+        //1. Inside Kubernetes: Services as ENV vars
+        if (Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
+            return serviceProtocol + "://" + serviceHost + ":" + servicePort;
+            //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
+        } else if (Strings.isNotBlank(namespace)) {
+            srv = getService(serviceName, namespace);
+        } else {
+            for (Service s : getServices().getItems()) {
+                if (s.getId().equals(serviceName)) {
+                    srv = s;
+                    break;
+                }
+            }
+        }
+        if (srv == null) {
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + namespace);
+        }
+        RouteList routeList = getRoutes(namespace);
+        for (Route route : routeList.getItems()) {
+            if (route.getServiceName().equals(serviceName)) {
+                return (serviceProto + "://" + route.getHost()).toLowerCase();
+            }
+        }
+        return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
+    }
+
 
     // Extension helper methods
     //-------------------------------------------------------------------------
@@ -816,28 +889,75 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     protected String doTriggerBuild(String name, String namespace, String type, String secret) {
-        WebClient webClient = getFactory(true).createWebClient();
-        String url = URLUtils.pathJoin("/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
-        LOG.debug("Triggering build by posting to: " + url);
-
-        webClient.getHeaders().remove(HttpHeaders.ACCEPT);
-        webClient = webClient.path(url).
-                header(HttpHeaders.CONTENT_TYPE, "application/json");
-
-        Response response = webClient.
-                post(null);
-        int status = response.getStatus();
-        if (status != 200) {
-            Object entity = response.getEntity();
-            if (entity != null) {
-                String message = ExceptionResponseMapper.extractErrorMessage(entity);
-                throw new WebApplicationException(status + ": " + message, status);
-            } else {
-                throw new WebApplicationException(status);
-            }
+        String baseUrl;
+        String url;
+        WebClient webClient;
+        boolean useVanillaUrl = true;
+        boolean useFabric8Console = true;
+        if (useFabric8Console) {
+            // lets proxy through the fabric8 console REST API to work around bugs in OpenShift...
+            baseUrl = getServiceURL("fabric8-console-service", namespace, "http");
+            url = URLUtils.pathJoin("/kubernetes/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+            webClient = new KubernetesFactory(baseUrl, true).createWebClient();
+        } else {
+            // using the direct REST API...
+            KubernetesFactory factory = getFactory(true);
+            baseUrl = factory.getAddress();
+            webClient = factory.createWebClient();
+            url = URLUtils.pathJoin("/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
         }
-        return null;
+        if (Strings.isNotBlank(namespace)) {
+            url += "?namespace=" + namespace;
+        }
+        if (useVanillaUrl) {
+            String triggerBuildUrlText = URLUtils.pathJoin(baseUrl, url);
+            LOG.info("Using a URL to trigger: " + triggerBuildUrlText);
+            try {
+                URL triggerBuildURL = new URL(triggerBuildUrlText);
+                HttpURLConnection connection = (HttpURLConnection) triggerBuildURL.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setDoOutput(true);
 
+                OutputStreamWriter out = new OutputStreamWriter(
+                        connection.getOutputStream());
+                out.close();
+
+                int status = connection.getResponseCode();
+                String message = connection.getResponseMessage();
+                System.out.println("Got response code: " + status + " message: " + message);
+                if (status != 200) {
+                    throw new WebApplicationException(status + ": " + message, status);
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                throw new WebApplicationException(e, 400);
+            }
+
+        } else {
+
+            LOG.info("Triggering build by posting to: " + url);
+
+            webClient.getHeaders().remove(HttpHeaders.ACCEPT);
+            webClient = webClient.path(url).
+                    header(HttpHeaders.CONTENT_TYPE, "application/json");
+
+            Response response = webClient.
+                    post(new HashMap());
+            int status = response.getStatus();
+            if (status != 200) {
+                Object entity = response.getEntity();
+                if (entity != null) {
+                    String message = ExceptionResponseMapper.extractErrorMessage(entity);
+                    throw new WebApplicationException(status + ": " + message, status);
+                } else {
+                    throw new WebApplicationException(status);
+                }
+            }
+            return null;
+        }
         //return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, new byte[0]);
     }
 
