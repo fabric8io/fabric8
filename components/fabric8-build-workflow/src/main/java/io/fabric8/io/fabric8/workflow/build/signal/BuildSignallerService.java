@@ -42,6 +42,7 @@ import java.util.Timer;
  */
 public class BuildSignallerService {
     private final KieSession ksession;
+    private final String namespace;
     private KubernetesClient client = new KubernetesClient();
     private Timer timer = new Timer();
     private BuildProcessCorrelator buildProcessCorrelator = BuildProcessCorrelators.getSingleton();
@@ -51,13 +52,16 @@ public class BuildSignallerService {
 
 
     public BuildSignallerService(KieSession ksession) {
+        this(ksession, null);
+    }
+
+    public BuildSignallerService(KieSession ksession, String namespace) {
         this.ksession = ksession;
+        this.namespace = namespace;
     }
 
     public void start() {
         String consoleLink = getConsoleLink();
-        String namespace = null;
-
         BuildSignaller buildListener = new BuildSignaller(ksession, buildProcessCorrelator);
 
         long pollTime = 3000;
