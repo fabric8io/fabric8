@@ -378,17 +378,35 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
         // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
-        String webhookUrl;
-        String kubeAddress;
-        try {
-            kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http");
-            webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
-        } catch (Exception e) {
-            LOG.warn("failed to find fabric8 console service URL: " + e, e);
+        String webhookUrl = null;
+        String kubeAddress = null;
+        boolean appendNamespaceQuery = true;
+
+        // lets try the cdelivery first
+        if (kubeAddress == null) {
+            try {
+                kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http");
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
+                appendNamespaceQuery = false;
+            } catch (Exception e) {
+                LOG.warn("failed to find cdelivery service URL: " + e, e);
+            }
+        }
+        if (kubeAddress == null) {
+            try {
+                kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http");
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
+            } catch (Exception e) {
+                LOG.warn("failed to find fabric8 console service URL: " + e, e);
+            }
+        }
+        if (kubeAddress == null) {
             kubeAddress = kubernetes.getAddress();
+        }
+        if (webhookUrl == null) {
             webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
         }
-        if (!Strings.isNullOrEmpty(namespace)) {
+        if (appendNamespaceQuery && !Strings.isNullOrEmpty(namespace)) {
             webhookUrl += "?namespace=" + namespace;
         }
 
