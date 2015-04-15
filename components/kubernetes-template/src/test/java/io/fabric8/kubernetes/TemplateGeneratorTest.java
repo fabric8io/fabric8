@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
 import io.fabric8.utils.Asserts;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPortString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
@@ -109,7 +111,8 @@ public class TemplateGeneratorTest {
     public void testGenerateControllerAndServicesJson() throws Exception {
         String serviceName = "my-service";
         Integer servicePort = 80;
-        Integer serviceContainerPort = 8080;
+        IntOrString serviceContainerPort = new IntOrString();
+        serviceContainerPort.setIntVal(8080);
         CreateAppDTO dto = createAppDto(4);
         dto.setServiceName(serviceName);
         dto.setServicePort(servicePort);
@@ -127,7 +130,37 @@ public class TemplateGeneratorTest {
         assertEquals("servicePort", servicePort, getPort(service));
         int containerPort = getContainerPort(service);
         assertTrue("containerPort " + containerPort, containerPort > 0);
-        assertEquals("serviceContainerPort", serviceContainerPort.intValue(), containerPort);
+        assertEquals("serviceContainerPort", serviceContainerPort.getIntVal().intValue(), containerPort);
+        assertEquals("selector", dto.getLabels(), getSelector(service));
+
+        Object entity = entities.get(1);
+        assertGeneratedReplicationController(entity, dto);
+    }
+
+    @Test
+    public void testGenerateControllerAndServicesWithStringPortJson() throws Exception {
+        String serviceName = "my-service";
+        Integer servicePort = 80;
+        IntOrString serviceContainerPort = new IntOrString();
+        serviceContainerPort.setStrVal("http");
+        CreateAppDTO dto = createAppDto(4);
+        dto.setServiceName(serviceName);
+        dto.setServicePort(servicePort);
+        dto.setServiceContainerPort(serviceContainerPort);
+
+        File jsonFile = generateJsonFile("controllerAnd", dto);
+
+        List<Object> entities = generateTemplateAndLoadEntities(jsonFile);
+        assertEquals("Entities size", 2, entities.size());
+
+        Object serviceEntity = entities.get(0);
+        assertThat(serviceEntity).isInstanceOf(Service.class);
+        Service service = (Service) serviceEntity;
+        assertEquals("serviceName", serviceName, getId(service));
+        assertEquals("servicePort", servicePort, getPort(service));
+        String containerPort = getContainerPortString(service);
+        assertNotNull("containerPort " + containerPort, containerPort);
+        assertEquals("serviceContainerPort", serviceContainerPort.getStrVal(), containerPort);
         assertEquals("selector", dto.getLabels(), getSelector(service));
 
         Object entity = entities.get(1);

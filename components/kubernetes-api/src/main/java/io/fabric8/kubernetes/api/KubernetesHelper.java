@@ -900,6 +900,34 @@ public class KubernetesHelper {
     }
 
     /**
+     * Returns the container port number for the given service
+     */
+    public static String getContainerPortString(Service service) {
+        String answer = null;
+        String id = getId(service);
+        //ServiceSpec spec = service.getSpec();
+        Service spec = service;
+        if (spec != null) {
+            IntOrString containerPort = spec.getContainerPort();
+            Objects.notNull(containerPort, "containerPort for service " + id);
+            String strValue = containerPort.getStrVal();
+            if (strValue != null) {
+                answer = strValue;
+            } else {
+                Integer containerPortInt = containerPort.getIntVal();
+                if (containerPortInt == null) {
+                    throw new IllegalArgumentException("No containerPort for service " + id);
+                }
+                answer = containerPortInt.toString();
+            }
+        }
+        if (answer == null) {
+            throw new IllegalArgumentException("Invalid port number for service " + id + ". " + answer);
+        }
+        return answer;
+    }
+
+    /**
      * Combines the JSON objects into a config object
      */
     public static JsonNode combineJson(Object... objects) throws IOException {

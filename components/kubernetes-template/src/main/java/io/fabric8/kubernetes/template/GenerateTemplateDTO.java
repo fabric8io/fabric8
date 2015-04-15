@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.template;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.model.Port;
 
@@ -41,7 +42,7 @@ public class GenerateTemplateDTO {
     private String serviceName;
     private String replicationControllerName;
     private Integer servicePort;
-    private Integer serviceContainerPort;
+    private IntOrString serviceContainerPort;
 
     public String getDockerImage() {
         return dockerImage;
@@ -161,11 +162,11 @@ public class GenerateTemplateDTO {
         this.servicePort = servicePort;
     }
 
-    public Integer getServiceContainerPort() {
+    public IntOrString getServiceContainerPort() {
         return serviceContainerPort;
     }
 
-    public void setServiceContainerPort(Integer serviceContainerPort) {
+    public void setServiceContainerPort(IntOrString serviceContainerPort) {
         this.serviceContainerPort = serviceContainerPort;
     }
 

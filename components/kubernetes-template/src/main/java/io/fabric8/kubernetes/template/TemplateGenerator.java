@@ -15,7 +15,6 @@
  */
 package io.fabric8.kubernetes.template;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -104,8 +103,10 @@ public class TemplateGenerator {
             }
             variables.put("serviceName", serviceName);
             variables.put("servicePort", config.getServicePort());
-            variables.put("serviceContainerPort", config.getServiceContainerPort());
-
+            if (config.getServiceContainerPort() != null) {
+                variables.put("serviceContainerPortString", config.getServiceContainerPort().getStrVal());
+                variables.put("serviceContainerPortInt", config.getServiceContainerPort().getIntVal());
+            }
 
             try {
                 CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);

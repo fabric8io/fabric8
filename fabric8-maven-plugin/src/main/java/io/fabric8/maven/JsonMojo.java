@@ -16,6 +16,7 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.utils.Files;
@@ -161,7 +162,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * The service container port
      */
     @Parameter(property = "fabric8.service.containerPort")
-    private Integer serviceContainerPort;
+    private String serviceContainerPort;
 
     /**
      * The docker image pull policy. If a SNAPSHOT dependency is used then this value defaults to <code>"PullAlways"</code>
@@ -263,8 +264,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
             // services
             config.setServiceName(KubernetesHelper.validateKubernetesId(serviceName, "fabric8.service.name"));
             config.setServicePort(servicePort);
-            config.setServiceContainerPort(serviceContainerPort);
 
+            IntOrString actualServiceContainerPort = new IntOrString();
+            try {
+                actualServiceContainerPort.setIntVal(Integer.valueOf(serviceContainerPort));
+            } catch (NumberFormatException e) {
+                actualServiceContainerPort.setStrVal(serviceContainerPort);
+            }
+            config.setServiceContainerPort(actualServiceContainerPort);
 
             List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
                     getTestClassLoader(),

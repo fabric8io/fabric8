@@ -5,12 +5,13 @@
   "name": "@{name}-config",
   "description": "Configuration for @{name}",
   "items": [
-@if{serviceName != null && servicePort != null && serviceContainerPort != null}
+@if{serviceName != null && servicePort != null && !(serviceContainerPortInt == null && serviceContainerPortString == null)}
     {
       "id": "@{serviceName}",
       "apiVersion": "v1beta1",
       "kind": "Service",
-      "containerPort": @{serviceContainerPort},
+      @if{serviceContainerPortInt != null}"containerPort": @{serviceContainerPortInt},@end{}
+      @if{serviceContainerPortString != null}"containerPort": "@{serviceContainerPortString}",@end{}
       "port": @{servicePort},
       "selector": {@foreach{label : labels.entrySet()}
         "@{label.key}": "@{label.value}"@end{", "}
@@ -35,15 +36,16 @@
                   "name": "@{containerName}",
                   "image": "@{docker_image}",
 @if{imagePullPolicy != null}                  "imagePullPolicy": "@{imagePullPolicy}",@end{}
-                  "env": [@foreach{env : environmentVariables}
+                  @if{environmentVariables != null && !environmentVariables.isEmpty()}"env": [@foreach{env : environmentVariables}
                     {
     @if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}
     @if{env.value != null}                  "value": "@{env.value}"@end{}
                     }@end{", "}
-                  ],
+                  ]@end{},
                   "ports": [@foreach{port : ports}
                     {
-    @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}
+    @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.name != null || port.hostPort != null},@end{}@end{}@if{port.name != null}
+                      "name": "@{port.name}"@if{port.hostPort != null},@end{}@end{}
     @if{port.hostPort != null}                  "hostPort": @{port.hostPort}@end{}
                     }@end{", "}
                   ]
