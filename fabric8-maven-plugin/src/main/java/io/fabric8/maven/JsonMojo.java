@@ -360,6 +360,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 if (portNumber != null) {
                     Port port = getOrCreatePort(portMap, name);
                     port.setContainerPort(portNumber);
+                    port.setName(name);
                 }
             }
             for (Map.Entry<String, String> entry : hostPorts.entrySet()) {
