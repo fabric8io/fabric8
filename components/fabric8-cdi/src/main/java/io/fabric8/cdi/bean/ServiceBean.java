@@ -33,19 +33,21 @@ public class ServiceBean<X> extends ProducerBean<X> {
     private final String serviceId;
     private final String serviceProtocol;
     private final String serviceAlias;
+    private final Boolean serviceExternal;
     
-    public static <S> ServiceBean<S> getBean(String id, String protocol, String alias, Class<S> type) {
-        String serviceAlias = alias != null ? alias : id + "-" + type.getName() +"-"+ protocol + SUFFIX;
-        Key key = new Key(id, protocol, serviceAlias, type, null);
+    public static <S> ServiceBean<S> getBean(String id, String protocol, String alias, Boolean external, Class<S> type) {
+        String serviceAlias = alias != null ? alias :
+                (external ? "external-" : "") + id + "-" + type.getName() + "-" + protocol + SUFFIX;
+        Key key = new Key(id, protocol, serviceAlias, external, type, null);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceBean bean = new ServiceBean(id, protocol, serviceAlias, type, null);
+        ServiceBean bean = new ServiceBean(id, protocol, serviceAlias, type, null, external);
         BEANS.put(key, bean);
         return bean;
     }
 
-    public static <S> ServiceBean<S> anyBean(String id, String protocol, Class<S> type) {
+    public static <S> ServiceBean<S> anyBean(String id, String protocol, Boolean external, Class<S> type) {
         for (Map.Entry<Key, ServiceBean> entry : BEANS.entrySet()) {
             Key key = entry.getKey();
             if (key.serviceId.equals(id) 
@@ -54,7 +56,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
                 return entry.getValue();
             }
         }
-        return getBean(id, protocol, null, type);
+        return getBean(id, protocol, null, external, type);
     }
     
     
@@ -67,21 +69,22 @@ public class ServiceBean<X> extends ProducerBean<X> {
             Key key = entry.getKey();
             if (type.equals(key.type)) {
                 ServiceBean newBean = callback.apply(BEANS.remove(key));
-                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getServiceAlias(), newBean.getBeanClass(), newBean.getProducer());
+                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getServiceAlias(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
                 BEANS.put(newKey, newBean);
             }
         }
     }
     
-    private ServiceBean(String serviceId, String serviceProtocol, String serviceAlias, Class type, Producer<X> producer) {
-        super(serviceAlias, type, producer, Qualifiers.create(serviceId, serviceProtocol, false));
+    private ServiceBean(String serviceId, String serviceProtocol, String serviceAlias, Class type, Producer<X> producer, Boolean serviceExternal) {
+        super(serviceAlias, type, producer, Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
         this.serviceAlias = serviceAlias;
+        this.serviceExternal = serviceExternal;
     }
 
     public ServiceBean withProducer(Producer producer) {
-        return new ServiceBean(serviceId, serviceProtocol, serviceAlias, getBeanClass(), producer);
+        return new ServiceBean(serviceId, serviceProtocol, serviceAlias, getBeanClass(), producer, serviceExternal);
     }
 
     public String getServiceId() {
@@ -96,18 +99,34 @@ public class ServiceBean<X> extends ProducerBean<X> {
         return serviceAlias;
     }
 
+    public Boolean getServiceExternal() {
+        return serviceExternal;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceBean[" +
+                "serviceId='" + serviceId + '\'' +
+                ", serviceProtocol='" + serviceProtocol + '\'' +
+                ", serviceAlias='" + serviceAlias + '\'' +
+                ", serviceExternal=" + serviceExternal +
+                ']';
+    }
+
     private static final class Key {
         private final String serviceId;
         private final String serviceProtocol;
         private final String serviceAlias;
+        private final Boolean serviceExternal;
         private final Class type;
         private final Producer producer;
 
 
-        private Key(String serviceId, String serviceProtocol, String serviceAlias, Class type, Producer producer) {
+        private Key(String serviceId, String serviceProtocol, String serviceAlias, Boolean serviceExternal, Class type, Producer producer) {
             this.serviceId = serviceId;
             this.serviceProtocol = serviceProtocol;
             this.serviceAlias = serviceAlias;
+            this.serviceExternal = serviceExternal;
             this.type = type;
             this.producer = producer;
         }
@@ -122,8 +141,8 @@ public class ServiceBean<X> extends ProducerBean<X> {
             if (producer != null ? !producer.equals(key.producer) : key.producer != null) return false;
             if (serviceId != null ? !serviceId.equals(key.serviceId) : key.serviceId != null) return false;
             if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null) return false;
-            if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null)
-                return false;
+            if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null) return false;
+            if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
             if (type != null ? !type.equals(key.type) : key.type != null) return false;
 
             return true;
@@ -134,6 +153,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
             int result = serviceId != null ? serviceId.hashCode() : 0;
             result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
             result = 31 * result + (serviceAlias != null ? serviceAlias.hashCode() : 0);
+            result = 31 * result + (serviceExternal != null ? serviceExternal.hashCode() : 0);
             result = 31 * result + (type != null ? type.hashCode() : 0);
             result = 31 * result + (producer != null ? producer.hashCode() : 0);
             return result;

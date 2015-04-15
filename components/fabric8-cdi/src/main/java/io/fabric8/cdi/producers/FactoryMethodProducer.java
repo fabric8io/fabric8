@@ -44,16 +44,18 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     private final AnnotatedMethod<X> factoryMethod;
     private final String serviceId;
     private final String serviceProtocol;
+    private final Boolean serviceExternal;
 
-    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId, String serviceProtocol) {
+    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId, String serviceProtocol, Boolean serviceExternal) {
         this.bean = bean;
         this.factoryMethod = factoryMethod;
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
+        this.serviceExternal = serviceExternal;
     }
 
     public FactoryMethodProducer<T, X> withServiceId(String serviceId) {
-        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId, serviceProtocol);
+        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId, serviceProtocol, serviceExternal);
     }
 
     @Override
@@ -104,12 +106,12 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      */
     private String getServiceUrl(String serviceId, String serviceProtocol, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, false));
+            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol).getProducer();
+            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, serviceExternal).getProducer();
             if (producer != null) {
-                return ServiceUrlBean.anyBean(serviceId, serviceProtocol).getProducer().produce(context);
+                return ServiceUrlBean.anyBean(serviceId, serviceProtocol, serviceExternal).getProducer().produce(context);
             } else {
                 throw new IllegalStateException("Could not find producer for service:" + serviceId + " protocol:" + serviceProtocol);
             }
@@ -125,10 +127,10 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      */
     private <S> S getServiceBean(String serviceId, String serviceProtocol, Class<S> serviceType, CreationalContext context) {
         try {
-            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, false));
+            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
         } catch (IllegalStateException e) {
 
-            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, serviceType).getProducer();
+            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, serviceExternal, serviceType).getProducer();
             if (producer != null) {
                 return (S) producer.produce(context);
             } else {

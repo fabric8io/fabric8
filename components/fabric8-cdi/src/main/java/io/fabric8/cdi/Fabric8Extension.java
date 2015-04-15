@@ -19,6 +19,7 @@ package io.fabric8.cdi;
 import io.fabric8.annotations.Alias;
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Endpoint;
+import io.fabric8.annotations.External;
 import io.fabric8.annotations.Factory;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
@@ -29,6 +30,7 @@ import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
+import io.fabric8.cdi.qualifiers.ExternalQualifier;
 import io.fabric8.cdi.qualifiers.ProtocolQualifier;
 
 import javax.enterprise.event.Observes;
@@ -67,12 +69,13 @@ public class Fabric8Extension implements Extension {
                 public ServiceBean apply(ServiceBean bean) {
                     String serviceId = bean.getServiceId();
                     String serviceProtocol = bean.getServiceProtocol();
+                    Boolean serviceExternal = bean.getServiceExternal();
 
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
-                        ServiceBean.getBean(serviceId, serviceProtocol, null, (Class<Object>) factoryMethodContext.getSourceType());
+                        ServiceBean.getBean(serviceId, serviceProtocol, null, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
                     }
-                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol));
+                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, serviceExternal));
                 }
             });
         }
@@ -103,16 +106,19 @@ public class Fabric8Extension implements Extension {
             Alias alias = annotated.getAnnotation(Alias.class);
             ServiceName serviceName = annotated.getAnnotation(ServiceName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
+            External external = annotated.getAnnotation(External.class);
+            
             Boolean serviceEndpoint = annotated.getAnnotation(Endpoint.class) != null;
 
             String serviceId = serviceName.value();
             String serviceProtocol = protocol != null ? protocol.value() : "tcp";
             String serviceAlias = alias != null ? alias.value() : null;
-
+            Boolean serviceExternal = external != null && external.value();
+            
             Type type = annotated.getBaseType();
 
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceId, serviceProtocol, serviceAlias);
+                ServiceUrlBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceExternal);
             } else if (serviceEndpoint && isGenericOf(type, List.class, String.class)) {
                 ServiceUrlCollectionBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
             } else if (serviceEndpoint && isGenericOf(type, List.class, null)) {
@@ -122,11 +128,14 @@ public class Fabric8Extension implements Extension {
             } else if (serviceEndpoint && isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else {
-                ServiceBean.getBean(serviceId, serviceProtocol, serviceAlias, (Class) type);
+                ServiceBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceExternal, (Class) type);
             }
 
             if (protocol == null) {
                 setDefaultProtocol(event);
+            }
+            if (external == null) {
+                setExternalFalse(event);
             }
         } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
@@ -181,6 +190,18 @@ public class Fabric8Extension implements Extension {
             public Set<Annotation> getQualifiers() {
                 Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
                 qualifiers.add(new ProtocolQualifier("tcp"));
+                return Collections.unmodifiableSet(qualifiers);
+            }
+        });
+    }
+
+    private <T, X> void setExternalFalse(ProcessInjectionPoint<T, X> event) {
+        //if protocol is not specified decorate injection point with "default" protocol.
+        event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
+            @Override
+            public Set<Annotation> getQualifiers() {
+                Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
+                qualifiers.add(new ExternalQualifier(false));
                 return Collections.unmodifiableSet(qualifiers);
             }
         });

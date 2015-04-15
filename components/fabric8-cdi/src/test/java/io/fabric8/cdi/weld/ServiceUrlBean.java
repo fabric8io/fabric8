@@ -19,6 +19,7 @@ package io.fabric8.cdi.weld;
 
 import io.fabric8.annotations.Alias;
 import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.External;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
@@ -42,6 +43,11 @@ public class ServiceUrlBean {
     @ServiceName("fabric8-console-service")
     @Protocol("tst")
     URL testUrl;
+
+    @Inject
+    @ServiceName("fabric8-console-service")
+    @External
+    URL externalUrl;
 
     @Inject
     @ServiceName("fabric8-console-service")
