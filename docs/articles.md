@@ -1,3 +1,10 @@
+## Videos
+
+* [demo using fabric8 to create a new Java project, git repo and automatically build & deploy it on OpenShift V3 &amp; Kubernetes using Docker](https://medium.com/@jstrachan/demo-using-fabric8-to-create-a-new-java-project-git-repo-and-automatically-build-deploy-it-on-d34d776098a9)
+* [Easy micro services with fabric8, docker and kubernetes!](https://skillsmatter.com/skillscasts/5476-easy-microservices-on-premise-on-docker-or-in-the-clouds-with-fabric8) or you can [view the slides](http://fabric8.io/presentations/fabric8-mucon/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan) at [muCon](https://skillsmatter.com/conferences/6312-mucon)
+* [fabric8 demo video album](https://vimeo.com/album/3351330) has various demos of fabric8
+* [JBoss Fuse demo video album](https://vimeo.com/album/2635012) has various demos of fabric8
+
 ## Articles and presentations
 
 ### Fabric8
@@ -19,8 +26,4 @@
 * [The New PaaS](http://reinvent-hripps.rhcloud.com/#/): Using Docker and Containers to Simplify Your Life and Accelerate Development on AWS by [N. Harrison Ripps](http://twitter.com/nhripps) and [Steven Pousty](http://twitter.com/TheSteve0)
 * [An Introduction to Kubernetes](https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernetes) by [Digital Ocean](https://www.digitalocean.com)
 
-## Videos
-
-* [Easy micro services with fabric8, docker and kubernetes!](https://skillsmatter.com/skillscasts/5476-easy-microservices-on-premise-on-docker-or-in-the-clouds-with-fabric8) or you can [view the slides](http://fabric8.io/presentations/fabric8-mucon/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan) at [muCon](https://skillsmatter.com/conferences/6312-mucon)
-* [JBoss Fuse demo video album](https://vimeo.com/album/2635012) has various demos of fabric8
 
