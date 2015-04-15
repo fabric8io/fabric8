@@ -11,7 +11,7 @@ fi
 
 OPENSHIFT_VERSION=v0.4.3
 
-FABRIC8_VERSION=2.0.41
+FABRIC8_VERSION=2.0.42
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
 OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:${OPENSHIFT_VERSION}
 REGISTRY_IMAGE=openshift/origin-docker-registry:${OPENSHIFT_VERSION}
@@ -248,7 +248,7 @@ done
 deployFabric8Console
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
-  for app in gogs hubot hubot-notifier kiwiirc cdelivery jbpm-designer influxdb elasticsearch kibana; do
+  for app in gogs hubot hubot-notifier lets-chat cdelivery jbpm-designer influxdb elasticsearch kibana orion taiga; do
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
   done
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
@@ -322,14 +322,14 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "serviceName": "grafana-service"
     },
     {
-      "id": "fabric8-irc-route",
+      "id": "letschat-route",
       "metadata": {
-        "name": "fabric8-irc-route"
+        "name": "letschat-route"
       },
       "apiVersion": "v1beta1",
       "kind": "Route",
-      "host": "irc.${FABRIC8_CONSOLE}",
-      "serviceName": "kiwiirc"
+      "host": "letschat.${FABRIC8_CONSOLE}",
+      "serviceName": "letschat"
     },
     {
       "id": "gogs-http-service-route",
@@ -350,6 +350,26 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "kind": "Route",
       "host": "jbpm.${FABRIC8_CONSOLE}",
       "serviceName": "jbpm-designer"
+    },
+    {
+      "id": "orion-route",
+      "metadata": {
+        "name": "orion-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "orion.${FABRIC8_CONSOLE}",
+      "serviceName": "orion"
+    },
+    {
+      "id": "taiga-route",
+      "metadata": {
+        "name": "taiga-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "taiga.${FABRIC8_CONSOLE}",
+      "serviceName": "taiga"
     }
   ]
 }
