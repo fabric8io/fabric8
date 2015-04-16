@@ -29,5 +29,5 @@ import java.lang.annotation.Target;
 @Documented
 public @interface External {
     
-    boolean value() default false;
+    boolean value() default true;
 }

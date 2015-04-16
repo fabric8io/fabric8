@@ -30,6 +30,6 @@ public class ExternalQualifier extends AnnotationLiteral<External> implements Ex
 
     @Override
     public boolean value() {
-        return false;
+        return value;
     }
 }
