@@ -1,0 +1,1 @@
+["test_files/.example2/","test_files/.example2/example5/","test_files/example7/"]

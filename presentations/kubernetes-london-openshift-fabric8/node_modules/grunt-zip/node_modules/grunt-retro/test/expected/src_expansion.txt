@@ -1,0 +1,1 @@
+["test_files/{file,file2}.js"]
