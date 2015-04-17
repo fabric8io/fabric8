@@ -16,10 +16,10 @@
 package io.fabric8.forge.camel.commands.project.helper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.ui.facets.HintsFacet;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
@@ -54,14 +54,13 @@ public final class UIHelper {
             ui.setValueChoices(list);
 
             // This will always prompt, regardless if there is a value set
-            // TODO: requires new forge version
-            /*Iterator it = ui.getFacets().iterator();
+            Iterator it = ui.getFacets().iterator();
             while (it.hasNext()) {
                 Object facet = it.next();
                 if (facet instanceof HintsFacet) {
                     ((HintsFacet) facet).setPromptInInteractiveMode(true);
                 }
-            }*/
+            }
 
             input = ui;
         } else {
@@ -74,14 +73,13 @@ public final class UIHelper {
             }
 
             // This will always prompt, regardless if there is a value set
-            // TODO: requires new forge version
-            /*Iterator it = ui.getFacets().iterator();
+            Iterator it = ui.getFacets().iterator();
             while (it.hasNext()) {
                 Object facet = it.next();
                 if (facet instanceof HintsFacet) {
                     ((HintsFacet) facet).setPromptInInteractiveMode(true);
                 }
-            }*/
+            }
 
             input = ui;
         }
