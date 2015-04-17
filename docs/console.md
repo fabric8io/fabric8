@@ -6,7 +6,7 @@ The Fabric8 Console provides a rich HTML5 web application for working with [Kube
 
 From the command line tool for Kubernetes / OpenShift you should be able to create the console service and replication controllers via:
 
-    kube apply -f http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/console/2.0.40/console-2.0.40-kubernetes.json
+    kube apply -f http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/console/2.0.43/console-2.0.43-kubernetes.json
 
 ### Getting Started
 
