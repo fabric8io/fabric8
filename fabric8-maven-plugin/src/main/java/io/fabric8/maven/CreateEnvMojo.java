@@ -24,6 +24,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.TablePrinter;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -101,15 +103,24 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * @param namespace The target namespace.
      * @return
      */
-    private Map<String, String> getNamespaceServiceEnv(String namespace) {
+     Map<String, String> getNamespaceServiceEnv(String namespace) {
         Map<String, String> result = new HashMap<>();
         ServiceList serviceList = kubernetes.getServices(namespace);
+        RouteList routeList = kubernetes.getRoutes(namespace);
         for (Service service : serviceList.getItems()) {
             String id = service.getId().toUpperCase().replace("-", "_");
-            result.put(id + HOST_SUFFIX, service.getPortalIP());
-            result.put(id + PORT_SUFFIX, String.valueOf(service.getPort()));
-            result.put(id + PROTO_SUFFIX, service.getProtocol());
-            result.put(id + PORT_SUFFIX + "_" + service.getPort() + PROTO_SUFFIX, service.getProtocol());
+            Route route = findRoute(service.getId(), routeList);
+            if (route != null) {
+                result.put(id + HOST_SUFFIX, route.getHost());
+                result.put(id + PORT_SUFFIX, String.valueOf(service.getPort()));
+                result.put(id + PROTO_SUFFIX, service.getProtocol());
+                result.put(id + PORT_SUFFIX + "_" + service.getPort() + PROTO_SUFFIX, service.getProtocol());
+            } else {
+                result.put(id + HOST_SUFFIX, service.getPortalIP());
+                result.put(id + PORT_SUFFIX, String.valueOf(service.getPort()));
+                result.put(id + PROTO_SUFFIX, service.getProtocol());
+                result.put(id + PORT_SUFFIX + "_" + service.getPort() + PROTO_SUFFIX, service.getProtocol());
+            }
         }
         return result;
     }
@@ -208,5 +219,14 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
             writer.flush();
         }
+    }
+
+    private static Route findRoute(String serviceId, RouteList routeList) {
+        for (Route route : routeList.getItems()) {
+            if (route.getServiceName().equals(serviceId)) {
+                return route;
+            }
+        }
+        return null;
     }
 }
