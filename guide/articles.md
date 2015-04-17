@@ -1,5 +1,6 @@
 ## Videos
 
+* [demo using the Fabric8 console to work with Kubernetes and OpenShift V3 apps](https://medium.com/@jstrachan/demo-using-the-fabric8-console-to-work-with-kubernetes-and-openshift-v3-apps-42feb965c479) a presentation by [James Strachan](http://twitter.com/jstrachan) at the [Kubernetes meetup London](http://www.meetup.com/Kubernetes-London/events/221521966/)
 * [demo using fabric8 to create a new Java project, git repo and automatically build & deploy it on OpenShift V3 &amp; Kubernetes using Docker](https://medium.com/@jstrachan/demo-using-fabric8-to-create-a-new-java-project-git-repo-and-automatically-build-deploy-it-on-d34d776098a9)
 * [Easy micro services with fabric8, docker and kubernetes!](https://skillsmatter.com/skillscasts/5476-easy-microservices-on-premise-on-docker-or-in-the-clouds-with-fabric8) or you can [view the slides](http://fabric8.io/presentations/fabric8-mucon/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan) at [muCon](https://skillsmatter.com/conferences/6312-mucon)
 * [fabric8 demo video album](https://vimeo.com/album/3351330) has various demos of fabric8
