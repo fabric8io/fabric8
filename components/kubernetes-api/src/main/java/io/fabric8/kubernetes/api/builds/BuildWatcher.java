@@ -21,7 +21,6 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +94,7 @@ public class BuildWatcher {
                 } else {
                     if (seenBuildIds.add(uid)) {
                         String name = Builds.getName(build);
-                        String buildLink = URLUtils.pathJoin(fabric8ConsoleLink, "kubernetes/builds", name);
+                        String buildLink = Builds.createConsoleBuildLink(this.fabric8ConsoleLink, name);
                         BuildFinishedEvent event = new BuildFinishedEvent(uid, build, loading, buildLink);
                         buildListener.onBuildFinished(event);
                     }

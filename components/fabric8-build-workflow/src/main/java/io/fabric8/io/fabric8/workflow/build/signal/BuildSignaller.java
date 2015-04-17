@@ -20,25 +20,15 @@ package io.fabric8.io.fabric8.workflow.build.signal;
 import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
 import io.fabric8.io.fabric8.workflow.build.dto.BuildFinishedDTO;
-import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
-import org.kie.api.KieBase;
-import org.kie.api.definition.process.Node;
-import org.kie.api.definition.process.Process;
-import org.kie.api.definition.process.WorkflowProcess;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-
-//import org.jbpm.ruleflow.core.RuleFlowProcess;
 
 /**
  * Listens to {@link BuildFinishedEvent} events from the OpenShift build watcher and then

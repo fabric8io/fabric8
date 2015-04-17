@@ -17,17 +17,13 @@
  */
 package io.fabric8.io.fabric8.workflow.build.signal;
 
-import io.fabric8.io.fabric8.workflow.build.CustomWorkItemHandlers;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
 import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
 import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
-import org.kie.api.KieBase;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.manager.RuntimeEngine;
-import org.kie.api.runtime.process.WorkItemManager;
 
 import java.util.Timer;
 

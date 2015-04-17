@@ -125,7 +125,7 @@ public class Systems {
 
 
     protected static String getServiceEnvVarPrefix(String serviceName) {
-        return serviceName.toUpperCase() + "_SERVICE";
+        return serviceName.toUpperCase().replace('-', '_') + "_SERVICE";
     }
 
 }

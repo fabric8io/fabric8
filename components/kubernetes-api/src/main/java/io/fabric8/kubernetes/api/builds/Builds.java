@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -161,5 +162,10 @@ public class Builds {
         return null;
     }
 
-
+    /**
+     * Returns the link to the build page in the console for the given build UUID
+     */
+    public static String createConsoleBuildLink(String fabricConsoleExternalUrl, String buildName) {
+        return URLUtils.pathJoin(fabricConsoleExternalUrl, "kubernetes/builds", buildName);
+    }
 }

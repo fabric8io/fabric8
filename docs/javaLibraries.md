@@ -17,7 +17,14 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 * [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) makes it easy to perform assertions on remote JVMs via JMX using  [Jolokia](http://jolokia.org/) over HTTP/JSON
 
 
-#### CDI
+### ActiveMQ
+
+* [mq-client](https://github.com/fabric8io/fabric8/tree/master/components/mq/mq-client) provides the the **io.fabric8.mq.core.MQConnectionFactory** class which implements the JMS ConnectionFactory to connect to ActiveMQ using the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)
+
+* [camel-amq](https://github.com/fabric8io/fabric8/tree/master/components/mq/camel-amq) provides the [Camel](http://camel.apache.org/) **amq:** component which uses the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism to discover and connect to the ActiveMQ brokers so that no configuration is required (other than a single environment variable if you wish to switch to a non default service implementation)
+
+
+### CDI
 
 * [fabric8-cdi](cdi.html) provides an easy way to work with Kubernetes [services](service.html) using the CDI Dependency Injection approach
 * [fabric8-apt](https://github.com/fabric8io/fabric8/tree/master/fabric8-apt) provides an APT code generator to create a JSON Schema file for each environment variable injected by the [@ConfigProperty](http://deltaspike.apache.org/documentation/configuration.html) annotation from [deltaspike](http://deltaspike.apache.org/) - giving dteails of the name, type, default value and description. This can then be used by the [fabric8:json maven goal](mavenplugin.html) to list all of the environment variables and their value in the generated kubernetes JSON file.
@@ -32,13 +39,11 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 
 ### Git Repos
 
-* [gitrepo-api](https://github.com/fabric8io/fabric8/blob/master/components/gitrepo-etcd/) provides a Java API for working with git repositories such as  <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
+* [gitrepo-api](https://github.com/fabric8io/fabric8/blob/master/components/gitrepo-api/) provides a Java API for working with git repositories such as  <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
 
-### ActiveMQ
+### Hubot
 
-* [mq-client](https://github.com/fabric8io/fabric8/tree/master/components/mq/mq-client) provides the the **io.fabric8.mq.core.MQConnectionFactory** class which implements the JMS ConnectionFactory to connect to ActiveMQ using the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)
-
-* [camel-amq](https://github.com/fabric8io/fabric8/tree/master/components/mq/camel-amq) provides the [Camel](http://camel.apache.org/) **amq:** component which uses the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism to discover and connect to the ActiveMQ brokers so that no configuration is required (other than a single environment variable if you wish to switch to a non default service implementation)
+* [hubot-api](https://github.com/fabric8io/fabric8/blob/master/components/hubot-api/) provides a Java API for working with the <a href="http://hubot.github.com/">Hubot chat bot</a> for sending notifications to chat services like Lets Chat, IRC, Slack, HipChat and Campfire
 
 
 
