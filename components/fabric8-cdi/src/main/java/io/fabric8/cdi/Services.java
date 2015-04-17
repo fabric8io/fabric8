@@ -38,37 +38,9 @@ public class Services {
     public static final String DEFAULT_PROTO = "tcp";
     public static final String DEFAULT_NAMESPACE = "default";
 
-    public static String toServiceUrl(String serviceId, String serviceProtocol, Boolean serviceExternal) {
-        io.fabric8.kubernetes.api.model.Service srv = null;
-        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
-        String serviceHost = serviceToHost(serviceId);
-        String servicePort = serviceToPort(serviceId);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceId, servicePort);
-
-        //1. Inside Kubernetes: Services as ENV vars
-        if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
-            return serviceProtocol + "://" + serviceHost + ":" + servicePort;
-            //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
-        } else if (Strings.isNotBlank(namespace)) {
-            srv = KUBERNETES.getService(serviceId, namespace);
-        } else {
-            for (io.fabric8.kubernetes.api.model.Service s : KUBERNETES.getServices(namespace).getItems()) {
-                if (s.getId().equals(serviceId)) {
-                    srv = s;
-                    break;
-                }
-            }
-        }
-        if (srv == null) {
-            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceId + " in namespace: " + namespace);
-        }
-        RouteList routeList = KUBERNETES.getRoutes(namespace);
-        for (Route route : routeList.getItems()) {
-            if (route.getServiceName().equals(serviceId)) {
-                return (serviceProto + "://" + route.getHost()).toLowerCase();
-            }
-        }
-        return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
+    public static String toServiceUrl(String serviceId, String serviceProtocol, boolean serviceExternal) {
+        String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        return KUBERNETES.getServiceURL(serviceId, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {

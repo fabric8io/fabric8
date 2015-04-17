@@ -385,7 +385,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         // lets try the cdelivery first
         if (kubeAddress == null) {
             try {
-                kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http");
+                kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http", false);
                 webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
                 appendNamespaceQuery = false;
             } catch (Exception e) {
@@ -394,7 +394,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
         if (kubeAddress == null) {
             try {
-                kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http");
+                kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http", false);
                 webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
             } catch (Exception e) {
                 LOG.warn("failed to find fabric8 console service URL: " + e, e);

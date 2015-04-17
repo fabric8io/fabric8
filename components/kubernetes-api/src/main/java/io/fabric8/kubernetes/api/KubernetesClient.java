@@ -721,14 +721,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
-    public String getServiceURL(String serviceName, String namespace, String serviceProtocol) {
+    public String getServiceURL(String serviceName, String namespace, String serviceProtocol, boolean serviceExternal) {
         Service srv = null;
         String serviceHost = serviceToHost(serviceName);
         String servicePort = serviceToPort(serviceName);
         String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
 
         //1. Inside Kubernetes: Services as ENV vars
-        if (Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
+        if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(namespace)) {
@@ -896,7 +896,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         boolean useFabric8Console = true;
         if (useFabric8Console) {
             // lets proxy through the fabric8 console REST API to work around bugs in OpenShift...
-            baseUrl = getServiceURL("fabric8-console-service", namespace, "http");
+            baseUrl = getServiceURL("fabric8-console-service", namespace, "http", false);
             url = URLUtils.pathJoin("/kubernetes/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
             webClient = new KubernetesFactory(baseUrl, true).createWebClient();
         } else {
