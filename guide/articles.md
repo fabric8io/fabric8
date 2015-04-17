@@ -9,6 +9,7 @@
 
 ### Fabric8
 
+* [Developing services on Kubernetes using OpenShift and Fabric8](http://fabric8.io/presentations/kubernetes-london-openshift-fabric8/#/) by [James Strachan](http://twitter.com/jstrachan) at the [Kubernetes Meetup in London](http://www.meetup.com/Kubernetes-London/events/221521966/)
 * [Fabric8 Version 2 released](http://rajdavies.blogspot.co.uk/2014/11/fabric8-version-20-released-next.html) by [Rob Davies](http://rajdavies.blogspot.co.uk/)
 * [Fabric8 V2, Docker, Kubernetes & OpenShift V3 and Jube! Oh My!](https://medium.com/@jstrachan/fabric8-v2-docker-kubernetes-openshift-v3-and-jube-oh-my-4aadddf2037) by [James Strachan](http://twitter.com/jstrachan)
 * [An Introduction to Fabric8 and Why It's So Important for Integration](http://java.dzone.com/articles/introduction-fabric8-and-why) by [Steven Fisher](http://java.dzone.com/users/stevef1uk99)
