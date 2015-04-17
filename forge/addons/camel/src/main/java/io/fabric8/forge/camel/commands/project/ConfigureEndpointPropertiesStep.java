@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
 import io.fabric8.forge.camel.commands.project.helper.LineNumberHelper;
+import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import io.fabric8.forge.camel.commands.project.helper.XmlLineNumberParser;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
@@ -294,6 +295,13 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
+
+        // since this is XML we need to escape & as &amp;
+        // to be safe that & is not already &amp; we need to revert it first
+        uri = StringHelper.replaceAll(uri, "&amp;", "&");
+        uri = StringHelper.replaceAll(uri, "&", "&amp;");
+        uri = StringHelper.replaceAll(uri, "<", "&lt;");
+        uri = StringHelper.replaceAll(uri, ">", "&gt;");
 
         FileResource file = facet.getResource(xml);
         if (!file.exists()) {
