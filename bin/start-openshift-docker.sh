@@ -389,6 +389,7 @@ cat <<EOF | $KUBE create -f -
     "http://localhost:9090",
     "http://localhost:2772",
     "http://localhost:9000",
+    "http://localhost:3000",
     "http://${FABRIC8_CONSOLE}"
   ]
 }
