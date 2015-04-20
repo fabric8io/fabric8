@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.io.fabric8.build.workItems;
+package io.fabric8.build.workitems;
 
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.io.fabric8.build.workItems;
+package io.fabric8.build.workitems;
 
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -28,9 +28,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static io.fabric8.io.fabric8.build.workItems.StartProcessWorkItemHandler.logError;
-import static io.fabric8.io.fabric8.build.workItems.StartProcessWorkItemHandler.logWarning;
 
 /**
  * Triggers a build in OpenShift using the CDelivery remote REST Service to avoid
@@ -60,7 +57,7 @@ public class BuildWorkItemHandler implements WorkItemHandler {
         }
 
         if (!allParameters.containsKey("namespace") || !allParameters.containsKey("buildName")) {
-            logWarning("Should have namespace and buildName but has " + allParameters);
+            StartProcessWorkItemHandler.logWarning("Should have namespace and buildName but has " + allParameters);
         }
 
         // lets turn it into JSON
@@ -110,7 +107,7 @@ public class BuildWorkItemHandler implements WorkItemHandler {
             String responseMessage = connection.getResponseMessage();
             System.out.println("Got response code: " + responseCode + " message: "+ responseMessage);
         } catch (IOException e) {
-            logError("Failed to post to: " + triggerBuildURL + ". " + e, e);
+            StartProcessWorkItemHandler.logError("Failed to post to: " + triggerBuildURL + ". " + e, e);
         }
     }
 
