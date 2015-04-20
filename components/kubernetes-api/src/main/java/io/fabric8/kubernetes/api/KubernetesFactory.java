@@ -20,29 +20,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.utils.Strings;
-import net.oauth.signature.pem.PEMReader;
-import net.oauth.signature.pem.PKCS1EncodedKeySpec;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -216,14 +203,14 @@ public class KubernetesFactory {
     public WebClient createWebClient(String serviceAddress) {
         List<Object> providers = createProviders();
         WebClient webClient = WebClient.create(serviceAddress, providers);
-        configureAuthDetails(webClient);
+        WebClients.configureUserAndPassword(webClient, this.username, this.password);
         if (trustAllCerts) {
-            disableSslChecks(webClient);
+            WebClients.disableSslChecks(webClient);
         } else if (caCertFile != null || caCertData != null) {
-            configureCaCert(webClient);
+            WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
         }
         if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
-            configureClientCert(webClient);
+            WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
         }
         return webClient;
     }
@@ -354,196 +341,6 @@ public class KubernetesFactory {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         return mapper;
-    }
-
-    private void configureAuthDetails(WebClient webClient) {
-        if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
-
-            HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
-
-            conduit.getAuthorization().setUserName(username);
-            conduit.getAuthorization().setPassword(password);
-        }
-    }
-
-    private InputStream getInputStreamFromDataOrFile(String data, File file) throws FileNotFoundException {
-        if (data != null) {
-            return new ByteArrayInputStream(data.getBytes());
-        }
-        if (file != null) {
-            return new FileInputStream(file);
-        }
-        return null;
-    }
-
-    private void configureClientCert(WebClient webClient) {
-        try (InputStream certInputStream = getInputStreamFromDataOrFile(clientCertData, clientCertFile)) {
-            CertificateFactory certFactory = CertificateFactory.getInstance("X509");
-            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certInputStream);
-
-            InputStream keyInputStream = getInputStreamFromDataOrFile(clientKeyData, clientKeyFile);
-            PEMReader reader = new PEMReader(keyInputStream);
-            RSAPrivateCrtKeySpec keySpec = new PKCS1EncodedKeySpec(reader.getDerBytes()).getKeySpec();
-            KeyFactory kf = KeyFactory.getInstance(clientKeyAlgo);
-            RSAPrivateKey privKey = (RSAPrivateKey) kf.generatePrivate(keySpec);
-
-            KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(null);
-
-            String alias = cert.getSubjectX500Principal().getName();
-            keyStore.setKeyEntry(alias, privKey, clientKeyPassword, new Certificate[] {cert});
-
-            KeyManagerFactory keyManagerFactory =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, clientKeyPassword);
-
-            HTTPConduit conduit = WebClient.getConfig(webClient)
-                    .getHttpConduit();
-
-            TLSClientParameters params = conduit.getTlsClientParameters();
-
-            if (params == null) {
-                params = new TLSClientParameters();
-                conduit.setTlsClientParameters(params);
-            }
-
-            KeyManager[] existingKeyManagers = params.getKeyManagers();
-            KeyManager[] keyManagers;
-
-            if (existingKeyManagers == null || ArrayUtils.isEmpty(existingKeyManagers)) {
-                keyManagers = keyManagerFactory.getKeyManagers();
-            } else {
-                keyManagers = (KeyManager[]) ArrayUtils.addAll(existingKeyManagers, keyManagerFactory.getKeyManagers());
-            }
-
-            params.setKeyManagers(keyManagers);
-
-        } catch (Exception e) {
-            log.error("Could not create key manager for " + clientCertFile + " (" + clientKeyFile + ")", e);
-        }
-    }
-
-    private void configureCaCert(WebClient webClient) {
-        try (InputStream pemInputStream = getInputStreamFromDataOrFile(caCertData, caCertFile)) {
-            CertificateFactory certFactory = CertificateFactory.getInstance("X509");
-            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(pemInputStream);
-
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            trustStore.load(null);
-
-            String alias = cert.getSubjectX500Principal().getName();
-            trustStore.setCertificateEntry(alias, cert);
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
-
-            HTTPConduit conduit = WebClient.getConfig(webClient)
-                    .getHttpConduit();
-
-            TLSClientParameters params = conduit.getTlsClientParameters();
-
-            if (params == null) {
-                params = new TLSClientParameters();
-                conduit.setTlsClientParameters(params);
-            }
-
-            TrustManager[] existingTrustManagers = params.getTrustManagers();
-            TrustManager[] trustManagers;
-
-            if (existingTrustManagers == null || ArrayUtils.isEmpty(existingTrustManagers)) {
-                trustManagers = trustManagerFactory.getTrustManagers();
-            } else {
-                trustManagers = (TrustManager[]) ArrayUtils.addAll(existingTrustManagers, trustManagerFactory.getTrustManagers());
-            }
-
-            params.setTrustManagers(trustManagers);
-
-        } catch (Exception e) {
-            log.error("Could not create trust manager for " + caCertFile, e);
-        }
-    }
-
-    private void disableSslChecks(WebClient webClient) {
-        HTTPConduit conduit = WebClient.getConfig(webClient)
-                .getHttpConduit();
-
-        TLSClientParameters params = conduit.getTlsClientParameters();
-
-        if (params == null) {
-            params = new TLSClientParameters();
-            conduit.setTlsClientParameters(params);
-        }
-
-        params.setTrustManagers(new TrustManager[]{new TrustEverythingSSLTrustManager()});
-
-        params.setDisableCNCheck(true);
-    }
-
-    public static class TrustEverythingSSLTrustManager implements X509TrustManager {
-
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-
-        private static SSLSocketFactory socketFactory = null;
-
-        /**
-         * Returns an SSLSocketFactory that will trust all SSL certificates; this is suitable for passing to
-         * HttpsURLConnection, either to its instance method setSSLSocketFactory, or to its static method
-         * setDefaultSSLSocketFactory.
-         *
-         * @return SSLSocketFactory suitable for passing to HttpsUrlConnection
-         * @see HttpsURLConnection#setSSLSocketFactory(SSLSocketFactory)
-         * @see HttpsURLConnection#setDefaultSSLSocketFactory(SSLSocketFactory)
-         */
-        public synchronized static SSLSocketFactory getTrustingSSLSocketFactory() {
-            if (socketFactory != null) return socketFactory;
-            TrustManager[] trustManagers = new TrustManager[]{new TrustEverythingSSLTrustManager()};
-            SSLContext sc;
-            try {
-                sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustManagers, null);
-            } catch (GeneralSecurityException e) {
-                throw new RuntimeException("This is a BUG", e);
-            }
-            socketFactory = sc.getSocketFactory();
-            return socketFactory;
-        }
-
-        /**
-         * Automatically trusts all SSL certificates in the current process; this is dangerous.  You should
-         * probably prefer to configure individual HttpsURLConnections with trustAllSSLCertificates
-         *
-         * @see #trustAllSSLCertificates(HttpsURLConnection)
-         */
-        public static void trustAllSSLCertificatesUniversally() {
-            getTrustingSSLSocketFactory();
-            HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
-        }
-
-        /**
-         * Configures a single HttpsURLConnection to trust all SSL certificates.
-         *
-         * @param connection an HttpsURLConnection which will be configured to trust all certs
-         */
-        public static void trustAllSSLCertificates(HttpsURLConnection connection) {
-            getTrustingSSLSocketFactory();
-            connection.setSSLSocketFactory(socketFactory);
-            connection.setHostnameVerifier(new HostnameVerifier() {
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
-                }
-            });
-        }
     }
 
 }

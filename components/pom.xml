@@ -33,6 +33,7 @@
   <modules>
     <module>arquillian-fabric8</module>
     <module>console</module>
+    <module>cxf-utils</module>
     <module>docker-api</module>
     <module>fabric8-annotations</module>
     <module>fabric8-build-workflow</module>

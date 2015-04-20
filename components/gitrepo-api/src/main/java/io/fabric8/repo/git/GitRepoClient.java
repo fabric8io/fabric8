@@ -17,21 +17,19 @@
  */
 package io.fabric8.repo.git;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.cfg.Annotations;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
+import io.fabric8.utils.cxf.WebClients;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import java.util.ArrayList;
+import javax.net.ssl.TrustManager;
 import java.util.List;
 
-import static io.fabric8.repo.git.JsonHelper.createObjectMapper;
+import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
+import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
 
 /**
  * A client API for working with git hosted repositories using back ends like
@@ -81,23 +79,13 @@ public class GitRepoClient {
      * Creates a JAXRS web client for the given JAXRS client
      */
     protected <T> T createWebClient(Class<T> clientType) {
-        List<Object> providers = createProviders();
+        List<Object> providers = WebClients.createProviders();
         WebClient webClient = WebClient.create(address, providers);
-        if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
-            HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
-            conduit.getAuthorization().setUserName(username);
-            conduit.getAuthorization().setPassword(password);
-        }
+        disableSslChecks(webClient);
+        configureUserAndPassword(webClient, username, password);
         return JAXRSClientFactory.fromClient(webClient, clientType);
     }
 
-    protected List<Object> createProviders() {
-        List<Object> providers = new ArrayList<Object>();
-        Annotations[] annotationsToUse = JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
-        ObjectMapper objectMapper = createObjectMapper();
-        providers.add(new JacksonJaxbJsonProvider(objectMapper, annotationsToUse));
-        providers.add(new ExceptionResponseMapper());
-        return providers;
-    }
+
 
 }

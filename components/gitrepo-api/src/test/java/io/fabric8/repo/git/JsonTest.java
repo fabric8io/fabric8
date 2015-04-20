@@ -17,6 +17,7 @@
  */
 package io.fabric8.repo.git;
 
+import io.fabric8.utils.cxf.JsonHelper;
 import org.junit.Test;
 
 /**

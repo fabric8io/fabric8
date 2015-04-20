@@ -23,6 +23,14 @@ import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -168,4 +176,5 @@ public class Builds {
     public static String createConsoleBuildLink(String fabricConsoleExternalUrl, String buildName) {
         return URLUtils.pathJoin(fabricConsoleExternalUrl, "kubernetes/builds", buildName);
     }
+
 }

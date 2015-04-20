@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
+import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
+import static io.fabric8.utils.cxf.WebClients.createProviders;
+import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
 
 /**
  * A service for notifying a message to the <a href="http://hubot.github.com/">Hubot chat bot</a>
@@ -107,21 +110,10 @@ public class HubotNotifier {
     protected <T> T createWebClient(Class<T> clientType) {
         List<Object> providers = createProviders();
         WebClient webClient = WebClient.create(hubotUrl, providers);
-        if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
-            HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
-            conduit.getAuthorization().setUserName(username);
-            conduit.getAuthorization().setPassword(password);
-        }
+        disableSslChecks(webClient);
+        configureUserAndPassword(webClient, username, password);
         return JAXRSClientFactory.fromClient(webClient, clientType);
     }
 
-    protected List<Object> createProviders() {
-        List<Object> providers = new ArrayList<Object>();
-        Annotations[] annotationsToUse = JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
-        ObjectMapper objectMapper = createObjectMapper();
-        providers.add(new JacksonJaxbJsonProvider(objectMapper, annotationsToUse));
-        providers.add(new ExceptionResponseMapper());
-        return providers;
-    }
 
 }

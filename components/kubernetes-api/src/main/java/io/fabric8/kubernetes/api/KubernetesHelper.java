@@ -29,6 +29,7 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.utils.*;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1220,7 +1221,7 @@ public class KubernetesHelper {
         try {
             SSLSocketFactory sslsocketfactory = null;
             if (trustAllCerts) {
-                sslsocketfactory = KubernetesFactory.TrustEverythingSSLTrustManager.getTrustingSSLSocketFactory();
+                sslsocketfactory = TrustEverythingSSLTrustManager.getTrustingSSLSocketFactory();
             } else {
                 sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             }

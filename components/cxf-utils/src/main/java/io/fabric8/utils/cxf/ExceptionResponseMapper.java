@@ -1,4 +1,4 @@
-package io.fabric8.hubot;
+package io.fabric8.utils.cxf;
 
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 

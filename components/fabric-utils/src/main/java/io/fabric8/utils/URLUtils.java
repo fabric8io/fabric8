@@ -15,6 +15,8 @@
  */
 package io.fabric8.utils;
 
+import io.fabric8.utils.ssl.AllCertificatesTrustManager;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;

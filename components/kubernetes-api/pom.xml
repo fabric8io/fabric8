@@ -35,7 +35,7 @@
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric-utils</artifactId>
+      <artifactId>cxf-utils</artifactId>
     </dependency>
 
     <dependency>

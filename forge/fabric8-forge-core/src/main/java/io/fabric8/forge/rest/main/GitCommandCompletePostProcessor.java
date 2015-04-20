@@ -58,7 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static io.fabric8.repo.git.JsonHelper.toJson;
+import static io.fabric8.utils.cxf.JsonHelper.toJson;
 
 /**
  * For new projects; lets git add, git commit, git push otherwise lets git add/commit/push any new/udpated changes

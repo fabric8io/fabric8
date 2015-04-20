@@ -39,8 +39,8 @@ public class GitUserHelper {
     private String address;
 
     @Inject
-    public GitUserHelper(@ServiceName("GOGS_HTTP_SERVICE")@Protocol("http") String gogsUrl,
-    @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
+    public GitUserHelper(@ServiceName("GOGS_HTTP_SERVICE") @Protocol("https") String gogsUrl,
+                         @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                          @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
