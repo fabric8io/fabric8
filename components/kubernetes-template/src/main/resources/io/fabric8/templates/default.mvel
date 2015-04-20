@@ -41,7 +41,7 @@
     @if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}
     @if{env.value != null}                  "value": "@{env.value}"@end{}
                     }@end{", "}
-                  ]@end{},
+                  ],@end{}
                   "ports": [@foreach{port : ports}
                     {
     @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.name != null || port.hostPort != null},@end{}@end{}@if{port.name != null}
