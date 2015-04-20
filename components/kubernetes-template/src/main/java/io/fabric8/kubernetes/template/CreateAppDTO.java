@@ -20,7 +20,7 @@ import io.fabric8.utils.Strings;
 /**
  * Represents a DTO which can be posted as JSON for creating a new application via a wizard or command line tool
  */
-public class CreateAppDTO extends GenerateTemplateDTO {
+public class CreateAppDTO extends GenerateDTO {
     private String branch;
     private String path;
     private String summaryMarkdown;
@@ -39,7 +39,6 @@ public class CreateAppDTO extends GenerateTemplateDTO {
                 ", ports=" + ports +
                 ", summaryMarkdown='" + summaryMarkdown + '\'' +
                 ", readMeMarkdown='" + readMeMarkdown + '\'' +
-                ", templateVariables=" + templateVariables +
                 '}';
     }
 

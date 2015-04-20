@@ -15,21 +15,16 @@
  */
 package io.fabric8.kubernetes.template;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import org.mvel2.ParserContext;
-import org.mvel2.templates.CompiledTemplate;
-import org.mvel2.templates.TemplateCompiler;
-import org.mvel2.templates.TemplateRuntime;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.validateKubernetesId;
@@ -37,101 +32,73 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.validateKubernetesId;
 /**
  */
 public class TemplateGenerator {
-    public static final String DEFAULT_TEMPLATE = "io/fabric8/templates/default.mvel";
-    public static final String DOCKER_DATA_IMAGE = "docker_image";
 
-    private final GenerateTemplateDTO config;
-    private final List<ClassLoader> classLoaders;
+    private final GenerateDTO config;
 
-    public TemplateGenerator(GenerateTemplateDTO config) {
-        this(config, createDefaultClassLoaders());
-    }
-
-    public TemplateGenerator(GenerateTemplateDTO config, List<ClassLoader> classLoaders) {
+    public TemplateGenerator(GenerateDTO config) {
         this.config = config;
-        this.classLoaders = classLoaders;
     }
-
-    private static List<ClassLoader> createDefaultClassLoaders() {
-        List<ClassLoader> classLoaders = new ArrayList<>();
-        classLoaders.add(Thread.currentThread().getContextClassLoader());
-        classLoaders.add(TemplateGenerator.class.getClassLoader());
-        return classLoaders;
-    }
-
-
+    
     public void generate(File kubernetesJson) throws IllegalArgumentException {
-        String template = config.getTemplate();
         String dockerImage = config.getDockerImage();
-        if (Strings.isNullOrBlank(template)) {
-            throw new IllegalArgumentException("No fabric8.template specified so cannot generate the Kubernetes JSON file!");
-        } else {
-            InputStream in = loadTemplate(template);
-            if (in == null) {
-                throw new IllegalArgumentException("Could not find template: " + template + " on the ClassPath when trying to generate the Kubernetes JSON!");
-            }
-            ParserContext parserContext = new ParserContext();
-            Map<String, Object> variables = new HashMap<>();
-            variables.putAll(config.getTemplateVariables());
-            if (Strings.isNotBlank(dockerImage)) {
-                addIfNotDefined(variables, DOCKER_DATA_IMAGE, dockerImage);
-            }
-            Objects.notNull(variables.get(DOCKER_DATA_IMAGE), "no docker.image property specified!");
-            String name = config.getName();
-            addIfNotDefined(variables, "name", name);
-            addIfNotDefined(variables, "containerName", config.getContainerName());
-            Map<String, String> labels = config.getLabels();
-            variables.put("labels", labels);
-            variables.put("ports", config.getPorts());
-            variables.put("environmentVariables", config.getEnvironmentVariables());
-            variables.put("imagePullPolicy", config.getImagePullPolicy());
+        String name = config.getName();
+        Map<String, String> labels = config.getLabels();
+        // replication controllers
+        String replicationControllerName = validateKubernetesId(config.getReplicationControllerName(), "replicationControllerName");
 
-            // replication controllers
-            variables.put("replicaCount", config.getReplicaCount());
-            String replicationControllerName =  validateKubernetesId(config.getReplicationControllerName(), "replicationControllerName");
-            variables.put("replicationControllerName", replicationControllerName);
-
-            // service
-            String serviceName = config.getServiceName();
-            if (Strings.isNotBlank(serviceName)) {
-                serviceName = validateKubernetesId(serviceName, "serviceName");
-            }
-            if (Strings.notEmpty(serviceName)) {
-                if (Objects.equal(serviceName, replicationControllerName)) {
-                    throw new IllegalArgumentException("replicationControllerName and serviceName are the same! (" + serviceName + ")");
-                }
-            }
-            variables.put("serviceName", serviceName);
-            variables.put("servicePort", config.getServicePort());
-            if (config.getServiceContainerPort() != null) {
-                variables.put("serviceContainerPortString", config.getServiceContainerPort().getStrVal());
-                variables.put("serviceContainerPortInt", config.getServiceContainerPort().getIntVal());
-            }
-
-            try {
-                CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);
-                String answer = TemplateRuntime.execute(compiledTemplate, parserContext, variables).toString();
-                String generated = answer;
-                Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Failed to generate Kubernetes JSON from template " + template + ". " + e, e);
+        // service
+        String serviceName = config.getServiceName();
+        if (Strings.isNotBlank(serviceName)) {
+            serviceName = validateKubernetesId(serviceName, "serviceName");
+        }
+        if (Strings.notEmpty(serviceName)) {
+            if (Objects.equal(serviceName, replicationControllerName)) {
+                throw new IllegalArgumentException("replicationControllerName and serviceName are the same! (" + serviceName + ")");
             }
         }
-    }
 
-    protected InputStream loadTemplate(String template) {
-        for (ClassLoader classLoader : classLoaders) {
-            InputStream answer = classLoader.getResourceAsStream(template);
-            if (answer != null) {
-                return answer;
-            }
+        KubernetesListBuilder builder = new KubernetesListBuilder()
+                .withKind("Config")
+                .withId(name)
+                .addNewReplicationController()
+                    .withKind("ReplicationController")
+                    .withId(replicationControllerName)
+                    .withNewDesiredState()
+                    .withReplicas(config.getReplicaCount())
+                    .withReplicaSelector(config.getLabels())
+                    .withNewPodTemplate()
+                        .withNewDesiredState()
+                        .withNewManifest()
+                        .addNewContainer()
+                            .withName(config.getContainerName())
+                            .withImage(dockerImage)
+                            .withImagePullPolicy(config.getImagePullPolicy())
+                            .withEnv(config.getEnvironmentVariables())
+                        .endContainer()
+                        .endManifest()
+                        .endDesiredState()
+                        .endPodTemplate()
+                    .endDesiredState()
+                    .withLabels(labels)
+                .endReplicationController();
+
+        if (serviceName != null) {
+            builder = builder.addNewService()
+                    .withId(serviceName)
+                    .withKind("Service")
+                    .withContainerPort(config.getServiceContainerPort())
+                    .withPort(config.getServicePort())
+                    .withSelector(labels)
+                    .endService();
         }
-        return null;
-    }
+        KubernetesList kubernetesList = builder.build();
 
-    protected static <T> void addIfNotDefined(Map<String, T> map, String key, T value) {
-        if (!map.containsKey(key)) {
-            map.put(key, value);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String generated = mapper.writeValueAsString(kubernetesList);
+            Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
         }
     }
 }

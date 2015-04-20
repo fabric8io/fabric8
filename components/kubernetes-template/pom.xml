@@ -35,10 +35,6 @@
       <artifactId>kubernetes-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mvel</groupId>
-      <artifactId>mvel2</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient-osgi</artifactId>
       <version>${httpclient.version}</version>

@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A DTO for specifying the parameters to use to configure the template generation
+ * A DTO for specifying the parameters to use to configure the json generation
  */
-public class GenerateTemplateDTO {
+public class GenerateDTO {
     protected String name;
     protected String dockerImage;
     private String imagePullPolicy;
@@ -37,7 +37,6 @@ public class GenerateTemplateDTO {
     protected Map<String, String> labels;
     protected List<EnvVar> environmentVariables;
     protected List<Port> ports;
-    protected Map<String, Object> templateVariables;
     private Integer replicaCount;
     private String serviceName;
     private String replicationControllerName;
@@ -52,27 +51,6 @@ public class GenerateTemplateDTO {
         this.dockerImage = dockerImage;
     }
 
-    public String getTemplate() {
-        if (Strings.isNullOrBlank(template)) {
-            template = TemplateGenerator.DEFAULT_TEMPLATE;
-        }
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
-    }
-
-    public Map<String, Object> getTemplateVariables() {
-        if (templateVariables == null) {
-            templateVariables = new HashMap<>();
-        }
-        return templateVariables;
-    }
-
-    public void setTemplateVariables(Map<String, Object> templateVariables) {
-        this.templateVariables = templateVariables;
-    }
 
     public List<EnvVar> getEnvironmentVariables() {
         if (environmentVariables == null) {

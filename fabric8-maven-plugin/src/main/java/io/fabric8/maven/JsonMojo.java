@@ -20,12 +20,11 @@ import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.Lists;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.template.GenerateTemplateDTO;
+import io.fabric8.kubernetes.template.GenerateDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -72,14 +71,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.kubernetes.artifactClassifier", defaultValue = "kubernetes")
     private String artifactClassifier = "kubernetes";
-
-
-    /**
-     * Which MVEL based template should we use to generate the kubernetes JSON?
-     */
-    @Parameter(property = "fabric8.json.template", defaultValue = TemplateGenerator.DEFAULT_TEMPLATE)
-    private String jsonTemplate;
-
 
     /**
      * Whether or not we should generate the Kubernetes JSON file using the MVEL template if there is not one specified
@@ -220,12 +211,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected void generateKubernetesJson(File kubernetesJson) throws MojoExecutionException {
-        if (Strings.isNullOrBlank(jsonTemplate)) {
-            throw new MojoExecutionException("No fabric8.jsonTemplate specified so cannot generate the Kubernetes JSON file!");
-        } else {
-
-            GenerateTemplateDTO config = new GenerateTemplateDTO();
-            config.setTemplate(jsonTemplate);
+            GenerateDTO config = new GenerateDTO();
 
             // TODO populate properties, project etc.
             MavenProject project = getProject();
@@ -249,7 +235,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 labelMap.put("component", name);
             }
             config.setLabels(labelMap);
-            config.setTemplateVariables(variables);
             config.setPorts(getPorts());
             config.setName(name);
             config.setContainerName(getKubernetesContainerName());
@@ -273,14 +258,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             config.setServiceContainerPort(actualServiceContainerPort);
 
-            List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
-                    getTestClassLoader(),
-                    getClass().getClassLoader(),
-                    TemplateGenerator.class.getClassLoader());
-
-            TemplateGenerator generator = new TemplateGenerator(config, classLoaders);
+            TemplateGenerator generator = new TemplateGenerator(config);
             generator.generate(kubernetesJson);
-        }
     }
 
     public String getImagePullPolicy() {
