@@ -32,6 +32,7 @@ import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.URLUtils;
+import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
@@ -49,10 +50,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -113,6 +121,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String origin = projectFileSystem.getRemote();
 
         try {
+            disableSslCertificateChecks();
+
             CredentialsProvider credentials = userDetails.createCredentialsProvider();
             PersonIdent personIdent = new PersonIdent(user, authorEmail);
 
@@ -201,6 +211,26 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+
+    protected static void disableSslCertificateChecks() {
+        LOG.info("Trusting all SSL certificates");
+
+        try {
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{new TrustEverythingSSLTrustManager()}, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+            // bypass host name check, too.
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String s, SSLSession sslSession) {
+                    return true;
+                }
+            });
+        } catch (NoSuchAlgorithmException e) {
+            LOG.warn("Failed to bypass certificate check", e);
+        } catch (KeyManagementException e) {
+            LOG.warn("Failed to bypass certificate check", e);
         }
     }
 
