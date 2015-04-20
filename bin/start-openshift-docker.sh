@@ -339,7 +339,10 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "gogs.${FABRIC8_CONSOLE}",
-      "serviceName": "gogs-http-service"
+      "serviceName": "gogs-http-service",
+      "tls": {
+        "termination": "passthrough"
+       }
     },
     {
       "id": "jbpm-designer-route",
