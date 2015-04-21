@@ -46,6 +46,7 @@ public class Controller {
     private Map<String, Pod> podMap = null;
     private Map<String, ReplicationController> replicationControllerMap = null;
     private Map<String, Service> serviceMap = null;
+    private boolean throwExceptionOnError = false;
 
     public Controller() {
         this(new KubernetesClient());
@@ -194,15 +195,16 @@ public class Controller {
         try {
             kubernetes.createTemplate(entity);
         } catch (Exception e) {
-            LOG.error("Failed to create controller from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create controller from " + sourceName + ". " + e, e);
         }
     }
+
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
         try {
             kubernetes.createBuildConfig(entity);
         } catch (Exception e) {
-            LOG.error("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
     }
 
@@ -210,7 +212,7 @@ public class Controller {
         try {
             kubernetes.createDeploymentConfig(entity);
         } catch (Exception e) {
-            LOG.error("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
         }
     }
 
@@ -218,7 +220,7 @@ public class Controller {
         try {
             kubernetes.createImageRepository(entity);
         } catch (Exception e) {
-            LOG.error("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
     }
 
@@ -243,7 +245,7 @@ public class Controller {
                 try {
                     dto = loadJson(json);
                 } catch (IOException e) {
-                    LOG.error("Failed to process " + json + ". " + e, e);
+                    onApplyError("Failed to process " + json + ". " + e, e);
                 }
                 if (dto != null) {
                     apply(dto, sourceName);
@@ -254,7 +256,7 @@ public class Controller {
         try {
             kubernetes.createConfig(entity);
         } catch (Exception e) {
-            LOG.error("Failed to create config from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create config from " + sourceName + ". " + e, e);
         }
 */
     }
@@ -272,7 +274,7 @@ public class Controller {
                 Object answer = kubernetes.updateService(id, serviceSchema, namespace);
                 LOG.info("Updated service: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
             }
         } else {
             LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(serviceSchema));
@@ -285,7 +287,7 @@ public class Controller {
                 }
                 LOG.info("Created service: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create service from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + serviceSchema, e);
             }
         }
     }
@@ -303,7 +305,7 @@ public class Controller {
                 Object answer = kubernetes.updateReplicationController(id, replicationController);
                 LOG.info("Updated replicationController: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
             }
         } else {
             LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
@@ -316,7 +318,7 @@ public class Controller {
                 }
                 LOG.info("Created replicationController: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
             }
         }
     }
@@ -334,7 +336,7 @@ public class Controller {
                 Object answer = kubernetes.updatePod(id, pod);
                 LOG.info("Updated pod result: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
+                onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
             }
         } else {
             LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
@@ -347,7 +349,7 @@ public class Controller {
                 }
                 LOG.info("Created pod result: " + answer);
             } catch (Exception e) {
-                LOG.error("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
+                onApplyError("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
             }
         }
     }
@@ -358,6 +360,14 @@ public class Controller {
 
     public void setNamespace(String namespace) {
         kubernetes.setNamespace(namespace);
+    }
+
+    public boolean isThrowExceptionOnError() {
+        return throwExceptionOnError;
+    }
+
+    public void setThrowExceptionOnError(boolean throwExceptionOnError) {
+        this.throwExceptionOnError = throwExceptionOnError;
     }
 
     protected boolean isRunning(Pod entity) {
@@ -375,4 +385,14 @@ public class Controller {
         return entity != null;
     }
 
+
+    /**
+     * Logs an error applying some JSON to Kubernetes and optionally throws an exception
+     */
+    protected void onApplyError(String message, Exception e) {
+        LOG.error(message, e);
+        if (throwExceptionOnError) {
+            throw new RuntimeException(message, e);
+        }
+    }
 }

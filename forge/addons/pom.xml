@@ -32,6 +32,7 @@
     <module>camel</module>
     <module>camel-tests</module>
     <module>kubernetes</module>
+    <module>openshift</module>
   </modules>
 
 </project>

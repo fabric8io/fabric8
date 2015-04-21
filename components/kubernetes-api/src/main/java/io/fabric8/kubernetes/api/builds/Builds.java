@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.api.builds;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
@@ -109,6 +110,32 @@ public class Builds {
         }
         return Collections.EMPTY_MAP;
 
+    }
+
+    public static Map<String, Object> getMetadata(BuildConfig build) {
+        if (build != null) {
+            Map<String, Object> additionalProperties = build.getAdditionalProperties();
+            if (additionalProperties != null) {
+                Object metadata = additionalProperties.get("metadata");
+                if (metadata instanceof Map) {
+                    return (Map<String, Object>) metadata;
+                }
+            }
+        }
+        return Collections.EMPTY_MAP;
+
+    }
+
+    public static String getName(BuildConfig build) {
+        String answer = null;
+        if (build != null) {
+            Map<String, Object> metadata = getMetadata(build);
+            answer = getString(metadata, "name");
+            if (Strings.isNullOrBlank(answer))  {
+                answer = build.getName();
+            }
+        }
+        return answer;
     }
 
     public static String getName(Build build) {
