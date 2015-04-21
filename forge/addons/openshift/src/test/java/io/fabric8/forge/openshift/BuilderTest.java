@@ -32,15 +32,17 @@ public class BuilderTest {
         String buildName = "my-build";
         String imageTag = "test";
         String image = "fabric8/quickstart-camel-cdi";
+        String webhookSecret = "secret101";
 
         Map<String, String> labels = BuildConfigs.createBuildLabels(buildName);
         ImageRepository imageRepository = BuildConfigs.imageRepository(buildName, labels);
         System.out.println("Generated ImageRepository: " + JsonHelper.toJson(imageRepository));
 
         String gitUrl = "https://github.com/jstrachan/example-cd-workflow.git";
-        BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildName, labels, gitUrl, imageTag, image);
+        BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildName, labels, gitUrl, imageTag, image, webhookSecret);
 
         System.out.println("Generated BuildConfig: " + JsonHelper.toJson(buildConfig));
     }
+
 
 }

@@ -17,6 +17,7 @@
 package io.fabric8.forge.openshift;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.base.EnvVar;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.openshift.api.model.BuildParameters;
@@ -26,6 +27,7 @@ import io.fabric8.openshift.api.model.ImageRepositoryBuilder;
 import io.fabric8.utils.Strings;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,12 +79,25 @@ public class BuildConfigs {
     }
 
 
+    public static BuildParameters addBuildParameterCustomStrategy(BuildParametersBuilder builder, String image, List<EnvVar> envVars) {
+        return builder.
+                withNewStrategy().
+                withType("Custom").
+                withNewCustomStrategy().
+                withImage(image).
+                withEnv(envVars).
+                endCustomStrategy().
+                endStrategy().
+                build();
+    }
+
+
     public static BuildConfigBuilder buildConfigBuilder(String buildName, Map<String, String> labels, BuildParameters parameters) {
         return buildConfigBuilder(buildName, labels).
                 withParameters(parameters);
     }
 
-    public static BuildConfigBuilder buildConfigBuilder(BuildConfigBuilder builder, String secret) {
+    public static BuildConfigBuilder addWebHookTriggers(BuildConfigBuilder builder, String secret) {
         return builder.
                 addNewTrigger().
                 withType("github").
@@ -103,7 +118,7 @@ public class BuildConfigs {
                 withName(buildName);
     }
 
-    public static BuildConfig createBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String outputImageTagText, String imageText) {
+    public static BuildConfig createBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String outputImageTagText, String imageText, String webhookSecret) {
         BuildParametersBuilder parametersBuilder = new BuildParametersBuilder();
         addBuildParameterGitSource(parametersBuilder, gitUrlText);
         if (Strings.isNotBlank(outputImageTagText)) {
@@ -112,7 +127,19 @@ public class BuildConfigs {
         if (Strings.isNotBlank(imageText)) {
             addBuildParameterStiStrategy(parametersBuilder, imageText);
         }
+        BuildConfigBuilder builder = buildConfigBuilder(buildConfigName, labels, parametersBuilder.build());
+        if (Strings.isNotBlank(webhookSecret)) {
+            addWebHookTriggers(builder, webhookSecret);
+        }
+        return builder.build();
+    }
 
+    public static BuildConfig createIntegrationTestBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String image, List<EnvVar> envVars) {
+        BuildParametersBuilder parametersBuilder = new BuildParametersBuilder();
+        addBuildParameterGitSource(parametersBuilder, gitUrlText);
+        if (Strings.isNotBlank(image)) {
+            addBuildParameterCustomStrategy(parametersBuilder, image, envVars);
+        }
         BuildConfigBuilder builder = buildConfigBuilder(buildConfigName, labels, parametersBuilder.build());
         return builder.build();
     }

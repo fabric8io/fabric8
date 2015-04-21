@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.utils.TablePrinter;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Scm;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
@@ -31,6 +32,7 @@ import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIContextProvider;
+import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.output.UIOutput;
@@ -146,5 +148,24 @@ public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand im
             return mavenFacet.getModel();
         }
         return null;
+    }
+
+    protected String getOrFindGitUrl(UIExecutionContext context, String gitUrlText) {
+        if (Strings.isNullOrBlank(gitUrlText)) {
+            Model mavenModel = getMavenModel(context);
+            if (mavenModel != null) {
+                Scm scm = mavenModel.getScm();
+                if (scm != null) {
+                    String connection = scm.getConnection();
+                    if (Strings.isNotBlank(connection)) {
+                        gitUrlText = connection;
+                    }
+                }
+            }
+        }
+        if (Strings.isNullOrBlank(gitUrlText)) {
+            throw new IllegalArgumentException("Could not find git URL");
+        }
+        return gitUrlText;
     }
 }

@@ -16,7 +16,10 @@
 package io.fabric8.forge.openshift;
 
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
 import io.fabric8.kubernetes.api.builds.Builds;
+import io.fabric8.kubernetes.api.model.EnvVarBuilder;
+import io.fabric8.kubernetes.api.model.base.EnvVar;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.utils.Objects;
@@ -36,15 +39,16 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.utils.cxf.JsonHelper.toJson;
 
 /**
- * Creates a new build in OpenShift for the current project
+ * Creates a new integration test build in OpenShift for the current project
  */
-public class NewBuild extends AbstractOpenShiftCommand {
+public class NewIntegrationTestBuild extends AbstractOpenShiftCommand {
     @Inject
     @WithAttributes(name = "buildName", label = "Build name",
             description = "The build configuration name to generate.",
@@ -52,10 +56,18 @@ public class NewBuild extends AbstractOpenShiftCommand {
     UIInput<String> buildName;
 
     @Inject
-    @WithAttributes(name = "imageTag", label = "Image Tag",
-            description = "The image tag to use.",
-            required = false, defaultValue = "test")
-    UIInput<String> imageTag;
+    @WithAttributes(name = "mavenCommand", label = "Maven command",
+            description = "The docker image name to generate.",
+            required = true,
+                        defaultValue = "mvn -Pts.kube")
+    UIInput<String> mavenCommand;
+
+    @Inject
+    @WithAttributes(name = "image", label = "Docker image",
+            description = "The docker image to use to run the maven build.",
+            required = true,
+            defaultValue = "fabric8/maven")
+    UIInput<String> image;
 
     @Inject
     @WithAttributes(name = "gitUri", label = "Git Uri",
@@ -63,24 +75,13 @@ public class NewBuild extends AbstractOpenShiftCommand {
             required = false)
     UIInput<String> gitUri;
 
-    @Inject
-    @WithAttributes(name = "outputImage", label = "Output image",
-            description = "The docker image name to generate.",
-            required = false)
-    UIInput<String> outputImage;
-
-    @Inject
-    @WithAttributes(name = "webHookSecret", label = "Webhook secret",
-            description = "The secret that needs to be passed in by webhooks invoking the generated build.",
-            required = false)
-    UIInput<String> webHookSecret;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.from(super.getMetadata(context), getClass())
                 .category(Categories.create(CATEGORY))
-                .name(CATEGORY + ": New Build")
-                .description("Create a new build configuration");
+                .name(CATEGORY + ": New Integration Test Build")
+                .description("Create a new integration test build configuration");
     }
 
     @Override
@@ -92,16 +93,15 @@ public class NewBuild extends AbstractOpenShiftCommand {
             public String call() throws Exception {
                 Model mavenModel = getMavenModel(builder);
                 if (mavenModel != null) {
-                    return mavenModel.getArtifactId();
+                    return mavenModel.getArtifactId() + "-int-test";
                 }
                 return null;
             }
         });
         builder.add(buildName);
-        builder.add(imageTag);
+        builder.add(mavenCommand);
+        builder.add(image);
         builder.add(gitUri);
-        builder.add(outputImage);
-        builder.add(webHookSecret);
     }
 
     @Override
@@ -109,20 +109,10 @@ public class NewBuild extends AbstractOpenShiftCommand {
         String buildConfigName = buildName.getValue();
         Objects.assertNotNull(buildConfigName, "buildName");
         Map<String, String> labels = BuildConfigs.createBuildLabels(buildConfigName);
-        String imageTagText = imageTag.getValue();
         String gitUrlText = getOrFindGitUrl(context, gitUri.getValue());
-        String imageText = outputImage.getValue();
-        Model mavenModel = getMavenModel(context);
-        if (Strings.isNullOrBlank(imageText) && mavenModel != null) {
-            imageText = mavenModel.getProperties().getProperty("docker.image");
-        }
-
-        String webhookSecretText = webHookSecret.getValue();
-        if (Strings.isNullOrBlank(webhookSecretText)) {
-            // TODO generate a really good secret!
-            webhookSecretText = "secret101";
-        }
-        BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildConfigName, labels, gitUrlText, imageTagText, imageText, webhookSecretText);
+        String imageText = image.getValue();
+        List<EnvVar> envVars = createEnvVars(buildConfigName, gitUrlText, mavenCommand.getValue());
+        BuildConfig buildConfig = BuildConfigs.createIntegrationTestBuildConfig(buildConfigName, labels, gitUrlText, imageText, envVars);
 
         System.out.println("Generated BuildConfig: " + toJson(buildConfig));
 
@@ -132,6 +122,14 @@ public class NewBuild extends AbstractOpenShiftCommand {
         controller.applyImageRepository(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
         controller.applyBuildConfig(buildConfig, "generated BuildConfig: " + toJson(buildConfig));
         return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getAddress());
+    }
+
+    private List<EnvVar> createEnvVars(String buildConfigName, String gitUrlText, String mavenCommand) {
+        ListEnvVarBuilder builder = new ListEnvVarBuilder();
+        builder.withEnvVar("BUILD_NAME", buildConfigName);
+        builder.withEnvVar("SOURCE_URI", gitUrlText);
+        builder.withEnvVar("MAVEN_COMMAND", mavenCommand);
+        return builder.build();
     }
 
 }
