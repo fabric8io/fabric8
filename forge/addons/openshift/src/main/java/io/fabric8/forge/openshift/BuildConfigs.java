@@ -50,7 +50,7 @@ public class BuildConfigs {
     public static BuildParameters addBuildParameterOutput(BuildParametersBuilder builder, String imageTag) {
         return builder.
                 withNewOutput().
-                withImageTag(imageTag).
+                withTag(imageTag).
                 // TODO add to / name  on output
                         endOutput().
                 build();
