@@ -9,7 +9,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-jolokia</artifactId>
-                <version>2.0.43</version>
+                <version>2.0.44</version>
             </dependency>
 
 
