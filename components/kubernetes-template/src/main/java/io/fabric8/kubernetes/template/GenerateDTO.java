@@ -16,12 +16,10 @@
 package io.fabric8.kubernetes.template;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.utils.Strings;
-import io.fabric8.kubernetes.api.model.Port;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,9 +51,6 @@ public class GenerateDTO {
 
 
     public List<EnvVar> getEnvironmentVariables() {
-        if (environmentVariables == null) {
-            environmentVariables = new ArrayList<>();
-        }
         return environmentVariables;
     }
 
@@ -95,9 +90,6 @@ public class GenerateDTO {
     }
 
     public Map<String, String> getLabels() {
-        if (labels == null) {
-            labels = new HashMap<>();
-        }
         return labels;
     }
 
@@ -106,9 +98,6 @@ public class GenerateDTO {
     }
 
     public List<Port> getPorts() {
-        if (ports == null) {
-            ports = new ArrayList<>();
-        }
         return ports;
     }
 

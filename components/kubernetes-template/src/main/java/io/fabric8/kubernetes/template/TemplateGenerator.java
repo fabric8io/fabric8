@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.utils.Files;
@@ -63,23 +64,25 @@ public class TemplateGenerator {
                 .addNewReplicationController()
                     .withKind("ReplicationController")
                     .withId(replicationControllerName)
+                    .withLabels(labels)
                     .withNewDesiredState()
-                    .withReplicas(config.getReplicaCount())
-                    .withReplicaSelector(config.getLabels())
-                    .withNewPodTemplate()
-                        .withNewDesiredState()
-                        .withNewManifest()
-                        .addNewContainer()
-                            .withName(config.getContainerName())
-                            .withImage(dockerImage)
-                            .withImagePullPolicy(config.getImagePullPolicy())
-                            .withEnv(config.getEnvironmentVariables())
-                        .endContainer()
-                        .endManifest()
-                        .endDesiredState()
+                        .withReplicas(config.getReplicaCount())
+                        .withReplicaSelector(labels)
+                        .withNewPodTemplate()
+                            .withLabels(labels)
+                            .withNewDesiredState()
+                                .withNewManifest()
+                                    .addNewContainer()
+                                        .withName(config.getContainerName())
+                                        .withImage(dockerImage)
+                                        .withImagePullPolicy(config.getImagePullPolicy())
+                                        .withEnv(config.getEnvironmentVariables())
+                                        .withPorts(config.getPorts())
+                                    .endContainer()
+                                .endManifest()
+                            .endDesiredState()
                         .endPodTemplate()
                     .endDesiredState()
-                    .withLabels(labels)
                 .endReplicationController();
 
         if (serviceName != null) {
@@ -89,12 +92,14 @@ public class TemplateGenerator {
                     .withContainerPort(config.getServiceContainerPort())
                     .withPort(config.getServicePort())
                     .withSelector(labels)
+                    .withLabels(labels)
                     .endService();
         }
         KubernetesList kubernetesList = builder.build();
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper()
+                    .enable(SerializationFeature.INDENT_OUTPUT);
             String generated = mapper.writeValueAsString(kubernetesList);
             Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
         } catch (IOException e) {
