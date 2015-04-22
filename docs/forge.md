@@ -10,16 +10,26 @@ you can install the Forge add ons via:
 
     addon-install --coordinate io.fabric8.forge:camel,2.0.44
     addon-install --coordinate io.fabric8.forge:kubernetes,2.0.44
+    addon-install --coordinate io.fabric8.forge:openshift,2.0.44
 
 You should be able to see the new commands that are installed via:
 
-    kube<TAB>
     camel<TAB>
+    kube<TAB>
+    openshift<TAB>
 
 You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what's available.
 
-NOTE the Camel commands are currently not available as they require Camel functionality which hasn't been released yet. When Apache Camel 2.15 is released the forge Camel commands will be available.
 
+### Camel
+
+The [Apache Camel](http://camel.apache.org/) commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.
+
+### OpenShift
+
+The [OpenShift](http://openshift.org) commands allow you to generate an OpenShift Build or Integration Test Build for an existing Maven project.
+
+Rather like the Kubernetes commands below, this addon requires the  **KUBERNETES_MASTER** environment variable to point to where the OpenShift V3 master is running.
 
 ### Kubernetes
 
@@ -36,7 +46,7 @@ You can now list pods / replication controllers / services via
     kubernetes-service-list
 
 
-### Applying JSON
+#### Applying JSON
 
 If you are in a build which has [generated a kubernetes JSON file](mavenPlugin.html#generating-the-json) **target/classes/kubernetes.json** you can apply this via...
 
