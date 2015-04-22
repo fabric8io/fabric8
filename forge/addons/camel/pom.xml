@@ -58,6 +58,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>io.fabric8.forge</groupId>
+      <artifactId>utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- forge provided -->
     <dependency>

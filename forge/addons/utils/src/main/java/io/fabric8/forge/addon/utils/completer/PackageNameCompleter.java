@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.completer;
+package io.fabric8.forge.addon.utils.completer;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -30,9 +30,11 @@ import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.roaster.model.JavaClass;
 
+/**
+ * A completer of java source package names
+ */
 public class PackageNameCompleter implements UICompleter<String> {
-
-    private final Set<String> packageNames = new TreeSet<String>();
+    private final SortedSet<String> packageNames = new TreeSet<>();
 
     public PackageNameCompleter(JavaSourceFacet facet) {
         // find package names in the source code

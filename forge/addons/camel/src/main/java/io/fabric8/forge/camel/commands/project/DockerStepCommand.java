@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper;
-import io.fabric8.forge.camel.commands.project.validator.ClassNameValidator;
+import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;

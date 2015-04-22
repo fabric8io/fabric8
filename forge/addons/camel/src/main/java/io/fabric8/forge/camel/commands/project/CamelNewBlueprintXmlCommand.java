@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
-import io.fabric8.forge.camel.commands.project.validator.ResourceNameValidator;
+import io.fabric8.forge.addon.utils.validator.ResourceNameValidator;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;

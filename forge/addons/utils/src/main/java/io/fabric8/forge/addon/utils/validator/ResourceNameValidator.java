@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.validator;
+package io.fabric8.forge.addon.utils.validator;
 
 import org.jboss.forge.addon.parser.java.ui.validators.AbstractJLSUIValidator;
 import org.jboss.forge.addon.parser.java.utils.ResultType;

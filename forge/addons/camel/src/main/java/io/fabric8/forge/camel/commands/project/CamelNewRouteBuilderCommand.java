@@ -17,9 +17,9 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.completer.PackageNameCompleter;
-import io.fabric8.forge.camel.commands.project.validator.ClassNameValidator;
-import io.fabric8.forge.camel.commands.project.validator.PackageNameValidator;
+import io.fabric8.forge.addon.utils.completer.PackageNameCompleter;
+import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
+import io.fabric8.forge.addon.utils.validator.PackageNameValidator;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
