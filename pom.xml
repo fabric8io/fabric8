@@ -3099,6 +3099,10 @@
         </profile>
         <profile>
             <id>release</id>
+            <properties>
+              <!-- when releasing lets use the release version -->
+              <fabric8.release.version>${project.version}</fabric8.release.version>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
