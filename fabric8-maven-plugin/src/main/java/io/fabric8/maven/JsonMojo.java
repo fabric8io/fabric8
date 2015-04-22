@@ -240,6 +240,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             config.setContainerName(getKubernetesContainerName());
             config.setEnvironmentVariables(getEnvironmentVariables());
             String pullPolicy = getImagePullPolicy();
+            config.setDockerImage(project.getProperties().getProperty("docker.image"));
             config.setImagePullPolicy(pullPolicy);
 
             // replication controllers

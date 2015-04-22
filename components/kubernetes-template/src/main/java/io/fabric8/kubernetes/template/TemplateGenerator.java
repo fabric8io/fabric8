@@ -59,10 +59,8 @@ public class TemplateGenerator {
         }
 
         KubernetesListBuilder builder = new KubernetesListBuilder()
-                .withKind("Config")
                 .withId(name)
                 .addNewReplicationController()
-                    .withKind("ReplicationController")
                     .withId(replicationControllerName)
                     .withLabels(labels)
                     .withNewDesiredState()
@@ -88,7 +86,6 @@ public class TemplateGenerator {
         if (serviceName != null) {
             builder = builder.addNewService()
                     .withId(serviceName)
-                    .withKind("Service")
                     .withContainerPort(config.getServiceContainerPort())
                     .withPort(config.getServicePort())
                     .withSelector(labels)
