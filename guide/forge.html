@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.6" data-basepath="." data-revision="Tue Apr 21 2015 18:46:51 GMT+0000 (UTC)">
+    <div class="book" data-level="3.6" data-basepath="." data-revision="Wed Apr 22 2015 08:09:12 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -792,11 +792,17 @@
 </code></pre><p>you can install the Forge add ons via:</p>
 <pre><code>addon-install --coordinate io.fabric8.forge:camel,2.0.44
 addon-install --coordinate io.fabric8.forge:kubernetes,2.0.44
+addon-install --coordinate io.fabric8.forge:openshift,2.0.44
 </code></pre><p>You should be able to see the new commands that are installed via:</p>
-<pre><code>kube&lt;TAB&gt;
-camel&lt;TAB&gt;
+<pre><code>camel&lt;TAB&gt;
+kube&lt;TAB&gt;
+openshift&lt;TAB&gt;
 </code></pre><p>You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what&apos;s available.</p>
-<p>NOTE the Camel commands are currently not available as they require Camel functionality which hasn&apos;t been released yet. When Apache Camel 2.15 is released the forge Camel commands will be available.</p>
+<h3 id="camel"><a name="camel" class="plugin-anchor" href="#camel"><span class="fa fa-link"></span></a>Camel</h3>
+<p>The <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.</p>
+<h3 id="openshift"><a name="openshift" class="plugin-anchor" href="#openshift"><span class="fa fa-link"></span></a>OpenShift</h3>
+<p>The <a href="http://openshift.org" target="_blank">OpenShift</a> commands allow you to generate an OpenShift Build or Integration Test Build for an existing Maven project.</p>
+<p>Rather like the Kubernetes commands below, this addon requires the  <strong>KUBERNETES_MASTER</strong> environment variable to point to where the OpenShift V3 master is running.</p>
 <h3 id="kubernetes"><a name="kubernetes" class="plugin-anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
 <p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
 <p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
@@ -805,7 +811,7 @@ camel&lt;TAB&gt;
 <pre><code>kubernetes-pod-list
 kubernetes-replication-controller-list
 kubernetes-service-list
-</code></pre><h3 id="applying-json"><a name="applying-json" class="plugin-anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h3>
+</code></pre><h4 id="applying-json"><a name="applying-json" class="plugin-anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h4>
 <p>If you are in a build which has <a href="mavenPlugin.html#generating-the-json">generated a kubernetes JSON file</a> <strong>target/classes/kubernetes.json</strong> you can apply this via...</p>
 <pre><code>kubernetes-apply --file target/classes/kubernetes.json
 </code></pre>
