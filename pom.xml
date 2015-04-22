@@ -156,7 +156,7 @@
 
         <fabric8.release.version>2.0.46</fabric8.release.version>
 -->
-        <fabric8.release.version>2.2-SNAPSHOT</fabric8.release.version>
+        <fabric8.release.version>2.0.44</fabric8.release.version>
         <felix.bundlerepository.version>2.0.2</felix.bundlerepository.version>
         <felix-configadmin.version>1.8.0</felix-configadmin.version>
         <felix-eventadmin.version>1.3.2</felix-eventadmin.version>
@@ -3099,10 +3099,6 @@
         </profile>
         <profile>
             <id>release</id>
-            <properties>
-              <!-- when releasing lets use the release version -->
-              <fabric8.release.version>${project.version}</fabric8.release.version>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
