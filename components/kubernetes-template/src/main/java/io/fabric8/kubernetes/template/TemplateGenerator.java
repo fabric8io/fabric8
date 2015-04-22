@@ -83,7 +83,11 @@ public class TemplateGenerator {
                     .endDesiredState()
                 .endReplicationController();
 
-        if (serviceName != null) {
+        // Do we actually want to generate a service manifest?
+        if (serviceName != null &&
+                config.getServicePort() != null &&
+                config.getServiceContainerPort() != null &&
+                (config.getServiceContainerPort().getIntVal() != null || config.getServiceContainerPort().getStrVal() != null)) {
             builder = builder.addNewService()
                     .withId(serviceName)
                     .withContainerPort(config.getServiceContainerPort())
@@ -92,6 +96,7 @@ public class TemplateGenerator {
                     .withLabels(labels)
                     .endService();
         }
+
         KubernetesList kubernetesList = builder.build();
 
         try {
