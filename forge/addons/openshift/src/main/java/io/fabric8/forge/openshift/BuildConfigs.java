@@ -16,14 +16,8 @@
  */
 package io.fabric8.forge.openshift;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.base.EnvVar;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildParameters;
-import io.fabric8.openshift.api.model.BuildParametersBuilder;
-import io.fabric8.openshift.api.model.ImageRepository;
-import io.fabric8.openshift.api.model.ImageRepositoryBuilder;
+import io.fabric8.openshift.api.model.*;
 import io.fabric8.utils.Strings;
 
 import java.util.HashMap;
@@ -42,7 +36,6 @@ public class BuildConfigs {
 
     public static ImageRepository imageRepository(String buildName, Map<String, String> labels) {
         return new ImageRepositoryBuilder().
-                withApiVersion(KubernetesHelper.defaultOsApiVersion).
                 withKind("ImageRepository").
                 withLabels(labels).
                 withName(buildName).
@@ -112,7 +105,6 @@ public class BuildConfigs {
 
     public static BuildConfigBuilder buildConfigBuilder(String buildName, Map<String, String> labels) {
         return new BuildConfigBuilder().
-                withApiVersion(KubernetesHelper.defaultOsApiVersion).
                 withKind("BuildConfig").
                 withLabels(labels).
                 withName(buildName);
