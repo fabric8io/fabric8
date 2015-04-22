@@ -146,6 +146,7 @@
               <addonRepository>${addon.repository}</addonRepository>
               <addonIds>
                 <addonId>io.fabric8.forge:camel,${fabric8.release.version}</addonId>
+                <addonId>io.fabric8.forge:openshift,${fabric8.release.version}</addonId>
                 <addonId>org.jboss.forge.addon:git,${jboss.forge.version}</addonId>
               </addonIds>
             </configuration>
