@@ -27,6 +27,7 @@ import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
+import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -38,6 +39,8 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.output.UIOutput;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.PrintStream;
@@ -46,6 +49,8 @@ import java.io.PrintStream;
  * An abstract base class for OpenShift related commands
  */
 public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand implements UICommand {
+    private static final transient Logger LOG = LoggerFactory.getLogger(AbstractOpenShiftCommand.class);
+
     public static String CATEGORY = "OpenShift";
 
     private KubernetesClient kubernetes;
@@ -151,6 +156,26 @@ public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand im
     }
 
     protected String getOrFindGitUrl(UIExecutionContext context, String gitUrlText) {
+        if (Strings.isNullOrBlank(gitUrlText)) {
+            final Project project = getSelectedProject(context);
+            if (project != null) {
+                Resource<?> root = project.getRoot();
+                if (root != null) {
+                    try {
+                        Resource<?> gitFolder = root.getChild(".git");
+                        if (gitFolder != null) {
+                            Resource<?> config = gitFolder.getChild("config");
+                            if (config != null) {
+                                String configText = config.getContents();
+                                gitUrlText = GitHelpers.extractGitUrl(configText);
+                            }
+                        }
+                    } catch (Exception e) {
+                        LOG.debug("Ignoring missing git folders: " + e, e);
+                    }
+                }
+            }
+        }
         if (Strings.isNullOrBlank(gitUrlText)) {
             Model mavenModel = getMavenModel(context);
             if (mavenModel != null) {
