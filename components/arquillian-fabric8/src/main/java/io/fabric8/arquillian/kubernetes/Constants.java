@@ -21,6 +21,9 @@ public class Constants {
     public static final String KUBERNETES_MASTER="KUBERNETES_MASTER";
     public static final String KUBERNETES_NAMESPACE="KUBERNETES_NAMESPACE";
 
+    public static final String FABRIC8_NAMESPACE_DESTROY_TIMEOUT = "FABRIC8_NAMESPACE_DESTROY_TIMEOUT";
+    public static final String FABRIC8_NAMESPACE_CONFIRM_DESTROY = "FABRIC8_NAMESPACE_CONFIRM_DESTROY";
+
     public static final String MASTER_URL = "masterUrl";
     public static final String CONFIG_URL = "configUrl";
     public static final String DEPENDENCIES = "dependencies";

@@ -31,7 +31,10 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.MultiException;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +55,6 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 public class SessionListener {
-
     private ShutdownHook shutdownHook;
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {

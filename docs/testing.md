@@ -24,6 +24,14 @@ This namespace is also going to be used to cleanup everything after the end of t
 
 The Session is also made available to the test cases as an arquillian resource _(see below)_.
 
+### Keeping the namespace around
+
+If a test fails you may want to look inside the Kubernetes namespace took at the failed pods. By default the namespace gets garbage collected immediately.
+
+To delay this you can use these environment variables
+
+* FABRIC8_NAMESPACE_CONFIRM_DESTROY set this to 'true' to force the user to type 'Q' in the command line terminal to terminate the namespace
+* FABRIC8_NAMESPACE_DESTROY_TIMEOUT set this to the number of seconds to keep the namespace around for before destroying it
 
 ### Arquillian Resources available to test cases
 

@@ -16,6 +16,7 @@
 
 package io.fabric8.arquillian.utils;
 
+import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -26,6 +27,9 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.MultiException;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.Zips;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
@@ -80,11 +84,62 @@ public class Util {
 
 
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
+        waitUntilWeCanDestroyNamespace(session);
         List<Throwable> errors = new ArrayList<>();
         cleanupAllMatching(client, session, errors);
         if (!errors.isEmpty()) {
             throw new MultiException("Error while cleaning up session.", errors);
         }
+    }
+
+    protected static void waitUntilWeCanDestroyNamespace(Session session) {
+        final Logger log = session.getLogger();
+        String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_NAMESPACE_CONFIRM_DESTROY, "false");
+        if (Objects.equal(confirmDestroy, "true")) {
+            showErrorsBeforePause(session);
+            System.out.println();
+            System.out.println("Waiting to destroy the namespace.");
+            System.out.println("Please enter [Q] to terminate the namespace.");
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    line = line.trim();
+                    if (line.equals("Q")) {
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                log.error("Failed to read user input: " + e);
+            }
+        } else {
+            String timeoutText = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_NAMESPACE_DESTROY_TIMEOUT, "0");
+            Long timeout = null;
+            if (Strings.isNotBlank(timeoutText)) {
+                try {
+                    timeout = Long.parseLong(timeoutText);
+                } catch (NumberFormatException e) {
+                    log.warn("Failed to parse timeout value '" + timeoutText + "' for $Constants.FABRIC8_NAMESPACE_DESTROY_TIMEOUT. " + e);
+                }
+            }
+            if (timeout != null && timeout > 0L) {
+                showErrorsBeforePause(session);
+                System.out.println();
+                System.out.println("Sleeping for " + timeout + " seconds until destroying the namespace");
+                try {
+                    Thread.sleep(timeout * 1000);
+                } catch (InterruptedException e) {
+                    log.info("Interupted sleeping to GC the namespace: " + e);
+                }
+            }
+        }
+        System.out.println("Now destroying the namespace");
+    }
+
+    protected static void showErrorsBeforePause(Session session) {
+        // TODO lets try dump the current errors so that the user can noodle into the system before its destroyed
     }
 
     public static void cleanupAllMatching(KubernetesClient client, Session session, List<Throwable> errors) throws MultiException {
