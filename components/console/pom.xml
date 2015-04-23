@@ -41,10 +41,6 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-template</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-mbeans</artifactId>
     </dependency>
 

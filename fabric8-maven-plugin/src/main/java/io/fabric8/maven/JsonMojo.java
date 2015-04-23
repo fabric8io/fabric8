@@ -16,16 +16,18 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.template.GenerateDTO;
-import io.fabric8.kubernetes.template.TemplateGenerator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -37,6 +39,7 @@ import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -211,56 +214,90 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected void generateKubernetesJson(File kubernetesJson) throws MojoExecutionException {
-            GenerateDTO config = new GenerateDTO();
-
-            // TODO populate properties, project etc.
-            MavenProject project = getProject();
-            Properties properties = project.getProperties();
-            Map<String, Object> variables = new HashMap<>();
-            Set<Map.Entry<Object, Object>> entries = properties.entrySet();
-            for (Map.Entry<Object, Object> entry : entries) {
-                Object key = entry.getKey();
-                Object value = entry.getValue();
-                if (key instanceof String) {
-                    String keyText = key.toString();
-                    // lets replace dots so we can access properties directly inside MVEL
-                    keyText = keyText.replace('.', '_');
-                    variables.put(keyText, value);
-                }
+        // TODO populate properties, project etc.
+        MavenProject project = getProject();
+        Properties properties = project.getProperties();
+        Map<String, Object> variables = new HashMap<>();
+        Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (key instanceof String) {
+                String keyText = key.toString();
+                // lets replace dots so we can access properties directly inside MVEL
+                keyText = keyText.replace('.', '_');
+                variables.put(keyText, value);
             }
-            Map<String, String> labelMap = getLabels();
-            String name = getKubernetesName();
-            if (labelMap.isEmpty() && Strings.isNotBlank(name)) {
-                // lets add a default label
-                labelMap.put("component", name);
-            }
-            config.setLabels(labelMap);
-            config.setPorts(getPorts());
-            config.setName(name);
-            config.setContainerName(getKubernetesContainerName());
-            config.setEnvironmentVariables(getEnvironmentVariables());
-            String pullPolicy = getImagePullPolicy();
-            config.setDockerImage(project.getProperties().getProperty("docker.image"));
-            config.setImagePullPolicy(pullPolicy);
+        }
+        Map<String, String> labelMap = getLabels();
+        String name = getKubernetesName();
+        if (labelMap.isEmpty() && Strings.isNotBlank(name)) {
+            // lets add a default label
+            labelMap.put("component", name);
+        }
+        // services
+        IntOrString actualServiceContainerPort = new IntOrString();
+        try {
+            actualServiceContainerPort.setIntVal(Integer.valueOf(serviceContainerPort));
+        } catch (NumberFormatException e) {
+            actualServiceContainerPort.setStrVal(serviceContainerPort);
+        }
 
-            // replication controllers
-            config.setReplicaCount(replicaCount);
-            config.setReplicationControllerName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"));
 
-            // services
-            config.setServiceName(KubernetesHelper.validateKubernetesId(serviceName, "fabric8.service.name"));
-            config.setServicePort(servicePort);
+        KubernetesListBuilder builder = new KubernetesListBuilder()
+                .withId(name)
+                .addNewReplicationController()
+                .withId(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
+                .withLabels(labels)
+                .withNewDesiredState()
+                .withReplicas(replicaCount)
+                .withReplicaSelector(labelMap)
+                .withNewPodTemplate()
+                .withLabels(labelMap)
+                .withNewDesiredState()
+                .withNewManifest()
+                .addNewContainer()
+                .withName(getKubernetesContainerName())
+                .withImage(getDockerImage())
+                .withImagePullPolicy(getImagePullPolicy())
+                .withEnv(getEnvironmentVariables())
+                .withPorts(getPorts())
+                .endContainer()
+                .endManifest()
+                .endDesiredState()
+                .endPodTemplate()
+                .endDesiredState()
+                .endReplicationController();
 
-            IntOrString actualServiceContainerPort = new IntOrString();
-            try {
-                actualServiceContainerPort.setIntVal(Integer.valueOf(serviceContainerPort));
-            } catch (NumberFormatException e) {
-                actualServiceContainerPort.setStrVal(serviceContainerPort);
-            }
-            config.setServiceContainerPort(actualServiceContainerPort);
+        // Do we actually want to generate a service manifest?
+        if (serviceName != null &&
+                servicePort != null &&
+                actualServiceContainerPort != null &&
+                (actualServiceContainerPort.getIntVal() != null || actualServiceContainerPort.getStrVal() != null)) {
+            builder = builder.addNewService()
+                    .withId(serviceName)
+                    .withContainerPort(actualServiceContainerPort)
+                    .withPort(servicePort)
+                    .withSelector(labelMap)
+                    .withLabels(labelMap)
+                    .endService();
+        }
 
-            TemplateGenerator generator = new TemplateGenerator(config);
-            generator.generate(kubernetesJson);
+        KubernetesList kubernetesList = builder.build();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper()
+                    .enable(SerializationFeature.INDENT_OUTPUT);
+            String generated = mapper.writeValueAsString(kubernetesList);
+            Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
+        }
+    }
+
+    public String getDockerImage() {
+        MavenProject project = getProject();
+        return project.getProperties().getProperty("docker.image");
     }
 
     public String getImagePullPolicy() {

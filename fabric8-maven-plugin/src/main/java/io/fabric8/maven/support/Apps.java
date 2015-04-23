@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.template;
+package io.fabric8.maven.support;
 
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Strings;

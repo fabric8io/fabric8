@@ -68,7 +68,6 @@
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-mbeans</module>
-    <module>kubernetes-template</module>
     <module>kubernetes-generetor</module>
     <module>mq</module>
     <module>rest-utils</module>
