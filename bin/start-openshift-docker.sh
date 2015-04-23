@@ -339,10 +339,7 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "gogs.${FABRIC8_CONSOLE}",
-      "serviceName": "gogs-http-service",
-      "tls": {
-        "termination": "passthrough"
-       }
+      "serviceName": "gogs-http-service"
     },
     {
       "id": "jbpm-designer-route",
@@ -378,6 +375,13 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
 }
 EOF
 fi
+
+# TODO enable on gogs route when we can use https
+#
+#      "tls": {
+#        "termination": "passthrough"
+#       }
+
 
 echo "Configuring OpenShift oauth"
 
