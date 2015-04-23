@@ -59,7 +59,7 @@ public class NewIntegrationTestBuild extends AbstractOpenShiftCommand {
     @WithAttributes(name = "mavenCommand", label = "Maven command",
             description = "The docker image name to generate.",
             required = true,
-                        defaultValue = "mvn -Pts.kube")
+                        defaultValue = "mvn test -Pkit")
     UIInput<String> mavenCommand;
 
     @Inject

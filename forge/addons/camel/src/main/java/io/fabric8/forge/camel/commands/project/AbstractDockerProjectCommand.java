@@ -52,22 +52,4 @@ public abstract class AbstractDockerProjectCommand extends AbstractProjectComman
         return context.getUIContext().getProvider().getOutput().out();
     }
 
-    protected Coordinate createCoordinate(String groupId, String artifactId, String version) {
-        return createCoordinate(groupId, artifactId, version, null);
-    }
-
-    protected Coordinate createCoordinate(String groupId, String artifactId, String version, String packaging) {
-        CoordinateBuilder builder = CoordinateBuilder.create()
-                .setGroupId(groupId)
-                .setArtifactId(artifactId);
-        if (version != null) {
-            builder = builder.setVersion(version);
-        }
-        if (packaging != null) {
-            builder = builder.setPackaging(packaging);
-        }
-
-        return builder;
-    }
-
 }

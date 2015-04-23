@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -141,19 +142,19 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
         Project project = getSelectedProject(context);
 
         Dependency bom = DependencyBuilder.create()
-                .setCoordinate(createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
+                .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
                 .setScopeType("import");
         dependencyInstaller.installManaged(project, bom);
 
         // include test dependencies?
         if (test.getValue() != null && test.getValue()) {
             Dependency dependency = DependencyBuilder.create()
-                    .setCoordinate(createCoordinate("io.fabric8", "arquillian-fabric8", null))
+                    .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "arquillian-fabric8", null))
                     .setScopeType("test");
             dependencyInstaller.installManaged(project, dependency);
 
             dependency = DependencyBuilder.create()
-                    .setCoordinate(createCoordinate("org.jboss.arquillian.junit", "arquillian-junit-container", null))
+                    .setCoordinate(MavenHelpers.createCoordinate("org.jboss.arquillian.junit", "arquillian-junit-container", null))
                     .setScopeType("test");
             dependencyInstaller.installManaged(project, dependency);
         }
@@ -161,7 +162,7 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
         // add fabric8 plugin
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
         MavenPlugin plugin = MavenPluginBuilder.create()
-                .setCoordinate(createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
+                .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
                 .addExecution(ExecutionBuilder.create().setId("json").addGoal("json"))
                 .addExecution(ExecutionBuilder.create().setId("zip").addGoal("zip"));
         pluginFacet.addPlugin(plugin);

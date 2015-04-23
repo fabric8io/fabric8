@@ -15,17 +15,24 @@
  */
 package io.fabric8.forge.openshift;
 
+import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.completer.TestPackageNameCompleter;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import io.fabric8.forge.addon.utils.validator.PackageNameValidator;
 import io.fabric8.utils.Strings;
-import org.jboss.forge.addon.dependencies.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Profile;
+import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
-import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.maven.plugins.ConfigurationBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPlugin;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.profiles.ProfileImpl;
+import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
-import org.jboss.forge.addon.projects.facets.DependencyFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -37,26 +44,42 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.roaster.Roaster;
-import org.jboss.forge.roaster.model.source.Import;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
-import org.jboss.forge.roaster.model.source.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.concurrent.Callable;
+
+import static io.fabric8.forge.addon.utils.MavenHelpers.createCoordinate;
 
 /**
  * Creates a new kubernetes integration test class for the current project
  */
 public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
+    private static final transient Logger LOG = LoggerFactory.getLogger(NewIntegrationTestClass.class);
 
     @Inject
-    @WithAttributes(label = "targetPackage", required = false, description = "The package name where the new test case will be created")
+    @WithAttributes(label = "targetPackage", required = false,
+            description = "The package name where the new test class will be created")
     private UIInput<String> targetPackage;
 
     @Inject
-    @WithAttributes(label = "className", required = true, description = "Name of @Producer class")
+    @WithAttributes(label = "className", required = true,
+            description = "Name of the JUnit test class to generate")
     private UIInput<String> className;
+
+    @Inject
+    @WithAttributes(label = "profile", required = true,
+            description = "The maven profile name used to run the kubernetes integration test",
+            defaultValue = "kit")
+    private UIInput<String> profile;
+
+    @Inject
+    @WithAttributes(label = "integrationTestWildcard", required = true,
+            description = "The wildcard used to find the integration test classes in the generated integration test profile",
+            defaultValue = "**/*IT.*")
+    private UIInput<String> integrationTestWildcard;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -92,8 +115,7 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
             }
         });
 
-        builder.add(targetPackage).add(className);
-
+        builder.add(targetPackage).add(className).add(profile).add(integrationTestWildcard);
     }
 
     @Override
@@ -101,9 +123,48 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
         Project project = getSelectedProject(context);
 
         // lets ensure the dependencies are added...
-        ensureMavenDependencyAdded(project, dependencyInstaller, "io.fabric8", "arquillian-fabric8", "test");
-        ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.arquillian.junit", "arquillian-junit-container", "test");
-        ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-impl-maven", "test");
+        MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "io.fabric8", "arquillian-fabric8", "test");
+        MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.arquillian.junit", "arquillian-junit-container", "test");
+        MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-impl-maven", "test");
+
+        // lets create a kubernetes integration test profile if one does not exist...
+        String profileId = profile.getValue();
+        if (Strings.isNotBlank(profileId)) {
+            MavenFacet mavenFacet = getMavenFacet(context);
+            Model mavenModel = mavenFacet.getModel();
+            Profile kitProfile = MavenHelpers.findProfile(mavenModel, profileId);
+            if (kitProfile == null) {
+                System.out.println("Creating a new maven profile for id: " + profileId);
+                kitProfile = new Profile();
+                kitProfile.setId(profileId);
+            }
+
+            String version = MavenHelpers.getVersion(MavenHelpers.mavenPluginsGroupId, MavenHelpers.surefireArtifactId);
+            if (version != null) {
+                Coordinate coordinate = createCoordinate(MavenHelpers.mavenPluginsGroupId, MavenHelpers.surefireArtifactId, version);
+
+                MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+                ProfileImpl kitProfileImpl = new ProfileImpl();
+                kitProfileImpl.setId(profileId);
+                MavenPlugin surefirePlugin = null;
+                try {
+                    surefirePlugin = pluginFacet.getPlugin(coordinate, kitProfileImpl);
+                } catch (Exception e) {
+                    LOG.debug("Ignored exception looking up maven plugin for " + coordinate + " for profile " + kitProfileImpl);
+                }
+                if (surefirePlugin == null) {
+                    System.out.println("Creating a new plugin for " + coordinate + " on profile " + kitProfileImpl);
+                    String wildcard = integrationTestWildcard.getValue();
+                    ConfigurationBuilder configuration = ConfigurationBuilder.create();
+                    configuration.createConfigurationElement("includes").createConfigurationElement("include").setText(wildcard);
+
+                    surefirePlugin = MavenPluginBuilder.create().
+                            setCoordinate(coordinate).
+                            setConfiguration(configuration);
+                    pluginFacet.addPlugin(surefirePlugin, kitProfileImpl);
+                }
+            }
+        }
 
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
@@ -128,9 +189,12 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
 
         javaClass.addAnnotation("RunWith").setLiteralValue("Arquillian.class");
 
-        javaClass.getJavaDoc().setText("Tests that the Kubernetes resources (Services, Replication Controllers and Pods)\n" +
-                "can be provisioned and start up correctly.\n\n" +
-                "This test creates a new Kubernetes Namespace for the duration of the test case");
+        javaClass.getJavaDoc().setText("Tests that the Kubernetes resources\n" +
+                "* (Services, Replication Controllers and Pods)\n" +
+                "* can be provisioned and start up correctly.\n" +
+                "* \n" +
+                "* This test creates a new Kubernetes Namespace for the duration of the test.\n" +
+                "* For more information see: http://fabric8.io/guide/testing.html" );
 
         javaClass.addField().
                 setProtected().
@@ -165,25 +229,6 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
         facet.saveTestJavaSource(javaClass);
 
         return Results.success("Created new class " + generateClassName);
-    }
-
-    /**
-     * Returns true if the dependency was added or false if its already there
-     */
-    public static boolean ensureMavenDependencyAdded(Project project, DependencyInstaller dependencyInstaller, String groupId, String artifactId, String scope) {
-        List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
-        for (Dependency d : dependencies) {
-            if (groupId.equals(d.getCoordinate().getGroupId()) && artifactId.equals(d.getCoordinate().getArtifactId())) {
-                return false;
-            }
-        }
-
-        // install the component
-        DependencyBuilder component = DependencyBuilder.create().setGroupId(groupId)
-                .setArtifactId(artifactId).setScopeType(scope); //.setVersion(core.getCoordinate().getVersion());
-
-        dependencyInstaller.install(project, component);
-        return true;
     }
 
 }

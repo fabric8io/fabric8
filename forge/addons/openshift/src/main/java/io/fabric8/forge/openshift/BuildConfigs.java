@@ -36,7 +36,10 @@ public class BuildConfigs {
 
     public static ImageRepository imageRepository(String buildName, Map<String, String> labels) {
         return new ImageRepositoryBuilder().
+<<<<<<< HEAD
                 withKind("ImageRepository").
+=======
+>>>>>>> #3785 now adds any missing maven dependencies and a maven profile for running the integration test
                 withLabels(labels).
                 withName(buildName).
                 build();
@@ -105,7 +108,6 @@ public class BuildConfigs {
 
     public static BuildConfigBuilder buildConfigBuilder(String buildName, Map<String, String> labels) {
         return new BuildConfigBuilder().
-                withKind("BuildConfig").
                 withLabels(labels).
                 withName(buildName);
     }
