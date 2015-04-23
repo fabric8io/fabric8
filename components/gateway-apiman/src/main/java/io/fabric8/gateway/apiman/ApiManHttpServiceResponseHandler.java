@@ -15,15 +15,16 @@
  */
 package io.fabric8.gateway.apiman;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.apiman.gateway.engine.IServiceConnectionResponse;
 import io.apiman.gateway.engine.async.AsyncResultImpl;
 import io.apiman.gateway.engine.async.IAsyncHandler;
 import io.apiman.gateway.engine.async.IAsyncResult;
 import io.apiman.gateway.engine.beans.ServiceResponse;
 import io.apiman.gateway.engine.io.IApimanBuffer;
+import io.apiman.gateway.vertx.io.VertxApimanBuffer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.VoidHandler;
@@ -32,16 +33,16 @@ import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientResponse;
 /**
  * Response Handler when a call to Overlord APIMan returns. This handler is called
- * by Vert.x and invokes the APIMan org.overlord.apiman.rt.engine.async.IAsyncHandler. 
+ * by Vert.x and invokes the APIMan org.overlord.apiman.rt.engine.async.IAsyncHandler.
  */
 public class ApiManHttpServiceResponseHandler implements Handler<HttpClientResponse>{
 
 	final HttpClient httpClient;
 	final IAsyncHandler<IAsyncResult<IServiceConnectionResponse>> apiManServiceResponseHandler;
-	
+
 	/**
 	 * Constructor which requires passing in references to
-	 * 
+	 *
 	 * @param httpClient - a Vert.x HttpClient instance.
 	 * @param responseHandler - an instance of the Overlord APIMan org.overlord.apiman.rt.engine.async.IAsyncHandler.
 	 */
@@ -52,15 +53,15 @@ public class ApiManHttpServiceResponseHandler implements Handler<HttpClientRespo
 		this.apiManServiceResponseHandler = responseHandler;
 	}
 	/**
-	 * The handler creates an org.overlord.apiman.rt.engine.beans.ServiceResponse and 
+	 * The handler creates an org.overlord.apiman.rt.engine.beans.ServiceResponse and
 	 * invokes the APIMan ServiceResponseHandler.
-	 * 
+	 *
 	 * @param clientResponse - the vert.x HttpClientResponse from the fabric8 services.
 	 */
 	@Override
 	public void handle(final HttpClientResponse clientResponse) {
 		clientResponse.pause();
-		
+
 		final ServiceResponse serviceResponse = new ServiceResponse();
     	serviceResponse.setCode(clientResponse.statusCode());
     	serviceResponse.setMessage(clientResponse.statusMessage());
@@ -71,12 +72,12 @@ public class ApiManHttpServiceResponseHandler implements Handler<HttpClientRespo
     		headerMap.put(key, clientResponse.headers().get(key));
 		}
     	serviceResponse.setHeaders(headerMap);
-		
+
 		// Stream *to* client.
         final IServiceConnectionResponse streamToClient = new IServiceConnectionResponse() {
-        	
+
         	private boolean streamFinished = false;
-        	 
+
             @Override
             public void transmit() {
             	clientResponse.resume();
@@ -89,17 +90,16 @@ public class ApiManHttpServiceResponseHandler implements Handler<HttpClientRespo
 
             @Override
             public void abort() {
-                // <SNIP> 
+                // <SNIP>
             }
 
 			@Override
 			public void bodyHandler(final IAsyncHandler<IApimanBuffer> bodyHandler) {
 				// TODO Auto-generated method stub
 				clientResponse.dataHandler(new Handler<Buffer>() {
-		        	 
 		            @Override
 		            public void handle(Buffer chunk) {
-		            	bodyHandler.handle(new VertxBuffer(chunk));
+		            	bodyHandler.handle(new VertxApimanBuffer(chunk));
 		            }
 		        });
 			}
@@ -112,7 +112,6 @@ public class ApiManHttpServiceResponseHandler implements Handler<HttpClientRespo
 						streamFinished = true;
 						// TODO Auto-generated method stub
 						endHandler.handle(null);
-						
 					}
 		        });
 			}
@@ -125,15 +124,8 @@ public class ApiManHttpServiceResponseHandler implements Handler<HttpClientRespo
 
         };
 
-        
-        
-        
-        
-    
         IAsyncResult<IServiceConnectionResponse> result = AsyncResultImpl.
         	    <IServiceConnectionResponse> create(streamToClient);
-        
-//        IAsyncResult<IServiceConnectionResponse>
     	apiManServiceResponseHandler.handle(result);
 	}
 }
