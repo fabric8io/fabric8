@@ -42,10 +42,13 @@ import java.util.Set;
 /**
  */
 public class MavenHelpers {
+    public static final String mavenPluginsGroupId = "org.apache.maven.plugins";
+
+    public static final String failsafeArtifactId = "maven-failsafe-plugin";
     public static final String surefireArtifactId = "maven-surefire-plugin";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(MavenHelpers.class);
 
-    public static final String mavenPluginsGroupId = "org.apache.maven.plugins";
     private static Map<String, String> groupArtifactVersionMap;
 
     /**

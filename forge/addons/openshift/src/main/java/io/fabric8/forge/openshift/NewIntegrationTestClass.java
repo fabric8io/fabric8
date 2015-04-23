@@ -82,6 +82,13 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
     private UIInput<String> integrationTestWildcard;
 
     @Inject
+    @WithAttributes(label = "testPlugin", required = true,
+            description = "The integration test plugin for running integration tests",
+            defaultValue = "FailSafe")
+    private UIInput<ITestPlugin> itestPlugin;
+
+
+    @Inject
     private DependencyInstaller dependencyInstaller;
 
     @Inject
@@ -115,7 +122,7 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
             }
         });
 
-        builder.add(targetPackage).add(className).add(profile).add(integrationTestWildcard);
+        builder.add(targetPackage).add(className).add(profile).add(integrationTestWildcard).add(itestPlugin);
     }
 
     @Override
@@ -139,9 +146,18 @@ public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
                 kitProfile.setId(profileId);
             }
 
-            String version = MavenHelpers.getVersion(MavenHelpers.mavenPluginsGroupId, MavenHelpers.surefireArtifactId);
+            String itestPluginArtifactId = null;
+            ITestPlugin itestPluginValue = itestPlugin.getValue();
+            if (itestPluginValue != null) {
+                itestPluginArtifactId = itestPluginValue.getArtifactId();
+            }
+            if (itestPluginArtifactId == null) {
+                System.out.println("Warning - no itestPlugin specified!");
+                itestPluginArtifactId = MavenHelpers.failsafeArtifactId;
+            }
+            String version = MavenHelpers.getVersion(MavenHelpers.mavenPluginsGroupId, itestPluginArtifactId);
             if (version != null) {
-                Coordinate coordinate = createCoordinate(MavenHelpers.mavenPluginsGroupId, MavenHelpers.surefireArtifactId, version);
+                Coordinate coordinate = createCoordinate(MavenHelpers.mavenPluginsGroupId, itestPluginArtifactId, version);
 
                 MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
                 ProfileImpl kitProfileImpl = new ProfileImpl();
