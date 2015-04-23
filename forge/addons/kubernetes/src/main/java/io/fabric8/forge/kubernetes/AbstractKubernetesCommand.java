@@ -15,10 +15,10 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
@@ -39,6 +39,7 @@ import java.io.PrintStream;
  */
 public abstract class AbstractKubernetesCommand extends AbstractProjectCommand implements UICommand {
     public static String CATEGORY = "Kubernetes";
+    private static String namespace;
 
     private KubernetesClient kubernetes;
 
@@ -71,6 +72,9 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
                 kubernetes = new KubernetesClient(new KubernetesFactory(kubernetesAddress));
             } else {
                 kubernetes = new KubernetesClient();
+            }
+            if (namespace != null) {
+                kubernetes.setNamespace(namespace);
             }
         }
         Objects.notNull(kubernetes, "kubernetes");
@@ -116,6 +120,17 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
             return output.out();
         } else {
             return System.out;
+        }
+    }
+
+    public String getNamespace() {
+        return getKubernetes().getNamespace();
+    }
+
+    public void setNamespace(String namespace) {
+        AbstractKubernetesCommand.namespace = namespace;
+        if (kubernetes != null) {
+            kubernetes.setNamespace(namespace);
         }
     }
 }

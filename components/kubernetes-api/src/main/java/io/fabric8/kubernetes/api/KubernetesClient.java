@@ -94,7 +94,15 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     private Kubernetes kubernetes;
     private Kubernetes kubernetesWriteable;
     private KubernetesExtensions kubernetesExtensions;
-    private String namespace = Kubernetes.NAMESPACE_ALL;
+    private String namespace = defaultNamespace();
+
+    protected static String defaultNamespace() {
+        String namespace = System.getenv("KUBERNETES_NAMESPACE");
+        if (Strings.isNotBlank(namespace)) {
+            return namespace;
+        }
+        return Kubernetes.NAMESPACE_ALL;
+    }
 
     public KubernetesClient() {
         this(new KubernetesFactory());

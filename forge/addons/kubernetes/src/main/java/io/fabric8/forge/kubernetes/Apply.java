@@ -15,8 +15,8 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.utils.Files;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;

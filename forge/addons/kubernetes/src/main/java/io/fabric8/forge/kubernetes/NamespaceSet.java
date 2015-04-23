@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -24,8 +23,12 @@ import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
+import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.util.Categories;
+import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -35,19 +38,29 @@ import java.util.List;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
- * Base class for working with a pod
+ * Command to set the namespace
  */
-public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
+public class NamespaceSet extends AbstractKubernetesCommand {
+
     @Inject
-    @WithAttributes(label = "Pod ID", description = "The ID of the pod.", required = true)
-    UIInput<String> podId;
+    @WithAttributes(label = "Namespace", description = "The namespace to switch to", required = true)
+    UIInput<String> namespace;
+
+    @Override
+    public UICommandMetadata getMetadata(UIContext context) {
+        return Metadata.from(super.getMetadata(context), getClass())
+                .category(Categories.create(CATEGORY))
+                .name(CATEGORY + ": Namespace Set")
+                .description("Sets the current namespace");
+    }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         super.initializeUI(builder);
 
-        // populate autocompletion options
-        podId.setCompleter(new UICompleter<String>() {
+        // TODO load the list of namespaces...
+/*
+        namespace.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
@@ -66,24 +79,15 @@ public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
                 return list;
             }
         });
+*/
 
-        builder.add(podId);
+        builder.add(namespace);
     }
-
     @Override
-    public Result execute(UIExecutionContext context) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
-
-        String podIdText = podId.getValue();
-        Pod podInfo = getKubernetes().getPod(podIdText);
-        if (podInfo == null) {
-            System.out.println("No pod for id: " + podIdText);
-        } else {
-            executePod(podInfo, podIdText);
-        }
-        return null;
+    public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
+        String value = namespace.getValue();
+        setNamespace(value);
+        return Results.success("Namespace is: " + getNamespace());
     }
-
-    protected abstract void executePod(Pod pod, String podId) throws Exception;
 }
 

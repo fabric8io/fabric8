@@ -35,7 +35,9 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 
 /**
  * Command to list services in kubernetes
