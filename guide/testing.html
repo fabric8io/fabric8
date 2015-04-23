@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Thu Apr 23 2015 13:54:44 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Thu Apr 23 2015 15:10:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -805,6 +805,13 @@ To encapsulate everything that has been applied to kubernetes as part of the cur
 <p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
 This namespace is also going to be used to cleanup everything after the end of the suite or upon termination of the process.</p>
 <p>The Session is also made available to the test cases as an arquillian resource <em>(see below)</em>.</p>
+<h3 id="keeping-the-namespace-around"><a name="keeping-the-namespace-around" class="plugin-anchor" href="#keeping-the-namespace-around"><span class="fa fa-link"></span></a>Keeping the namespace around</h3>
+<p>If a test fails you may want to look inside the Kubernetes namespace took at the failed pods. By default the namespace gets garbage collected immediately.</p>
+<p>To delay this you can use these environment variables</p>
+<ul>
+<li>FABRIC8_NAMESPACE_CONFIRM_DESTROY set this to &apos;true&apos; to force the user to type &apos;Q&apos; in the command line terminal to terminate the namespace</li>
+<li>FABRIC8_NAMESPACE_DESTROY_TIMEOUT set this to the number of seconds to keep the namespace around for before destroying it</li>
+</ul>
 <h3 id="arquillian-resources-available-to-test-cases"><a name="arquillian-resources-available-to-test-cases" class="plugin-anchor" href="#arquillian-resources-available-to-test-cases"><span class="fa fa-link"></span></a>Arquillian Resources available to test cases</h3>
 <p>A typical integration test, would need to apply the kubernetes configuration, wait for everything to start up and then assert that that expected pods and services are available and of course test the actual services.</p>
 <p>To do that, the test needs to have access to information like:</p>
