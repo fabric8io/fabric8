@@ -15,18 +15,8 @@
  */
 package io.fabric8.gateway.apiman;
 
-import io.fabric8.gateway.api.CallDetailRecord;
-import io.fabric8.gateway.api.apimanager.ApiManagerService;
-import io.fabric8.gateway.api.handlers.http.HttpGateway;
-import io.fabric8.gateway.api.handlers.http.HttpMapping;
-import io.fabric8.gateway.api.handlers.http.IMappedServices;
-import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import io.apiman.gateway.engine.IEngineResult;
 import io.apiman.gateway.engine.IEngine;
+import io.apiman.gateway.engine.IEngineResult;
 import io.apiman.gateway.engine.IServiceRequestExecutor;
 import io.apiman.gateway.engine.async.IAsyncHandler;
 import io.apiman.gateway.engine.async.IAsyncResult;
@@ -37,6 +27,16 @@ import io.apiman.gateway.engine.beans.ServiceRequest;
 import io.apiman.gateway.engine.beans.ServiceResponse;
 import io.apiman.gateway.engine.io.IApimanBuffer;
 import io.apiman.gateway.engine.io.ISignalWriteStream;
+import io.apiman.gateway.vertx.io.VertxApimanBuffer;
+import io.fabric8.gateway.api.CallDetailRecord;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.handlers.http.HttpGateway;
+import io.fabric8.gateway.api.handlers.http.HttpMapping;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +48,14 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 
 /**
- * 
+ *
  */
 public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
     private static final transient Logger LOG = LoggerFactory.getLogger(ApiManHttpGatewayHandler.class);
 
     private final HttpGateway httpGateway;
     private final ApiManagerService apiManager;
-    
+
     public ApiManHttpGatewayHandler(final Vertx vertx, final HttpGateway httpGateway, final ApiManagerService apiManager) {
         this.httpGateway = httpGateway;
     	LOG.info("HTTP Requests are routed via APIMan");
@@ -71,7 +71,7 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
     @Override
     public void handle(final HttpServerRequest request) {
     	final long callStart = System.nanoTime();
-    	
+
     	final HttpServerResponse response = request.response();
     	try {
 	    	//0. If this is a request is show the mapping then respond right away
@@ -79,13 +79,13 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 	    		HttpMapping.respond(request, httpGateway);
 	    		return;
 	    	}
-	    	
+
 			//1. Create APIMan ServiceRequest
 			ServiceRequest srequest = new ServiceRequest();
 			srequest.setRawRequest(request);
 			srequest.setApiKey(getApiKey(request));
 	        srequest.setType(request.method());
-	        
+
 	        srequest.setRemoteAddr(request.remoteAddress().getAddress().getHostAddress());
 	        srequest.setDestination(request.path());
 	        Map<String,String> headerMap = new HashMap<String,String>();
@@ -93,7 +93,7 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 	    		headerMap.put(key, request.headers().get(key));
 			}
 	        srequest.setHeaders(headerMap);
-	        
+
 	        IMappedServices mappedServices = HttpMapping.getMapping(request, httpGateway.getMappedServices());
 	        if (mappedServices!=null) {
 		    	ProxyMappingDetails proxyMappingDetails = mappedServices.getProxyMappingDetails();
@@ -105,16 +105,16 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 	        } else {
 	        	throw new Exception("Service Not Found in API Manager.");
 	        }
-	        
+
 	        //2. Create APIMan Handler and execute
 	        IEngine engine = (IEngine) apiManager.getEngine();
-	    	// Request executor, through which we can send chunks and indicate end.      
-			final IServiceRequestExecutor requestExecutor = engine.executor(srequest, 
+	    	// Request executor, through which we can send chunks and indicate end.
+			final IServiceRequestExecutor requestExecutor = engine.executor(srequest,
 					new IAsyncResultHandler<IEngineResult>() {
-				
+
 					@Override
 					public void handle(IAsyncResult<IEngineResult> iAsyncEngineResult) {
-				
+
 					if (! iAsyncEngineResult.isSuccess()) {
 						//This can happen only when an (unexpected) internal exception occurs; we need to send back a 500
 						response.setStatusCode(500);
@@ -151,21 +151,21 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 							response.setStatusCode(serviceResponse.getCode());
 							response.setStatusMessage(serviceResponse.getMessage());
 							response.setChunked(true);
-							
-							 // bodyHandler to receive response chunks.                           
+
+							 // bodyHandler to receive response chunks.
 					          engineResult.bodyHandler(new IAsyncHandler<IApimanBuffer>() {
-					 
+
 					            @Override
 					            public void handle(IApimanBuffer chunk) {
-					            	
+
 					              // Important: retrieve native buffer format directly if possible, much more efficient.
 					            	response.write((Buffer) chunk.getNativeBuffer());
 					            }
 					          });
-					 
+
 					          // endHandler to receive end signal.
 					          engineResult.endHandler(new IAsyncHandler<Void>() {
-					 
+
 					            @Override
 					            public void handle(Void flag) {
 					            	LOG.debug("ResponseCode from downstream " + response.getStatusCode());
@@ -183,12 +183,12 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 			//Create a streamHandler so APIMan can use it to stream the client request
 			//to the back-end service
 			requestExecutor.streamHandler(new IAsyncHandler<ISignalWriteStream>() {
-
 				  @Override
 				  public void handle(final ISignalWriteStream writeStream) {
 				    request.dataHandler(new Handler<Buffer>() {
-			            public void handle(Buffer data) {
-			            	IApimanBuffer apimanBuffer = new VertxBuffer(data);
+			            @Override
+                        public void handle(Buffer data) {
+			            	IApimanBuffer apimanBuffer = new VertxApimanBuffer(data);
 			        		writeStream.write(apimanBuffer);
 			            }
 			        });
@@ -204,9 +204,9 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 			LOG.error("User error " + e.getMessage());
 		}
     }
-    
-    
-    
+
+
+
     /**
      * Gets the API Key from the request.  The API key can be passed either via
      * a custom http request header called X-API-Key or else by a query parameter

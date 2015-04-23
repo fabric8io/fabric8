@@ -91,7 +91,7 @@
         <aether.version>1.11</aether.version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr.version>3.3</antlr.version>
-        <apiman.version>1.1.0.RC1</apiman.version>
+        <apiman.version>1.1.2-SNAPSHOT</apiman.version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-api.version>1.0.1</aries-blueprint-api.version>
         <aries-blueprint-cm.version>1.0.4</aries-blueprint-cm.version>
@@ -413,6 +413,11 @@
          <dependency>
              <groupId>io.apiman</groupId>
              <artifactId>apiman-distro-wildfly8</artifactId>
+             <version>${apiman.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-gateway-platforms-vertx</artifactId>
              <version>${apiman.version}</version>
          </dependency>
             <!-- Commons -->
