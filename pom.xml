@@ -136,7 +136,7 @@
         <commons-jxpath.version>1.3_1</commons-jxpath.version>
         <compiler.plugin.version>3.2</compiler.plugin.version>
         <xmlresolver.version>1.2_5</xmlresolver.version>
-        <curator.version>2.6.0</curator.version>
+        <curator.version>2.7.1</curator.version>
         <cxf.version>3.0.4</cxf.version>
         <cxf.version-range>[3.0,4)</cxf.version-range>
         <deltaspike.version>1.0.3</deltaspike.version>

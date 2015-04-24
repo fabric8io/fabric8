@@ -15,11 +15,11 @@
  */
 package io.fabric8.gateway.fabric.http;
 
+import io.fabric8.gateway.fabric.support.SimplePathTemplate;
 import io.fabric8.gateway.fabric.support.http.HttpMappingKubeCache;
 import io.fabric8.gateway.fabric.support.http.HttpMappingRuleBase;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
-import io.fabric8.zookeeper.internal.SimplePathTemplate;
 
 import java.util.List;
 import java.util.Map;

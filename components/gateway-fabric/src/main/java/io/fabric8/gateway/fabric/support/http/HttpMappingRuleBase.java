@@ -15,8 +15,8 @@
  */
 package io.fabric8.gateway.fabric.support.http;
 
+import io.fabric8.gateway.fabric.support.SimplePathTemplate;
 import io.fabric8.utils.Strings;
-import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import io.fabric8.gateway.api.ServiceDetails;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
