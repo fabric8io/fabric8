@@ -48,7 +48,7 @@
             <module>fabric-cxf-registry</module>
     -->
     <module>fabric-cxf-plugins</module>
-    <module>fabric-etcd</module>
+    <module>fabric8-etcd</module>
     <module>fabric-groups</module>
     <module>fabric-jgroups</module>
     <module>fabric-utils</module>

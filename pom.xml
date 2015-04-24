@@ -520,22 +520,22 @@
 
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric-etcd-api</artifactId>
+                <artifactId>fabric8-etcd-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric-etcd-core</artifactId>
+                <artifactId>fabric8-etcd-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric-etcd-reader-gson</artifactId>
+                <artifactId>fabric8-etcd-reader-gson</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric-etcd-reader-jackson</artifactId>
+                <artifactId>fabric8-etcd-reader-jackson</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -667,7 +667,7 @@
             <!-- Internal testing modules -->
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric-etcd-core</artifactId>
+                <artifactId>fabric8-etcd-core</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
             </dependency>
