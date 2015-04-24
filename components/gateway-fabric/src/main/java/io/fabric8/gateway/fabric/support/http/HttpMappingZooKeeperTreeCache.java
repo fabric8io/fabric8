@@ -19,7 +19,6 @@ import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.jcip.GuardedBy;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -163,8 +162,8 @@ public class HttpMappingZooKeeperTreeCache {
         List<String> services = dto.getServices();
         List<String> newList = new ArrayList<String>(services.size());
         for (String service : services) {
-            String expanded = ZooKeeperUtils.getSubstitutedData(curator, service);
-            newList.add(expanded);
+            //String expanded = ZooKeeperUtils.getSubstitutedData(curator, service);
+            newList.add(service);
         }
         dto.setServices(newList);
     }

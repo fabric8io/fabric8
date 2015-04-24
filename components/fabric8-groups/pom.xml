@@ -33,7 +33,11 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>zookeeper-client</artifactId>
+            <artifactId>fabric8-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
