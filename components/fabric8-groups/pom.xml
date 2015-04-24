@@ -26,7 +26,7 @@
     <version>2.2-SNAPSHOT</version>
   </parent>
 
-    <artifactId>fabric-groups</artifactId>
+    <artifactId>fabric8-groups</artifactId>
 
     <name>Fabric8 :: Groups</name>
 

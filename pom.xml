@@ -540,7 +540,7 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-groups</artifactId>
+                <artifactId>fabric8-groups</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
