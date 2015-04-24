@@ -40,7 +40,7 @@
     <module>fabric8-cdi</module>
     <module>fabric8-jbpm-workitems</module>
     <module>fabric8-spring-boot</module>
-    <module>fabric-agent</module>
+    <module>fabric8-agent</module>
     <module>fabric-apm</module>
     <module>fabric-cxf</module>
     <!--
