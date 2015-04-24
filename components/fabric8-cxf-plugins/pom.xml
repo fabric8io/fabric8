@@ -24,7 +24,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>fabric-cxf-plugins</artifactId>
+  <artifactId>fabric8-cxf-plugins</artifactId>
   <name>Fabric8 :: Swagger Maven Plugins</name>
   <packaging>maven-plugin</packaging>
 
@@ -75,7 +75,7 @@
     </dependency>
     <dependency>
         <groupId>io.fabric8</groupId>
-        <artifactId>fabric-cxf</artifactId>
+        <artifactId>fabric8-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -97,7 +97,7 @@
       <version>2.0</version>
     </dependency>
 
-    <!-- TODO why are these transitive dependencies not picked up by fabric-cxf dependency? -->
+    <!-- TODO why are these transitive dependencies not picked up by fabric8-cxf dependency? -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>

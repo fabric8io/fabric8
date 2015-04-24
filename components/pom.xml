@@ -45,7 +45,7 @@
     <module>fabric8-cxf</module>
     <!--
             TODO
-            <module>fabric-cxf-registry</module>
+            <module>fabric8-cxf-registry</module>
     -->
     <module>fabric8-cxf-plugins</module>
     <module>fabric8-etcd</module>
