@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fabric-utils</artifactId>
+    <artifactId>fabric8-utils</artifactId>
     <packaging>bundle</packaging>
 
     <name>Fabric8 :: Utils</name>

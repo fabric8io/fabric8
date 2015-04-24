@@ -87,7 +87,7 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-utils</artifactId>
+                <artifactId>fabric8-utils</artifactId>
                 <version>2.2-SNAPSHOT</version>
             </dependency>
 

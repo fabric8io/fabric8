@@ -47,7 +47,7 @@
   <dependencies>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric-utils</artifactId>
+      <artifactId>fabric8-utils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>

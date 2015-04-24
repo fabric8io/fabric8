@@ -59,7 +59,7 @@
 
     <dependency>
         <groupId>io.fabric8</groupId>
-        <artifactId>fabric-utils</artifactId>
+        <artifactId>fabric8-utils</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.apache.karaf.features</groupId>
