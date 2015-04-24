@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.KubernetesListFluent;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
@@ -159,6 +160,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String serviceContainerPort;
 
     /**
+     * The service protocol
+     */
+    @Parameter(property = "fabric8.service.protocol")
+    private String serviceProtocol;
+
+    /**
      * The docker image pull policy. If a SNAPSHOT dependency is used then this value defaults to <code>"PullAlways"</code>
      */
     @Parameter(property = "fabric8.imagePullPolicy")
@@ -274,13 +281,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 servicePort != null &&
                 actualServiceContainerPort != null &&
                 (actualServiceContainerPort.getIntVal() != null || actualServiceContainerPort.getStrVal() != null)) {
-            builder = builder.addNewService()
+            KubernetesListFluent<KubernetesListBuilder>.ServicesNested<KubernetesListBuilder> serviceBuilder = builder.addNewService()
                     .withId(serviceName)
                     .withContainerPort(actualServiceContainerPort)
                     .withPort(servicePort)
                     .withSelector(labelMap)
-                    .withLabels(labelMap)
-                    .endService();
+                    .withLabels(labelMap);
+            if (Strings.isNotBlank(serviceProtocol)) {
+                serviceBuilder = serviceBuilder
+                        .withProtocol(serviceProtocol);
+            }
+            builder = serviceBuilder.endService();
         }
 
         KubernetesList kubernetesList = builder.build();
