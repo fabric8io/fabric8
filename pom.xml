@@ -656,7 +656,7 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-vertx</artifactId>
+                <artifactId>fabric8-vertx</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
