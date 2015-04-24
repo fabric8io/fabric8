@@ -1,17 +1,17 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Copyright 2005-2014 Red Hat, Inc.
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.maven;
 
@@ -19,11 +19,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesListFluent;
-import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -41,13 +42,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
@@ -60,6 +55,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     public static final String FABRIC8_PORT_HOST_PREFIX = "docker.port.host.";
     public static final String FABRIC8_PORT_CONTAINER_PREFIX = "docker.port.container.";
+    public static final String FABRIC8_PORT_SERVICE = "fabric8.service.port";
+    public static final String FABRIC8_CONTAINER_PORT_SERVICE = "fabric8.service.containerPort";
+    public static final String FABRIC8_PROTOCOL_SERVICE = "fabric8.service.protocol";
+    public static final String FABRIC8_PORT_SERVICE_PREFIX = FABRIC8_PORT_SERVICE + ".";
+    public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
+    public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -100,16 +101,22 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private List<EnvVar> environmentVariables;
 
     /**
-     * The ports passed into the generated Kubernetes JSON template.
+     * The container ports passed into the generated Kubernetes JSON template.
      */
     @Parameter()
-    private List<Port> ports;
+    private List<ContainerPort> containerPorts;
 
     /**
      * Maps the port names to the default container port numbers
      */
     @Parameter()
     private Map<String, Integer> defaultContainerPortMap;
+
+    /**
+     * The service ports passed into the generated Kubernetes JSON template.
+     */
+    @Parameter()
+    private List<ServicePort> servicePorts;
 
     /**
      * The ID prefix used in the generated Kubernetes JSON template
@@ -150,19 +157,19 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The service port
      */
-    @Parameter(property = "fabric8.service.port")
+    @Parameter(property = FABRIC8_PORT_SERVICE)
     private Integer servicePort;
 
     /**
      * The service container port
      */
-    @Parameter(property = "fabric8.service.containerPort")
+    @Parameter(property = FABRIC8_CONTAINER_PORT_SERVICE)
     private String serviceContainerPort;
 
     /**
      * The service protocol
      */
-    @Parameter(property = "fabric8.service.protocol")
+    @Parameter(property = FABRIC8_PROTOCOL_SERVICE)
     private String serviceProtocol;
 
     /**
@@ -242,13 +249,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
             // lets add a default label
             labelMap.put("component", name);
         }
-        // services
-        IntOrString actualServiceContainerPort = new IntOrString();
-        try {
-            actualServiceContainerPort.setIntVal(Integer.valueOf(serviceContainerPort));
-        } catch (NumberFormatException e) {
-            actualServiceContainerPort.setStrVal(serviceContainerPort);
-        }
 
 
         KubernetesListBuilder builder = new KubernetesListBuilder()
@@ -268,7 +268,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withImage(getDockerImage())
                 .withImagePullPolicy(getImagePullPolicy())
                 .withEnv(getEnvironmentVariables())
-                .withPorts(getPorts())
+                .withPorts(getContainerPorts())
                 .endContainer()
                 .endManifest()
                 .endDesiredState()
@@ -277,19 +277,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .endReplicationController();
 
         // Do we actually want to generate a service manifest?
-        if (serviceName != null &&
-                servicePort != null &&
-                actualServiceContainerPort != null &&
-                (actualServiceContainerPort.getIntVal() != null || actualServiceContainerPort.getStrVal() != null)) {
+        if (serviceName != null) {
             KubernetesListFluent<KubernetesListBuilder>.ServicesNested<KubernetesListBuilder> serviceBuilder = builder.addNewService()
                     .withId(serviceName)
-                    .withContainerPort(actualServiceContainerPort)
-                    .withPort(servicePort)
                     .withSelector(labelMap)
                     .withLabels(labelMap);
-            if (Strings.isNotBlank(serviceProtocol)) {
-                serviceBuilder = serviceBuilder
-                        .withProtocol(serviceProtocol);
+
+            List<ServicePort> servicePorts = getServicePorts();
+            if (servicePorts != null & !servicePorts.isEmpty()) {
+                serviceBuilder.withPorts(servicePorts);
+            } else {
+                serviceBuilder.withPortalIP("None");
             }
             builder = serviceBuilder.endService();
         }
@@ -377,23 +375,23 @@ public class JsonMojo extends AbstractFabric8Mojo {
         this.defaultContainerPortMap = defaultContainerPortMap;
     }
 
-    public List<Port> getPorts() {
-        if (ports == null) {
-            ports = new ArrayList<>();
+    public List<ContainerPort> getContainerPorts() {
+        if (containerPorts == null) {
+            containerPorts = new ArrayList<>();
         }
-        if (ports.isEmpty()) {
-            Map<String, Port> portMap = new HashMap<>();
+        if (containerPorts.isEmpty()) {
+            Map<String, ContainerPort> portMap = new HashMap<>();
             Properties properties1 = getProject().getProperties();
             Map<String, String> hostPorts = findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
             Properties properties = getProject().getProperties();
-            Map<String, String> containerPorts = findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
+            Map<String, String> containerPortsMap = findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
 
-            for (Map.Entry<String, String> entry : containerPorts.entrySet()) {
+            for (Map.Entry<String, String> entry : containerPortsMap.entrySet()) {
                 String name = entry.getKey();
                 String portText = entry.getValue();
                 Integer portNumber = parsePort(portText, FABRIC8_PORT_CONTAINER_PREFIX + name);
                 if (portNumber != null) {
-                    Port port = getOrCreatePort(portMap, name);
+                    ContainerPort port = getOrCreatePort(portMap, name);
                     port.setContainerPort(portNumber);
                     port.setName(name);
                 }
@@ -403,7 +401,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 String portText = entry.getValue();
                 Integer portNumber = parsePort(portText, FABRIC8_PORT_HOST_PREFIX + name);
                 if (portNumber != null) {
-                    Port port = getOrCreatePort(portMap, name);
+                    ContainerPort port = getOrCreatePort(portMap, name);
                     port.setHostPort(portNumber);
 
                     // if the container port isn't set, lets try default that using defaults
@@ -415,21 +413,83 @@ public class JsonMojo extends AbstractFabric8Mojo {
             getLog().info("Generated port mappings: " + portMap);
             getLog().debug("from host ports: " + hostPorts);
             getLog().debug("from containerPorts ports: " + containerPorts);
-            ports.addAll(portMap.values());
+            containerPorts.addAll(portMap.values());
         }
-        return ports;
+        return containerPorts;
     }
 
-    protected static Port getOrCreatePort(Map<String, Port> portMap, String name) {
-        Port answer = portMap.get(name);
+    protected static ContainerPort getOrCreatePort(Map<String, ContainerPort> portMap, String name) {
+        ContainerPort answer = portMap.get(name);
         if (answer == null) {
-            answer = new Port();
+            answer = new ContainerPort();
             portMap.put(name, answer);
 
             // TODO should we set the name?
             // answer.setName(name);
         }
         return answer;
+    }
+
+    public List<ServicePort> getServicePorts() {
+        if (servicePorts == null) {
+            servicePorts = new ArrayList<>();
+        }
+        if (servicePorts.isEmpty()) {
+            if (serviceContainerPort != null && servicePort != null) {
+                ServicePort actualServicePort = new ServicePort();
+                Integer containerPortNumber = parsePort(serviceContainerPort, FABRIC8_CONTAINER_PORT_SERVICE);
+                IntOrString containerPort = new IntOrString();
+                if (containerPortNumber != null) {
+                    containerPort.setIntVal(containerPortNumber);
+                } else {
+                    containerPort.setStrVal(serviceContainerPort);
+                }
+                actualServicePort.setContainerPort(containerPort);
+                actualServicePort.setPort(servicePort);
+                if (serviceProtocol != null) {
+                    actualServicePort.setProtocol(serviceProtocol);
+                    servicePorts.add(actualServicePort);
+                }
+            }
+
+            Properties properties1 = getProject().getProperties();
+            Map<String, String> servicePortProperties = findPropertiesWithPrefix(properties1, FABRIC8_PORT_SERVICE_PREFIX);
+            Map<String, String> serviceContainerPortProperties = findPropertiesWithPrefix(properties1, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX);
+            Map<String, String> serviceProtocolProperties = findPropertiesWithPrefix(properties1, FABRIC8_PROTOCOL_SERVICE_PREFIX);
+
+            for (Map.Entry<String, String> entry : servicePortProperties.entrySet()) {
+                String name = entry.getKey();
+                String servicePortText = entry.getValue();
+                Integer servicePortNumber = parsePort(servicePortText, FABRIC8_PORT_SERVICE_PREFIX + name);
+                if (servicePortNumber != null) {
+                    String containerPort = serviceContainerPortProperties.get(name);
+                    if (Strings.isNullOrBlank(containerPort)) {
+                        getLog().warn("Missing container port for service - need to specify " + FABRIC8_CONTAINER_PORT_SERVICE_PREFIX + name + " property");
+                    } else {
+                        ServicePort servicePort = new ServicePort();
+                        servicePort.setName(name);
+                        servicePort.setPort(servicePortNumber);
+
+                        IntOrString containerPortSpec = new IntOrString();
+                        Integer containerPortNumber = parsePort(containerPort, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX + name);
+                        if (containerPortNumber != null) {
+                            containerPortSpec.setIntVal(containerPortNumber);
+                        } else {
+                            containerPortSpec.setStrVal(containerPort);
+                        }
+                        servicePort.setContainerPort(containerPortSpec);
+
+                        String portProtocol = serviceProtocolProperties.get(name);
+                        if (portProtocol != null) {
+                            servicePort.setProtocol(portProtocol);
+                        }
+
+                        servicePorts.add(servicePort);
+                    }
+                }
+            }
+        }
+        return servicePorts;
     }
 
     protected static EnvVar getOrCreateEnv(Map<String, EnvVar> envMap, String name) {
@@ -446,14 +506,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
             try {
                 return Integer.parseInt(portText);
             } catch (NumberFormatException e) {
-                getLog().warn("Failed to parse port text: " + portText + " from maven property " + propertyName + ". " + e, e);
+                getLog().debug("Failed to parse port text: " + portText + " from maven property " + propertyName + ". " + e, e);
             }
         }
         return null;
     }
 
-    public void setPorts(List<Port> ports) {
-        this.ports = ports;
+    public void setContainerPorts(List<ContainerPort> ports) {
+        this.containerPorts = ports;
+    }
+
+    public void setServicePorts(List<ServicePort> ports) {
+        this.servicePorts = ports;
     }
 
     public Map<String, String> getLabels() {

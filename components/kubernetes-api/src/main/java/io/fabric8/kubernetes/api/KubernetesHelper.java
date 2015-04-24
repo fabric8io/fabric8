@@ -1052,11 +1052,11 @@ public class KubernetesHelper {
     /**
      * Returns the port for the given port number on the pod
      */
-    public static Port findContainerPort(Pod pod, Integer portNumber) {
+    public static ContainerPort findContainerPort(Pod pod, Integer portNumber) {
         List<Container> containers = KubernetesHelper.getContainers(pod);
         for (Container container : containers) {
-            List<Port> ports = container.getPorts();
-            for (Port port : ports) {
+            List<ContainerPort> ports = container.getPorts();
+            for (ContainerPort port : ports) {
                 if (Objects.equal(portNumber, port.getContainerPort())) {
                     return port;
                 }
@@ -1068,11 +1068,11 @@ public class KubernetesHelper {
     /**
      * Returns the port for the given port name
      */
-    public static Port findContainerPortByName(Pod pod, String name) {
+    public static ContainerPort findContainerPortByName(Pod pod, String name) {
         List<Container> containers = KubernetesHelper.getContainers(pod);
         for (Container container : containers) {
-            List<Port> ports = container.getPorts();
-            for (Port port : ports) {
+            List<ContainerPort> ports = container.getPorts();
+            for (ContainerPort port : ports) {
                 if (Objects.equal(name, port.getName())) {
                     return port;
                 }
@@ -1085,7 +1085,7 @@ public class KubernetesHelper {
     /**
      * Returns the port for the given port number or name
      */
-    public static Port findContainerPortByNumberOrName(Pod pod, String numberOrName) {
+    public static ContainerPort findContainerPortByNumberOrName(Pod pod, String numberOrName) {
         Integer portNumber = toOptionalNumber(numberOrName);
         if (portNumber != null) {
             return findContainerPort(pod, portNumber);

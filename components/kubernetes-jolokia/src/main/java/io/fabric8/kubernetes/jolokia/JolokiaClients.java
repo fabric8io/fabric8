@@ -17,13 +17,7 @@ package io.fabric8.kubernetes.jolokia;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -37,7 +31,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.utils.Objects.assertNotNull;
 
 /**
@@ -213,8 +206,8 @@ public class JolokiaClients {
      */
     public J4pClient clientForContainer(String host, Container container, Pod pod) {
         if (container != null) {
-            List<Port> ports = container.getPorts();
-            for (Port port : ports) {
+            List<ContainerPort> ports = container.getPorts();
+            for (ContainerPort port : ports) {
                 Integer containerPort = port.getContainerPort();
                 if (containerPort != null) {
                     String name = port.getName();

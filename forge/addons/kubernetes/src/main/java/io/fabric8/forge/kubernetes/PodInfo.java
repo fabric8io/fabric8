@@ -15,14 +15,7 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.api.model.*;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.util.Categories;
@@ -77,11 +70,11 @@ public class PodInfo extends AbstractPodCommand {
                         printValue("Working Dir", container.getWorkingDir());
                         printValue("Command", container.getCommand());
 
-                        List<Port> ports = container.getPorts();
+                        List<ContainerPort> ports = container.getPorts();
                         if (notEmpty(ports)) {
                             println("Ports:");
                             indentCount++;
-                            for (Port port : ports) {
+                            for (ContainerPort port : ports) {
                                 printValue("Name", port.getName());
                                 printValue("Protocol", port.getProtocol());
                                 printValue("Host Port", port.getHostPort());

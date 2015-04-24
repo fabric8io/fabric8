@@ -18,11 +18,7 @@ package io.fabric8.kubernetes.mbeans;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.JMXUtils;
 import io.fabric8.utils.Strings;
 
@@ -96,7 +92,7 @@ public class KubernetesManager implements KubernetesManagerMXBean {
                 String protocol = "http://";
 
                 // find the port either by port number or name
-                Port port = KubernetesHelper.findContainerPortByNumberOrName(pod, portNumberOrName);
+                ContainerPort port = KubernetesHelper.findContainerPortByNumberOrName(pod, portNumberOrName);
                 Integer containerPort = port != null ? port.getContainerPort() : null;
                 // TODO if we can detect HTTPS then add that too...
 

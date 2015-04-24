@@ -19,11 +19,7 @@ package io.fabric8.kubernetes.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -61,9 +57,9 @@ public class AppPodSummaryDTO {
                 List<Container> containers = manifest.getContainers();
                 if (containers != null) {
                     for (Container container : containers) {
-                        List<Port> ports = container.getPorts();
+                        List<ContainerPort> ports = container.getPorts();
                         if (ports != null) {
-                            for (Port port : ports) {
+                            for (ContainerPort port : ports) {
                                 Integer containerPort = port.getContainerPort();
                                 if (containerPort != null) {
                                     containerPorts.add(containerPort);

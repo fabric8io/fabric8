@@ -20,8 +20,8 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.utils.Filter;
 import org.jgroups.Address;
 import org.jgroups.Event;
@@ -39,13 +39,7 @@ import org.jgroups.util.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @MBean(description = "Kubernetes discovery protocol")
 public class KubernetesDiscovery extends Discovery {
@@ -138,7 +132,7 @@ public class KubernetesDiscovery extends Discovery {
                 List<Container> containers = KubernetesHelper.getContainers(pod);
                 for (Container container : containers) {
 
-                    for (Port port : container.getPorts()) {
+                    for (ContainerPort port : container.getPorts()) {
                         if (Constants.JGROUPS_TCP_PORT.equals(port.getName())) {
                             try {
                                 String ip = pod.getCurrentState().getPodIP();
