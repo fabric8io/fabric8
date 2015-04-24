@@ -25,42 +25,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fabric8-vertx</artifactId>
-    <!--
-    <packaging>bundle</packaging>
-    -->
     <name>Fabric8 :: Vert.x</name>
 
-    <properties>
-    <!--
-        <fuse.osgi.export>
-            io.fabric8.vertx;version=${project.version};-noimport:=true,
-            org.vertx*;version=${vertx.version}
-        </fuse.osgi.export>
-        <fuse.osgi.import>
-            META-INF.services.*,
-            io.netty*;version=${netty.version},
-            *
-        </fuse.osgi.import>
-        <fuse.osgi.private.pkg>
-        </fuse.osgi.private.pkg>
-          -->
-    </properties>
-
     <dependencies>
-    <!--  
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
@@ -90,29 +57,6 @@
             <scope>test</scope>
         </dependency>
 
-        
     </dependencies>
-<!-- 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>scr</goal>
-                        </goals>
-                        <configuration>
-                            <specVersion>1.1</specVersion>
-                            <strictMode>false</strictMode>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-     -->
 
 </project>
