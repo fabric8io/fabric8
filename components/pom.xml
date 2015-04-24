@@ -42,17 +42,17 @@
     <module>fabric8-spring-boot</module>
     <module>fabric8-agent</module>
     <module>fabric-apm</module>
-    <module>fabric-cxf</module>
+    <module>fabric8-cxf</module>
     <!--
             TODO
             <module>fabric-cxf-registry</module>
     -->
-    <module>fabric-cxf-plugins</module>
+    <module>fabric8-cxf-plugins</module>
     <module>fabric8-etcd</module>
-    <module>fabric-groups</module>
+    <module>fabric8-groups</module>
     <module>fabric8-jgroups</module>
     <module>fabric-utils</module>
-    <module>fabric-vertx</module>
+    <module>fabric8-vertx</module>
     <module>gateway-api</module>
     <module>gateway-apiman</module>
     <module>gateway-core</module>
