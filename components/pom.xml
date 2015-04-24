@@ -50,7 +50,7 @@
     <module>fabric-cxf-plugins</module>
     <module>fabric8-etcd</module>
     <module>fabric-groups</module>
-    <module>fabric-jgroups</module>
+    <module>fabric8-jgroups</module>
     <module>fabric-utils</module>
     <module>fabric-vertx</module>
     <module>gateway-api</module>
