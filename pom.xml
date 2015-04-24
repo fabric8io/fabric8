@@ -463,7 +463,7 @@
             <!-- Fabric -->
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>arquillian-fabric8</artifactId>
+                <artifactId>fabric8-arquillian</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

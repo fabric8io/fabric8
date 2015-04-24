@@ -33,7 +33,7 @@
   </properties>
 
   <dependencies>
-    <!-- TODO should we add this as a dependency on arquillian-fabric8 so there's less for folks to have to add to their pom.xml? -->
+    <!-- TODO should we add this as a dependency on fabric8-arquillian so there's less for folks to have to add to their pom.xml? -->
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
@@ -42,7 +42,7 @@
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>arquillian-fabric8</artifactId>
+      <artifactId>fabric8-arquillian</artifactId>
       <scope>test</scope>
     </dependency>
 
