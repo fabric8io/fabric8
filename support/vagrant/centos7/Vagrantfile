@@ -6,6 +6,8 @@ VAGRANTFILE_API_VERSION = "2"
 
 $provisionScript = <<SCRIPT
 
+yum install -y https://mirror.openshift.com/pub/openshift-v3/dependencies/centos7/x86_64/docker-1.6.0-1.el7.x86_64.rpm
+
 systemctl enable docker
 
 # update limits

@@ -194,8 +194,24 @@ You can use maven properties to customize the generation of the JSON:
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
 </tr>
 <tr>
+<td>fabric8.service.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
 <td>fabric8.service.protocol</td>
-<td>The name of the protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portName>.port</td>
+<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portName>.containerPort</td>
+<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portName>.protocol</td>
+<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
 <td>fabric8.service.containerPort</td>
