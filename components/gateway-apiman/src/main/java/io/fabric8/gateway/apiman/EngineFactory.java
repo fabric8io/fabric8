@@ -17,6 +17,7 @@ package io.fabric8.gateway.apiman;
 
 import io.apiman.gateway.engine.IComponentRegistry;
 import io.apiman.gateway.engine.IConnectorFactory;
+import io.apiman.gateway.engine.IMetrics;
 import io.apiman.gateway.engine.IPluginRegistry;
 import io.apiman.gateway.engine.IRegistry;
 import io.apiman.gateway.engine.components.IBufferFactoryComponent;
@@ -62,6 +63,14 @@ public class EngineFactory extends DefaultEngineFactory {
         esConfig.put("client.cluster-name", "apiman");
         esConfig.put("client.host", "localhost");
         esConfig.put("client.port", "9300");
+    }
+
+    /**
+     * @see io.apiman.gateway.engine.impl.DefaultEngineFactory#createMetrics()
+     */
+    @Override
+    protected IMetrics createMetrics() {
+        return new DropWizardMetrics();
     }
 
     /**
