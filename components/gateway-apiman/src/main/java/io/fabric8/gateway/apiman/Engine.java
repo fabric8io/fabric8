@@ -34,8 +34,6 @@ import org.vertx.java.core.Vertx;
 
 public class Engine {
 
-	private FileBackedRegistry registry;
-
 	/**
 	 * The APIMan Engine that applies policies before and after each service request.
 	 * The engine's configuration is persisted by a JSON file called registry.json
@@ -47,6 +45,9 @@ public class Engine {
 	 */
 	public ApiManEngine create(final Vertx vertx, final HttpGateway httpGateway, final String port) {
 		IEngineFactory factory = new EngineFactory(vertx, httpGateway);
+		if ("in-memory".equals(System.getProperty("fabric8-apiman.engine-factory"))) {
+		    factory = new InMemoryEngineFactory(vertx, httpGateway);
+		}
 		final IEngine engine = factory.createEngine();
 		ApiManEngine apimanEngine = new ApiManEngine() {
 
@@ -88,7 +89,7 @@ public class Engine {
 
 			@Override
 			public String[] getServiceInfo(String servicePath) {
-				return registry.getService(servicePath);
+				return ((DelegatingRegistryWithMapping) engine.getRegistry()).getService(servicePath);
 			}
 		};
         return apimanEngine;

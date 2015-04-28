@@ -16,13 +16,12 @@
 package io.fabric8.gateway.apiman;
 
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import static org.junit.Assert.assertEquals;
+import io.apiman.gateway.engine.beans.Application;
+import io.apiman.gateway.engine.beans.Contract;
+import io.apiman.gateway.engine.beans.Policy;
+import io.apiman.gateway.engine.beans.Service;
+import io.apiman.gateway.engine.policies.IPBlacklistPolicy;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManager;
@@ -31,12 +30,17 @@ import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
-import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.MappedServices;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -49,13 +53,6 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import io.apiman.gateway.engine.policies.IPBlacklistPolicy;
-import io.apiman.gateway.engine.beans.Application;
-import io.apiman.gateway.engine.beans.Contract;
-import io.apiman.gateway.engine.beans.Policy;
-import io.apiman.gateway.engine.beans.Service;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
@@ -65,7 +62,7 @@ import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  */
@@ -78,17 +75,19 @@ public class HTTPGatewayApiManTest {
     protected static Vertx vertx;
     protected static HttpServer restApplication;
     protected static HttpGatewayServer httpGatewayServer;
-    
+
     private static String silverHelloServiceApiKey = "silver-key";
     private static String goldHelloServiceApiKey = "gold-key";
-    
+
     @BeforeClass
     public static void startVertx() throws InterruptedException, IOException {
     	LOG.info("BeforeClass - Starting Vert.x");
-   
+
+    	System.setProperty("fabric8-apiman.engine-factory", "in-memory");
+
     	//deleting the registry to start clean
     	FileBackedRegistry.getRegistryFile().delete();
-    	
+
         if( vertx == null ) {
             vertx = VertxFactory.newVertx();
         }
@@ -98,6 +97,7 @@ public class HTTPGatewayApiManTest {
     @AfterClass
     public static void stopVertx() throws IOException, InterruptedException{
     	LOG.info("AfterClass - Stopping Vert.x");
+        System.clearProperty("fabric8-apiman.engine-factory");
     	stopHttpGateway();
         endRestEndpoint();
         if( vertx!=null ) {
@@ -111,7 +111,6 @@ public class HTTPGatewayApiManTest {
      * for a GET request using any path on http://localhost:18181.
      */
     public static HttpServer startRestApplication() throws InterruptedException, IOException {
-    	
         restApplication = vertx.createHttpServer();
         restApplication.requestHandler(new Handler<HttpServerRequest>() {
             @Override
@@ -150,14 +149,13 @@ public class HTTPGatewayApiManTest {
             serviceDetails.setVersion("1");
 
             mappedServices.put("/hello/world", new MappedServices("http://localhost:18181/root/", serviceDetails, loadBalancer, false));
-        
         }
-        
+
         final ApiManager apiManager = new ApiManager();
-        
+
         DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
         final HttpGateway httpGateway = new HttpGateway(){
-        	
+
         	@Override
             public void addMappingRuleConfiguration(HttpMappingRule mappingRule) {
             }
@@ -205,23 +203,23 @@ public class HTTPGatewayApiManTest {
 			}
 
         };
-        
+
         websocketHandler.setPathPrefix("");
-        
+
         Handler<HttpServerRequest> requestHandler = null;
         if (httpGateway.getApiManager().isApiManagerEnabled()) {
         	requestHandler = apiManager.getService().createApiManagerHttpGatewayHandler();
 		} else {
 			requestHandler = new HttpGatewayHandler(vertx, httpGateway);
 		}
-        
+
         httpGatewayServer = new HttpGatewayServer(vertx, websocketHandler, 18080, requestHandler);
         httpGatewayServer.setHost("0.0.0.0");
         httpGatewayServer.init();
         LOG.info("HttpGateway started");
-        
+
         configureEngine();
-      
+
         return httpGatewayServer;
     }
 
@@ -245,11 +243,10 @@ public class HTTPGatewayApiManTest {
         String content = method.getResponseBodyAsString();
         assertEquals("{\"/hello/world\":[\"http://localhost:18181/root/\"]}",content);
     }
-    
+
     /* Testing a good request - happy path */
     @Test
     public void testGoldClientRequest() throws Exception {
-
         int httpPort = httpGatewayServer.getPort();
         HttpClient httpClient = new HttpClient();
         HttpMethod method = new GetMethod("http://127.0.0.1:" + httpPort + "/hello/world?apikey=gold-key");
@@ -257,15 +254,16 @@ public class HTTPGatewayApiManTest {
         String content = method.getResponseBodyAsString();
         assertEquals("Hello World!",content);
     }
+
     /* Testing a good request, that trips a blacklist policy failure */
     @Test
     public void testSilverClientRequest() throws Exception {
-    	
         int httpPort = httpGatewayServer.getPort();
         HttpClient httpClient = new HttpClient();
         HttpMethod method = new GetMethod("http://127.0.0.1:" + httpPort + "/hello/world?apikey=silver-key");
         assertEquals(403, httpClient.executeMethod(method));
     }
+
     /* Testing a service endpoint that does not exist, expecting a 404 */
     @Test
     public void testGoldClientBadPathRequest() throws Exception {
@@ -277,7 +275,7 @@ public class HTTPGatewayApiManTest {
         String message = method.getStatusText();
         assertEquals("User error Service Not Found in API Manager.",message);
     }
-    
+
     /* Testing a service endpoint that does not exist, expecting a 404 */
     @Test
     public void testServiceMapping() throws Exception {
@@ -292,36 +290,35 @@ public class HTTPGatewayApiManTest {
 
     //using the ApiMan REST API to setup some Service, Plans, Contracts and Applications
     public static void configureEngine() throws HttpException, IOException {
-    	
     	int restPort = httpGatewayServer.getPort() - 1;
         HttpClient httpClient = new HttpClient();
-        
+
     	ObjectMapper mapper = new ObjectMapper();
-    	
+
     	Service service = new Service();
         service.setServiceId("HelloWorld");
         service.setEndpoint("http://localhost:18181/root/");
         service.setVersion("1.0");
         service.setOrganizationId("Kurt");
-        
+
         String serviceJson = mapper.writeValueAsString(service);
-        
+
         LOG.info("Publishing HelloWorld Service");
         PutMethod method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/services/?apikey=apiman-config-key");
         RequestEntity requestEntity = new StringRequestEntity(serviceJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
         httpClient.executeMethod(method);
-        
-        
+
+
         Application clientApp = new Application();
         clientApp.setApplicationId("clientApp");
         clientApp.setOrganizationId("ClientOrg");
         clientApp.setVersion("1.0");
-        
+
         Policy blackListPolicy = new Policy();
         blackListPolicy.setPolicyJsonConfig("{ \"ipList\" : [ \"127.0.0.1\" ] }");
         blackListPolicy.setPolicyImpl("class:" + IPBlacklistPolicy.class.getName());
-        
+
         Contract silverContract = new Contract();
         silverContract.setApiKey(silverHelloServiceApiKey);
         silverContract.setServiceId(service.getServiceId());
@@ -329,34 +326,32 @@ public class HTTPGatewayApiManTest {
         silverContract.setServiceVersion(service.getVersion());
         silverContract.getPolicies().add(blackListPolicy);
         clientApp.addContract(silverContract);
-        
+
         Contract goldContract = new Contract();
         goldContract.setApiKey(goldHelloServiceApiKey);
         goldContract.setServiceId(service.getServiceId());
         goldContract.setServiceOrgId(service.getOrganizationId());
         goldContract.setServiceVersion(service.getVersion());
         clientApp.addContract(goldContract);
-        
+
         String clientAppJson = mapper.writeValueAsString(clientApp);
-        
+
         LOG.info("Register clientApp Application");
         method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/applications/?apikey=apiman-config-key");
         requestEntity = new StringRequestEntity(clientAppJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
         httpClient.executeMethod(method);
-        
     }
-    
+
     //Deleting the ApiMan registry data.
     public static void cleanAddedConfig() throws IOException {
-    	
     	int restPort = httpGatewayServer.getPort() - 1;
         HttpClient httpClient = new HttpClient();
     	//Removing applications
     	LOG.info("Unregister clientApp Application");
         DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/applications/ClientOrg/clientApp/1.0/?apikey=apiman-config-key");
         httpClient.executeMethod(method);
-        
+
         //Removing services
         LOG.info("Retire Hello World Service");
         method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/services/Kurt/HelloWorld/1.0/?apikey=apiman-config-key");
