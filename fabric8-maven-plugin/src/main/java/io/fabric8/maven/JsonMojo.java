@@ -6,7 +6,7 @@
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesListFluent;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
@@ -169,7 +170,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The service protocol
      */
-    @Parameter(property = FABRIC8_PROTOCOL_SERVICE)
+    @Parameter(property = FABRIC8_PROTOCOL_SERVICE, defaultValue = "TCP")
     private String serviceProtocol;
 
     /**
@@ -278,7 +279,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
-            KubernetesListFluent<KubernetesListBuilder>.ServicesNested<KubernetesListBuilder> serviceBuilder = builder.addNewService()
+            ServiceBuilder serviceBuilder = new ServiceBuilder()
                     .withId(serviceName)
                     .withSelector(labelMap)
                     .withLabels(labelMap);
@@ -289,7 +290,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             } else {
                 serviceBuilder.withPortalIP("None");
             }
-            builder = serviceBuilder.endService();
+
+            builder = builder.addToServices(serviceBuilder.build());
         }
 
         KubernetesList kubernetesList = builder.build();
