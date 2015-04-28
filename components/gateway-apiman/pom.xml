@@ -84,6 +84,11 @@
             <groupId>io.apiman</groupId>
             <artifactId>apiman-gateway-platforms-vertx</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
         <dependency>
           <groupId>org.jboss.weld.se</groupId>
           <artifactId>weld-se</artifactId>
