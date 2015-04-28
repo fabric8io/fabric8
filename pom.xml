@@ -380,7 +380,7 @@
       </snapshotRepository>
     </distributionManagement>
 
-    <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nible and only use whats in Maven Central -->
+    <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nimble and only use whats in Maven Central -->
     <repositories>
     </repositories>
 

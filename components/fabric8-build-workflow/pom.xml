@@ -32,6 +32,24 @@
     <mainClass>io.fabric8.workflow.build.MainWithNoPersistence</mainClass>
   </properties>
 
+  <repositories>
+    <!--
+      TODO this is unfortunately required as the transitive dependency:
+      org.jboss.dashboard-builder:dashboard-builder-bom
+      has not yet been sync'd to maven central :(
+    -->
+    <repository>
+      <id>jboss</id>
+      <url>https://repository.jboss.org</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>io.fabric8</groupId>
