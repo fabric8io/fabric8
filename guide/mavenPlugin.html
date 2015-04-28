@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Apr 28 2015 08:19:59 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Apr 28 2015 09:30:51 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -936,8 +936,24 @@ cat target/classes/kubernetes.json
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
 </tr>
 <tr>
+<td>fabric8.service.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
 <td>fabric8.service.protocol</td>
-<td>The name of the protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portname>.port</portname></td>
+<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portname>.containerPort</portname></td>
+<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.<portname>.protocol</portname></td>
+<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
 <td>fabric8.service.containerPort</td>
