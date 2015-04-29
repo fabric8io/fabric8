@@ -20,11 +20,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.EmptyDirVolumeSource;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.GitRepoVolumeSource;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
@@ -66,9 +71,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
-
+    
     private static final String VOLUME_NAME = "name";
-    private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).mountPath";
+    private static final String VOLUME_ATTRIBUTE_TYPE = "attributeType";
+    private static final String VOLUME_MOUNT_PATH = "mountPath";
+    private static final String VOLUME_HOST_PATH = "hostPath";
+    private static final String EMPTY_DIR_MEDIUM = "emptyDir";
+    private static final String VOLUME_GIT_REPO = "gitRepo";
+    private static final String VOLUME_GIT_REVISION_PROPERTY = "fabric8.volume.%s.gitRevision";
+    private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).(?<attributeType>[^. ]*)";
     private static final Pattern VOLUME_PATTERN = Pattern.compile(VOLUME_REGEX);
 
     @Component
@@ -280,6 +291,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withPorts(getContainerPorts())
                 .withVolumeMounts(getVolumeMounts())
                 .endContainer()
+                .withVolumes(getVolumes())
                 .endManifest()
                 .endDesiredState()
                 .endPodTemplate()
@@ -598,24 +610,74 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public List<VolumeMount> getVolumeMounts() {
         List<VolumeMount> volumeMount = new ArrayList<>();
         MavenProject project = getProject();
-        for (Map.Entry<Object, Object> entry: project.getProperties().entrySet()) {
+        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
                 String s = (String) key;
                 Matcher m = VOLUME_PATTERN.matcher(s);
                 if (m.matches()) {
                     String name = m.group(VOLUME_NAME);
-                    String path = String.valueOf(entry.getValue());
-                    volumeMount.add(new VolumeMountBuilder()
-                            .withName(name)
-                            .withMountPath(path)
-                            .withReadOnly(false).build());
+                    String type = m.group(VOLUME_ATTRIBUTE_TYPE);
+                    if (type.equals(VOLUME_MOUNT_PATH)) {
+                        String path = String.valueOf(entry.getValue());
+                        volumeMount.add(new VolumeMountBuilder()
+                                .withName(name)
+                                .withMountPath(path)
+                                .withReadOnly(false).build());
+                    }
                 }
             }
         }
-       return volumeMount;
-    } 
-    
+        return volumeMount;
+    }
+
+    public List<Volume> getVolumes() {
+        List<Volume> volumes = new ArrayList<>();
+        MavenProject project = getProject();
+        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof String) {
+                String s = (String) key;
+                Matcher m = VOLUME_PATTERN.matcher(s);
+                if (m.matches()) {
+                    String name = m.group(VOLUME_NAME);
+                    String type = m.group(VOLUME_ATTRIBUTE_TYPE);
+                    
+                    if (type.equals(VOLUME_HOST_PATH)) {
+                        String path = String.valueOf(entry.getValue());
+                        volumes.add(new VolumeBuilder()
+                                .withName(name)
+                                .withNewSource()
+                                .withHostDir(new HostPathVolumeSource(path))
+                                .endSource()
+                                .build());
+                        
+                    } else if (type.equals(EMPTY_DIR_MEDIUM)) {
+                        String medium = String.valueOf(entry.getValue());
+                        volumes.add(new VolumeBuilder()
+                                .withName(name)
+                                .withNewSource()
+                                .withEmptyDir(new EmptyDirVolumeSource(medium))
+                                .endSource()
+                                .build());
+                        
+                    } else if (type.equals(VOLUME_GIT_REPO)) {
+                        String repository = String.valueOf(entry.getValue());
+                        String revisionPropertyName = String.format(VOLUME_GIT_REVISION_PROPERTY, name);
+                        String revision = project.getProperties().getProperty(revisionPropertyName);
+                        volumes.add(new VolumeBuilder()
+                                .withName(name)
+                                .withNewSource()
+                                .withGitRepo(new GitRepoVolumeSource(repository, revision))
+                                .endSource()
+                                .build());
+                    }
+                }
+            }
+        }
+        return volumes;
+    }
+
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
     }
