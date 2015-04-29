@@ -242,7 +242,7 @@ You can use maven properties to customize the generation of the JSON:
 <td>Defines the host dir volume with name FOO.</td>
 </tr>
 <tr>
-<td>fabric8.volume.FOO.emtyDir = somemedium</td>
+<td>fabric8.volume.FOO.emptyDir = somemedium</td>
 <td>Defines the emtpy volume with name FOO and medium somemedium.</td>
 </tr>
 </table>
