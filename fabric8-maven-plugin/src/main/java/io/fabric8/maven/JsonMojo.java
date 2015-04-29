@@ -20,21 +20,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.EmptyDirVolumeSource;
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.GitRepoVolumeSource;
-import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
+import io.fabric8.maven.support.VolumeType;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,7 +46,13 @@ import org.apache.maven.project.MavenProjectHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,14 +74,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
-    
+
     private static final String VOLUME_NAME = "name";
     private static final String VOLUME_ATTRIBUTE_TYPE = "attributeType";
     private static final String VOLUME_MOUNT_PATH = "mountPath";
-    private static final String VOLUME_HOST_PATH = "hostPath";
-    private static final String EMPTY_DIR_MEDIUM = "emptyDir";
-    private static final String VOLUME_GIT_REPO = "gitRepo";
-    private static final String VOLUME_GIT_REVISION_PROPERTY = "fabric8.volume.%s.gitRevision";
+
     private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).(?<attributeType>[^. ]*)";
     private static final Pattern VOLUME_PATTERN = Pattern.compile(VOLUME_REGEX);
 
@@ -634,7 +634,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public List<Volume> getVolumes() {
         List<Volume> volumes = new ArrayList<>();
         MavenProject project = getProject();
-        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
+        Properties properties = project.getProperties();
+
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
                 String s = (String) key;
@@ -642,35 +644,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 if (m.matches()) {
                     String name = m.group(VOLUME_NAME);
                     String type = m.group(VOLUME_ATTRIBUTE_TYPE);
-                    
-                    if (type.equals(VOLUME_HOST_PATH)) {
-                        String path = String.valueOf(entry.getValue());
-                        volumes.add(new VolumeBuilder()
-                                .withName(name)
-                                .withNewSource()
-                                .withHostDir(new HostPathVolumeSource(path))
-                                .endSource()
-                                .build());
-                        
-                    } else if (type.equals(EMPTY_DIR_MEDIUM)) {
-                        String medium = String.valueOf(entry.getValue());
-                        volumes.add(new VolumeBuilder()
-                                .withName(name)
-                                .withNewSource()
-                                .withEmptyDir(new EmptyDirVolumeSource(medium))
-                                .endSource()
-                                .build());
-                        
-                    } else if (type.equals(VOLUME_GIT_REPO)) {
-                        String repository = String.valueOf(entry.getValue());
-                        String revisionPropertyName = String.format(VOLUME_GIT_REVISION_PROPERTY, name);
-                        String revision = project.getProperties().getProperty(revisionPropertyName);
-                        volumes.add(new VolumeBuilder()
-                                .withName(name)
-                                .withNewSource()
-                                .withGitRepo(new GitRepoVolumeSource(repository, revision))
-                                .endSource()
-                                .build());
+                    VolumeType volumeType = VolumeType.typeFor(type);
+                    if (volumeType != null) {
+                        volumes.add(volumeType.fromProperties(name, properties));
                     }
                 }
             }
