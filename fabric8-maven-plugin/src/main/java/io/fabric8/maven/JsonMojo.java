@@ -25,6 +25,8 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -43,6 +45,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
@@ -61,6 +65,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_PORT_SERVICE_PREFIX = FABRIC8_PORT_SERVICE + ".";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
+
+
+    private static final String VOLUME_NAME = "name";
+    private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).mountPath";
+    private static final Pattern VOLUME_PATTERN = Pattern.compile(VOLUME_REGEX);
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -269,6 +278,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withImagePullPolicy(getImagePullPolicy())
                 .withEnv(getEnvironmentVariables())
                 .withPorts(getContainerPorts())
+                .withVolumeMounts(getVolumeMounts())
                 .endContainer()
                 .endManifest()
                 .endDesiredState()
@@ -585,6 +595,27 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
+    public List<VolumeMount> getVolumeMounts() {
+        List<VolumeMount> volumeMount = new ArrayList<>();
+        MavenProject project = getProject();
+        for (Map.Entry<Object, Object> entry: project.getProperties().entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof String) {
+                String s = (String) key;
+                Matcher m = VOLUME_PATTERN.matcher(s);
+                if (m.matches()) {
+                    String name = m.group(VOLUME_NAME);
+                    String path = String.valueOf(entry.getValue());
+                    volumeMount.add(new VolumeMountBuilder()
+                            .withName(name)
+                            .withMountPath(path)
+                            .withReadOnly(false).build());
+                }
+            }
+        }
+       return volumeMount;
+    } 
+    
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
     }
@@ -594,5 +625,4 @@ public class JsonMojo extends AbstractFabric8Mojo {
             variables.put(key, value);
         }
     }
-
 }
