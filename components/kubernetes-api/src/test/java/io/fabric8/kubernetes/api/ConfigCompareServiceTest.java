@@ -1,0 +1,152 @@
+/**
+ * Copyright 2005-2014 Red Hat, Inc.
+ * <p/>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package io.fabric8.kubernetes.api;
+
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Parses the example JSON
+ */
+public class ConfigCompareServiceTest {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(ConfigCompareServiceTest.class);
+
+    @Test
+    public void testServicesEqual() throws Exception {
+        Service entity1 = new ServiceBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        Service entity2 = new ServiceBuilder().withId("foo").
+                addToLabels("label2", "value2").
+                addToLabels("label1", "value1").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    @Test
+    public void testServicesPortNotEqual() throws Exception {
+        Service entity1 = new ServiceBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        Service entity2 = new ServiceBuilder().withId("foo").
+                addToLabels("label2", "value2").
+                addToLabels("label1", "value1").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(456).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    @Test
+    public void testServicesContainerPortNotEqual() throws Exception {
+        Service entity1 = new ServiceBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        Service entity2 = new ServiceBuilder().withId("foo").
+                addToLabels("label2", "value2").
+                addToLabels("label1", "value1").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(555).endContainerPort().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    @Test
+    public void testServicesLabelsNotEqual() throws Exception {
+        Service entity1 = new ServiceBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        Service entity2 = new ServiceBuilder().withId("foo").
+                addToLabels("label2", "value2").
+                addToLabels("notSame", "value1").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    @Test
+    public void testServicesSelectorNotEqual() throws Exception {
+        Service entity1 = new ServiceBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        Service entity2 = new ServiceBuilder().withId("foo").
+                addToLabels("label2", "value2").
+                addToLabels("label1", "value1").
+                addToSelector("label1", "value1").
+                addToSelector("notSame", "value2").
+                withPort(123).
+                withNewContainerPort().withIntVal(456).endContainerPort().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    public static void assertCompareConfig(Object entity1, Object entity2, boolean expected) {
+        boolean actual = ConfigurationCompare.configEqual(entity1, entity2);
+        assertEquals("Configuration compare for " + entity1 + " and " + entity2, expected, actual);
+    }
+}

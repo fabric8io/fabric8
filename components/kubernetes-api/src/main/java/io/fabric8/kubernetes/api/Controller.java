@@ -269,12 +269,16 @@ public class Controller {
         String id = getId(serviceSchema);
         Service old = serviceMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Updating a service from " + sourceName);
-            try {
-                Object answer = kubernetes.updateService(id, serviceSchema, namespace);
-                LOG.info("Updated service: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+            if (ConfigurationCompare.configEqual(serviceSchema, old)) {
+                LOG.info("Service hasn't changed so not doing anything");
+            } else {
+                LOG.info("Updating a service from " + sourceName);
+                try {
+                    Object answer = kubernetes.updateService(id, serviceSchema, namespace);
+                    LOG.info("Updated service: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                }
             }
         } else {
             LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(serviceSchema));
