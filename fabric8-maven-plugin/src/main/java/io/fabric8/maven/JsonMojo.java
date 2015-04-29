@@ -32,6 +32,9 @@ import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.maven.support.VolumeType;
+import io.fabric8.openshift.api.model.template.ParameterBuilder;
+import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.template.TemplateBuilder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -75,12 +78,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
 
-    private static final String VOLUME_NAME = "name";
-    private static final String VOLUME_ATTRIBUTE_TYPE = "attributeType";
+    private static final String NAME = "name";
+    private static final String ATTRIBUTE_TYPE = "attributeType";
+    
     private static final String VOLUME_MOUNT_PATH = "mountPath";
-
     private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).(?<attributeType>[^. ]*)";
     private static final Pattern VOLUME_PATTERN = Pattern.compile(VOLUME_REGEX);
+
+    private static final String PARAM_REGEX = "fabric8.parameter.(?<name>[^. ]*)(.)?(?<attributeType>[^ ]*)";
+    private static final Pattern PARAM_PATTERN = Pattern.compile(PARAM_REGEX);
+
+    private static final String TEMPLATE_NAME = "fabric8.template";
+    private static final String PARAMETER_PREFIX = "fabric8.parameter";
+    private static final String PARAMETER_NAME_PREFIX = PARAMETER_PREFIX + ".%s";
+    private static final String PARAMETER_PROPERTY = PARAMETER_NAME_PREFIX + ".%s";
+    
+    private static final String GENEATE = "generate";
+    private static final String FROM = "from";
+    private static final String VALUE = "value";
+    private static final String DESCRIPTION = "description";
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -313,6 +329,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
 
             builder = builder.addToServices(serviceBuilder.build());
+        }
+        
+        Template template = getTemplate();
+        if (!template.getParameters().isEmpty()) {
+            builder = builder.addToTemplates(template);
         }
 
         KubernetesList kubernetesList = builder.build();
@@ -616,8 +637,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 String s = (String) key;
                 Matcher m = VOLUME_PATTERN.matcher(s);
                 if (m.matches()) {
-                    String name = m.group(VOLUME_NAME);
-                    String type = m.group(VOLUME_ATTRIBUTE_TYPE);
+                    String name = m.group(NAME);
+                    String type = m.group(ATTRIBUTE_TYPE);
                     if (type.equals(VOLUME_MOUNT_PATH)) {
                         String path = String.valueOf(entry.getValue());
                         volumeMount.add(new VolumeMountBuilder()
@@ -642,8 +663,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 String s = (String) key;
                 Matcher m = VOLUME_PATTERN.matcher(s);
                 if (m.matches()) {
-                    String name = m.group(VOLUME_NAME);
-                    String type = m.group(VOLUME_ATTRIBUTE_TYPE);
+                    String name = m.group(NAME);
+                    String type = m.group(ATTRIBUTE_TYPE);
                     VolumeType volumeType = VolumeType.typeFor(type);
                     if (volumeType != null) {
                         volumes.add(volumeType.fromProperties(name, properties));
@@ -652,6 +673,41 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
         }
         return volumes;
+    }
+
+    public Template getTemplate() {
+        List<io.fabric8.openshift.api.model.template.Parameter> parameters = new ArrayList<>();
+        MavenProject project = getProject();
+        Properties properties = project.getProperties();
+        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof String) {
+                String s = (String) key;
+                Matcher m = PARAM_PATTERN.matcher(s);
+                if (m.matches()) {
+                    String name = m.group(NAME);
+                    String value = properties.getProperty(String.format(PARAMETER_PROPERTY, name, VALUE));
+                    String from = properties.getProperty(String.format(PARAMETER_PROPERTY, name, FROM));
+                    String description = properties.getProperty(String.format(PARAMETER_PROPERTY, name, DESCRIPTION));
+                    String generate = properties.getProperty(String.format(PARAMETER_PROPERTY, name, GENEATE));
+                    //If neither value nor from has been specified read the value inline.
+                    if (Strings.isNullOrBlank(value) && Strings.isNullOrBlank(from)) {
+                        value = properties.getProperty(String.format(PARAMETER_NAME_PREFIX, name));
+                    }
+                    parameters.add(new ParameterBuilder()
+                            .withName(name)
+                            .withFrom(from)
+                            .withValue(value)
+                            .withGenerate(generate)
+                            .withDescription(description)
+                            .build());
+                }
+            }
+        }
+        String templateName = properties.containsKey(TEMPLATE_NAME) ? 
+                String.valueOf(properties.getProperty(TEMPLATE_NAME)) :
+                project.getArtifactId();
+        return new TemplateBuilder().withName(templateName).withParameters(parameters).build();
     }
 
     public void setLabels(Map<String, String> labels) {
