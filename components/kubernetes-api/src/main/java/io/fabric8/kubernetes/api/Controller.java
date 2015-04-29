@@ -261,37 +261,37 @@ public class Controller {
 */
     }
 
-    public void applyService(Service serviceSchema, String sourceName) {
+    public void applyService(Service service, String sourceName) {
         String namespace = getNamespace();
         if (serviceMap == null) {
             serviceMap = getServiceMap(kubernetes, namespace);
         }
-        String id = getId(serviceSchema);
+        String id = getId(service);
         Service old = serviceMap.get(id);
         if (isRunning(old)) {
-            if (ConfigurationCompare.configEqual(serviceSchema, old)) {
+            if (ConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
                 LOG.info("Updating a service from " + sourceName);
                 try {
-                    Object answer = kubernetes.updateService(id, serviceSchema, namespace);
+                    Object answer = kubernetes.updateService(id, service, namespace);
                     LOG.info("Updated service: " + answer);
                 } catch (Exception e) {
-                    onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                    onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
                 }
             }
         } else {
-            LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(serviceSchema));
+            LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
             try {
                 Object answer;
                 if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createService(serviceSchema, namespace);
+                    answer = kubernetes.createService(service, namespace);
                 } else {
-                    answer = kubernetes.createService(serviceSchema);
+                    answer = kubernetes.createService(service);
                 }
                 LOG.info("Created service: " + answer);
             } catch (Exception e) {
-                onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + serviceSchema, e);
+                onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
             }
         }
     }
@@ -304,12 +304,16 @@ public class Controller {
         String id = getId(replicationController);
         ReplicationController old = replicationControllerMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
-            try {
-                Object answer = kubernetes.updateReplicationController(id, replicationController);
-                LOG.info("Updated replicationController: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+            if (ConfigurationCompare.configEqual(replicationController, old)) {
+                LOG.info("ReplicationController hasn't changed so not doing anything");
+            } else {
+                LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+                try {
+                    Object answer = kubernetes.updateReplicationController(id, replicationController);
+                    LOG.info("Updated replicationController: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                }
             }
         } else {
             LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
@@ -335,12 +339,16 @@ public class Controller {
         String id = getId(pod);
         Pod old = podMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
-            try {
-                Object answer = kubernetes.updatePod(id, pod);
-                LOG.info("Updated pod result: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
+            if (ConfigurationCompare.configEqual(pod, old)) {
+                LOG.info("Pod hasn't changed so not doing anything");
+            } else {
+                LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+                try {
+                    Object answer = kubernetes.updatePod(id, pod);
+                    LOG.info("Updated pod result: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
+                }
             }
         } else {
             LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));

@@ -23,9 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Parses the example JSON
- */
 public class ConfigCompareServiceTest {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigCompareServiceTest.class);
