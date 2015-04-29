@@ -233,6 +233,18 @@ You can use maven properties to customize the generation of the JSON:
 <td>fabric8.port.host.FOO = 4567</td>
 <td>Defines the port named FOO has a host port 4567.</td>
 </tr>
+<tr>
+<td>fabric8.volume.FOO.mountPath = /some/path</td>
+<td>Defines the volume mount with name FOO.</td>
+</tr>
+<tr>
+<td>fabric8.volume.FOO.hostPath = /some/path</td>
+<td>Defines the host dir volume with name FOO.</td>
+</tr>
+<tr>
+<td>fabric8.volume.FOO.emtyDir = somemedium</td>
+<td>Defines the emtpy volume with name FOO and medium somemedium.</td>
+</tr>
 </table>
 
 
