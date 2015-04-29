@@ -136,7 +136,7 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -246,7 +246,7 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -356,7 +356,7 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -411,6 +411,63 @@ public class ConfigCompareReplicationControllerTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
+
+    @Test
+    public void testReplicationControllersAddVolumeNotEqual() throws Exception {
+        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                withNewDesiredState().
+                    addToReplicaSelector("label1", "value1").
+                    addToReplicaSelector("label2", "value2").
+                    withReplicas(2).
+                    withNewPodTemplate().
+                    addToLabels("podLabel1", "podValue1").
+                    addToLabels("podLabel2", "podValue2").
+                    addToAnnotations("podAnnotation1", "podAnnValue1").
+                    withNewDesiredState().
+                        withNewManifest().
+                            addNewContainer().
+                                withImage("fabric8/jenkins").
+                                addNewVolumeMount().withName("cheese").withMountPath("/foo/cheese").endVolumeMount().
+                                addNewEnv().withName("foo").withValue("bar").endEnv().
+                                // TODO....
+                                // addNewPort().endPort().
+                            endContainer().
+                        endManifest().
+                    endDesiredState().
+                    endPodTemplate().
+                endDesiredState().
+                build();
+
+        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                withNewDesiredState().
+                    addToReplicaSelector("label1", "value1").
+                    addToReplicaSelector("label2", "value2").
+                    withReplicas(2).
+                    withNewPodTemplate().
+                    addToLabels("podLabel1", "podValue1").
+                    addToLabels("podLabel2", "podValue2").
+                    addToAnnotations("podAnnotation1", "podAnnValue1").
+                    withNewDesiredState().
+                        withNewManifest().
+                            addNewContainer().
+                                withImage("fabric8/jenkins").
+                                addNewEnv().withName("foo").withValue("bar").endEnv().
+                                // TODO....
+                                // addNewPort().endPort().
+                            endContainer().
+                        endManifest().
+                    endDesiredState().
+                    endPodTemplate().
+                endDesiredState().
+                build();
+
+        assertCompareConfig(entity1, entity2, false);
+    }
+
 }

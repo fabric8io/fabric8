@@ -98,7 +98,7 @@ public class ConfigComparePodTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ConfigComparePodTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class ConfigComparePodTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
     @Test
     public void testPodsContainerEnvEqual() throws Exception {
@@ -208,6 +208,6 @@ public class ConfigComparePodTest {
                 endDesiredState().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 }

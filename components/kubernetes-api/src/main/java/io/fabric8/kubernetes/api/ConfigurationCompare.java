@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.PodTemplate;
@@ -51,12 +52,12 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getLabels(), entity2.getLabels()) ||
-                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) ||
-                configEqual(entity1.getLabels(), entity2.getLabels()) ||
-                configEqual(entity1.getContainerPort(), entity2.getContainerPort()) ||
-                configEqual(entity1.getCreateExternalLoadBalancer(), entity2.getCreateExternalLoadBalancer()) ||
-                configEqual(entity1.getPort(), entity2.getPort()) ||
+        return configEqual(entity1.getLabels(), entity2.getLabels()) &&
+                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) &&
+                configEqual(entity1.getSelector(), entity2.getSelector()) &&
+                configEqual(entity1.getContainerPort(), entity2.getContainerPort()) &&
+                configEqual(entity1.getCreateExternalLoadBalancer(), entity2.getCreateExternalLoadBalancer()) &&
+                configEqual(entity1.getPort(), entity2.getPort()) &&
                 configEqual(entity1.getSessionAffinity(), entity2.getSessionAffinity());
     }
 
@@ -69,9 +70,9 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getLabels(), entity2.getLabels()) ||
-                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) ||
-                configEqual(entity1.getLabels(), entity2.getLabels()) ||
+        return configEqual(entity1.getLabels(), entity2.getLabels()) &&
+                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) &&
+                configEqual(entity1.getLabels(), entity2.getLabels()) &&
                 configEqual(entity1.getDesiredState(), entity2.getDesiredState());
     }
 
@@ -81,8 +82,8 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getReplicas(), entity2.getReplicas()) ||
-                configEqual(entity1.getReplicaSelector(), entity2.getReplicaSelector()) ||
+        return configEqual(entity1.getReplicas(), entity2.getReplicas()) &&
+                configEqual(entity1.getReplicaSelector(), entity2.getReplicaSelector()) &&
                 configEqual(entity1.getPodTemplate(), entity2.getPodTemplate());
     }
 
@@ -92,9 +93,9 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getDesiredState(), entity2.getDesiredState()) ||
-                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) ||
-                configEqual(entity1.getLabels(), entity2.getLabels()) ||
+        return configEqual(entity1.getDesiredState(), entity2.getDesiredState()) &&
+                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) &&
+                configEqual(entity1.getLabels(), entity2.getLabels()) &&
                 configEqual(entity1.getNodeSelector(), entity2.getNodeSelector());
     }
 
@@ -104,9 +105,9 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getDesiredState(), entity2.getDesiredState()) ||
-                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) ||
-                configEqual(entity1.getLabels(), entity2.getLabels()) ||
+        return configEqual(entity1.getDesiredState(), entity2.getDesiredState()) &&
+                configEqual(entity1.getAnnotations(), entity2.getAnnotations()) &&
+                configEqual(entity1.getLabels(), entity2.getLabels()) &&
                 configEqual(entity1.getNodeSelector(), entity2.getNodeSelector());
     }
 
@@ -125,9 +126,9 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getContainers(), entity2.getContainers()) ||
-                configEqual(entity1.getHostNetwork(), entity2.getHostNetwork()) ||
-                configEqual(entity1.getRestartPolicy(), entity2.getRestartPolicy()) ||
+        return configEqual(entity1.getContainers(), entity2.getContainers()) &&
+                configEqual(entity1.getHostNetwork(), entity2.getHostNetwork()) &&
+                configEqual(entity1.getRestartPolicy(), entity2.getRestartPolicy()) &&
                 configEqual(entity1.getVolumes(), entity2.getVolumes());
     }
 
@@ -137,18 +138,28 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getCapabilities(), entity2.getCapabilities()) ||
-                configEqual(entity1.getCommand(), entity2.getCommand()) ||
-                configEqual(entity1.getCpu(), entity2.getCpu()) ||
-                configEqual(entity1.getEnv(), entity2.getEnv()) ||
-                configEqual(entity1.getImage(), entity2.getImage()) ||
-                configEqual(entity1.getImagePullPolicy(), entity2.getImagePullPolicy()) ||
-                configEqual(entity1.getLivenessProbe(), entity2.getLivenessProbe()) ||
-                configEqual(entity1.getMemory(), entity2.getMemory()) ||
-                configEqual(entity1.getName(), entity2.getName()) ||
-                configEqual(entity1.getPrivileged(), entity2.getPrivileged()) ||
-                configEqual(entity1.getPorts(), entity2.getPorts()) ||
+        return configEqual(entity1.getCapabilities(), entity2.getCapabilities()) &&
+                configEqual(entity1.getCommand(), entity2.getCommand()) &&
+                configEqual(entity1.getCpu(), entity2.getCpu()) &&
+                configEqual(entity1.getEnv(), entity2.getEnv()) &&
+                configEqual(entity1.getImage(), entity2.getImage()) &&
+                configEqual(entity1.getImagePullPolicy(), entity2.getImagePullPolicy()) &&
+                configEqual(entity1.getLivenessProbe(), entity2.getLivenessProbe()) &&
+                configEqual(entity1.getMemory(), entity2.getMemory()) &&
+                configEqual(entity1.getName(), entity2.getName()) &&
+                configEqual(entity1.getPrivileged(), entity2.getPrivileged()) &&
+                configEqual(entity1.getPorts(), entity2.getPorts()) &&
                 configEqual(entity1.getVolumeMounts(), entity2.getVolumeMounts());
+    }
+
+    public static boolean configEqual(EnvVar entity1, EnvVar entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getName(), entity2.getName()) &&
+                configEqual(entity1.getValue(), entity2.getValue());
     }
 
     public static boolean configEqual(Volume entity1, Volume entity2) {
@@ -157,7 +168,7 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getName(), entity2.getName()) ||
+        return configEqual(entity1.getName(), entity2.getName()) &&
                 configEqual(entity1.getSource(), entity2.getSource());
     }
 
@@ -167,13 +178,13 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getEmptyDir(), entity2.getEmptyDir()) ||
-                configEqual(entity1.getGitRepo(), entity2.getGitRepo()) ||
-                configEqual(entity1.getGlusterfs(), entity2.getGlusterfs()) ||
-                configEqual(entity1.getHostDir(), entity2.getHostDir()) ||
-                configEqual(entity1.getIscsi(), entity2.getIscsi()) ||
-                configEqual(entity1.getNfs(), entity2.getNfs()) ||
-                configEqual(entity1.getPersistentDisk(), entity2.getPersistentDisk()) ||
+        return configEqual(entity1.getEmptyDir(), entity2.getEmptyDir()) &&
+                configEqual(entity1.getGitRepo(), entity2.getGitRepo()) &&
+                configEqual(entity1.getGlusterfs(), entity2.getGlusterfs()) &&
+                configEqual(entity1.getHostDir(), entity2.getHostDir()) &&
+                configEqual(entity1.getIscsi(), entity2.getIscsi()) &&
+                configEqual(entity1.getNfs(), entity2.getNfs()) &&
+                configEqual(entity1.getPersistentDisk(), entity2.getPersistentDisk()) &&
                 configEqual(entity1.getSecret(), entity2.getSecret());
     }
 
@@ -183,8 +194,8 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getAlways(), entity2.getAlways()) ||
-                configEqual(entity1.getNever(), entity2.getNever()) ||
+        return configEqual(entity1.getAlways(), entity2.getAlways()) &&
+                configEqual(entity1.getNever(), entity2.getNever()) &&
                 configEqual(entity1.getOnFailure(), entity2.getOnFailure());
     }
 
@@ -221,8 +232,8 @@ public class ConfigurationCompare {
         } else if (entity1 == null || entity2 == null) {
             return false;
         }
-        return configEqual(entity1.getKind(), entity2.getKind()) ||
-                configEqual(entity1.getIntVal(), entity2.getIntVal()) ||
+        return configEqual(entity1.getKind(), entity2.getKind()) &&
+                configEqual(entity1.getIntVal(), entity2.getIntVal()) &&
                 configEqual(entity1.getStrVal(), entity2.getStrVal());
     }
 
@@ -303,6 +314,8 @@ public class ConfigurationCompare {
             return configEqual((Container) entity1, cast(Container.class, entity2));
         } else if (entity1 instanceof Volume) {
             return configEqual((Volume) entity1, cast(Volume.class, entity2));
+        } else if (entity1 instanceof EnvVar) {
+            return configEqual((EnvVar) entity1, cast(EnvVar.class, entity2));
         } else if (entity1 instanceof VolumeSource) {
             return configEqual((VolumeSource) entity1, cast(VolumeSource.class, entity2));
         } else if (entity1 instanceof RestartPolicy) {

@@ -70,7 +70,7 @@ public class ConfigCompareServiceTest {
                 withNewContainerPort().withIntVal(456).endContainerPort().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ConfigCompareServiceTest {
                 withNewContainerPort().withIntVal(555).endContainerPort().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ConfigCompareServiceTest {
                 withNewContainerPort().withIntVal(456).endContainerPort().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class ConfigCompareServiceTest {
                 withNewContainerPort().withIntVal(456).endContainerPort().
                 build();
 
-        assertCompareConfig(entity1, entity2, true);
+        assertCompareConfig(entity1, entity2, false);
     }
 
     public static void assertCompareConfig(Object entity1, Object entity2, boolean expected) {
