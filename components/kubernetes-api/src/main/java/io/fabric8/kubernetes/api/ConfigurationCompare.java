@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.EnvVar;
@@ -226,6 +227,17 @@ public class ConfigurationCompare {
         return true;
     }
 
+    public static boolean configEqual(Capabilities entity1, Capabilities entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getAdd(), entity2.getAdd()) &&
+                configEqual(entity1.getDrop(), entity2.getDrop());
+    }
+
+
     public static boolean configEqual(IntOrString entity1, IntOrString entity2) {
         if (entity1 == entity2) {
             return true;
@@ -326,6 +338,8 @@ public class ConfigurationCompare {
             return configEqual((RestartPolicyNever) entity1, cast(RestartPolicyNever.class, entity2));
         } else if (entity1 instanceof RestartPolicyOnFailure) {
             return configEqual((RestartPolicyOnFailure) entity1, cast(RestartPolicyOnFailure.class, entity2));
+        } else if (entity1 instanceof Capabilities) {
+            return configEqual((Capabilities) entity1, cast(Capabilities.class, entity2));
         } else if (entity1 instanceof IntOrString) {
             return configEqual((IntOrString) entity1, cast(IntOrString.class, entity2));
         } else if (entity1 instanceof Map) {
