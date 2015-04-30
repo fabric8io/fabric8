@@ -19,19 +19,32 @@ import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
- * Deploys the App to a kubernetes environment
+ * Applies the Kubernetes JSON to a namespace in a kubernetes environment
  */
-@Mojo(name = "run", defaultPhase = LifecyclePhase.INSTALL)
-public class RunMojo extends AbstractFabric8Mojo {
+@Mojo(name = "apply", defaultPhase = LifecyclePhase.INSTALL)
+public class ApplyMojo extends AbstractFabric8Mojo {
+    /**
+     * Specifies the namespace to use
+     */
+    @Parameter(property = "fabric8.apply.namespace")
+    private String namespace;
+
+    /**
+     * Should we create new kubernetes resources?
+     */
+    @Parameter(property = "fabric8.apply.create", defaultValue = "true")
+    private boolean createNewResources;
 
     private KubernetesClient kubernetes = new KubernetesClient();
 
@@ -46,7 +59,9 @@ public class RunMojo extends AbstractFabric8Mojo {
             }
         }
         KubernetesClient api = getKubernetes();
-        getLog().info("Deploying " + json + " to " + api.getAddress());
+
+        getLog().info("Using kubernetes at: " + api.getAddress() + " in namespace " + api.getNamespace());
+        getLog().info("Kubernetes JSON: " + json);
 
         try {
             Object dto = KubernetesHelper.loadJson(json);
@@ -54,6 +69,8 @@ public class RunMojo extends AbstractFabric8Mojo {
                 throw new MojoFailureException("Could not load kubernetes json: " + json);
             }
             Controller controller = new Controller(kubernetes);
+            controller.setAllowCreate(createNewResources);
+
             controller.apply(dto, json.getName());
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -61,6 +78,9 @@ public class RunMojo extends AbstractFabric8Mojo {
     }
 
     public KubernetesClient getKubernetes() {
+        if (Strings.isNotBlank(namespace)) {
+            kubernetes.setNamespace(namespace);
+        }
         return kubernetes;
     }
 }

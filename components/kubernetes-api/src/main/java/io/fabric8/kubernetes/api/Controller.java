@@ -30,11 +30,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -47,6 +56,7 @@ public class Controller {
     private Map<String, ReplicationController> replicationControllerMap = null;
     private Map<String, Service> serviceMap = null;
     private boolean throwExceptionOnError = false;
+    private boolean allowCreate = true;
 
     public Controller() {
         this(new KubernetesClient());
@@ -281,17 +291,21 @@ public class Controller {
                 }
             }
         } else {
-            LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
-            try {
-                Object answer;
-                if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createService(service, namespace);
-                } else {
-                    answer = kubernetes.createService(service);
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
+            } else {
+                LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
+                try {
+                    Object answer;
+                    if (Strings.isNotBlank(namespace)) {
+                        answer = kubernetes.createService(service, namespace);
+                    } else {
+                        answer = kubernetes.createService(service);
+                    }
+                    LOG.info("Created service: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
                 }
-                LOG.info("Created service: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
             }
         }
     }
@@ -316,17 +330,21 @@ public class Controller {
                 }
             }
         } else {
-            LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
-            try {
-                Object answer;
-                if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createReplicationController(replicationController, namespace);
-                } else {
-                    answer = kubernetes.createReplicationController(replicationController);
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+            } else {
+                LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+                try {
+                    Object answer;
+                    if (Strings.isNotBlank(namespace)) {
+                        answer = kubernetes.createReplicationController(replicationController, namespace);
+                    } else {
+                        answer = kubernetes.createReplicationController(replicationController);
+                    }
+                    LOG.info("Created replicationController: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
                 }
-                LOG.info("Created replicationController: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
             }
         }
     }
@@ -351,17 +369,21 @@ public class Controller {
                 }
             }
         } else {
-            LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
-            try {
-                Object answer;
-                if (Strings.isNotBlank(namespace)) {
-                    answer = kubernetes.createPod(pod, namespace);
-                } else {
-                    answer = kubernetes.createPod(pod);
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+            } else {
+                LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+                try {
+                    Object answer;
+                    if (Strings.isNotBlank(namespace)) {
+                        answer = kubernetes.createPod(pod, namespace);
+                    } else {
+                        answer = kubernetes.createPod(pod);
+                    }
+                    LOG.info("Created pod result: " + answer);
+                } catch (Exception e) {
+                    onApplyError("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
                 }
-                LOG.info("Created pod result: " + answer);
-            } catch (Exception e) {
-                onApplyError("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
             }
         }
     }
@@ -406,5 +428,16 @@ public class Controller {
         if (throwExceptionOnError) {
             throw new RuntimeException(message, e);
         }
+    }
+
+    /**
+     * Returns true if this controller allows new resources to be created in the given namespace
+     */
+    public boolean isAllowCreate() {
+        return allowCreate;
+    }
+
+    public void setAllowCreate(boolean allowCreate) {
+        this.allowCreate = allowCreate;
     }
 }
