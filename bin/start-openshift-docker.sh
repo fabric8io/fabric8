@@ -141,7 +141,7 @@ export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
 export KUBERNETES=https://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker exec -i openshift openshift cli"
+KUBE="docker exec openshift osc"
 
 if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   PUBLIC_MASTER_ARG="--public-master=${OPENSHIFT_MASTER_URL}"
@@ -172,12 +172,12 @@ done
 
 sleep 30
 
-docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-router/.kubeconfig router --create"
-docker exec -i openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-registry/.kubeconfig registry --create"
-docker exec -i openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
-docker exec -i openshift sh -c "openshift admin policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
+docker exec openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-router/.kubeconfig router --create"
+docker exec openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-registry/.kubeconfig registry --create"
+docker exec openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
+docker exec openshift sh -c "openshift admin policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
 
-cat <<EOF | $KUBE create -f -
+cat <<EOF | docker exec -i openshift osc create -f -
 ---
   apiVersion: "v1beta2"
   kind: "Secret"
@@ -189,7 +189,7 @@ cat <<EOF | $KUBE create -f -
 EOF
 
 deployFabric8Console() {
-  cat <<EOF | $KUBE create -f -
+  cat <<EOF | docker exec -i openshift osc create -f -
 ---
   id: "fabric8-config"
   kind: "Config"
@@ -248,7 +248,7 @@ EOF
 }
 
 for app in app-library fabric8-forge; do
-  $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
+  $KUBE create -f http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
 done
 
 deployFabric8Console
@@ -257,7 +257,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   for app in gogs hubot hubot-notifier lets-chat cdelivery jbpm-designer influxdb elasticsearch kibana orion taiga; do
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
   done
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml | $KUBE create -f -
+  $KUBE create -f https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
 fi
 
 K8S_SERVICES=$($KUBE get services)
@@ -268,7 +268,7 @@ echo
 
 getServiceIpAndPort()
 {
-  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
+  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5/// }'`
 }
 
 getServiceIp()
@@ -290,7 +290,7 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
 
   echo "Configuring OpenShift routes for Fabric8"
 
-  cat <<EOF | $KUBE create -f -
+  cat <<EOF | docker exec -i openshift osc create -f -
 {
   "id": "routes-list",
   "kind": "List",
@@ -391,7 +391,7 @@ fi
 
 echo "Configuring OpenShift oauth"
 
-cat <<EOF | $KUBE create -f -
+cat <<EOF | docker exec -i openshift osc create -f -
 {
   "kind": "OAuthClient",
   "apiVersion": "v1beta1",
