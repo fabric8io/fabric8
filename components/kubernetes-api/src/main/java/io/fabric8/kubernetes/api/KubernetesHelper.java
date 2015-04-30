@@ -77,7 +77,10 @@ public class KubernetesHelper {
 
     public static String getId(Pod entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
+            return Strings.firstNonBlank(entity.getId(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
         } else {
             return null;
         }
@@ -85,15 +88,52 @@ public class KubernetesHelper {
 
     public static String getId(ReplicationController entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
+            return Strings.firstNonBlank(entity.getId(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
         } else {
             return null;
         }
     }
 
+
     public static String getId(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
+            return Strings.firstNonBlank(entity.getId(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(Pod entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getNamespace(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(ReplicationController entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getNamespace(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getNamespace(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
             return null;
         }
@@ -101,7 +141,11 @@ public class KubernetesHelper {
 
     public static String getName(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getId(), entity.getUid());
+            return Strings.firstNonBlank(
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
+                    entity.getId(),
+                    entity.getUid());
         } else {
             return null;
         }
@@ -171,6 +215,28 @@ public class KubernetesHelper {
             Object value = additionalProperties.get(name);
             if (value != null) {
                 return value.toString();
+            }
+        }
+        return null;
+    }
+
+    protected static String getAdditionalNestedPropertyText(Map<String, Object> additionalProperties, String... names) {
+        int lastIdx = names.length -1;
+        Map<String, Object> map = additionalProperties;
+        for (int i = 0; i < lastIdx; i++) {
+            if (map == null) {
+                return null;
+            }
+            map = getAdditionalPropertyMap(map, names[i]);
+        }
+        return getAdditionalPropertyText(map, names[lastIdx]);
+    }
+
+    protected static Map<String,Object> getAdditionalPropertyMap(Map<String, Object> additionalProperties, String name) {
+        if (additionalProperties != null) {
+            Object value = additionalProperties.get(name);
+            if (value instanceof Map) {
+                return (Map<String, Object>) value;
             }
         }
         return null;

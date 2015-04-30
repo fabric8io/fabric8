@@ -47,10 +47,22 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean createNewResources;
 
     /**
+     * Should we update resources by deleting them first and then creating them again?
+     */
+    @Parameter(property = "fabric8.apply.updateByDeleteCreate")
+    private boolean updateViaDeleteAndCreate;
+
+    /**
      * Should we fail if there is no kubernetes json
      */
     @Parameter(property = "fabric8.apply.failOnNoKubernetesJson", defaultValue = "false")
     private boolean failOnNoKubernetesJson;
+
+    /**
+     * Should we fail the build if an apply fails?
+     */
+    @Parameter(property = "fabric8.apply.failOnError", defaultValue = "true")
+    private boolean failOnError;
 
     private KubernetesClient kubernetes = new KubernetesClient();
 
@@ -81,9 +93,11 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
             Controller controller = new Controller(kubernetes);
             controller.setAllowCreate(createNewResources);
+            controller.setUpdateViaDeleteAndCreate(updateViaDeleteAndCreate);
+            controller.setThrowExceptionOnError(failOnError);
 
             controller.apply(dto, json.getName());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }

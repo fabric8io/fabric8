@@ -57,6 +57,7 @@ public class Controller {
     private Map<String, Service> serviceMap = null;
     private boolean throwExceptionOnError = false;
     private boolean allowCreate = true;
+    private boolean updateViaDeleteAndCreate;
 
     public Controller() {
         this(new KubernetesClient());
@@ -66,7 +67,7 @@ public class Controller {
         this.kubernetes = kubernetes;
     }
 
-    public String apply(File file) throws IOException {
+    public String apply(File file) throws Exception {
         String ext = Files.getFileExtension(file);
 
         if ("yaml".equalsIgnoreCase(ext)) {
@@ -81,7 +82,7 @@ public class Controller {
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyJson(byte[] json) throws IOException {
+    public String applyJson(byte[] json) throws Exception {
         Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
@@ -90,7 +91,7 @@ public class Controller {
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyJson(String json) throws IOException {
+    public String applyJson(String json) throws Exception {
         Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
@@ -99,7 +100,7 @@ public class Controller {
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyJson(File json) throws IOException {
+    public String applyJson(File json) throws Exception {
         Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
@@ -108,7 +109,7 @@ public class Controller {
     /**
      * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyYaml(String yaml) throws IOException {
+    public String applyYaml(String yaml) throws Exception {
         String json = convertYamlToJson(yaml);
         Object dto = loadJson(json);
         apply(dto, "REST call");
@@ -118,7 +119,7 @@ public class Controller {
     /**
      * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyYaml(File yaml) throws IOException {
+    public String applyYaml(File yaml) throws Exception {
         String json = convertYamlToJson(yaml);
         Object dto = loadJson(json);
         apply(dto, "REST call");
@@ -148,7 +149,7 @@ public class Controller {
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
-    public String applyJson(InputStream json) throws IOException {
+    public String applyJson(InputStream json) throws Exception {
         Object dto = loadJson(json);
         apply(dto, "REST call");
         return "";
@@ -157,7 +158,7 @@ public class Controller {
     /**
      * Applies the given DTOs onto the Kubernetes master
      */
-    public void apply(Object dto, String sourceName) throws IOException {
+    public void apply(Object dto, String sourceName) throws Exception {
         if (dto instanceof Config) {
             applyConfig((Config) dto, sourceName);
         } else if (dto instanceof JsonNode) {
@@ -183,7 +184,7 @@ public class Controller {
     /**
      * Applies the given DTOs onto the Kubernetes master
      */
-    public void applyEntity(Object dto, String sourceName) {
+    public void applyEntity(Object dto, String sourceName) throws Exception {
         if (dto instanceof Pod) {
             applyPod((Pod) dto, sourceName);
         } else if (dto instanceof ReplicationController) {
@@ -236,14 +237,14 @@ public class Controller {
 
 
 
-    public void applyConfig(Config config, String sourceName) throws IOException {
+    public void applyConfig(Config config, String sourceName) throws Exception {
         List<Object> entities = getEntities(config);
         for (Object entity : entities) {
             applyEntity(entity, sourceName);
         }
     }
 
-    public void applyList(JsonNode entity, String sourceName) throws IOException {
+    public void applyList(JsonNode entity, String sourceName) throws Exception {
         JsonNode items = entity.get("items");
         if (items != null) {
             for (JsonNode item : items) {
@@ -271,7 +272,7 @@ public class Controller {
 */
     }
 
-    public void applyService(Service service, String sourceName) {
+    public void applyService(Service service, String sourceName) throws Exception {
         String namespace = getNamespace();
         if (serviceMap == null) {
             serviceMap = getServiceMap(kubernetes, namespace);
@@ -282,35 +283,44 @@ public class Controller {
             if (ConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
-                LOG.info("Updating a service from " + sourceName);
-                try {
-                    Object answer = kubernetes.updateService(id, service, namespace);
-                    LOG.info("Updated service: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
+                if (isUpdateViaDeleteAndCreate()) {
+                    kubernetes.deleteService(service);
+                    doCreateService(service, namespace, sourceName);
+                } else {
+                    LOG.info("Updating a service from " + sourceName);
+                    try {
+                        Object answer = kubernetes.updateService(id, service, namespace);
+                        LOG.info("Updated service: " + answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
+                    }
                 }
             }
         } else {
             if (!isAllowCreate()) {
                 LOG.warn("Creation disabled so not creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
             } else {
-                LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
-                try {
-                    Object answer;
-                    if (Strings.isNotBlank(namespace)) {
-                        answer = kubernetes.createService(service, namespace);
-                    } else {
-                        answer = kubernetes.createService(service);
-                    }
-                    LOG.info("Created service: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
-                }
+                doCreateService(service, namespace, sourceName);
             }
         }
     }
 
-    public void applyReplicationController(ReplicationController replicationController, String sourceName) {
+    protected void doCreateService(Service service, String namespace, String sourceName) {
+        LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetes.createService(service, namespace);
+            } else {
+                answer = kubernetes.createService(service);
+            }
+            LOG.info("Created service: " + answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
+        }
+    }
+
+    public void applyReplicationController(ReplicationController replicationController, String sourceName) throws Exception {
         String namespace = getNamespace();
         if (replicationControllerMap == null) {
             replicationControllerMap = getReplicationControllerMap(kubernetes, namespace);
@@ -321,35 +331,44 @@ public class Controller {
             if (ConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
-                LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
-                try {
-                    Object answer = kubernetes.updateReplicationController(id, replicationController);
-                    LOG.info("Updated replicationController: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                if (isUpdateViaDeleteAndCreate()) {
+                    kubernetes.deleteReplicationControllerAndPods(replicationController);
+                    doCreateReplicationController(replicationController, namespace, sourceName);
+                } else {
+                    LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+                    try {
+                        Object answer = kubernetes.updateReplicationController(id, replicationController);
+                        LOG.info("Updated replicationController: " + answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                    }
                 }
             }
         } else {
             if (!isAllowCreate()) {
                 LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
             } else {
-                LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
-                try {
-                    Object answer;
-                    if (Strings.isNotBlank(namespace)) {
-                        answer = kubernetes.createReplicationController(replicationController, namespace);
-                    } else {
-                        answer = kubernetes.createReplicationController(replicationController);
-                    }
-                    LOG.info("Created replicationController: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
-                }
+                doCreateReplicationController(replicationController, namespace, sourceName);
             }
         }
     }
 
-    public void applyPod(Pod pod, String sourceName) {
+    protected void doCreateReplicationController(ReplicationController replicationController, String namespace, String sourceName) {
+        LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetes.createReplicationController(replicationController, namespace);
+            } else {
+                answer = kubernetes.createReplicationController(replicationController);
+            }
+            LOG.info("Created replicationController: " + answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+        }
+    }
+
+    public void applyPod(Pod pod, String sourceName) throws Exception {
         String namespace = getNamespace();
         if (podMap == null) {
             podMap = getPodMap(kubernetes, namespace);
@@ -360,31 +379,40 @@ public class Controller {
             if (ConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
-                LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
-                try {
-                    Object answer = kubernetes.updatePod(id, pod);
-                    LOG.info("Updated pod result: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
+                if (isUpdateViaDeleteAndCreate()) {
+                    kubernetes.deletePod(pod);
+                    doCreatePod(pod, namespace, sourceName);
+                } else {
+                    LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+                    try {
+                        Object answer = kubernetes.updatePod(id, pod);
+                        LOG.info("Updated pod result: " + answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
+                    }
                 }
             }
         } else {
             if (!isAllowCreate()) {
                 LOG.warn("Creation disabled so not creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
             } else {
-                LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
-                try {
-                    Object answer;
-                    if (Strings.isNotBlank(namespace)) {
-                        answer = kubernetes.createPod(pod, namespace);
-                    } else {
-                        answer = kubernetes.createPod(pod);
-                    }
-                    LOG.info("Created pod result: " + answer);
-                } catch (Exception e) {
-                    onApplyError("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
-                }
+                doCreatePod(pod, namespace, sourceName);
             }
+        }
+    }
+
+    protected void doCreatePod(Pod pod, String namespace, String sourceName) {
+        LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetes.createPod(pod, namespace);
+            } else {
+                answer = kubernetes.createPod(pod);
+            }
+            LOG.info("Created pod result: " + answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create pod from " + sourceName + ". " + e + ". " + pod, e);
         }
     }
 
@@ -439,5 +467,13 @@ public class Controller {
 
     public void setAllowCreate(boolean allowCreate) {
         this.allowCreate = allowCreate;
+    }
+
+    public boolean isUpdateViaDeleteAndCreate() {
+        return updateViaDeleteAndCreate;
+    }
+
+    public void setUpdateViaDeleteAndCreate(boolean updateViaDeleteAndCreate) {
+        this.updateViaDeleteAndCreate = updateViaDeleteAndCreate;
     }
 }

@@ -631,6 +631,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
     }
 
+    public void deleteReplicationControllerAndPods(ReplicationController replicationController) throws Exception {
+        LOG.info("Deleting ReplicationController: " + KubernetesHelper.getId(replicationController) + " namespace: " + KubernetesHelper.getNamespace(replicationController));
+        deleteReplicationController(replicationController);
+        List<Pod> podsToDelete = getPodsForReplicationController(replicationController);
+        for (Pod pod : podsToDelete) {
+            LOG.info("Deleting Pod: " + KubernetesHelper.getId(pod) + " namespace: " + KubernetesHelper.getNamespace(pod));
+            deletePod(pod);
+        }
+    }
+
     public void deleteReplicationController(ReplicationController entity) throws Exception {
         String id = entity.getId();
         String namespace = entity.getNamespace();
