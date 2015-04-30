@@ -62,7 +62,7 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     }
 
     @Override
-    public String apply(String json) throws IOException {
+    public String apply(String json) throws Exception {
         Controller controller = createController();
         return controller.applyJson(json);
     }

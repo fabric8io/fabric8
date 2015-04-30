@@ -25,7 +25,7 @@ public interface KubernetesManagerMXBean {
      * Takes the blob of Kubernetes JSON (pod, replication controller, service, config, template etc)
      * and applies it to the runtime environment so that any changes or new items take effect
      */
-    String apply(String json) throws IOException;
+    String apply(String json) throws Exception;
 
     String getServiceUrl(String serviceName);
 
