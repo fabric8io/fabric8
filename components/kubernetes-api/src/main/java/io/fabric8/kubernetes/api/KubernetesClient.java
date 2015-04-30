@@ -612,8 +612,9 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     // Helper methods
     //-------------------------------------------------------------------------
     public void deletePod(Pod entity) throws Exception {
-        String id = entity.getId();
-        String namespace = entity.getNamespace();
+        String namespace = KubernetesHelper.getNamespace(entity);
+        String id = KubernetesHelper.getId(entity);
+        LOG.info("Deleting Pod: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deletePod(id, namespace);
         } else {
@@ -622,8 +623,9 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     public void deleteService(Service entity) throws Exception {
-        String id = entity.getId();
-        String namespace = entity.getNamespace();
+        String namespace = KubernetesHelper.getNamespace(entity);
+        String id = KubernetesHelper.getId(entity);
+        LOG.info("Deleting Service: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deleteService(id, namespace);
         } else {
@@ -632,18 +634,19 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     public void deleteReplicationControllerAndPods(ReplicationController replicationController) throws Exception {
-        LOG.info("Deleting ReplicationController: " + KubernetesHelper.getId(replicationController) + " namespace: " + KubernetesHelper.getNamespace(replicationController));
+        String id = KubernetesHelper.getId(replicationController);
+        String namespace = KubernetesHelper.getNamespace(replicationController);
+        LOG.info("Deleting ReplicationController: " + id + " namespace: " + namespace);
         deleteReplicationController(replicationController);
         List<Pod> podsToDelete = getPodsForReplicationController(replicationController);
         for (Pod pod : podsToDelete) {
-            LOG.info("Deleting Pod: " + KubernetesHelper.getId(pod) + " namespace: " + KubernetesHelper.getNamespace(pod));
             deletePod(pod);
         }
     }
 
     public void deleteReplicationController(ReplicationController entity) throws Exception {
-        String id = entity.getId();
-        String namespace = entity.getNamespace();
+        String namespace = KubernetesHelper.getNamespace(entity);
+        String id = KubernetesHelper.getId(entity);
         if (Strings.isNotBlank(namespace)) {
             deleteReplicationController(id, namespace);
         } else {
@@ -753,7 +756,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             srv = getService(serviceName, namespace);
         } else {
             for (Service s : getServices().getItems()) {
-                if (s.getId().equals(serviceName)) {
+                String sid = KubernetesHelper.getId(s);
+                if (serviceName.equals(sid)) {
                     srv = s;
                     break;
                 }
