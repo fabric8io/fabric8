@@ -58,6 +58,7 @@ public class Controller {
     private boolean throwExceptionOnError = false;
     private boolean allowCreate = true;
     private boolean updateViaDeleteAndCreate;
+    private boolean servicesOnlyMode;
 
     public Controller() {
         this(new KubernetesClient());
@@ -284,7 +285,7 @@ public class Controller {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
                 if (isUpdateViaDeleteAndCreate()) {
-                    kubernetes.deleteService(service);
+                    kubernetes.deleteService(service, namespace);
                     doCreateService(service, namespace, sourceName);
                 } else {
                     LOG.info("Updating a service from " + sourceName);
@@ -322,17 +323,21 @@ public class Controller {
 
     public void applyReplicationController(ReplicationController replicationController, String sourceName) throws Exception {
         String namespace = getNamespace();
+        String id = getId(replicationController);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
+            return;
+        }
         if (replicationControllerMap == null) {
             replicationControllerMap = getReplicationControllerMap(kubernetes, namespace);
         }
-        String id = getId(replicationController);
         ReplicationController old = replicationControllerMap.get(id);
         if (isRunning(old)) {
             if (ConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
                 if (isUpdateViaDeleteAndCreate()) {
-                    kubernetes.deleteReplicationControllerAndPods(replicationController);
+                    kubernetes.deleteReplicationControllerAndPods(replicationController, namespace);
                     doCreateReplicationController(replicationController, namespace, sourceName);
                 } else {
                     LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
@@ -370,17 +375,21 @@ public class Controller {
 
     public void applyPod(Pod pod, String sourceName) throws Exception {
         String namespace = getNamespace();
+        String id = getId(pod);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
+            return;
+        }
         if (podMap == null) {
             podMap = getPodMap(kubernetes, namespace);
         }
-        String id = getId(pod);
         Pod old = podMap.get(id);
         if (isRunning(old)) {
             if (ConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
                 if (isUpdateViaDeleteAndCreate()) {
-                    kubernetes.deletePod(pod);
+                    kubernetes.deletePod(pod, namespace);
                     doCreatePod(pod, namespace, sourceName);
                 } else {
                     LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
@@ -469,11 +478,26 @@ public class Controller {
         this.allowCreate = allowCreate;
     }
 
+    /**
+     * If enabled then updates are performed by deleting the resource first then rereating it
+     */
     public boolean isUpdateViaDeleteAndCreate() {
         return updateViaDeleteAndCreate;
     }
 
     public void setUpdateViaDeleteAndCreate(boolean updateViaDeleteAndCreate) {
         this.updateViaDeleteAndCreate = updateViaDeleteAndCreate;
+    }
+
+    public void setServicesOnlyMode(boolean servicesOnlyMode) {
+        this.servicesOnlyMode = servicesOnlyMode;
+    }
+
+    /**
+     * If enabled then only services are created/updated to allow services to be created/updated across
+     * a number of apps before any pods/replication controllers are updated
+     */
+    public boolean isServicesOnlyMode() {
+        return servicesOnlyMode;
     }
 }

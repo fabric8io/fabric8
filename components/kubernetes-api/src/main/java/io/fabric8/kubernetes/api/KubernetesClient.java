@@ -75,6 +75,7 @@ import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
 import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToHost;
 import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToPort;
@@ -611,9 +612,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     // Helper methods
     //-------------------------------------------------------------------------
+    public void deletePod(Pod entity, String namespace) throws Exception {
+        if (Strings.isNotBlank(namespace)) {
+            entity.setNamespace(namespace);
+        }
+        deletePod(entity);
+    }
+
     public void deletePod(Pod entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = KubernetesHelper.getId(entity);
+        String id = getId(entity);
         LOG.info("Deleting Pod: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deletePod(id, namespace);
@@ -622,9 +630,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
     }
 
+    public void deleteService(Service entity, String namespace) throws Exception {
+        if (Strings.isNotBlank(namespace)) {
+            entity.setNamespace(namespace);
+        }
+        deleteService(entity);
+    }
+
     public void deleteService(Service entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = KubernetesHelper.getId(entity);
+        String id = getId(entity);
         LOG.info("Deleting Service: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deleteService(id, namespace);
@@ -633,8 +648,15 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
     }
 
+    public void deleteReplicationControllerAndPods(ReplicationController replicationController, String namespace) throws Exception {
+        if (Strings.isNotBlank(namespace)) {
+            replicationController.setNamespace(namespace);
+        }
+        deleteReplicationControllerAndPods(replicationController);
+    }
+
     public void deleteReplicationControllerAndPods(ReplicationController replicationController) throws Exception {
-        String id = KubernetesHelper.getId(replicationController);
+        String id = getId(replicationController);
         String namespace = KubernetesHelper.getNamespace(replicationController);
         LOG.info("Deleting ReplicationController: " + id + " namespace: " + namespace);
         deleteReplicationController(replicationController);
@@ -644,9 +666,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
     }
 
+    public void deleteReplicationController(ReplicationController replicationController, String namespace) throws Exception {
+        if (Strings.isNotBlank(namespace)) {
+            replicationController.setNamespace(namespace);
+        }
+        deleteReplicationController(replicationController);
+    }
+
     public void deleteReplicationController(ReplicationController entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = KubernetesHelper.getId(entity);
+        String id = getId(entity);
         if (Strings.isNotBlank(namespace)) {
             deleteReplicationController(id, namespace);
         } else {
@@ -756,7 +785,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             srv = getService(serviceName, namespace);
         } else {
             for (Service s : getServices().getItems()) {
-                String sid = KubernetesHelper.getId(s);
+                String sid = getId(s);
                 if (serviceName.equals(sid)) {
                     srv = s;
                     break;
@@ -919,14 +948,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         if (useFabric8Console) {
             // lets proxy through the fabric8 console REST API to work around bugs in OpenShift...
             baseUrl = getServiceURL("fabric8-console-service", namespace, "http", false);
-            url = URLUtils.pathJoin("/kubernetes/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+            url = URLUtils.pathJoin("/kubernetes/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
             webClient = new KubernetesFactory(baseUrl, true).createWebClient();
         } else {
             // using the direct REST API...
             KubernetesFactory factory = getFactory(true);
             baseUrl = factory.getAddress();
             webClient = factory.createWebClient();
-            url = URLUtils.pathJoin("/osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+            url = URLUtils.pathJoin("/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
         }
         if (Strings.isNotBlank(namespace)) {
             url += "?namespace=" + namespace;
@@ -992,7 +1021,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     protected Collection<Pod> getPodList() {
-        return KubernetesHelper.getPodMap(this, namespace).values();
+        return getPodMap(this, namespace).values();
     }
 
 }

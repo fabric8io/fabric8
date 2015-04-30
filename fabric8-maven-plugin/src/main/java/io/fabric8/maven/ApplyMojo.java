@@ -59,6 +59,13 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean failOnNoKubernetesJson;
 
     /**
+     * In services only mode we only process services so that those can be recursively created/updated first
+     * before creating/updating any pods and replication controllers
+     */
+    @Parameter(property = "fabric8.apply.servicesOnly", defaultValue = "false")
+    private boolean servicesOnly;
+
+    /**
      * Should we fail the build if an apply fails?
      */
     @Parameter(property = "fabric8.apply.failOnError", defaultValue = "true")
@@ -95,6 +102,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setAllowCreate(createNewResources);
             controller.setUpdateViaDeleteAndCreate(updateViaDeleteAndCreate);
             controller.setThrowExceptionOnError(failOnError);
+            controller.setServicesOnlyMode(servicesOnly);
 
             controller.apply(dto, json.getName());
         } catch (Exception e) {
