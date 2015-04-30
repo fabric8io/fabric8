@@ -46,6 +46,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.apply.create", defaultValue = "true")
     private boolean createNewResources;
 
+    /**
+     * Should we fail if there is no kubernetes json
+     */
+    @Parameter(property = "fabric8.apply.failOnNoKubernetesJson", defaultValue = "false")
+    private boolean failOnNoKubernetesJson;
+
     private KubernetesClient kubernetes = new KubernetesClient();
 
     @Override
@@ -55,7 +61,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             if (Files.isFile(kubernetesSourceJson)) {
                 json = kubernetesSourceJson;
             } else {
-                throw new MojoFailureException("No such generated kubernetes json file: " + json + " or source json file " + kubernetesSourceJson);
+                if (failOnNoKubernetesJson) {
+                    throw new MojoFailureException("No such generated kubernetes json file: " + json + " or source json file " + kubernetesSourceJson);
+                } else {
+                    getLog().warn("No such generated kubernetes json file: " + json + " or source json file " + kubernetesSourceJson + " for this project so ignoring");
+                    return;
+                }
             }
         }
         KubernetesClient api = getKubernetes();
