@@ -1,6 +1,6 @@
 ## Testing
 
-Fabric8 supports integration testing of [Apps](apps.html) using Kubernetes via [arquillian-fabric8](https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8) which provides an extension for [Arquillian](http://arquillian.org/).
+Fabric8 supports integration testing of [Apps](apps.html) using Kubernetes via [fabric8-arquillian](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian) which provides an extension for [Arquillian](http://arquillian.org/).
 
 Using this extension you can easily:
 
@@ -8,7 +8,7 @@ Using this extension you can easily:
 * Wait until pods and services are ready to be used.
 * Make created services, replication controllers and kubernetes client available inside your test case (via @ArquillianResource).
 
-[arquillian-fabric8](https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8) uses:
+[fabric8-arquillian](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian) uses:
 
 * Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases
 * [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
@@ -142,7 +142,7 @@ In particular [here is the code that does JMX assertions via jolokia on the cont
 
 ### Requirements
 
-When running an **arquillian-fabric8** integration test then the environment variable **KUBERNETES_MASTER** needs to be specified to point to the kubernetes environment in which to create the containers and services.
+When running an **fabric8-arquillian** integration test then the environment variable **KUBERNETES_MASTER** needs to be specified to point to the kubernetes environment in which to create the containers and services.
 
 Also you may want to set the **KUBERNETES_TRUST_CERT** variable to allow connection to kubernetes without a client certificatE:
 
@@ -174,7 +174,7 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
 
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>arquillian-fabric8</artifactId>
+                <artifactId>fabric8-arquillian</artifactId>
                 <version>2.0.44</version>
                 <scope>test</scope>
             </dependency>

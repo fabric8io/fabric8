@@ -1,4 +1,4 @@
-## Arquillian Fabric8
+## Fabric8 Arquillian 
 
 This library provides an [Arquillian](http://arquillian.org/) plugin for [integration testing](http://fabric8.io/guide/testing.html) your [Apps](http://fabric8.io/guide/apps.html) on top of Kubernetes; using Kubernetes to provision and orchestrate the containers and then making [assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) that the required resources startup correctly.
 
@@ -22,7 +22,7 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
 
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>arquillian-fabric8</artifactId>
+                <artifactId>fabric8-arquillian</artifactId>
                 <version>2.0.44</version>
                 <scope>test</scope>
             </dependency>
