@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Thu Apr 30 2015 15:28:12 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Thu Apr 30 2015 20:22:28 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -786,14 +786,14 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="testing"><a name="testing" class="plugin-anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h2>
-<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> which provides an extension for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
+<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian" target="_blank">fabric8-arquillian</a> which provides an extension for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
 <p>Using this extension you can easily:</p>
 <ul>
 <li>Apply the kubernetes configuration of your application, including its dependencies.</li>
 <li>Wait until pods and services are ready to be used.</li>
 <li>Make created services, replication controllers and kubernetes client available inside your test case (via @ArquillianResource).</li>
 </ul>
-<p><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> uses:</p>
+<p><a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian" target="_blank">fabric8-arquillian</a> uses:</p>
 <ul>
 <li>Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases</li>
 <li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
@@ -883,7 +883,7 @@ Then it will treat those as dependencies and apply them along with the configura
 <p>Here is an <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">example Arquillian Fabric8 integration test</a> that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.</p>
 <p>In particular <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74" target="_blank">here is the code that does JMX assertions via jolokia on the containers</a> that are created by the integration test.</p>
 <h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
-<p>When running an <strong>arquillian-fabric8</strong> integration test then the environment variable <strong>KUBERNETES_MASTER</strong> needs to be specified to point to the kubernetes environment in which to create the containers and services.</p>
+<p>When running an <strong>fabric8-arquillian</strong> integration test then the environment variable <strong>KUBERNETES_MASTER</strong> needs to be specified to point to the kubernetes environment in which to create the containers and services.</p>
 <p>Also you may want to set the <strong>KUBERNETES_TRUST_CERT</strong> variable to allow connection to kubernetes without a client certificatE:</p>
 <pre><code>export KUBERNETES_TRUST_CERT=true
 export KUBERNETES_MASTER=http://localhost:8443
@@ -904,7 +904,7 @@ Waiting for: SomeException....
 <p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>
 <pre><code>        &lt;dependency&gt;
             &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-            &lt;artifactId&gt;arquillian-fabric8&lt;/artifactId&gt;
+            &lt;artifactId&gt;fabric8-arquillian&lt;/artifactId&gt;
             &lt;version&gt;2.0.44&lt;/version&gt;
             &lt;scope&gt;test&lt;/scope&gt;
         &lt;/dependency&gt;
