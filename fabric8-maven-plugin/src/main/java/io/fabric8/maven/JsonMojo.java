@@ -36,7 +36,17 @@ import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -119,6 +129,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.generateJson", defaultValue = "true")
     private boolean generateJson;
+
+    /**
+     * Whether we should combine kubernetes JSON dependencies on the classpath into the generated JSON
+     */
+    @Parameter(property = "fabric8.combineDependencies", defaultValue = "false")
+    private boolean combineDependencies;
 
     /**
      * The labels passed into the generated Kubernetes JSON template.
@@ -221,6 +237,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean includeAllEnvironmentVariables;
 
 
+    @Component
+    protected ArtifactResolver resolver;
+
+    @Parameter(property = "localRepository", readonly = true, required = true)
+    protected ArtifactRepository localRepository;
+
+    @Parameter(property = "project.remoteArtifactRepositories")
+    protected List remoteRepositories;
+
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
@@ -228,11 +254,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (json == null) {
             throw new MojoExecutionException("No kubernetes json file is specified!");
         }
-        if (shouldGenerateForThisProject() && !isIgnoreProject() && generateJson) {
-            generateKubernetesJson(json);
+        if (shouldGenerateForThisProject()) {
+            if (!isIgnoreProject() || combineDependencies) {
+                if (combineDependencies) {
+                    combineDependentJsonFiles(json);
+                } else if (generateJson) {
+                    generateKubernetesJson(json);
 
-            if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
-                combineJsonFiles(json, kubernetesExtraJson);
+                    if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
+                        combineJsonFiles(json, kubernetesExtraJson);
+                    }
+                }
             }
         }
         if (Files.isFile(json)) {
@@ -241,14 +273,129 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
+    @Override
+    protected boolean shouldGenerateForThisProject() {
+        return super.shouldGenerateForThisProject() || combineDependencies;
+    }
+
+    protected void combineDependentJsonFiles(File json) throws MojoExecutionException {
+        try {
+            MavenProject project = getProject();
+            List<Object> jsonObjectList = new ArrayList<>();
+            List<Dependency> dependencies = project.getDependencies();
+            Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
+            for (Artifact artifact : dependencyArtifacts) {
+                String classifier = artifact.getClassifier();
+                String type = artifact.getType();
+                File file = artifact.getFile();
+
+                if (isKubernetesJsonArtifact(classifier, type)) {
+                    System.out.println("Found kubernetes dependency: " + artifact + " with file: " + file);
+                    if (file != null) {
+                        addKubernetesJsonFileToList(jsonObjectList, file);
+                    } else {
+                        Set<Artifact> artifacts = resolveArtifacts(artifact);
+                        for (Artifact resolvedArtifact : artifacts) {
+                            classifier = resolvedArtifact.getClassifier();
+                            type = resolvedArtifact.getType();
+                            file = resolvedArtifact.getFile();
+                            if (isKubernetesJsonArtifact(classifier, type) && file != null) {
+                                System.out.println("resolved kubernetes dependency: " + artifact + " with file: " + file);
+                                addKubernetesJsonFileToList(jsonObjectList, file);
+                            }
+                        }
+                    }
+                }
+            }
+            if (jsonObjectList.isEmpty()) {
+                throw new MojoExecutionException("Could not find any dependent kubernetes json files!");
+            }
+            Object combinedJson = null;
+            if (jsonObjectList.size() == 1) {
+                combinedJson = jsonObjectList.get(0);
+            } else {
+                combinedJson = KubernetesHelper.combineJson(jsonObjectList.toArray());
+            }
+            json.getParentFile().mkdirs();
+            KubernetesHelper.saveJson(json, combinedJson);
+            getLog().info("Saved as :" + json.getAbsolutePath());
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
+        }
+
+    }
+
+    private void addKubernetesJsonFileToList(List<Object> list, File file) {
+        if (file.exists() && file.isFile()) {
+            try {
+                Object jsonObject = loadJsonFile(file);
+                if (jsonObject != null) {
+                    list.add(jsonObject);
+                }
+            } catch (MojoExecutionException e) {
+                getLog().warn("Failed to parse file " + file + ". " + e, e);
+            }
+
+        } else {
+            getLog().warn("Ignoring missing file " + file);
+        }
+    }
+
+    protected static boolean isKubernetesJsonArtifact(String classifier, String type) {
+        return Objects.equal("json", type) && Objects.equal("kubernetes", classifier);
+    }
+
+    protected Set<Artifact> resolveArtifacts(Artifact artifact) {
+        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+        request.setArtifact(artifact);
+        addNeededRemoteRepository();
+        request.setRemoteRepositories(remoteRepositories);
+        request.setLocalRepository(localRepository);
+
+        ArtifactResolutionResult resolve = resolver.resolve(request);
+        return resolve.getArtifacts();
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private void addNeededRemoteRepository() {
+        // TODO: Remove this code when we use releases from Maven Central
+        // included jboss-fs repo which is required until we use an Apache version of Karaf
+        boolean found = false;
+        if (remoteRepositories != null) {
+            for (Object obj : remoteRepositories) {
+                if (obj instanceof ArtifactRepository) {
+                    ArtifactRepository repo = (ArtifactRepository) obj;
+                    if (repo.getUrl().contains("repository.jboss.org/nexus/content/groups/fs-public")) {
+                        found = true;
+                        getLog().debug("Found existing (" + repo.getId() + ") remote repository: " + repo.getUrl());
+                        break;
+                    }
+                }
+            }
+        }
+        if (!found) {
+            ArtifactRepository fsPublic = new MavenArtifactRepository();
+            fsPublic.setUrl("http://repository.jboss.org/");
+            fsPublic.setLayout(new DefaultRepositoryLayout());
+            fsPublic.setReleaseUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
+            fsPublic.setSnapshotUpdatePolicy(new ArtifactRepositoryPolicy(false, "never", "ignore"));
+            if (remoteRepositories == null) {
+                remoteRepositories = new ArrayList();
+            }
+            remoteRepositories.add(fsPublic);
+        }
+    }
+
+
     protected void combineJsonFiles(File json, File kubernetesExtraJson) throws MojoExecutionException {
         // lets combine json files together
         getLog().info("Combining generated json " + json + " with extra json " + kubernetesExtraJson);
         Object extra = loadJsonFile(kubernetesExtraJson);
         Object generated = loadJsonFile(json);
         try {
-            JsonNode comnbined = KubernetesHelper.combineJson(generated, extra);
-            KubernetesHelper.saveJson(json, comnbined);
+            JsonNode combinedJson = KubernetesHelper.combineJson(generated, extra);
+            KubernetesHelper.saveJson(json, combinedJson);
             getLog().info("Saved as :" + json.getAbsolutePath());
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
