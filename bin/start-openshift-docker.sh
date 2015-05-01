@@ -298,6 +298,16 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
   "name": "routes-config",
   "items": [
     {
+      "id": "docker-registry-route",
+      "metadata": {
+        "name": "docker-registry-route"
+      },
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "registry.${FABRIC8_CONSOLE}",
+      "serviceName": "docker-registry-http"
+    },
+    {
       "id": "fabric8-console-route",
       "metadata": {
         "name": "fabric8-console-route"
