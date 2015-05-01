@@ -15,6 +15,10 @@
  */
 package io.fabric8.maven;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -28,6 +32,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Applies the Kubernetes JSON to a namespace in a kubernetes environment
@@ -71,6 +77,18 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.apply.failOnError", defaultValue = "true")
     private boolean failOnError;
 
+    /**
+     * Should we create routes for any services which don't already have them.
+     */
+    @Parameter(property = "fabric8.apply.createRoutes", defaultValue = "true")
+    private boolean createRoutes;
+
+    /**
+     * The domain added to the service ID when creating OpenShift routes
+     */
+    @Parameter(property = "fabric8.apply.domain", defaultValue = "${env.KUBERNETES_DOMAIN}")
+    private String routeDomain;
+
     private KubernetesClient kubernetes = new KubernetesClient();
 
     @Override
@@ -88,9 +106,9 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 }
             }
         }
-        KubernetesClient api = getKubernetes();
+        KubernetesClient kubernetes = getKubernetes();
 
-        getLog().info("Using kubernetes at: " + api.getAddress() + " in namespace " + api.getNamespace());
+        getLog().info("Using kubernetes at: " + kubernetes.getAddress() + " in namespace " + kubernetes.getNamespace());
         getLog().info("Kubernetes JSON: " + json);
 
         try {
@@ -98,7 +116,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             if (dto == null) {
                 throw new MojoFailureException("Could not load kubernetes json: " + json);
             }
-            Controller controller = new Controller(kubernetes);
+            List<Object> list = KubernetesHelper.toItemList(dto);
+            if (createRoutes) {
+                createRoutes(kubernetes, list);
+                dto = list;
+            }
+            Controller controller = new Controller(this.kubernetes);
             controller.setAllowCreate(createNewResources);
             controller.setUpdateViaDeleteAndCreate(updateViaDeleteAndCreate);
             controller.setThrowExceptionOnError(failOnError);
@@ -108,6 +131,48 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    protected void createRoutes(KubernetesClient kubernetes, List<Object> list) {
+        if (Strings.isNullOrBlank(routeDomain)) {
+            getLog().warn("No fabric8.apply.routeDomain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
+            return;
+        }
+        String namespace = kubernetes.getNamespace();
+        // lets get the routes first to see if we should bother
+        try {
+            RouteList routes = kubernetes.getRoutes(namespace);
+            if (routes != null) {
+                List<Route> items = routes.getItems();
+            }
+        } catch (Exception e) {
+            getLog().warn("Could not load routes; we maybe are not connected to an OpenShift environment? " + e, e);
+            return;
+        }
+        List<Route> routes = new ArrayList<>();
+        for (Object object : list) {
+            if (object instanceof Service) {
+                Service service = (Service) object;
+                String id = KubernetesHelper.getId(service);
+
+                if (Strings.isNotBlank(id)) {
+                    Route route = new Route();
+                    KubernetesHelper.setName(route, namespace, id + "-route");
+                    route.setServiceName(id);
+                    String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
+                    route.setHost(host + "." + Strings.stripPrefix(routeDomain, "."));
+                    String json = null;
+                    try {
+                        json = KubernetesHelper.toJson(route);
+                    } catch (JsonProcessingException e) {
+                        json = e.getMessage() + ". object: " + route;
+                    }
+                    getLog().debug("Created route: " + json);
+                    routes.add(route);
+                }
+            }
+        }
+        list.addAll(routes);
     }
 
     public KubernetesClient getKubernetes() {

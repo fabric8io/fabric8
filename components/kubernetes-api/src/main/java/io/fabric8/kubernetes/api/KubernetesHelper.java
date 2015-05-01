@@ -22,13 +22,30 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.PodTemplate;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
-import io.fabric8.utils.*;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -38,14 +55,32 @@ import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.TextParseException;
 
-import javax.net.ssl.*;
-import java.io.*;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLKeyException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLProtocolException;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -109,6 +144,25 @@ public class KubernetesHelper {
         }
     }
 
+    public static String getId(Route entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+
+    public static void setName(Route route, String namespace, String name) {
+        route.setNamespace(namespace);
+        route.setName(name);
+        Map<String, Object> metadata = getMetadata(route.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
     public static String getNamespace(Pod entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getNamespace(),
@@ -130,6 +184,16 @@ public class KubernetesHelper {
     }
 
     public static String getNamespace(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getNamespace(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(Route entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
@@ -232,6 +296,17 @@ public class KubernetesHelper {
         return getAdditionalPropertyText(map, names[lastIdx]);
     }
 
+    protected static Map<String,Object> getMetadata(Map<String, Object> additionalProperties, boolean create) {
+        Map<String, Object> answer = getAdditionalPropertyMap(additionalProperties, "metadata");
+        if (answer == null) {
+            answer = new HashMap<>();
+            if (create) {
+                additionalProperties.put("metadata", answer);
+            }
+        }
+        return answer;
+    }
+
     protected static Map<String,Object> getAdditionalPropertyMap(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
             Object value = additionalProperties.get(name);
@@ -324,6 +399,28 @@ public class KubernetesHelper {
             }
         }
         return null;
+    }
+
+
+    /**
+     * Loads the Kubernetes JSON and converts it to a list of entities
+     */
+    public static List<Object> toItemList(Object entity) {
+        if (entity instanceof List) {
+            return (List<Object>) entity;
+        } else if (entity instanceof Object[]) {
+            Object[] array = (Object[]) entity;
+            return Arrays.asList(array);
+        } else if (entity instanceof Config) {
+            Config config = (Config) entity;
+            return config.getItems();
+        } else {
+            List<Object> answer = new ArrayList<>();
+            if (entity != null) {
+                answer.add(answer);
+            }
+            return answer;
+        }
     }
 
     protected static Object loadEntity(byte[] json, String kind, Object defaultValue) throws IOException {

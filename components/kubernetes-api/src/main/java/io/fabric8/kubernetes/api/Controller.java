@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.Route;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -160,7 +162,12 @@ public class Controller {
      * Applies the given DTOs onto the Kubernetes master
      */
     public void apply(Object dto, String sourceName) throws Exception {
-        if (dto instanceof Config) {
+        if (dto instanceof List) {
+            List list = (List) dto;
+            for (Object element : list) {
+                apply(element, sourceName);
+            }
+        } else if (dto instanceof Config) {
             applyConfig((Config) dto, sourceName);
         } else if (dto instanceof JsonNode) {
             JsonNode tree = (JsonNode) dto;
@@ -177,7 +184,7 @@ public class Controller {
             } else {
                 LOG.warn("No JSON kind for: " + tree);
             }
-        } else if (dto instanceof Entity) {
+        } else if (dto != null) {
             applyEntity(dto, sourceName);
         }
     }
@@ -192,6 +199,8 @@ public class Controller {
             applyReplicationController((ReplicationController) dto, sourceName);
         } else if (dto instanceof Service) {
             applyService((Service) dto, sourceName);
+        } else if (dto instanceof Route) {
+            applyRoute((Route) dto, sourceName);
         } else if (dto instanceof BuildConfig) {
             applyBuildConfig((BuildConfig) dto, sourceName);
         } else if (dto instanceof DeploymentConfig) {
@@ -211,6 +220,19 @@ public class Controller {
         }
     }
 
+    public void applyRoute(Route entity, String sourceName) {
+        String id = KubernetesHelper.getId(entity);
+        String namespace = KubernetesHelper.getNamespace(entity);
+        Route route = kubernetes.findRoute(id, namespace);
+        if (route == null) {
+            try {
+                LOG.info("Creating route " + namespace + ":" + id);
+                kubernetes.createRoute(entity, namespace);
+            } catch (Exception e) {
+                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            }
+        }
+    }
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
         try {

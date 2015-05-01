@@ -428,6 +428,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     //-------------------------------------------------------------------------
 
 
+    @Override
+    @POST
+    @Path("routes")
+    public String createRoute(Route entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createRoute(entity, namespace);
+    }
+
     @POST
     @Path("configs")
     @Consumes("application/json")
@@ -470,14 +477,33 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetesExtensions().deleteDeploymentConfig(name, namespace);
     }
 
+    @GET
+    @Path("routes")
     @Override
     public RouteList getRoutes(@QueryParam("namespace") String namespace) {
         return getKubernetesExtensions().getRoutes(namespace);
     }
 
+    @GET
+    @Path("routes/{name}")
     @Override
     public Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace) {
         return getKubernetesExtensions().getRoute(name, namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("routes/{name}")
+    @Consumes("application/json")
+    public String updateRoute(@NotNull String name, Route entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateRoute(name, entity, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("routes/{name}")
+    public String deleteRoute(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteRoute(name, namespace);
     }
 
     @Override
@@ -807,6 +833,23 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     // Extension helper methods
     //-------------------------------------------------------------------------
+
+    /**
+     * Returns the route for the given id and namespace or null if it could not be found.
+     */
+    public Route findRoute(String id, String namespace) {
+        Route route = null;
+        try {
+            route = getRoute(id, namespace);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                // does not exist
+            } else {
+                throw e;
+            }
+        }
+        return route;
+    }
 
     /**
      * Triggers a build and returns the UID of the newly created build if it can be found within the default time period

@@ -61,6 +61,33 @@ public interface KubernetesExtensions {
     String createTemplate(Object entity) throws Exception;
 
 
+    // Routes
+    //-------------------------------------------------------------------------
+
+
+    @GET
+    @Path("routes")
+    RouteList getRoutes(@QueryParam("namespace") String namespace);
+
+
+    @POST
+    @Path("routes")
+    String createRoute(Route entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @GET
+    @Path("routes/{name}")
+    Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+    @PUT
+    @Path("routes/{name}")
+    @Consumes("application/json")
+    String updateRoute(@PathParam("name") @NotNull String name, Route entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("routes/{name}")
+    String deleteRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+
+
     // Builds
     //-------------------------------------------------------------------------
 
@@ -172,12 +199,5 @@ public interface KubernetesExtensions {
     @Path("deploymentConfigs/{name}")
     String deleteDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
-    @GET
-    @Path("routes")
-    RouteList getRoutes(@QueryParam("namespace") String namespace);
-
-    @GET
-    @Path("routes/{name}")
-    Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 }
