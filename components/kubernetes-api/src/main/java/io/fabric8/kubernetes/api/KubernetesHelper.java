@@ -41,6 +41,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -435,6 +436,9 @@ public class KubernetesHelper {
         } else if (entity instanceof Config) {
             Config config = (Config) entity;
             return config.getItems();
+        } else if (entity instanceof Template) {
+            Template objects = (Template) entity;
+            return objects.getObjects();
         } else {
             List<Object> answer = new ArrayList<>();
             if (entity != null) {
@@ -457,12 +461,10 @@ public class KubernetesHelper {
             return objectMapper.reader(DeploymentConfig.class).readValue(json);
         } else if (Objects.equal("ImageRepository", kind)) {
             return objectMapper.reader(ImageRepository.class).readValue(json);
-        } else if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
-            return loadList(json);
-/*
         } else if (Objects.equal("Template", kind)) {
             return objectMapper.reader(Template.class).readValue(json);
-*/
+        } else if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
+            return loadList(json);
         } else {
             return defaultValue;
         }
