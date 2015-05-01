@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -868,6 +869,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         List<io.fabric8.openshift.api.model.template.Parameter> parameters = new ArrayList<>();
         MavenProject project = getProject();
         Properties properties = project.getProperties();
+        Set<String> paramNames = new HashSet<>();
         for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
@@ -875,28 +877,44 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 Matcher m = PARAM_PATTERN.matcher(s);
                 if (m.matches()) {
                     String name = m.group(NAME);
-                    String value = properties.getProperty(String.format(PARAMETER_PROPERTY, name, VALUE));
-                    String from = properties.getProperty(String.format(PARAMETER_PROPERTY, name, FROM));
-                    String description = properties.getProperty(String.format(PARAMETER_PROPERTY, name, DESCRIPTION));
-                    String generate = properties.getProperty(String.format(PARAMETER_PROPERTY, name, GENEATE));
-                    //If neither value nor from has been specified read the value inline.
-                    if (Strings.isNullOrBlank(value) && Strings.isNullOrBlank(from)) {
-                        value = properties.getProperty(String.format(PARAMETER_NAME_PREFIX, name));
+                    if (paramNames.add(name)) {
+                        String value = properties.getProperty(String.format(PARAMETER_PROPERTY, name, VALUE));
+                        String from = properties.getProperty(String.format(PARAMETER_PROPERTY, name, FROM));
+                        String description = properties.getProperty(String.format(PARAMETER_PROPERTY, name, DESCRIPTION));
+                        String generate = properties.getProperty(String.format(PARAMETER_PROPERTY, name, GENEATE));
+                        //If neither value nor from has been specified read the value inline.
+                        if (Strings.isNullOrBlank(value) && Strings.isNullOrBlank(from)) {
+                            value = properties.getProperty(String.format(PARAMETER_NAME_PREFIX, name));
+                        }
+                        getLog().info("Found Template parameter: " + name +
+                                labelValueOrBlank("value", value) +
+                                labelValueOrBlank("from", from) +
+                                labelValueOrBlank("generate", generate) +
+                                labelValueOrBlank("description", description));
+
+                        parameters.add(new ParameterBuilder()
+                                .withName(name)
+                                .withFrom(from)
+                                .withValue(value)
+                                .withGenerate(generate)
+                                .withDescription(description)
+                                .build());
                     }
-                    parameters.add(new ParameterBuilder()
-                            .withName(name)
-                            .withFrom(from)
-                            .withValue(value)
-                            .withGenerate(generate)
-                            .withDescription(description)
-                            .build());
                 }
             }
         }
-        String templateName = properties.containsKey(TEMPLATE_NAME) ? 
+        String templateName = properties.containsKey(TEMPLATE_NAME) ?
                 String.valueOf(properties.getProperty(TEMPLATE_NAME)) :
                 project.getArtifactId();
         return new TemplateBuilder().withName(templateName).withParameters(parameters).build();
+    }
+
+    private String labelValueOrBlank(String label, String value) {
+        if (Strings.isNotBlank(value)) {
+            return " " + label + ": " + value;
+        } else {
+            return "";
+        }
     }
 
     public void setLabels(Map<String, String> labels) {
