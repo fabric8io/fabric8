@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -281,7 +282,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected void combineDependentJsonFiles(File json) throws MojoExecutionException {
         try {
             MavenProject project = getProject();
-            List<Object> jsonObjectList = new ArrayList<>();
+            Set<File> jsonFiles = new LinkedHashSet<>();
             List<Dependency> dependencies = project.getDependencies();
             Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
             for (Artifact artifact : dependencyArtifacts) {
@@ -290,9 +291,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 File file = artifact.getFile();
 
                 if (isKubernetesJsonArtifact(classifier, type)) {
-                    System.out.println("Found kubernetes dependency: " + artifact + " with file: " + file);
                     if (file != null) {
-                        addKubernetesJsonFileToList(jsonObjectList, file);
+                        System.out.println("Found kubernetes JSON dependency: " + artifact);
+                        jsonFiles.add(file);
                     } else {
                         Set<Artifact> artifacts = resolveArtifacts(artifact);
                         for (Artifact resolvedArtifact : artifacts) {
@@ -300,15 +301,19 @@ public class JsonMojo extends AbstractFabric8Mojo {
                             type = resolvedArtifact.getType();
                             file = resolvedArtifact.getFile();
                             if (isKubernetesJsonArtifact(classifier, type) && file != null) {
-                                System.out.println("resolved kubernetes dependency: " + artifact + " with file: " + file);
-                                addKubernetesJsonFileToList(jsonObjectList, file);
+                                System.out.println("Resolved kubernetes JSON dependency: " + artifact);
+                                jsonFiles.add(file);
                             }
                         }
                     }
                 }
             }
+            List<Object> jsonObjectList = new ArrayList<>();
+            for (File file : jsonFiles) {
+                addKubernetesJsonFileToList(jsonObjectList, file);
+            }
             if (jsonObjectList.isEmpty()) {
-                throw new MojoExecutionException("Could not find any dependent kubernetes json files!");
+                throw new MojoExecutionException("Could not find any dependent kubernetes JSON files!");
             }
             Object combinedJson = null;
             if (jsonObjectList.size() == 1) {
@@ -322,7 +327,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
-
     }
 
     private void addKubernetesJsonFileToList(List<Object> list, File file) {
