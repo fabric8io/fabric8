@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,8 +58,9 @@ public class Controller {
     private Map<String, Service> serviceMap = null;
     private boolean throwExceptionOnError = false;
     private boolean allowCreate = true;
-    private boolean updateViaDeleteAndCreate;
+    private boolean recreateMode;
     private boolean servicesOnlyMode;
+    private boolean ignoreServiceMode;
 
     public Controller() {
         this(new KubernetesClient());
@@ -297,16 +297,20 @@ public class Controller {
 
     public void applyService(Service service, String sourceName) throws Exception {
         String namespace = getNamespace();
+        String id = getId(service);
+        if (isIgnoreServiceMode()) {
+            LOG.debug("Ignoring Service: " + namespace + ":" + id);
+            return;
+        }
         if (serviceMap == null) {
             serviceMap = getServiceMap(kubernetes, namespace);
         }
-        String id = getId(service);
         Service old = serviceMap.get(id);
         if (isRunning(old)) {
             if (ConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
-                if (isUpdateViaDeleteAndCreate()) {
+                if (isRecreateMode()) {
                     kubernetes.deleteService(service, namespace);
                     doCreateService(service, namespace, sourceName);
                 } else {
@@ -358,7 +362,7 @@ public class Controller {
             if (ConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
-                if (isUpdateViaDeleteAndCreate()) {
+                if (isRecreateMode()) {
                     kubernetes.deleteReplicationControllerAndPods(replicationController, namespace);
                     doCreateReplicationController(replicationController, namespace, sourceName);
                 } else {
@@ -410,7 +414,7 @@ public class Controller {
             if (ConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
-                if (isUpdateViaDeleteAndCreate()) {
+                if (isRecreateMode()) {
                     kubernetes.deletePod(pod, namespace);
                     doCreatePod(pod, namespace, sourceName);
                 } else {
@@ -501,14 +505,14 @@ public class Controller {
     }
 
     /**
-     * If enabled then updates are performed by deleting the resource first then rereating it
+     * If enabled then updates are performed by deleting the resource first then creating it
      */
-    public boolean isUpdateViaDeleteAndCreate() {
-        return updateViaDeleteAndCreate;
+    public boolean isRecreateMode() {
+        return recreateMode;
     }
 
-    public void setUpdateViaDeleteAndCreate(boolean updateViaDeleteAndCreate) {
-        this.updateViaDeleteAndCreate = updateViaDeleteAndCreate;
+    public void setRecreateMode(boolean recreateMode) {
+        this.recreateMode = recreateMode;
     }
 
     public void setServicesOnlyMode(boolean servicesOnlyMode) {
@@ -521,5 +525,18 @@ public class Controller {
      */
     public boolean isServicesOnlyMode() {
         return servicesOnlyMode;
+    }
+
+    /**
+     * If enabled then all services are ignored to avoid them being recreated. This is useful if you want to
+     * recreate ReplicationControllers and Pods but leave Services as they are to avoid the portalIP addresses
+     * changing
+     */
+    public boolean isIgnoreServiceMode() {
+        return ignoreServiceMode;
+    }
+
+    public void setIgnoreServiceMode(boolean ignoreServiceMode) {
+        this.ignoreServiceMode = ignoreServiceMode;
     }
 }

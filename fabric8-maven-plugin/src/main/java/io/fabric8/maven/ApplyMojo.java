@@ -31,7 +31,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +54,8 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     /**
      * Should we update resources by deleting them first and then creating them again?
      */
-    @Parameter(property = "fabric8.apply.updateByDeleteCreate")
-    private boolean updateViaDeleteAndCreate;
+    @Parameter(property = "fabric8.apply.recreate")
+    private boolean recreate;
 
     /**
      * Should we fail if there is no kubernetes json
@@ -70,6 +69,15 @@ public class ApplyMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.apply.servicesOnly", defaultValue = "false")
     private boolean servicesOnly;
+
+    /**
+     * Do we want to ignore services. This is particularly useful when in recreate mode
+     * to let you easily recreate all the ReplicationControllers and Pods but leave any service
+     * definitions alone to avoid changing the portalIP addresses and breaking existing pods using
+     * the service.
+     */
+    @Parameter(property = "fabric8.apply.ignoreServices", defaultValue = "false")
+    private boolean ignoreServices;
 
     /**
      * Should we fail the build if an apply fails?
@@ -123,9 +131,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
             Controller controller = new Controller(this.kubernetes);
             controller.setAllowCreate(createNewResources);
-            controller.setUpdateViaDeleteAndCreate(updateViaDeleteAndCreate);
+            controller.setRecreateMode(recreate);
             controller.setThrowExceptionOnError(failOnError);
             controller.setServicesOnlyMode(servicesOnly);
+            controller.setIgnoreServiceMode(ignoreServices);
 
             controller.apply(dto, json.getName());
         } catch (Exception e) {
