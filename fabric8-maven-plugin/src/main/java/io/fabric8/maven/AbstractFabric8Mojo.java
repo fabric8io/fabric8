@@ -32,8 +32,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
@@ -183,7 +185,33 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
      * Returns all the environment variable properties defined in the pom.xml which are prefixed with "fabric8.env."
      */
     public Map<String, String> getEnvironmentVariableProperties() {
-        return findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
+        Map<String, String> rawProperties = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
+        Set<Map.Entry<String, String>> entries = rawProperties.entrySet();
+        Map<String, String>  answer = new HashMap<>();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            value = unquoteTemplateExpression(value);
+            answer.put(key, value);
+        }
+        return answer;
+    }
+
+    /**
+     * we need to escape <code>${FOO}</code> for template expressions so in maven we have to escape them as <code>\${FOO}</code>
+     *  so lets un-escape those now to be just <code>${FOO}</code>
+     */
+    public static String unquoteTemplateExpression(String value) {
+        int idx = 0;
+        while (true) {
+            idx = value.indexOf("\\${", idx);
+            if (idx >= 0) {
+                value = value.substring(0, idx) + value.substring(++idx);
+            } else {
+                break;
+            }
+        }
+        return value;
     }
 
     public JsonSchema getEnvironmentVariableJsonSchema() throws IOException, MojoExecutionException {
