@@ -269,6 +269,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
         }
         if (Files.isFile(json)) {
+            printSummary(json);
+
             getLog().info("Attaching kubernetes json file: " + json + " to the build");
             projectHelper.attachArtifact(getProject(), artifactType, artifactClassifier, json);
         }
@@ -328,6 +330,31 @@ public class JsonMojo extends AbstractFabric8Mojo {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
     }
+
+    protected void printSummary(File json) throws MojoExecutionException {
+        try {
+            Object savedObjects = KubernetesHelper.loadJson(json);
+            getLog().info("Generated Kubernetes JSON resources:");
+            printSummary(KubernetesHelper.toItemList(savedObjects));
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to load saved json file " + json + ". Reason: " + e, e);
+        }
+    }
+
+    protected void printSummary(List<Object> list) {
+        for (Object object : list) {
+            if (object != null) {
+                if (object instanceof List) {
+                    printSummary((List<Object>) object);
+                } else {
+                    String kind = object.getClass().getSimpleName();
+                    String id = KubernetesHelper.getObjectId(object);
+                    getLog().info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
+                }
+            }
+        }
+    }
+
 
     private void addKubernetesJsonFileToList(List<Object> list, File file) {
         if (file.exists() && file.isFile()) {

@@ -35,6 +35,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -109,6 +110,23 @@ public class KubernetesHelper {
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     public static final String DEFAULT_PROTO = "tcp";
 
+
+    /**
+     * Returns the ID of the given object
+     */
+    public static String getObjectId(Object object) {
+        if (object instanceof Pod) {
+            return getId((Pod) object);
+        } else if (object instanceof ReplicationController) {
+            return getId((ReplicationController) object);
+        } else if (object instanceof Service) {
+            return getId((Service) object);
+        } else if (object instanceof Route) {
+            return getId((Route) object);
+        } else  {
+            return object != null ? object.toString() : null;
+        }
+    }
 
     public static String getId(Pod entity) {
         if (entity != null) {
@@ -405,8 +423,11 @@ public class KubernetesHelper {
     /**
      * Loads the Kubernetes JSON and converts it to a list of entities
      */
-    public static List<Object> toItemList(Object entity) {
-        if (entity instanceof List) {
+    public static List<Object> toItemList(Object entity) throws IOException {
+        if (entity instanceof JsonNode) {
+            JsonNode jsonNode = (JsonNode) entity;
+            return toItemList(getEntity(jsonNode));
+        } if (entity instanceof List) {
             return (List<Object>) entity;
         } else if (entity instanceof Object[]) {
             Object[] array = (Object[]) entity;
@@ -1478,4 +1499,103 @@ public class KubernetesHelper {
         }
     }
 
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(Object object) {
+        if (object instanceof Route) {
+            return summaryText((Route) object);
+        } else if (object instanceof Service) {
+            return summaryText((Service) object);
+        } else if (object instanceof ReplicationController) {
+            return summaryText((ReplicationController) object);
+        } else if (object instanceof Pod) {
+            return summaryText((Pod) object);
+        }
+        return "";
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(Route entity) {
+        return "host: " + entity.getHost();
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(Service entity) {
+        StringBuilder portText = new StringBuilder();
+        List<ServicePort> ports = entity.getPorts();
+        if (ports != null) {
+            for (ServicePort port : ports) {
+                Integer number = port.getPort();
+                if (number != null) {
+                    if (portText.length() > 0) {
+                        portText.append(", ");
+                    }
+                    portText.append("" + number);
+                }
+            }
+
+        }
+        if (portText.length() == 0) {
+            Integer port = entity.getPort();
+            if (port != null) {
+                portText.append("" + port);
+            }
+        }
+        return "selector: " + entity.getSelector() + " ports: " + portText;
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(ReplicationController entity) {
+        StringBuilder buffer = new StringBuilder();
+        ReplicationControllerState desiredState = entity.getDesiredState();
+        if (desiredState != null) {
+            buffer.append("replicas: " + desiredState.getReplicas());
+            PodTemplate podTemplate = desiredState.getPodTemplate();
+            if (podTemplate != null) {
+                PodState podState = podTemplate.getDesiredState();
+                appendSummaryText(buffer, podState);
+            }
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(Pod entity) {
+        StringBuilder buffer = new StringBuilder();
+        PodState podState = entity.getDesiredState();
+        appendSummaryText(buffer, podState);
+        return buffer.toString();
+    }
+
+    protected static void appendSummaryText(StringBuilder buffer, PodState podState) {
+        if (podState != null) {
+            ContainerManifest manifest = podState.getManifest();
+            if (manifest != null) {
+                List<Container> containers = manifest.getContainers();
+                if (containers != null) {
+                    for (Container container : containers) {
+                        String image = container.getImage();
+                        appendText(buffer, "image: " + image);
+                    }
+                }
+            }
+        }
+    }
+
+
+    protected static void appendText(StringBuilder buffer, String text) {
+            if (buffer.length() > 0) {
+                buffer.append(", ");
+            }
+        buffer.append(text);
+    }
 }
