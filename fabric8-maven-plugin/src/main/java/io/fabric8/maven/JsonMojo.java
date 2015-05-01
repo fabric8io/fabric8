@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -344,13 +345,21 @@ public class JsonMojo extends AbstractFabric8Mojo {
         try {
             Object savedObjects = KubernetesHelper.loadJson(json);
             getLog().info("Generated Kubernetes JSON resources:");
-            printSummary(KubernetesHelper.toItemList(savedObjects));
+            printSummary(savedObjects);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to load saved json file " + json + ". Reason: " + e, e);
         }
     }
 
-    protected void printSummary(List<Object> list) {
+    protected void printSummary(Object kubeResource) throws IOException {
+        if (kubeResource instanceof Template) {
+            Template template = (Template) kubeResource;
+            String id = KubernetesHelper.getId(template);
+            getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
+            printSummary(template.getObjects());
+            return;
+        }
+        List<Object> list = KubernetesHelper.toItemList(kubeResource);
         for (Object object : list) {
             if (object != null) {
                 if (object instanceof List) {
@@ -528,10 +537,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         KubernetesList kubernetesList = builder.build();
 
+        Object result = Templates.combineTemplates(kubernetesList);
+
         try {
             ObjectMapper mapper = new ObjectMapper()
                     .enable(SerializationFeature.INDENT_OUTPUT);
-            String generated = mapper.writeValueAsString(kubernetesList);
+            String generated = mapper.writeValueAsString(result);
             Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);

@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodState;
@@ -41,6 +42,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
@@ -202,6 +204,16 @@ public class KubernetesHelper {
         }
     }
 
+    public static String getId(Template entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
 
     public static void setName(Route route, String namespace, String name) {
         route.setNamespace(namespace);
@@ -1167,9 +1179,52 @@ public class KubernetesHelper {
         }
         moveServicesToFrontOfArray(itemArray);
         removeDuplicates(itemArray);
-        return config;
+        return combineTemplates(config, itemArray);
     }
 
+    /**
+     * If we have any templates inside the itemArray then lets unpack them and combine any parameters
+     */
+    protected static JsonNode combineTemplates(JsonNode config, ArrayNode itemArray) {
+        JsonNode template = null;
+        for (JsonNode jsonNode : config) {
+            if (isTemplate(jsonNode)) {
+                if (template == null) {
+                    template = jsonNode;
+                } else {
+                    // TODO combine templates...
+                }
+            }
+        }
+        if (template != null) {
+            // lets move all the content into the template
+            JsonNode items = config.get("objects");
+            ArrayNode objects;
+            if (items instanceof ArrayNode) {
+                objects = (ArrayNode) items;
+            } else {
+                objects = new ArrayNode(createNodeFactory());
+                if (template instanceof ObjectNode) {
+                    ObjectNode objectNode = (ObjectNode) template;
+                    objectNode.set("objects", itemArray);
+                } else {
+                    throw new IllegalArgumentException("config " + template + " is not a ObjectNode");
+                }
+            }
+            for (JsonNode jsonNode : config) {
+                if (!isTemplate(jsonNode)) {
+                    objects.add(jsonNode);
+                }
+            }
+            return template;
+        } else {
+            return config;
+        }
+    }
+
+    /**
+     * Lets move all Service resources before any other to avoid ordering issues creating things
+     */
     protected static void moveServicesToFrontOfArray(ArrayNode itemArray) {
         int size = itemArray.size();
         int lastNonService = -1;
@@ -1188,6 +1243,9 @@ public class KubernetesHelper {
         }
     }
 
+    /**
+     * Remove any duplicate resources using the kind and id
+     */
     protected static void removeDuplicates(ArrayNode itemArray) {
         int size = itemArray.size();
         int lastNonService = -1;
@@ -1212,6 +1270,14 @@ public class KubernetesHelper {
         if (jsonNode != null) {
             JsonNode kind = jsonNode.get("kind");
             return kind != null && Objects.equal("Service", kind.textValue());
+        }
+        return false;
+    }
+
+    protected static boolean isTemplate(JsonNode jsonNode) {
+        if (jsonNode != null) {
+            JsonNode kind = jsonNode.get("kind");
+            return kind != null && Objects.equal("Template", kind.textValue());
         }
         return false;
     }
@@ -1247,7 +1313,7 @@ public class KubernetesHelper {
         // lets create a new list
         JsonNodeFactory factory = createNodeFactory();
         ObjectNode config = factory.objectNode();
-        config.set("apiVersion", factory.textNode("v1beta2"));
+        config.set("apiVersion", factory.textNode(defaultApiVersion));
         config.set("kind", factory.textNode("List"));
         config.set("items", factory.arrayNode());
         return config;
@@ -1562,6 +1628,8 @@ public class KubernetesHelper {
             return summaryText((ReplicationController) object);
         } else if (object instanceof Pod) {
             return summaryText((Pod) object);
+        } else if (object instanceof Template) {
+            return summaryText((Template) object);
         }
         return "";
     }
@@ -1571,6 +1639,21 @@ public class KubernetesHelper {
      */
     public static String summaryText(Route entity) {
         return "host: " + entity.getHost();
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(Template entity) {
+        StringBuilder buffer = new StringBuilder();
+        List<Parameter> parameters = entity.getParameters();
+        if (parameters != null) {
+            for (Parameter parameter : parameters) {
+                String name = parameter.getName();
+                appendText(buffer, name);
+            }
+        }
+        return "parameters: " + buffer;
     }
 
     /**
@@ -1649,4 +1732,5 @@ public class KubernetesHelper {
             }
         buffer.append(text);
     }
+
 }
