@@ -208,6 +208,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String serviceName;
 
     /**
+     * Should we generate headless services (services with no ports)
+     */
+    // TODO for now lets default to not creating headless services as it barfs when used with kubernetes...
+    //@Parameter(property = "fabric8.service.headless", defaultValue = "true")
+    @Parameter(property = "fabric8.service.headless", defaultValue = "false")
+    private boolean headlessServices;
+
+    /**
      * The service port
      */
     @Parameter(property = FABRIC8_PORT_SERVICE)
@@ -500,13 +508,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     .withLabels(labelMap);
 
             List<ServicePort> servicePorts = getServicePorts();
-            if (servicePorts != null & !servicePorts.isEmpty()) {
+            boolean hasPorts = servicePorts != null & !servicePorts.isEmpty();
+            if (hasPorts) {
                 serviceBuilder.withPorts(servicePorts);
             } else {
                 serviceBuilder.withPortalIP("None");
             }
 
-            builder = builder.addToServices(serviceBuilder.build());
+            if (headlessServices || hasPorts) {
+                builder = builder.addToServices(serviceBuilder.build());
+            }
         }
         
         Template template = getTemplate();
