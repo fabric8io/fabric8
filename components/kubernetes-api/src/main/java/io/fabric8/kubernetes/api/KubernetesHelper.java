@@ -129,6 +129,34 @@ public class KubernetesHelper {
         }
     }
 
+    public static String getId(JsonNode entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(
+                    getJsonTextProperty(entity, "metadata", "name"),
+                    getJsonTextProperty(entity, "metadata", "id"),
+                    getJsonTextProperty(entity, "name"),
+                    getJsonTextProperty(entity, "id"));
+        } else {
+            return null;
+        }
+    }
+
+    public static String getKind(JsonNode entity) {
+        return getJsonTextProperty(entity, "kind");
+    }
+
+    protected static String getJsonTextProperty(JsonNode node, String... names) {
+        JsonNode current = node;
+        for (String name : names) {
+            if (current == null) {
+                return null;
+            } else {
+                current = current.get(name);
+            }
+        }
+        return current != null ? current.textValue() : null;
+    }
+
     public static String getId(Pod entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getId(),
@@ -1138,6 +1166,7 @@ public class KubernetesHelper {
             }
         }
         moveServicesToFrontOfArray(itemArray);
+        removeDuplicates(itemArray);
         return config;
     }
 
@@ -1155,6 +1184,26 @@ public class KubernetesHelper {
                 }
             } else if (lastNonService < 0) {
                 lastNonService = i;
+            }
+        }
+    }
+
+    protected static void removeDuplicates(ArrayNode itemArray) {
+        int size = itemArray.size();
+        int lastNonService = -1;
+        Set<String> keys = new HashSet<>();
+        for (int i = 0; i < size; i++) {
+            JsonNode jsonNode = itemArray.get(i);
+            String id = getId(jsonNode);
+            String kind = Strings.defaultIfEmpty(getKind(jsonNode), "");
+            if (Strings.isNotBlank(id)) {
+                String key = kind + ":" + id;
+                if (!keys.add(key)) {
+                    // lets remove this one
+                    itemArray.remove(i);
+                    i--;
+                    size--;
+                }
             }
         }
     }
