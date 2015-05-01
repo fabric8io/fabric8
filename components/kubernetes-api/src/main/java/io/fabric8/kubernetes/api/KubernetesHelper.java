@@ -1114,7 +1114,34 @@ public class KubernetesHelper {
                 addObjectsToItemArray(itemArray, object);
             }
         }
+        moveServicesToFrontOfArray(itemArray);
         return config;
+    }
+
+    protected static void moveServicesToFrontOfArray(ArrayNode itemArray) {
+        int size = itemArray.size();
+        int lastNonService = -1;
+        for (int i = 0; i < size; i++) {
+            JsonNode jsonNode = itemArray.get(i);
+            if (isService(jsonNode)) {
+                if (lastNonService >= 0) {
+                    JsonNode nonService = itemArray.get(lastNonService);
+                    itemArray.set(i, nonService);
+                    itemArray.set(lastNonService, jsonNode);
+                    lastNonService++;
+                }
+            } else if (lastNonService < 0) {
+                lastNonService = i;
+            }
+        }
+    }
+
+    protected static boolean isService(JsonNode jsonNode) {
+        if (jsonNode != null) {
+            JsonNode kind = jsonNode.get("kind");
+            return kind != null && Objects.equal("Service", kind.textValue());
+        }
+        return false;
     }
 
     protected static void addObjectsToItemArray(ArrayNode itemArray, Object object) throws IOException {
