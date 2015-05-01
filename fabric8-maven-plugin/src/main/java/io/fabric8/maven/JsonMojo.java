@@ -204,7 +204,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The service name
      */
-    @Parameter(property = "fabric8.service.name", defaultValue = "${project.artifactId}-service")
+    @Parameter(property = "fabric8.service.name", defaultValue = "${project.artifactId}")
     private String serviceName;
 
     /**
