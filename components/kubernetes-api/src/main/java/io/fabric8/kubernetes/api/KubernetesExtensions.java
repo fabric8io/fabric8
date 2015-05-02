@@ -25,6 +25,7 @@ import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.ImageRepositoryList;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.template.Template;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -51,14 +52,14 @@ public interface KubernetesExtensions {
     String createConfig(Object entity) throws Exception;
 
     @POST
-    @Path("templateConfigs")
+    @Path("templateConfigs2")
     @Consumes("application/json")
     String createTemplateConfig(Object entity) throws Exception;
 
     @POST
-    @Path("template")
+    @Path("templateConfigs")
     @Consumes("application/json")
-    String createTemplate(Object entity) throws Exception;
+    String createTemplate(Template entity) throws Exception;
 
 
     // Routes

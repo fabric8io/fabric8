@@ -39,6 +39,7 @@ import io.fabric8.openshift.api.model.ImageRepositoryList;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.WebHookTrigger;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
@@ -450,9 +451,9 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     @POST
-    @Path("template")
+    @Path("templates")
     @Consumes("application/json")
-    public String createTemplate(Object entity) throws Exception {
+    public String createTemplate(Template entity) throws Exception {
         return getKubernetesExtensions().createTemplate(entity);
     }
 

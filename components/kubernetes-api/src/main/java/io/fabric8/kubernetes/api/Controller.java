@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
@@ -179,7 +180,8 @@ public class Controller {
                 if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
                     applyList(tree, sourceName);
                 } else if (Objects.equal("Template", kind)) {
-                    applyTemplateConfig(tree, sourceName);
+                    Template template = createObjectMapper().treeToValue(tree, Template.class);
+                    applyTemplate(template, sourceName);
                 } else {
                     LOG.warn("Unknown JSON type " + kindNode + ". JSON: " + tree);
                 }
@@ -219,11 +221,7 @@ public class Controller {
     public void applyTemplate(Template entity, String sourceName) {
         String id = KubernetesHelper.getId(entity);
         String namespace = KubernetesHelper.getNamespace(entity);
-        // TODO
-        LOG.warn("Ignoring template for now; implement me ASAP! :) " +  namespace + ":" + id + " " + summaryText(entity));
-    }
-
-    public void applyTemplateConfig(JsonNode entity, String sourceName) {
+        LOG.warn("Creating Template " +  namespace + ":" + id + " " + summaryText(entity));
         try {
             kubernetes.createTemplate(entity);
         } catch (Exception e) {
@@ -231,13 +229,14 @@ public class Controller {
         }
     }
 
+
     public void applyRoute(Route entity, String sourceName) {
         String id = KubernetesHelper.getId(entity);
         String namespace = KubernetesHelper.getNamespace(entity);
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
             try {
-                LOG.info("Creating route " + namespace + ":" + id);
+                LOG.info("Creating Route " + namespace + ":" + id);
                 kubernetes.createRoute(entity, namespace);
             } catch (Exception e) {
                 onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
