@@ -15,7 +15,6 @@
  */
 package io.fabric8.maven;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -380,6 +379,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 Object jsonObject = loadJsonFile(file);
                 if (jsonObject != null) {
                     list.add(jsonObject);
+                } else {
+                    getLog().warn("No object found for file: " + file);
                 }
             } catch (MojoExecutionException e) {
                 getLog().warn("Failed to parse file " + file + ". " + e, e);
@@ -443,7 +444,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         Object extra = loadJsonFile(kubernetesExtraJson);
         Object generated = loadJsonFile(json);
         try {
-            JsonNode combinedJson = KubernetesHelper.combineJson(generated, extra);
+            Object combinedJson = KubernetesHelper.combineJson(generated, extra);
             KubernetesHelper.saveJson(json, combinedJson);
             getLog().info("Saved as :" + json.getAbsolutePath());
         } catch (IOException e) {

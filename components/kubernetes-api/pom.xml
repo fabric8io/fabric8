@@ -88,6 +88,11 @@
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -143,6 +148,32 @@
                 <argument>io.fabric8.kubernetes.api.TriggerBuild</argument>
                 <argument>${build}</argument>
               </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+
+      </build>
+    </profile>
+
+    <profile>
+      <id>genkinds</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <mainClass>io.fabric8.kubernetes.api.GenerateKindToClassMap</mainClass>
+              <classpathScope>test</classpathScope>
             </configuration>
           </plugin>
         </plugins>

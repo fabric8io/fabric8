@@ -17,8 +17,12 @@ package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.support.KindToClassMapping;
+import io.fabric8.kubernetes.api.support.KubernetesDeserializer;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -27,17 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple helper class for creating instances of Kubernetes
  */
 public class KubernetesFactory {
 
+    public static final String KUBERNETES_SCHEMA_JSON = "schema/kube-schema.json";
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
@@ -340,7 +347,27 @@ public class KubernetesFactory {
     public static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        Map<String, Class<?>> kindToClasses = getKindToClassMap();
+        KubernetesDeserializer deserializer = new KubernetesDeserializer(kindToClasses);
+
+        SimpleModule module = new SimpleModule("Kubernetes");
+        module.addDeserializer(Object.class, deserializer);
+        mapper.registerModule(module);
         return mapper;
     }
+
+    protected static Map<String, Class<?>> getKindToClassMap() {
+        Map<String,Class<?>> kindToClasses = KindToClassMapping.getKindToClassMap();
+        // lets add some workarounds for old kinds
+        if (!kindToClasses.containsKey("Config")) {
+            kindToClasses.put("Config", KubernetesList.class);
+        }
+        if (!kindToClasses.containsKey("List")) {
+            kindToClasses.put("List", KubernetesList.class);
+        }
+        return kindToClasses;
+    }
+
 
 }

@@ -15,7 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -25,7 +25,6 @@ import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -35,12 +34,10 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
@@ -170,24 +167,10 @@ public class Controller {
             for (Object element : list) {
                 apply(element, sourceName);
             }
+        } else if (dto instanceof KubernetesList) {
+            applyList((KubernetesList) dto, sourceName);
         } else if (dto instanceof Config) {
             applyConfig((Config) dto, sourceName);
-        } else if (dto instanceof JsonNode) {
-            JsonNode tree = (JsonNode) dto;
-            JsonNode kindNode = tree.get("kind");
-            if (kindNode != null) {
-                String kind = kindNode.asText();
-                if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
-                    applyList(tree, sourceName);
-                } else if (Objects.equal("Template", kind)) {
-                    Template template = createObjectMapper().treeToValue(tree, Template.class);
-                    applyTemplate(template, sourceName);
-                } else {
-                    LOG.warn("Unknown JSON type " + kindNode + ". JSON: " + tree);
-                }
-            } else {
-                LOG.warn("No JSON kind for: " + tree);
-            }
         } else if (dto != null) {
             applyEntity(dto, sourceName);
         }
@@ -268,41 +251,20 @@ public class Controller {
         }
     }
 
-
+    public void applyList(KubernetesList list, String sourceName) throws Exception {
+        List<Object> entities = list.getItems();
+        if (entities != null) {
+            for (Object entity : entities) {
+                applyEntity(entity, sourceName);
+            }
+        }
+    }
 
     public void applyConfig(Config config, String sourceName) throws Exception {
         List<Object> entities = getEntities(config);
         for (Object entity : entities) {
             applyEntity(entity, sourceName);
         }
-    }
-
-    public void applyList(JsonNode entity, String sourceName) throws Exception {
-        JsonNode items = entity.get("items");
-        if (items != null) {
-            for (JsonNode item : items) {
-                // lets parse into a new object
-                // TODO the apply method should deal with the item direct?
-                String json = item.toString();
-                LOG.debug("Got item: {}", json);
-                Object dto = null;
-                try {
-                    dto = loadJson(json);
-                } catch (IOException e) {
-                    onApplyError("Failed to process " + json + ". " + e, e);
-                }
-                if (dto != null) {
-                    apply(dto, sourceName);
-                }
-            }
-        }
-/*
-        try {
-            kubernetes.createConfig(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create config from " + sourceName + ". " + e, e);
-        }
-*/
     }
 
     public void applyService(Service service, String sourceName) throws Exception {

@@ -72,4 +72,34 @@ public class Templates {
         }
         objects.add(object);
     }
+
+    /**
+     * If we have any templates inside the items then lets unpack them and combine any parameters
+     * @param kubernetesList
+     * @param items
+     */
+    public static Object combineTemplates(KubernetesList kubernetesList, List<Object> items) {
+        Template template = null;
+        for (Object item : items) {
+            if (item instanceof Template) {
+                Template aTemplate = (Template) item;
+                if (template == null) {
+                    template = aTemplate;
+                } else {
+                    template = combineTemplates(template, aTemplate);
+                }
+            }
+        }
+        if (template != null) {
+            // lets move all the content into the template
+            for (Object item : items) {
+                if (!(item instanceof Template)) {
+                    addTemplateObject(template, item);
+                }
+            }
+            return template;
+        } else {
+            return kubernetesList;
+        }
+    }
 }

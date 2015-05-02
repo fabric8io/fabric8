@@ -16,12 +16,8 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.ContainerPort;
@@ -38,9 +34,6 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
@@ -65,7 +58,6 @@ import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,11 +69,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,11 +81,6 @@ import java.util.Set;
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
 
-/*
-TODO Config
-import io.fabric8.kubernetes.api.model.Item;
-import io.fabric8.kubernetes.api.model.Template;
-*/
 
 /**
  */
@@ -131,33 +118,7 @@ public class KubernetesHelper {
         }
     }
 
-    public static String getId(JsonNode entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(
-                    getJsonTextProperty(entity, "metadata", "name"),
-                    getJsonTextProperty(entity, "metadata", "id"),
-                    getJsonTextProperty(entity, "name"),
-                    getJsonTextProperty(entity, "id"));
-        } else {
-            return null;
-        }
-    }
 
-    public static String getKind(JsonNode entity) {
-        return getJsonTextProperty(entity, "kind");
-    }
-
-    protected static String getJsonTextProperty(JsonNode node, String... names) {
-        JsonNode current = node;
-        for (String name : names) {
-            if (current == null) {
-                return null;
-            } else {
-                current = current.get(name);
-            }
-        }
-        return current != null ? current.textValue() : null;
-    }
 
     public static String getId(Pod entity) {
         if (entity != null) {
@@ -420,8 +381,7 @@ public class KubernetesHelper {
      * Returns the given json data as a DTO such as
      * {@link Pod}, {@link ReplicationController} or
      * {@link io.fabric8.kubernetes.api.model.Service}
-     * from the Kubernetes REST API or
-     * {@link JsonNode} if it cannot be recognised.
+     * from the Kubernetes REST API
      */
     public static Object loadJson(File file) throws IOException {
         byte[] data = Files.readBytes(file);
@@ -432,8 +392,7 @@ public class KubernetesHelper {
      * Returns the given json data as a DTO such as
      * {@link Pod}, {@link ReplicationController} or
      * {@link io.fabric8.kubernetes.api.model.Service}
-     * from the Kubernetes REST API or
-     * {@link JsonNode} if it cannot be recognised.
+     * from the Kubernetes REST API
      */
     public static Object loadJson(InputStream in) throws IOException {
         byte[] data = Files.readBytes(in);
@@ -449,23 +408,11 @@ public class KubernetesHelper {
      * Returns the given json data as a DTO such as
      * {@link Pod}, {@link ReplicationController} or
      * {@link io.fabric8.kubernetes.api.model.Service}
-     * from the Kubernetes REST API or
-     * {@link JsonNode} if it cannot be recognised.
+     * from the Kubernetes REST API
      */
     public static Object loadJson(byte[] json) throws IOException {
         if (json != null && json.length > 0) {
-            ObjectReader reader = objectMapper.reader();
-            JsonNode tree = reader.readTree(new ByteArrayInputStream(json));
-            if (tree != null) {
-                JsonNode kindNode = tree.get("kind");
-                if (kindNode != null) {
-                    String kind = kindNode.asText();
-                    return loadEntity(json, kind, tree);
-                } else {
-                    LOG.warn("No JSON type for: " + tree);
-                }
-                return tree;
-            }
+            return objectMapper.reader(Object.class).readValue(json);
         }
         return null;
     }
@@ -475,14 +422,14 @@ public class KubernetesHelper {
      * Loads the Kubernetes JSON and converts it to a list of entities
      */
     public static List<Object> toItemList(Object entity) throws IOException {
-        if (entity instanceof JsonNode) {
-            JsonNode jsonNode = (JsonNode) entity;
-            return toItemList(getEntity(jsonNode));
-        } if (entity instanceof List) {
+        if (entity instanceof List) {
             return (List<Object>) entity;
         } else if (entity instanceof Object[]) {
             Object[] array = (Object[]) entity;
             return Arrays.asList(array);
+        } else if (entity instanceof KubernetesList) {
+            KubernetesList config = (KubernetesList) entity;
+            return config.getItems();
         } else if (entity instanceof Config) {
             Config config = (Config) entity;
             return config.getItems();
@@ -498,69 +445,6 @@ public class KubernetesHelper {
         }
     }
 
-    protected static Object loadEntity(byte[] json, String kind, Object defaultValue) throws IOException {
-        if (Objects.equal("Pod", kind)) {
-            return objectMapper.reader(Pod.class).readValue(json);
-        } else if (Objects.equal("ReplicationController", kind)) {
-            return objectMapper.reader(ReplicationController.class).readValue(json);
-        } else if (Objects.equal("Service", kind)) {
-            return objectMapper.reader(Service.class).readValue(json);
-        } else if (Objects.equal("BuildConfig", kind)) {
-            return objectMapper.reader(BuildConfig.class).readValue(json);
-        } else if (Objects.equal("DeploymentConfig", kind)) {
-            return objectMapper.reader(DeploymentConfig.class).readValue(json);
-        } else if (Objects.equal("ImageRepository", kind)) {
-            return objectMapper.reader(ImageRepository.class).readValue(json);
-        } else if (Objects.equal("Template", kind)) {
-            return objectMapper.reader(Template.class).readValue(json);
-        } else if (Objects.equal("Config", kind) || Objects.equal("List", kind)) {
-            return loadList(json);
-        } else {
-            return defaultValue;
-        }
-    }
-
-    protected static Config loadList(byte[] data) throws IOException {
-        Config config = new Config();
-        List<Object> itemList = new ArrayList<>();
-        config.setItems(itemList);
-        JsonNode jsonNode = objectMapper.readTree(data);
-        JsonNode items = jsonNode.get("items");
-        for (JsonNode item : items) {
-            if (item != null) {
-                JsonNode kindObject = item.get("kind");
-                if (kindObject != null && kindObject.isTextual()) {
-                    String kind = kindObject.asText();
-                    String json = toJson(item);
-                    byte[] bytes = json.getBytes();
-                    Object entity = loadEntity(bytes, kind, null);
-                    if (entity != null) {
-                        itemList.add(entity);
-                    }
-                }
-            }
-        }
-        return config;
-    }
-
-    /**
-     * Loads the entity for the given item
-     */
-    public static Object getEntity(JsonNode item) throws IOException {
-        if (item != null) {
-            JsonNode kindObject = item.get("kind");
-            if (kindObject != null && kindObject.isTextual()) {
-                String kind = kindObject.asText();
-                if (kind != null) {
-                    String json = toJson(item);
-                    byte[] bytes = json.getBytes();
-                    Object entity = loadEntity(bytes, kind, null);
-                    return entity;
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Returns the items inside the config as a list of {@link Entity} objects
@@ -1167,84 +1051,36 @@ public class KubernetesHelper {
     /**
      * Combines the JSON objects into a config object
      */
-    public static JsonNode combineJson(Object... objects) throws IOException {
-        JsonNode config = findOrCreateConfig(objects);
-        JsonNode items = config.get("items");
-        ArrayNode itemArray;
-        if (items instanceof ArrayNode) {
-            itemArray = (ArrayNode) items;
-        } else {
-            itemArray = new ArrayNode(createNodeFactory());
-            if (config instanceof ObjectNode) {
-                ObjectNode objectNode = (ObjectNode) config;
-                objectNode.set("items", itemArray);
-            } else {
-                throw new IllegalArgumentException("config " + config + " is not a ObjectNode");
-            }
+    public static Object combineJson(Object... objects) throws IOException {
+        KubernetesList list = findOrCreateList(objects);
+        List<Object> items = list.getItems();
+        if (items == null) {
+            items = new ArrayList<>();
+            list.setItems(items);
         }
         for (Object object : objects) {
-            if (object != config) {
-                addObjectsToItemArray(itemArray, object);
+            if (object != list) {
+                addObjectsToItemArray(items, object);
             }
         }
-        moveServicesToFrontOfArray(itemArray);
-        removeDuplicates(itemArray);
-        return combineTemplates(config, itemArray);
-    }
-
-    /**
-     * If we have any templates inside the itemArray then lets unpack them and combine any parameters
-     */
-    protected static JsonNode combineTemplates(JsonNode config, ArrayNode itemArray) {
-        JsonNode template = null;
-        for (JsonNode jsonNode : config) {
-            if (isTemplate(jsonNode)) {
-                if (template == null) {
-                    template = jsonNode;
-                } else {
-                    // TODO combine templates...
-                }
-            }
-        }
-        if (template != null) {
-            // lets move all the content into the template
-            JsonNode items = config.get("objects");
-            ArrayNode objects;
-            if (items instanceof ArrayNode) {
-                objects = (ArrayNode) items;
-            } else {
-                objects = new ArrayNode(createNodeFactory());
-                if (template instanceof ObjectNode) {
-                    ObjectNode objectNode = (ObjectNode) template;
-                    objectNode.set("objects", itemArray);
-                } else {
-                    throw new IllegalArgumentException("config " + template + " is not a ObjectNode");
-                }
-            }
-            for (JsonNode jsonNode : config) {
-                if (!isTemplate(jsonNode)) {
-                    objects.add(jsonNode);
-                }
-            }
-            return template;
-        } else {
-            return config;
-        }
+        moveServicesToFrontOfArray(items);
+        removeDuplicates(items);
+        return Templates.combineTemplates(list, items);
     }
 
     /**
      * Lets move all Service resources before any other to avoid ordering issues creating things
      */
-    protected static void moveServicesToFrontOfArray(ArrayNode itemArray) {
-        int size = itemArray.size();
+    protected static void moveServicesToFrontOfArray(List<Object> list) {
+        int size = list.size();
         int lastNonService = -1;
         for (int i = 0; i < size; i++) {
-            JsonNode jsonNode = itemArray.get(i);
-            if (isService(jsonNode)) {
+            Object item = list.get(i);
+            if (item instanceof Service) {
                 if (lastNonService >= 0) {
-                    JsonNode nonService = itemArray.get(lastNonService);
-                    itemArray.set(i, nonService);
-                    itemArray.set(lastNonService, jsonNode);
+                    Object nonService = list.get(lastNonService);
+                    list.set(i, nonService);
+                    list.set(lastNonService, item);
                     lastNonService++;
                 }
             } else if (lastNonService < 0) {
@@ -1255,93 +1091,66 @@ public class KubernetesHelper {
 
     /**
      * Remove any duplicate resources using the kind and id
+     * @param itemArray
      */
-    protected static void removeDuplicates(ArrayNode itemArray) {
+    protected static void removeDuplicates(List<Object> itemArray) {
         int size = itemArray.size();
         int lastNonService = -1;
         Set<String> keys = new HashSet<>();
         for (int i = 0; i < size; i++) {
-            JsonNode jsonNode = itemArray.get(i);
-            String id = getId(jsonNode);
-            String kind = Strings.defaultIfEmpty(getKind(jsonNode), "");
-            if (Strings.isNotBlank(id)) {
-                String key = kind + ":" + id;
-                if (!keys.add(key)) {
-                    // lets remove this one
-                    itemArray.remove(i);
-                    i--;
-                    size--;
+            Object item = itemArray.get(i);
+            if (item == null) {
+                itemArray.remove(i);
+                i--;
+                size--;
+            } else {
+                String id = getObjectId(item);
+                String kind = item.getClass().getSimpleName();
+                if (Strings.isNotBlank(id)) {
+                    String key = kind + ":" + id;
+                    if (!keys.add(key)) {
+                        // lets remove this one
+                        itemArray.remove(i);
+                        i--;
+                        size--;
+                    }
                 }
+
             }
         }
     }
 
-    protected static boolean isService(JsonNode jsonNode) {
-        if (jsonNode != null) {
-            JsonNode kind = jsonNode.get("kind");
-            return kind != null && Objects.equal("Service", kind.textValue());
-        }
-        return false;
-    }
-
-    protected static boolean isTemplate(JsonNode jsonNode) {
-        if (jsonNode != null) {
-            JsonNode kind = jsonNode.get("kind");
-            return kind != null && Objects.equal("Template", kind.textValue());
-        }
-        return false;
-    }
-
-    protected static void addObjectsToItemArray(ArrayNode itemArray, Object object) throws IOException {
-        JsonNode node = toJsonNode(object);
-        JsonNode items = node.get("items");
-        if (items != null && items.isArray()) {
-            Iterator<JsonNode> iter = items.iterator();
-            for (JsonNode item : items) {
-                itemArray.add(item);
+    protected static void addObjectsToItemArray(List destinationList, Object object) throws IOException {
+        if (object instanceof KubernetesList) {
+            KubernetesList kubernetesList = (KubernetesList) object;
+            List<Object> items = kubernetesList.getItems();
+            if (items != null) {
+                destinationList.addAll(items);
             }
+        } else if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            destinationList.addAll(collection);
         } else {
-            itemArray.add(node);
+            destinationList.add(object);
         }
     }
 
-    protected static JsonNodeFactory createNodeFactory() {
-        return new JsonNodeFactory(false);
-    }
 
-    protected static JsonNode findOrCreateConfig(Object[] objects) {
+    protected static KubernetesList findOrCreateList(Object[] objects) {
+        KubernetesList list = null;
         for (Object object : objects) {
-            if (object instanceof JsonNode) {
-                JsonNode jsonNode = (JsonNode) object;
-                JsonNode items = jsonNode.get("items");
-                if (items != null && items.isArray()) {
-                    return jsonNode;
-                }
+            if (object instanceof KubernetesList) {
+                list = (KubernetesList) object;
+                break;
             }
         }
-
-        // lets create a new list
-        JsonNodeFactory factory = createNodeFactory();
-        ObjectNode config = factory.objectNode();
-        config.set("apiVersion", factory.textNode(defaultApiVersion));
-        config.set("kind", factory.textNode("List"));
-        config.set("items", factory.arrayNode());
-        return config;
-    }
-
-    /**
-     * Converts the DTO to a JsonNode
-     */
-    public static JsonNode toJsonNode(Object object) throws IOException {
-        if (object instanceof JsonNode) {
-            return (JsonNode) object;
-        } else if (object == null) {
-            return null;
-        } else {
-            String json = toJson(object);
-            return objectMapper.reader().readTree(json);
+        if (list == null) {
+            list = new KubernetesList();
         }
+        return list;
     }
+
+
 
     /**
      * Returns the URL to access the service; using the service portalIP and port

@@ -1,0 +1,73 @@
+{
+  "annotations" : { },
+  "apiVersion" : "v1beta2",
+  "id" : "console",
+  "items" : [ {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "id" : "fabric8-console-service",
+    "kind" : "Service",
+    "labels" : {
+      "component" : "console",
+      "provider" : "fabric8"
+    },
+    "ports" : [ {
+      "containerPort" : 9090,
+      "port" : 80,
+      "protocol" : "TCP"
+    } ],
+    "publicIPs" : [ ],
+    "selector" : {
+      "component" : "console",
+      "provider" : "fabric8"
+    }
+  }, {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "desiredState" : {
+      "podTemplate" : {
+        "annotations" : { },
+        "desiredState" : {
+          "Condition" : [ ],
+          "info" : { },
+          "manifest" : {
+            "containers" : [ {
+              "command" : [ ],
+              "entrypoint:omitempty" : [ ],
+              "env" : [ ],
+              "image" : "fabric8/hawtio-kubernetes",
+              "imagePullPolicy" : "PullAlways",
+              "name" : "fabric8-console-container",
+              "ports" : [ {
+                "containerPort" : 9090,
+                "name" : "http"
+              }, {
+                "containerPort" : 8778,
+                "name" : "jolokia"
+              } ],
+              "volumeMounts" : [ ]
+            } ],
+            "volumes" : [ ]
+          }
+        },
+        "labels" : {
+          "component" : "console",
+          "provider" : "fabric8"
+        },
+        "nodeSelector" : { }
+      },
+      "replicaSelector" : {
+        "component" : "console",
+        "provider" : "fabric8"
+      },
+      "replicas" : 1
+    },
+    "id" : "fabric8-console-controller",
+    "kind" : "ReplicationController",
+    "labels" : {
+      "component" : "console",
+      "provider" : "fabric8"
+    }
+  } ],
+  "kind" : "List"
+}

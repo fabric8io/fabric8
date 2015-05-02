@@ -1,0 +1,176 @@
+{
+  "ObjectLabels" : { },
+  "Objects" : [ {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "id" : "gogs-http-service",
+    "kind" : "Service",
+    "labels" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    },
+    "ports" : [ {
+      "containerPort" : 3000,
+      "port" : 80,
+      "protocol" : "TCP"
+    } ],
+    "publicIPs" : [ ],
+    "selector" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    }
+  }, {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "id" : "gogs-http-service",
+    "kind" : "Service",
+    "labels" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    },
+    "ports" : [ {
+      "containerPort" : 3000,
+      "port" : 80,
+      "protocol" : "TCP"
+    } ],
+    "publicIPs" : [ ],
+    "selector" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    }
+  }, {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "desiredState" : {
+      "podTemplate" : {
+        "annotations" : { },
+        "desiredState" : {
+          "Condition" : [ ],
+          "info" : { },
+          "manifest" : {
+            "containers" : [ {
+              "command" : [ ],
+              "entrypoint:omitempty" : [ ],
+              "env" : [ {
+                "name" : "GOGS_SERVER__ROOT_URL",
+                "value" : "http://gogs.${DOMAIN}"
+              }, {
+                "name" : "GOGS_SERVER__DOMAIN",
+                "value" : "gogs.${DOMAIN}"
+              }, {
+                "name" : "GOGS_WEBHOOK__SKIP_TLS_VERIFY",
+                "value" : "true"
+              }, {
+                "name" : "GOGS_WEBHOOK__TASK_INTERVAL",
+                "value" : "true"
+              }, {
+                "name" : "GOGS_SERVER__PROTOCOL",
+                "value" : "http"
+              } ],
+              "image" : "fabric8/gogs:0.6.1",
+              "imagePullPolicy" : "PullIfNotPresent",
+              "name" : "gogs-container",
+              "ports" : [ {
+                "containerPort" : 3000,
+                "name" : "http"
+              }, {
+                "containerPort" : 22,
+                "name" : "ssh"
+              } ],
+              "volumeMounts" : [ ]
+            } ],
+            "volumes" : [ ]
+          }
+        },
+        "labels" : {
+          "component" : "gogs",
+          "provider" : "fabric8"
+        },
+        "nodeSelector" : { }
+      },
+      "replicaSelector" : {
+        "component" : "gogs",
+        "provider" : "fabric8"
+      },
+      "replicas" : 1
+    },
+    "id" : "gogs-controller",
+    "kind" : "ReplicationController",
+    "labels" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    }
+  }, {
+    "annotations" : { },
+    "apiVersion" : "v1beta2",
+    "desiredState" : {
+      "podTemplate" : {
+        "annotations" : { },
+        "desiredState" : {
+          "Condition" : [ ],
+          "info" : { },
+          "manifest" : {
+            "containers" : [ {
+              "command" : [ ],
+              "entrypoint:omitempty" : [ ],
+              "env" : [ {
+                "name" : "GOGS_SERVER__ROOT_URL",
+                "value" : "http://gogs.${DOMAIN}"
+              }, {
+                "name" : "GOGS_SERVER__DOMAIN",
+                "value" : "gogs.${DOMAIN}"
+              }, {
+                "name" : "GOGS_WEBHOOK__SKIP_TLS_VERIFY",
+                "value" : "true"
+              }, {
+                "name" : "GOGS_WEBHOOK__TASK_INTERVAL",
+                "value" : "true"
+              }, {
+                "name" : "GOGS_SERVER__PROTOCOL",
+                "value" : "http"
+              } ],
+              "image" : "fabric8/gogs:0.6.1",
+              "imagePullPolicy" : "PullIfNotPresent",
+              "name" : "gogs-container",
+              "ports" : [ {
+                "containerPort" : 3000,
+                "name" : "http"
+              }, {
+                "containerPort" : 22,
+                "name" : "ssh"
+              } ],
+              "volumeMounts" : [ ]
+            } ],
+            "volumes" : [ ]
+          }
+        },
+        "labels" : {
+          "component" : "gogs",
+          "provider" : "fabric8"
+        },
+        "nodeSelector" : { }
+      },
+      "replicaSelector" : {
+        "component" : "gogs",
+        "provider" : "fabric8"
+      },
+      "replicas" : 1
+    },
+    "id" : "gogs-controller",
+    "kind" : "ReplicationController",
+    "labels" : {
+      "component" : "gogs",
+      "provider" : "fabric8"
+    }
+  } ],
+  "Parameters" : [ {
+    "Description" : "The domain name to append to the service name to access gogs repositories",
+    "Name" : "DOMAIN",
+    "Value" : "os1.fabric8.io"
+  } ],
+  "annotations" : { },
+  "apiVersion" : "v1beta1",
+  "kind" : "Template",
+  "labels" : { },
+  "name" : "gogs"
+}
