@@ -249,17 +249,22 @@ public class ConfigurationCompare {
                 configEqual(entity1.getStrVal(), entity2.getStrVal());
     }
 
-    public static boolean configEqual(Map<String, String> map1, Map<String, String> map2) {
-        int size1 = size(map1);
-        int size2 = size(map2);
+    public static boolean configEqual(Map<String, String> entity1, Map<String, String> entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        int size1 = size(entity1);
+        int size2 = size(entity2);
         if (size1 != size2) {
             return false;
         }
-        Set<Map.Entry<String, String>> entries = map1.entrySet();
+        Set<Map.Entry<String, String>> entries = entity1.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String key = entry.getKey();
             String value = entry.getValue();
-            String value2 = map2.get(key);
+            String value2 = entity2.get(key);
             if (!configEqual(value, value2)) {
                 return false;
             }
