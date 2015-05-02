@@ -451,17 +451,10 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     @POST
-    @Path("templates")
+    @Path("templateConfigs")
     @Consumes("application/json")
     public String createTemplate(Template entity) throws Exception {
         return getKubernetesExtensions().createTemplate(entity);
-    }
-
-    @POST
-    @Path("templateConfigs")
-    @Consumes("application/json")
-    public String createTemplateConfig(Object entity) throws Exception {
-        return getKubernetesExtensions().createTemplateConfig(entity);
     }
 
     @Override

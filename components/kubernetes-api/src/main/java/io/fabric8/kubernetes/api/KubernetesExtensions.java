@@ -52,11 +52,6 @@ public interface KubernetesExtensions {
     String createConfig(Object entity) throws Exception;
 
     @POST
-    @Path("templateConfigs2")
-    @Consumes("application/json")
-    String createTemplateConfig(Object entity) throws Exception;
-
-    @POST
     @Path("templateConfigs")
     @Consumes("application/json")
     String createTemplate(Template entity) throws Exception;
