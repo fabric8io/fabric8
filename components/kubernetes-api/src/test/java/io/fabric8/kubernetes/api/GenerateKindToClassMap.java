@@ -25,7 +25,9 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Generates the Java source for mapping kinds to classes from the generated Kubernetes schema
@@ -50,6 +52,7 @@ public class GenerateKindToClassMap {
         file.getParentFile().mkdirs();
         System.out.println("Generating " + file);
 
+        SortedSet<String> classNames = new TreeSet<>(sortedMap.values());
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             Set<Map.Entry<String, String>> entries = sortedMap.entrySet();
             writer.println("/**\n" +
@@ -70,8 +73,8 @@ public class GenerateKindToClassMap {
                     " */\n" +
                     "package io.fabric8.kubernetes.api.support;\n" +
                     "\n");
-            for (Map.Entry<String, String> entry : entries) {
-                writer.println("import " + entry.getValue() + ";");
+            for (String className : classNames) {
+                writer.println("import " + className + ";");
             }
 
             writer.println("\n" +
