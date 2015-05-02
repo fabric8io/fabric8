@@ -435,7 +435,7 @@ public class KubernetesHelper {
             return config.getItems();
         } else if (entity instanceof Template) {
             Template objects = (Template) entity;
-            return objects.getObjects();
+            return Templates.getTemplateObjects(objects);
         } else {
             List<Object> answer = new ArrayList<>();
             if (entity != null) {

@@ -16,7 +16,7 @@
  */
 package io.fabric8.kubernetes.api.builders;
 
-import io.fabric8.kubernetes.api.model.base.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.utils.Strings;
 
 import java.util.ArrayList;

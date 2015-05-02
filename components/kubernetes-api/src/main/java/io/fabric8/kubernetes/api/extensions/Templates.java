@@ -47,7 +47,6 @@ public class Templates {
             for (Object object : items) {
                 if (!(object instanceof Template)) {
                     addTemplateObject(firstTemplate, object);
-                    firstTemplate.getObjects().add(object);
                 }
             }
         }
@@ -55,7 +54,7 @@ public class Templates {
     }
 
     public static Template combineTemplates(Template firstTemplate, Template template) {
-        List<Object> objects = template.getObjects();
+        List<Object> objects = getTemplateObjects(template);
         if (objects != null) {
             for (Object object : objects) {
                 addTemplateObject(firstTemplate, object);
@@ -65,13 +64,15 @@ public class Templates {
     }
 
     public static void addTemplateObject(Template template, Object object) {
-        List<Object> objects = template.getObjects();
+        List<Object> objects = getTemplateObjects(template);
         if (objects == null) {
             objects = new ArrayList<>();
-            template.setObjects(objects);
+
+            setTemplateObjects(template, objects);
         }
         objects.add(object);
     }
+
 
     /**
      * If we have any templates inside the items then lets unpack them and combine any parameters
@@ -102,4 +103,19 @@ public class Templates {
             return kubernetesList;
         }
     }
+
+
+    public static List<Object> getTemplateObjects(Template template) {
+        // TODO broken in 0.0.14 of the schema!
+        // see https://github.com/fabric8io/origin-schema-generator/issues/27
+        // return template.getObjects();
+        return new ArrayList<>();
+    }
+
+    public static void setTemplateObjects(Template template, List<Object> objects) {
+        // TODO broken in 0.0.14 of the schema!
+        // see https://github.com/fabric8io/origin-schema-generator/issues/27
+        // template.setObjects(objects);
+    }
+
 }

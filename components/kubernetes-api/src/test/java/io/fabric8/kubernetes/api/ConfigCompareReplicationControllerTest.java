@@ -17,13 +17,11 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
-import io.fabric8.kubernetes.api.model.base.ContainerPortBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.fabric8.kubernetes.api.ConfigCompareServiceTest.assertCompareConfig;
-import static org.junit.Assert.assertEquals;
 
 public class ConfigCompareReplicationControllerTest {
 

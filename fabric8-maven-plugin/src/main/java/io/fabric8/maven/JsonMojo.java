@@ -355,7 +355,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Template template = (Template) kubeResource;
             String id = KubernetesHelper.getId(template);
             getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
-            printSummary(template.getObjects());
+            printSummary(Templates.getTemplateObjects(template));
             return;
         }
         List<Object> list = KubernetesHelper.toItemList(kubeResource);
