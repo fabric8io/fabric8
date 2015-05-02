@@ -23,6 +23,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -45,6 +46,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -207,9 +209,18 @@ public class Controller {
             applyDeploymentConfig((DeploymentConfig) dto, sourceName);
         } else if (dto instanceof ImageRepository) {
             applyImageRepository((ImageRepository) dto, sourceName);
+        } else if (dto instanceof Template) {
+            applyTemplate((Template) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
+    }
+
+    public void applyTemplate(Template entity, String sourceName) {
+        String id = KubernetesHelper.getId(entity);
+        String namespace = KubernetesHelper.getNamespace(entity);
+        // TODO
+        LOG.warn("Ignoring template for now; implement me ASAP! :) " +  namespace + ":" + id + " " + summaryText(entity));
     }
 
     public void applyTemplateConfig(JsonNode entity, String sourceName) {

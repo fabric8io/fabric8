@@ -262,6 +262,16 @@ public class KubernetesHelper {
         }
     }
 
+    public static String getNamespace(Template entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getNamespace(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+        } else {
+            return null;
+        }
+    }
+
     public static String getName(Service entity) {
         if (entity != null) {
             return Strings.firstNonBlank(
