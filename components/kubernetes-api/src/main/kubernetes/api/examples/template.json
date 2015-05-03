@@ -1,6 +1,6 @@
 {
-  "ObjectLabels" : { },
-  "Objects" : [ {
+  "objectLabels" : { },
+  "items" : [ {
     "annotations" : { },
     "apiVersion" : "v1beta2",
     "id" : "gogs-http-service",
@@ -163,10 +163,10 @@
       "provider" : "fabric8"
     }
   } ],
-  "Parameters" : [ {
-    "Description" : "The domain name to append to the service name to access gogs repositories",
-    "Name" : "DOMAIN",
-    "Value" : "os1.fabric8.io"
+  "parameters" : [ {
+    "description" : "The domain name to append to the service name to access gogs repositories",
+    "name" : "DOMAIN",
+    "value" : "os1.fabric8.io"
   } ],
   "annotations" : { },
   "apiVersion" : "v1beta1",

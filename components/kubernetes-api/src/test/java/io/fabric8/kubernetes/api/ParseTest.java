@@ -113,7 +113,7 @@ public class ParseTest {
         assertParseExampleFile("pod.json", Pod.class);
     }
 
-    @Ignore("see https://github.com/fabric8io/origin-schema-generator/issues/27")
+    @Test
     public void testParseTemplate() throws Exception {
         Template template = assertParseExampleFile("template.json", Template.class);
         List<Object> objects = Templates.getTemplateObjects(template);

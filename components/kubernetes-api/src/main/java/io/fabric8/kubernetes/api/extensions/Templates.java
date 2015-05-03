@@ -106,16 +106,11 @@ public class Templates {
 
 
     public static List<Object> getTemplateObjects(Template template) {
-        // TODO broken in 0.0.14 of the schema!
-        // see https://github.com/fabric8io/origin-schema-generator/issues/27
-        // return template.getObjects();
-        return new ArrayList<>();
+        return template.getItems();
     }
 
     public static void setTemplateObjects(Template template, List<Object> objects) {
-        // TODO broken in 0.0.14 of the schema!
-        // see https://github.com/fabric8io/origin-schema-generator/issues/27
-        // template.setObjects(objects);
+        template.setItems(objects);
     }
 
 }
