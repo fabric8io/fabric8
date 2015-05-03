@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.kubernetes.api;
+package io.fabric8.kubernetes.codegen;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
@@ -48,7 +48,7 @@ public class GenerateKindToClassMap {
             }
         }
         String basedir = System.getProperty("basedir", ".");
-        File file = new File(basedir, "src/main/java/io/fabric8/kubernetes/api/support/KindToClassMapping.java");
+        File file = new File(basedir, "../kubernetes-api/src/main/java/io/fabric8/kubernetes/api/support/KindToClassMapping.java");
         file.getParentFile().mkdirs();
         System.out.println("Generating " + file);
 

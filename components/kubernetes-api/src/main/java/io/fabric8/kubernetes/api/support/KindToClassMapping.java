@@ -81,7 +81,6 @@ import io.fabric8.kubernetes.api.model.base.StatusCause;
 import io.fabric8.kubernetes.api.model.base.StatusDetails;
 import io.fabric8.kubernetes.api.model.errors.StatusError;
 import io.fabric8.kubernetes.api.model.resource.Quantity;
-import io.fabric8.kubernetes.api.model.runtime.RawExtension;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
@@ -221,7 +220,6 @@ public class KindToClassMapping {
         map.put("PodState", PodState.class);
         map.put("PodTemplate", PodTemplate.class);
         map.put("Quantity", Quantity.class);
-        map.put("RawExtension", RawExtension.class);
         map.put("RecreateDeploymentStrategyParams", RecreateDeploymentStrategyParams.class);
         map.put("ReplicationController", ReplicationController.class);
         map.put("ReplicationControllerList", ReplicationControllerList.class);
