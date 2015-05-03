@@ -254,8 +254,8 @@ public class JolokiaClients {
             if (manifest != null) {
                 List<Container> containers = manifest.getContainers();
                 for (Container container : containers) {
-                    Integer memory = container.getMemory();
-                    if (memory != null && memory.intValue() > 0) {
+                    Number memory = container.getMemory();
+                    if (memory != null && memory.longValue() > 0) {
                         return true;
                     }
                 }
