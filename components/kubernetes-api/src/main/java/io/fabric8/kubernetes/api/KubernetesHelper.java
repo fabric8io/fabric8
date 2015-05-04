@@ -124,7 +124,9 @@ public class KubernetesHelper {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getId(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
                     entity.getUid());
         } else {
             return null;
@@ -135,7 +137,9 @@ public class KubernetesHelper {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getId(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
                     entity.getUid());
         } else {
             return null;
@@ -147,7 +151,9 @@ public class KubernetesHelper {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getId(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
                     entity.getUid());
         } else {
             return null;
@@ -158,7 +164,9 @@ public class KubernetesHelper {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
                     entity.getUid());
         } else {
             return null;
@@ -169,7 +177,9 @@ public class KubernetesHelper {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
                     entity.getUid());
         } else {
             return null;

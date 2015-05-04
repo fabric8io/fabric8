@@ -25,6 +25,7 @@ import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -203,18 +204,20 @@ public class Controller {
 
     public void applyTemplate(Template entity, String sourceName) {
         String id = KubernetesHelper.getId(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         LOG.warn("Creating Template " +  namespace + ":" + id + " " + summaryText(entity));
         try {
             kubernetes.createTemplate(entity);
         } catch (Exception e) {
-            onApplyError("Failed to create controller from " + sourceName + ". " + e, e);
+            onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
         }
     }
 
 
     public void applyRoute(Route entity, String sourceName) {
         String id = KubernetesHelper.getId(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
@@ -222,7 +225,7 @@ public class Controller {
                 LOG.info("Creating Route " + namespace + ":" + id);
                 kubernetes.createRoute(entity, namespace);
             } catch (Exception e) {
-                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
             }
         }
     }
@@ -270,6 +273,7 @@ public class Controller {
     public void applyService(Service service, String sourceName) throws Exception {
         String namespace = getNamespace();
         String id = getId(service);
+        Objects.notNull(id, "No name for " + service + " " + sourceName);
         if (isIgnoreServiceMode()) {
             LOG.debug("Ignoring Service: " + namespace + ":" + id);
             return;
@@ -322,6 +326,7 @@ public class Controller {
     public void applyReplicationController(ReplicationController replicationController, String sourceName) throws Exception {
         String namespace = getNamespace();
         String id = getId(replicationController);
+        Objects.notNull(id, "No name for " + replicationController + " " + sourceName);
         if (isServicesOnlyMode()) {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
@@ -374,6 +379,7 @@ public class Controller {
     public void applyPod(Pod pod, String sourceName) throws Exception {
         String namespace = getNamespace();
         String id = getId(pod);
+        Objects.notNull(id, "No name for " + pod + " " + sourceName);
         if (isServicesOnlyMode()) {
             LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
             return;
