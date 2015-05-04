@@ -1081,7 +1081,7 @@ public class KubernetesHelper {
     /**
      * Lets move all Service resources before any other to avoid ordering issues creating things
      */
-    protected static void moveServicesToFrontOfArray(List<Object> list) {
+    public static void moveServicesToFrontOfArray(List<Object> list) {
         int size = list.size();
         int lastNonService = -1;
         for (int i = 0; i < size; i++) {

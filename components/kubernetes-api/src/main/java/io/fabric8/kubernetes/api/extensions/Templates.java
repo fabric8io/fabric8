@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.api.extensions;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
@@ -128,6 +129,8 @@ public class Templates {
                     addTemplateObject(template, item);
                 }
             }
+            List<Object> objects = getTemplateObjects(template);
+            KubernetesHelper.moveServicesToFrontOfArray(objects);
             return template;
         } else {
             return kubernetesList;
