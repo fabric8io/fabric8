@@ -29,7 +29,7 @@
   <artifactId>kubernetes-api</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Kubernetes Client API</name>
+  <name>Fabric8 :: Kubernetes API</name>
 
   <dependencies>
 
@@ -88,10 +88,13 @@
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <!-- lets force the codegen to run first -->
     <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <scope>test</scope>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-codegen</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

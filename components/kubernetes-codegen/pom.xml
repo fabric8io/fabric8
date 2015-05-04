@@ -29,7 +29,7 @@
   <groupId>io.fabric8</groupId>
   <artifactId>kubernetes-codegen</artifactId>
 
-  <name>Fabric8 :: Kubernetes Generator</name>
+  <name>Fabric8 :: Kubernetes Code Generator</name>
 
   <dependencies>
     <dependency>
