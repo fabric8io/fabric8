@@ -17,10 +17,14 @@
 package io.fabric8.kubernetes.api.extensions;
 
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.utils.Strings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class for working with OpenShift Templates
@@ -60,7 +64,33 @@ public class Templates {
                 addTemplateObject(firstTemplate, object);
             }
         }
+        List<Parameter> parameters = firstTemplate.getParameters();
+        if (parameters == null) {
+            parameters = new ArrayList<>();
+            firstTemplate.setParameters(parameters);
+        }
+        combineParameters(parameters, template.getParameters());
         return firstTemplate;
+    }
+
+    protected static void combineParameters(List<Parameter> parameters, List<Parameter> otherParameters) {
+        if (otherParameters != null && otherParameters.size() > 0) {
+            Map<String, Parameter> map = new HashMap<>();
+            for (Parameter parameter : parameters) {
+                map.put(parameter.getName(), parameter);
+            }
+            for (Parameter otherParameter : otherParameters) {
+                String name = otherParameter.getName();
+                Parameter original = map.get(name);
+                if (original == null) {
+                    parameters.add(otherParameter);
+                } else {
+                    if (Strings.isNotBlank(original.getValue())) {
+                        original.setValue(otherParameter.getValue());
+                    }
+                }
+            }
+        }
     }
 
     public static void addTemplateObject(Template template, Object object) {
