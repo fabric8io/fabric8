@@ -31,10 +31,14 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServiceListAssert;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAssert;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.ServiceSpecAssert;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
 
 import javax.ws.rs.NotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
@@ -111,6 +115,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     public ListAssert<Service> services() {
        return services(client.getNamespace());
     }
+
     public ListAssert<Service> services(String namespace) {
         ServiceList serviceList = client.getServices(namespace);
         assertThat(serviceList).isNotNull();
@@ -209,6 +214,52 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         return assertThat(getService(serviceId, namespace));
     }
 
+    /**
+     * Asserts that the service spec can be found for the given ID
+     */
+    public ServiceSpecAssert serviceSpec(String serviceId) {
+        return serviceSpec(serviceId, client.getNamespace());
+    }
+
+    /**
+     * Asserts that the service can be found for the given ID and namespace and has a port of the given value
+     */
+    public void hasServicePort(String serviceId, String namespace, int port) {
+        ServiceSpec spec = getServiceSpec(serviceId, namespace);
+        boolean found = false;
+        List<ServicePort> ports = spec.getPorts();
+        List<Integer> portNumbers = new ArrayList<>();
+        if (ports != null) {
+            for (ServicePort servicePort : ports) {
+                Integer aPort = servicePort.getPort();
+                if (aPort != null) {
+                    if (aPort == port) {
+                        found = true;
+                        break;
+                    } else {
+                        portNumbers.add(aPort);
+                    }
+
+                }
+            }
+        }
+        assertThat(found).describedAs("No port found for " + port + " but found ports: " + portNumbers).isTrue();
+    }
+
+    /**
+     * Asserts that the service can be found for the given ID and namespace and has a port of the given value
+     */
+    public void hasServicePort(String serviceId, int port) {
+        hasServicePort(serviceId, client.getNamespace(), port);
+    }
+
+    /**
+     * Asserts that the service spec can be found for the given ID and namespace
+     */
+    public ServiceSpecAssert serviceSpec(String serviceId, String namespace) {
+        return assertThat(getServiceSpec(serviceId, namespace));
+    }
+
     protected Service getService(String serviceId, String namespace) {
         assertThat(serviceId).isNotNull();
         Service service = null;
@@ -219,6 +270,13 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         }
         assertThat(service).isNotNull();
         return service;
+    }
+
+    protected ServiceSpec getServiceSpec(String serviceId, String namespace) {
+        Service service = getService(serviceId, namespace);
+        ServiceSpec spec = service.getSpec();
+        assertThat(spec).isNotNull();
+        return spec;
     }
 
 
