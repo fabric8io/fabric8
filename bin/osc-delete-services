@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export SERVICENAMES=""
+
+for var in "$@"
+do
+  SERVICENAMES="$SERVICENAMES $(osc get services | grep $var | cut -f 1 -d ' ')"
+done
+
+osc delete services $SERVICENAMES
+
+

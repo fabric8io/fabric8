@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export PODNAMES=""
+
+for var in "$@"
+do
+  PODNAMES="$PODNAMES $(osc get pods | grep $var | cut -f 1 -d ' ')"
+done
+
+export POD=$(echo $PODNAMES | cut -f 1 -d ' ')
+echo "creating bash shell on pod: $POD"
+osc exec -it -p $POD bash
+

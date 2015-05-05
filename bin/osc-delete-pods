@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export PODNAMES=""
+
+for var in "$@"
+do
+  PODNAMES="$PODNAMES $(osc get pods | grep $var | cut -f 1 -d ' ')"
+done
+
+osc delete pods $PODNAMES
+
+

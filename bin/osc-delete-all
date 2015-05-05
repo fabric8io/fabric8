@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# deletes services, replication controllers and pods which match the given text
+
+export SERVICENAMES=""
+
+osc-delete-replicationControllers-and-pods $@
+osc-delete-services $@
+
+
