@@ -529,12 +529,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
             ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
 
             List<ServicePort> servicePorts = getServicePorts();
+            System.out.println("Generated ports: " + servicePorts);
             boolean hasPorts = servicePorts != null & !servicePorts.isEmpty();
             if (hasPorts) {
                 serviceSpecBuilder.withPorts(servicePorts);
             } else {
                 serviceSpecBuilder.withPortalIP("None");
             }
+            serviceSpecBuilder.endSpec();
 
             if (headlessServices || hasPorts) {
                 builder = builder.addToServices(serviceBuilder.build());
