@@ -135,12 +135,12 @@ public class KubernetesDiscovery extends Discovery {
                     for (ContainerPort port : container.getPorts()) {
                         if (Constants.JGROUPS_TCP_PORT.equals(port.getName())) {
                             try {
-                                String ip = pod.getCurrentState().getPodIP();
+                                String ip = pod.getStatus().getPodIP();
                                 if (ip != null) {
                                     addresses.add(new IpAddress(ip, port.getContainerPort()));
                                 }
                             } catch (Exception ex) {
-                                LOGGER.warn("Failed to create Address {}.", pod.getCurrentState().getPodIP());
+                                LOGGER.warn("Failed to create Address {}.", pod.getStatus().getPodIP());
                             }
                         }
                     }
