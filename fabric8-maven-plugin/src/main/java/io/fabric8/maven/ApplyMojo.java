@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -120,14 +121,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         getLog().info("Kubernetes JSON: " + json);
 
         try {
+            String fileName = json.getName();
             Object dto = KubernetesHelper.loadJson(json);
             if (dto == null) {
                 throw new MojoFailureException("Could not load kubernetes json: " + json);
-            }
-            List<Object> list = KubernetesHelper.toItemList(dto);
-            if (createRoutes) {
-                createRoutes(kubernetes, list);
-                dto = list;
             }
             Controller controller = new Controller(this.kubernetes);
             controller.setAllowCreate(createNewResources);
@@ -136,7 +133,18 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setServicesOnlyMode(servicesOnly);
             controller.setIgnoreServiceMode(ignoreServices);
 
-            controller.apply(dto, json.getName());
+            if (dto instanceof Template) {
+                Template template = (Template) dto;
+                KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
+                dto = controller.processTemplate(template, fileName);
+            }
+            List<Object> list = KubernetesHelper.toItemList(dto);
+            if (createRoutes) {
+                createRoutes(kubernetes, list);
+                dto = list;
+            }
+
+            controller.apply(dto, fileName);
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

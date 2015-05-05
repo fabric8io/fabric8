@@ -15,7 +15,6 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.kubernetes.api.Config;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
@@ -78,8 +77,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             File propertiesFile = new File(basedir + "/target/" + envPropertiesFileName).getCanonicalFile();
             File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
 
-            Config config = (Config) loadKubernetesJson();
-            Map<String, String> env = getEnvFromConfig(config);
+            Object config = loadKubernetesJson();
+            List<Object> list = KubernetesHelper.toItemList(config);
+            Map<String, String> env = getEnvFromConfig(list);
             env.putAll(getNamespaceServiceEnv(namespace));
             displayEnv(env);
             
@@ -133,10 +133,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * @return A map with the env key value pairs.
      * @throws IOException
      */
-    private Map<String, String> getEnvFromConfig(Config config) throws IOException {
+    private Map<String, String> getEnvFromConfig(List<Object> entities) throws IOException {
         Map<String, String> result = new HashMap<>();
 
-        for (Object entity : KubernetesHelper.getEntities(config)) {
+        for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 for (Container container : pod.getDesiredState().getManifest().getContainers()) {

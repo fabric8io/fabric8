@@ -443,11 +443,12 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetesExtensions().createDeploymentConfig(entity);
     }
 
+    @Override
     @POST
     @Path("templateConfigs")
     @Consumes("application/json")
-    public Object createTemplate(Template entity) throws Exception {
-        return getKubernetesExtensions().createTemplate(entity);
+    public String createTemplate(Template entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createTemplate(entity, namespace);
     }
 
     @Override

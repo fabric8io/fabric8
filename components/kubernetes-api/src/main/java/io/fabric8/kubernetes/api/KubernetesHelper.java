@@ -35,6 +35,7 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.config.Config;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
@@ -193,10 +194,18 @@ public class KubernetesHelper {
         metadata.put("name", name);
     }
 
+
     public static void setName(Template entity, String name) {
         entity.setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
+    }
+
+
+    public static void setNamespace(Template entity, String namespace) {
+        entity.setNamespace(namespace);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("namespace", namespace);
     }
 
     public static String getNamespace(Pod entity) {

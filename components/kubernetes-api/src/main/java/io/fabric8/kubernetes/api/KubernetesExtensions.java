@@ -49,7 +49,7 @@ public interface KubernetesExtensions {
     @POST
     @Path("templateConfigs")
     @Consumes("application/json")
-    Object createTemplate(Template entity) throws Exception;
+    String createTemplate(Template entity, @QueryParam("namespace")  String namespace) throws Exception;
 
 
     // Routes

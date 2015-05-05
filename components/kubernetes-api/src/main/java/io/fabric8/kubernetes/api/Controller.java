@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -23,6 +24,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.config.Config;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
@@ -35,6 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +169,10 @@ public class Controller {
         if (dto instanceof List) {
             List list = (List) dto;
             for (Object element : list) {
+                if (dto == element) {
+                    LOG.warn("Found recursive nested object for " + dto + " of class: " + dto.getClass().getName());
+                    continue;
+                }
                 apply(element, sourceName);
             }
         } else if (dto instanceof KubernetesList) {
@@ -203,17 +210,61 @@ public class Controller {
     }
 
     public void applyTemplate(Template entity, String sourceName) {
-        String id = KubernetesHelper.getId(entity);
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
-        LOG.warn("Creating Template " +  namespace + ":" + id + " " + summaryText(entity));
-        try {
-            kubernetes.createTemplate(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
+        Object result = processTemplate(entity, sourceName);
+        if (result != null) {
+            try {
+                applyEntity(result, sourceName);
+            } catch (Exception e) {
+                onApplyError("Failed to apply result of template expansion from " + sourceName + ". " + e + ". " + result, e);
+            }
         }
     }
 
+    public Object processTemplate(Template entity, String sourceName) {
+        String id = KubernetesHelper.getId(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
+        String namespace = KubernetesHelper.getNamespace(entity);
+        LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
+        Object result = null;
+        try {
+            String json = kubernetes.createTemplate(entity, namespace);
+            LOG.info("Template processed into: " + json);
+            result = KubernetesHelper.loadJson(json);
+            printSummary(result);
+        } catch (Exception e) {
+            onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
+        }
+        return result;
+    }
+
+
+    protected void printSummary(Object kubeResource) throws IOException {
+        if (kubeResource != null) {
+            LOG.debug("  " + kubeResource.getClass().getSimpleName() + " " + kubeResource);
+        }
+        if (kubeResource instanceof Template) {
+            Template template = (Template) kubeResource;
+            String id = KubernetesHelper.getId(template);
+            LOG.info("  Template " + id + " " + KubernetesHelper.summaryText(template));
+            printSummary(Templates.getTemplateObjects(template));
+            return;
+        }
+        List<Object> list = KubernetesHelper.toItemList(kubeResource);
+        for (Object object : list) {
+            if (object != null) {
+                if (object == list) {
+                    LOG.warn("Ignoring recursive list " + list);
+                    continue;
+                } else if (object instanceof List) {
+                    printSummary(object);
+                } else {
+                    String kind = object.getClass().getSimpleName();
+                    String id = KubernetesHelper.getObjectId(object);
+                    LOG.info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
+                }
+            }
+        }
+    }
 
     public void applyRoute(Route entity, String sourceName) {
         String id = KubernetesHelper.getId(entity);
