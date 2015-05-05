@@ -20,9 +20,6 @@ package io.fabric8.cdi;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
-import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteList;
-import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 
 import java.net.UnknownHostException;
@@ -63,7 +60,7 @@ public class Services {
         }
         
         for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.getEndpoints(namespace).getItems()) {
-            if (item.getName().equals(serviceId) && (namespace == null || namespace.equals(item.getNamespace()))) {
+            if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
                 for (EndpointSubset subset : item.getSubsets()) {
                     for (EndpointAddress address : subset.getAddresses()) {
                         endpoints.add(serviceProto +"://" +address.getIP());

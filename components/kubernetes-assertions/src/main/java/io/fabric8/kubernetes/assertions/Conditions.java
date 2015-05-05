@@ -67,7 +67,7 @@ public class Conditions {
 
             @Override
             public boolean matches(Pod pod) {
-                return matchesLabel(pod.getLabels(), key, value);
+                return matchesLabel(pod.getMetadata().getLabels(), key, value);
             }
         };
     }
@@ -81,7 +81,7 @@ public class Conditions {
 
             @Override
             public boolean matches(Pod pod) {
-                return Objects.equals(namespace, pod.getNamespace());
+                return Objects.equals(namespace, pod.getMetadata().getNamespace());
             }
         };
     }
@@ -96,7 +96,7 @@ public class Conditions {
 
             @Override
             public boolean matches(ReplicationController replicationControllerSchema) {
-                return matchesLabel(replicationControllerSchema.getLabels(), key, value);
+                return matchesLabel(replicationControllerSchema.getMetadata().getLabels(), key, value);
             }
         };
     }
@@ -111,7 +111,7 @@ public class Conditions {
 
             @Override
             public boolean matches(Service service) {
-                return matchesLabel(service.getLabels(), key, value);
+                return matchesLabel(service.getMetadata().getLabels(), key, value);
             }
         };
     }

@@ -74,7 +74,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         String serviceStatus = null;
         boolean result = false;
         String sid = getName(s);
-        Endpoints endpoints = kubernetesClient.endpointsForService(sid, s.getNamespace());
+        Endpoints endpoints = kubernetesClient.endpointsForService(sid, s.getMetadata().getNamespace());
         ServiceSpec spec = s.getSpec();
         if (endpoints != null && spec != null) {
             List<EndpointSubset> subsets = endpoints.getSubsets();

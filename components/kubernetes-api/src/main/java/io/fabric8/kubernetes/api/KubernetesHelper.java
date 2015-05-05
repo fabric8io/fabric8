@@ -176,10 +176,10 @@ public class KubernetesHelper {
 
     public static String getName(ImageStream entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -187,35 +187,35 @@ public class KubernetesHelper {
 
     public static String getName(Endpoints entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
     }
 
     public static void setName(Pod entity, String name) {
-        entity.setName(name);
+        entity.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 
     public static void setName(Service entity, String name) {
-        entity.setName(name);
+        entity.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 
     public static void setName(ReplicationController entity, String name) {
-        entity.setName(name);
+        entity.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 
     public static void setName(Template entity, String name) {
-        entity.setName(name);
+        entity.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }

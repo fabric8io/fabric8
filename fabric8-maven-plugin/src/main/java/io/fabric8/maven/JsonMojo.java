@@ -97,7 +97,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     private static final String NAME = "name";
     private static final String ATTRIBUTE_TYPE = "attributeType";
-    
+
     private static final String VOLUME_MOUNT_PATH = "mountPath";
     private static final String VOLUME_REGEX = "fabric8.volume.(?<name>[^. ]*).(?<attributeType>[^. ]*)";
     private static final Pattern VOLUME_PATTERN = Pattern.compile(VOLUME_REGEX);
@@ -109,7 +109,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private static final String PARAMETER_PREFIX = "fabric8.parameter";
     private static final String PARAMETER_NAME_PREFIX = PARAMETER_PREFIX + ".%s";
     private static final String PARAMETER_PROPERTY = PARAMETER_NAME_PREFIX + ".%s";
-    
+
     private static final String GENEATE = "generate";
     private static final String FROM = "from";
     private static final String VALUE = "value";
@@ -496,13 +496,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 // TODO no id / name in v1beta3
                 // .withId(name)
                 .addNewReplicationController()
+                .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
                 .withLabels(labels)
+                .endMetadata()
                 .withNewSpec()
                 .withReplicas(replicaCount)
                 .withSelector(labelMap)
                 .withNewTemplate()
+                .withNewMetadata()
                 .withLabels(labelMap)
+                .endMetadata()
                 .withNewSpec()
                 .addNewContainer()
                 .withName(getKubernetesContainerName())
@@ -523,8 +527,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
             ServiceBuilder serviceBuilder = new ServiceBuilder()
+                    .withNewMetadata()
                     .withName(serviceName)
-                    .withLabels(labelMap);
+                    .withLabels(labelMap)
+                    .endMetadata();
 
             ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
 
@@ -542,7 +548,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 builder = builder.addToServices(serviceBuilder.build());
             }
         }
-        
+
         Template template = getTemplate();
         if (!template.getParameters().isEmpty()) {
             builder = builder.addToTemplates(template);
@@ -963,9 +969,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String templateName = properties.containsKey(TEMPLATE_NAME) ?
                 String.valueOf(properties.getProperty(TEMPLATE_NAME)) :
                 project.getArtifactId();
-        Template template = new TemplateBuilder().withName(templateName).withParameters(parameters).build();
-        KubernetesHelper.setName(template, templateName);
-        return template;
+        return new TemplateBuilder().withNewMetadata().withName(templateName).endMetadata().withParameters(parameters).build();
     }
 
     private String labelValueOrBlank(String label, String value) {

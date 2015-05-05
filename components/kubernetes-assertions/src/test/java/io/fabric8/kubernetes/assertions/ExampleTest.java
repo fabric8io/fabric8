@@ -17,6 +17,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.Block;
 import org.junit.Test;
@@ -39,8 +40,9 @@ public class ExampleTest {
         expectedLabels.put("foo", "bar");
 
         final Pod pod = new Pod();
-        pod.setName(expectedId);
-        pod.setLabels(expectedLabels);
+        pod.setMetadata(new ObjectMeta());
+        pod.getMetadata().setName(expectedId);
+        pod.getMetadata().setLabels(expectedLabels);
 
         assertThat(pod).hasName(expectedId).hasLabels(expectedLabels);
 
