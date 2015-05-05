@@ -24,14 +24,6 @@ import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -72,7 +64,7 @@ public class Builds {
     public static String getUid(Build build) {
         String answer = null;
         if (build != null) {
-            answer = build.getUid();
+            answer = build.getMetadata().getUid();
             if (Strings.isNullOrBlank(answer)) {
                 Map<String, Object> metadata = getMetadata(build);
                 answer = getString(metadata, "uid");
@@ -84,7 +76,7 @@ public class Builds {
                 }
             }
             if (Strings.isNullOrBlank(answer)) {
-                answer = build.getName();
+                answer = build.getMetadata().getName();
             }
         }
         return answer;
@@ -132,7 +124,7 @@ public class Builds {
             Map<String, Object> metadata = getMetadata(build);
             answer = getString(metadata, "name");
             if (Strings.isNullOrBlank(answer))  {
-                answer = build.getName();
+                answer = build.getMetadata().getName();
             }
         }
         return answer;
@@ -144,7 +136,7 @@ public class Builds {
             Map<String, Object> metadata = getMetadata(build);
             answer = getString(metadata, "name");
             if (Strings.isNullOrBlank(answer))  {
-                answer = build.getName();
+                answer = build.getMetadata().getName();
             }
         }
         return answer;
@@ -156,7 +148,7 @@ public class Builds {
             Map<String, Object> metadata = getMetadata(build);
             answer = getString(metadata, "namespace");
             if (Strings.isNullOrBlank(answer))  {
-                answer = build.getNamespace();
+                answer = build.getMetadata().getNamespace();
             }
         }
         return answer;
@@ -169,7 +161,7 @@ public class Builds {
             Map<String, Object> metadata = getMetadata(build);
             answer = getString(metadata, "creationTimestamp");
             if (Strings.isNullOrBlank(answer))  {
-                answer = build.getCreationTimestamp();
+                answer = build.getMetadata().getCreationTimestamp();
             }
         }
         return answer;

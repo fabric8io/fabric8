@@ -44,11 +44,11 @@ public class ParseTest {
 
     @Test
     public void testParsePodList() throws Exception {
-        PodList podList = assertParseExampleFile("pod-list.json", PodList.class);
-        List<Pod> items = podList.getItems();
+        KubernetesList podList = assertParseExampleFile("pod-list.json", KubernetesList.class);
+        List<Object> items = podList.getItems();
         assertNotEmpty("items", items);
 
-        Pod pod = items.get(0);
+        Pod pod = (Pod) items.get(0);
         assertNotNull("pod1", pod);
         assertEquals("pod1.id", "my-pod-1", KubernetesHelper.getName(pod));
         PodSpec podSpec = pod.getSpec();
@@ -57,8 +57,8 @@ public class ParseTest {
         assertNotEmpty("pod1.podSpec.manifest.containers", containers);
         Container container = containers.get(0);
         assertNotNull("pod1.podSpec.container[0]", container);
-        assertEquals("pod1.podSpec.manifest.container[0].name", "nginx", container.getName());
-        assertEquals("pod1.podSpec.manifest.container[0].image", "dockerfile/nginx", container.getImage());
+        assertEquals("pod1.podSpec.container[0].name", "nginx", container.getName());
+        assertEquals("pod1.podSpec.container[0].image", "dockerfile/nginx", container.getImage());
 
         LOG.info("pod1 container1 " + container);
 
@@ -83,8 +83,8 @@ public class ParseTest {
 
         assertEquals("Service", service.getKind());
 
-        int expectedPort = 80;
-        assertEquals(expectedPort, getContainerPorts(service));
+        Integer expectedPort = 9090;
+        assertEquals(expectedPort, getContainerPorts(service).iterator().next());
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 
@@ -101,11 +101,11 @@ public class ParseTest {
         Template template = assertParseExampleFile("template.json", Template.class);
         List<Object> objects = template.getObjects();
         assertNotEmpty("objects", objects);
-        assertTrue("size is " + objects.size(), objects.size() > 3);
+        assertTrue("size is " + objects.size(), objects.size() == 2);
         Object service = objects.get(0);
         assertThat(service).isInstanceOf(Service.class);
 
-        Object rc = objects.get(2);
+        Object rc = objects.get(1);
         assertThat(rc).isInstanceOf(ReplicationController.class);
 
         System.out.println("Generated JSON: " + toJson(template));

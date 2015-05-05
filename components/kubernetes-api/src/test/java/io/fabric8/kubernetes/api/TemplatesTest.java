@@ -33,14 +33,14 @@ public class TemplatesTest {
 
     @Test
     public void testCombineResourcesIntoTemplate() throws Exception {
-        Service templateService = new ServiceBuilder().withName("templateService").build();
+        Service templateService = new ServiceBuilder().withNewMetadata().withName("templateService").endMetadata().build();
 
         KubernetesList list = new KubernetesListBuilder().
-                addNewService().withName("service1").endService().
+                addNewService().withNewMetadata().withName("service1").endMetadata().endService().
                 addNewTemplate().
                 addNewParameter().withName("PARAM1").withValue("ABC").endParameter().
                 addToObjects(templateService).endTemplate().
-                addNewService().withName("service2").endService().build();
+                addNewService().withNewMetadata().withName("service2").endMetadata().endService().build();
 
         Object result = Templates.combineTemplates(list);
         System.out.println("Combined as " + KubernetesHelper.toJson(result));

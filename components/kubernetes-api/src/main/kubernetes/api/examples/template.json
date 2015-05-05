@@ -1,176 +1,146 @@
 {
-  "objectLabels" : { },
-  "items" : [ {
-    "annotations" : { },
-    "apiVersion" : "v1beta2",
-    "id" : "gogs-http-service",
-    "kind" : "Service",
-    "labels" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
-    },
-    "ports" : [ {
-      "containerPort" : 3000,
-      "port" : 80,
-      "protocol" : "TCP"
-    } ],
-    "publicIPs" : [ ],
-    "selector" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
-    }
-  }, {
-    "annotations" : { },
-    "apiVersion" : "v1beta2",
-    "id" : "gogs-http-service",
-    "kind" : "Service",
-    "labels" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
-    },
-    "ports" : [ {
-      "containerPort" : 3000,
-      "port" : 80,
-      "protocol" : "TCP"
-    } ],
-    "publicIPs" : [ ],
-    "selector" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
-    }
-  }, {
-    "annotations" : { },
-    "apiVersion" : "v1beta2",
-    "desiredState" : {
-      "podTemplate" : {
-        "annotations" : { },
-        "desiredState" : {
-          "Condition" : [ ],
-          "info" : { },
-          "manifest" : {
-            "containers" : [ {
-              "command" : [ ],
-              "entrypoint:omitempty" : [ ],
-              "env" : [ {
-                "name" : "GOGS_SERVER__ROOT_URL",
-                "value" : "http://gogs.${DOMAIN}"
-              }, {
-                "name" : "GOGS_SERVER__DOMAIN",
-                "value" : "gogs.${DOMAIN}"
-              }, {
-                "name" : "GOGS_WEBHOOK__SKIP_TLS_VERIFY",
-                "value" : "true"
-              }, {
-                "name" : "GOGS_WEBHOOK__TASK_INTERVAL",
-                "value" : "true"
-              }, {
-                "name" : "GOGS_SERVER__PROTOCOL",
-                "value" : "http"
-              } ],
-              "image" : "fabric8/gogs:0.6.1",
-              "imagePullPolicy" : "PullIfNotPresent",
-              "name" : "gogs-container",
-              "ports" : [ {
-                "containerPort" : 3000,
-                "name" : "http"
-              }, {
-                "containerPort" : 22,
-                "name" : "ssh"
-              } ],
-              "volumeMounts" : [ ]
-            } ],
-            "volumes" : [ ]
+  "kind": "Template",
+  "apiVersion": "v1beta3",
+  "metadata": {
+    "name": "jenkins",
+    "namespace": "default",
+    "selfLink": "/osapi/v1beta1/templates/jenkins?namespace=default",
+    "uid": "420dc894-f24f-11e4-b882-fa163ee36154",
+    "resourceVersion": "66310",
+    "creationTimestamp": "2015-05-04T11:18:15Z"
+  },
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1beta3",
+      "metadata": {
+        "name": "jenkins",
+        "creationTimestamp": null,
+        "labels": {
+          "component": "jenkins",
+          "provider": "fabric8"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 8080
           }
+        ],
+        "selector": {
+          "component": "jenkins",
+          "provider": "fabric8"
         },
-        "labels" : {
-          "component" : "gogs",
-          "provider" : "fabric8"
-        },
-        "nodeSelector" : { }
+        "portalIP": "",
+        "sessionAffinity": "None"
       },
-      "replicaSelector" : {
-        "component" : "gogs",
-        "provider" : "fabric8"
-      },
-      "replicas" : 1
+      "status": {}
     },
-    "id" : "gogs-controller",
-    "kind" : "ReplicationController",
-    "labels" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
-    }
-  }, {
-    "annotations" : { },
-    "apiVersion" : "v1beta2",
-    "desiredState" : {
-      "podTemplate" : {
-        "annotations" : { },
-        "desiredState" : {
-          "Condition" : [ ],
-          "info" : { },
-          "manifest" : {
-            "containers" : [ {
-              "command" : [ ],
-              "entrypoint:omitempty" : [ ],
-              "env" : [ {
-                "name" : "GOGS_SERVER__ROOT_URL",
-                "value" : "http://gogs.${DOMAIN}"
-              }, {
-                "name" : "GOGS_SERVER__DOMAIN",
-                "value" : "gogs.${DOMAIN}"
-              }, {
-                "name" : "GOGS_WEBHOOK__SKIP_TLS_VERIFY",
-                "value" : "true"
-              }, {
-                "name" : "GOGS_WEBHOOK__TASK_INTERVAL",
-                "value" : "true"
-              }, {
-                "name" : "GOGS_SERVER__PROTOCOL",
-                "value" : "http"
-              } ],
-              "image" : "fabric8/gogs:0.6.1",
-              "imagePullPolicy" : "PullIfNotPresent",
-              "name" : "gogs-container",
-              "ports" : [ {
-                "containerPort" : 3000,
-                "name" : "http"
-              }, {
-                "containerPort" : 22,
-                "name" : "ssh"
-              } ],
-              "volumeMounts" : [ ]
-            } ],
-            "volumes" : [ ]
+    {
+      "kind": "ReplicationController",
+      "apiVersion": "v1beta3",
+      "metadata": {
+        "name": "jenkins-controller",
+        "creationTimestamp": null,
+        "labels": {
+          "component": "jenkins",
+          "provider": "fabric8"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "component": "jenkins",
+          "provider": "fabric8"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "component": "jenkins",
+              "provider": "fabric8"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "docker-socket",
+                "hostPath": {
+                  "path": "/var/run/docker.sock"
+                },
+                "emptyDir": null,
+                "gcePersistentDisk": null,
+                "gitRepo": null,
+                "secret": null,
+                "nfs": null,
+                "iscsi": null,
+                "glusterfs": null
+              },
+              {
+                "name": "jenkins-workspace",
+                "hostPath": null,
+                "emptyDir": {
+                  "medium": ""
+                },
+                "gcePersistentDisk": null,
+                "gitRepo": null,
+                "secret": null,
+                "nfs": null,
+                "iscsi": null,
+                "glusterfs": null
+              }
+            ],
+            "containers": [
+              {
+                "name": "jenkins-container",
+                "image": "fabric8/jenkins",
+                "ports": [
+                  {
+                    "name": "http",
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "SEED_GIT_URL",
+                    "value": "${SEED_GIT_URL}"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "jenkins-workspace",
+                    "mountPath": "/var/jenkins_home/workspace"
+                  },
+                  {
+                    "name": "docker-socket",
+                    "mountPath": "/var/run/docker.sock"
+                  }
+                ],
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent",
+                "capabilities": {}
+              }
+            ],
+            "restartPolicy": "Always",
+            "dnsPolicy": "ClusterFirst"
           }
-        },
-        "labels" : {
-          "component" : "gogs",
-          "provider" : "fabric8"
-        },
-        "nodeSelector" : { }
+        }
       },
-      "replicaSelector" : {
-        "component" : "gogs",
-        "provider" : "fabric8"
-      },
-      "replicas" : 1
-    },
-    "id" : "gogs-controller",
-    "kind" : "ReplicationController",
-    "labels" : {
-      "component" : "gogs",
-      "provider" : "fabric8"
+      "status": {
+        "replicas": 0
+      }
     }
-  } ],
-  "parameters" : [ {
-    "description" : "The domain name to append to the service name to access gogs repositories",
-    "name" : "DOMAIN",
-    "value" : "os1.fabric8.io"
-  } ],
-  "annotations" : { },
-  "apiVersion" : "v1beta1",
-  "kind" : "Template",
-  "labels" : { },
-  "name" : "gogs"
+  ],
+  "parameters": [
+    {
+      "name": "SEED_GIT_URL",
+      "description": "The git URL of the seed build used to generate builds",
+      "value": "https://github.com/fabric8io/jenkins-pipeline-dsl.git"
+    }
+  ]
 }

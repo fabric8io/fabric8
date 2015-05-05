@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,28 +30,30 @@ public class ConfigCompareServiceTest {
 
     @Test
     public void testServicesEqual() throws Exception {
-        Service entity1 = new ServiceBuilder().withName("foo").
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
 
-        Service entity2 = new ServiceBuilder().withName("foo").
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label2", "value2").
                 addToLabels("label1", "value1").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
@@ -60,28 +63,30 @@ public class ConfigCompareServiceTest {
 
     @Test
     public void testServicesPortNotEqual() throws Exception {
-        Service entity1 = new ServiceBuilder().withName("foo").
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
 
-        Service entity2 = new ServiceBuilder().withName("foo").
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label2", "value2").
                 addToLabels("label1", "value1").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(456).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
@@ -91,28 +96,30 @@ public class ConfigCompareServiceTest {
 
     @Test
     public void testServicesContainerPortNotEqual() throws Exception {
-        Service entity1 = new ServiceBuilder().withName("foo").
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
-                endPort().
-                endSpec().
-                build();
+                withTargetPort(new IntOrString(456)).
+                        endPort().
+                        endSpec().
+                        build();
 
-        Service entity2 = new ServiceBuilder().withName("foo").
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label2", "value2").
                 addToLabels("label1", "value1").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(555).endTargetPort().
+                withTargetPort(new IntOrString(555)).
                 endPort().
                 endSpec().
                 build();
@@ -122,28 +129,30 @@ public class ConfigCompareServiceTest {
 
     @Test
     public void testServicesLabelsNotEqual() throws Exception {
-        Service entity1 = new ServiceBuilder().withName("foo").
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
 
-        Service entity2 = new ServiceBuilder().withName("foo").
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label2", "value2").
                 addToLabels("notSame", "value1").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();
@@ -153,28 +162,30 @@ public class ConfigCompareServiceTest {
 
     @Test
     public void testServicesSelectorNotEqual() throws Exception {
-        Service entity1 = new ServiceBuilder().withName("foo").
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
+                endMetadata().
                 withNewSpec().
                     addToSelector("label1", "value1").
                     addToSelector("label2", "value2").
                     addNewPort().
                         withPort(123).
-                        withNewTargetPort().withIntVal(456).endTargetPort().
-                    endPort().
+                        withTargetPort(new IntOrString(456)).
+                endPort().
                 endSpec().
                 build();
 
-        Service entity2 = new ServiceBuilder().withName("foo").
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label2", "value2").
                 addToLabels("label1", "value1").
+                endMetadata().
                 withNewSpec().
                 addToSelector("label1", "value1").
                 addToSelector("notSame", "value2").
                 addNewPort().
                 withPort(123).
-                withNewTargetPort().withIntVal(456).endTargetPort().
+                withTargetPort(new IntOrString(456)).
                 endPort().
                 endSpec().
                 build();

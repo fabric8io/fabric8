@@ -35,7 +35,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -359,10 +358,6 @@ public class KubernetesFactory {
 
     protected static Map<String, Class<?>> getKindToClassMap() {
         Map<String,Class<?>> kindToClasses = KindToClassMapping.getKindToClassMap();
-        // lets add some workarounds for old kinds
-        if (!kindToClasses.containsKey("Config")) {
-            kindToClasses.put("Config", KubernetesList.class);
-        }
         if (!kindToClasses.containsKey("List")) {
             kindToClasses.put("List", KubernetesList.class);
         }

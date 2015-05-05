@@ -2,33 +2,17 @@
   "kind": "PodList",
   "selfLink": "/api/v1beta1/pods",
   "resourceVersion": 56138,
-  "apiVersion": "v1beta1",
+  "apiVersion": "v1beta3",
   "items": [
     {
-      "resourceVersion": 42662,
-      "namespace": "",
-      "desiredState": {
-        "manifest": {
-          "version": "",
-          "id": "",
-          "volumes": null,
-          "containers": null,
-          "restartPolicy": {
-          }
-        },
-        "host": "127.0.0.1"
+      "kind": "Pod",
+      "apiVersion": "v1beta3",
+      "metadata": {
       },
-      "currentState": {
-        "manifest": {
-          "version": "",
-          "id": "",
-          "volumes": null,
-          "containers": null,
-          "restartPolicy": {
-          }
-        },
-        "status": "Waiting",
-        "host": "127.0.0.1"
+      "status": {
+        "phase": "Running",
+        "hostIP": "127.0.0.1",
+        "podIP": "172.17.0.180"
       }
     }
   ]

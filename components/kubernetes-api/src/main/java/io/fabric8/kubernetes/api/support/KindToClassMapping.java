@@ -92,12 +92,12 @@ public class KindToClassMapping {
         map.put("ImageStreamStatus", ImageStreamStatus.class);
         map.put("IntOrString", IntOrString.class);
         map.put("KubeSchema", KubeSchema.class);
-        map.put("KubernetesList", KubernetesList.class);
         map.put("Lifecycle", Lifecycle.class);
         map.put("LifecycleHook", LifecycleHook.class);
+        map.put("List", KubernetesList.class);
         map.put("Probe", Probe.class);
-        map.put("Minion", Node.class);
-        map.put("MinionList", NodeList.class);
+        map.put("Node", Node.class);
+        map.put("NodeList", NodeList.class);
         map.put("NFSVolumeSource", NFSVolumeSource.class);
         map.put("NamedTagEventList", NamedTagEventList.class);
         map.put("NodeAddress", NodeAddress.class);

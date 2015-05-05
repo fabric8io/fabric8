@@ -29,10 +29,11 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withName("foo").
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
@@ -43,14 +44,15 @@ public class ConfigComparePodTest {
                 endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withName("foo").
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
@@ -62,28 +64,30 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsLabelsNotEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withName("foo").
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
                 endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withName("foo").
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "notSame").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
@@ -95,28 +99,30 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsAnnotationsNotEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withName("foo").
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
                 endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withName("foo").
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "notSame").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
@@ -128,28 +134,30 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsImageEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withName("foo").
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
                 endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withName("foo").
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("notSame").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("notSame").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
@@ -160,28 +168,30 @@ public class ConfigComparePodTest {
     }
     @Test
     public void testPodsContainerEnvEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withName("foo").
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
                 endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withName("foo").
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
                 withNewSpec().
-                        addNewContainer().
-                            withImage("fabric8/jenkins").
-                            addNewEnv().withName("foo").withValue("notSame").endEnv().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("notSame").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().

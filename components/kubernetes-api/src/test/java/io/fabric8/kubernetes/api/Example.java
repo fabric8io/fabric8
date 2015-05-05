@@ -51,13 +51,13 @@ public class Example {
         String image = "fabric8/hawtio";
 
         Pod pod = new Pod();
-        pod.setName(name);
+        pod.getMetadata().setName(name);
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");
         labels.put("container", name);
 
-        pod.setLabels(labels);
+        pod.getMetadata().setLabels(labels);
         PodSpec podSpec = new PodSpec();
         pod.setSpec(podSpec);
 
@@ -81,7 +81,7 @@ public class Example {
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
-            System.out.println("Pod " + KubernetesHelper.getName(item) + " created: " + item.getCreationTimestamp());
+            System.out.println("Pod " + KubernetesHelper.getName(item) + " created: " + item.getMetadata().getCreationTimestamp());
             PodSpec spec = item.getSpec();
             if (spec != null) {
                 List<Container> containers = spec.getContainers();
@@ -109,7 +109,7 @@ public class Example {
         ServiceList services = kube.getServices(Kubernetes.NAMESPACE_ALL);
         List<Service> serviceItems = services.getItems();
         for (Service service : serviceItems) {
-            System.out.println("Service " + KubernetesHelper.getName(service) + " labels: " + service.getLabels() + " selector: " + getSelector(service) + " ports: " + getPorts(service));
+            System.out.println("Service " + KubernetesHelper.getName(service) + " labels: " + service.getMetadata().getLabels() + " selector: " + getSelector(service) + " ports: " + getPorts(service));
         }
         System.out.println();
 
@@ -122,10 +122,10 @@ public class Example {
         for (ReplicationController item : items) {
             ReplicationControllerSpec replicationControllerSpec = item.getSpec();
             if (replicationControllerSpec != null) {
-                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getLabels()
+                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getMetadata().getLabels()
                         + " replicas: " + replicationControllerSpec.getReplicas() + " replicatorSelector: " + replicationControllerSpec.getSelector() + " podTemplate: " + replicationControllerSpec.getTemplate());
             } else {
-                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getLabels() + " no replicationControllerSpec");
+                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getMetadata().getLabels() + " no replicationControllerSpec");
             }
         }
         System.out.println();

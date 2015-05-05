@@ -49,10 +49,10 @@ public class ViewNodes {
         }
     }
 
-    protected static void display(Node minion) {
-        if (minion != null) {
-            String id = minion.getName();
-            System.out.println("Minion: " + id + " resources: " + minion.getStatus().getCapacity());
+    protected static void display(Node node) {
+        if (node != null) {
+            String id = node.getMetadata().getName();
+            System.out.println("Node: " + id + " resources: " + node.getStatus().getCapacity());
         } else {
             System.out.println("null node");
         }

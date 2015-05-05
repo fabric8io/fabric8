@@ -66,8 +66,8 @@ public class ViewEndpoints {
 
     protected static void display(Endpoints endpoints) {
         if (endpoints != null) {
-            String name = endpoints.getName();
-            String namespace = endpoints.getNamespace();
+            String name = endpoints.getMetadata().getName();
+            String namespace = endpoints.getMetadata().getNamespace();
             List<String> urls = new ArrayList<>();
             List<EndpointSubset> endpointsSubsets = endpoints.getSubsets();
 

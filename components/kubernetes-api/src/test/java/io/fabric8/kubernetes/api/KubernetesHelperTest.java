@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import org.junit.Test;
@@ -32,9 +33,11 @@ public class KubernetesHelperTest {
     public void testRemoveEmptyPods() throws Exception {
 
         Pod pod1 = new Pod();
-        pod1.setName("test1");
+        pod1.setMetadata(new ObjectMeta());
+        pod1.getMetadata().setName("test1");
 
         Pod pod2 = new Pod();
+        pod2.setMetadata(new ObjectMeta());
 
         PodList podSchema = new PodList();
         podSchema.getItems().add(pod1);

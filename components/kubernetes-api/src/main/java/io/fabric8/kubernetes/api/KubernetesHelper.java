@@ -104,12 +104,11 @@ public class KubernetesHelper {
 
     public static String getName(Pod entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -117,12 +116,11 @@ public class KubernetesHelper {
 
     public static String getName(ReplicationController entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -131,12 +129,11 @@ public class KubernetesHelper {
 
     public static String getName(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -144,12 +141,11 @@ public class KubernetesHelper {
 
     public static String getName(Route entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -168,12 +164,11 @@ public class KubernetesHelper {
 
     public static String getName(Template entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
@@ -226,8 +221,8 @@ public class KubernetesHelper {
     }
 
     public static void setName(Route route, String namespace, String name) {
-        route.setNamespace(namespace);
-        route.setName(name);
+        route.getMetadata().setNamespace(namespace);
+        route.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(route.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
@@ -248,7 +243,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Pod entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getNamespace(),
+            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -258,7 +253,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(ReplicationController entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getNamespace(),
+            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -268,7 +263,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getNamespace(),
+            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -278,7 +273,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Route entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getNamespace(),
+            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -288,7 +283,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Template entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getNamespace(),
+            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -719,7 +714,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Pod entity) {
-                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getMetadata().getLabels());
                 }
             };
         }
@@ -738,7 +733,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Pod entity) {
-                    return filterLabels(labelSelector, entity.getLabels());
+                    return filterLabels(labelSelector, entity.getMetadata().getLabels());
                 }
             };
         }
@@ -757,7 +752,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Pod entity) {
-                    return filterLabels(annotationSelector, entity.getAnnotations());
+                    return filterLabels(annotationSelector, entity.getMetadata().getAnnotations());
                 }
             };
         }
@@ -776,7 +771,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Service entity) {
-                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getMetadata().getLabels());
                 }
             };
         }
@@ -795,7 +790,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Service entity) {
-                    return Objects.equal(namespace, entity.getNamespace());
+                    return Objects.equal(namespace, entity.getMetadata().getNamespace());
                 }
             };
         }
@@ -814,7 +809,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Service entity) {
-                    return filterLabels(labelSelector, entity.getLabels());
+                    return filterLabels(labelSelector, entity.getMetadata().getLabels());
                 }
             };
         }
@@ -833,7 +828,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(ReplicationController entity) {
-                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getMetadata().getLabels());
                 }
             };
         }
@@ -852,7 +847,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(ReplicationController entity) {
-                    return filterLabels(labelSelector, entity.getLabels());
+                    return filterLabels(labelSelector, entity.getMetadata().getLabels());
                 }
             };
         }

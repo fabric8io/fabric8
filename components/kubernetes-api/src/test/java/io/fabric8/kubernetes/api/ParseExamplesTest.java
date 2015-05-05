@@ -41,17 +41,17 @@ public class ParseExamplesTest {
 
     @Test
     public void testParsePodList() throws Exception {
-        PodList podList = assertParseExampleFile("pod-list.json", PodList.class);
-        List<Pod> items = podList.getItems();
+        KubernetesList podList = assertParseExampleFile("pod-list.json", KubernetesList.class);
+        List<Object> items = podList.getItems();
         assertNotEmpty("items", items);
 
-        Pod pod = items.get(0);
+        Pod pod = (Pod) items.get(0);
         assertNotNull("pod1", pod);
-        assertEquals("pod1.id", "my-pod-1", KubernetesHelper.getName(pod));
+        assertEquals("pod1.name", "my-pod-1", KubernetesHelper.getName(pod));
         PodSpec podSpec = pod.getSpec();
         assertNotNull("pod1.podSpec", podSpec);
         List<Container> containers = podSpec.getContainers();
-        assertNotEmpty("pod1.podSpec.manifest.containers", containers);
+        assertNotEmpty("pod1.podSpec.containers", containers);
         Container container = containers.get(0);
         assertNotNull("pod1.podSpec.container[0]", container);
         assertEquals("pod1.podSpec.container[0].name", "nginx", container.getName());
@@ -80,8 +80,8 @@ public class ParseExamplesTest {
 
         assertEquals("Service", service.getKind());
 
-        int expectedPort = 80;
-        assertEquals(expectedPort, getContainerPorts(service));
+        Integer expectedPort = 9090;
+        assertEquals(expectedPort, getContainerPorts(service).iterator().next());
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 

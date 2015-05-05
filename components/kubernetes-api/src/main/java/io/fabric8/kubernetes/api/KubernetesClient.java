@@ -585,7 +585,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     //-------------------------------------------------------------------------
     public void deletePod(Pod entity, String namespace) throws Exception {
         if (Strings.isNotBlank(namespace)) {
-            entity.setNamespace(namespace);
+            entity.getMetadata().setNamespace(namespace);
         }
         deletePod(entity);
     }
@@ -603,7 +603,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deleteService(Service entity, String namespace) throws Exception {
         if (Strings.isNotBlank(namespace)) {
-            entity.setNamespace(namespace);
+            entity.getMetadata().setNamespace(namespace);
         }
         deleteService(entity);
     }
@@ -621,7 +621,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deleteReplicationControllerAndPods(ReplicationController replicationController, String namespace) throws Exception {
         if (Strings.isNotBlank(namespace)) {
-            replicationController.setNamespace(namespace);
+            replicationController.getMetadata().setNamespace(namespace);
         }
         deleteReplicationControllerAndPods(replicationController);
     }
@@ -639,7 +639,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deleteReplicationController(ReplicationController replicationController, String namespace) throws Exception {
         if (Strings.isNotBlank(namespace)) {
-            replicationController.setNamespace(namespace);
+            replicationController.getMetadata().setNamespace(namespace);
         }
         deleteReplicationController(replicationController);
     }
@@ -661,14 +661,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public ReplicationController getReplicationControllerForPod(Pod pod) {
         if (pod != null) {
-            Map<String, String> labels = pod.getLabels();
+            Map<String, String> labels = pod.getMetadata().getLabels();
             if (labels != null && labels.size() > 0) {
                 ReplicationControllerList replicationControllers = getReplicationControllers();
                 List<ReplicationController> items = replicationControllers.getItems();
                 if (items != null) {
                     List<ReplicationController> matched = new ArrayList<>();
                     for (ReplicationController item : items) {
-                        if (filterLabels(labels, item.getLabels())) {
+                        if (filterLabels(labels, item.getMetadata().getLabels())) {
                             matched.add(item);
                         }
                     }
