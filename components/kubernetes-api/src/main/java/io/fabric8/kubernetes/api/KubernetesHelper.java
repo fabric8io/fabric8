@@ -22,7 +22,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.config.Config;
+import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
@@ -1405,7 +1405,11 @@ public class KubernetesHelper {
      * Returns a short summary text message for the given kubernetes resource
      */
     public static String summaryText(Route entity) {
-        return "host: " + entity.getSpec().getHost();
+        RouteSpec spec = entity.getSpec();
+        if (spec == null) {
+            return "No spec!";
+        }
+        return "host: " + spec.getHost();
     }
 
     /**
