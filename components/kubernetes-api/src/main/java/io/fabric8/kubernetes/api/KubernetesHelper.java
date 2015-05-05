@@ -153,10 +153,10 @@ public class KubernetesHelper {
 
     public static String getName(Node entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
+            return Strings.firstNonBlank(entity.getMetadata().getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getUid());
+                    entity.getMetadata().getUid());
         } else {
             return null;
         }
