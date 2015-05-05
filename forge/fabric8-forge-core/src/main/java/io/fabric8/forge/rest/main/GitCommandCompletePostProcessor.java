@@ -24,6 +24,7 @@ import io.fabric8.forge.rest.ui.RestUIContext;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
@@ -469,7 +470,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         imageRepository.setApiVersion(osapiVersion);
         imageRepository.setName(buildName);
         imageRepository.setLabels(labels);
-        handleKubernetesResourceCreation(imageRepository.getKind(), imageRepository, kubernetes.createImageRepository(imageRepository));
+        handleKubernetesResourceCreation(imageRepository.getKind(), imageRepository, kubernetes.createImageStream(imageRepository));
 
         BuildConfig buildConfig = new BuildConfig();
         buildConfig.setKind("BuildConfig");
@@ -527,26 +528,29 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     protected String getServiceAddress(String serviceName, String namespace) {
         io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(serviceName, namespace);
 
-        String gitAddress = null;
+        String serviceAddress = null;
         if (service != null) {
-            String portalIP = service.getPortalIP();
+            String portalIP = service.getSpec().getPortalIP();
             if (!Strings.isNullOrEmpty(portalIP)) {
-                Integer port = service.getPort();
-                String prefix = "http://";
-                String postfix = "";
-                if (port != null) {
-                    if (port == 443) {
-                        prefix = "https://";
-                    }
+                List<ServicePort> servicePorts = service.getSpec().getPorts();
+                if (servicePorts != null && !servicePorts.isEmpty()) {
+                    Integer port = servicePorts.iterator().next().getPort();
+                    String prefix = "http://";
+                    String postfix = "";
+                    if (port != null) {
+                        if (port == 443) {
+                            prefix = "https://";
+                        }
 
-                    if (port != 80) {
-                        postfix = ":" + port;
+                        if (port != 80) {
+                            postfix = ":" + port;
+                        }
                     }
+                    serviceAddress = prefix + portalIP + postfix;
                 }
-                gitAddress = prefix + portalIP + postfix;
             }
         }
-        return gitAddress;
+        return serviceAddress;
     }
 
     protected void handleKubernetesResourceCreation(String kind, Object entity, String results) {

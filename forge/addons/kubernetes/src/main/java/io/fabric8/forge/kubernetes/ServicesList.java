@@ -81,7 +81,7 @@ public class ServicesList extends AbstractKubernetesCommand {
             if (filter.matches(service)) {
                 String labels = KubernetesHelper.toLabelsString(service.getLabels());
                 String selector = KubernetesHelper.toLabelsString(getSelector(service));
-                table.row(getId(service), labels, selector, KubernetesHelper.toPositiveNonZeroText(getPort(service)));
+                table.row(KubernetesHelper.getName(service), labels, selector, KubernetesHelper.toPositiveNonZeroText(getPort(service)));
             }
         }
         table.print();

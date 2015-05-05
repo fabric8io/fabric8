@@ -17,6 +17,7 @@
  */
 package io.fabric8.kubernetes.mbeans;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -70,14 +71,14 @@ public class AppViewDetails {
     }
 
     public void addService(Service service) {
-        String id = getId(service);
+        String id = KubernetesHelper.getName(service);
         if (Strings.isNotBlank(id)) {
             services.put(id, service);
         }
     }
 
     public void addController(ReplicationController controller) {
-        String id = getId(controller);
+        String id = KubernetesHelper.getName(controller);
         if (Strings.isNotBlank(id)) {
             controllers.put(id, controller);
 
@@ -91,7 +92,7 @@ public class AppViewDetails {
     }
 
     public void addPod(Pod pod) {
-        String id = getId(pod);
+        String id = KubernetesHelper.getName(pod);
         if (Strings.isNotBlank(id)) {
             pods.put(id, pod);
         }

@@ -15,6 +15,7 @@
  */
 package io.fabric8.forge.kubernetes;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -67,7 +68,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
                     List<Service> items = services.getItems();
                     if (items != null) {
                         for (Service item : items) {
-                            String id = getId(item);
+                            String id = KubernetesHelper.getName(item);
                             list.add(id);
                         }
                     }
@@ -93,7 +94,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
     }
 
     protected void executeService(Service service) throws Exception {
-        getKubernetes().deleteService(getId(service));
+        getKubernetes().deleteService(KubernetesHelper.getName(service));
     }
 }
 

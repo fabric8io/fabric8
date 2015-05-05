@@ -10,6 +10,7 @@ import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.Service;
 
@@ -92,7 +93,7 @@ public class HttpMappingKubeCache implements Runnable {
             for (Service service1 : serviceList.getItems()) {
                 Map<String, String> selector = getSelector(service1);
                 if (selectorMatch(selector)) {
-                    String contextPath = getId(service1);
+                    String contextPath = KubernetesHelper.getName(service1);
                     if (apiManager!=null) {
 	                    String apiManagerServiceInfo[] = apiManager.getService().getApiManagerServiceInfo(contextPath);
                         if (apiManagerServiceInfo==null) {
@@ -102,7 +103,7 @@ public class HttpMappingKubeCache implements Runnable {
                     }
 
                     ServiceDTO dto = new ServiceDTO();
-                    dto.setId(getId(service1));
+                    dto.setId(KubernetesHelper.getName(service1));
                     dto.setContainer(selector.get("container"));
                     dto.setVersion(selector.get("version"));
                     
@@ -111,7 +112,7 @@ public class HttpMappingKubeCache implements Runnable {
                     params.put("container", paramValue(dto.getContainer()));
                     params.put("version", paramValue(dto.getVersion()));
                     //is there a better way to obtain the complete url?
-                    String service = "http://localhost:" + getPort(service1) + "/" + getId(service1);
+                    String service = "http://localhost:" + getPort(service1) + "/" + KubernetesHelper.getName(service1);
                     List<String> services = Arrays.asList(service);
                     if (!contextPathsCache.contains(contextPath)) {
                         LOG.info("Adding " + service);

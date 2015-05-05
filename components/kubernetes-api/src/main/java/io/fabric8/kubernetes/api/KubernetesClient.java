@@ -16,29 +16,8 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.EndpointsList;
-import io.fabric8.kubernetes.api.model.Minion;
-import io.fabric8.kubernetes.api.model.MinionList;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigList;
-import io.fabric8.openshift.api.model.BuildList;
-import io.fabric8.openshift.api.model.BuildTriggerPolicy;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.DeploymentConfigList;
-import io.fabric8.openshift.api.model.ImageRepository;
-import io.fabric8.openshift.api.model.ImageRepositoryList;
-import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteList;
-import io.fabric8.openshift.api.model.WebHookTrigger;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.openshift.api.model.*;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -49,38 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.*;
-import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToHost;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToProtocol;
 
 /**
  * A simple client interface abstracting away the details of working with
@@ -413,16 +370,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     @Override
     @GET
-    @Path("minions")
-    public MinionList getMinions() {
-        return getKubernetes().getMinions();
+    @Path("nodes")
+    public NodeList getNodes() {
+        return getKubernetes().getNodes();
     }
 
     @Override
     @GET
-    @Path("minions/{minionId}")
-    public Minion minion(@NotNull String minionId) {
-        return getKubernetes().minion(minionId);
+    @Path("nodes/{nodeId}")
+    public Node node(@NotNull String nodeId) {
+        return getKubernetes().node(nodeId);
     }
 
     // Delegated KubernetesExtensions API
@@ -583,38 +540,38 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     @Override
     @GET
-    @Path("imageRepositories/{name}")
-    public ImageRepository getImageRepository(@NotNull String name, String namespace) {
-        return getKubernetesExtensions().getImageRepository(name, namespace);
+    @Path("imageStreams/{name}")
+    public ImageStream getImageStream(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().getImageStream(name, namespace);
     }
 
     @Override
     @GET
-    @Path("imageRepositories")
-    public ImageRepositoryList getImageRepositories(String namespace) {
-        return getKubernetesExtensions().getImageRepositories(namespace);
+    @Path("imageStreams")
+    public ImageStreamList getImageStreams(String namespace) {
+        return getKubernetesExtensions().getImageStreams(namespace);
     }
 
     @Override
     @PUT
-    @Path("imageRepositories/{name}")
+    @Path("imageStreams/{name}")
     @Consumes("application/json")
-    public String updateImageRepository(@NotNull String name, ImageRepository entity, String namespace) throws Exception {
-        return getKubernetesExtensions().updateImageRepository(name, entity, namespace);
+    public String updateImageStream(@NotNull String name, ImageStream entity, String namespace) throws Exception {
+        return getKubernetesExtensions().updateImageStream(name, entity, namespace);
     }
 
     @Override
     @DELETE
-    @Path("imageRepositories/{name}")
-    public String deleteImageRepository(@NotNull String name, String namespace) {
-        return getKubernetesExtensions().deleteImageRepository(name, namespace);
+    @Path("imageStreams/{name}")
+    public String deleteImageStream(@NotNull String name, String namespace) {
+        return getKubernetesExtensions().deleteImageStream(name, namespace);
     }
 
     @Override
     @POST
-    @Path("imageRepositories")
-    public String createImageRepository(ImageRepository entity) throws Exception {
-        return getKubernetesExtensions().createImageRepository(entity);
+    @Path("imageStreams")
+    public String createImageStream(ImageStream entity) throws Exception {
+        return getKubernetesExtensions().createImageStream(entity);
     }
 
     @Override
@@ -635,7 +592,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deletePod(Pod entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = getId(entity);
+        String id = getName(entity);
         LOG.info("Deleting Pod: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deletePod(id, namespace);
@@ -653,7 +610,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deleteService(Service entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = getId(entity);
+        String id = getName(entity);
         LOG.info("Deleting Service: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deleteService(id, namespace);
@@ -670,7 +627,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     public void deleteReplicationControllerAndPods(ReplicationController replicationController) throws Exception {
-        String id = getId(replicationController);
+        String id = getName(replicationController);
         String namespace = KubernetesHelper.getNamespace(replicationController);
         LOG.info("Deleting ReplicationController: " + id + " namespace: " + namespace);
         deleteReplicationController(replicationController);
@@ -689,7 +646,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     public void deleteReplicationController(ReplicationController entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
-        String id = getId(entity);
+        String id = getName(entity);
         if (Strings.isNotBlank(namespace)) {
             deleteReplicationController(id, namespace);
         } else {
@@ -721,13 +678,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
                         List<ReplicationController> nonZeroReplicas = Filters.filter(matched, new Filter<ReplicationController>() {
                             @Override
                             public boolean matches(ReplicationController replicationController) {
-                                ReplicationControllerState desiredState = replicationController.getDesiredState();
-                                if (desiredState != null) {
-                                    Integer desiredReplicas = desiredState.getReplicas();
+                                ReplicationControllerSpec replicationControllerSpec = replicationController.getSpec();
+                                if (replicationControllerSpec != null) {
+                                    Integer desiredReplicas = replicationControllerSpec.getReplicas();
                                     if (desiredReplicas != null && desiredReplicas.intValue() > 0) {
-                                        ReplicationControllerState currentState = replicationController.getCurrentState();
-                                        if (currentState != null) {
-                                            Integer replicas = currentState.getReplicas();
+                                        ReplicationControllerStatus currentStatus = replicationController.getStatus();
+                                        if (currentStatus != null) {
+                                            Integer replicas = currentStatus.getReplicas();
                                             if (replicas != null && replicas.intValue() > 0) {
                                                 return true;
                                             }
@@ -799,7 +756,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             srv = getService(serviceName, namespace);
         } else {
             for (Service s : getServices().getItems()) {
-                String sid = getId(s);
+                String sid = getName(s);
                 if (serviceName.equals(sid)) {
                     srv = s;
                     break;
@@ -811,11 +768,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         }
         RouteList routeList = getRoutes(namespace);
         for (Route route : routeList.getItems()) {
-            if (route.getServiceName().equals(serviceName)) {
-                return (serviceProto + "://" + route.getHost()).toLowerCase();
+            if (route.getSpec().getTo().getName().equals(serviceName)) {
+                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
             }
         }
-        return (serviceProto + "://" + srv.getPortalIP() + ":" + srv.getPort()).toLowerCase();
+        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
     }
 
 
@@ -932,7 +889,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     public String triggerBuild(@NotNull String name, String namespace) {
         BuildConfig buildConfig = getBuildConfig(name, namespace);
         if (buildConfig != null) {
-            List<BuildTriggerPolicy> triggers = buildConfig.getTriggers();
+            List<BuildTriggerPolicy> triggers = buildConfig.getSpec().getTriggers();
             String type = null;
             String secret = null;
             for (BuildTriggerPolicy trigger : triggers) {

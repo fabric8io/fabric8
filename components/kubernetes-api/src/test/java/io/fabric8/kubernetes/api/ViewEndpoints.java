@@ -15,9 +15,9 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.fabric8.utils.Lists.notNullList;
@@ -66,10 +66,20 @@ public class ViewEndpoints {
 
     protected static void display(Endpoints endpoints) {
         if (endpoints != null) {
-            String id = endpoints.getId();
+            String name = endpoints.getName();
             String namespace = endpoints.getNamespace();
-            List<String> urls = notNullList(endpoints.getEndpoints());
-            System.out.println("Service: " + id + " namespace: " + namespace + " urls: " + urls);
+            List<String> urls = new ArrayList<>();
+            List<EndpointSubset> endpointsSubsets = endpoints.getSubsets();
+
+            for (EndpointSubset endpointSubset : endpointsSubsets) {
+                for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
+                    for (EndpointPort endpointPort : endpointSubset.getPorts()) {
+                        urls.add(endpointAddress.getIP() + ":" + endpointPort.getPort());
+                    }
+                }
+            }
+
+            System.out.println("Service: " + name + " namespace: " + namespace + " urls: " + urls);
         } else {
             System.out.println("null endpoints");
         }

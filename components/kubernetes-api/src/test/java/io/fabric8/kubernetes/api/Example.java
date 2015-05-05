@@ -15,26 +15,11 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 
 /**
@@ -66,17 +51,15 @@ public class Example {
         String image = "fabric8/hawtio";
 
         Pod pod = new Pod();
-        pod.setId(name);
+        pod.setName(name);
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");
         labels.put("container", name);
 
         pod.setLabels(labels);
-        PodState desiredState = new PodState();
-        pod.setDesiredState(desiredState);
-        ContainerManifest manifest = new ContainerManifest();
-        desiredState.setManifest(manifest);
+        PodSpec podSpec = new PodSpec();
+        pod.setSpec(podSpec);
 
         Container manifestContainer = new Container();
         manifestContainer.setName(name);
@@ -84,7 +67,7 @@ public class Example {
 
         List<Container> containers = new ArrayList<>();
         containers.add(manifestContainer);
-        manifest.setContainers(containers);
+        podSpec.setContainers(containers);
 
         System.out.println("About to create pod on " + kubernetesFactory.getAddress() + " with " + pod);
         kubernetes.createPod(pod, "mynamespace");
@@ -98,16 +81,13 @@ public class Example {
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
-            System.out.println("Pod " + getId(item) + " created: " + item.getCreationTimestamp());
-            PodState desiredState = item.getDesiredState();
-            if (desiredState != null) {
-                ContainerManifest manifest = desiredState.getManifest();
-                if (manifest != null) {
-                    List<Container> containers = manifest.getContainers();
-                    if (containers != null) {
-                        for (Container container : containers) {
-                            System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
-                        }
+            System.out.println("Pod " + KubernetesHelper.getName(item) + " created: " + item.getCreationTimestamp());
+            PodSpec spec = item.getSpec();
+            if (spec != null) {
+                List<Container> containers = spec.getContainers();
+                if (containers != null) {
+                    for (Container container : containers) {
+                        System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
                     }
                 }
             }
@@ -129,7 +109,7 @@ public class Example {
         ServiceList services = kube.getServices(Kubernetes.NAMESPACE_ALL);
         List<Service> serviceItems = services.getItems();
         for (Service service : serviceItems) {
-            System.out.println("Service " + getId(service) + " labels: " + service.getLabels() + " selector: " + getSelector(service) + " port: " + getPort(service));
+            System.out.println("Service " + KubernetesHelper.getName(service) + " labels: " + service.getLabels() + " selector: " + getSelector(service) + " ports: " + getPorts(service));
         }
         System.out.println();
 
@@ -140,12 +120,12 @@ public class Example {
         ReplicationControllerList replicationControllers = kube.getReplicationControllers(Kubernetes.NAMESPACE_ALL);
         List<ReplicationController> items = replicationControllers.getItems();
         for (ReplicationController item : items) {
-            ReplicationControllerState desiredState = item.getDesiredState();
-            if (desiredState != null) {
-                System.out.println("ReplicationController " + getId(item) + " labels: " + item.getLabels()
-                        + " replicas: " + desiredState.getReplicas() + " replicatorSelector: " + desiredState.getReplicaSelector() + " podTemplate: " + desiredState.getPodTemplate());
+            ReplicationControllerSpec replicationControllerSpec = item.getSpec();
+            if (replicationControllerSpec != null) {
+                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getLabels()
+                        + " replicas: " + replicationControllerSpec.getReplicas() + " replicatorSelector: " + replicationControllerSpec.getSelector() + " podTemplate: " + replicationControllerSpec.getTemplate());
             } else {
-                System.out.println("ReplicationController " + getId(item) + " labels: " + item.getLabels() + " no desiredState");
+                System.out.println("ReplicationController " + KubernetesHelper.getName(item) + " labels: " + item.getLabels() + " no replicationControllerSpec");
             }
         }
         System.out.println();

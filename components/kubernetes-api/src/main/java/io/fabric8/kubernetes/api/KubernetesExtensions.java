@@ -21,8 +21,8 @@ import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
-import io.fabric8.openshift.api.model.ImageRepository;
-import io.fabric8.openshift.api.model.ImageRepositoryList;
+import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamList;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.template.Template;
@@ -41,7 +41,7 @@ import javax.ws.rs.QueryParam;
 /**
  * Various Kubernetes extensions defined in the OpenShift project
  */
-@Path("osapi/v1beta1")
+@Path("osapi/v1beta3")
 @Produces("application/json")
 @Consumes("application/json")
 public interface KubernetesExtensions {
@@ -145,25 +145,25 @@ public interface KubernetesExtensions {
     //-------------------------------------------------------------------------
 
     @GET
-    @Path("imageRepositories")
-    ImageRepositoryList getImageRepositories(@QueryParam("namespace") String namespace);
+    @Path("imageStreams")
+    ImageStreamList getImageStreams(@QueryParam("namespace") String namespace);
 
     @POST
-    @Path("imageRepositories")
-    String createImageRepository(ImageRepository entity) throws Exception;
+    @Path("imageStreams")
+    String createImageStream(ImageStream entity) throws Exception;
 
     @GET
-    @Path("imageRepositories/{name}")
-    ImageRepository getImageRepository(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("imageStreams/{name}")
+    ImageStream getImageStream(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
     @PUT
-    @Path("imageRepositories/{name}")
+    @Path("imageStreams/{name}")
     @Consumes("application/json")
-    String updateImageRepository(@PathParam("name") @NotNull String name, ImageRepository entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateImageStream(@PathParam("name") @NotNull String name, ImageStream entity, @QueryParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("imageRepositories/{name}")
-    String deleteImageRepository(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("imageStreams/{name}")
+    String deleteImageStream(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
 
 
     // DeploymentConfigs

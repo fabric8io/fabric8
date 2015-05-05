@@ -65,7 +65,7 @@ public class Apply extends AbstractKubernetesCommand {
                     List<Service> items = services.getItems();
                     if (items != null) {
                         for (Service item : items) {
-                            String id = item.getId();
+                            String id = item.getName();
                             list.add(id);
                         }
                     }

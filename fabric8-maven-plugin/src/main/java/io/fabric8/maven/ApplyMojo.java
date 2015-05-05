@@ -170,7 +170,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         for (Object object : list) {
             if (object instanceof Service) {
                 Service service = (Service) object;
-                String id = KubernetesHelper.getId(service);
+                String id = KubernetesHelper.getName(service);
 
                 if (Strings.isNotBlank(id)) {
                     Route route = new Route();

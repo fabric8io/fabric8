@@ -59,7 +59,7 @@ public class Templates {
     }
 
     public static Template combineTemplates(Template firstTemplate, Template template) {
-        List<Object> objects = getTemplateObjects(template);
+        List<Object> objects = template.getObjects();
         if (objects != null) {
             for (Object object : objects) {
                 addTemplateObject(firstTemplate, object);
@@ -95,11 +95,11 @@ public class Templates {
     }
 
     public static void addTemplateObject(Template template, Object object) {
-        List<Object> objects = getTemplateObjects(template);
+        List<Object> objects = template.getObjects();
         if (objects == null) {
             objects = new ArrayList<>();
 
-            setTemplateObjects(template, objects);
+            template.setObjects(objects);
         }
         objects.add(object);
     }
@@ -135,15 +135,6 @@ public class Templates {
         } else {
             return kubernetesList;
         }
-    }
-
-
-    public static List<Object> getTemplateObjects(Template template) {
-        return template.getItems();
-    }
-
-    public static void setTemplateObjects(Template template, List<Object> objects) {
-        template.setItems(objects);
     }
 
 }

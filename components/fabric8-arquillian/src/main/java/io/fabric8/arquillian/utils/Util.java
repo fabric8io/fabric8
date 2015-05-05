@@ -20,12 +20,10 @@ import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.utils.Filter;
-import io.fabric8.utils.Filters;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -51,7 +49,6 @@ import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAM
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
-import static io.fabric8.utils.Lists.notNullList;
 
 public class Util {
 
@@ -70,14 +67,14 @@ public class Util {
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
         for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
-            session.getLogger().info("Replication controller:" + getId(replicationController));
+            session.getLogger().info("Replication controller:" + KubernetesHelper.getName(replicationController));
         }
 
         for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
-            session.getLogger().info("Pod:" + getId(pod) + " Status:" + pod.getCurrentState().getStatus());
+            session.getLogger().info("Pod:" + KubernetesHelper.getName(pod) + " Status:" + pod.getCurrentState().getStatus());
         }
         for (Service service : client.getServices(session.getNamespace()).getItems()) {
-            session.getLogger().info("Service:" + getId(service) + " IP:" + getPortalIP(service) + " Port:" + getPort(service));
+            session.getLogger().info("Service:" + KubernetesHelper.getName(service) + " IP:" + getPortalIP(service) + " Port:" + getPort(service));
         }
 
     }
@@ -186,7 +183,7 @@ public class Util {
         List<Throwable> errors = new ArrayList<>();
         for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
             try {
-                session.getLogger().info("Deleting pod:" + getId(pod));
+                session.getLogger().info("Deleting pod:" + KubernetesHelper.getName(pod));
                 client.deletePod(pod.getId(), session.getNamespace());
             } catch (Exception e) {
                 errors.add(e);
@@ -201,7 +198,7 @@ public class Util {
         List<Throwable> errors = new ArrayList<>();
         for (Service service : client.getServices(session.getNamespace()).getItems()) {
             try {
-                session.getLogger().info("Deleting service:" + getId(service));
+                session.getLogger().info("Deleting service:" + KubernetesHelper.getName(service));
                 client.deleteService(service.getId(), session.getNamespace());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -216,7 +213,7 @@ public class Util {
         List<Throwable> errors = new ArrayList<>();
         for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
             try {
-                session.getLogger().info("Deleting replication controller:" + getId(replicationController));
+                session.getLogger().info("Deleting replication controller:" + KubernetesHelper.getName(replicationController));
                 client.deleteReplicationController(replicationController.getId(), session.getNamespace());
             } catch (Exception e) {
                 e.printStackTrace();

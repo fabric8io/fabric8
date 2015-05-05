@@ -85,7 +85,7 @@ public class BuildWatcher {
     }
 
     protected void buildPolled(Build build) {
-        String status = build.getStatus();
+        String status = build.getStatus().getPhase();
         if (status != null) {
             if (Builds.isFinished(status)) {
                 String uid = Builds.getUid(build);

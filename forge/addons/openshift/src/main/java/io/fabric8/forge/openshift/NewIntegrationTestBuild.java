@@ -115,7 +115,7 @@ public class NewIntegrationTestBuild extends AbstractOpenShiftCommand {
         ImageRepository imageRepository = BuildConfigs.imageRepository(buildConfigName, labels);
 
         Controller controller = createController();
-        controller.applyImageRepository(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
+        controller.applyImageStream(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
         controller.applyBuildConfig(buildConfig, "generated BuildConfig: " + toJson(buildConfig));
         return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getAddress());
     }

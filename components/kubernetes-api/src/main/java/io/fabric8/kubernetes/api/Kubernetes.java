@@ -24,7 +24,7 @@ import javax.ws.rs.*;
  * Represents the Remote API to working with <a href="http://kubernetes.io/">Kubernetes</a> providing a facade
  * over the generated JAXRS client.
  */
-@Path("api/v1beta2")
+@Path("api/v1beta3")
 @Produces("application/json")
 @Consumes("application/json")
 public interface Kubernetes {
@@ -169,13 +169,13 @@ public interface Kubernetes {
      * List all the minions on this cluster
      */
     @GET
-    @Path("minions")
-    MinionList getMinions();
+    @Path("nodes")
+    NodeList getNodes();
 
     /**
      * List all endpoints for a service
      */
     @GET
-    @Path("minions/{minionId}")
-    Minion minion(@PathParam("minionId") @NotNull String minionId);
+    @Path("nodes/{nodeId}")
+    Node node(@PathParam("nodeId") @NotNull String nodeId);
 }

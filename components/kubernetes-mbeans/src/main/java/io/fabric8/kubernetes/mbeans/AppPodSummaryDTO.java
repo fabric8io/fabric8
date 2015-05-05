@@ -39,7 +39,7 @@ public class AppPodSummaryDTO {
     private String host;
 
     public AppPodSummaryDTO(Pod pod) {
-        this.id = KubernetesHelper.getId(pod);
+        this.id = KubernetesHelper.getName(pod);
         this.namespace = pod.getNamespace();
         this.status = KubernetesHelper.getPodStatus(pod);
         this.labels = pod.getLabels();

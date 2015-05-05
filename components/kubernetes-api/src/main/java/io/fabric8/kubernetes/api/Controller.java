@@ -22,9 +22,8 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.config.Config;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
@@ -42,13 +41,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
-import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -199,8 +192,8 @@ public class Controller {
             applyBuildConfig((BuildConfig) dto, sourceName);
         } else if (dto instanceof DeploymentConfig) {
             applyDeploymentConfig((DeploymentConfig) dto, sourceName);
-        } else if (dto instanceof ImageRepository) {
-            applyImageRepository((ImageRepository) dto, sourceName);
+        } else if (dto instanceof ImageStream) {
+            applyImageStream((ImageStream) dto, sourceName);
         } else if (dto instanceof Template) {
             applyTemplate((Template) dto, sourceName);
         } else {
@@ -220,15 +213,15 @@ public class Controller {
     }
 
     public Object processTemplate(Template entity, String sourceName) {
-        String id = KubernetesHelper.getId(entity);
+        String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
+        String namespace = getNamespace(entity);
         LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
         Object result = null;
         try {
             String json = kubernetes.createTemplate(entity, namespace);
             LOG.info("Template processed into: " + json);
-            result = KubernetesHelper.loadJson(json);
+            result = loadJson(json);
             printSummary(result);
         } catch (Exception e) {
             onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
@@ -243,12 +236,12 @@ public class Controller {
         }
         if (kubeResource instanceof Template) {
             Template template = (Template) kubeResource;
-            String id = KubernetesHelper.getId(template);
-            LOG.info("  Template " + id + " " + KubernetesHelper.summaryText(template));
+            String id = getName(template);
+            LOG.info("  Template " + id + " " + summaryText(template));
             printSummary(Templates.getTemplateObjects(template));
             return;
         }
-        List<Object> list = KubernetesHelper.toItemList(kubeResource);
+        List<Object> list = toItemList(kubeResource);
         for (Object object : list) {
             if (object != null) {
                 if (object == list) {
@@ -258,17 +251,17 @@ public class Controller {
                     printSummary(object);
                 } else {
                     String kind = object.getClass().getSimpleName();
-                    String id = KubernetesHelper.getObjectId(object);
-                    LOG.info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
+                    String id = getObjectId(object);
+                    LOG.info("    " + kind + " " + id + " " + summaryText(object));
                 }
             }
         }
     }
 
     public void applyRoute(Route entity, String sourceName) {
-        String id = KubernetesHelper.getId(entity);
+        String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
+        String namespace = getNamespace(entity);
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
             try {
@@ -296,9 +289,9 @@ public class Controller {
         }
     }
 
-    public void applyImageRepository(ImageRepository entity, String sourceName) {
+    public void applyImageStream(ImageStream entity, String sourceName) {
         try {
-            kubernetes.createImageRepository(entity);
+            kubernetes.createImageStream(entity);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
@@ -313,16 +306,9 @@ public class Controller {
         }
     }
 
-    public void applyConfig(Config config, String sourceName) throws Exception {
-        List<Object> entities = getEntities(config);
-        for (Object entity : entities) {
-            applyEntity(entity, sourceName);
-        }
-    }
-
     public void applyService(Service service, String sourceName) throws Exception {
         String namespace = getNamespace();
-        String id = getId(service);
+        String id = getName(service);
         Objects.notNull(id, "No name for " + service + " " + sourceName);
         if (isIgnoreServiceMode()) {
             LOG.debug("Ignoring Service: " + namespace + ":" + id);
@@ -351,7 +337,7 @@ public class Controller {
             }
         } else {
             if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
+                LOG.warn("Creation disabled so not creating a service from " + sourceName + " namespace " + namespace + " name " + getName(service));
             } else {
                 doCreateService(service, namespace, sourceName);
             }
@@ -359,7 +345,7 @@ public class Controller {
     }
 
     protected void doCreateService(Service service, String namespace, String sourceName) {
-        LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getId(service));
+        LOG.info("Creating a service from " + sourceName + " namespace " + namespace + " name " + getName(service));
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
@@ -375,7 +361,7 @@ public class Controller {
 
     public void applyReplicationController(ReplicationController replicationController, String sourceName) throws Exception {
         String namespace = getNamespace();
-        String id = getId(replicationController);
+        String id = getName(replicationController);
         Objects.notNull(id, "No name for " + replicationController + " " + sourceName);
         if (isServicesOnlyMode()) {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
@@ -393,7 +379,7 @@ public class Controller {
                     kubernetes.deleteReplicationControllerAndPods(replicationController, namespace);
                     doCreateReplicationController(replicationController, namespace, sourceName);
                 } else {
-                    LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+                    LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
                     try {
                         Object answer = kubernetes.updateReplicationController(id, replicationController);
                         LOG.info("Updated replicationController: " + answer);
@@ -404,7 +390,7 @@ public class Controller {
             }
         } else {
             if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+                LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
             } else {
                 doCreateReplicationController(replicationController, namespace, sourceName);
             }
@@ -412,7 +398,7 @@ public class Controller {
     }
 
     protected void doCreateReplicationController(ReplicationController replicationController, String namespace, String sourceName) {
-        LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getId(replicationController));
+        LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
@@ -428,6 +414,7 @@ public class Controller {
 
     public void applyPod(Pod pod, String sourceName) throws Exception {
         String namespace = getNamespace();
+        String id = getName(pod);
         String id = getId(pod);
         Objects.notNull(id, "No name for " + pod + " " + sourceName);
         if (isServicesOnlyMode()) {
@@ -446,7 +433,7 @@ public class Controller {
                     kubernetes.deletePod(pod, namespace);
                     doCreatePod(pod, namespace, sourceName);
                 } else {
-                    LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+                    LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
                     try {
                         Object answer = kubernetes.updatePod(id, pod);
                         LOG.info("Updated pod result: " + answer);
@@ -457,7 +444,7 @@ public class Controller {
             }
         } else {
             if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+                LOG.warn("Creation disabled so not creating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
             } else {
                 doCreatePod(pod, namespace, sourceName);
             }
@@ -465,7 +452,7 @@ public class Controller {
     }
 
     protected void doCreatePod(Pod pod, String namespace, String sourceName) {
-        LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getId(pod));
+        LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {

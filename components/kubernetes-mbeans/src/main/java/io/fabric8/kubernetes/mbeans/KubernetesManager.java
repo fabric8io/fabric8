@@ -24,7 +24,6 @@ import io.fabric8.utils.Strings;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.IOException;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
@@ -151,7 +150,7 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     public String getReplicationControllerIdForPod(String podId) {
         ReplicationController replicationController = kubernetes.getReplicationControllerForPod(podId);
         if (replicationController != null) {
-            return getId(replicationController);
+            return KubernetesHelper.getName(replicationController);
         }
         return null;
     }

@@ -29,36 +29,32 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withId("foo").
+        Pod entity1 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withId("foo").
+        Pod entity2 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, true);
@@ -66,36 +62,32 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsLabelsNotEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withId("foo").
+        Pod entity1 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withId("foo").
+        Pod entity2 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "notSame").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);
@@ -103,36 +95,32 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsAnnotationsNotEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withId("foo").
+        Pod entity1 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withId("foo").
+        Pod entity2 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "notSame").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);
@@ -140,72 +128,64 @@ public class ConfigComparePodTest {
 
     @Test
     public void testPodsImageEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withId("foo").
+        Pod entity1 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withId("foo").
+        Pod entity2 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("notSame").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);
     }
     @Test
     public void testPodsContainerEnvEqual() throws Exception {
-        Pod entity1 = new PodBuilder().withId("foo").
+        Pod entity1 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("bar").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
-        Pod entity2 = new PodBuilder().withId("foo").
+        Pod entity2 = new PodBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
                 addToAnnotations("podAnnotation1", "podAnnValue1").
-                withNewDesiredState().
-                    withNewManifest().
+                withNewSpec().
                         addNewContainer().
                             withImage("fabric8/jenkins").
                             addNewEnv().withName("foo").withValue("notSame").endEnv().
                             // TODO....
                             // addNewPort().endPort().
                         endContainer().
-                    endManifest().
-                endDesiredState().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);

@@ -32,7 +32,7 @@ public class KubernetesHelperTest {
     public void testRemoveEmptyPods() throws Exception {
 
         Pod pod1 = new Pod();
-        pod1.setId("test1");
+        pod1.setName("test1");
 
         Pod pod2 = new Pod();
 

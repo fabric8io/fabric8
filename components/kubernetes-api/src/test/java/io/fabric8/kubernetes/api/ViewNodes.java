@@ -15,8 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Minion;
-import io.fabric8.kubernetes.api.model.MinionList;
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.NodeList;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import static io.fabric8.utils.Lists.notNullList;
 /**
  * Views the minions
  */
-public class ViewMinions {
+public class ViewNodes {
     public static void main(String... args) {
         KubernetesClient client = new KubernetesClient();
 
@@ -40,21 +40,21 @@ public class ViewMinions {
     }
 
     protected static void listMinions(KubernetesClient client)  throws Exception {
-        MinionList minionList = client.getMinions();
-            if (minionList != null) {
-                List<Minion> items = notNullList(minionList.getItems());
-                for (Minion item : items) {
+        NodeList nodeList = client.getNodes();
+            if (nodeList != null) {
+                List<Node> items = notNullList(nodeList.getItems());
+                for (Node item : items) {
                     display(item);
                 }
         }
     }
 
-    protected static void display(Minion minion) {
+    protected static void display(Node minion) {
         if (minion != null) {
-            String id = minion.getId();
-            System.out.println("Minion: " + id + " resources: " + minion.getResources());
+            String id = minion.getName();
+            System.out.println("Minion: " + id + " resources: " + minion.getStatus().getCapacity());
         } else {
-            System.out.println("null minion");
+            System.out.println("null node");
         }
     }
 

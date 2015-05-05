@@ -81,7 +81,7 @@ public class PodsList extends AbstractKubernetesCommand {
         Filter<Pod> filter = KubernetesHelper.createPodFilter(filterText.getValue());
         for (Pod item : items) {
             if (filter.matches(item)) {
-                String id = getId(item);
+                String id = KubernetesHelper.getName(item);
                 PodState currentState = item.getCurrentState();
                 String status = "";
                 String host = "";

@@ -21,9 +21,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.ImageRepository;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.cxf.JsonHelper;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Scm;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -129,7 +127,7 @@ public class NewBuild extends AbstractOpenShiftCommand {
         ImageRepository imageRepository = BuildConfigs.imageRepository(buildConfigName, labels);
 
         Controller controller = createController();
-        controller.applyImageRepository(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
+        controller.applyImageStream(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
         controller.applyBuildConfig(buildConfig, "generated BuildConfig: " + toJson(buildConfig));
         return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getAddress());
     }

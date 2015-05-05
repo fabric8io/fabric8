@@ -16,6 +16,7 @@
 package io.fabric8.forge.kubernetes;
 
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -56,7 +57,7 @@ public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
                     List<Pod> items = pods.getItems();
                     if (items != null) {
                         for (Pod item : items) {
-                            String id = getId(item);
+                            String id = KubernetesHelper.getName(item);
                             list.add(id);
                         }
                     }

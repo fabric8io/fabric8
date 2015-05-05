@@ -33,7 +33,7 @@ public class AppServiceSummaryDTO {
     private final Map<String, String> labels;
 
     public AppServiceSummaryDTO(Service service) {
-        this.id = KubernetesHelper.getId(service);
+        this.id = KubernetesHelper.getName(service);
         this.name = KubernetesHelper.getName(service);
         this.namespace = service.getNamespace();
         this.portalIP = KubernetesHelper.getPortalIP(service);

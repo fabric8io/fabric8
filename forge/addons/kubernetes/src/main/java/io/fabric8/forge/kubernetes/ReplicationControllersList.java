@@ -79,7 +79,7 @@ public class ReplicationControllersList extends AbstractKubernetesCommand {
         Filter<ReplicationController> filter = KubernetesHelper.createReplicationControllerFilter(filterText.getValue());
         for (ReplicationController item : items) {
             if (filter.matches(item)) {
-                String id = getId(item);
+                String id = KubernetesHelper.getName(item);
                 String labels = KubernetesHelper.toLabelsString(item.getLabels());
                 Integer replicas = null;
                 ReplicationControllerState desiredState = item.getDesiredState();

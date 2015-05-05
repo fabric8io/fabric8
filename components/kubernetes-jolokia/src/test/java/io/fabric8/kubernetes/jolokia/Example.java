@@ -59,7 +59,7 @@ public class Example {
             String host = KubernetesHelper.getHost(pod);
             List<Container> containers = KubernetesHelper.getContainers(pod);
             for (Container container : containers) {
-                System.out.println("pod " + getId(pod) + " container: " + container.getName() + " image: " + container.getImage());
+                System.out.println("pod " + KubernetesHelper.getName(pod) + " container: " + container.getName() + " image: " + container.getImage());
                 J4pClient jolokia = clients.clientForContainer(host, container, pod);
 
                 if (jolokia != null) {
@@ -82,7 +82,7 @@ public class Example {
         Map<String, ReplicationController> replicationControllerMap = KubernetesHelper.getSelectedReplicationControllerMap(kubernetes, selector);
         Collection<ReplicationController> replicationControllers = replicationControllerMap.values();
         for (ReplicationController replicationController : replicationControllers) {
-            System.out.println("" + getId(replicationController));
+            System.out.println("" + KubernetesHelper.getName(replicationController));
         }
     }
 }

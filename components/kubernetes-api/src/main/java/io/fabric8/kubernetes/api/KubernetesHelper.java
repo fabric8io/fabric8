@@ -18,21 +18,8 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.PodTemplate;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.config.Config;
@@ -68,16 +55,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -95,8 +73,8 @@ public class KubernetesHelper {
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
 
-    public static final String defaultApiVersion = "v1beta2";
-    public static final String defaultOsApiVersion = "v1beta1";
+    public static final String defaultApiVersion = "v1beta3";
+    public static final String defaultOsApiVersion = "v1beta3";
 
     private static final String HOST_SUFFIX = "_SERVICE_HOST";
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
@@ -109,13 +87,13 @@ public class KubernetesHelper {
      */
     public static String getObjectId(Object object) {
         if (object instanceof Pod) {
-            return getId((Pod) object);
+            return getName((Pod) object);
         } else if (object instanceof ReplicationController) {
-            return getId((ReplicationController) object);
+            return getName((ReplicationController) object);
         } else if (object instanceof Service) {
-            return getId((Service) object);
+            return getName((Service) object);
         } else if (object instanceof Route) {
-            return getId((Route) object);
+            return getName((Route) object);
         } else  {
             return object != null ? object.toString() : null;
         }
@@ -123,47 +101,7 @@ public class KubernetesHelper {
 
 
 
-    public static String getId(Pod entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
-        } else {
-            return null;
-        }
-    }
-
-    public static String getId(ReplicationController entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
-        } else {
-            return null;
-        }
-    }
-
-
-    public static String getId(Service entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(entity.getId(),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
-        } else {
-            return null;
-        }
-    }
-
-    public static String getId(Route entity) {
+    public static String getName(Pod entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
@@ -176,7 +114,47 @@ public class KubernetesHelper {
         }
     }
 
-    public static String getId(Template entity) {
+    public static String getName(ReplicationController entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+
+    public static String getName(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(Route entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(Template entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getName(),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
@@ -260,22 +238,10 @@ public class KubernetesHelper {
         }
     }
 
-    public static String getName(Service entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    entity.getId(),
-                    entity.getUid());
-        } else {
-            return null;
-        }
-    }
-
     public static String getPortalIP(Service entity) {
         String answer = null;
         if (entity != null) {
-            answer = entity.getPortalIP();
+            answer = entity.getSpec().getPortalIP();
             if (answer == null) {
                 // TODO lets look for the spec nested object if its available
             }
@@ -292,7 +258,7 @@ public class KubernetesHelper {
     public static Map<String, String> getSelector(Service entity) {
         Map<String, String> answer = null;
         if (entity != null) {
-            answer = entity.getSelector();
+            answer = entity.getSpec().getSelector();
             if (answer == null) {
                 // TODO lets look for the spec nested object if its available
             }
@@ -306,19 +272,12 @@ public class KubernetesHelper {
         return answer != null ? answer : Collections.EMPTY_MAP;
     }
 
-    public static Integer getPort(Service entity) {
-        Integer answer = null;
+    public static Set<Integer> getPorts(Service entity) {
+        Set<Integer> answer = new HashSet<>();
         if (entity != null) {
-            answer = entity.getPort();
-            if (answer == null) {
-                // TODO lets look for the spec nested object if its available
+            for (ServicePort port : entity.getSpec().getPorts()) {
+                answer.add(port.getPort());
             }
-/*
-            ServiceSpec spec = entity.getSpec();
-            if (spec != null) {
-                return spec.getPort();
-            }
-*/
         }
         return answer;
     }
@@ -462,7 +421,7 @@ public class KubernetesHelper {
             return config.getItems();
         } else if (entity instanceof Template) {
             Template objects = (Template) entity;
-            return Templates.getTemplateObjects(objects);
+            return objects.getObjects();
         } else {
             List<Object> answer = new ArrayList<>();
             if (entity != null) {
@@ -508,7 +467,7 @@ public class KubernetesHelper {
         List<Pod> list = notNullList(pods);
         Map<String, Pod> answer = new HashMap<>();
         for (Pod pod : list) {
-            String id = getId(pod);
+            String id = getName(pod);
             if (Strings.isNotBlank(id)) {
                 answer.put(id, pod);
             }
@@ -530,7 +489,7 @@ public class KubernetesHelper {
         List<Service> list = notNullList(services);
         Map<String, Service> answer = new HashMap<>();
         for (Service service : list) {
-            String id = getId(service);
+            String id = getName(service);
             if (Strings.isNotBlank(id)) {
                 answer.put(id, service);
             }
@@ -567,7 +526,7 @@ public class KubernetesHelper {
         List<ReplicationController> list = notNullList(replicationControllers);
         Map<String, ReplicationController> answer = new HashMap<>();
         for (ReplicationController replicationControllerSchema : list) {
-            String id = getId(replicationControllerSchema);
+            String id = getName(replicationControllerSchema);
             if (Strings.isNotBlank(id)) {
                 answer.put(id, replicationControllerSchema);
             }
@@ -635,7 +594,7 @@ public class KubernetesHelper {
         List<Pod> removeItems = new ArrayList<Pod>();
 
         for (Pod pod : list) {
-            if (StringUtils.isEmpty(getId(pod))) {
+            if (StringUtils.isEmpty(getName(pod))) {
                 removeItems.add(pod);
 
             }
@@ -703,7 +662,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Pod entity) {
-                    return filterMatchesIdOrLabels(textFilter, getId(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
                 }
             };
         }
@@ -760,7 +719,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Service entity) {
-                    return filterMatchesIdOrLabels(textFilter, getId(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
                 }
             };
         }
@@ -817,7 +776,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(ReplicationController entity) {
-                    return filterMatchesIdOrLabels(textFilter, getId(entity), entity.getLabels());
+                    return filterMatchesIdOrLabels(textFilter, getName(entity), entity.getLabels());
                 }
             };
         }
@@ -904,8 +863,8 @@ public class KubernetesHelper {
      */
     public static List<Container> getContainers(Pod pod) {
         if (pod != null) {
-            PodState desiredState = pod.getDesiredState();
-            return getContainers(desiredState);
+            PodSpec podSpec = pod.getSpec();
+            return getContainers(podSpec);
 
         }
         return Collections.EMPTY_LIST;
@@ -916,37 +875,33 @@ public class KubernetesHelper {
      */
     public static List<Container> getContainers(ReplicationController replicationController) {
         if (replicationController != null) {
-            ReplicationControllerState desiredState = replicationController.getDesiredState();
-            return getContainers(desiredState);
+            ReplicationControllerSpec replicationControllerSpec = replicationController.getSpec();
+            return getContainers(replicationControllerSpec);
         }
         return Collections.EMPTY_LIST;
     }
 
     /**
-     * Returns all the containers from the given Replication Controller's desiredState
+     * Returns all the containers from the given Replication Controller's replicationControllerSpec
      */
-    public static List<Container> getContainers(ReplicationControllerState desiredState) {
-        if (desiredState != null) {
-            PodTemplate podTemplate = desiredState.getPodTemplate();
-            return getContainers(podTemplate);
+    public static List<Container> getContainers(ReplicationControllerSpec replicationControllerSpec) {
+        if (replicationControllerSpec != null) {
+            PodTemplateSpec podTemplateSpec = replicationControllerSpec.getTemplate();
+            return getContainers(podTemplateSpec);
         }
         return Collections.EMPTY_LIST;
     }
 
-    public static List<Container> getContainers(PodTemplate podTemplate) {
-        if (podTemplate != null) {
-            PodState desiredState = podTemplate.getDesiredState();
-            return getContainers(desiredState);
+    public static List<Container> getContainers(PodSpec podSpec) {
+        if (podSpec != null) {
+            return podSpec.getContainers();
         }
         return Collections.EMPTY_LIST;
     }
 
-    public static List<Container> getContainers(ContainerManifest manifest) {
-        if (manifest != null) {
-            List<Container> containers = manifest.getContainers();
-            if (containers != null) {
-                return containers;
-            }
+    public static List<Container> getContainers(PodTemplateSpec podTemplateSpec) {
+        if (podTemplateSpec != null) {
+            return getContainers(podTemplateSpec.getSpec());
         }
         return Collections.EMPTY_LIST;
     }
@@ -962,42 +917,28 @@ public class KubernetesHelper {
     }
 
     /**
-     * Returns all the manifest containers from the given desiredState
-     */
-    public static List<Container> getContainers(PodState desiredState) {
-        if (desiredState != null) {
-            ContainerManifest manifest = desiredState.getManifest();
-            if (manifest != null) {
-                List<Container> containers = manifest.getContainers();
-                if (containers != null) {
-                    return containers;
-                }
-            }
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    /**
      * Returns all the current containers from the given currentState
      */
     public static Map<String, ContainerStatus> getCurrentContainers(Pod pod) {
         if (pod != null) {
-            PodState currentState = pod.getCurrentState();
-            return getCurrentContainers(currentState);
+            PodStatus currentStatus = pod.getStatus();
+            return getCurrentContainers(currentStatus);
 
         }
         return Collections.EMPTY_MAP;
     }
 
     /**
-     * Returns all the current containers from the given currentState
+     * Returns all the current containers from the given podStatus
      */
-    public static Map<String, ContainerStatus> getCurrentContainers(PodState currentState) {
-        if (currentState != null) {
-            Map<String, ContainerStatus> info = currentState.getInfo();
-            if (info != null) {
-                return info;
+    public static Map<String, ContainerStatus> getCurrentContainers(PodStatus podStatus) {
+        if (podStatus != null) {
+            List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
+            Map<String, ContainerStatus> info = new Hashtable<>(containerStatuses.size());
+            for (ContainerStatus status : containerStatuses) {
+                info.put(status.getContainerID(), status);
             }
+            return info;
         }
         return Collections.EMPTY_MAP;
     }
@@ -1007,9 +948,9 @@ public class KubernetesHelper {
      */
     public static String getHost(Pod pod) {
         if (pod != null) {
-            PodState currentState = pod.getCurrentState();
+            PodStatus currentState = pod.getStatus();
             if (currentState != null) {
-                return currentState.getHost();
+                return currentState.getHostIP();
             }
         }
         return null;
@@ -1018,31 +959,33 @@ public class KubernetesHelper {
     /**
      * Returns the container port number for the given service
      */
-    public static int getContainerPort(Service service) {
-        int answer = -1;
-        String id = getId(service);
-        //ServiceSpec spec = service.getSpec();
-        Service spec = service;
+    public static Set<Integer> getContainerPorts(Service service) {
+        Set<Integer> answer = Collections.EMPTY_SET;
+        String id = getName(service);
+        ServiceSpec spec = service.getSpec();
         if (spec != null) {
-            IntOrString containerPort = spec.getContainerPort();
-            Objects.notNull(containerPort, "containerPort for service " + id);
-            Integer intValue = containerPort.getIntVal();
-            if (intValue != null) {
-                answer = intValue;
-            } else {
-                String containerPortText = containerPort.getStrVal();
-                if (Strings.isNullOrBlank(containerPortText)) {
-                    throw new IllegalArgumentException("No containerPort for service " + id);
-                }
-                try {
-                    answer = Integer.parseInt(containerPortText);
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("Invalid containerPort expression " + containerPortText + " for service " + id + ". " + e, e);
+            List<ServicePort> servicePorts = spec.getPorts();
+            Objects.notNull(servicePorts, "servicePorts for service " + id);
+
+            answer = new HashSet<>(servicePorts.size());
+
+            for (ServicePort port : servicePorts) {
+                IntOrString intOrStringValue = port.getTargetPort();
+                Integer intValue = intOrStringValue.getIntVal();
+                if (intValue != null) {
+                    answer.add(intValue);
+                } else {
+                    String containerPortText = intOrStringValue.getStrVal();
+                    if (Strings.isNullOrBlank(containerPortText)) {
+                        throw new IllegalArgumentException("No servicePorts for service " + id);
+                    }
+                    try {
+                        answer.add(Integer.parseInt(containerPortText));
+                    } catch (NumberFormatException e) {
+                        throw new IllegalStateException("Invalid servicePorts expression " + containerPortText + " for service " + id + ". " + e, e);
+                    }
                 }
             }
-        }
-        if (answer <= 0) {
-            throw new IllegalArgumentException("Invalid port number for service " + id + ". " + answer);
         }
         return answer;
     }
@@ -1050,27 +993,29 @@ public class KubernetesHelper {
     /**
      * Returns the container port number for the given service
      */
-    public static String getContainerPortString(Service service) {
-        String answer = null;
-        String id = getId(service);
-        //ServiceSpec spec = service.getSpec();
-        Service spec = service;
+    public static Set<String> getContainerPortsStrings(Service service) {
+        Set<String> answer = Collections.EMPTY_SET;
+        String id = getName(service);
+        ServiceSpec spec = service.getSpec();
         if (spec != null) {
-            IntOrString containerPort = spec.getContainerPort();
-            Objects.notNull(containerPort, "containerPort for service " + id);
-            String strValue = containerPort.getStrVal();
-            if (strValue != null) {
-                answer = strValue;
-            } else {
-                Integer containerPortInt = containerPort.getIntVal();
-                if (containerPortInt == null) {
-                    throw new IllegalArgumentException("No containerPort for service " + id);
+            List<ServicePort> servicePorts = spec.getPorts();
+            Objects.notNull(servicePorts, "servicePorts for service " + id);
+
+            answer = new HashSet<>(servicePorts.size());
+
+            for (ServicePort port : servicePorts) {
+                IntOrString intOrStringValue = port.getTargetPort();
+                Integer intValue = intOrStringValue.getIntVal();
+                if (intValue != null) {
+                    answer.add(intValue.toString());
+                } else {
+                    String containerPortText = intOrStringValue.getStrVal();
+                    if (Strings.isNullOrBlank(containerPortText)) {
+                        throw new IllegalArgumentException("No servicePorts for service " + id);
+                    }
+                    answer.add(containerPortText);
                 }
-                answer = containerPortInt.toString();
             }
-        }
-        if (answer == null) {
-            throw new IllegalArgumentException("Invalid port number for service " + id + ". " + answer);
         }
         return answer;
     }
@@ -1184,13 +1129,11 @@ public class KubernetesHelper {
      */
     public static String getServiceURL(Service service) {
         if (service != null) {
-            //ServiceSpec spec = service.getSpec();
-            Service spec = service;
+            ServiceSpec spec = service.getSpec();
             if (spec != null) {
                 String portalIP = spec.getPortalIP();
                 if (portalIP != null) {
-                    // TODO should we use the proxyPort?
-                    Integer port = spec.getPort();
+                    Integer port = spec.getPorts().iterator().next().getPort();
                     if (port != null && port > 0) {
                         portalIP += ":" + port;
                     }
@@ -1283,53 +1226,34 @@ public class KubernetesHelper {
         return null;
     }
 
-    public static PodState getPodState(ReplicationController replicationController) {
-        if (replicationController != null) {
-            return getPodState(replicationController.getDesiredState());
-        }
-        return null;
-    }
-
-    public static PodState getPodState(ReplicationControllerState desiredState) {
-        PodTemplate podTemplate;
-        PodState podTemplatePodState = null;
-        if (desiredState != null) {
-            podTemplate = desiredState.getPodTemplate();
-            if (podTemplate != null) {
-                podTemplatePodState = podTemplate.getDesiredState();
-            }
-        }
-        return podTemplatePodState;
-    }
-
-    public static PodStatus getPodStatus(Pod pod) {
+    public static io.fabric8.kubernetes.api.PodStatus getPodStatus(Pod pod) {
         String text = getPodStatusText(pod);
         if (Strings.isNotBlank(text)) {
             text = text.toLowerCase();
             if (text.startsWith("run")) {
-                return PodStatus.OK;
+                return io.fabric8.kubernetes.api.PodStatus.OK;
             } else if (text.startsWith("wait")) {
-                return PodStatus.WAIT;
+                return io.fabric8.kubernetes.api.PodStatus.WAIT;
             } else {
-                return PodStatus.ERROR;
+                return io.fabric8.kubernetes.api.PodStatus.ERROR;
             }
         }
-        return PodStatus.WAIT;
+        return io.fabric8.kubernetes.api.PodStatus.WAIT;
     }
 
     /**
      * Returns true if the pod is running
      */
     public static boolean isPodRunning(Pod pod) {
-        PodStatus status = getPodStatus(pod);
-        return Objects.equal(status, PodStatus.OK);
+        io.fabric8.kubernetes.api.PodStatus status = getPodStatus(pod);
+        return Objects.equal(status, io.fabric8.kubernetes.api.PodStatus.OK);
     }
 
     public static String getPodStatusText(Pod pod) {
         if (pod != null) {
-            PodState currentState = pod.getCurrentState();
-            if (currentState != null) {
-                return currentState.getStatus();
+            PodStatus podStatus = pod.getStatus();
+            if (podStatus != null) {
+                return podStatus.getPhase();
             }
         }
         return null;
@@ -1339,16 +1263,13 @@ public class KubernetesHelper {
      * Returns the pods for the given replication controller
      */
     public static List<Pod> getPodsForReplicationController(ReplicationController replicationController, Iterable<Pod> pods) {
-        PodState podTemplatePodState = getPodState(replicationController);
-        if (podTemplatePodState == null) {
-            LOG.warn("Cannot instantiate replication controller: " + getId(replicationController) + " due to missing PodTemplate.PodState!");
+        ReplicationControllerSpec replicationControllerSpec = replicationController.getSpec();
+        if (replicationControllerSpec == null) {
+            LOG.warn("Cannot instantiate replication controller: " + getName(replicationController) + " due to missing ReplicationController.Spec!");
         } else {
-            ReplicationControllerState desiredState = replicationController.getDesiredState();
-            if (desiredState != null) {
-                Map<String, String> replicaSelector = desiredState.getReplicaSelector();
-                Filter<Pod> podFilter = KubernetesHelper.createPodFilter(replicaSelector);
-                return Filters.filter(pods, podFilter);
-            }
+            Map<String, String> replicaSelector = replicationControllerSpec.getSelector();
+            Filter<Pod> podFilter = KubernetesHelper.createPodFilter(replicaSelector);
+            return Filters.filter(pods, podFilter);
         }
         return Collections.EMPTY_LIST;
     }
@@ -1484,7 +1405,7 @@ public class KubernetesHelper {
      * Returns a short summary text message for the given kubernetes resource
      */
     public static String summaryText(Route entity) {
-        return "host: " + entity.getHost();
+        return "host: " + entity.getSpec().getHost();
     }
 
     /**
@@ -1507,7 +1428,7 @@ public class KubernetesHelper {
      */
     public static String summaryText(Service entity) {
         StringBuilder portText = new StringBuilder();
-        List<ServicePort> ports = entity.getPorts();
+        List<ServicePort> ports = entity.getSpec().getPorts();
         if (ports != null) {
             for (ServicePort port : ports) {
                 Integer number = port.getPort();
@@ -1520,13 +1441,7 @@ public class KubernetesHelper {
             }
 
         }
-        if (portText.length() == 0) {
-            Integer port = entity.getPort();
-            if (port != null) {
-                portText.append("" + port);
-            }
-        }
-        return "selector: " + entity.getSelector() + " ports: " + portText;
+        return "selector: " + entity.getSpec().getSelector() + " ports: " + portText;
     }
 
     /**
@@ -1534,13 +1449,12 @@ public class KubernetesHelper {
      */
     public static String summaryText(ReplicationController entity) {
         StringBuilder buffer = new StringBuilder();
-        ReplicationControllerState desiredState = entity.getDesiredState();
-        if (desiredState != null) {
-            buffer.append("replicas: " + desiredState.getReplicas());
-            PodTemplate podTemplate = desiredState.getPodTemplate();
-            if (podTemplate != null) {
-                PodState podState = podTemplate.getDesiredState();
-                appendSummaryText(buffer, podState);
+        ReplicationControllerSpec spec = entity.getSpec();
+        if (spec != null) {
+            buffer.append("replicas: " + spec.getReplicas());
+            PodTemplateSpec podTemplateSpec = spec.getTemplate();
+            if (podTemplateSpec != null) {
+                appendSummaryText(buffer, podTemplateSpec);
             }
         }
         return buffer.toString();
@@ -1551,26 +1465,28 @@ public class KubernetesHelper {
      */
     public static String summaryText(Pod entity) {
         StringBuilder buffer = new StringBuilder();
-        PodState podState = entity.getDesiredState();
-        appendSummaryText(buffer, podState);
+        PodSpec podSpec = entity.getSpec();
+        appendSummaryText(buffer, podSpec);
         return buffer.toString();
     }
 
-    protected static void appendSummaryText(StringBuilder buffer, PodState podState) {
-        if (podState != null) {
-            ContainerManifest manifest = podState.getManifest();
-            if (manifest != null) {
-                List<Container> containers = manifest.getContainers();
-                if (containers != null) {
-                    for (Container container : containers) {
-                        String image = container.getImage();
-                        appendText(buffer, "image: " + image);
-                    }
+    protected static void appendSummaryText(StringBuilder buffer, PodTemplateSpec podTemplateSpec) {
+        if (podTemplateSpec != null) {
+            appendSummaryText(buffer, podTemplateSpec.getSpec());
+        }
+    }
+
+    protected static void appendSummaryText(StringBuilder buffer, PodSpec podSpec) {
+        if (podSpec != null) {
+            List<Container> containers = podSpec.getContainers();
+            if (containers != null) {
+                for (Container container : containers) {
+                    String image = container.getImage();
+                    appendText(buffer, "image: " + image);
                 }
             }
         }
     }
-
 
     protected static void appendText(StringBuilder buffer, String text) {
             if (buffer.length() > 0) {

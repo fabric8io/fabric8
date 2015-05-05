@@ -360,9 +360,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected void printSummary(Object kubeResource) throws IOException {
         if (kubeResource instanceof Template) {
             Template template = (Template) kubeResource;
-            String id = KubernetesHelper.getId(template);
+            String id = KubernetesHelper.getName(template);
             getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
-            printSummary(Templates.getTemplateObjects(template));
+            printSummary(template.getObjects());
             return;
         }
         List<Object> list = KubernetesHelper.toItemList(kubeResource);

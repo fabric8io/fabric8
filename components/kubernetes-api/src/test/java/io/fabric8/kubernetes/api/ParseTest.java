@@ -16,36 +16,22 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.openshift.api.model.template.Template;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPorts;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toJson;
 import static io.fabric8.kubernetes.api.ParseExamplesTest.assertNotEmpty;
 import static io.fabric8.utils.Files.assertDirectoryExists;
 import static io.fabric8.utils.Files.assertFileExists;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Parses the example JSON
@@ -64,17 +50,15 @@ public class ParseTest {
 
         Pod pod = items.get(0);
         assertNotNull("pod1", pod);
-        assertEquals("pod1.id", "my-pod-1", getId(pod));
-        PodState desiredState = pod.getDesiredState();
-        assertNotNull("pod1.desiredState", desiredState);
-        ContainerManifest manifest = desiredState.getManifest();
-        assertNotNull("pod1.desiredState.manifest", manifest);
-        List<Container> containers = manifest.getContainers();
-        assertNotEmpty("pod1.desiredState.manifest.containers", containers);
+        assertEquals("pod1.id", "my-pod-1", KubernetesHelper.getName(pod));
+        PodSpec podSpec = pod.getSpec();
+        assertNotNull("pod1.podSpec", podSpec);
+        List<Container> containers = podSpec.getContainers();
+        assertNotEmpty("pod1.podSpec.manifest.containers", containers);
         Container container = containers.get(0);
-        assertNotNull("pod1.desiredState.manifest.container[0]", container);
-        assertEquals("pod1.desiredState.manifest.container[0].name", "nginx", container.getName());
-        assertEquals("pod1.desiredState.manifest.container[0].image", "dockerfile/nginx", container.getImage());
+        assertNotNull("pod1.podSpec.container[0]", container);
+        assertEquals("pod1.podSpec.manifest.container[0].name", "nginx", container.getName());
+        assertEquals("pod1.podSpec.manifest.container[0].image", "dockerfile/nginx", container.getImage());
 
         LOG.info("pod1 container1 " + container);
 
@@ -90,8 +74,7 @@ public class ParseTest {
 
         Pod pod = items.get(0);
         assertNotNull("pod1", pod);
-        assertEquals("127.0.0.1", pod.getCurrentState().getHost());
-        assertEquals("pod1.desiredState.manifest.version", "", pod.getDesiredState().getManifest().getVersion());
+        assertEquals("127.0.0.1", pod.getStatus().getHostIP());
     }
 
     @Test
@@ -101,7 +84,7 @@ public class ParseTest {
         assertEquals("Service", service.getKind());
 
         int expectedPort = 80;
-        assertEquals(expectedPort, getContainerPort(service));
+        assertEquals(expectedPort, getContainerPorts(service));
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 
@@ -116,7 +99,7 @@ public class ParseTest {
     @Test
     public void testParseTemplate() throws Exception {
         Template template = assertParseExampleFile("template.json", Template.class);
-        List<Object> objects = Templates.getTemplateObjects(template);
+        List<Object> objects = template.getObjects();
         assertNotEmpty("objects", objects);
         assertTrue("size is " + objects.size(), objects.size() > 3);
         Object service = objects.get(0);

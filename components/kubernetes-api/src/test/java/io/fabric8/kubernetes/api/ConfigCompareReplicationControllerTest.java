@@ -29,109 +29,101 @@ public class ConfigCompareReplicationControllerTest {
 
     @Test
     public void testReplicationControllersEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
-                addToLabels("label1", "value1").
-                addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
-                    withReplicas(2).
-                    withNewPodTemplate().
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
+            addToLabels("label1", "value1").
+            addToLabels("label2", "value2").
+            withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withReplicas(2).
+                withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
-                addToLabels("label1", "value1").
-                addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
-                    withReplicas(2).
-                    withNewPodTemplate().
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
+            addToLabels("label1", "value1").
+            addToLabels("label2", "value2").
+            withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withReplicas(2).
+                withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, true);
     }
 
     @Test
     public void testReplicationControllersLabelsNotEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
+                    withNewSpec().
                             addNewContainer().
                                 withImage("fabric8/jenkins").
                                 addNewEnv().withName("foo").withValue("bar").endEnv().
                                 // TODO....
                                 // addNewPort().endPort().
                             endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
+                    endSpec().
+                    endTemplate().
+                endSpec().
                 build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("notSame", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
+                    withNewSpec().
                             addNewContainer().
                                 withImage("fabric8/jenkins").
                                 addNewEnv().withName("foo").withValue("bar").endEnv().
                                 // TODO....
                                 // addNewPort().endPort().
                             endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
+                    endSpec().
+                    endTemplate().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);
@@ -139,54 +131,50 @@ public class ConfigCompareReplicationControllerTest {
 
     @Test
     public void testReplicationControllersSelectorNotEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
+                    withNewSpec().
                             addNewContainer().
                                 withImage("fabric8/jenkins").
                                 addNewEnv().withName("foo").withValue("bar").endEnv().
                                 // TODO....
                                 // addNewPort().endPort().
                             endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
+                        endSpec().
+                    endTemplate().
+                endSpec().
                 build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "notSame").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "notSame").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
+                    withNewSpec().
                             addNewContainer().
                                 withImage("fabric8/jenkins").
                                 addNewEnv().withName("foo").withValue("bar").endEnv().
                                 // TODO....
                                 // addNewPort().endPort().
                             endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
+                    endSpec().
+                    endTemplate().
+                endSpec().
                 build();
 
         assertCompareConfig(entity1, entity2, false);
@@ -194,276 +182,256 @@ public class ConfigCompareReplicationControllerTest {
 
     @Test
     public void testReplicationControllersReplicasNotEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
-                addToLabels("label1", "value1").
-                addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
-                    withReplicas(4).
-                    withNewPodTemplate().
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
+            addToLabels("label1", "value1").
+            addToLabels("label2", "value2").
+            withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withReplicas(4).
+                withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
     public void testReplicationControllersAnnotationsNotEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "notEqual").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
     public void testReplicationControllersImageEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
-                addToLabels("label1", "value1").
-                addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
-                    withReplicas(2).
-                    withNewPodTemplate().
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
+            addToLabels("label1", "value1").
+            addToLabels("label2", "value2").
+            withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withReplicas(2).
+                withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
-                addToLabels("label1", "value1").
-                addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
-                    withReplicas(2).
-                    withNewPodTemplate().
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
+            addToLabels("label1", "value1").
+            addToLabels("label2", "value2").
+            withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                withReplicas(2).
+                withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("notEqual").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("notEqual").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
     public void testReplicationControllersContainerEnvEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                    endTemplate().
+                endSpec().
                 build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewEnv().withName("foo").withValue("notEqual").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("notEqual").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, false);
     }
 
     @Test
     public void testReplicationControllersAddVolumeNotEqual() throws Exception {
-        ReplicationController entity1 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity1 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
-                            addNewContainer().
-                                withImage("fabric8/jenkins").
-                                addNewVolumeMount().withName("cheese").withMountPath("/foo/cheese").endVolumeMount().
-                                addNewEnv().withName("foo").withValue("bar").endEnv().
-                                // TODO....
-                                // addNewPort().endPort().
-                            endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewVolumeMount().withName("cheese").withMountPath("/foo/cheese").endVolumeMount().
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
-        ReplicationController entity2 = new ReplicationControllerBuilder().withId("foo").
+        ReplicationController entity2 = new ReplicationControllerBuilder().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
-                withNewDesiredState().
-                    addToReplicaSelector("label1", "value1").
-                    addToReplicaSelector("label2", "value2").
+                withNewSpec().
+                    addToSelector("label1", "value1").
+                    addToSelector("label2", "value2").
                     withReplicas(2).
-                    withNewPodTemplate().
+                    withNewTemplate().
                     addToLabels("podLabel1", "podValue1").
                     addToLabels("podLabel2", "podValue2").
                     addToAnnotations("podAnnotation1", "podAnnValue1").
-                    withNewDesiredState().
-                        withNewManifest().
+                        withNewSpec().
                             addNewContainer().
                                 withImage("fabric8/jenkins").
                                 addNewEnv().withName("foo").withValue("bar").endEnv().
                                 // TODO....
                                 // addNewPort().endPort().
                             endContainer().
-                        endManifest().
-                    endDesiredState().
-                    endPodTemplate().
-                endDesiredState().
-                build();
+                    endSpec().
+                endTemplate().
+            endSpec().
+        build();
 
         assertCompareConfig(entity1, entity2, false);
     }

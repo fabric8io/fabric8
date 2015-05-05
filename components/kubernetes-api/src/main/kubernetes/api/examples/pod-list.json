@@ -1,6 +1,6 @@
 {
   "kind": "PodList",
-  "apiVersion": "v1beta1",
+  "apiVersion": "v1beta3",
   "items": [
     {
       "id": "my-pod-1",
@@ -8,9 +8,7 @@
         "name": "testRun",
         "replicationController": "testRun"
       },
-      "desiredState": {
-        "manifest": {
-          "version": "v1beta1",
+      "spec": {
           "id": "my-pod-1",
           "containers": [
             {

@@ -19,8 +19,6 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.ReplicationController;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-
 /**
  */
 public class PodIdToReplicationControllerIDExample {
@@ -35,7 +33,7 @@ public class PodIdToReplicationControllerIDExample {
         KubernetesClient client = new KubernetesClient(kuberneteMasterUrl);
         ReplicationController replicationController = client.getReplicationControllerForPod(podID);
         if (replicationController != null) {
-            String id = getId(replicationController);
+            String id = KubernetesHelper.getName(replicationController);
             System.out.println("Found replication controller: " + id);
         } else {
             System.out.println("Could not find replication controller!");

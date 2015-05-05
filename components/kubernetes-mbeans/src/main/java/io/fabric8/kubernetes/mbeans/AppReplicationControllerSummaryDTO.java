@@ -33,7 +33,7 @@ public class AppReplicationControllerSummaryDTO {
     private Map<String, String> replicaSelector;
 
     public AppReplicationControllerSummaryDTO(ReplicationController controller) {
-        this.id = KubernetesHelper.getId(controller);
+        this.id = KubernetesHelper.getName(controller);
         this.namespace = controller.getNamespace();
         this.labels = controller.getLabels();
         ReplicationControllerState desiredState = controller.getDesiredState();

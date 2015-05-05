@@ -163,14 +163,14 @@ public class AppView implements AppViewMXBean {
 
         AppViewSnapshot snapshot = new AppViewSnapshot(servicesMap, controllerMap, podMap);
         for (Service service : servicesMap.values()) {
-            String appPath = getAppPath(getId(service));
+            String appPath = getAppPath(KubernetesHelper.getName(service));
             if (appPath != null) {
                 AppViewDetails dto = snapshot.getOrCreateAppView(appPath, service.getNamespace());
                 dto.addService(service);
             }
         }
         for (ReplicationController controller : controllerMap.values()) {
-            String appPath = getAppPath(getId(controller));
+            String appPath = getAppPath(KubernetesHelper.getName(controller));
             if (appPath != null) {
                 AppViewDetails dto = snapshot.getOrCreateAppView(appPath, controller.getNamespace());
                 dto.addController(controller);

@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPorts;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -39,10 +40,10 @@ public class ParseServiceTest {
     @Test
     public void testParseFabric8MQService() throws Exception {
         Service service = assertParseTestFile("fmq-service.json", Service.class);
-        Integer port = getPort(service);
-        assertNotNull("port", port);
-        int containerPort = getContainerPort(service);
-        assertTrue("containerPort " + containerPort, containerPort > 0);
+        Set<Integer> ports = getPorts(service);
+        assertNotNull("ports", ports);
+        Set<Integer> containerPorts = getContainerPorts(service);
+        assertTrue("containerPorts " + containerPorts, containerPorts.iterator().next().intValue() > 0);
 
         String json = KubernetesHelper.toJson(service);
         LOG.info("Got JSON: " + json);

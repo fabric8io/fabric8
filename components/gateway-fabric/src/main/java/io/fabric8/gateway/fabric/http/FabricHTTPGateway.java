@@ -179,7 +179,7 @@ public class FabricHTTPGateway implements HttpGateway {
 //        if (currentContainer != null) {
 //            Version version = currentContainer.getVersion();
 //            if (version != null) {
-//                return version.getId();
+//                return version.getName();
 //            }
 //        }
 //        return null;

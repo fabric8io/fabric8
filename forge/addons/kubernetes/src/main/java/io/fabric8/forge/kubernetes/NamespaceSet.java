@@ -15,13 +15,9 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.input.InputComponent;
-import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -31,9 +27,6 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
@@ -69,7 +62,7 @@ public class NamespaceSet extends AbstractKubernetesCommand {
                     List<Pod> items = pods.getItems();
                     if (items != null) {
                         for (Pod item : items) {
-                            String id = getId(item);
+                            String id = getName(item);
                             list.add(id);
                         }
                     }

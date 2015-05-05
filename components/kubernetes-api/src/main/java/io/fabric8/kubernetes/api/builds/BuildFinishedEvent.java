@@ -51,7 +51,7 @@ public class BuildFinishedEvent {
     }
 
     public String getStatus() {
-        return build.getStatus();
+        return build.getStatus().getPhase();
     }
 
     public String getConfigName() {
