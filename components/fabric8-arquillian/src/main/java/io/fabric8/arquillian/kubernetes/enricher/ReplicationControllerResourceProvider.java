@@ -27,6 +27,8 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
  * It refers to replication controllers that have been created during the current session.
@@ -60,7 +62,8 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
         for (Annotation annotation : qualifiers) {
             if (annotation instanceof ReplicationControllerName) {
                 String id = ((ReplicationControllerName) annotation).value();
-                return id.equals(r.getId());
+                String rid = getName(r);
+                return id.equals(rid);
             }
         }
         return false;

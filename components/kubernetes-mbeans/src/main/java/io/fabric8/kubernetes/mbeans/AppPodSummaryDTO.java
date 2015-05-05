@@ -18,7 +18,7 @@
 package io.fabric8.kubernetes.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.PodStatus;
+import io.fabric8.kubernetes.api.PodStatusType;
 import io.fabric8.kubernetes.api.model.*;
 
 import java.util.HashSet;
@@ -31,7 +31,7 @@ import java.util.Set;
 public class AppPodSummaryDTO {
     private final String id;
     private final String namespace;
-    private final PodStatus status;
+    private final PodStatusType status;
     private final Map<String, String> labels;
     private final Set<Integer> containerPorts = new HashSet<>();
     private final String creationTimestamp;
@@ -85,7 +85,7 @@ public class AppPodSummaryDTO {
         return id;
     }
 
-    public PodStatus getStatus() {
+    public PodStatusType getStatus() {
         return status;
     }
 

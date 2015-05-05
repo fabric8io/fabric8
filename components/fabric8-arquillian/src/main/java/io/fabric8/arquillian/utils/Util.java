@@ -46,9 +46,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 
 public class Util {
 
@@ -71,10 +71,10 @@ public class Util {
         }
 
         for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
-            session.getLogger().info("Pod:" + KubernetesHelper.getName(pod) + " Status:" + pod.getCurrentState().getStatus());
+            session.getLogger().info("Pod:" + KubernetesHelper.getName(pod) + " Status:" + pod.getStatus());
         }
         for (Service service : client.getServices(session.getNamespace()).getItems()) {
-            session.getLogger().info("Service:" + KubernetesHelper.getName(service) + " IP:" + getPortalIP(service) + " Port:" + getPort(service));
+            session.getLogger().info("Service:" + KubernetesHelper.getName(service) + " IP:" + getPortalIP(service) + " Port:" + getPorts(service));
         }
 
     }
@@ -184,7 +184,7 @@ public class Util {
         for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
             try {
                 session.getLogger().info("Deleting pod:" + KubernetesHelper.getName(pod));
-                client.deletePod(pod.getId(), session.getNamespace());
+                client.deletePod(getName(pod), session.getNamespace());
             } catch (Exception e) {
                 errors.add(e);
             }
@@ -199,7 +199,7 @@ public class Util {
         for (Service service : client.getServices(session.getNamespace()).getItems()) {
             try {
                 session.getLogger().info("Deleting service:" + KubernetesHelper.getName(service));
-                client.deleteService(service.getId(), session.getNamespace());
+                client.deleteService(getName(service), session.getNamespace());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -214,7 +214,7 @@ public class Util {
         for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
             try {
                 session.getLogger().info("Deleting replication controller:" + KubernetesHelper.getName(replicationController));
-                client.deleteReplicationController(replicationController.getId(), session.getNamespace());
+                client.deleteReplicationController(getName(replicationController), session.getNamespace());
             } catch (Exception e) {
                 e.printStackTrace();
             }

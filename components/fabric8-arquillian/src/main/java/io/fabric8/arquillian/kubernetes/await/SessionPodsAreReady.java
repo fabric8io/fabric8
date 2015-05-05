@@ -17,13 +17,14 @@
 package io.fabric8.arquillian.kubernetes.await;
 
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.PodStatus;
+import io.fabric8.kubernetes.api.PodStatusType;
+import io.fabric8.kubernetes.api.model.ContainerState;
+import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.utils.Filter;
+import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.utils.Objects;
 
 import java.util.List;
@@ -51,14 +52,19 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         }
 
         for (Pod pod : pods) {
-            result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
+            result = result && Objects.equal(PodStatusType.OK, KubernetesHelper.getPodStatus(pod));
             if (!result) {
-                if (pod.getCurrentState().getInfo() != null) {
-                    for (Map.Entry<String, ContainerStatus> entry : pod.getCurrentState().getInfo().entrySet()) {
-                        String containerId = entry.getKey();
-                        ContainerStatus status = entry.getValue();
-                        if (status.getState().getWaiting() != null) {
-                            session.getLogger().warn("Waiting for container:" + containerId + ". Reason:" + status.getState().getWaiting().getReason());
+                PodStatus podStatus = pod.getStatus();
+                if (podStatus != null) {
+                    List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
+                    for (ContainerStatus containerStatus : containerStatuses) {
+                        ContainerState state = containerStatus.getState();
+                        if (state != null) {
+                            ContainerStateWaiting waiting = state.getWaiting();
+                            if (waiting != null) {
+                                String containerName = containerStatus.getName();
+                                session.getLogger().warn("Waiting for container:" + containerName + ". Reason:" + waiting.getReason());
+                            }
                         }
                     }
                 }

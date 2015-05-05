@@ -1226,27 +1226,27 @@ public class KubernetesHelper {
         return null;
     }
 
-    public static io.fabric8.kubernetes.api.PodStatus getPodStatus(Pod pod) {
+    public static PodStatusType getPodStatus(Pod pod) {
         String text = getPodStatusText(pod);
         if (Strings.isNotBlank(text)) {
             text = text.toLowerCase();
             if (text.startsWith("run")) {
-                return io.fabric8.kubernetes.api.PodStatus.OK;
+                return PodStatusType.OK;
             } else if (text.startsWith("wait")) {
-                return io.fabric8.kubernetes.api.PodStatus.WAIT;
+                return PodStatusType.WAIT;
             } else {
-                return io.fabric8.kubernetes.api.PodStatus.ERROR;
+                return PodStatusType.ERROR;
             }
         }
-        return io.fabric8.kubernetes.api.PodStatus.WAIT;
+        return PodStatusType.WAIT;
     }
 
     /**
      * Returns true if the pod is running
      */
     public static boolean isPodRunning(Pod pod) {
-        io.fabric8.kubernetes.api.PodStatus status = getPodStatus(pod);
-        return Objects.equal(status, io.fabric8.kubernetes.api.PodStatus.OK);
+        PodStatusType status = getPodStatus(pod);
+        return Objects.equal(status, PodStatusType.OK);
     }
 
     public static String getPodStatusText(Pod pod) {

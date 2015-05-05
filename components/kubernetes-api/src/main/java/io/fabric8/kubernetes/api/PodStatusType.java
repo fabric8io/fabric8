@@ -20,6 +20,6 @@ package io.fabric8.kubernetes.api;
 /**
  * Represents the status of the pod
  */
-public enum PodStatus {
+public enum PodStatusType {
     WAIT, OK, ERROR
 }

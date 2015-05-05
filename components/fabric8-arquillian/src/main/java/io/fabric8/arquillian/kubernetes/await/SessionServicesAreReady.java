@@ -19,13 +19,20 @@ package io.fabric8.arquillian.kubernetes.await;
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.model.EndpointAddress;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
+import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 
 public class SessionServicesAreReady implements Callable<Boolean> {
 
@@ -66,17 +73,41 @@ public class SessionServicesAreReady implements Callable<Boolean> {
     private boolean isEndpointAvailable(Service s) {
         String serviceStatus = null;
         boolean result = false;
-        for (String endpoit : kubernetesClient.endpointsForService(s.getId(), s.getNamespace()).getEndpoints()) {
-            String addr = endpoit.substring(0, endpoit.indexOf(":"));
-            Integer port = Integer.parseInt(endpoit.substring(endpoit.indexOf(":") + 1));
-            try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(addr, port), configuration.getServiceConnectionTimeout());
-                serviceStatus = "Service: " + s.getId() + " is ready. Provider:"+ addr+".";
-                return true;
-            } catch (Exception e) {
-                serviceStatus = "Service: " + s.getId() + " is not ready! Error: " + e.getMessage();
-            } finally {
-                session.getLogger().warn(serviceStatus);
+        String sid = getName(s);
+        Endpoints endpoints = kubernetesClient.endpointsForService(sid, s.getNamespace());
+        ServiceSpec spec = s.getSpec();
+        if (endpoints != null && spec != null) {
+            List<EndpointSubset> subsets = endpoints.getSubsets();
+            if (subsets != null) {
+                for (EndpointSubset subset : subsets) {
+                    List<EndpointAddress> addresses = subset.getAddresses();
+                    if (addresses != null) {
+                        for (EndpointAddress address : addresses) {
+                            String ip = address.getIP();
+                            String addr = ip;
+/*
+    TODO v1beta2...
+                            String addr = endpoit.substring(0, endpoit.indexOf(":"));
+                            Integer port = Integer.parseInt(endpoit.substring(endpoit.indexOf(":") + 1));
+*/
+                            List<ServicePort> ports = spec.getPorts();
+                            for (ServicePort port : ports) {
+                                Integer portNumber = port.getPort();
+                                if (portNumber != null && portNumber > 0) {
+                                    try (Socket socket = new Socket()) {
+                                        socket.connect(new InetSocketAddress(ip, portNumber), configuration.getServiceConnectionTimeout());
+                                        serviceStatus = "Service: " + sid + " is ready. Provider:" + addr + ".";
+                                        return true;
+                                    } catch (Exception e) {
+                                        serviceStatus = "Service: " + sid + " is not ready! Error: " + e.getMessage();
+                                    } finally {
+                                        session.getLogger().warn(serviceStatus);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         return result;
@@ -87,7 +118,8 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         if (selectedIds != null && !selectedIds.isEmpty()) {
             List<Service> result = new ArrayList<>();
             for (Service s : services) {
-                if (selectedIds.contains(s.getId())) {
+                String sid = getName(s);
+                if (selectedIds.contains(sid)) {
                     result.add(s);
                 }
             }

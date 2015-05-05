@@ -27,6 +27,8 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
  * It refers to services that have been created during the current session.
@@ -60,7 +62,7 @@ public class ServiceResourceProvider implements ResourceProvider {
         for (Annotation annotation : qualifiers) {
             if (annotation instanceof ServiceName) {
                 String id = ((ServiceName) annotation).value();
-                return id.equals(s.getId());
+                return id.equals(getName(s));
             }
         }
         return false;

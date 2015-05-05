@@ -18,7 +18,7 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.PodStatus;
+import io.fabric8.kubernetes.api.PodStatusType;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class Conditions {
 
-    public static Condition<Pod> status(final PodStatus status) {
+    public static Condition<Pod> status(final PodStatusType status) {
         return new Condition<Pod>() {
             @Override
             public String toString() {
@@ -46,15 +46,15 @@ public class Conditions {
     }
 
     public static Condition<Pod> runningStatus() {
-        return status(PodStatus.OK);
+        return status(PodStatusType.OK);
     }
 
     public static Condition<Pod> waitingStatus() {
-        return status(PodStatus.WAIT);
+        return status(PodStatusType.WAIT);
     }
 
     public static Condition<Pod> errorStatus() {
-        return status(PodStatus.ERROR);
+        return status(PodStatusType.ERROR);
     }
 
 

@@ -26,6 +26,7 @@ import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -51,6 +52,7 @@ import java.util.concurrent.Callable;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
@@ -179,17 +181,17 @@ public class SessionListener {
         for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
-                log.status("Applying pod:" + pod.getId());
+                log.status("Applying pod:" + getName(pod));
                 controller.applyPod(pod, session.getId());
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
                 Service service = (Service) entity;
-                log.status("Applying service:" + service.getId());
+                log.status("Applying service:" + getName(service));
                 controller.applyService(service, session.getId());
                 conditions.put(2, servicesReady);
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
-                log.status("Applying replication controller:" + replicationController.getId());
+                log.status("Applying replication controller:" + getName(replicationController));
                 controller.applyReplicationController(replicationController, session.getId());
                 conditions.put(1, sessionPodsReady);
             }
