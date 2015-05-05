@@ -20,7 +20,7 @@ import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
 import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.utils.Objects;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -112,10 +112,10 @@ public class NewIntegrationTestBuild extends AbstractOpenShiftCommand {
 
         System.out.println("Generated BuildConfig: " + toJson(buildConfig));
 
-        ImageRepository imageRepository = BuildConfigs.imageRepository(buildConfigName, labels);
+        ImageStream imageRepository = BuildConfigs.imageRepository(buildConfigName, labels);
 
         Controller controller = createController();
-        controller.applyImageStream(imageRepository, "generated ImageRepository: " + toJson(imageRepository));
+        controller.applyImageStream(imageRepository, "generated ImageStream: " + toJson(imageRepository));
         controller.applyBuildConfig(buildConfig, "generated BuildConfig: " + toJson(buildConfig));
         return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getAddress());
     }

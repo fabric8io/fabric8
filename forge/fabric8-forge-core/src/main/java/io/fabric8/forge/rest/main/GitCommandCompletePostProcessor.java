@@ -287,7 +287,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 "   \"items\":[\n" +
                 "      {\n" +
                 "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
-                "         \"kind\":\"ImageRepository\",\n" +
+                "         \"kind\":\"ImageStream\",\n" +
                 "         \"metadata\":{\n" +
                 "            \"labels\":{\n" +
                 "               \"name\":\"" + buildName + "\",\n" +
@@ -465,8 +465,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         Map<String,String> to = new LinkedHashMap<>();
         to.put("name", buildName);
 
-        ImageRepository imageRepository = new ImageRepository();
-        imageRepository.setKind("ImageRepository");
+        ImageStream imageRepository = new ImageStream();
+        imageRepository.setKind("ImageStream");
         imageRepository.setApiVersion(osapiVersion);
         imageRepository.setName(buildName);
         imageRepository.setLabels(labels);

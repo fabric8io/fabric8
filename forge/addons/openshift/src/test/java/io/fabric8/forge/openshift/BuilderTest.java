@@ -18,7 +18,7 @@ package io.fabric8.forge.openshift;
 
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.utils.cxf.JsonHelper;
 import org.junit.Test;
 
@@ -35,8 +35,8 @@ public class BuilderTest {
         String webhookSecret = "secret101";
 
         Map<String, String> labels = BuildConfigs.createBuildLabels(buildName);
-        ImageRepository imageRepository = BuildConfigs.imageRepository(buildName, labels);
-        System.out.println("Generated ImageRepository: " + JsonHelper.toJson(imageRepository));
+        ImageStream imageRepository = BuildConfigs.imageRepository(buildName, labels);
+        System.out.println("Generated ImageStream: " + JsonHelper.toJson(imageRepository));
 
         String gitUrl = "https://github.com/jstrachan/example-cd-workflow.git";
         BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildName, labels, gitUrl, imageTag, image, webhookSecret);

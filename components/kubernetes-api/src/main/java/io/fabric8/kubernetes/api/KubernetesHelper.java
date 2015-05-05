@@ -1438,6 +1438,25 @@ public class KubernetesHelper {
     /**
      * Returns a short summary text message for the given kubernetes resource
      */
+    public static String summaryText(ContainerState entity) {
+        ContainerStateRunning running = entity.getRunning();
+        if (running != null) {
+            return "Running";
+        }
+        ContainerStateWaiting waiting = entity.getWaiting();
+        if (waiting != null) {
+            return "Waiting";
+        }
+        ContainerStateTerminated termination = entity.getTermination();
+        if (termination != null) {
+            return "Terminated";
+        }
+        return "Unknown";
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
     public static String summaryText(Template entity) {
         StringBuilder buffer = new StringBuilder();
         List<Parameter> parameters = entity.getParameters();
@@ -1550,5 +1569,22 @@ public class KubernetesHelper {
             }
             return answer;
         }
+
+    public static String getStatusText(PodStatus podStatus) {
+        String status;List<String> statusList = new ArrayList<>();
+        List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
+        for (ContainerStatus containerStatus : containerStatuses) {
+            ContainerState state = containerStatus.getState();
+            String statusText = summaryText(state);
+            if (statusText != null) {
+                statusList.add(statusText);
+            }
+        }
+        if (statusList.size() == 1) {
+            status = statusList.get(0);
+        } else {
+            status = statusList.toString();
+        }
+        return status;
     }
 }

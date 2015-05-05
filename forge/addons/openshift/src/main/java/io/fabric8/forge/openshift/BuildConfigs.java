@@ -34,8 +34,8 @@ public class BuildConfigs {
         return answer;
     }
 
-    public static ImageRepository imageRepository(String buildName, Map<String, String> labels) {
-        return new ImageRepositoryBuilder().
+    public static ImageStream imageRepository(String buildName, Map<String, String> labels) {
+        return new ImageStreamBuilder().
                 withLabels(labels).
                 withName(buildName).
                 build();

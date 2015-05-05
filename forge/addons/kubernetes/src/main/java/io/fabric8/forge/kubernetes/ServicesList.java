@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.utils.Filter;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -32,11 +33,13 @@ import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 
 /**
@@ -81,7 +84,16 @@ public class ServicesList extends AbstractKubernetesCommand {
             if (filter.matches(service)) {
                 String labels = KubernetesHelper.toLabelsString(service.getLabels());
                 String selector = KubernetesHelper.toLabelsString(getSelector(service));
-                table.row(KubernetesHelper.getName(service), labels, selector, KubernetesHelper.toPositiveNonZeroText(getPort(service)));
+                Set<Integer> ports = getPorts(service);
+                List<Integer> portList = new ArrayList<>(ports);
+                String portText;
+                if (portList.size() == 1) {
+                    portText = portList.get(0).toString();
+
+                } else {
+                    portText = Strings.join(portList, ", ");
+                }
+                table.row(KubernetesHelper.getName(service), labels, selector, portText);
             }
         }
         table.print();

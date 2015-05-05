@@ -17,10 +17,10 @@ package io.fabric8.forge.kubernetes;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -37,8 +37,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Command to list pods in kubernetes
@@ -82,34 +80,32 @@ public class PodsList extends AbstractKubernetesCommand {
         for (Pod item : items) {
             if (filter.matches(item)) {
                 String id = KubernetesHelper.getName(item);
-                PodState currentState = item.getCurrentState();
+                PodStatus podStatus = item.getStatus();
                 String status = "";
                 String host = "";
-                if (currentState != null) {
-                    status = currentState.getStatus();
-                    host = currentState.getHost();
+                if (podStatus != null) {
+                    status = KubernetesHelper.getStatusText(podStatus);
+                    host = podStatus.getHostIP();
                 }
                 Map<String, String> labelMap = item.getLabels();
                 String labels = KubernetesHelper.toLabelsString(labelMap);
-                PodState desiredState = item.getDesiredState();
-                if (desiredState != null) {
-                    ContainerManifest manifest = desiredState.getManifest();
-                    if (manifest != null) {
-                        List<Container> containers = manifest.getContainers();
-                        for (Container container : containers) {
-                            String image = container.getImage();
-                            table.row(id, image, host, labels, status);
+                PodSpec spec = item.getSpec();
+                if (spec != null) {
+                    List<Container> containerList = spec.getContainers();
+                    for (Container container : containerList) {
+                        String image = container.getImage();
+                        table.row(id, image, host, labels, status);
 
-                            id = "";
-                            host = "";
-                            status = "";
-                            labels = "";
-                        }
+                        id = "";
+                        host = "";
+                        status = "";
+                        labels = "";
                     }
                 }
             }
         }
         return table;
     }
+
 }
 

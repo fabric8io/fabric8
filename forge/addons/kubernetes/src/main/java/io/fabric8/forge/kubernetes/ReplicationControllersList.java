@@ -18,7 +18,8 @@ package io.fabric8.forge.kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.ReplicationControllerStatus;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -36,7 +37,6 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toPositiveNonZeroText;
 
 /**
@@ -82,11 +82,11 @@ public class ReplicationControllersList extends AbstractKubernetesCommand {
                 String id = KubernetesHelper.getName(item);
                 String labels = KubernetesHelper.toLabelsString(item.getLabels());
                 Integer replicas = null;
-                ReplicationControllerState desiredState = item.getDesiredState();
-                ReplicationControllerState currentState = item.getCurrentState();
+                ReplicationControllerSpec desiredState = item.getSpec();
+                ReplicationControllerStatus currentState = item.getStatus();
                 String selector = null;
                 if (desiredState != null) {
-                    selector = KubernetesHelper.toLabelsString(desiredState.getReplicaSelector());
+                    selector = KubernetesHelper.toLabelsString(desiredState.getSelector());
                 }
                 if (currentState != null) {
                     replicas = currentState.getReplicas();
