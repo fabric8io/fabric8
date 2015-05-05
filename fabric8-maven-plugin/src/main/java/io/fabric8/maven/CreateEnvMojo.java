@@ -23,8 +23,12 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.base.ObjectReference;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.TablePrinter;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -108,18 +112,26 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         ServiceList serviceList = kubernetes.getServices(namespace);
         RouteList routeList = kubernetes.getRoutes(namespace);
         for (Service service : serviceList.getItems()) {
-            String id = service.getId().toUpperCase().replace("-", "_");
-            Route route = findRoute(service.getId(), routeList);
+            String serviceName = KubernetesHelper.getName(service);
+            String id = serviceName.toUpperCase().replace("-", "_");
+            Route route = findRoute(serviceName, routeList);
+            RouteSpec spec = null;
             if (route != null) {
-                result.put(id + HOST_SUFFIX, route.getHost());
-                result.put(id + PORT_SUFFIX, String.valueOf(service.getPort()));
-                result.put(id + PROTO_SUFFIX, service.getProtocol());
-                result.put(id + PORT_SUFFIX + "_" + service.getPort() + PROTO_SUFFIX, service.getProtocol());
-            } else {
-                result.put(id + HOST_SUFFIX, service.getPortalIP());
-                result.put(id + PORT_SUFFIX, String.valueOf(service.getPort()));
-                result.put(id + PROTO_SUFFIX, service.getProtocol());
-                result.put(id + PORT_SUFFIX + "_" + service.getPort() + PROTO_SUFFIX, service.getProtocol());
+                spec = route.getSpec();
+            }
+            ServiceSpec serviceSpec = service.getSpec();
+            if (spec != null) {
+                    result.put(id + HOST_SUFFIX, spec.getHost());
+                } else if (serviceSpec != null) {
+                    result.put(id + HOST_SUFFIX, serviceSpec.getPortalIP());
+                }
+            if (serviceSpec != null) {
+                List<ServicePort> ports = serviceSpec.getPorts();
+                for (ServicePort port : ports) {
+                    result.put(id + PORT_SUFFIX, String.valueOf(port.getPort()));
+                    result.put(id + PROTO_SUFFIX, port.getProtocol());
+                    result.put(id + PORT_SUFFIX + "_" + port.getPort() + PROTO_SUFFIX, port.getProtocol());
+                }
             }
         }
         return result;
@@ -139,14 +151,14 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
-                for (Container container : pod.getDesiredState().getManifest().getContainers()) {
+                for (Container container : pod.getSpec().getContainers()) {
                     if (container.getImage().equals(name)) {
                         result.putAll(mapFromEnv(container.getEnv()));
                     }
                 }
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
-                for (Container container : replicationController.getDesiredState().getPodTemplate().getDesiredState().getManifest().getContainers()) {
+                for (Container container : replicationController.getSpec().getTemplate().getSpec().getContainers()) {
                     if (container.getImage().equals(name)) {
                         result.putAll(mapFromEnv(container.getEnv()));
                     }
@@ -223,8 +235,15 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 
     private static Route findRoute(String serviceId, RouteList routeList) {
         for (Route route : routeList.getItems()) {
-            if (route.getServiceName().equals(serviceId)) {
-                return route;
+            RouteSpec spec = route.getSpec();
+            if (spec != null) {
+                ObjectReference to = spec.getTo();
+                if (to != null) {
+                    String name = to.getName();
+                    if (serviceId.equals(name)) {
+                        return route;
+                    }
+                }
             }
         }
         return null;

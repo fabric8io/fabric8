@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.LivenessProbe;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceFluent;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMount;
@@ -492,17 +493,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
 
         KubernetesListBuilder builder = new KubernetesListBuilder()
-                .withId(name)
+                // TODO no id / name in v1beta3
+                // .withId(name)
                 .addNewReplicationController()
-                .withId(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
+                .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
                 .withLabels(labels)
-                .withNewDesiredState()
+                .withNewSpec()
                 .withReplicas(replicaCount)
-                .withReplicaSelector(labelMap)
-                .withNewPodTemplate()
+                .withSelector(labelMap)
+                .withNewTemplate()
                 .withLabels(labelMap)
-                .withNewDesiredState()
-                .withNewManifest()
+                .withNewSpec()
                 .addNewContainer()
                 .withName(getKubernetesContainerName())
                 .withImage(getDockerImage())
@@ -514,25 +515,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withLivenessProbe(getLivenessProbe())
                 .endContainer()
                 .withVolumes(getVolumes())
-                .endManifest()
-                .endDesiredState()
-                .endPodTemplate()
-                .endDesiredState()
+                .endSpec()
+                .endTemplate()
+                .endSpec()
                 .endReplicationController();
 
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
             ServiceBuilder serviceBuilder = new ServiceBuilder()
-                    .withId(serviceName)
-                    .withSelector(labelMap)
+                    .withName(serviceName)
                     .withLabels(labelMap);
+
+            ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
 
             List<ServicePort> servicePorts = getServicePorts();
             boolean hasPorts = servicePorts != null & !servicePorts.isEmpty();
             if (hasPorts) {
-                serviceBuilder.withPorts(servicePorts);
+                serviceSpecBuilder.withPorts(servicePorts);
             } else {
-                serviceBuilder.withPortalIP("None");
+                serviceSpecBuilder.withPortalIP("None");
             }
 
             if (headlessServices || hasPorts) {
@@ -732,7 +733,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 } else {
                     containerPort.setStrVal(serviceContainerPort);
                 }
-                actualServicePort.setContainerPort(containerPort);
+                actualServicePort.setTargetPort(containerPort);
                 actualServicePort.setPort(servicePort);
                 if (serviceProtocol != null) {
                     actualServicePort.setProtocol(serviceProtocol);
@@ -765,7 +766,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         } else {
                             containerPortSpec.setStrVal(containerPort);
                         }
-                        servicePort.setContainerPort(containerPortSpec);
+                        servicePort.setTargetPort(containerPortSpec);
 
                         String portProtocol = serviceProtocolProperties.get(name);
                         if (portProtocol != null) {

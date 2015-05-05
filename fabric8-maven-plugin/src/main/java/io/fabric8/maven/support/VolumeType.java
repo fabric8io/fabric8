@@ -37,9 +37,7 @@ public enum VolumeType {
             String path = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withHostDir(new HostPathVolumeSource(path))
-                    .endSource()
+                    .withNewHostPath(path)
                     .build();
         }
     }, EMPTY_DIR("emptyDir") {
@@ -48,9 +46,7 @@ public enum VolumeType {
             String medium = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withEmptyDir(new EmptyDirVolumeSource(medium))
-                    .endSource()
+                    .withNewEmptyDir(medium)
                     .build();
         }
     }, GIT_REPO("gitRepo") {
@@ -59,9 +55,7 @@ public enum VolumeType {
             String revision = properties.getProperty(String.format(VOLUME_PROPERTY, name, VOLUME_GIT_REV));
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withGitRepo(new GitRepoVolumeSource(repositroy, revision))
-                    .endSource()
+                    .withNewGitRepo(repositroy, revision)
                     .build();
         }
     }, NFS_PATH("nfsPath") {
@@ -71,9 +65,7 @@ public enum VolumeType {
             Boolean readOnly = toBool(properties.getProperty(String.format(VOLUME_PROPERTY, name, READONLY)));
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withNfs(new NFSVolumeSource(path, readOnly, server))
-                    .endSource()
+                    .withNewNfs(path, readOnly, server)
                     .build();
         }
     }, CGE_DISK("gcePdName") {
@@ -86,9 +78,7 @@ public enum VolumeType {
 
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withPersistentDisk(new GCEPersistentDiskVolumeSource(fsType, partition, pdName, readOnly))
-                    .endSource()
+                    .withNewGcePersistentDisk(fsType, partition, pdName, readOnly)
                     .build();
         }
 
@@ -100,9 +90,7 @@ public enum VolumeType {
 
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewSource()
-                    .withGlusterfs(new GlusterfsVolumeSource(path, endpoints, readOnly))
-                    .endSource()
+                    .withNewGlusterfs(path, endpoints, readOnly)
                     .build();
         }
 

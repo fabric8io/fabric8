@@ -17,9 +17,12 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.base.ObjectReference;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -175,9 +178,14 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 if (Strings.isNotBlank(id)) {
                     Route route = new Route();
                     KubernetesHelper.setName(route, namespace, id + "-route");
-                    route.setServiceName(id);
+                    RouteSpec routeSpec = new RouteSpec();
+                    route.setSpec(routeSpec);
+                    ObjectReference objectRef = new ObjectReference();
+                    objectRef.setName(id);
+                    objectRef.setNamespace(namespace);
+                    routeSpec.setTo(objectRef);
                     String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
-                    route.setHost(host + "." + Strings.stripPrefix(routeDomain, "."));
+                    routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomain, "."));
                     String json = null;
                     try {
                         json = KubernetesHelper.toJson(route);
