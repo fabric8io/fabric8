@@ -190,6 +190,30 @@ public class KubernetesHelper {
         }
     }
 
+    public static void setName(Pod entity, String name) {
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
+    public static void setName(Service entity, String name) {
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
+    public static void setName(ReplicationController entity, String name) {
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
+    public static void setName(Template entity, String name) {
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
     public static void setName(Route route, String namespace, String name) {
         route.setNamespace(namespace);
         route.setName(name);
