@@ -87,6 +87,32 @@ public class Maps {
     }
 
     /**
+     * Returns the Long value of the given property in the map or null
+     */
+    public static Long longValue(Map<String,?> map, String key) {
+        return longValue(map, key, null);
+    }
+
+    /**
+     * Returns the Integer value of the given property in the map or returns the default value if its not present
+     */
+    public static Long longValue(Map<String,?> map, String key, Long defaultValue) {
+        Object obj = map.get(key);
+        if (obj instanceof Long) {
+            return (Long) obj;
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            return number.longValue();
+        } else if (obj != null) {
+            String text = obj.toString();
+            if (Strings.isNotBlank(text)) {
+                return Long.parseLong(text);
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
      * Returns the value of the given property in the map
      */
     public static Object value(Map<String,Object> map, String key, Object defaultValue) {

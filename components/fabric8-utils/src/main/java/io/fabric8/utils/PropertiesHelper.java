@@ -25,6 +25,10 @@ import java.util.Set;
  */
 public class PropertiesHelper {
 
+    public static Long getLong(Properties properties, String key) {
+        return getLong(properties, key, null);
+    }
+
     public static Long getLong(Properties properties, String key, Long defaultValue) {
         Object value = properties.get(key);
         if (value instanceof String) {

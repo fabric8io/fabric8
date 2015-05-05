@@ -86,6 +86,8 @@ import static io.fabric8.utils.Strings.isNullOrBlank;
 /**
  */
 public class KubernetesHelper {
+    public static final int INTORSTRING_KIND_INT = 0;
+    public static final int INTORSTRING_KIND_STRING = 1;
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
 
     public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
@@ -1577,4 +1579,28 @@ public class KubernetesHelper {
         buffer.append(text);
     }
 
+    /**
+     * Creates an IntOrString from the given string which could be a number or a name
+     */
+    public static IntOrString createIntOrString(String nameOrNumber) {
+        if (isNullOrBlank(nameOrNumber)) {
+            return null;
+        } else {
+            IntOrString answer = new IntOrString();
+            Integer intVal = null;
+            try {
+                intVal = Integer.parseInt(nameOrNumber);
+            } catch (Exception e) {
+                // ignore invalid number
+            }
+            if (intVal != null) {
+                answer.setIntVal(intVal);
+                answer.setKind(INTORSTRING_KIND_INT);
+            } else {
+                answer.setStrVal(nameOrNumber);
+                answer.setKind(INTORSTRING_KIND_STRING);
+            }
+            return answer;
+        }
+    }
 }

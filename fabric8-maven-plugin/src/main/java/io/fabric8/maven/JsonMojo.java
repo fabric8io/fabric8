@@ -21,8 +21,10 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.HTTPGetAction;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.LivenessProbe;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.Volume;
@@ -36,7 +38,9 @@ import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -507,6 +511,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withPrivileged(getContainerPrivileged())
                 .withPorts(getContainerPorts())
                 .withVolumeMounts(getVolumeMounts())
+                .withLivenessProbe(getLivenessProbe())
                 .endContainer()
                 .withVolumes(getVolumes())
                 .endManifest()
@@ -552,6 +557,35 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
         }
+    }
+
+    protected LivenessProbe getLivenessProbe() {
+        LivenessProbe answer = new LivenessProbe();
+        boolean added = false;
+        Properties properties = getProject().getProperties();
+        String httpGetPath = properties.getProperty("fabric8.livenessProbe.httpGet.path");
+        String httpGetPort = properties.getProperty("fabric8.livenessProbe.httpGet.port");
+        String httpGetHost = properties.getProperty("fabric8.livenessProbe.httpGet.host");
+        if (Strings.isNotBlank(httpGetPath)) {
+            added = true;
+            HTTPGetAction httpGet = new HTTPGetAction();
+            httpGet.setPath(httpGetPath);
+            httpGet.setHost(httpGetHost);
+            if (Strings.isNotBlank(httpGetPort)) {
+                IntOrString httpGetPortIntOrString = KubernetesHelper.createIntOrString(httpGetPort);
+                httpGet.setPort(httpGetPortIntOrString);
+            }
+            answer.setHttpGet(httpGet);
+        }
+        Long initialDelaySeconds = PropertiesHelper.getLong(properties, "fabric8.livenessProbe.initialDelaySeconds");
+        if (initialDelaySeconds != null) {
+            answer.setInitialDelaySeconds(initialDelaySeconds);
+        }
+        Long timeoutSeconds = PropertiesHelper.getLong(properties, "fabric8.livenessProbe.timeoutSeconds");
+        if (timeoutSeconds != null) {
+            answer.setTimeoutSeconds(timeoutSeconds);
+        }
+        return added ? answer : null;
     }
 
     public Boolean getContainerPrivileged() {
@@ -948,4 +982,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
             variables.put(key, value);
         }
     }
+
+
 }
