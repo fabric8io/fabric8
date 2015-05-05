@@ -214,12 +214,6 @@ public class KubernetesHelper {
         metadata.put("name", name);
     }
 
-    public static void setName(Template entity, String name) {
-        entity.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("name", name);
-    }
-
     public static void setName(Route route, String namespace, String name) {
         route.getMetadata().setNamespace(namespace);
         route.getMetadata().setName(name);
@@ -229,14 +223,14 @@ public class KubernetesHelper {
 
 
     public static void setName(Template entity, String name) {
-        entity.setName(name);
+        entity.getMetadata().setName(name);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 
 
     public static void setNamespace(Template entity, String namespace) {
-        entity.setNamespace(namespace);
+        entity.getMetadata().setNamespace(namespace);
         Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("namespace", namespace);
     }
@@ -468,9 +462,6 @@ public class KubernetesHelper {
         } else if (entity instanceof KubernetesList) {
             KubernetesList config = (KubernetesList) entity;
             return config.getItems();
-        } else if (entity instanceof Config) {
-            Config config = (Config) entity;
-            return config.getItems();
         } else if (entity instanceof Template) {
             Template objects = (Template) entity;
             return objects.getObjects();
@@ -481,14 +472,6 @@ public class KubernetesHelper {
             }
             return answer;
         }
-    }
-
-
-    /**
-     * Returns the items inside the config as a list of {@link Entity} objects
-     */
-    public static List<Object> getEntities(Config config) throws IOException {
-        return config.getItems();
     }
 
 
@@ -1598,6 +1581,7 @@ public class KubernetesHelper {
             }
             return answer;
         }
+    }
 
     public static String getStatusText(PodStatus podStatus) {
         String status;List<String> statusList = new ArrayList<>();

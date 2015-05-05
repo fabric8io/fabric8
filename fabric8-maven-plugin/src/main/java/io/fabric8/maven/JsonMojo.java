@@ -19,18 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.LivenessProbe;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceFluent;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -39,7 +28,6 @@ import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
@@ -64,15 +52,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -568,8 +548,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected LivenessProbe getLivenessProbe() {
-        LivenessProbe answer = new LivenessProbe();
+    protected Probe getLivenessProbe() {
+        Probe answer = new Probe();
         boolean added = false;
         Properties properties = getProject().getProperties();
         String httpGetPath = properties.getProperty("fabric8.livenessProbe.httpGet.path");

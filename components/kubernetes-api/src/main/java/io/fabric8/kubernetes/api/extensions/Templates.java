@@ -129,7 +129,7 @@ public class Templates {
                     addTemplateObject(template, item);
                 }
             }
-            List<Object> objects = getTemplateObjects(template);
+            List<Object> objects = template.getObjects();
             KubernetesHelper.moveServicesToFrontOfArray(objects);
             return template;
         } else {

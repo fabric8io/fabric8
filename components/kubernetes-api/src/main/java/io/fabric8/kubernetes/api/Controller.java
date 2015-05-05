@@ -15,7 +15,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -33,11 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -169,8 +164,6 @@ public class Controller {
             }
         } else if (dto instanceof KubernetesList) {
             applyList((KubernetesList) dto, sourceName);
-        } else if (dto instanceof Config) {
-            applyConfig((Config) dto, sourceName);
         } else if (dto != null) {
             applyEntity(dto, sourceName);
         }
@@ -215,7 +208,7 @@ public class Controller {
     public Object processTemplate(Template entity, String sourceName) {
         String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = getNamespace(entity);
+        String namespace = KubernetesHelper.getNamespace(entity);
         LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
         Object result = null;
         try {
@@ -238,7 +231,7 @@ public class Controller {
             Template template = (Template) kubeResource;
             String id = getName(template);
             LOG.info("  Template " + id + " " + summaryText(template));
-            printSummary(Templates.getTemplateObjects(template));
+            printSummary(template.getObjects());
             return;
         }
         List<Object> list = toItemList(kubeResource);
@@ -261,7 +254,7 @@ public class Controller {
     public void applyRoute(Route entity, String sourceName) {
         String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = getNamespace(entity);
+        String namespace = KubernetesHelper.getNamespace(entity);
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
             try {
@@ -415,7 +408,6 @@ public class Controller {
     public void applyPod(Pod pod, String sourceName) throws Exception {
         String namespace = getNamespace();
         String id = getName(pod);
-        String id = getId(pod);
         Objects.notNull(id, "No name for " + pod + " " + sourceName);
         if (isServicesOnlyMode()) {
             LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
