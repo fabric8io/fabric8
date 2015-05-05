@@ -21,6 +21,9 @@ import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.ExecAction;
+import io.fabric8.kubernetes.api.model.HTTPGetAction;
+import io.fabric8.kubernetes.api.model.LivenessProbe;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.PodTemplate;
@@ -31,6 +34,7 @@ import io.fabric8.kubernetes.api.model.RestartPolicyAlways;
 import io.fabric8.kubernetes.api.model.RestartPolicyNever;
 import io.fabric8.kubernetes.api.model.RestartPolicyOnFailure;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.TCPSocketAction;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeSource;
@@ -277,6 +281,48 @@ public class ConfigurationCompare {
                 configEqual(entity1.getStrVal(), entity2.getStrVal());
     }
 
+    public static boolean configEqual(LivenessProbe entity1, LivenessProbe entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getExec(), entity2.getExec()) &&
+                configEqual(entity1.getHttpGet(), entity2.getHttpGet()) &&
+                configEqual(entity1.getTcpSocket(), entity2.getTcpSocket()) &&
+                configEqual(entity1.getTimeoutSeconds(), entity2.getTimeoutSeconds()) &&
+                configEqual(entity1.getInitialDelaySeconds(), entity2.getInitialDelaySeconds());
+    }
+
+    public static boolean configEqual(ExecAction entity1, ExecAction entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getCommand(), entity2.getCommand());
+    }
+
+    public static boolean configEqual(HTTPGetAction entity1, HTTPGetAction entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getHost(), entity2.getHost()) &&
+                configEqual(entity1.getPath(), entity2.getPath()) &&
+                configEqual(entity1.getPort(), entity2.getPort());
+    }
+
+    public static boolean configEqual(TCPSocketAction entity1, TCPSocketAction entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getPort(), entity2.getPort());
+    }
+
     public static boolean configEqual(Map<String, String> entity1, Map<String, String> entity2) {
         if (entity1 == entity2) {
             return true;
@@ -353,10 +399,16 @@ public class ConfigurationCompare {
             return configEqual((ContainerPort) entity1, cast(ContainerPort.class, entity2));
         } else if (entity1 instanceof EnvVar) {
             return configEqual((EnvVar) entity1, cast(EnvVar.class, entity2));
+        } else if (entity1 instanceof ExecAction) {
+            return configEqual((ExecAction) entity1, cast(ExecAction.class, entity2));
+        } else if (entity1 instanceof HTTPGetAction) {
+            return configEqual((HTTPGetAction) entity1, cast(HTTPGetAction.class, entity2));
         } else if (entity1 instanceof IntOrString) {
             return configEqual((IntOrString) entity1, cast(IntOrString.class, entity2));
         } else if (entity1 instanceof List) {
             return configEqual((List) entity1, cast(List.class, entity2));
+        } else if (entity1 instanceof LivenessProbe) {
+            return configEqual((LivenessProbe) entity1, cast(LivenessProbe.class, entity2));
         } else if (entity1 instanceof Map) {
             return configEqual((Map) entity1, cast(Map.class, entity2));
         } else if (entity1 instanceof Number) {
@@ -383,6 +435,8 @@ public class ConfigurationCompare {
             return configEqual((Service) entity1, cast(Service.class, entity2));
         } else if (entity1 instanceof String) {
             return configEqual((String) entity1, cast(String.class, entity2));
+        } else if (entity1 instanceof TCPSocketAction) {
+            return configEqual((TCPSocketAction) entity1, cast(TCPSocketAction.class, entity2));
         } else if (entity1 instanceof Volume) {
             return configEqual((Volume) entity1, cast(Volume.class, entity2));
         } else if (entity1 instanceof VolumeMount) {
