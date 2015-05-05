@@ -1,9 +1,5 @@
 package io.fabric8.gateway.fabric.support.http;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.apimanager.ApiManager;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
@@ -11,19 +7,23 @@ import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class HttpMappingKubeCache implements Runnable {
 
@@ -112,14 +112,17 @@ public class HttpMappingKubeCache implements Runnable {
                     params.put("container", paramValue(dto.getContainer()));
                     params.put("version", paramValue(dto.getVersion()));
                     //is there a better way to obtain the complete url?
-                    String service = "http://localhost:" + getPort(service1) + "/" + KubernetesHelper.getName(service1);
-                    List<String> services = Arrays.asList(service);
-                    if (!contextPathsCache.contains(contextPath)) {
-                        LOG.info("Adding " + service);
-                        contextPathsCache.add(contextPath);
+                    Set<Integer> ports = getPorts(service1);
+                    for (Integer port : ports) {
+                        String service = "http://localhost:" + port + "/" + KubernetesHelper.getName(service1);
+                        List<String> services = Arrays.asList(service);
+                        if (!contextPathsCache.contains(contextPath)) {
+                            LOG.info("Adding " + service);
+                            contextPathsCache.add(contextPath);
+                        }
+                        mappingRuleConfiguration.updateMappingRules(false, contextPath,
+                                services, params, dto);
                     }
-                    mappingRuleConfiguration.updateMappingRules(false, contextPath,
-                            services, params, dto);
                     currentCache.remove(contextPath);
                 }
             }
