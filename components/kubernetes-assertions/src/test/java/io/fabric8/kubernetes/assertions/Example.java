@@ -55,7 +55,7 @@ public class Example {
                 }
             });
 
-            assertThat(client).replicationController("fabric8-console-controller").hasId("fabric8-console-controller");
+            assertThat(client).replicationController("fabric8-console-controller").hasName("fabric8-console-controller");
 
             Map<String, String> consoleLabels = new HashMap<>();
             consoleLabels.put("component", "fabric8Console");
@@ -65,7 +65,7 @@ public class Example {
             assertAssertionError(new Block() {
                 @Override
                 public void invoke() throws Exception {
-                    assertThat(client).replicationController("doesNotExist").hasId("fabric8-console-controller");
+                    assertThat(client).replicationController("doesNotExist").hasName("fabric8-console-controller");
                 }
             });
 
