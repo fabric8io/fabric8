@@ -212,7 +212,7 @@ public class JolokiaClients {
                 if (containerPort != null) {
                     String name = port.getName();
                     if (containerPort == 8778 || (Objects.equals("jolokia", name) && containerPort.intValue() > 0)) {
-                        PodState currentState = pod.getCurrentState();
+                        PodStatus currentState = pod.getStatus();
                         String podIP = currentState.getPodIP();
                         if (Strings.isNotBlank(podIP)) {
                             return createJolokiaClientFromHostAndPort(container, podIP, containerPort);
@@ -248,8 +248,10 @@ public class JolokiaClients {
      * Returns true if we detect we are running inside docker
      */
     protected boolean hasDocker(Pod pod) {
-        PodState currentState = pod.getCurrentState();
+        PodStatus currentState = pod.getStatus();
         if (currentState != null) {
+            List<ContainerStatus> containerStatuses = currentState.getContainerStatuses();
+/*
             ContainerManifest manifest = currentState.getManifest();
             if (manifest != null) {
                 List<Container> containers = manifest.getContainers();
@@ -260,6 +262,7 @@ public class JolokiaClients {
                     }
                 }
             }
+*/
 /*
             Map<String, ContainerStatus> info = currentState.getInfo();
             if (info != null) {

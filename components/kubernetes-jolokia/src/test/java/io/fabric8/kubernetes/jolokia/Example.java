@@ -31,8 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-
 /**
  */
 public class Example {
