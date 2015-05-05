@@ -69,7 +69,11 @@
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
+<!--
+    TODO remove as its old...
+
     <module>kubernetes-mbeans</module>
+-->
     <module>kubernetes-generetor</module>
     <module>mq</module>
     <module>rest-utils</module>
