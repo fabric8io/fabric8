@@ -87,7 +87,7 @@ public class PodsList extends AbstractKubernetesCommand {
                     status = KubernetesHelper.getStatusText(podStatus);
                     host = podStatus.getHostIP();
                 }
-                Map<String, String> labelMap = item.getLabels();
+                Map<String, String> labelMap = item.getMetadata().getLabels();
                 String labels = KubernetesHelper.toLabelsString(labelMap);
                 PodSpec spec = item.getSpec();
                 if (spec != null) {

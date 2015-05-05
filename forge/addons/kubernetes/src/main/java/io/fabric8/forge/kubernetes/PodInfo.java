@@ -53,9 +53,9 @@ public class PodInfo extends AbstractPodCommand {
 
     @Override
     protected void executePod(Pod podInfo, String podId) {
-        System.out.println("Created: " + podInfo.getCreationTimestamp());
+        System.out.println("Created: " + podInfo.getMetadata().getCreationTimestamp());
         System.out.println("Labels: ");
-        Map<String, String> labels = podInfo.getLabels();
+        Map<String, String> labels = podInfo.getMetadata().getLabels();
         for (Map.Entry<String, String> entry : labels.entrySet()) {
             System.out.println(indent + entry.getKey() + " = " + entry.getValue());
         }

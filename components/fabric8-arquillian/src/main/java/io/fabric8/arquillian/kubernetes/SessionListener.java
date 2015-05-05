@@ -26,34 +26,21 @@ import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.openshift.api.model.config.Config;
 import io.fabric8.utils.MultiException;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.arquillian.utils.Util.cleanupSession;
-import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
-import static io.fabric8.arquillian.utils.Util.readAsString;
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
+import static io.fabric8.arquillian.utils.Util.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 public class SessionListener {
@@ -76,7 +63,7 @@ public class SessionListener {
         try {
             URL configUrl = configuration.getConfigUrl();
             List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(session);
-            List<Config> kubeConfigs = new LinkedList<>();
+            List<KubernetesList> kubeConfigs = new LinkedList<>();
 
             for (String dependency : dependencies) {
                 log.info("Found dependency: " + dependency);
@@ -85,7 +72,7 @@ public class SessionListener {
 
             if (configUrl != null) {
                 log.status("Applying kubernetes configuration from: " + configuration.getConfigUrl());
-                kubeConfigs.add((Config) loadJson(readAsString(configuration.getConfigUrl())));
+                kubeConfigs.add((KubernetesList) loadJson(readAsString(configuration.getConfigUrl())));
             }
             if (applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
                 displaySessionStatus(client, session);
@@ -106,13 +93,13 @@ public class SessionListener {
         }
     }
 
-    protected static void addConfig(List<Config> kubeConfigs, Object kubeCfg) {
-        if (kubeCfg instanceof Config) {
-            kubeConfigs.add((Config) kubeCfg);
+    protected static void addConfig(List<KubernetesList> kubeConfigs, Object kubeCfg) {
+        if (kubeCfg instanceof KubernetesList) {
+            kubeConfigs.add((KubernetesList) kubeCfg);
         }
     }
 
-    public void loadDependency(Logger log, List<Config> kubeConfigs, String dependency) throws IOException {
+    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency) throws IOException {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
@@ -124,7 +111,7 @@ public class SessionListener {
         }
     }
 
-    protected void loadDependency(Logger log, List<Config> kubeConfigs, File file) throws IOException {
+    protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file) throws IOException {
         if (file.isFile()) {
             log.info("Loading file " + file);
             addConfig(kubeConfigs, loadJson(file));
@@ -153,15 +140,15 @@ public class SessionListener {
     }
 
 
-    private boolean applyConfiguration(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<Config> kubeConfigs) throws Exception {
+    private boolean applyConfiguration(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<KubernetesList> kubeConfigs) throws Exception {
         Logger log = session.getLogger();
         Map<Integer, Callable<Boolean>> conditions = new TreeMap<>();
         Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, session);
         Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration);
 
         List<Object> entities = new ArrayList<>();
-        for (Config c : kubeConfigs) {
-            entities.addAll(getEntities(c));
+        for (KubernetesList c : kubeConfigs) {
+            entities.addAll(c.getItems());
         }
 
         //Ensure services are processed first.

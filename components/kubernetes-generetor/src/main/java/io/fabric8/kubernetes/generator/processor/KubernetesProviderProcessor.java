@@ -145,16 +145,16 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
                 sb.append(((Service) obj).getServiceName());
                 allItems.add(obj);
             } else if (obj instanceof BuildConfig) {
-                sb.append(((BuildConfig) obj).getName());
+                sb.append(((BuildConfig) obj).getMetadata().getName());
                 allItems.add(obj);
             } else if (obj instanceof DeploymentConfig) {
-                sb.append(((DeploymentConfig) obj).getName());
+                sb.append(((DeploymentConfig) obj).getMetadata().getName());
                 allItems.add(obj);
             } else if (obj instanceof ImageStream) {
                 sb.append(getName((ImageStream) obj));
                 allItems.add(obj);
             } else if (obj instanceof Route) {
-                sb.append(((Route) obj).getName());
+                sb.append(((Route) obj).getMetadata().getName());
                 allItems.add(obj);
             } else if (obj instanceof KubernetesList) {
                 // TODO KubernetesList now has no id

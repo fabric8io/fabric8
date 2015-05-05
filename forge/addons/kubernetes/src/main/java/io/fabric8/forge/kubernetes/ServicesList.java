@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 
@@ -82,7 +81,7 @@ public class ServicesList extends AbstractKubernetesCommand {
         Filter<Service> filter = KubernetesHelper.createServiceFilter(filterText.getValue());
         for (Service service : items) {
             if (filter.matches(service)) {
-                String labels = KubernetesHelper.toLabelsString(service.getLabels());
+                String labels = KubernetesHelper.toLabelsString(service.getMetadata().getLabels());
                 String selector = KubernetesHelper.toLabelsString(getSelector(service));
                 Set<Integer> ports = getPorts(service);
                 List<Integer> portList = new ArrayList<>(ports);

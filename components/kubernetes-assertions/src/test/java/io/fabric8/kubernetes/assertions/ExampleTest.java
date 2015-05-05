@@ -44,12 +44,12 @@ public class ExampleTest {
         pod.getMetadata().setName(expectedId);
         pod.getMetadata().setLabels(expectedLabels);
 
-        assertThat(pod).hasName(expectedId).hasLabels(expectedLabels);
+        assertThat(pod.getMetadata()).hasName(expectedId).hasLabels(expectedLabels);
 
         assertAssertionError(new Block() {
             @Override
             public void invoke() throws Exception {
-                assertThat(pod).hasName("cheese");
+                assertThat(pod.getMetadata()).hasName("cheese");
             }
         });
 
@@ -58,7 +58,7 @@ public class ExampleTest {
             public void invoke() throws Exception {
                 Map<String, String> wrongLabels = new HashMap<>();
                 wrongLabels.put("bar", "whatnot");
-                assertThat(pod).hasLabels(wrongLabels);
+                assertThat(pod.getMetadata()).hasLabels(wrongLabels);
             }
         });
     }

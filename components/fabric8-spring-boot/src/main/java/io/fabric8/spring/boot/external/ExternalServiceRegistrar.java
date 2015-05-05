@@ -27,7 +27,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
-public class ExtenralServiceRegistar implements ImportBeanDefinitionRegistrar {
+public class ExternalServiceRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         KubernetesProperties kubernetesProperties = new KubernetesProperties();
@@ -35,15 +35,14 @@ public class ExtenralServiceRegistar implements ImportBeanDefinitionRegistrar {
         Kubernetes kubernetes = kubernetesFactory.createKubernetes();
         for (final Service service : kubernetes.getServices("default").getItems()) {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(Service.class);
-            beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service.getId()));
-            beanDefinition.getPropertyValues().addPropertyValue("id", service.getId());
-            beanDefinition.getPropertyValues().addPropertyValue("port", service.getPort());
-            beanDefinition.getPropertyValues().addPropertyValue("portalIP", service.getPortalIP());
-            beanDefinition.getPropertyValues().addPropertyValue("protocol", service.getProtocol());
-            beanDefinition.getPropertyValues().addPropertyValue("proxyPort", service.getProxyPort());
-            beanDefinition.getPropertyValues().addPropertyValue("containerPort", service.getContainerPort());
+            beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service.getMetadata().getName()));
+            beanDefinition.getPropertyValues().addPropertyValue("id", service.getMetadata().getName());
+            beanDefinition.getPropertyValues().addPropertyValue("port", service.getSpec().getPorts().iterator().next().getPort());
+            beanDefinition.getPropertyValues().addPropertyValue("portalIP", service.getSpec().getPortalIP());
+            beanDefinition.getPropertyValues().addPropertyValue("protocol", service.getSpec().getPorts().iterator().next().getProtocol());
+            beanDefinition.getPropertyValues().addPropertyValue("containerPort", service.getSpec().getPorts().iterator().next().getTargetPort());
             beanDefinition.getPropertyValues().addPropertyValue("kind", service.getKind());
-            registry.registerBeanDefinition(service.getId()+"-service-bean", beanDefinition);
+            registry.registerBeanDefinition(service.getMetadata().getName()+"-service-bean", beanDefinition);
         }
     }
 }

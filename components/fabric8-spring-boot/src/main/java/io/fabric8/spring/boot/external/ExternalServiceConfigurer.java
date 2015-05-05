@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ConditionalOnKubernetesAvailable
-@Import(ExtenralServiceRegistar.class)
+@Import(ExternalServiceRegistrar.class)
 public class ExternalServiceConfigurer {
 
 }
