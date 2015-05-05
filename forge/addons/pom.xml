@@ -37,7 +37,11 @@
     <module>camel-tests</module>
 -->
     <module>kubernetes</module>
+<!--
+    TODO disable until we generate builders for ImageStreamBuilder BuildConfigSpecBuilder etc
+
     <module>openshift</module>
+-->
     <module>utils</module>
   </modules>
 
