@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Parameter;
@@ -161,6 +162,17 @@ public class KubernetesHelper {
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(ImageStream entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
                     entity.getUid());
         } else {
             return null;

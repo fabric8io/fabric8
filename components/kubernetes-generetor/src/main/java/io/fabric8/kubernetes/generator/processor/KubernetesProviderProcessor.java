@@ -25,7 +25,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.ImageRepository;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -48,6 +48,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 
 @SupportedAnnotationTypes("io.fabric8.kubernetes.generator.annotation.KubernetesProvider")
 public class KubernetesProviderProcessor extends AbstractProcessor {
@@ -134,10 +136,10 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
             }
             
             if (obj instanceof Pod) {
-                sb.append(((Pod) obj).getId());
+                sb.append(getName((Pod) obj));
                 allItems.add(obj);
             } else if (obj instanceof ReplicationController) {
-                sb.append(((ReplicationController) obj).getId());
+                sb.append(getName((ReplicationController) obj));
                 allItems.add(obj);
             }  else if (obj instanceof Service) {
                 sb.append(((Service) obj).getServiceName());
@@ -148,18 +150,22 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
             } else if (obj instanceof DeploymentConfig) {
                 sb.append(((DeploymentConfig) obj).getName());
                 allItems.add(obj);
-            } else if (obj instanceof ImageRepository) {
-                sb.append(((ImageRepository) obj).getName());
+            } else if (obj instanceof ImageStream) {
+                sb.append(getName((ImageStream) obj));
                 allItems.add(obj);
             } else if (obj instanceof Route) {
                 sb.append(((Route) obj).getName());
                 allItems.add(obj);
             } else if (obj instanceof KubernetesList) {
-                sb.append(((KubernetesList) obj).getId());
+                // TODO KubernetesList now has no id
+                //sb.append(((KubernetesList) obj).getId());
                 allItems.addAll(((KubernetesList) obj).getItems());
             }
         }
-        return new KubernetesListBuilder().withId(sb.toString()).withItems(allItems).build();
+        return new KubernetesListBuilder().
+                // TODO KubernetesList no longer has an id/name
+                //withName(sb.toString()).
+                withItems(allItems).build();
     }
 
     public static TypeElement getClassElement(Element element) {
