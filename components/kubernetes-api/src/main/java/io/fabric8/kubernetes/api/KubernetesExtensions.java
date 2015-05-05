@@ -41,15 +41,15 @@ import javax.ws.rs.QueryParam;
 /**
  * Various Kubernetes extensions defined in the OpenShift project
  */
-@Path("osapi/v1beta3")
+@Path("osapi/v1beta3/namespaces/{namespace}")
 @Produces("application/json")
 @Consumes("application/json")
 public interface KubernetesExtensions {
 
     @POST
-    @Path("templateConfigs")
+    @Path("processedtemplates")
     @Consumes("application/json")
-    String createTemplate(Template entity, @QueryParam("namespace")  String namespace) throws Exception;
+    String createTemplate(Template entity, @PathParam("namespace")  String namespace) throws Exception;
 
 
     // Routes
@@ -58,25 +58,25 @@ public interface KubernetesExtensions {
 
     @GET
     @Path("routes")
-    RouteList getRoutes(@QueryParam("namespace") String namespace);
+    RouteList getRoutes(@PathParam("namespace") String namespace);
 
 
     @POST
     @Path("routes")
-    String createRoute(Route entity, @QueryParam("namespace") String namespace) throws Exception;
+    String createRoute(Route entity, @PathParam("namespace") String namespace) throws Exception;
 
     @GET
     @Path("routes/{name}")
-    Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    Route getRoute(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
     @PUT
     @Path("routes/{name}")
     @Consumes("application/json")
-    String updateRoute(@PathParam("name") @NotNull String name, Route entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateRoute(@PathParam("name") @NotNull String name, Route entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
     @Path("routes/{name}")
-    String deleteRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    String deleteRoute(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
 
     // Builds
@@ -84,58 +84,58 @@ public interface KubernetesExtensions {
 
     @GET
     @Path("builds")
-    BuildList getBuilds(@QueryParam("namespace") String namespace);
+    BuildList getBuilds(@PathParam("namespace") String namespace);
 
     @POST
     @Path("builds")
-    String createBuild(Build entity) throws Exception;
+    String createBuild(Build entity, @PathParam("namespace") String namespace) throws Exception;
 
     @GET
     @Path("builds/{name}")
-    Build getBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    Build getBuild(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
     @PUT
     @Path("builds/{name}")
     @Consumes("application/json")
-    String updateBuild(@PathParam("name") @NotNull String name, Build entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateBuild(@PathParam("name") @NotNull String name, Build entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
     @Path("builds/{name}")
-    String deleteBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    String deleteBuild(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
 
     // BuildConfigs
     //-------------------------------------------------------------------------
 
     @GET
-    @Path("buildConfigs")
-    BuildConfigList getBuildConfigs(@QueryParam("namespace") String namespace);
+    @Path("buildconfigs")
+    BuildConfigList getBuildConfigs(@PathParam("namespace") String namespace);
 
     @POST
-    @Path("buildConfigs")
-    String createBuildConfig(BuildConfig entity) throws Exception;
+    @Path("buildconfigs")
+    String createBuildConfig(BuildConfig entity, @PathParam("namespace") String namespace) throws Exception;
 
     @GET
-    @Path("buildConfigs/{name}")
-    BuildConfig getBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("buildconfigs/{name}")
+    BuildConfig getBuildConfig(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
     @PUT
-    @Path("buildConfigs/{name}")
+    @Path("buildconfigs/{name}")
     @Consumes("application/json")
-    String updateBuildConfig(@PathParam("name") @NotNull String name, BuildConfig entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateBuildConfig(@PathParam("name") @NotNull String name, BuildConfig entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("buildConfigs/{name}")
-    String deleteBuildConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("buildconfigs/{name}")
+    String deleteBuildConfig(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
 
     // BuildConfigHooks
     //-------------------------------------------------------------------------
     @POST
-    @Path("buildConfigHooks/{name}/{secret}/{type}")
+    @Path("buildconfigHooks/{name}/{secret}/{type}")
     @Produces("text/plain")
     @Consumes("application/json")
-    String triggerBuild(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace,
+    String triggerBuild(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace,
                         @PathParam("secret") @NotNull String secret,
                         @PathParam("type") @NotNull String type,
                         byte[] body);
@@ -145,50 +145,50 @@ public interface KubernetesExtensions {
     //-------------------------------------------------------------------------
 
     @GET
-    @Path("imageStreams")
-    ImageStreamList getImageStreams(@QueryParam("namespace") String namespace);
+    @Path("imagestreams")
+    ImageStreamList getImageStreams(@PathParam("namespace") String namespace);
 
     @POST
-    @Path("imageStreams")
-    String createImageStream(ImageStream entity) throws Exception;
+    @Path("imagestreams")
+    String createImageStream(ImageStream entity, @PathParam("namespace") String namespace) throws Exception;
 
     @GET
-    @Path("imageStreams/{name}")
-    ImageStream getImageStream(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("imagestreams/{name}")
+    ImageStream getImageStream(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
     @PUT
-    @Path("imageStreams/{name}")
+    @Path("imagestreams/{name}")
     @Consumes("application/json")
-    String updateImageStream(@PathParam("name") @NotNull String name, ImageStream entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateImageStream(@PathParam("name") @NotNull String name, ImageStream entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("imageStreams/{name}")
-    String deleteImageStream(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("imagestreams/{name}")
+    String deleteImageStream(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
 
     // DeploymentConfigs
     //-------------------------------------------------------------------------
 
     @GET
-    @Path("deploymentConfigs")
-    DeploymentConfigList getDeploymentConfigs(@QueryParam("namespace") String namespace);
+    @Path("deploymentconfigs")
+    DeploymentConfigList getDeploymentConfigs(@PathParam("namespace") String namespace);
 
     @POST
-    @Path("deploymentConfigs")
-    String createDeploymentConfig(DeploymentConfig entity) throws Exception;
+    @Path("deploymentconfigs")
+    String createDeploymentConfig(DeploymentConfig entity, @PathParam("namespace") String namespace) throws Exception;
 
     @GET
-    @Path("deploymentConfigs/{name}")
-    DeploymentConfig getDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("deploymentconfigs/{name}")
+    DeploymentConfig getDeploymentConfig(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
     @PUT
-    @Path("deploymentConfigs/{name}")
+    @Path("deploymentconfigs/{name}")
     @Consumes("application/json")
-    String updateDeploymentConfig(@PathParam("name") @NotNull String name, DeploymentConfig entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateDeploymentConfig(@PathParam("name") @NotNull String name, DeploymentConfig entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("deploymentConfigs/{name}")
-    String deleteDeploymentConfig(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace);
+    @Path("deploymentconfigs/{name}")
+    String deleteDeploymentConfig(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
 
 
 }

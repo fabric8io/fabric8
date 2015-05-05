@@ -315,6 +315,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("pods")
     @Consumes("application/json")
     public String createPod(Pod entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createPod(entity, namespace);
     }
 
@@ -330,6 +331,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Consumes("application/json")
     public String createService(Service entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createService(entity, namespace);
     }
 
@@ -345,6 +347,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Consumes("application/json")
     public String createReplicationController(ReplicationController entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createReplicationController(entity, namespace);
     }
 
@@ -396,8 +399,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     @POST
     @Path("deploymentConfigs")
-    public String createDeploymentConfig(DeploymentConfig entity) throws Exception {
-        return getKubernetesExtensions().createDeploymentConfig(entity);
+    public String createDeploymentConfig(DeploymentConfig entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createDeploymentConfig(entity, namespace);
     }
 
     @Override
@@ -454,8 +457,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     @POST
     @Path("builds")
-    public String createBuild(Build entity) throws Exception {
-        return getKubernetesExtensions().createBuild(entity);
+    public String createBuild(Build entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createBuild(entity, namespace);
     }
 
     @Override
@@ -534,8 +537,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     @POST
     @Path("buildConfigs")
-    public String createBuildConfig(BuildConfig entity) throws Exception {
-        return getKubernetesExtensions().createBuildConfig(entity);
+    public String createBuildConfig(BuildConfig entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createBuildConfig(entity, namespace);
     }
 
     @Override
@@ -570,8 +573,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Override
     @POST
     @Path("imageStreams")
-    public String createImageStream(ImageStream entity) throws Exception {
-        return getKubernetesExtensions().createImageStream(entity);
+    public String createImageStream(ImageStream entity, String namespace) throws Exception {
+        return getKubernetesExtensions().createImageStream(entity, namespace);
     }
 
     @Override

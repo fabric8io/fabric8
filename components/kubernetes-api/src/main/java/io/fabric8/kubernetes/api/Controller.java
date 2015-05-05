@@ -268,7 +268,7 @@ public class Controller {
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
         try {
-            kubernetes.createBuildConfig(entity);
+            kubernetes.createBuildConfig(entity, getNamespace());
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
@@ -276,7 +276,7 @@ public class Controller {
 
     public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
         try {
-            kubernetes.createDeploymentConfig(entity);
+            kubernetes.createDeploymentConfig(entity, getNamespace());
         } catch (Exception e) {
             onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
         }
@@ -284,7 +284,7 @@ public class Controller {
 
     public void applyImageStream(ImageStream entity, String sourceName) {
         try {
-            kubernetes.createImageStream(entity);
+            kubernetes.createImageStream(entity, getNamespace());
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }

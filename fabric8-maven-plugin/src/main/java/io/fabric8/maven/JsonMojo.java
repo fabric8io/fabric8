@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
 /**
@@ -220,10 +221,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String serviceProtocol;
 
     /**
-     * The docker image pull policy. If a SNAPSHOT dependency is used then this value defaults to <code>"PullAlways"</code>
+     * The docker image pull policy for non-snapshots
      */
     @Parameter(property = "fabric8.imagePullPolicy")
     private String imagePullPolicy;
+
+    /**
+     * The docker image pull policy for snapshot releases (which should pull always)
+     */
+    @Parameter(property = "fabric8.imagePullPolicySnapshot")
+    private String imagePullPolicySnapshot;
 
     /**
      * Whether the plugin should discover all the environment variable json schema files in the classpath and export those into the generated kubernetes JSON
@@ -319,6 +326,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 combinedJson = jsonObjectList.get(0);
             } else {
                 combinedJson = KubernetesHelper.combineJson(jsonObjectList.toArray());
+            }
+            if (combinedJson instanceof Template) {
+                Template template = (Template) combinedJson;
+                setName(template, getKubernetesName());
             }
             json.getParentFile().mkdirs();
             KubernetesHelper.saveJson(json, combinedJson);
@@ -593,7 +604,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             String version = project.getVersion();
             if (Strings.isNullOrBlank(pullPolicy)) {
                 if (version != null && version.endsWith("SNAPSHOT")) {
-                    pullPolicy = "PullAlways";
+                    // TODO pullPolicy = "PullAlways";
+                    pullPolicy = imagePullPolicySnapshot;
                 }
             }
         }

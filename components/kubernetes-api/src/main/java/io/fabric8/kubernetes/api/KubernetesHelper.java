@@ -131,6 +131,50 @@ public class KubernetesHelper {
         }
     }
 
+    public static ObjectMeta getOrCreateMetadata(Pod entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(ReplicationController entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(Service entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static io.fabric8.kubernetes.api.model.base.ObjectMeta getOrCreateMetadata(Route entity) {
+        io.fabric8.kubernetes.api.model.base.ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new io.fabric8.kubernetes.api.model.base.ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(Template entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
 
     public static String getName(ObjectMeta entity) {
         if (entity != null) {
@@ -250,47 +294,53 @@ public class KubernetesHelper {
     }
 
     public static void setName(Pod entity, String name) {
-        entity.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("name", name);
+        getOrCreateMetadata(entity).setName(name);
     }
 
     public static void setName(Service entity, String name) {
-        entity.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("name", name);
+        getOrCreateMetadata(entity).setName(name);
     }
 
     public static void setName(ReplicationController entity, String name) {
-        entity.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("name", name);
+        getOrCreateMetadata(entity).setName(name);
     }
 
-    public static void setName(Route route, String namespace, String name) {
-        route.getMetadata().setNamespace(namespace);
-        route.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(route.getAdditionalProperties(), true);
-        metadata.put("name", name);
+    public static void setName(Route entity, String namespace, String name) {
+        io.fabric8.kubernetes.api.model.base.ObjectMeta objectMeta = getOrCreateMetadata(entity);
+        objectMeta.setNamespace(namespace);
+        objectMeta.setName(name);
     }
 
 
     public static void setName(Template entity, String name) {
-        entity.getMetadata().setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("name", name);
+        getOrCreateMetadata(entity).setName(name);
     }
 
 
     public static void setNamespace(Template entity, String namespace) {
-        entity.getMetadata().setNamespace(namespace);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
-        metadata.put("namespace", namespace);
+        getOrCreateMetadata(entity).setNamespace(namespace);
     }
+
+    public static String getNamespace(ObjectMeta entity) {
+        if (entity != null) {
+            return entity.getNamespace();
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(io.fabric8.kubernetes.api.model.base.ObjectMeta entity) {
+        if (entity != null) {
+            return entity.getNamespace();
+        } else {
+            return null;
+        }
+    }
+
 
     public static String getNamespace(Pod entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -300,7 +350,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(ReplicationController entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -310,7 +360,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -320,7 +370,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Route entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -330,7 +380,7 @@ public class KubernetesHelper {
 
     public static String getNamespace(Template entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getNamespace(),
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
         } else {
@@ -839,7 +889,7 @@ public class KubernetesHelper {
                 }
 
                 public boolean matches(Service entity) {
-                    return Objects.equal(namespace, entity.getMetadata().getNamespace());
+                    return Objects.equal(namespace, getNamespace(entity.getMetadata()));
                 }
             };
         }

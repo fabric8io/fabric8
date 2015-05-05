@@ -37,13 +37,13 @@ public interface Kubernetes {
      * @param namespace
      */
     @GET
-    @Path("pods")
-    PodList getPods(@QueryParam("namespace") String namespace);
+    @Path("namespaces/{namespace}/namespaces/{namespace}/pods")
+    PodList getPods(@PathParam("namespace") String namespace);
 
     @POST
-    @Path("pods")
+    @Path("namespaces/{namespace}/namespaces/{namespace}/pods")
     @Consumes("application/json")
-    String createPod(Pod entity, @QueryParam("namespace") String namespace) throws Exception;
+    String createPod(Pod entity, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * Get a specific pod
@@ -52,8 +52,8 @@ public interface Kubernetes {
      * @param namespace
      */
     @GET
-    @Path("pods/{podId}")
-    Pod getPod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace);
+    @Path("namespaces/{namespace}/pods/{podId}")
+    Pod getPod(@PathParam("podId") @NotNull String podId, @PathParam("namespace") String namespace);
 
     /**
      * Update a pod
@@ -62,28 +62,28 @@ public interface Kubernetes {
      * @param namespace
      */
     @PUT
-    @Path("pods/{podId}")
+    @Path("namespaces/{namespace}/pods/{podId}")
     @Consumes("application/json")
-    String updatePod(@PathParam("podId") @NotNull String podId, Pod entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updatePod(@PathParam("podId") @NotNull String podId, Pod entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("pods/{podId}")
+    @Path("namespaces/{namespace}/pods/{podId}")
     @Consumes("text/plain")
-    String deletePod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace) throws Exception;
+    String deletePod(@PathParam("podId") @NotNull String podId, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * List all services on this cluster
      * @param namespace 
      */
-    @Path("services")
+    @Path("namespaces/{namespace}/services")
     @GET
     @Produces("application/json")
-    ServiceList getServices(@QueryParam("namespace") String namespace);
+    ServiceList getServices(@PathParam("namespace") String namespace);
 
-    @Path("services")
+    @Path("namespaces/{namespace}/services")
     @POST
     @Consumes("application/json")
-    String createService(Service entity, @QueryParam("namespace") String namespace) throws Exception;
+    String createService(Service entity, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * Get a specific service
@@ -92,42 +92,42 @@ public interface Kubernetes {
      * @param namespace
      */
     @GET
-    @Path("services/{serviceId}")
+    @Path("namespaces/{namespace}/services/{serviceId}")
     @Produces("application/json")
-    Service getService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace);
+    Service getService(@PathParam("serviceId") @NotNull String serviceId, @PathParam("namespace") String namespace);
 
     /**
      * Update a service
      */
     @PUT
-    @Path("services/{serviceId}")
+    @Path("namespaces/{namespace}/services/{serviceId}")
     @Consumes("application/json")
-    String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @PathParam("namespace") String namespace) throws Exception;
 
     @DELETE
-    @Path("services/{serviceId}")
+    @Path("namespaces/{namespace}/services/{serviceId}")
     @Produces("application/json")
     @Consumes("text/plain")
-    String deleteService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace) throws Exception;
+    String deleteService(@PathParam("serviceId") @NotNull String serviceId, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * List all replicationControllers on this cluster
      * @param namespace
      */
-    @Path("replicationControllers")
+    @Path("namespaces/{namespace}/replicationcontrollers")
     @GET
     @Produces("application/json")
-    ReplicationControllerList getReplicationControllers(@QueryParam("namespace") String namespace);
+    ReplicationControllerList getReplicationControllers(@PathParam("namespace") String namespace);
 
-    @Path("replicationControllers")
+    @Path("namespaces/{namespace}/replicationcontrollers")
     @POST
     @Consumes("application/json")
-    String createReplicationController(ReplicationController entity, @QueryParam("namespace") String namespace) throws Exception;
+    String createReplicationController(ReplicationController entity, @PathParam("namespace") String namespace) throws Exception;
 
     @PUT
-    @Path("replicationControllers/{controllerId}")
+    @Path("namespaces/{namespace}/replicationcontrollers/{controllerId}")
     @Consumes("application/json")
-    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ReplicationController entity, @QueryParam("namespace") String namespace) throws Exception;
+    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ReplicationController entity, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * Get a specific controller
@@ -136,9 +136,9 @@ public interface Kubernetes {
      * @param namespace 
      */
     @GET
-    @Path("replicationControllers/{controllerId}")
+    @Path("namespaces/{namespace}/replicationcontrollers/{controllerId}")
     @Produces("application/json")
-    ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace);
+    ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @PathParam("namespace") String namespace);
 
     /**
      * Delete a specific controller
@@ -146,24 +146,24 @@ public interface Kubernetes {
      * @param controllerId
      */
     @DELETE
-    @Path("replicationControllers/{controllerId}")
+    @Path("namespaces/{namespace}/replicationcontrollers/{controllerId}")
     @Produces("application/json")
     @Consumes("text/plain")
-    String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace) throws Exception;
+    String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId, @PathParam("namespace") String namespace) throws Exception;
 
     /**
      * List all service endpoints on this cluster
      */
     @GET
-    @Path("endpoints")
-    EndpointsList getEndpoints(@QueryParam("namespace") String namespace);
+    @Path("namespaces/{namespace}/endpoints")
+    EndpointsList getEndpoints(@PathParam("namespace") String namespace);
 
     /**
      * List all endpoints for a service
      */
     @GET
-    @Path("endpoints/{serviceId}")
-    Endpoints endpointsForService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace);
+    @Path("namespaces/{namespace}/endpoints/{serviceId}")
+    Endpoints endpointsForService(@PathParam("serviceId") @NotNull String serviceId, @PathParam("namespace") String namespace);
 
     /**
      * List all the minions on this cluster
