@@ -121,7 +121,7 @@ public class ViewAppSummaries {
     }
 
     public static String getFabric8Version() {
-        return System.getProperty("fabric8.version", "2.0.15");
+        return System.getProperty("fabric8.version", "2.0.48");
     }
 
     public static String getBasedir() {
