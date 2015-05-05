@@ -155,6 +155,17 @@ public class KubernetesHelper {
         }
     }
 
+    public static String getName(Node entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
     public static String getName(Template entity) {
         if (entity != null) {
             return Strings.firstNonBlank(entity.getName(),
@@ -285,19 +296,20 @@ public class KubernetesHelper {
         }
     }
 
+    public static ServiceSpec getOrCreateSpec(Service entity) {
+            ServiceSpec spec = entity.getSpec();
+        if (spec == null) {
+            spec = new ServiceSpec();
+            entity.setSpec(spec);
+        }
+        return spec;
+    }
+
     public static String getPortalIP(Service entity) {
         String answer = null;
         if (entity != null) {
-            answer = entity.getSpec().getPortalIP();
-            if (answer == null) {
-                // TODO lets look for the spec nested object if its available
-            }
-/*
-            ServiceSpec spec = entity.getSpec();
-            if (spec != null) {
-                return spec.getPortalIP();
-            }
-*/
+            ServiceSpec spec = getOrCreateSpec(entity);
+            return spec.getPortalIP();
         }
         return answer;
     }
@@ -305,24 +317,22 @@ public class KubernetesHelper {
     public static Map<String, String> getSelector(Service entity) {
         Map<String, String> answer = null;
         if (entity != null) {
-            answer = entity.getSpec().getSelector();
-            if (answer == null) {
-                // TODO lets look for the spec nested object if its available
-            }
-/*
-            ServiceSpec spec = entity.getSpec();
-            if (spec != null) {
-                return spec.getSelector();
-            }
-*/
+            ServiceSpec spec = getOrCreateSpec(entity);
+            answer = spec.getSelector();
         }
         return answer != null ? answer : Collections.EMPTY_MAP;
+    }
+
+    public static void setSelector(Service entity, Map<String, String> labels) {
+        ServiceSpec spec = getOrCreateSpec(entity);
+        spec.setSelector(labels);
     }
 
     public static Set<Integer> getPorts(Service entity) {
         Set<Integer> answer = new HashSet<>();
         if (entity != null) {
-            for (ServicePort port : entity.getSpec().getPorts()) {
+            ServiceSpec spec = getOrCreateSpec(entity);
+            for (ServicePort port : spec.getPorts()) {
                 answer.add(port.getPort());
             }
         }
