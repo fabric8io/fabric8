@@ -3181,7 +3181,7 @@
         <profile>
             <id>kubernetes-model-snapshot</id>
             <properties>
-                <kubernetes-model.version>0.0.14-SNAPSHOT</kubernetes-model.version>
+                <kubernetes-model.version>0.0.20-SNAPSHOT</kubernetes-model.version>
             </properties>
         </profile>
         <profile>
