@@ -57,10 +57,10 @@ public class Controller {
     private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
 
     private final KubernetesClient kubernetes;
-    private Map<String, Pod> podMap = null;
-    private Map<String, ReplicationController> replicationControllerMap = null;
-    private Map<String, Service> serviceMap = null;
-    private boolean throwExceptionOnError = false;
+    private Map<String, Pod> podMap;
+    private Map<String, ReplicationController> replicationControllerMap;
+    private Map<String, Service> serviceMap;
+    private boolean throwExceptionOnError;
     private boolean allowCreate = true;
     private boolean recreateMode;
     private boolean servicesOnlyMode;
@@ -135,9 +135,8 @@ public class Controller {
 
     private String convertYamlToJson(String yamlString) throws FileNotFoundException {
         Yaml yaml = new Yaml();
-        FileInputStream fstream = new FileInputStream(yamlString);
 
-        Map<String, Object> map = (Map<String, Object>) yaml.load(fstream);
+        Map<String, Object> map = (Map<String, Object>) yaml.load(yamlString);
         JSONObject jsonObject = new JSONObject(map);
 
         return jsonObject.toString();
