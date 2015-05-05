@@ -268,7 +268,7 @@ echo
 
 getServiceIpAndPort()
 {
-  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5/// }'`
+  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
 }
 
 getServiceIp()
