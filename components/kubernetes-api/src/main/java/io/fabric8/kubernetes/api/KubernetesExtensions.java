@@ -47,14 +47,9 @@ import javax.ws.rs.QueryParam;
 public interface KubernetesExtensions {
 
     @POST
-    @Path("configs")
-    @Consumes("application/json")
-    String createConfig(Object entity) throws Exception;
-
-    @POST
     @Path("templateConfigs")
     @Consumes("application/json")
-    String createTemplate(Template entity) throws Exception;
+    Object createTemplate(Template entity) throws Exception;
 
 
     // Routes
