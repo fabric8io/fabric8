@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodState;
@@ -31,6 +32,7 @@ import io.fabric8.kubernetes.api.model.RestartPolicyNever;
 import io.fabric8.kubernetes.api.model.RestartPolicyOnFailure;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeSource;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.utils.Objects;
@@ -133,6 +135,19 @@ public class ConfigurationCompare {
                 configEqual(entity1.getVolumes(), entity2.getVolumes());
     }
 
+    public static boolean configEqual(ContainerPort entity1, ContainerPort entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getContainerPort(), entity2.getContainerPort()) &&
+                configEqual(entity1.getHostPort(), entity2.getHostPort()) &&
+                configEqual(entity1.getHostIP(), entity2.getHostIP()) &&
+                configEqual(entity1.getProtocol(), entity2.getProtocol()) &&
+                configEqual(entity1.getName(), entity2.getName());
+    }
+
     public static boolean configEqual(Container entity1, Container entity2) {
         if (entity1 == entity2) {
             return true;
@@ -187,6 +202,19 @@ public class ConfigurationCompare {
                 configEqual(entity1.getNfs(), entity2.getNfs()) &&
                 configEqual(entity1.getPersistentDisk(), entity2.getPersistentDisk()) &&
                 configEqual(entity1.getSecret(), entity2.getSecret());
+    }
+
+    public static boolean configEqual(VolumeMount entity1, VolumeMount entity2) {
+        if (entity1 == entity2) {
+            return true;
+        } else if (entity1 == null || entity2 == null) {
+            return false;
+        }
+        return configEqual(entity1.getName(), entity2.getName()) &&
+                configEqual(entity1.getMountPath(), entity2.getMountPath()) &&
+                configEqual(entity1.getMountType(), entity2.getMountType()) &&
+                configEqual(entity1.getPath(), entity2.getPath()) &&
+                configEqual(entity1.getReadOnly(), entity2.getReadOnly());
     }
 
     public static boolean configEqual(RestartPolicy entity1, RestartPolicy entity2) {
@@ -313,28 +341,36 @@ public class ConfigurationCompare {
             return true;
         } else if (entity1 == null) {
             return configEqual(entity2, entity1);
-        } else if (entity1 instanceof Service) {
-            return configEqual((Service) entity1, cast(Service.class, entity2));
-        } else if (entity1 instanceof ReplicationController) {
-            return configEqual((ReplicationController) entity1, cast(ReplicationController.class, entity2));
-        } else if (entity1 instanceof ReplicationControllerState) {
-            return configEqual((ReplicationControllerState) entity1, cast(ReplicationControllerState.class, entity2));
-        } else if (entity1 instanceof PodTemplate) {
-            return configEqual((PodTemplate) entity1, cast(PodTemplate.class, entity2));
+        } else if (entity1 instanceof Boolean) {
+            return configEqual((Boolean) entity1, cast(Boolean.class, entity2));
+        } else if (entity1 instanceof Capabilities) {
+            return configEqual((Capabilities) entity1, cast(Capabilities.class, entity2));
+        } else if (entity1 instanceof Container) {
+            return configEqual((Container) entity1, cast(Container.class, entity2));
+        } else if (entity1 instanceof ContainerManifest) {
+            return configEqual((ContainerManifest) entity1, cast(ContainerManifest.class, entity2));
+        } else if (entity1 instanceof ContainerPort) {
+            return configEqual((ContainerPort) entity1, cast(ContainerPort.class, entity2));
+        } else if (entity1 instanceof EnvVar) {
+            return configEqual((EnvVar) entity1, cast(EnvVar.class, entity2));
+        } else if (entity1 instanceof IntOrString) {
+            return configEqual((IntOrString) entity1, cast(IntOrString.class, entity2));
+        } else if (entity1 instanceof List) {
+            return configEqual((List) entity1, cast(List.class, entity2));
+        } else if (entity1 instanceof Map) {
+            return configEqual((Map) entity1, cast(Map.class, entity2));
+        } else if (entity1 instanceof Number) {
+            return configEqual((Number) entity1, cast(Number.class, entity2));
         } else if (entity1 instanceof Pod) {
             return configEqual((Pod) entity1, cast(Pod.class, entity2));
         } else if (entity1 instanceof PodState) {
             return configEqual((PodState) entity1, cast(PodState.class, entity2));
-        } else if (entity1 instanceof ContainerManifest) {
-            return configEqual((ContainerManifest) entity1, cast(ContainerManifest.class, entity2));
-        } else if (entity1 instanceof Container) {
-            return configEqual((Container) entity1, cast(Container.class, entity2));
-        } else if (entity1 instanceof Volume) {
-            return configEqual((Volume) entity1, cast(Volume.class, entity2));
-        } else if (entity1 instanceof EnvVar) {
-            return configEqual((EnvVar) entity1, cast(EnvVar.class, entity2));
-        } else if (entity1 instanceof VolumeSource) {
-            return configEqual((VolumeSource) entity1, cast(VolumeSource.class, entity2));
+        } else if (entity1 instanceof PodTemplate) {
+            return configEqual((PodTemplate) entity1, cast(PodTemplate.class, entity2));
+        } else if (entity1 instanceof ReplicationController) {
+            return configEqual((ReplicationController) entity1, cast(ReplicationController.class, entity2));
+        } else if (entity1 instanceof ReplicationControllerState) {
+            return configEqual((ReplicationControllerState) entity1, cast(ReplicationControllerState.class, entity2));
         } else if (entity1 instanceof RestartPolicy) {
             return configEqual((RestartPolicy) entity1, cast(RestartPolicy.class, entity2));
         } else if (entity1 instanceof RestartPolicyAlways) {
@@ -343,20 +379,16 @@ public class ConfigurationCompare {
             return configEqual((RestartPolicyNever) entity1, cast(RestartPolicyNever.class, entity2));
         } else if (entity1 instanceof RestartPolicyOnFailure) {
             return configEqual((RestartPolicyOnFailure) entity1, cast(RestartPolicyOnFailure.class, entity2));
-        } else if (entity1 instanceof Capabilities) {
-            return configEqual((Capabilities) entity1, cast(Capabilities.class, entity2));
-        } else if (entity1 instanceof IntOrString) {
-            return configEqual((IntOrString) entity1, cast(IntOrString.class, entity2));
-        } else if (entity1 instanceof Map) {
-            return configEqual((Map) entity1, cast(Map.class, entity2));
-        } else if (entity1 instanceof List) {
-            return configEqual((List) entity1, cast(List.class, entity2));
-        } else if (entity1 instanceof Number) {
-            return configEqual((Number) entity1, cast(Number.class, entity2));
-        } else if (entity1 instanceof Boolean) {
-            return configEqual((Boolean) entity1, cast(Boolean.class, entity2));
+        } else if (entity1 instanceof Service) {
+            return configEqual((Service) entity1, cast(Service.class, entity2));
         } else if (entity1 instanceof String) {
             return configEqual((String) entity1, cast(String.class, entity2));
+        } else if (entity1 instanceof Volume) {
+            return configEqual((Volume) entity1, cast(Volume.class, entity2));
+        } else if (entity1 instanceof VolumeMount) {
+            return configEqual((VolumeMount) entity1, cast(VolumeMount.class, entity2));
+        } else if (entity1 instanceof VolumeSource) {
+            return configEqual((VolumeSource) entity1, cast(VolumeSource.class, entity2));
         } else {
             throw new IllegalArgumentException("Unsupported type " + entity1.getClass().getName());
         }

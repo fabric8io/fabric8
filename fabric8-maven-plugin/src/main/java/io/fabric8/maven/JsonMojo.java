@@ -246,6 +246,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.includeAllEnvironmentVariables", defaultValue = "true")
     private boolean includeAllEnvironmentVariables;
 
+    @Parameter(property = "fabric8.containerPrivileged")
+    protected Boolean containerPrivileged;
+
 
     @Component
     protected ArtifactResolver resolver;
@@ -501,6 +504,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withImage(getDockerImage())
                 .withImagePullPolicy(getImagePullPolicy())
                 .withEnv(getEnvironmentVariables())
+                .withPrivileged(getContainerPrivileged())
                 .withPorts(getContainerPorts())
                 .withVolumeMounts(getVolumeMounts())
                 .endContainer()
@@ -548,6 +552,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
         }
+    }
+
+    public Boolean getContainerPrivileged() {
+        return containerPrivileged;
     }
 
     public String getDockerImage() {
