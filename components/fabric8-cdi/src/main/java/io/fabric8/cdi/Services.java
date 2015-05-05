@@ -18,6 +18,8 @@ package io.fabric8.cdi;
 
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.EndpointAddress;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.utils.Strings;
@@ -38,9 +40,9 @@ public class Services {
     public static final String DEFAULT_PROTO = "tcp";
     public static final String DEFAULT_NAMESPACE = "default";
 
-    public static String toServiceUrl(String serviceId, String serviceProtocol, boolean serviceExternal) {
+    public static String toServiceUrl(String serviceName, String serviceProtocol, boolean serviceExternal) {
         String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
-        return KUBERNETES.getServiceURL(serviceId, serviceNamespace, serviceProtocol, serviceExternal);
+        return KUBERNETES.getServiceURL(serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
@@ -61,9 +63,11 @@ public class Services {
         }
         
         for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.getEndpoints(namespace).getItems()) {
-            if (item.getId().equals(serviceId) && (namespace == null || namespace.equals(item.getNamespace()))) {
-                for (String endpoint : item.getEndpoints()) {
-                    endpoints.add(serviceProto + "://" + endpoint);
+            if (item.getName().equals(serviceId) && (namespace == null || namespace.equals(item.getNamespace()))) {
+                for (EndpointSubset subset : item.getSubsets()) {
+                    for (EndpointAddress address : subset.getAddresses()) {
+                        endpoints.add(serviceProto +"://" +address.getIP());
+                    }
                 }
                 break;
             }

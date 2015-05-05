@@ -167,10 +167,21 @@ public class KubernetesHelper {
         }
     }
 
-    public static void setName(Route entity, String namespace, String name) {
-        entity.setNamespace(namespace);
-        entity.setName(name);
-        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+    public static String getName(Endpoints entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static void setName(Route route, String namespace, String name) {
+        route.setNamespace(namespace);
+        route.setName(name);
+        Map<String, Object> metadata = getMetadata(route.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 

@@ -32,13 +32,13 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
     private static final String ENDPOINT_SUFFIX = "-endpoint-urls";
     private static final Map<Key, ServiceUrlCollectionBean> BEANS = new HashMap<>();
 
-    public static ServiceUrlCollectionBean getBean(String id, String protocol, String alias, Boolean endpoint, Type collectionType) {
-        String serviceAlias = alias != null ? alias : id + "-" + protocol + (endpoint ? ENDPOINT_SUFFIX : SUFFIX);
-        Key key = new Key(id, protocol, serviceAlias, endpoint, collectionType);
+    public static ServiceUrlCollectionBean getBean(String name, String protocol, String alias, Boolean endpoint, Type collectionType) {
+        String serviceAlias = alias != null ? alias : name + "-" + protocol + (endpoint ? ENDPOINT_SUFFIX : SUFFIX);
+        Key key = new Key(name, protocol, serviceAlias, endpoint, collectionType);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceUrlCollectionBean bean = new ServiceUrlCollectionBean(id, protocol, serviceAlias, endpoint, collectionType);
+        ServiceUrlCollectionBean bean = new ServiceUrlCollectionBean(name, protocol, serviceAlias, endpoint, collectionType);
         BEANS.put(key, bean);
         return bean;
     }
@@ -57,23 +57,23 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
         return BEANS.values();
     }
     
-    private final String serviceId;
+    private final String serviceName;
     private final String serviceProtocol;
     private final String serviceAlias;
     private final Boolean serviceEndpoint;
     private final Type serviceCollectionType;
 
-    private ServiceUrlCollectionBean(String serviceId, String serviceProtocol, String serviceAlias, Boolean serviceEndpoint, Type serviceCollectionType) {
-        super(serviceAlias, serviceCollectionType, new ServiceEndpointsProducer(serviceId, serviceProtocol), Qualifiers.create(serviceId, serviceProtocol, serviceEndpoint, false));
-        this.serviceId = serviceId;
+    private ServiceUrlCollectionBean(String serviceName, String serviceProtocol, String serviceAlias, Boolean serviceEndpoint, Type serviceCollectionType) {
+        super(serviceAlias, serviceCollectionType, new ServiceEndpointsProducer(serviceName, serviceProtocol), Qualifiers.create(serviceName, serviceProtocol, serviceEndpoint, false));
+        this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.serviceAlias = serviceAlias;
         this.serviceEndpoint = serviceEndpoint;
         this.serviceCollectionType = serviceCollectionType;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getServiceProtocol() {
@@ -95,7 +95,7 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
     @Override
     public String toString() {
         return "ServiceUrlBean[" +
-                "serviceId='" + serviceId + '\'' +
+                "serviceName='" + serviceName + '\'' +
                 ", serviceProtocol='" + serviceProtocol + '\'' +
                 ']';
     }

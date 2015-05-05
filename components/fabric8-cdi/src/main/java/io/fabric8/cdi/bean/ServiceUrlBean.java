@@ -29,14 +29,14 @@ public class ServiceUrlBean extends ProducerBean<String> {
     private static final String SUFFIX = "-url";
     private static final Map<Key, ServiceUrlBean> BEANS = new HashMap<>();
 
-    public static ServiceUrlBean getBean(String id, String protocol, String alias, Boolean external) {
+    public static ServiceUrlBean getBean(String name, String protocol, String alias, Boolean external) {
         String serviceAlias = alias != null ? alias :
-                (external ? "external-" : "") + id + "-" + protocol + SUFFIX;
-        Key key = new Key(id, protocol, serviceAlias, external);
+                (external ? "external-" : "") + name + "-" + protocol + SUFFIX;
+        Key key = new Key(name, protocol, serviceAlias, external);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceUrlBean bean = new ServiceUrlBean(id, protocol, serviceAlias, external);
+        ServiceUrlBean bean = new ServiceUrlBean(name, protocol, serviceAlias, external);
         BEANS.put(key, bean);
         return bean;
     }
@@ -44,7 +44,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
     public static ServiceUrlBean anyBean(String id, String protocol, Boolean external) {
         for (Map.Entry<Key, ServiceUrlBean> entry : BEANS.entrySet()) {
            Key key = entry.getKey();
-           if (key.serviceId.equals(id) && key.serviceProtocol.equals(protocol)) {
+           if (key.serviceName.equals(id) && key.serviceProtocol.equals(protocol)) {
                return entry.getValue();
            }
         }
@@ -54,21 +54,21 @@ public class ServiceUrlBean extends ProducerBean<String> {
     public static Collection<ServiceUrlBean> getBeans() {
         return BEANS.values();
     }
-    private final String serviceId;
+    private final String serviceName;
     private final String serviceProtocol;
     private final String serviceAlias;
     private final Boolean serviceExternal;
 
-    private ServiceUrlBean(String serviceId, String serviceProtocol, String serviceAlias, Boolean serviceExternal) {
-        super(serviceAlias, String.class, new ServiceUrlProducer(serviceId, serviceProtocol, serviceExternal), Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
-        this.serviceId = serviceId;
+    private ServiceUrlBean(String serviceName, String serviceProtocol, String serviceAlias, Boolean serviceExternal) {
+        super(serviceAlias, String.class, new ServiceUrlProducer(serviceName, serviceProtocol, serviceExternal), Qualifiers.create(serviceName, serviceProtocol, false, serviceExternal));
+        this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.serviceAlias = serviceAlias;
         this.serviceExternal = serviceExternal;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getServiceProtocol() {
@@ -82,19 +82,19 @@ public class ServiceUrlBean extends ProducerBean<String> {
     @Override
     public String toString() {
         return "ServiceUrlBean[" +
-                "serviceId='" + serviceId + '\'' +
+                "serviceName='" + serviceName + '\'' +
                 ", serviceProtocol='" + serviceProtocol + '\'' +
                 ']';
     }
 
     private static final class Key {
-        private final String serviceId;
+        private final String serviceName;
         private final String serviceProtocol;
         private final String serviceAlias;
         private final Boolean serviceExternal;
 
-        private Key(String serviceId, String serviceProtocol, String serviceAlias, Boolean serviceExternal) {
-            this.serviceId = serviceId;
+        private Key(String serviceName, String serviceProtocol, String serviceAlias, Boolean serviceExternal) {
+            this.serviceName = serviceName;
             this.serviceProtocol = serviceProtocol;
             this.serviceAlias = serviceAlias;
             this.serviceExternal = serviceExternal;
@@ -107,7 +107,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
 
             Key key = (Key) o;
 
-            if (serviceId != null ? !serviceId.equals(key.serviceId) : key.serviceId != null) return false;
+            if (serviceName != null ? !serviceName.equals(key.serviceName) : key.serviceName != null) return false;
             if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null) return false;
             if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null) return false;
             if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
@@ -116,7 +116,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
 
         @Override
         public int hashCode() {
-            int result = serviceId != null ? serviceId.hashCode() : 0;
+            int result = serviceName != null ? serviceName.hashCode() : 0;
             result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
             result = 31 * result + (serviceAlias != null ? serviceAlias.hashCode() : 0);
             result = 31 * result + (serviceExternal != null ? serviceExternal.hashCode() : 0);

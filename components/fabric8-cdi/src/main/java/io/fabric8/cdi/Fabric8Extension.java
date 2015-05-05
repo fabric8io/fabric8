@@ -67,7 +67,7 @@ public class Fabric8Extension implements Extension {
             ServiceBean.doWith(factoryMethodContext.getReturnType(), new ServiceBean.Callback() {
                 @Override
                 public ServiceBean apply(ServiceBean bean) {
-                    String serviceId = bean.getServiceId();
+                    String serviceId = bean.getServiceName();
                     String serviceProtocol = bean.getServiceProtocol();
                     Boolean serviceExternal = bean.getServiceExternal();
 
@@ -104,13 +104,13 @@ public class Fabric8Extension implements Extension {
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
             Alias alias = annotated.getAnnotation(Alias.class);
-            ServiceName serviceName = annotated.getAnnotation(ServiceName.class);
+            ServiceName name = annotated.getAnnotation(ServiceName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
             External external = annotated.getAnnotation(External.class);
             
             Boolean serviceEndpoint = annotated.getAnnotation(Endpoint.class) != null;
 
-            String serviceId = serviceName.value();
+            String serviceName = name.value();
             String serviceProtocol = protocol != null ? protocol.value() : "tcp";
             String serviceAlias = alias != null ? alias.value() : null;
             Boolean serviceExternal = external != null && external.value();
@@ -118,17 +118,17 @@ public class Fabric8Extension implements Extension {
             Type type = annotated.getBaseType();
 
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceExternal);
+                ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceExternal);
             } else if (serviceEndpoint && isGenericOf(type, List.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
             } else if (serviceEndpoint && isGenericOf(type, List.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (serviceEndpoint && isGenericOf(type, Set.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceEndpoint, Types.SET_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceEndpoint, Types.SET_OF_STRINGS);
             } else if (serviceEndpoint && isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else {
-                ServiceBean.getBean(serviceId, serviceProtocol, serviceAlias, serviceExternal, (Class) type);
+                ServiceBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceExternal, (Class) type);
             }
 
             if (protocol == null) {
