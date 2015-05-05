@@ -31,6 +31,9 @@
   <name>Fabric8 :: Components</name>
 
   <modules>
+    <!-- code generation jobs go first -->
+    <module>kubernetes-codegen</module>
+
     <module>fabric8-arquillian</module>
     <module>console</module>
     <module>cxf-utils</module>
@@ -65,7 +68,6 @@
     <module>karaf-features</module>
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
-    <module>kubernetes-codegen</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-mbeans</module>
     <module>kubernetes-generetor</module>
