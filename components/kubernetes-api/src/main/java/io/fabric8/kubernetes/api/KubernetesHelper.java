@@ -18,8 +18,29 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.ContainerState;
+import io.fabric8.kubernetes.api.model.ContainerStateRunning;
+import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
+import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
@@ -56,7 +77,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -101,14 +132,35 @@ public class KubernetesHelper {
     }
 
 
+    public static String getName(ObjectMeta entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(io.fabric8.kubernetes.api.model.base.ObjectMeta entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(entity.getName(),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                    entity.getUid());
+        } else {
+            return null;
+        }
+
+    }
+
 
     public static String getName(Pod entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -116,11 +168,11 @@ public class KubernetesHelper {
 
     public static String getName(ReplicationController entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -129,11 +181,11 @@ public class KubernetesHelper {
 
     public static String getName(Service entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -141,22 +193,23 @@ public class KubernetesHelper {
 
     public static String getName(Route entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
     }
 
+
     public static String getName(Node entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -164,11 +217,11 @@ public class KubernetesHelper {
 
     public static String getName(Template entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
                     getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -176,10 +229,10 @@ public class KubernetesHelper {
 
     public static String getName(ImageStream entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -187,10 +240,10 @@ public class KubernetesHelper {
 
     public static String getName(Endpoints entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(entity.getMetadata().getName(),
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id"),
-                    entity.getMetadata().getUid());
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
         } else {
             return null;
         }
@@ -283,6 +336,19 @@ public class KubernetesHelper {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns the labels of the given metadata object or an empty map if the metadata or labels are null
+     */
+    public static Map<String,String> getLabels(ObjectMeta metadata) {
+        if (metadata != null) {
+            Map<String, String> labels = metadata.getLabels();
+            if (labels != null) {
+                return labels;
+            }
+        }
+        return Collections.EMPTY_MAP;
     }
 
     public static ServiceSpec getOrCreateSpec(Service entity) {
