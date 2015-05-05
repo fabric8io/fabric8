@@ -1428,20 +1428,25 @@ public class KubernetesHelper {
      */
     public static String summaryText(Service entity) {
         StringBuilder portText = new StringBuilder();
-        List<ServicePort> ports = entity.getSpec().getPorts();
-        if (ports != null) {
-            for (ServicePort port : ports) {
-                Integer number = port.getPort();
-                if (number != null) {
-                    if (portText.length() > 0) {
-                        portText.append(", ");
+        ServiceSpec spec = entity.getSpec();
+        if (spec == null) {
+            return "No spec";
+        } else {
+            List<ServicePort> ports = spec.getPorts();
+            if (ports != null) {
+                for (ServicePort port : ports) {
+                    Integer number = port.getPort();
+                    if (number != null) {
+                        if (portText.length() > 0) {
+                            portText.append(", ");
+                        }
+                        portText.append("" + number);
                     }
-                    portText.append("" + number);
                 }
-            }
 
+            }
+            return "selector: " + spec.getSelector() + " ports: " + portText;
         }
-        return "selector: " + entity.getSpec().getSelector() + " ports: " + portText;
     }
 
     /**
