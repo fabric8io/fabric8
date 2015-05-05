@@ -186,10 +186,16 @@ public class KubernetesHelper {
         }
     }
 
-    public static void setName(Route route, String namespace, String name) {
-        route.setNamespace(namespace);
-        route.setName(name);
-        Map<String, Object> metadata = getMetadata(route.getAdditionalProperties(), true);
+    public static void setName(Route entity, String namespace, String name) {
+        entity.setNamespace(namespace);
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
+        metadata.put("name", name);
+    }
+
+    public static void setName(Template entity, String name) {
+        entity.setName(name);
+        Map<String, Object> metadata = getMetadata(entity.getAdditionalProperties(), true);
         metadata.put("name", name);
     }
 

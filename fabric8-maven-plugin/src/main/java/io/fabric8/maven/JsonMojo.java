@@ -918,7 +918,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String templateName = properties.containsKey(TEMPLATE_NAME) ?
                 String.valueOf(properties.getProperty(TEMPLATE_NAME)) :
                 project.getArtifactId();
-        return new TemplateBuilder().withName(templateName).withParameters(parameters).build();
+        Template template = new TemplateBuilder().withName(templateName).withParameters(parameters).build();
+        KubernetesHelper.setName(template, templateName);
+        return template;
     }
 
     private String labelValueOrBlank(String label, String value) {
