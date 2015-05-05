@@ -20,6 +20,9 @@ package io.fabric8.io.fabric8.workflow.build.simulator;
 import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildStatus;
+
+import java.util.Date;
 
 /**
  */
@@ -41,7 +44,9 @@ public class SimulatorBuildFinishedEvent extends BuildFinishedEvent {
         build.setName(key.getBuildName());
         build.setNamespace(key.getNamespace());
         build.setUid(key.getBuildUuid());
-        build.setStatus("Complete");
+        BuildStatus status = new BuildStatus();
+        status.setCompletionTimestamp(new Date().toString());
+        build.setStatus(status);
         return build;
     }
 }
