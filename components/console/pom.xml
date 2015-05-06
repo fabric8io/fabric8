@@ -39,10 +39,6 @@
       <artifactId>hawtio-default</artifactId>
       <type>war</type>
     </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-mbeans</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
