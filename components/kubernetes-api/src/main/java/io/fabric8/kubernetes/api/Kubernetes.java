@@ -37,11 +37,11 @@ public interface Kubernetes {
      * @param namespace
      */
     @GET
-    @Path("namespaces/{namespace}/namespaces/{namespace}/pods")
+    @Path("namespaces/{namespace}/pods")
     PodList getPods(@PathParam("namespace") String namespace);
 
     @POST
-    @Path("namespaces/{namespace}/namespaces/{namespace}/pods")
+    @Path("namespaces/{namespace}/pods")
     @Consumes("application/json")
     String createPod(Pod entity, @PathParam("namespace") String namespace) throws Exception;
 
