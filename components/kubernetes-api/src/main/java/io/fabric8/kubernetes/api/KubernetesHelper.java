@@ -42,6 +42,9 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
+import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -168,6 +171,51 @@ public class KubernetesHelper {
         return metadata;
     }
 
+    public static ObjectMeta getOrCreateMetadata(Build entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(BuildConfig entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(DeploymentConfig entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(ImageStream entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
+    public static ObjectMeta getOrCreateMetadata(OAuthClient entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
     public static ObjectMeta getOrCreateMetadata(Template entity) {
         ObjectMeta metadata = entity.getMetadata();
         if (metadata == null) {
@@ -225,6 +273,18 @@ public class KubernetesHelper {
 
 
     public static String getName(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(getName(entity.getMetadata()),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
+            );
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(OAuthClient entity) {
         if (entity != null) {
             return Strings.firstNonBlank(getName(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
@@ -360,6 +420,16 @@ public class KubernetesHelper {
     }
 
     public static String getNamespace(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
+                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
+                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+        } else {
+            return null;
+        }
+    }
+
+    public static String getNamespace(OAuthClient entity) {
         if (entity != null) {
             return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
                     getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
@@ -1562,6 +1632,8 @@ public class KubernetesHelper {
             return summaryText((Pod) object);
         } else if (object instanceof Template) {
             return summaryText((Template) object);
+        } else if (object instanceof OAuthClient) {
+            return summaryText((OAuthClient) object);
         }
         return "";
     }
@@ -1609,6 +1681,13 @@ public class KubernetesHelper {
             }
         }
         return "parameters: " + buffer;
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(OAuthClient entity) {
+        return "redirectURIs: " + entity.getRedirectURIs();
     }
 
     /**

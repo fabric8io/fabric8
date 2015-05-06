@@ -58,6 +58,14 @@ public enum VolumeType {
                     .withNewGitRepo(repositroy, revision)
                     .build();
         }
+    }, SECRET("secret") {
+        public Volume fromProperties(String name, Properties properties) {
+            String secretName = properties.getProperty(String.format(VOLUME_PROPERTY, name, VOLUME_SECRET_NAME));
+            return new VolumeBuilder()
+                    .withName(name)
+                    .withNewSecret(secretName)
+                    .build();
+        }
     }, NFS_PATH("nfsPath") {
         public Volume fromProperties(String name, Properties properties) {
             String path = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
@@ -116,6 +124,7 @@ public enum VolumeType {
     private static final String VOLUME_PROPERTY = VOLUME_NAME_PREFIX + ".%s";
     
     private static final String VOLUME_GIT_REV = "gitRevision";
+    private static final String VOLUME_SECRET_NAME = "secret";
 
     private static final String VOLUME_NFS_SERVER = "nfsServer";
     private static final String VOLUME_GCE_FS_TYPE = "gceFsType";

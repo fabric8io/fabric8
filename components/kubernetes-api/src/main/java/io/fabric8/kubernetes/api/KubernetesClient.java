@@ -44,7 +44,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.*;
  * the {@link io.fabric8.kubernetes.api.KubernetesFactory} and the differences between
  * the core {@link io.fabric8.kubernetes.api.Kubernetes} API and the {@link io.fabric8.kubernetes.api.KubernetesExtensions}
  */
-public class KubernetesClient implements Kubernetes, KubernetesExtensions {
+public class KubernetesClient implements Kubernetes, KubernetesExtensions, KubernetesGlobalExtensions {
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
     private static final long DEFAULT_TRIGGER_TIMEOUT = 60 * 1000;
 
@@ -53,6 +53,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     private Kubernetes kubernetes;
     private Kubernetes kubernetesWriteable;
     private KubernetesExtensions kubernetesExtensions;
+    private KubernetesGlobalExtensions kubernetesGlobalExtensions;
     private String namespace = defaultNamespace();
 
     protected static String defaultNamespace() {
@@ -113,6 +114,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             kubernetesExtensions = getFactory(true).createKubernetesExtensions();
         }
         return kubernetesExtensions;
+    }
+
+    public KubernetesGlobalExtensions getKubernetesGlobalExtensions() {
+        if (kubernetesGlobalExtensions == null) {
+            kubernetesGlobalExtensions = getFactory(true).createKubernetesGlobalExtensions();
+        }
+        return kubernetesGlobalExtensions;
     }
 
     public KubernetesFactory getFactory(boolean writeable) {
@@ -391,6 +399,15 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     @Override
     @POST
+    @Path("oauthclients")
+    @Consumes("application/json")
+    public String createOAuthClient(OAuthClient entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
+        return getKubernetesGlobalExtensions().createOAuthClient(entity, namespace);
+    }
+
+    @Override
+    @POST
     @Path("routes")
     public String createRoute(Route entity, String namespace) throws Exception {
         return getKubernetesExtensions().createRoute(entity, namespace);
@@ -400,6 +417,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Path("deploymentConfigs")
     public String createDeploymentConfig(DeploymentConfig entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createDeploymentConfig(entity, namespace);
     }
 
@@ -458,6 +476,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Path("builds")
     public String createBuild(Build entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createBuild(entity, namespace);
     }
 
@@ -538,6 +557,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Path("buildConfigs")
     public String createBuildConfig(BuildConfig entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createBuildConfig(entity, namespace);
     }
 
@@ -574,6 +594,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @POST
     @Path("imageStreams")
     public String createImageStream(ImageStream entity, String namespace) throws Exception {
+        getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createImageStream(entity, namespace);
     }
 

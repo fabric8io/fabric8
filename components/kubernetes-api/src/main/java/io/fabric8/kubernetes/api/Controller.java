@@ -187,10 +187,28 @@ public class Controller {
             applyDeploymentConfig((DeploymentConfig) dto, sourceName);
         } else if (dto instanceof ImageStream) {
             applyImageStream((ImageStream) dto, sourceName);
+        } else if (dto instanceof OAuthClient) {
+            applyOAuthClient((OAuthClient) dto, sourceName);
         } else if (dto instanceof Template) {
             applyTemplate((Template) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
+        }
+    }
+
+    public void applyOAuthClient(OAuthClient entity, String sourceName) {
+        String id = getName(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
+        String namespace = KubernetesHelper.getNamespace(entity);
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = kubernetes.getNamespace();
+        }
+        LOG.info("Creating OAuthClient " + namespace + ":" + id + " " + summaryText(entity));
+        Object result = null;
+        try {
+            result = kubernetes.createOAuthClient(entity, namespace);
+        } catch (Exception e) {
+            onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
         }
     }
 
@@ -255,6 +273,9 @@ public class Controller {
         String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = kubernetes.getNamespace();
+        }
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
             try {

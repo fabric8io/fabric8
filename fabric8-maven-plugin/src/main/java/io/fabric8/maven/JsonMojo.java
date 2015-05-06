@@ -167,7 +167,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The extra additional kubernetes JSON file for things like services
      */
-    @Parameter(property = "kubernetesExtraJson", defaultValue = "${basedir}/target/classes/kubernetes-extra.json")
+    @Parameter(property = "fabric8.extra.json", defaultValue = "${basedir}/target/classes/kubernetes-extra.json")
     private File kubernetesExtraJson;
 
     /**

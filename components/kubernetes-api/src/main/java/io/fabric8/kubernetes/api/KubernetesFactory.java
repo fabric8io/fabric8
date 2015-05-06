@@ -194,6 +194,10 @@ public class KubernetesFactory {
         return createWebClient(KubernetesExtensions.class);
     }
 
+    public KubernetesGlobalExtensions createKubernetesGlobalExtensions() {
+        return createWebClient(KubernetesGlobalExtensions.class);
+    }
+
     /**
      * Creates a JAXRS web client for the given JAXRS client
      */
@@ -231,6 +235,7 @@ public class KubernetesFactory {
         //providers.add(new JacksonIntOrStringConfig(objectMapper));
         return providers;
     }
+
 
     /**
      * Lets accept plain text too as if its JSON to work around some issues with the REST API and remote kube....
@@ -360,6 +365,9 @@ public class KubernetesFactory {
         Map<String,Class<?>> kindToClasses = KindToClassMapping.getKindToClassMap();
         if (!kindToClasses.containsKey("List")) {
             kindToClasses.put("List", KubernetesList.class);
+        }
+        if (!kindToClasses.containsKey("OAuthClient")) {
+            kindToClasses.put("OAuthClient", OAuthClient.class);
         }
         return kindToClasses;
     }
