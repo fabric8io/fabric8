@@ -68,6 +68,7 @@ import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
+import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -690,7 +691,17 @@ public class KubernetesHelper {
     }
 
     public static Map<String, Pod> getPodMap(Kubernetes kubernetes, String namespace) {
-        return toPodMap(kubernetes.getPods(namespace));
+        PodList pods = null;
+        try {
+            pods = kubernetes.getPods(namespace);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                // ignore not found
+            } else {
+                throw e;
+            }
+        }
+        return toPodMap(pods);
     }
 
     public static Map<String, Pod> getSelectedPodMap(Kubernetes kubernetes, String selector) {

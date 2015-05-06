@@ -230,9 +230,11 @@ public class Filters {
      */
     public static <T> List<T> filter(Iterable<T> values, Filter<T> filter) {
         List<T> answer = new ArrayList<T>();
-        for (T value : values) {
-            if (filter.matches(value)) {
-                answer.add(value);
+        if (values != null) {
+            for (T value : values) {
+                if (filter.matches(value)) {
+                    answer.add(value);
+                }
             }
         }
         return answer;
