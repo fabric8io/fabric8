@@ -60,6 +60,41 @@ public class ConfigCompareServiceTest {
 
         assertCompareConfig(entity1, entity2, true);
     }
+    @Test
+
+    public void testServicesEqualWithStatusdifferences() throws Exception {
+        Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                withResourceVersion("1").
+                endMetadata().
+                withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                addNewPort().
+                withPort(123).
+                withTargetPort(new IntOrString(456)).
+                endPort().
+                endSpec().
+                build();
+
+        Service entity2 = new ServiceBuilder().withNewMetadata().withName("foo").
+                addToLabels("label2", "value2").
+                addToLabels("label1", "value1").
+                withResourceVersion("2").
+                endMetadata().
+                withNewSpec().
+                addToSelector("label1", "value1").
+                addToSelector("label2", "value2").
+                addNewPort().
+                withPort(123).
+                withTargetPort(new IntOrString(456)).
+                endPort().
+                endSpec().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
 
     @Test
     public void testServicesPortNotEqual() throws Exception {
@@ -194,7 +229,7 @@ public class ConfigCompareServiceTest {
     }
 
     public static void assertCompareConfig(Object entity1, Object entity2, boolean expected) {
-        boolean actual = ConfigurationCompare.configEqual(entity1, entity2);
+        boolean actual = UserConfigurationCompare.configEqual(entity1, entity2);
         assertEquals("Configuration compare for " + entity1 + " and " + entity2, expected, actual);
     }
 }

@@ -205,7 +205,7 @@ public class Controller {
         }
         OAuthClient old = kubernetes.getOAuthClient(id);
         if (isRunning(old)) {
-            if (ConfigurationCompare.configEqual(entity, old)) {
+            if (UserConfigurationCompare.configEqual(entity, old)) {
                 LOG.info("OAuthClient hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
@@ -359,7 +359,7 @@ public class Controller {
         }
         Service old = serviceMap.get(id);
         if (isRunning(old)) {
-            if (ConfigurationCompare.configEqual(service, old)) {
+            if (UserConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
@@ -412,7 +412,7 @@ public class Controller {
         }
         ReplicationController old = replicationControllerMap.get(id);
         if (isRunning(old)) {
-            if (ConfigurationCompare.configEqual(replicationController, old)) {
+            if (UserConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
@@ -465,7 +465,7 @@ public class Controller {
         }
         Pod old = podMap.get(id);
         if (isRunning(old)) {
-            if (ConfigurationCompare.configEqual(pod, old)) {
+            if (UserConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {

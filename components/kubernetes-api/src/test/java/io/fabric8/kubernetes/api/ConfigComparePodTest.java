@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodStatus;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,45 @@ public class ConfigComparePodTest {
                             // addNewPort().endPort().
                         endContainer().
                 endSpec().
+                build();
+
+        assertCompareConfig(entity1, entity2, true);
+    }
+
+    @Test
+    public void testPodsEqualWithDifferentStatus() throws Exception {
+        Pod entity1 = new PodBuilder().withNewMetadata().withName("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
+                withNewSpec().
+                        addNewContainer().
+                            withImage("fabric8/jenkins").
+                            addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                endSpec().
+                build();
+
+        PodStatus status2 = new PodStatus();
+        status2.setHostIP("abc");
+
+        Pod entity2 = new PodBuilder().withNewMetadata().withName("foo").
+                addToLabels("label1", "value1").
+                addToLabels("label2", "value2").
+                addToAnnotations("podAnnotation1", "podAnnValue1").
+                endMetadata().
+                withNewSpec().
+                addNewContainer().
+                withImage("fabric8/jenkins").
+                addNewEnv().withName("foo").withValue("bar").endEnv().
+                            // TODO....
+                            // addNewPort().endPort().
+                        endContainer().
+                endSpec().
+                withStatus(status2).
                 build();
 
         assertCompareConfig(entity1, entity2, true);
