@@ -17,7 +17,12 @@
 package io.fabric8.forge.openshift;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.openshift.api.model.*;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.BuildConfigSpec;
+import io.fabric8.openshift.api.model.BuildConfigSpecBuilder;
+import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.utils.Strings;
 
 import java.util.HashMap;
@@ -36,17 +41,15 @@ public class BuildConfigs {
 
     public static ImageStream imageRepository(String buildName, Map<String, String> labels) {
         return new ImageStreamBuilder().
-                withLabels(labels).
-                withName(buildName).
+                withNewMetadata().withLabels(labels).withName(buildName).endMetadata().
                 build();
     }
 
-    public static BuildConfigSpec addBuildParameterOutput(BuildConfigSpecBuilder builder, String imageTag) {
+    public static BuildConfigSpec addBuildParameterOutput(BuildConfigSpecBuilder builder, String imageName) {
         return builder.
                 withNewOutput().
-                withTag(imageTag).
-                // TODO add to / name  on output
-                        endOutput().
+                withNewTo().withKind("ImageStreamImage").withName(imageName).endTo().
+                endOutput().
                 build();
     }
 
@@ -59,37 +62,30 @@ public class BuildConfigs {
                 build();
     }
 
-    public static BuildConfigSpec addBuildConfigSpectiStrategy(BuildConfigSpecBuilder builder, String image) {
+    public static BuildConfigSpecBuilder addBuildConfigSpectiStrategy(BuildConfigSpecBuilder builder, String image) {
         return builder.
                 withNewStrategy().
                 withType("STI").
                 // TODO add builderImage
-                        withNewStiStrategy().withImage(image).
+                withNewStiStrategy().
+                withNewFrom().withName(image).withKind("ImageStreamImage").endFrom().
                 endStiStrategy().
-                endStrategy().
-                build();
+                endStrategy();
     }
 
 
-    public static BuildConfigSpec addBuildParameterCustomStrategy(BuildConfigSpecBuilder builder, String image, List<EnvVar> envVars) {
+    public static BuildConfigSpecBuilder addBuildParameterCustomStrategy(BuildConfigSpecBuilder builder, String image, List<EnvVar> envVars) {
         return builder.
                 withNewStrategy().
                 withType("Custom").
                 withNewCustomStrategy().
-                withImage(image).
+                withNewFrom().withName(image).withKind("ImageStreamImage").endFrom().
                 withEnv(envVars).
                 endCustomStrategy().
-                endStrategy().
-                build();
+                endStrategy();
     }
 
-
-    public static BuildConfigBuilder buildConfigBuilder(String buildName, Map<String, String> labels, BuildConfigSpec parameters) {
-        return buildConfigBuilder(buildName, labels).
-                withParameters(parameters);
-    }
-
-    public static BuildConfigBuilder addWebHookTriggers(BuildConfigBuilder builder, String secret) {
+    public static BuildConfigSpecBuilder addWebHookTriggers(BuildConfigSpecBuilder builder, String secret) {
         return builder.
                 addNewTrigger().
                 withType("github").
@@ -104,33 +100,33 @@ public class BuildConfigs {
 
     public static BuildConfigBuilder buildConfigBuilder(String buildName, Map<String, String> labels) {
         return new BuildConfigBuilder().
-                withLabels(labels).
-                withName(buildName);
+                withNewMetadata().withLabels(labels).withName(buildName).endMetadata();
     }
 
-    public static BuildConfig createBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String outputImageTagText, String imageText, String webhookSecret) {
-        BuildConfigSpecBuilder parametersBuilder = new BuildConfigSpecBuilder();
-        addBuildParameterGitSource(parametersBuilder, gitUrlText);
-        if (Strings.isNotBlank(outputImageTagText)) {
-            addBuildParameterOutput(parametersBuilder, outputImageTagText);
+    public static BuildConfig createBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String outputImageStreamName, String imageText, String webhookSecret) {
+        BuildConfigBuilder buildConfigBuilder = buildConfigBuilder(buildConfigName, labels);
+        BuildConfigSpecBuilder specBuilder = new BuildConfigSpecBuilder();
+
+        addBuildParameterGitSource(specBuilder, gitUrlText);
+        if (Strings.isNotBlank(outputImageStreamName)) {
+            addBuildParameterOutput(specBuilder, outputImageStreamName);
         }
         if (Strings.isNotBlank(imageText)) {
-            addBuildConfigSpectiStrategy(parametersBuilder, imageText);
+            addBuildConfigSpectiStrategy(specBuilder, imageText);
         }
-        BuildConfigBuilder builder = buildConfigBuilder(buildConfigName, labels, parametersBuilder.build());
         if (Strings.isNotBlank(webhookSecret)) {
-            addWebHookTriggers(builder, webhookSecret);
+            addWebHookTriggers(specBuilder, webhookSecret);
         }
-        return builder.build();
+        return buildConfigBuilder.withSpec(specBuilder.build()).build();
     }
 
     public static BuildConfig createIntegrationTestBuildConfig(String buildConfigName, Map<String, String> labels, String gitUrlText, String image, List<EnvVar> envVars) {
-        BuildConfigSpecBuilder parametersBuilder = new BuildConfigSpecBuilder();
-        addBuildParameterGitSource(parametersBuilder, gitUrlText);
+        BuildConfigBuilder buildConfigBuilder = buildConfigBuilder(buildConfigName, labels);
+        BuildConfigSpecBuilder specBuilder = new BuildConfigSpecBuilder();
+        addBuildParameterGitSource(specBuilder, gitUrlText);
         if (Strings.isNotBlank(image)) {
-            addBuildParameterCustomStrategy(parametersBuilder, image, envVars);
+            addBuildParameterCustomStrategy(specBuilder, image, envVars);
         }
-        BuildConfigBuilder builder = buildConfigBuilder(buildConfigName, labels, parametersBuilder.build());
-        return builder.build();
+        return buildConfigBuilder.withSpec(specBuilder.build()).build();
     }
 }

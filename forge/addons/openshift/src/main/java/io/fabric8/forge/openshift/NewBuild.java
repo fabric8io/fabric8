@@ -50,10 +50,10 @@ public class NewBuild extends AbstractOpenShiftCommand {
     UIInput<String> buildName;
 
     @Inject
-    @WithAttributes(name = "imageTag", label = "Image Tag",
-            description = "The image tag to use.",
-            required = false, defaultValue = "test")
-    UIInput<String> imageTag;
+    @WithAttributes(name = "imageName", label = "Output Image Name",
+            description = "The output image name to push the docker image to.",
+            required = false)
+    UIInput<String> imageName;
 
     @Inject
     @WithAttributes(name = "gitUri", label = "Git Uri",
@@ -96,7 +96,7 @@ public class NewBuild extends AbstractOpenShiftCommand {
             }
         });
         builder.add(buildName);
-        builder.add(imageTag);
+        builder.add(imageName);
         builder.add(gitUri);
         builder.add(outputImage);
         builder.add(webHookSecret);
@@ -107,7 +107,7 @@ public class NewBuild extends AbstractOpenShiftCommand {
         String buildConfigName = buildName.getValue();
         Objects.assertNotNull(buildConfigName, "buildName");
         Map<String, String> labels = BuildConfigs.createBuildLabels(buildConfigName);
-        String imageTagText = imageTag.getValue();
+        String ouputImageName = imageName.getValue();
         String gitUrlText = getOrFindGitUrl(context, gitUri.getValue());
         String imageText = outputImage.getValue();
         Model mavenModel = getMavenModel(context);
@@ -120,7 +120,7 @@ public class NewBuild extends AbstractOpenShiftCommand {
             // TODO generate a really good secret!
             webhookSecretText = "secret101";
         }
-        BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildConfigName, labels, gitUrlText, imageTagText, imageText, webhookSecretText);
+        BuildConfig buildConfig = BuildConfigs.createBuildConfig(buildConfigName, labels, gitUrlText, ouputImageName, imageText, webhookSecretText);
 
         System.out.println("Generated BuildConfig: " + toJson(buildConfig));
 
