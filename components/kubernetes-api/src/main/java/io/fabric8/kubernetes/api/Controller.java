@@ -199,14 +199,40 @@ public class Controller {
     public void applyOAuthClient(OAuthClient entity, String sourceName) {
         String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
-        if (Strings.isNullOrBlank(namespace)) {
-            namespace = kubernetes.getNamespace();
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
+            return;
         }
-        LOG.info("Creating OAuthClient " + namespace + ":" + id + " " + summaryText(entity));
+        OAuthClient old = kubernetes.getOAuthClient(id);
+        if (isRunning(old)) {
+            if (ConfigurationCompare.configEqual(entity, old)) {
+                LOG.info("OAuthClient hasn't changed so not doing anything");
+            } else {
+                if (isRecreateMode()) {
+                    kubernetes.deleteOAuthClient(id);
+                    doCreateOAuthClient(entity, sourceName);
+                } else {
+                    try {
+                        Object answer = kubernetes.updateOAuthClient(id, entity);
+                        LOG.info("Updated pod result: " + answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating an OAuthClient from " + sourceName + " name " + getName(entity));
+            } else {
+                doCreateOAuthClient(entity, sourceName);
+            }
+        }
+    }
+
+    protected void doCreateOAuthClient(OAuthClient entity, String sourceName) {
         Object result = null;
         try {
-            result = kubernetes.createOAuthClient(entity, namespace);
+            result = kubernetes.createOAuthClient(entity);
         } catch (Exception e) {
             onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
         }
@@ -493,6 +519,10 @@ public class Controller {
 
     public void setThrowExceptionOnError(boolean throwExceptionOnError) {
         this.throwExceptionOnError = throwExceptionOnError;
+    }
+
+    protected boolean isRunning(OAuthClient entity) {
+        return entity != null;
     }
 
     protected boolean isRunning(Pod entity) {

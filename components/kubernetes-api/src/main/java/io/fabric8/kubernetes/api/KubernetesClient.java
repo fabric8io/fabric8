@@ -401,9 +401,35 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("oauthclients")
     @Consumes("application/json")
-    public String createOAuthClient(OAuthClient entity, String namespace) throws Exception {
+    public String createOAuthClient(OAuthClient entity) throws Exception {
         getOrCreateMetadata(entity).setNamespace(namespace);
-        return getKubernetesGlobalExtensions().createOAuthClient(entity, namespace);
+        String id = getName(entity);
+        LOG.info("Creating OAuthClient " + id + " " + summaryText(entity));
+        return getKubernetesGlobalExtensions().createOAuthClient(entity);
+    }
+
+    @Override
+    @DELETE
+    @Path("oauthclients/{name}")
+    public String deleteOAuthClient(@NotNull String name) {
+        LOG.info("Deleting OAuthClient " + name);
+        return getKubernetesGlobalExtensions().deleteOAuthClient(name);
+    }
+
+    @Override
+    @GET
+    @Path("oauthclients/{name}")
+    public OAuthClient getOAuthClient(@NotNull String name) {
+        return getKubernetesGlobalExtensions().getOAuthClient(name);
+    }
+
+    @Override
+    @PUT
+    @Path("oauthclients/{name}")
+    @Consumes("application/json")
+    public String updateOAuthClient(@NotNull String name, OAuthClient entity) throws Exception {
+        LOG.info("Updating OAuthClient " + name + " " + summaryText(entity));
+        return getKubernetesGlobalExtensions().updateOAuthClient(name, entity);
     }
 
     @Override
