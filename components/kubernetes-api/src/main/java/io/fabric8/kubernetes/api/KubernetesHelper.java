@@ -1199,7 +1199,10 @@ public class KubernetesHelper {
         }
         moveServicesToFrontOfArray(items);
         removeDuplicates(items);
-        return Templates.combineTemplates(list, items);
+        Object answer = Templates.combineTemplates(list, items);
+        items = toItemList(answer);
+        removeDuplicates(items);
+        return answer;
     }
 
     /**
