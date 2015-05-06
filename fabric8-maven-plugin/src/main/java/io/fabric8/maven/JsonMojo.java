@@ -289,7 +289,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         try {
             MavenProject project = getProject();
             Set<File> jsonFiles = new LinkedHashSet<>();
-            List<Dependency> dependencies = project.getDependencies();
             Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
             for (Artifact artifact : dependencyArtifacts) {
                 String classifier = artifact.getClassifier();
