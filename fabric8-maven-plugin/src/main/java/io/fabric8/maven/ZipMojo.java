@@ -168,6 +168,12 @@ public class ZipMojo extends AbstractFabric8Mojo {
     protected String deployFileGoal;
 
     /**
+     * When deploying aggregated zips what URL should we deploy to. Defaults to the
+     */
+    @Parameter(property = "fabric8.deployFileUrl")
+    protected String deployFileUrl;
+
+    /**
      * Whether or not we should ignoreProject this maven project from this goal
      */
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
@@ -520,7 +526,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
             props.setProperty("version", rootProjectVersion);
             props.setProperty("classifier", "app");
             props.setProperty("packaging", "zip");
-            props.setProperty("url", deploymentRepository.getUrl());
+            String deployUrl = deployFileUrl;
+            if (Strings.isNullOrBlank(deployUrl)) {
+                deployUrl = deploymentRepository.getUrl();
+            }
+            props.setProperty("url", deployUrl);
             props.setProperty("repositoryId", deploymentRepository.getId());
             props.setProperty("generatePom", "false");
             request.setProperties(props);
