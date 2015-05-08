@@ -40,14 +40,15 @@ You will need:
     Copy the following line into `/etc/default/docker`
 
         DOCKER_OPTS="--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"
+
 4. Restart the docker service
 
-    `service docker restart`
+        service docker restart
 
 5. If you are running on Fedora or other distro using `firewalld`, you will need to add `docker0` interface to the trusted zone like this:
 
-    `firewall-cmd --zone=trusted --add-interface=docker0`
-    `firewall-cmd --zone=trusted --add-interface=docker0 --permanent`
+        firewall-cmd --zone=trusted --add-interface=docker0
+        firewall-cmd --zone=trusted --add-interface=docker0 --permanent
 
 #### Non-Native Docker Install Pre Requisites
 
@@ -57,41 +58,43 @@ Alternatively, you *could* create a VM manually using VMWare or [Virtual Box](ht
 
 __Instead, we recommend that the simplest way to get going is to use the Fabric8 VagrantFile, as detailed below:__
 
-1. Install the [Docker client](https://docs.docker.com/installation/) to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn't currently a binary distribution for Windows)
+1. Install the [Docker client](https://docs.docker.com/installation/) to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn't currently a binary distribution for Windows).
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html)
-3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip):
+3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip)[^1]:
 
-    `git clone git@github.com:fabric8io/fabric8.git`
+        osx:$ git clone git@github.com:fabric8io/fabric8.git
+
 4. Create a VM using the Fabric8 VagrantFile at the root of the repository:
 
-    `cd fabric8`
-    `vagrant up`
-    `vagrant ssh`
+        osx:$ cd fabric8
+        osx:$ vagrant up
+        osx:$ vagrant ssh
 
    Note: There are alternative Vagrant images available in the [Fabric8 Repo](https://github.com/fabric8io/fabric8/tree/master/support/vagrant)
 
 5. We recommend priming the docker registry with the images used by Fabric8, and then using Vagrant to take a snapshot so we can revert back to a clean start without re-downloading gigabites of docker images.
 
-    first install the snapshot plugin
+   First install the snapshot plugin from you host system (i.e. outside the VM):
 
-    `vagrant plugin install vagrant-vbox-snapshot`
+        osx:$ vagrant plugin install vagrant-vbox-snapshot
 
-    now prime the registry
+   Now prime the registry by fetching setup script within the VM:
 
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -p`
+        vm:$ bash <(curl -sSL https://bit.ly/get-fabric8) -p
 
-    or if you want to pull down all the docker images for the kitchen sink
+   or if you want to pull down all the docker images for the kitchen sink
 
-    `bash <(curl -sSL https://bit.ly/get-fabric8) -pk`
+        vm:$ bash <(curl -sSL https://bit.ly/get-fabric8) -pk
 
-    take a snapshot of the vagrant image:
+   Then take a snapshot of the vagrant image, again outside of the VM
 
-    `exit`
-    `vagrant snapshot take default cleanstart`
+        vm:$  exit
+        osx:$ vagrant snapshot take default cleanstart
 
     __Now at any point you can reset to the cleanstart snapshot via:__
 
-    `vagrant snapshot go default cleanstart`
+        osx:$ vagrant snapshot go default cleanstart
+
 ---
 
 ### Run the Start Script
@@ -245,3 +248,6 @@ If you are developing and working with hawtio you might want to run a locally bu
     docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 
 You can now access the web console at http://$DOCKER_IP:8484/hawtio/kubernetes/pods.
+
+
+[^1]: In the code samples a prompt `osx:$` denotes the host system and `vm:$` is the prompt within the Vagrant VM.
