@@ -420,7 +420,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("oauthclients/{name}")
     public OAuthClient getOAuthClient(@NotNull String name) {
-        return getKubernetesGlobalExtensions().getOAuthClient(name);
+        try {
+            return getKubernetesGlobalExtensions().getOAuthClient(name);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                // does not exist
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     @Override
