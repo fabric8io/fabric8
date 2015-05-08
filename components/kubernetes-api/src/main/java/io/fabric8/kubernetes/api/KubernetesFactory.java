@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.support.KindToClassMapping;
 import io.fabric8.kubernetes.api.support.KubernetesDeserializer;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.cxf.AuthorizationHeaderFilter;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -31,18 +32,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * A simple helper class for creating instances of Kubernetes
  */
 public class KubernetesFactory {
-
     public static final String KUBERNETES_SCHEMA_JSON = "schema/kube-schema.json";
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -212,17 +215,74 @@ public class KubernetesFactory {
 
     public WebClient createWebClient(String serviceAddress) {
         List<Object> providers = createProviders();
+
+        AuthorizationHeaderFilter authorizationHeaderFilter = new AuthorizationHeaderFilter();
+        providers.add(authorizationHeaderFilter);
+
         WebClient webClient = WebClient.create(serviceAddress, providers);
         WebClients.configureUserAndPassword(webClient, this.username, this.password);
+        boolean registeredCert = false;
         if (trustAllCerts) {
             WebClients.disableSslChecks(webClient);
         } else if (caCertFile != null || caCertData != null) {
             WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
+            registeredCert = true;
         }
         if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
             WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
+            registeredCert = true;
+        }
+        if (!registeredCert) {
+            String token = findOpenShiftToken();
+            if (Strings.isNotBlank(token)) {
+                String authHeader = "Bearer " + token;
+                authorizationHeaderFilter.setAuthorizationHeader(authHeader);
+            }
         }
         return webClient;
+    }
+
+    protected String findOpenShiftToken() {
+        String homeDir = System.getProperty("user.home", ".");
+        File file = new File(homeDir, ".config/openshift/config");
+        if (file.exists() && file.isFile()) {
+            log.info("Parsing OpenShift configuration: " + file);
+            String tokenPrefix = "token:";
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                boolean inUsers = false;
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.isEmpty()) {
+                        continue;
+                    }
+                    if (line.startsWith("users:")) {
+                        inUsers = true;
+                    } else {
+                        char ch = line.charAt(0);
+                        if (Character.isWhitespace(ch) || ch == '-') {
+                            if (inUsers) {
+                                String text = line.trim();
+                                if (text.startsWith(tokenPrefix)) {
+                                    String token = text.substring(tokenPrefix.length()).trim();
+                                    if (Strings.isNotBlank(token)) {
+                                        return token;
+                                    }
+                                }
+                            }
+                        } else {
+                            inUsers = false;
+                        }
+                    }
+
+                }
+            } catch (Exception e) {
+                log.warn("Could not parse OpenShift configuration file: " + file);
+            }
+        }
+        return null;
     }
 
     protected List<Object> createProviders() {
