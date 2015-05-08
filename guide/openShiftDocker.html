@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="2.1.1" data-basepath="." data-revision="Fri May 08 2015 14:14:18 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1.1" data-basepath="." data-revision="Fri May 08 2015 17:31:41 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -821,42 +821,42 @@
 <pre><code> DOCKER_OPTS=&quot;--selinux-enabled -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8&quot;
 </code></pre></li>
 <li><p>Restart the docker service</p>
-<p> <code>service docker restart</code></p>
-</li>
+<pre><code> service docker restart
+</code></pre></li>
 <li><p>If you are running on Fedora or other distro using <code>firewalld</code>, you will need to add <code>docker0</code> interface to the trusted zone like this:</p>
-<p> <code>firewall-cmd --zone=trusted --add-interface=docker0</code>
- <code>firewall-cmd --zone=trusted --add-interface=docker0 --permanent</code></p>
-</li>
+<pre><code> firewall-cmd --zone=trusted --add-interface=docker0
+ firewall-cmd --zone=trusted --add-interface=docker0 --permanent
+</code></pre></li>
 </ol>
 <h4 id="non-native-docker-install-pre-requisites"><a name="non-native-docker-install-pre-requisites" class="plugin-anchor" href="#non-native-docker-install-pre-requisites"><span class="fa fa-link"></span></a>Non-Native Docker Install Pre Requisites</h4>
 <p>Traditionally Mac and Windows users would use <a href="http://boot2docker.io/" target="_blank">boot2docker</a>, a lightweight VM designed to make it feel like users can run docker natively.  This has been good in the past when working with a few containers however we have seen connectivity issues and problems related to low resources when working with more demanding technologies such as OpenShift &amp; Kubernetes. Therefore, We <strong>do not</strong> recommend you use boot2docker to run OpenShift.</p>
 <p>Alternatively, you <em>could</em> create a VM manually using VMWare or <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> and install docker manually (using the  <a href="#Native Docker Install Pre Requisites">Native Install Pre Requisites</a>)</p>
 <p><strong>Instead, we recommend that the simplest way to get going is to use the Fabric8 VagrantFile, as detailed below:</strong></p>
 <ol>
-<li>Install the <a href="https://docs.docker.com/installation/" target="_blank">Docker client</a> to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn&apos;t currently a binary distribution for Windows)</li>
+<li>Install the <a href="https://docs.docker.com/installation/" target="_blank">Docker client</a> to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn&apos;t currently a binary distribution for Windows).</li>
 <li>Install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
-<li><p>Check out the Fabric8 Git Repo or download a <a href="https://github.com/fabric8io/fabric8/archive/master.zip" target="_blank">repository snapshot zip</a>:</p>
-<p> <code>git clone git@github.com:fabric8io/fabric8.git</code></p>
-</li>
+<li><p>Check out the Fabric8 Git Repo or download a <a href="https://github.com/fabric8io/fabric8/archive/master.zip" target="_blank">repository snapshot zip</a><sup><a href="#fn_1" id="reffn_1">1</a></sup>:</p>
+<pre><code> osx:$ git clone git@github.com:fabric8io/fabric8.git
+</code></pre></li>
 <li><p>Create a VM using the Fabric8 VagrantFile at the root of the repository:</p>
-<p> <code>cd fabric8</code>
- <code>vagrant up</code>
- <code>vagrant ssh</code></p>
-<p>Note: There are alternative Vagrant images available in the <a href="https://github.com/fabric8io/fabric8/tree/master/support/vagrant" target="_blank">Fabric8 Repo</a></p>
+<pre><code> osx:$ cd fabric8
+ osx:$ vagrant up
+ osx:$ vagrant ssh
+</code></pre><p>Note: There are alternative Vagrant images available in the <a href="https://github.com/fabric8io/fabric8/tree/master/support/vagrant" target="_blank">Fabric8 Repo</a></p>
 </li>
 <li><p>We recommend priming the docker registry with the images used by Fabric8, and then using Vagrant to take a snapshot so we can revert back to a clean start without re-downloading gigabites of docker images.</p>
-<p> first install the snapshot plugin</p>
-<p> <code>vagrant plugin install vagrant-vbox-snapshot</code></p>
-<p> now prime the registry</p>
-<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p</code></p>
-<p> or if you want to pull down all the docker images for the kitchen sink</p>
-<p> <code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -pk</code></p>
-<p> take a snapshot of the vagrant image:</p>
-<p> <code>exit</code>
- <code>vagrant snapshot take default cleanstart</code></p>
-<p> <strong>Now at any point you can reset to the cleanstart snapshot via:</strong></p>
-<p> <code>vagrant snapshot go default cleanstart</code></p>
-</li>
+<p>First install the snapshot plugin from you host system (i.e. outside the VM):</p>
+<pre><code> osx:$ vagrant plugin install vagrant-vbox-snapshot
+</code></pre><p>Now prime the registry by fetching setup script within the VM:</p>
+<pre><code> vm:$ bash &lt;(curl -sSL https://bit.ly/get-fabric8) -p
+</code></pre><p>or if you want to pull down all the docker images for the kitchen sink</p>
+<pre><code> vm:$ bash &lt;(curl -sSL https://bit.ly/get-fabric8) -pk
+</code></pre><p>Then take a snapshot of the vagrant image, again outside of the VM</p>
+<pre><code> vm:$  exit
+ osx:$ vagrant snapshot take default cleanstart
+</code></pre><p> <strong>Now at any point you can reset to the cleanstart snapshot via:</strong></p>
+<pre><code> osx:$ vagrant snapshot go default cleanstart
+</code></pre></li>
 </ol>
 <hr>
 <h3 id="run-the-start-script"><a name="run-the-start-script" class="plugin-anchor" href="#run-the-start-script"><span class="fa fa-link"></span></a>Run the Start Script</h3>
@@ -943,6 +943,9 @@ docker rm -v $(docker ps -a -q)
 <p>If you are developing and working with hawtio you might want to run a locally built hawtio docker image against OpenShift..</p>
 <pre><code>docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 </code></pre><p>You can now access the web console at <a href="http://$DOCKER_IP:8484/hawtio/kubernetes/pods" target="_blank">http://$DOCKER_IP:8484/hawtio/kubernetes/pods</a>.</p>
+<blockquote id="fn_1">
+<sup>1</sup>. In the code samples a prompt <code>osx:$</code> denotes the host system and <code>vm:$</code> is the prompt within the Vagrant VM.<a href="#reffn_1" title="Jump back to footnote [1] in the text."> &#x21A9;</a>
+</blockquote>
 
                     
                     </section>
