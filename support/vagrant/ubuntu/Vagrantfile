@@ -16,8 +16,8 @@ echo *        soft    nofile           8192 >> /etc/security/limits.conf
 
 # add some user aliases
 echo >> ~/.bashrc
-echo export DOCKER_IP=172.28.128.4 >> ~/.bashrc
-echo alias kube=\"docker run --rm -i --net=host openshift/origin kube\" >> ~/.bashrc
+echo 'export DOCKER_IP=172.28.128.4' >> ~/.bashrc
+echo 'alias kube="docker run --rm -i --net=host openshift/origin kube"' >> ~/.bashrc
 
 sed -i "s/^DOCKER_OPTS=.\*/DOCKER_OPTS='-H unix:\\/\\/var\\/run\\/docker.sock -H tcp:\\/\\/0.0.0.0:2375 --insecure-registry=172.0.0.0\\/8'/" /etc/default/docker
 
@@ -39,6 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
+  config.vm.provision "shell", inline: "apt-get update"
   config.vm.provision "docker"
 
   config.vm.provision "shell", inline: $provisionScript

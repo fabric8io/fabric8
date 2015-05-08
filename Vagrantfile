@@ -38,6 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", inline: $provisionScript
 
+  config.vm.provision "shell", inline: "apt-get update"
   config.vm.provision "docker" do |d|
     d.run "openshift",
       image: "openshift/origin:latest",
