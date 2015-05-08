@@ -246,7 +246,7 @@ public class KubernetesFactory {
         String homeDir = System.getProperty("user.home", ".");
         File file = new File(homeDir, ".config/openshift/config");
         if (file.exists() && file.isFile()) {
-            log.info("Parsing OpenShift configuration: " + file);
+            log.debug("Parsing OpenShift configuration: " + file);
             String tokenPrefix = "token:";
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 boolean inUsers = false;
