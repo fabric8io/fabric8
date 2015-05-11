@@ -10,9 +10,9 @@ This means you need to map all services to distinct port numbers. e.g. one for y
 
 You can use the Kubernetes [service discovery mechanism](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md) to discover services which are internal and running inside Kubernetes or to discover services running outside of Kubernetes or services on the internet or SaaS providers etc.
 
-For more detail see [integrating external services](http://docs.openshift.org/latest/using_openshift/integrating_external_services.html).
+For more detail see [integrating external services](http://docs.openshift.org/latest/dev_guide/integrating_external_services.html).
 
 ### See also
 
 * [how services work](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md)
-* [integrating external services](http://docs.openshift.org/latest/using_openshift/integrating_external_services.html)
+* [integrating external services](http://docs.openshift.org/latest/dev_guide/integrating_external_services.html)
