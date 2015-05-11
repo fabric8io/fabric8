@@ -1200,26 +1200,38 @@ public class KubernetesHelper {
             Objects.notNull(servicePorts, "servicePorts for service " + id);
 
             answer = new HashSet<>(servicePorts.size());
+            String message = "service " + id;
 
             for (ServicePort port : servicePorts) {
                 IntOrString intOrStringValue = port.getTargetPort();
-                Integer intValue = intOrStringValue.getIntVal();
+                Integer intValue = intOrStringToInteger(intOrStringValue, message);
                 if (intValue != null) {
                     answer.add(intValue);
-                } else {
-                    String containerPortText = intOrStringValue.getStrVal();
-                    if (Strings.isNullOrBlank(containerPortText)) {
-                        throw new IllegalArgumentException("No servicePorts for service " + id);
-                    }
-                    try {
-                        answer.add(Integer.parseInt(containerPortText));
-                    } catch (NumberFormatException e) {
-                        throw new IllegalStateException("Invalid servicePorts expression " + containerPortText + " for service " + id + ". " + e, e);
-                    }
                 }
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns the IntOrString converted to an Integer value or throws an exception with the given message
+     */
+    public static Integer intOrStringToInteger(IntOrString intOrStringValue, String message) {
+        Integer intValue = intOrStringValue.getIntVal();
+        if (intValue == null) {
+            String containerPortText = intOrStringValue.getStrVal();
+            if (Strings.isNullOrBlank(containerPortText)) {
+                throw new IllegalArgumentException("No port for " +
+                        message);
+            }
+            try {
+                intValue = Integer.parseInt(containerPortText);
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException("Invalid servicePorts expression " + containerPortText + " for " +
+                        message + ". " + e, e);
+            }
+        }
+        return intValue;
     }
 
     /**
