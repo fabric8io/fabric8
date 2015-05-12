@@ -60,15 +60,15 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
 
 1. Install the [Docker client](https://docs.docker.com/installation/) to interact with docker from your host machine, the later version the better! This is an optional step but recommended (Note that there isn't currently a binary distribution for Windows).
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html)
-3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip)[^1]:
+3. Check out the Fabric8 Git Repo or download a [repository snapshot zip](https://github.com/fabric8io/fabric8/archive/master.zip):
 
-        osx:$ git clone git@github.com:fabric8io/fabric8.git
+        git clone git@github.com:fabric8io/fabric8.git
 
 4. Create a VM using the Fabric8 VagrantFile at the root of the repository:
 
-        osx:$ cd fabric8
-        osx:$ vagrant up
-        osx:$ vagrant ssh
+        cd fabric8
+        vagrant up
+        vagrant ssh
 
    Note: There are alternative Vagrant images available in the [Fabric8 Repo](https://github.com/fabric8io/fabric8/tree/master/support/vagrant)
 
@@ -76,30 +76,21 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
 
    First install the snapshot plugin from you host system (i.e. outside the VM):
 
-        osx:$ vagrant plugin install vagrant-vbox-snapshot
+        vagrant plugin install vagrant-vbox-snapshot
 
-   Now prime the registry by fetching setup script within the VM:
+   After you have run the start script inside the VM in order to populate the Docker registry (see below), you can take a snapshot of the vagrant image (again, outside of the VM):
 
-        vm:$ bash <(curl -sSL https://bit.ly/get-fabric8) -p
+        vagrant snapshot take default cleanstart
 
-   or if you want to pull down all the docker images for the kitchen sink
+   Now at any point you can reset to the cleanstart snapshot via:
 
-        vm:$ bash <(curl -sSL https://bit.ly/get-fabric8) -pk
-
-   Then take a snapshot of the vagrant image, again outside of the VM
-
-        vm:$  exit
-        osx:$ vagrant snapshot take default cleanstart
-
-    __Now at any point you can reset to the cleanstart snapshot via:__
-
-        osx:$ vagrant snapshot go default cleanstart
+        vagrant snapshot go default cleanstart
 
 ---
 
 ### Run the Start Script
 
-We use a script downloaded via curl to configure and start OpenShift in a Docker container. This script will then schedule a number of further containers such as the Fabric8 console and optionally logging and metric dashboards in the form of [Kibana](http://www.elasticsearch.org/overview/kibana) and [Grafana](http://play.grafana.org/#/dashboard/db/grafana-play-home).
+We use a script downloaded via curl to configure and start OpenShift in a Docker container. This script will then schedule a number of further containers such as the Fabric8 console and optionally logging and metric dashboards in the form of [Kibana](http://www.elasticsearch.org/overview/kibana) and [Grafana](http://play.grafana.org/#/dashboard/db/grafana-play-home). If you are using the non-native approach, this script must be run as root from within the Vagrant VM.
 
 Once you've run the script you'll need to complete some post-install steps before you can access Fabric8.
 
@@ -143,6 +134,8 @@ can pass the `-m` flag & specify the public address:
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -m fabric8.local
 
+To be save you can use the IP address of the VM here which is 172.28.128.4
+
 #### OpenShift admin password
 
 By default, OpenShift uses an `anypassword` policy which means that you can use...any password. This is great for quick
@@ -165,14 +158,38 @@ And of course flags can be combined, to start from scratch & update all images a
 
 You'll need to set the following environment variables on your host to be able use the [Tools](http://fabric8.io/guide/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html), the [Forge Addons](http://fabric8.io/guide/forge.html) and the [java libraries](javaLibraries.html):
 
-    FABRIC8_CONSOLE - used to interact with the faberic8 console to deploy and run apps
-    DOCKER_REGISTRY  - used to push images to the private docker registry
-    KUBERNETES_TRUST_CERT
-    DOCKER_IP - used by the docker client to connect to docker
-    DOCKER_HOST
-    KUBERNETES_MASTER  - used to interact with the Kubernetes Rest API
+* `FABRIC8_CONSOLE` : used to interact with the faberic8 console to deploy and run apps
+* `DOCKER_REGISTRY` : used to push images to the private docker registry
+* `KUBERNETES_TRUST_CERT` : whether to trust the certs provided by Kubernetes service regardless of signing CA
+* `DOCKER_IP` : used by the docker client to connect to docker
+* `DOCKER_HOST` : standard specification how to reach the Docker host
+    (e.g. `tcp://172.28.128.4:2375`)
+* `KUBERNETES_MASTER` : used to interact with the Kubernetes Rest API
 
-These environment variables are presented to you on succesfull completion of the start scirpt, so the easiest thing to do is copy them from the output into your ~/.bashrc (linux) or ~/.profile (mac). Windows users will need to set them individually via the Environment Variables dialog.
+These environment variables are presented to you on successful completion of the start script, so the easiest thing to do is copy them from the output into your `~/.bashrc` (linux) or `~/.profile` (mac). Windows users will need to set them individually via the Environment Variables dialog. 
+
+Here's a sample output when the insallation script finishes:
+
+```
+Waiting for Docker registry
+
+You're all up & running! Here are the available services:
+
+Service              | URL
+-------              | ---
+Kubernetes master    | https://127.0.0.1:8443
+Fabric8 console      | http://172.28.128.4
+Docker Registry      | 172.30.17.90:5000/TCP
+
+Set these environment variables on your development machine:
+
+export FABRIC8_CONSOLE=http://172.28.128.4
+export DOCKER_REGISTRY=172.30.17.90:5000/TCP
+export KUBERNETES_TRUST_CERT=true
+export DOCKER_IP=172.28.128.4
+export DOCKER_HOST=tcp://172.28.128.4:2375
+export KUBERNETES_MASTER=https://172.28.128.4:8443
+```
 
 #### Setup Network Routes (Non-Native Install Only)
 
@@ -248,6 +265,3 @@ If you are developing and working with hawtio you might want to run a locally bu
     docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 
 You can now access the web console at http://$DOCKER_IP:8484/hawtio/kubernetes/pods.
-
-
-[^1]: In the code samples a prompt `osx:$` denotes the host system and `vm:$` is the prompt within the Vagrant VM.
