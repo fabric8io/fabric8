@@ -23,6 +23,14 @@ echo 'alias kube="docker run --rm -i --net=host openshift/origin kube"' >> ~/.ba
 
 SCRIPT
 
+# Switch on docker remote API access (without SSL, on port 2375)
+$postDockerInstall = <<SCRIPT
+echo 'DOCKER_OPTS="${DOCKER_OPTS} -H unix://var/run/docker.sock -H tcp://0.0.0.0:2375 --insecure-registry 172.0.0.0/8"' >> /etc/default/docker
+restart docker
+sleep 3
+docker start openshift
+SCRIPT
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
 
@@ -45,4 +53,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cmd: "start",
       args: "-v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host"
   end
+  config.vm.provision "shell", inline: $postDockerInstall
 end
