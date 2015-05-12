@@ -245,6 +245,7 @@ public class KubernetesFactory {
     protected String findOpenShiftToken() {
         String homeDir = System.getProperty("user.home", ".");
         File file = new File(homeDir, ".config/openshift/config");
+        String answer = null;
         if (file.exists() && file.isFile()) {
             log.debug("Parsing OpenShift configuration: " + file);
             String tokenPrefix = "token:";
@@ -268,7 +269,7 @@ public class KubernetesFactory {
                                 if (text.startsWith(tokenPrefix)) {
                                     String token = text.substring(tokenPrefix.length()).trim();
                                     if (Strings.isNotBlank(token)) {
-                                        return token;
+                                        answer = token;
                                     }
                                 }
                             }
@@ -282,7 +283,7 @@ public class KubernetesFactory {
                 log.warn("Could not parse OpenShift configuration file: " + file);
             }
         }
-        return null;
+        return answer;
     }
 
     protected List<Object> createProviders() {
