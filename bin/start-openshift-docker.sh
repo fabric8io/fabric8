@@ -9,7 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-OPENSHIFT_VERSION=v0.4.4
+OPENSHIFT_VERSION=v0.5
 
 FABRIC8_VERSION=2.0.47
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
@@ -172,20 +172,21 @@ done
 
 sleep 30
 
-docker exec openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-router/.kubeconfig router --create"
-docker exec openshift sh -c "openshift ex --credentials=openshift.local.certificates/openshift-registry/.kubeconfig registry --create"
-docker exec openshift sh -c "openshift ex policy add-role-to-user cluster-admin admin -n master"
-docker exec openshift sh -c "openshift admin policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
+docker exec openshift sh -c "osadm router --credentials=openshift.local.config/master/openshift-router.kubeconfig --create"
+docker exec openshift sh -c "osadm registry --credentials=openshift.local.config/master/openshift-registry.kubeconfig --create"
+docker exec openshift sh -c "osadm policy add-role-to-user cluster-admin admin -n master"
+docker exec openshift sh -c "osadm policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
 
 cat <<EOF | docker exec -i openshift osc create -f -
 ---
-  apiVersion: "v1beta2"
+  apiVersion: "v1beta3"
   kind: "Secret"
-  id: "openshift-cert-secrets"
+  metadata:
+    name: "openshift-cert-secrets"
   data:
-    root-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/ca/cert.crt)"
-    admin-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/cert.crt)"
-    admin-key: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.certificates/admin/key.key)"
+    root-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.config/master/ca.crt)"
+    admin-cert: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)"
+    admin-key: "$(docker exec openshift base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
 EOF
 
 deployFabric8Console() {
@@ -268,7 +269,7 @@ echo
 
 getServiceIpAndPort()
 {
-  echo `echo "$1"|grep "$2"| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
+  echo `echo "$1"|grep "$2"| sed -e 's/\s\+/ /g' -e 's/\/[tT][cC][pP]//gI' -e 's/\/[uU][dD][pP]//gI' | awk '{ print $4 ":" $5 }'`
 }
 
 getServiceIp()
