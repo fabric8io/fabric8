@@ -175,7 +175,6 @@ sleep 30
 docker exec openshift sh -c "osadm router --credentials=openshift.local.config/master/openshift-router.kubeconfig --create"
 docker exec openshift sh -c "osadm registry --credentials=openshift.local.config/master/openshift-registry.kubeconfig --create"
 docker exec openshift sh -c "osadm policy add-role-to-user cluster-admin admin -n master"
-docker exec openshift sh -c "osadm policy add-role-to-group cluster-admin system:authenticated system:unauthenticated"
 
 cat <<EOF | docker exec -i openshift osc create -f -
 ---
