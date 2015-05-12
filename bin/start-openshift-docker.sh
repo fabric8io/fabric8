@@ -305,7 +305,7 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "registry.${FABRIC8_CONSOLE}",
-      "serviceName": "docker-registry-http"
+      "serviceName": "docker-registry"
     },
     {
       "id": "fabric8-console-route",
