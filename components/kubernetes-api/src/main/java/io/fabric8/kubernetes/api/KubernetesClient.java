@@ -16,8 +16,30 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
-import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.openshift.api.model.*;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.NodeList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.ReplicationControllerStatus;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigList;
+import io.fabric8.openshift.api.model.BuildList;
+import io.fabric8.openshift.api.model.BuildTriggerPolicy;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigList;
+import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamList;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.WebHookTrigger;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -28,16 +50,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesFactory.getOpenShiftConfigFile;
+import static io.fabric8.kubernetes.api.KubernetesHelper.defaultOsApiVersion;
+import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToHost;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToProtocol;
+import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 
 /**
  * A simple client interface abstracting away the details of working with
@@ -58,10 +110,40 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     protected static String defaultNamespace() {
         String namespace = System.getenv("KUBERNETES_NAMESPACE");
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = findDefaultOpenShiftContext();
+        }
         if (Strings.isNotBlank(namespace)) {
             return namespace;
         }
-        return Kubernetes.NAMESPACE_ALL;
+        return "default";
+    }
+
+    private static String findDefaultOpenShiftContext() {
+        File file = getOpenShiftConfigFile();
+        String answer = null;
+        if (file.exists() && file.isFile()) {
+            LOG.debug("Parsing OpenShift configuration: " + file);
+            String tokenPrefix = "current-context:";
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                boolean inUsers = false;
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.startsWith(tokenPrefix)) {
+                        String token = line.substring(tokenPrefix.length()).trim();
+                        if (Strings.isNotBlank(token)) {
+                            return token;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Could not parse OpenShift configuration file: " + file);
+            }
+        }
+        return answer;
     }
 
     public KubernetesClient() {
@@ -165,12 +247,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     public PodList getPods(@QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetes().getPods(namespace);
     }
 
     @DELETE
     @Path("pods/{podId}")
     public String deletePod(@NotNull String podId) throws Exception {
+        validateNamespace(namespace, podId);
         return getWriteableKubernetes().deletePod(podId, getNamespace());
     }
 
@@ -179,6 +263,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("pods/{podId}")
     @Consumes("text/plain")
     public String deletePod(@NotNull String podId, String namespace) throws Exception {
+        validateNamespace(namespace, podId);
         return getWriteableKubernetes().deletePod(podId, namespace);
     }
 
@@ -186,11 +271,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     public ReplicationController getReplicationController(@NotNull String controllerId) {
+        validateNamespace(namespace, controllerId);
         return getReplicationController(controllerId, getNamespace());
     }
 
     @Override
     public ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, controllerId);
         return getKubernetes().getReplicationController(controllerId, namespace);
     }
 
@@ -198,6 +285,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     public String deleteReplicationController(@NotNull String controllerId) throws Exception {
+        validateNamespace(namespace, controllerId);
         return getWriteableKubernetes().deleteReplicationController(controllerId, getNamespace());
     }
 
@@ -207,6 +295,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Produces("application/json")
     @Consumes("text/plain")
     public String deleteReplicationController(@NotNull String controllerId, String namespace) throws Exception {
+        validateNamespace(namespace, controllerId);
         return getWriteableKubernetes().deleteReplicationController(controllerId, namespace);
     }
 
@@ -216,6 +305,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Produces("application/json")
     @Consumes("text/plain")
     public String deleteService(@NotNull String serviceId, String namespace) throws Exception {
+        validateNamespace(namespace, serviceId);
         return getWriteableKubernetes().deleteService(serviceId, namespace);
     }
 
@@ -228,6 +318,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     public ReplicationControllerList getReplicationControllers(@QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetes().getReplicationControllers(namespace);
     }
 
@@ -235,6 +326,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
     public String updateReplicationController(@NotNull String controllerId, ReplicationController entity) throws Exception {
+        validateNamespace(namespace, entity);
         return updateReplicationController(controllerId, entity, getNamespace());
     }
 
@@ -242,6 +334,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
     public String updateReplicationController(@NotNull String controllerId, ReplicationController entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getWriteableKubernetes().updateReplicationController(controllerId, entity, namespace);
     }
 
@@ -249,11 +342,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("services/{serviceId}")
     @Consumes("application/json")
     public String updateService(@NotNull String serviceId, Service entity) throws Exception {
+        validateNamespace(namespace, entity);
         return updateService(serviceId, entity, getNamespace());
     }
 
     @Override
     public String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @QueryParam("namespace") String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getWriteableKubernetes().updateService(serviceId, entity, namespace);
     }
 
@@ -266,6 +361,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     public Service getService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, serviceId);
         return getKubernetes().getService(serviceId, namespace);
     }
 
@@ -273,6 +369,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("services/{serviceId}")
     @Produces("application/json")
     public String deleteService(@NotNull String serviceId) throws Exception {
+        validateNamespace(namespace, serviceId);
         return deleteService(serviceId, getNamespace());
     }
 
@@ -284,6 +381,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     public Pod getPod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, podId);
         return getKubernetes().getPod(podId, namespace);
     }
 
@@ -296,6 +394,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     public String updatePod(@PathParam("podId") @NotNull String podId, Pod entity, @QueryParam("namespace") String namespace) throws Exception {
+        validateNamespace(namespace, podId);
         return getKubernetes().updatePod(podId, entity, namespace);
     }
 
@@ -303,11 +402,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Produces("application/json")
     public ServiceList getServices() {
+        validateNamespace(namespace, null);
         return getServices(getNamespace());
     }
 
     @Override
     public ServiceList getServices(@QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetes().getServices(namespace);
     }
 
@@ -315,6 +416,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("pods")
     @Consumes("application/json")
     public String createPod(Pod entity) throws Exception {
+        validateNamespace(namespace, entity);
         return createPod(entity, getNamespace());
     }
 
@@ -323,6 +425,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("pods")
     @Consumes("application/json")
     public String createPod(Pod entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createPod(entity, namespace);
     }
@@ -331,6 +434,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Consumes("application/json")
     public String createService(Service entity) throws Exception {
+        validateNamespace(namespace, entity);
         return createService(entity, getNamespace());
     }
 
@@ -339,6 +443,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Consumes("application/json")
     public String createService(Service entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createService(entity, namespace);
     }
@@ -347,6 +452,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Consumes("application/json")
     public String createReplicationController(ReplicationController entity) throws Exception {
+        validateNamespace(namespace, entity);
         return createReplicationController(entity, getNamespace());
     }
 
@@ -355,6 +461,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Consumes("application/json")
     public String createReplicationController(ReplicationController entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getWriteableKubernetes().createReplicationController(entity, namespace);
     }
@@ -369,6 +476,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("endpoints")
     public EndpointsList getEndpoints(String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetes().getEndpoints(namespace);
     }
 
@@ -376,6 +484,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("endpoints/{serviceId}")
     public Endpoints endpointsForService(@NotNull String serviceId, String namespace) {
+        validateNamespace(namespace, serviceId);
         return getKubernetes().endpointsForService(serviceId, namespace);
     }
 
@@ -445,6 +554,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("routes")
     public String createRoute(Route entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().createRoute(entity, namespace);
     }
 
@@ -452,6 +562,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("deploymentConfigs")
     public String createDeploymentConfig(DeploymentConfig entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createDeploymentConfig(entity, namespace);
     }
@@ -461,6 +572,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("templateConfigs")
     @Consumes("application/json")
     public String createTemplate(Template entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().createTemplate(entity, namespace);
     }
 
@@ -468,6 +580,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @DELETE
     @Path("buildConfigs/{name}")
     public String deleteBuildConfig(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().deleteBuildConfig(name, namespace);
     }
 
@@ -475,6 +588,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @DELETE
     @Path("deploymentConfigs/{name}")
     public String deleteDeploymentConfig(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().deleteDeploymentConfig(name, namespace);
     }
 
@@ -482,6 +596,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("routes")
     @Override
     public RouteList getRoutes(@QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetesExtensions().getRoutes(namespace);
     }
 
@@ -489,6 +604,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("routes/{name}")
     @Override
     public Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().getRoute(name, namespace);
     }
 
@@ -497,6 +613,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("routes/{name}")
     @Consumes("application/json")
     public String updateRoute(@NotNull String name, Route entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().updateRoute(name, entity, namespace);
     }
 
@@ -504,6 +621,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @DELETE
     @Path("routes/{name}")
     public String deleteRoute(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().deleteRoute(name, namespace);
     }
 
@@ -511,6 +629,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("builds")
     public String createBuild(Build entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createBuild(entity, namespace);
     }
@@ -519,6 +638,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @DELETE
     @Path("builds/{name}")
     public String deleteBuild(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().deleteBuild(name, namespace);
     }
 
@@ -526,6 +646,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("builds/{name}")
     public Build getBuild(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().getBuild(name, namespace);
     }
 
@@ -533,6 +654,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("builds")
     public BuildList getBuilds(String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetesExtensions().getBuilds(namespace);
     }
 
@@ -541,6 +663,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("builds/{name}")
     @Consumes("application/json")
     public String updateBuild(@NotNull String name, Build entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().updateBuild(name, entity, namespace);
     }
 
@@ -548,6 +671,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("buildConfigs/{name}")
     public BuildConfig getBuildConfig(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().getBuildConfig(name, namespace);
     }
 
@@ -555,6 +679,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("buildConfigs")
     public BuildConfigList getBuildConfigs(String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetesExtensions().getBuildConfigs(namespace);
     }
 
@@ -562,6 +687,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("deploymentConfigs/{name}")
     public DeploymentConfig getDeploymentConfig(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().getDeploymentConfig(name, namespace);
     }
 
@@ -569,6 +695,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("deploymentConfigs")
     public DeploymentConfigList getDeploymentConfigs(String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetesExtensions().getDeploymentConfigs(namespace);
     }
 
@@ -577,6 +704,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("buildConfigs/{name}")
     @Consumes("application/json")
     public String updateBuildConfig(@NotNull String name, BuildConfig entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().updateBuildConfig(name, entity, namespace);
     }
 
@@ -585,6 +713,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("deploymentConfigs/{name}")
     @Consumes("application/json")
     public String updateDeploymentConfig(@NotNull String name, DeploymentConfig entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().updateDeploymentConfig(name, entity, namespace);
     }
 
@@ -592,6 +721,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("buildConfigs")
     public String createBuildConfig(BuildConfig entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createBuildConfig(entity, namespace);
     }
@@ -600,6 +730,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("imageStreams/{name}")
     public ImageStream getImageStream(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().getImageStream(name, namespace);
     }
 
@@ -607,6 +738,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("imageStreams")
     public ImageStreamList getImageStreams(String namespace) {
+        validateNamespace(namespace, null);
         return getKubernetesExtensions().getImageStreams(namespace);
     }
 
@@ -615,6 +747,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("imageStreams/{name}")
     @Consumes("application/json")
     public String updateImageStream(@NotNull String name, ImageStream entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         return getKubernetesExtensions().updateImageStream(name, entity, namespace);
     }
 
@@ -622,6 +755,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @DELETE
     @Path("imageStreams/{name}")
     public String deleteImageStream(@NotNull String name, String namespace) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().deleteImageStream(name, namespace);
     }
 
@@ -629,6 +763,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("imageStreams")
     public String createImageStream(ImageStream entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
         return getKubernetesExtensions().createImageStream(entity, namespace);
     }
@@ -637,6 +772,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @POST
     @Path("buildConfigHooks/{name}/{secret}/{type}")
     public String triggerBuild(@NotNull String name, String namespace, @NotNull String secret, @NotNull String type, byte[] body) {
+        validateNamespace(namespace, name);
         return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, body);
     }
 
@@ -652,6 +788,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public void deletePod(Pod entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
         String id = getName(entity);
+        validateNamespace(namespace, entity);
         LOG.info("Deleting Pod: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deletePod(id, namespace);
@@ -670,6 +807,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public void deleteService(Service entity) throws Exception {
         String namespace = KubernetesHelper.getNamespace(entity);
         String id = getName(entity);
+        validateNamespace(namespace, entity);
         LOG.info("Deleting Service: " + id + " namespace: " + namespace);
         if (Strings.isNotBlank(namespace)) {
             deleteService(id, namespace);
@@ -688,11 +826,25 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public void deleteReplicationControllerAndPods(ReplicationController replicationController) throws Exception {
         String id = getName(replicationController);
         String namespace = KubernetesHelper.getNamespace(replicationController);
+        validateNamespace(namespace, replicationController);
         LOG.info("Deleting ReplicationController: " + id + " namespace: " + namespace);
         deleteReplicationController(replicationController);
         List<Pod> podsToDelete = getPodsForReplicationController(replicationController);
         for (Pod pod : podsToDelete) {
             deletePod(pod);
+        }
+    }
+
+    /**
+     * Validates a namespace is supplied giving a meaningful error if not
+     */
+    protected void validateNamespace(String namespace, Object entity) {
+        if (Strings.isNullOrBlank(namespace)) {
+            String message = "No namespace supported";
+            if (entity != null) {
+                message += " for " + KubernetesHelper.summaryText(entity);
+            }
+            throw new IllegalArgumentException(message);
         }
     }
 

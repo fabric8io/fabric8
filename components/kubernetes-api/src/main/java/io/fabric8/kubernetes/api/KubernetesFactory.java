@@ -243,8 +243,7 @@ public class KubernetesFactory {
     }
 
     protected String findOpenShiftToken() {
-        String homeDir = System.getProperty("user.home", ".");
-        File file = new File(homeDir, ".config/openshift/config");
+        File file = getOpenShiftConfigFile();
         String answer = null;
         if (file.exists() && file.isFile()) {
             log.debug("Parsing OpenShift configuration: " + file);
@@ -284,6 +283,11 @@ public class KubernetesFactory {
             }
         }
         return answer;
+    }
+
+    public static File getOpenShiftConfigFile() {
+        String homeDir = System.getProperty("user.home", ".");
+        return new File(homeDir, ".config/openshift/config");
     }
 
     protected List<Object> createProviders() {

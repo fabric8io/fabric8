@@ -1646,6 +1646,8 @@ public class KubernetesHelper {
             return summaryText((Template) object);
         } else if (object instanceof OAuthClient) {
             return summaryText((OAuthClient) object);
+        } else if (object instanceof String) {
+            return object.toString();
         }
         return "";
     }
