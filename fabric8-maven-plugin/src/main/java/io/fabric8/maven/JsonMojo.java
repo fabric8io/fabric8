@@ -241,7 +241,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.containerPrivileged")
     protected Boolean containerPrivileged;
 
-
     @Component
     protected ArtifactResolver resolver;
 

@@ -85,4 +85,22 @@ public class PropertiesHelper {
         }
         return answer;
     }
+
+    /**
+     * Returns a Map for the given Properties object
+     */
+    public static Map<String, String> toMap(Properties properties) {
+        Map<String, String> answer = new HashMap<>();
+        if (properties != null) {
+            Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+            for (Map.Entry<Object, Object> entry : entries) {
+                Object value = entry.getValue();
+                Object key = entry.getKey();
+                if (key != null && value != null) {
+                    answer.put(key.toString(), value.toString());
+                }
+            }
+        }
+        return answer;
+    }
 }

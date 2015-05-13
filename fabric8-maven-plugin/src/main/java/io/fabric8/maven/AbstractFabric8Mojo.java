@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -35,9 +36,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
+import static io.fabric8.utils.PropertiesHelper.toMap;
 
 /**
  * Abstract base class for Fabric8 based Mojos
@@ -86,6 +89,14 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
      */
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
     private boolean ignoreProject;
+
+
+    /**
+     * The properties file used to specify environment variables which allows ${FOO_BAR} expressions to be used
+     * without any Maven property expansion
+     */
+    @Parameter(property = "fabric8.envFile", defaultValue = "${basedir}/src/main/fabric8/env.properties")
+    protected File envPropertiesFile;
 
     protected static URLClassLoader createURLClassLoader(Collection<URL> jars) {
         return new URLClassLoader(jars.toArray(new URL[jars.size()]));
@@ -184,7 +195,7 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     /**
      * Returns all the environment variable properties defined in the pom.xml which are prefixed with "fabric8.env."
      */
-    public Map<String, String> getEnvironmentVariableProperties() {
+    public Map<String, String> getEnvironmentVariableProperties() throws MojoExecutionException {
         Map<String, String> rawProperties = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
         Set<Map.Entry<String, String>> entries = rawProperties.entrySet();
         Map<String, String>  answer = new HashMap<>();
@@ -193,6 +204,17 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
             String value = entry.getValue();
             value = unquoteTemplateExpression(value);
             answer.put(key, value);
+        }
+        if (envPropertiesFile != null && envPropertiesFile.isFile() && envPropertiesFile.exists()) {
+            // lets override with these values
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(envPropertiesFile));
+                Map<String, String> map = toMap(properties);
+                answer.putAll(map);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Failed to load environment properties file: " + envPropertiesFile + ". " + e, e);
+            }
         }
         return answer;
     }
