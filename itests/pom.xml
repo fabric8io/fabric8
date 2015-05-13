@@ -29,7 +29,7 @@
   <name>Fabric8 :: Integration Tests</name>
 
   <properties>
-    <fabric8.test.version>2.0.25</fabric8.test.version>
+    <fabric8.test.version>2.2-SNAPSHOT</fabric8.test.version>
   </properties>
 
   <dependencies>
