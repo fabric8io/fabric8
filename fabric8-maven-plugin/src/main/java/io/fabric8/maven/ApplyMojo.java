@@ -32,10 +32,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.TreeSet;
 
 /**
  * Applies the Kubernetes JSON to a namespace in a kubernetes environment
@@ -138,6 +141,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             if (dto instanceof Template) {
                 Template template = (Template) dto;
                 KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
+                overrideTemplateParameters(template);
                 dto = controller.processTemplate(template, fileName);
             }
             List<Object> list = KubernetesHelper.toItemList(dto);
@@ -149,6 +153,36 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.apply(dto, fileName);
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Before applying the given template lets allow template parameters to be overridden via the maven
+     * properties - or optionally - via the command line if in interactive mode.
+     */
+    protected void overrideTemplateParameters(Template template) {
+        List<io.fabric8.openshift.api.model.template.Parameter> parameters = template.getParameters();
+        MavenProject project = getProject();
+        if (parameters != null && project != null) {
+            Properties properties = project.getProperties();
+            properties.putAll(project.getProperties());
+            properties.putAll(System.getProperties());
+            boolean missingProperty = false;
+            for (io.fabric8.openshift.api.model.template.Parameter parameter : parameters) {
+                String parameterName = parameter.getName();
+                String name = "fabric8.apply." + parameterName;
+                String propertyValue = properties.getProperty(name);
+                if (Strings.isNotBlank(propertyValue)) {
+                    getLog().info("Overriding template parameter " + name + " with value: " + propertyValue);
+                    parameter.setValue(propertyValue);
+                } else {
+                    missingProperty = true;
+                    getLog().info("No property defined for template parameter: " + name);
+                }
+            }
+            if (missingProperty) {
+                getLog().debug("current properties " + new TreeSet<>(properties.keySet()));
+            }
         }
     }
 
