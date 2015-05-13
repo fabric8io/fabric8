@@ -23,7 +23,7 @@ Regardless of the approach taken you will need to:
 You will need:
 
   * An Internet connection to download the Start script and pull docker images (docker images are then subsequently cached for offline use)
-  * Sufficient disk space for your desired usage.  Docker images can be quite large and 20G will disappear quickly. Therefore, it's recommended to keep an eye on your available disk space.  There are some useful [clean up scripts](#clean-up-scripts) to help manage this.
+  * Sufficient disk space for your desired usage.  Docker images can be quite large and 20G will disappear quickly. Therefore, it's recommended to keep an eye on your available disk space.  There are some useful [clean up script](#clean-up-script) to help manage this.
 
 #### Native Docker Install Pre Requisites
 
