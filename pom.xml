@@ -2986,7 +2986,6 @@
         <module>tooling</module>
         <module>forge</module>
         <module>wiki</module>
-        <module>itests</module>
     </modules>
 
     <build>
@@ -3178,6 +3177,13 @@
             <properties>
                 <kubernetes-model.version>0.0.25-SNAPSHOT</kubernetes-model.version>
             </properties>
+        </profile>
+        <profile>
+            <id>example-itest</id>
+            <modules>
+                <!-- This is just an example. Can cause recursive dependency confusion so lets disable for now unless this profile is enabled  -->
+                <module>itests</module>
+            </modules>
         </profile>
         <profile>
             <id>license</id>
