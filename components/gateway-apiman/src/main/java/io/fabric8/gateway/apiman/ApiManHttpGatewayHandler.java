@@ -30,6 +30,7 @@ import io.apiman.gateway.engine.io.ISignalWriteStream;
 import io.apiman.gateway.vertx.io.VertxApimanBuffer;
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.apimanager.ServiceMapping;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpMapping;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
@@ -97,11 +98,11 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 	        IMappedServices mappedServices = HttpMapping.getMapping(request, httpGateway.getMappedServices());
 	        if (mappedServices!=null) {
 		    	ProxyMappingDetails proxyMappingDetails = mappedServices.getProxyMappingDetails();
-		        String[] apiManagerServiceInfo = apiManager.getApiManagerServiceInfo(proxyMappingDetails.getServicePath());
+		        ServiceMapping apiManagerServiceInfo = apiManager.getApiManagerServiceMapping(proxyMappingDetails.getServicePath());
 		        if (apiManagerServiceInfo==null) throw new Exception("Service Not Found in API Manager.");
-		        srequest.setServiceOrgId(apiManagerServiceInfo[0]);
-		        srequest.setServiceId(apiManagerServiceInfo[1]);
-		        srequest.setServiceVersion(apiManagerServiceInfo[2]);
+		        srequest.setServiceOrgId(apiManagerServiceInfo.getOrganizationId());
+		        srequest.setServiceId(apiManagerServiceInfo.getServiceId());
+		        srequest.setServiceVersion(apiManagerServiceInfo.getVersion());
 	        } else {
 	        	throw new Exception("Service Not Found in API Manager.");
 	        }

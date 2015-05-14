@@ -59,10 +59,10 @@ public class EngineFactory extends DefaultEngineFactory {
         this.httpGateway = httpGateway;
 
         // TODO use proper/dynamic configuration values for these!
-        esConfig.put("client.type", "transport");
+        esConfig.put("client.type", "jest");
         esConfig.put("client.cluster-name", "apiman");
         esConfig.put("client.host", "localhost");
-        esConfig.put("client.port", "9300");
+        esConfig.put("client.port", "9200");
     }
 
     /**
@@ -84,7 +84,9 @@ public class EngineFactory extends DefaultEngineFactory {
 
     @Override
     protected IRegistry createRegistry() {
-        return new DelegatingRegistryWithMapping(new ESRegistry(esConfig));
+        ESRegistry registry = new ESRegistry(esConfig);
+        ServiceMappingStorage mappingStorage = new ESServiceMappingStorage(esConfig);
+        return new DelegatingRegistryWithMapping(registry, mappingStorage);
     }
 
     /**

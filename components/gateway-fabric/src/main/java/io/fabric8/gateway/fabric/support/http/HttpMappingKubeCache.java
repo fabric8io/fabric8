@@ -1,7 +1,11 @@
 package io.fabric8.gateway.fabric.support.http;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.apimanager.ApiManager;
+import io.fabric8.gateway.api.apimanager.ServiceMapping;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -9,8 +13,6 @@ import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,9 +23,8 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpMappingKubeCache implements Runnable {
 
@@ -35,13 +36,13 @@ public class HttpMappingKubeCache implements Runnable {
     private final List<Map<String,String>> serviceSelectors;
     private List<String> contextPathsCache;
     private ApiManager apiManager;
-    
+
     public HttpMappingKubeCache(HttpMappingRule mappingRuleConfiguration, List<Map<String,String>> serviceSelectors, ApiManager apiManager) {
        this.mappingRuleConfiguration = mappingRuleConfiguration;
        this.serviceSelectors = serviceSelectors;
        this.apiManager = apiManager;
     }
-    
+
     public void init(HTTPGatewayConfig configuation) {
         String kubernetesMaster = configuation.getKubernetesMaster();
         KubernetesFactory factory = new KubernetesFactory(kubernetesMaster);
@@ -51,11 +52,11 @@ public class HttpMappingKubeCache implements Runnable {
         //it'd be nice if kubernetes can callback into our cache.
         serviceCacheExecutor.scheduleWithFixedDelay(this, 0, 5, SECONDS);
     }
-    
+
     public void destroy() {
         serviceCacheExecutor.shutdown();
     }
-    
+
     protected static String paramValue(String paramValue) {
         return paramValue != null ? paramValue : "";
     }
@@ -66,7 +67,7 @@ public class HttpMappingKubeCache implements Runnable {
      * @return true if all gateway selector fields are matched
      */
     private boolean selectorMatch(Map<String,String> selector) {
-    	
+
     	for (Map<String,String> serviceSelector : serviceSelectors) {
     		boolean isMatch = true;
 	        for (String key : serviceSelector.keySet()) {
@@ -84,7 +85,7 @@ public class HttpMappingKubeCache implements Runnable {
     public void run() {
         this.refreshServices();
     }
-    
+
     public void refreshServices() {
         List<String> currentCache = new ArrayList<String>();
         currentCache.addAll(contextPathsCache);
@@ -95,8 +96,8 @@ public class HttpMappingKubeCache implements Runnable {
                 if (selectorMatch(selector)) {
                     String contextPath = KubernetesHelper.getName(service1);
                     if (apiManager!=null) {
-	                    String apiManagerServiceInfo[] = apiManager.getService().getApiManagerServiceInfo(contextPath);
-                        if (apiManagerServiceInfo==null) {
+	                    ServiceMapping apiManagerServiceMapping = apiManager.getService().getApiManagerServiceMapping(contextPath);
+                        if (apiManagerServiceMapping==null) {
                         	if (LOG.isDebugEnabled()) LOG.debug("Service is not registered in the API Manager, and is therefore not yet available");
                         	break;
                         }
@@ -106,7 +107,7 @@ public class HttpMappingKubeCache implements Runnable {
                     dto.setId(KubernetesHelper.getName(service1));
                     dto.setContainer(selector.get("container"));
                     dto.setVersion(selector.get("version"));
-                    
+
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("id", paramValue(dto.getId()));
                     params.put("container", paramValue(dto.getContainer()));

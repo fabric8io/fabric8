@@ -22,11 +22,10 @@ import io.apiman.gateway.engine.beans.Application;
 import io.apiman.gateway.engine.beans.Service;
 import io.apiman.gateway.engine.beans.ServiceContract;
 import io.apiman.gateway.engine.beans.ServiceRequest;
+import io.fabric8.gateway.api.apimanager.ServiceMapping;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A File-Backed implementation of the registry. This implementation persists the
@@ -35,15 +34,16 @@ import java.util.Map;
  */
 public class DelegatingRegistryWithMapping implements IRegistry {
 
-	private Map<String, String[]> serviceBindPaths = new HashMap<String, String[]>();
-	private IRegistry delegate;
+	private final IRegistry delegate;
+    private final ServiceMappingStorage mappingStorage;
 
     /**
      * Constructor.
      * @param delegate
      */
-    public DelegatingRegistryWithMapping(IRegistry delegate) {
+    public DelegatingRegistryWithMapping(IRegistry delegate, ServiceMappingStorage mappingStorage) {
         this.delegate = delegate;
+        this.mappingStorage = mappingStorage;
     }
 
 	/**
@@ -53,16 +53,30 @@ public class DelegatingRegistryWithMapping implements IRegistry {
 	public synchronized void publishService(final Service service, final IAsyncResultHandler<Void> handler) {
 	    delegate.publishService(service, new IAsyncResultHandler<Void>() {
 	        @Override
-	        public void handle(IAsyncResult<Void> result) {
+	        public void handle(final IAsyncResult<Void> result) {
 	            if (result.isSuccess()) {
 	                String path = getServiceBindPath(service);
-	                String[] serviceInfo = new String[3];
-	                serviceInfo[0] = service.getOrganizationId();
-	                serviceInfo[1] = service.getServiceId();
-	                serviceInfo[2] = service.getVersion();
-	                serviceBindPaths.put(path, serviceInfo);
+                    ServiceMapping mapping = new ServiceMapping(path, service.getOrganizationId(),
+                            service.getServiceId(), service.getVersion());
+                    // Store the service mapping in the mapping storage
+                    mappingStorage.put(path, mapping, new IAsyncResultHandler<Void>() {
+                        @Override
+                        public void handle(IAsyncResult<Void> storageResult) {
+                            if (storageResult.isError()) {
+                                delegate.retireService(service, new IAsyncResultHandler<Void>() {
+                                    @Override
+                                    public void handle(IAsyncResult<Void> result) {
+                                        // Don't care about this result.  Nothing we can do about it if it
+                                        // fails.
+                                    }
+                                });
+                            }
+                            handler.handle(result);
+                        }
+                    });
+	            } else {
+	                handler.handle(result);
 	            }
-	            handler.handle(result);
 	        }
         });
     }
@@ -77,7 +91,14 @@ public class DelegatingRegistryWithMapping implements IRegistry {
             public void handle(IAsyncResult<Void> result) {
                 if (result.isSuccess()) {
                     String path = getServiceBindPath(service);
-                    serviceBindPaths.remove(path);
+                    // Remove the service mapping from the mapping storage.
+                    mappingStorage.remove(path, new IAsyncResultHandler<Void>() {
+                        @Override
+                        public void handle(IAsyncResult<Void> result) {
+                            // Nothing we can do if this fails.  We've already retired the service
+                            // from the delegate registry.
+                        }
+                    });
                 }
                 handler.handle(result);
             }
@@ -122,15 +143,11 @@ public class DelegatingRegistryWithMapping implements IRegistry {
 	 * fabric8 gateway path.
 	 * @param path
 	 */
-    public String[] getService(String path) {
+    public ServiceMapping getService(String path) {
         path = getServiceBindPath(path);
         if (path.contains("?")) path = path.substring(0, path.indexOf("?")-1);
         if (path.contains("#")) path = path.substring(0, path.indexOf("#")-1);
-        if (serviceBindPaths.containsKey(path)) {
-            return serviceBindPaths.get(path);
-        } else {
-            return null;
-        }
+        return this.mappingStorage.get(path);
     }
 
     private String getServiceBindPath(Service service) {

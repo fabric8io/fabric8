@@ -15,16 +15,17 @@
  */
 package io.fabric8.gateway.apiman;
 
+import io.apiman.gateway.engine.IServiceConnectionResponse;
+import io.apiman.gateway.engine.async.IAsyncHandler;
+import io.apiman.gateway.engine.async.IAsyncResult;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.apimanager.ServiceMapping;
+import io.fabric8.gateway.api.handlers.http.HttpGateway;
+
 import java.util.Map;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-
-import io.fabric8.gateway.api.apimanager.ApiManagerService;
-import io.fabric8.gateway.api.handlers.http.HttpGateway;
-import io.apiman.gateway.engine.IServiceConnectionResponse;
-import io.apiman.gateway.engine.async.IAsyncHandler;
-import io.apiman.gateway.engine.async.IAsyncResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +45,16 @@ public class ApiManService implements ApiManagerService {
 	private static final transient Logger LOG = LoggerFactory.getLogger(ApiManService.class);
 	private Vertx vertx;
 	private HttpGateway httpGateway;
-	
+
 	/** the APIMan Engine */
 	private ApiManEngine engine;
 	/** the REST API server to configure the engine */
 	private HttpServer engineRestServer;
 	public final static String ATTR_HTTP_CLIENT = "httpClient";
 	public final static String ATTR_CLIENT_RESPONSE = "clientResponse";
-	
-	public void init(Map<String,Object> config) {
+
+	@Override
+    public void init(Map<String,Object> config) {
 		LOG.info("Initializing the ApiMan Engine..");
 		vertx = (Vertx) config.get(ApiManagerService.VERTX);
 		httpGateway = (HttpGateway) config.get(ApiManagerService.HTTP_GATEWAY);
@@ -64,16 +66,16 @@ public class ApiManService implements ApiManagerService {
 		engineRestServer.requestHandler(new ApiManRestRequestHandler(engine));
 		engineRestServer.listen(portRest, "localhost");
 		LOG.info("The ApiMan REST Service is listening at on port " + portRest);
-		
+
 	}
-	
+
 	@PreDestroy
 	public void deactivateComponent() {
 		engineRestServer.close();
 		engineRestServer = null;
 		engine = null;
 	}
-	
+
 	/**
 	 * @see ApiManagerService#getEngine(Object)
 	 */
@@ -85,7 +87,7 @@ public class ApiManService implements ApiManagerService {
 	 * @see HttpGateway#createClientResponseHandler(HttpClient, HttpServerRequest, Object)
 	 */
 	@SuppressWarnings("unchecked")
-	@Override 
+	@Override
 	public Handler<HttpClientResponse> createServiceResponseHandler(
 			final HttpClient httpClient, final Object apiManagementResponseHandler) {
 			return new ApiManHttpServiceResponseHandler(httpClient, (IAsyncHandler<IAsyncResult<IServiceConnectionResponse>>) apiManagementResponseHandler);
@@ -97,10 +99,10 @@ public class ApiManService implements ApiManagerService {
 	public Handler<HttpServerRequest> createApiManagerHttpGatewayHandler() {
 		return new ApiManHttpGatewayHandler(vertx, httpGateway, this);
 	}
-	
+
 	@Override
-	public String[] getApiManagerServiceInfo(String servicePath) {
-		return engine.getServiceInfo(servicePath);
+	public ServiceMapping getApiManagerServiceMapping(String servicePath) {
+		return engine.getServiceMapping(servicePath);
 	}
 
 }
