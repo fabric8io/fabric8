@@ -86,6 +86,13 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean ignoreServices;
 
     /**
+     * Do we want to ignore OAuthClients which are already running?. OAuthClients are shared across namespaces
+     * so we should not try to update or create/delete global oauth clients
+     */
+    @Parameter(property = "fabric8.apply.ignoreRunningOAuthClients", defaultValue = "true")
+    private boolean ignoreRunningOAuthClients;
+
+    /**
      * Should we fail the build if an apply fails?
      */
     @Parameter(property = "fabric8.apply.failOnError", defaultValue = "true")
@@ -137,6 +144,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setThrowExceptionOnError(failOnError);
             controller.setServicesOnlyMode(servicesOnly);
             controller.setIgnoreServiceMode(ignoreServices);
+            controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
 
             if (dto instanceof Template) {
                 Template template = (Template) dto;
