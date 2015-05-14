@@ -2,6 +2,8 @@
 
 The maven `fabric8:json` goal generates the `kubernetes.json` file for your [App](apps.html) from your Maven project and adds it as an artifact to your build so that it gets versioned and released along with your artifacts.
 
+For a summary of the options see the [Maven Property Reference](#maven-properties)
+
 ### Generation options
 
 You have various options for how to create the `kubernetes.json`
@@ -12,7 +14,6 @@ You have various options for how to create the `kubernetes.json`
 * you can enrich the generated JSON with additional metadata JSON file (using the `fabric8.extra.json` property which defaults to the file `target/classes/kubernetes-extra.json`)
 * use the typesafe builders in the Java [kubernetes-api API](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) to create the metadata yourself 
 
-For a summary of the options see the [Maven Property Reference](#maven-properties)
 
 ### Example usage
 
@@ -69,14 +70,18 @@ Note that you can mix and match both approaches. The nice thing about maven prop
 
 ### Combining JSON files
 
-The `fabric8:json`  goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you'll have lots of fine grained generated `kubernetes.json` files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume.
+The `fabric8:json` goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you'll have lots of fine grained generated `kubernetes.json` files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume. 
 
-For example the fabric8 project defines a number of different [application modules](https://github.com/fabric8io/quickstarts/tree/master/app-groups) for all the various parts of fabric8.
-
-If you enable the `fabric8.combineDependencies` property then the `fabric8:json` goal will scan the maven dependencies for any dependency of `<classifier>kubernetes</classifier>` and `<type>json</type>` and combine them into the resulting JSON. 
+Another advantage of combining the JSON files together is that the `fabric8:json` goal automatically moves `Service` objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).
 
 By default a `List` of items is created; unless the pom.xml defines any [OpenShift template](http://docs.openshift.org/latest/dev_guide/templates.html) parameters (see [Creating OpenShift Templates](##creating-openshift-templates) for more detail) or any of the dependent JSON files are `Template`. The `fabric8:json` goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined `Template`.
  
+#### Examples
+
+The fabric8 project defines a number of different [application modules](https://github.com/fabric8io/quickstarts/tree/master/app-groups) for all the various parts of fabric8.
+
+If you enable the `fabric8.combineDependencies` property then the `fabric8:json` goal will scan the maven dependencies for any dependency of `<classifier>kubernetes</classifier>` and `<type>json</type>` and combine them into the resulting JSON. 
+
 See [this example](https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35) to see how we can configure this in a pom.xml.
 
 ### Maven Properties
