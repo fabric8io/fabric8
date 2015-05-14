@@ -2,7 +2,6 @@
 
 Capturing historical metrics an extremely useful tool to help diagnose your running system.
 
-
 With fabric8 we recommend using:
 
 * [InfluxDB](http://influxdb.com/) or [RHQ Metrics](https://github.com/rhq-project/rhq-metrics) as the back end storage of historical metric data as they are both easy to scale, provide replicated data for resilience and are very easy to query

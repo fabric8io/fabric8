@@ -2,15 +2,13 @@
 
 Here are the steps to get started using OpenShift V3 and Fabric8:
 
-### Run OpenShift
+### Setup OpenShift
 
-There are a few ways you can do this part. If you are not running a modern Linux we recommend you start with docker:
+There are a few ways you can do this part. 
 
-* [Start OpenShift V3 using Docker](openShiftDocker.html)
-
-If you want to test a multi-minion system then we recommend you try vagrant:
-
+* [Use the OpenShift Origin documentation](http://docs.openshift.org/latest/welcome/index.html)
 * [Start OpenShift V3 using Vagrant](openShiftVagrant.html)
+* [Start OpenShift V3 using Docker](openShiftDocker.html)
 
 Or you could try install OpenShift directly on your laptop. Note that this currently only works on Linux (but hopefully will be fixed soon!):
 
