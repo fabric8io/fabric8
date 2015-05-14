@@ -48,12 +48,12 @@ public class Controller {
     private Map<String, Pod> podMap;
     private Map<String, ReplicationController> replicationControllerMap;
     private Map<String, Service> serviceMap;
-    private boolean throwExceptionOnError;
+    private boolean throwExceptionOnError = true;
     private boolean allowCreate = true;
     private boolean recreateMode;
     private boolean servicesOnlyMode;
     private boolean ignoreServiceMode;
-    private boolean ignoreRunningOAuthClients;
+    private boolean ignoreRunningOAuthClients = true;
 
     public Controller() {
         this(new KubernetesClient());
@@ -209,7 +209,7 @@ public class Controller {
         OAuthClient old = kubernetes.getOAuthClient(id);
         if (isRunning(old)) {
             if (isIgnoreRunningOAuthClients()) {
-                LOG.info("Not updating the OAuthClient as its already running");
+                LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
                 return;
             }
             if (UserConfigurationCompare.configEqual(entity, old)) {
