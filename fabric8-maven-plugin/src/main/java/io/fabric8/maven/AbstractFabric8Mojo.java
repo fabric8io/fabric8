@@ -56,20 +56,20 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     /**
      * The folder used for defining project specific files
      */
-    @Parameter(property = "appConfigDir", defaultValue = "${basedir}/src/main/fabric8")
+    @Parameter(property = "fabric8.source.dir", defaultValue = "${basedir}/src/main/fabric8")
     protected File appConfigDir;
 
 
     /**
      * The generated kubernetes JSON file
      */
-    @Parameter(property = "kubernetesJson", defaultValue = "${basedir}/target/classes/kubernetes.json")
+    @Parameter(property = "fabric8.json.target", defaultValue = "${basedir}/target/classes/kubernetes.json")
     private File kubernetesJson;
 
     /**
      * The source kubernetes JSON file
      */
-    @Parameter(property = "kubernetesSourceJson", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
+    @Parameter(property = "fabric8.json.source", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
     protected File kubernetesSourceJson;
 
 
@@ -93,7 +93,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      * The properties file used to specify environment variables which allows ${FOO_BAR} expressions to be used
      * without any Maven property expansion
      */
-    @Parameter(property = "fabric8.envFile", defaultValue = "${basedir}/src/main/fabric8/env.properties")
+    @Parameter(property = "fabric8.envProperties", defaultValue = "${basedir}/src/main/fabric8/env.properties")
     protected File envPropertiesFile;
 
     @Component

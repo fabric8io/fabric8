@@ -52,6 +52,8 @@ To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/ma
 
 All configuration is done via the following environment variables:
 
+* `KUBERNETES_SERVICE_HOST`:`KUBERNETES_SERVICE_PORT` / `KUBERNETES_MASTER` - the location of the kubernetes master
+* `KUBERNETES_NAMESPACE` - the default namespace used on operations
 * `KUBERNETES_CA_CERTIFICATE_DATA` - the full Kubernetes CA certificate as a string (only this or `KUBERNETES_CA_CERTIFICATE_FILE` should be specified)
 * `KUBERNETES_CA_CERTIFICATE_FILE` - the path to the Kubernetes CA certificate file (only this or `KUBERNETES_CA_CERTIFICATE_DATA` should be specified)
 * `KUBERNETES_CLIENT_CERTIFICATE_DATA` - the full Kubernetes client certificate as a string (only this or `KUBERNETES_CLIENT_CERTIFICATE_FILE` should be specified)
@@ -61,3 +63,19 @@ All configuration is done via the following environment variables:
 * `KUBERNETES_TRUST_CERT` - whether to trust the Kubernetes server certificate (this is insecure so please try to configure certificates properly via the other environment variables if at all possible)
 
 The `*_DATA` variants take precedence over the `*_FILE` variants.
+
+#### Defaults from OpenShift
+
+If no configuration is supplied through explicit code or environment variables, the `kubernetes-api` library will try to find the current login token and namespace by parsing the users `~/.config/openshift/config` file if it exists and using that.
+
+This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `osc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `kubernetes-api` library.
+
+e.g.
+
+```
+osc login
+osc project cheese
+mvn fabric8:apply
+```
+
+In the above, if there is no `KUBERNETES_NAMESPACE` environment variable or maven property called `fabric8.apply.namespace` then the `fabric8:apply` goal will apply the Kubernetes resources to the `cheese` namespace.
