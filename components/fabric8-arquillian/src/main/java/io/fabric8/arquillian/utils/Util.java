@@ -79,11 +79,15 @@ public class Util {
 
     }
 
-
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
         waitUntilWeCanDestroyNamespace(session);
         List<Throwable> errors = new ArrayList<>();
         cleanupAllMatching(client, session, errors);
+        try {
+            client.deleteNamespace(session.getNamespace());
+        } catch (Exception e) {
+            errors.add(e);
+        }
         if (!errors.isEmpty()) {
             throw new MultiException("Error while cleaning up session.", errors);
         }
@@ -96,20 +100,20 @@ public class Util {
             showErrorsBeforePause(session);
             System.out.println();
             System.out.println("Waiting to destroy the namespace.");
-            System.out.println("Please enter [Q] to terminate the namespace.");
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-                while (true) {
-                    String line = reader.readLine();
-                    if (line == null) {
+            System.out.println("Please type: [Q] to terminate the namespace.");
+            while (true) {
+                try {
+                    int ch = System.in.read();
+                    if (ch < 0 || ch == 'Q') {
+                        System.out.println("\nStopping...");
                         break;
+                    } else {
+                        System.out.println("Found character: " + Character.toString((char) ch));
                     }
-                    line = line.trim();
-                    if (line.equals("Q")) {
-                        break;
-                    }
+                } catch (IOException e) {
+                    log.warn("Failed to read from input. " + e);
+                    break;
                 }
-            } catch (IOException e) {
-                log.error("Failed to read user input: " + e);
             }
         } else {
             String timeoutText = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_NAMESPACE_DESTROY_TIMEOUT, "0");
@@ -132,7 +136,7 @@ public class Util {
                 }
             }
         }
-        System.out.println("Now destroying the namespace");
+        System.out.println("Now destroying the Fabric8 Arquillian test case namespace");
     }
 
     protected static void showErrorsBeforePause(Session session) {

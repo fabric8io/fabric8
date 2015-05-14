@@ -26,10 +26,13 @@ import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.Namespace;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
@@ -42,6 +45,7 @@ import java.util.concurrent.Callable;
 import static io.fabric8.arquillian.utils.Util.*;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
     private ShutdownHook shutdownHook;
@@ -56,6 +60,12 @@ public class SessionListener {
         log.info("if you use a kubernetes CLI type this to switch namespaces: kube namespace " + namespace);
         client.setNamespace(namespace);
         controller.setNamespace(namespace);
+        controller.setThrowExceptionOnError(true);
+        controller.setRecreateMode(true);
+        controller.setIgnoreRunningOAuthClients(true);
+
+        Namespace namespaceDetails = session.getNamespaceDetails();
+        controller.applyNamespace(namespaceDetails);
 
         shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -71,8 +81,22 @@ public class SessionListener {
             }
 
             if (configUrl != null) {
-                log.status("Applying kubernetes configuration from: " + configuration.getConfigUrl());
-                kubeConfigs.add((KubernetesList) loadJson(readAsString(configuration.getConfigUrl())));
+                log.status("Applying kubernetes configuration from: " + configUrl);
+                Object dto = loadJson(readAsString(configUrl));
+                if (dto instanceof Template) {
+                    Template template = (Template) dto;
+                    KubernetesHelper.setNamespace(template, namespace);
+                    String parameterNamePrefix = "";
+                    overrideTemplateParameters(template, configuration.getProperties(), parameterNamePrefix);
+                    log.status("Applying template in namespace " + namespace);
+                    dto = controller.processTemplate(template, configUrl.toString());
+                    if (dto == null) {
+                        throw new IllegalArgumentException("Failed to process Template!");
+                    }
+                }
+                KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
+                List<Object> items = kubeList.getItems();
+                kubeConfigs.add(kubeList);
             }
             if (applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
                 displaySessionStatus(client, session);
@@ -92,6 +116,7 @@ public class SessionListener {
             throw new RuntimeException(e);
         }
     }
+
 
     protected static void addConfig(List<KubernetesList> kubeConfigs, Object kubeCfg) {
         if (kubeCfg instanceof KubernetesList) {
@@ -181,6 +206,10 @@ public class SessionListener {
                 log.status("Applying replication controller:" + getName(replicationController));
                 controller.applyReplicationController(replicationController, session.getId());
                 conditions.put(1, sessionPodsReady);
+            } else if (entity != null) {
+                log.status("Applying " + entity.getClass().getSimpleName() + ":");
+                controller.apply(entity, session.getId());
+                //conditions.put(3, sessionPodsReady);
             }
         }
 

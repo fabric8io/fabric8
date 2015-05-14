@@ -24,10 +24,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
+import static io.fabric8.arquillian.kubernetes.Constants.CONNECT_TO_SERVICES;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
@@ -44,16 +46,28 @@ public class Configuration {
     private static final Long DEFAULT_POLL_INTERVAL = 5 * 1000L;
     private static final Long DEFAULT_SERVICE_CONNECTION_TIMEOUT = 10 * 1000L;
 
+    /**
+     * We often won't be able to connect to the services from the JUnit test case
+     * unless the user explicitly knows its OK and allows it. (e.g. there may not be a network route)
+     */
+    private static final boolean DEFAULT_CONNECT_TO_SERVICES = false;
+
     private String masterUrl;
     private List<String> dependencies = new ArrayList<>();
     private URL configUrl;
     private long timeout = DEFAULT_TIMEOUT;
     private long pollInterval = DEFAULT_POLL_INTERVAL;
     private boolean ansiLoggerEnabled = true;
+    private boolean connectToServices = DEFAULT_CONNECT_TO_SERVICES;
 
     private List<String> waitForServices = new ArrayList<>();
     private boolean waitForServiceConnection = false;
     private Long serviceConnectionTimeout = DEFAULT_SERVICE_CONNECTION_TIMEOUT;
+    private Map<String, String> properties;
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
 
     public String getMasterUrl() {
         return masterUrl;
@@ -91,6 +105,14 @@ public class Configuration {
         return serviceConnectionTimeout.intValue();
     }
 
+    public boolean isConnectToServices() {
+        return connectToServices;
+    }
+
+    public void setConnectToServices(boolean connectToServices) {
+        this.connectToServices = connectToServices;
+    }
+
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
@@ -103,7 +125,9 @@ public class Configuration {
             configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
             configuration.waitForServiceConnection = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, true);
             configuration.waitForServices = Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICES, map, ""), " ");
+            configuration.connectToServices = getBooleanProperty(CONNECT_TO_SERVICES, map, DEFAULT_CONNECT_TO_SERVICES);
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
+            configuration.properties = map;
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

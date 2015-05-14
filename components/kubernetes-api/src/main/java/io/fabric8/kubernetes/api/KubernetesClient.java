@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
 import io.fabric8.kubernetes.api.model.Node;
@@ -238,6 +239,34 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     // Delegated Kubernetes API
     //-------------------------------------------------------------------------
+
+    @Override
+    public String createNamespace(Namespace entity) throws Exception {
+        return getKubernetes().createNamespace(entity);
+    }
+
+    @Override
+    @GET
+    @Path("namespaces/{name}")
+    public Namespace getNamespace(@NotNull String name) {
+        return getKubernetes().getNamespace(name);
+    }
+
+    @Override
+    @PUT
+    @Path("namespaces/{name}")
+    @Consumes("application/json")
+    public String updateNamespace(@NotNull String namespaceId, Namespace entity) throws Exception {
+        return getKubernetes().updateNamespace(namespaceId, entity);
+    }
+
+    @Override
+    @DELETE
+    @Path("namespaces/{name}")
+    @Consumes("text/plain")
+    public String deleteNamespace(@NotNull String name) throws Exception {
+        return getKubernetes().deleteNamespace(name);
+    }
 
     @GET
     @Path("pods")
@@ -484,8 +513,19 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("endpoints/{serviceId}")
     public Endpoints endpointsForService(@NotNull String serviceId, String namespace) {
-        validateNamespace(namespace, serviceId);
-        return getKubernetes().endpointsForService(serviceId, namespace);
+        try {
+            validateNamespace(namespace, serviceId);
+            return getKubernetes().endpointsForService(serviceId, namespace);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                // does not exist
+                Endpoints answer = new Endpoints();
+                answer.setSubsets(new ArrayList<EndpointSubset>());
+                return answer;
+            } else {
+                throw e;
+            }
+        }
     }
 
     @Override

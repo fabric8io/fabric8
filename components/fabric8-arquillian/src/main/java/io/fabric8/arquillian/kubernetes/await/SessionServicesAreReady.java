@@ -74,7 +74,9 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         String serviceStatus = null;
         boolean result = false;
         String sid = getName(s);
-        Endpoints endpoints = kubernetesClient.endpointsForService(sid, s.getMetadata().getNamespace());
+        //String namespace = s.getMetadata().getNamespace();
+        String namespace = kubernetesClient.getNamespace();
+        Endpoints endpoints = kubernetesClient.endpointsForService(sid, namespace);
         ServiceSpec spec = s.getSpec();
         if (endpoints != null && spec != null) {
             List<EndpointSubset> subsets = endpoints.getSubsets();
@@ -94,14 +96,20 @@ public class SessionServicesAreReady implements Callable<Boolean> {
                             for (ServicePort port : ports) {
                                 Integer portNumber = port.getPort();
                                 if (portNumber != null && portNumber > 0) {
-                                    try (Socket socket = new Socket()) {
-                                        socket.connect(new InetSocketAddress(ip, portNumber), configuration.getServiceConnectionTimeout());
-                                        serviceStatus = "Service: " + sid + " is ready. Provider:" + addr + ".";
-                                        return true;
-                                    } catch (Exception e) {
-                                        serviceStatus = "Service: " + sid + " is not ready! Error: " + e.getMessage();
-                                    } finally {
+                                    if (configuration.isConnectToServices()) {
+                                        try (Socket socket = new Socket()) {
+                                            socket.connect(new InetSocketAddress(ip, portNumber), configuration.getServiceConnectionTimeout());
+                                            serviceStatus = "Service: " + sid + " is ready. Provider:" + addr + ".";
+                                            return true;
+                                        } catch (Exception e) {
+                                            serviceStatus = "Service: " + sid + " is not ready! in namespace " + namespace + ". Error: " + e.getMessage();
+                                        } finally {
+                                            session.getLogger().warn(serviceStatus);
+                                        }
+                                    } else {
+                                        serviceStatus = "Service: " + sid + " is ready. Not testing connecting to it!. Provider:" + addr + ".";
                                         session.getLogger().warn(serviceStatus);
+                                        return true;
                                     }
                                 }
                             }

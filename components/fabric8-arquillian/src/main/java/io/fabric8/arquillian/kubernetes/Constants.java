@@ -32,6 +32,7 @@ public class Constants {
     public static final String DEFAULT_MAVEN_PROTOCOL_HANDLER = "org.ops4j.pax.url";
 
     public static final String WAIT_FOR_SERVICES = "waitForServices";
+    public static final String CONNECT_TO_SERVICES = "connectToServices";
     public static final String WAIT_FOR_SERVICE_CONNECTION = "waitForServiceConnection";
     public static final String SERVICE_CONNECTION_TIMEOUT = "serviceConnectionTimeout";
 

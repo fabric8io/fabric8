@@ -162,6 +162,15 @@ public class KubernetesHelper {
         return metadata;
     }
 
+    public static ObjectMeta getOrCreateMetadata(Namespace entity) {
+        ObjectMeta metadata = entity.getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+            entity.setMetadata(metadata);
+        }
+        return metadata;
+    }
+
     public static io.fabric8.kubernetes.api.model.base.ObjectMeta getOrCreateMetadata(Route entity) {
         io.fabric8.kubernetes.api.model.base.ObjectMeta metadata = entity.getMetadata();
         if (metadata == null) {
@@ -1822,5 +1831,19 @@ public class KubernetesHelper {
             status = statusList.toString();
         }
         return status;
+    }
+
+    /**
+     * Converts the DTO loaded from JSON to a {@link KubernetesList} assuming its not a {@link Template}
+     */
+    public static KubernetesList asKubernetesList(Object dto) throws IOException {
+        if (dto instanceof KubernetesList) {
+            return (KubernetesList) dto;
+        } else {
+            KubernetesList answer = new KubernetesList();
+            List<Object> items = toItemList(dto);
+            answer.setItems(items);
+            return answer;
+        }
     }
 }

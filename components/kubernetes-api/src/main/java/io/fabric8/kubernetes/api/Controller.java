@@ -53,6 +53,7 @@ public class Controller {
     private boolean recreateMode;
     private boolean servicesOnlyMode;
     private boolean ignoreServiceMode;
+    private boolean ignoreRunningOAuthClients;
 
     public Controller() {
         this(new KubernetesClient());
@@ -179,6 +180,8 @@ public class Controller {
             applyReplicationController((ReplicationController) dto, sourceName);
         } else if (dto instanceof Service) {
             applyService((Service) dto, sourceName);
+        } else if (dto instanceof Namespace) {
+            applyNamespace((Namespace) dto);
         } else if (dto instanceof Route) {
             applyRoute((Route) dto, sourceName);
         } else if (dto instanceof BuildConfig) {
@@ -205,6 +208,10 @@ public class Controller {
         }
         OAuthClient old = kubernetes.getOAuthClient(id);
         if (isRunning(old)) {
+            if (isIgnoreRunningOAuthClients()) {
+                LOG.info("Not updating the OAuthClient as its already running");
+                return;
+            }
             if (UserConfigurationCompare.configEqual(entity, old)) {
                 LOG.info("OAuthClient hasn't changed so not doing anything");
             } else {
@@ -396,6 +403,16 @@ public class Controller {
             LOG.info("Created service: " + answer);
         } catch (Exception e) {
             onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
+        }
+    }
+
+    public void applyNamespace(Namespace entity) {
+        LOG.info("Creating a namespace " + getOrCreateMetadata(entity).getName());
+        try {
+            Object answer = kubernetes.createNamespace(entity);
+            LOG.info("Created namespace: " + answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create namespace. " + e + ". " + entity, e);
         }
     }
 
@@ -596,5 +613,13 @@ public class Controller {
 
     public void setIgnoreServiceMode(boolean ignoreServiceMode) {
         this.ignoreServiceMode = ignoreServiceMode;
+    }
+
+    public boolean isIgnoreRunningOAuthClients() {
+        return ignoreRunningOAuthClients;
+    }
+
+    public void setIgnoreRunningOAuthClients(boolean ignoreRunningOAuthClients) {
+        this.ignoreRunningOAuthClients = ignoreRunningOAuthClients;
     }
 }

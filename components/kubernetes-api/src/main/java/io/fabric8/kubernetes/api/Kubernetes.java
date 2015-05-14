@@ -15,10 +15,26 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.NodeList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
 /**
  * Represents the Remote API to working with <a href="http://kubernetes.io/">Kubernetes</a> providing a facade
@@ -31,6 +47,34 @@ public interface Kubernetes {
 
     static final String NAMESPACE_ALL = "";
     static final String NAMESPACE_DEFAULT = "";
+
+    @POST
+    @Path("namespaces")
+    @Consumes("application/json")
+    String createNamespace(Namespace entity) throws Exception;
+
+    /**
+     * Get a specific Namespace
+     */
+    @GET
+    @Path("namespaces/{name}")
+    Namespace getNamespace(@PathParam("name") @NotNull String name);
+
+    /**
+     * Update a namespace
+     * @param namespaceId
+     * @param entity
+     * @param namespace
+     */
+    @PUT
+    @Path("namespaces/{name}")
+    @Consumes("application/json")
+    String updateNamespace(@PathParam("name") @NotNull String namespaceId, Namespace entity) throws Exception;
+
+    @DELETE
+    @Path("namespaces/{name}")
+    @Consumes("text/plain")
+    String deleteNamespace(@PathParam("name") @NotNull String name) throws Exception;
 
     /**
      * List all pods on this cluster
@@ -178,4 +222,5 @@ public interface Kubernetes {
     @GET
     @Path("nodes/{nodeId}")
     Node node(@PathParam("nodeId") @NotNull String nodeId);
+
 }

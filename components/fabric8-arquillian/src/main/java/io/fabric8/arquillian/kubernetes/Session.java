@@ -17,6 +17,8 @@
 package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.Namespace;
 import io.fabric8.utils.Systems;
 
 /**
@@ -27,11 +29,16 @@ public class Session {
     private final String id;
     private final Logger logger;
     private String namespacePrefix = "itest-";
+    private String namespace;
+    private Namespace namespaceDetails;
 
     public Session(String id, Logger logger) {
         this.id = id;
         this.logger = logger;
         namespacePrefix = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
+        namespace = namespacePrefix + id;
+        namespaceDetails = new Namespace();
+        KubernetesHelper.getOrCreateMetadata(namespaceDetails).setName(namespace);
     }
 
     void init() {
@@ -55,7 +62,10 @@ public class Session {
      * Returns the namespace ID for this test case session
      */
     public String getNamespace() {
-        return namespacePrefix + getId();
+        return namespace;
     }
 
+    public Namespace getNamespaceDetails() {
+        return namespaceDetails;
+    }
 }

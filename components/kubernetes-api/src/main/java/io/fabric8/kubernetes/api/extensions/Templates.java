@@ -21,16 +21,22 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
 
 /**
  * Helper class for working with OpenShift Templates
  */
 public class Templates {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Templates.class);
+
     /**
      * Allows a list of resources to be combined into a single Template if one or more templates are contained inside the list
      * or just return the unchanged list if no templates are present.
@@ -137,4 +143,29 @@ public class Templates {
         }
     }
 
+
+    /**
+     * Lets allow template parameters to be overridden with a Properties object
+     */
+    public static void overrideTemplateParameters(Template template,  Map<String, String> properties, String propertyNamePrefix) {
+        List<io.fabric8.openshift.api.model.template.Parameter> parameters = template.getParameters();
+        if (parameters != null && properties != null) {
+            boolean missingProperty = false;
+            for (io.fabric8.openshift.api.model.template.Parameter parameter : parameters) {
+                String parameterName = parameter.getName();
+                String name = propertyNamePrefix + parameterName;
+                String propertyValue = properties.get(name);
+                if (Strings.isNotBlank(propertyValue)) {
+                    LOG.info("Overriding template parameter " + name + " with value: " + propertyValue);
+                    parameter.setValue(propertyValue);
+                } else {
+                    missingProperty = true;
+                    LOG.info("No property defined for template parameter: " + name);
+                }
+            }
+            if (missingProperty) {
+                LOG.debug("current properties " + new TreeSet<>(properties.keySet()));
+            }
+        }
+    }
 }
