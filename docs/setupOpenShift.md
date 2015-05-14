@@ -2,7 +2,7 @@
 
 There are a few ways you can do this part. 
 
-* [Use the OpenShift Origin documentation](http://docs.openshift.org/latest/welcome/index.html)
+* [Use the OpenShift Origin Installation documentation](http://docs.openshift.org/latest/getting_started/dev_get_started/installation.html)
 * [Start OpenShift V3 using Vagrant](openShiftVagrant.html)
 * [Start OpenShift V3 using Docker](openShiftDocker.html)
 

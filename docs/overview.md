@@ -2,7 +2,7 @@
 
 Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kubernetes](http://kubernetes.io) for :
 
-* [Management](management.html)to help you visualise, understand and manage your software
+* [Management](management.html) to help you visualise, understand and manage your software
 * [Continuous Delivery](cdelivery.html) to help teams delivery software in a faster and more reliable way 
 * [iPaaS](ipaas.html) provides an _Integration Platform As A Service_  
 
