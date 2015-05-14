@@ -49,49 +49,49 @@ Each of the items above is made available to the test as an arquillian resource.
 
 To obtain a reference to the KubernetesClient:
 
-               @ArquillianResource
-               io.fabric8.kubernetes.api.KubernetesClient client;
+     @ArquillianResource
+     io.fabric8.kubernetes.api.KubernetesClient client;
 
 #### Services
 
 To obtain the list of all services created in the current session:
 
-        @ArquillianResource
-        io.fabric8.kubernetes.api.model.ServiceList sessionServices;
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ServiceList sessionServices;
 
 
 To obtain a reference to a particular service created in the current session:
 
 
-        @Id("my-service-id")
-        @ArquillianResource
-        io.fabric8.kubernetes.api.model.Service myService;
+    @Id("my-service-id")
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.Service myService;
 
 #### Replication Controllers
 
 
 To obtain the list of all replication controllers created in the current session:
 
-        @ArquillianResource
-        io.fabric8.kubernetes.api.model.ReplicationControllerList sessionControllers;
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ReplicationControllerList sessionControllers;
 
 To obtain a refernce to a particular replication controller created in the current session:
 
 
-        @Id("my-controller-id")
-        @ArquillianResource
-        io.fabric8.kubernetes.api.model.ReplicationController myController;
+    @Id("my-controller-id")
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ReplicationController myController;
         
 
 To obtain the list of all pods created in the current session:
       
-        @ArquillianResource
-        io.fabric8.kubernetes.api.model.PodList sessionPods;
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.PodList sessionPods;
         
 To obtain the Session:
 
-               @ArquillianResource
-               io.fabric8.arquillian.kubernetes.Session mySession;
+     @ArquillianResource
+     io.fabric8.arquillian.kubernetes.Session mySession;
         
 ### Configuration Options
 
@@ -115,8 +115,9 @@ This means that the arquillian.xml configuration file is completely optional.
 Supported options:
         
 * masterUrl: The url to the kubernetes master.
-* configUrl: The url to the kubernetes configuration to be tested.
 * configFileName: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
+* configUrl: The url to the kubernetes configuration to be tested.
+* connectToServices: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)
 * dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
 * waitForServiceConnection: Wait until a network connection to all applied services is possible.
 * serviceConnectionTimeout: The connection timeout for each attempt to "connect to the service".
