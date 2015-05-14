@@ -2,7 +2,7 @@ Building Fabric8
 ============
 
 Due to certain plugin dependencies, Building Fabric8
-requires a version of Maven >= 3.2.1.
+requires a version of Maven >= 3.2.5.
 
 First of all, the Fabric8 build process may need, 
 more memory than the default allocated
