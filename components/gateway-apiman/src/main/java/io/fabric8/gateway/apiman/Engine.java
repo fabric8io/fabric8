@@ -24,6 +24,7 @@ import io.apiman.gateway.engine.IServiceRequestExecutor;
 import io.apiman.gateway.engine.async.IAsyncResultHandler;
 import io.apiman.gateway.engine.beans.Service;
 import io.apiman.gateway.engine.beans.ServiceRequest;
+import io.fabric8.gateway.api.apimanager.ServiceMapping;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
 
@@ -88,7 +89,7 @@ public class Engine {
 			}
 
 			@Override
-			public String[] getServiceInfo(String servicePath) {
+			public ServiceMapping getServiceMapping(String servicePath) {
 				return ((DelegatingRegistryWithMapping) engine.getRegistry()).getService(servicePath);
 			}
 		};

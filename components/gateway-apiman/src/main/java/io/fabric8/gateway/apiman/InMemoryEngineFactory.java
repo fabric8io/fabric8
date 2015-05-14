@@ -61,7 +61,9 @@ public class InMemoryEngineFactory extends DefaultEngineFactory {
 
     @Override
     protected IRegistry createRegistry() {
-        return new DelegatingRegistryWithMapping(new InMemoryRegistry());
+        InMemoryRegistry registry = new InMemoryRegistry();
+        ServiceMappingStorage mappingStorage = new InMemoryServiceMappingStorage();
+        return new DelegatingRegistryWithMapping(registry, mappingStorage);
     }
 
     /**
