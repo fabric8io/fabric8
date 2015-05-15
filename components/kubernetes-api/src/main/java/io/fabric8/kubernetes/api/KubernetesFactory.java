@@ -66,8 +66,6 @@ public class KubernetesFactory {
     public static final String KUBERNETES_CLIENT_CERTIFICATE_DATA_ENV_VAR = "KUBERNETES_CLIENT_CERTIFICATE_DATA";
     public static final String KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR = "KUBERNETES_CLIENT_KEY_ALGO";
     public static final String KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR = "KUBERNETES_CLIENT_KEY_PASSWORD";
-    public static final String KUBERNETES_USERNAME_ENV_VAR = "KUBERNETES_USERNAME";
-    public static final String KUBERNETES_PASSWORD_ENV_VAR = "KUBERNETES_PASSWORD";
     public static final String KUBERNETES_MASTER_SYSTEM_PROPERTY = "kubernetes.master";
 
     private String address;
@@ -174,14 +172,6 @@ public class KubernetesFactory {
         if (System.getenv(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR) != null) {
             this.clientKeyPassword = System.getenv(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR).toCharArray();
         }
-
-        if (System.getenv(KUBERNETES_USERNAME_ENV_VAR) != null) {
-            this.username = System.getenv(KUBERNETES_USERNAME_ENV_VAR);
-        }
-        if (System.getenv(KUBERNETES_PASSWORD_ENV_VAR) != null) {
-            this.password = System.getenv(KUBERNETES_PASSWORD_ENV_VAR);
-        }
-
     }
 
     @Override
