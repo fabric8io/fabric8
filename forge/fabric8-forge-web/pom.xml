@@ -28,6 +28,9 @@
   <name>Fabric8 :: Forge :: REST Service</name>
 
   <properties>
+    <!-- enable to be able to run the sample -->
+    <sample>false</sample>
+
     <addon.repository>${project.build.directory}/addon-repository</addon.repository>
   </properties>
 
@@ -129,55 +132,68 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.jboss.forge.furnace</groupId>
-        <artifactId>furnace-maven-plugin</artifactId>
-        <version>${furnace.version}</version>
-        <executions>
-          <execution>
-            <id>deploy-addons</id>
-            <phase>test-compile</phase>
-            <goals>
-              <goal>addon-install</goal>
-            </goals>
-            <inherited>false</inherited>
-            <configuration>
-              <addonRepository>${addon.repository}</addonRepository>
-              <addonIds>
-                <addonId>io.fabric8.forge:camel,${fabric8.release.version}</addonId>
-                <addonId>io.fabric8.forge:openshift,${fabric8.release.version}</addonId>
-                <addonId>org.jboss.forge.addon:git,${jboss.forge.version}</addonId>
-              </addonIds>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.3.0.M2</version>
-        <configuration>
-            <systemProperties>
-              <systemProperty>
-                <name>FORGE_ADDON_DIRECTORY</name>
-                <value>${addon.repository}</value>
-              </systemProperty>
-              <systemProperty>
-                <name>org.eclipse.jetty.annotations.maxWait</name>
-                <value>240</value>
-              </systemProperty>
-            </systemProperties>
-            <webApp>
-              <contextPath>/</contextPath>
-            </webApp>
-          </configuration>
-      </plugin>
-
-
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>sample</id>
+      <activation>
+        <property>
+          <name>sample</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jboss.forge.furnace</groupId>
+            <artifactId>furnace-maven-plugin</artifactId>
+            <version>${furnace.version}</version>
+            <executions>
+              <execution>
+                <id>deploy-addons</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>addon-install</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <addonRepository>${addon.repository}</addonRepository>
+                  <addonIds>
+                    <addonId>io.fabric8.forge:camel,${fabric8.release.version}</addonId>
+                    <addonId>io.fabric8.forge:openshift,${fabric8.release.version}</addonId>
+                    <addonId>org.jboss.forge.addon:git,${jboss.forge.version}</addonId>
+                  </addonIds>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+
+          <plugin>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>9.3.0.M2</version>
+            <configuration>
+                <systemProperties>
+                  <systemProperty>
+                    <name>FORGE_ADDON_DIRECTORY</name>
+                    <value>${addon.repository}</value>
+                  </systemProperty>
+                  <systemProperty>
+                    <name>org.eclipse.jetty.annotations.maxWait</name>
+                    <value>240</value>
+                  </systemProperty>
+                </systemProperties>
+                <webApp>
+                  <contextPath>/</contextPath>
+                </webApp>
+              </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
