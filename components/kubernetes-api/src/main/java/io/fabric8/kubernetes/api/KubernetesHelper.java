@@ -38,6 +38,7 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -132,7 +133,7 @@ public class KubernetesHelper {
             return getName((Service) object);
         } else if (object instanceof Route) {
             return getName((Route) object);
-        } else  {
+        } else {
             return object != null ? object.toString() : null;
         }
     }
@@ -473,7 +474,7 @@ public class KubernetesHelper {
     /**
      * Returns the labels of the given metadata object or an empty map if the metadata or labels are null
      */
-    public static Map<String,String> getLabels(ObjectMeta metadata) {
+    public static Map<String, String> getLabels(ObjectMeta metadata) {
         if (metadata != null) {
             Map<String, String> labels = metadata.getLabels();
             if (labels != null) {
@@ -484,7 +485,7 @@ public class KubernetesHelper {
     }
 
     public static ServiceSpec getOrCreateSpec(Service entity) {
-            ServiceSpec spec = entity.getSpec();
+        ServiceSpec spec = entity.getSpec();
         if (spec == null) {
             spec = new ServiceSpec();
             entity.setSpec(spec);
@@ -545,7 +546,7 @@ public class KubernetesHelper {
     }
 
     protected static String getAdditionalNestedPropertyText(Map<String, Object> additionalProperties, String... names) {
-        int lastIdx = names.length -1;
+        int lastIdx = names.length - 1;
         Map<String, Object> map = additionalProperties;
         for (int i = 0; i < lastIdx; i++) {
             if (map == null) {
@@ -556,7 +557,7 @@ public class KubernetesHelper {
         return getAdditionalPropertyText(map, names[lastIdx]);
     }
 
-    protected static Map<String,Object> getMetadata(Map<String, Object> additionalProperties, boolean create) {
+    protected static Map<String, Object> getMetadata(Map<String, Object> additionalProperties, boolean create) {
         Map<String, Object> answer = getAdditionalPropertyMap(additionalProperties, "metadata");
         if (answer == null) {
             answer = new HashMap<>();
@@ -567,7 +568,7 @@ public class KubernetesHelper {
         return answer;
     }
 
-    protected static Map<String,Object> getAdditionalPropertyMap(Map<String, Object> additionalProperties, String name) {
+    protected static Map<String, Object> getAdditionalPropertyMap(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
             Object value = additionalProperties.get(name);
             if (value instanceof Map) {
@@ -1321,6 +1322,7 @@ public class KubernetesHelper {
 
     /**
      * Remove any duplicate resources using the kind and id
+     *
      * @param itemArray
      */
     protected static void removeDuplicates(List<Object> itemArray) {
@@ -1379,7 +1381,6 @@ public class KubernetesHelper {
         }
         return list;
     }
-
 
 
     /**
@@ -1786,9 +1787,9 @@ public class KubernetesHelper {
     }
 
     protected static void appendText(StringBuilder buffer, String text) {
-            if (buffer.length() > 0) {
-                buffer.append(", ");
-            }
+        if (buffer.length() > 0) {
+            buffer.append(", ");
+        }
         buffer.append(text);
     }
 
@@ -1818,7 +1819,8 @@ public class KubernetesHelper {
     }
 
     public static String getStatusText(PodStatus podStatus) {
-        String status;List<String> statusList = new ArrayList<>();
+        String status;
+        List<String> statusList = new ArrayList<>();
         List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
         for (ContainerStatus containerStatus : containerStatuses) {
             ContainerState state = containerStatus.getState();
@@ -1833,6 +1835,26 @@ public class KubernetesHelper {
             status = statusList.toString();
         }
         return status;
+    }
+
+    public static Secret validateSecretExists(KubernetesClient kubernetes, String namespace, String secretName) {
+        Secret secret = null;
+        try {
+            secret = kubernetes.getSecret(secretName, namespace);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                // does not exist
+            } else {
+                throw e;
+            }
+        }
+        if (secret == null) {
+            throw new IllegalArgumentException("No secret named: " + secretName +
+                    " is available on Kubernetes at address " + kubernetes.getAddress() +
+                    ". For how to create secrets see: http://fabric8.io/guide/fabric8OnOpenShift.html#requirements ");
+        } else {
+            return secret;
+        }
     }
 
     /**

@@ -25,6 +25,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 
@@ -218,6 +220,48 @@ public interface Kubernetes {
     @GET
     @Path("namespaces/{namespace}/endpoints/{serviceId}")
     Endpoints endpointsForService(@PathParam("serviceId") @NotNull String serviceId, @PathParam("namespace") String namespace);
+
+
+    /**
+     * List all secrets on this cluster
+     * @param namespace
+     */
+    @Path("namespaces/{namespace}/secrets")
+    @GET
+    @Produces("application/json")
+    SecretList getSecrets(@PathParam("namespace") String namespace);
+
+    @Path("namespaces/{namespace}/secrets")
+    @POST
+    @Consumes("application/json")
+    String createSecret(Secret entity, @PathParam("namespace") String namespace) throws Exception;
+
+    /**
+     * Get a specific secret
+     *
+     * @param secretId
+     * @param namespace
+     */
+    @GET
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Produces("application/json")
+    Secret getSecret(@PathParam("secretId") @NotNull String secretId, @PathParam("namespace") String namespace);
+
+    /**
+     * Update a secret
+     */
+    @PUT
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Consumes("application/json")
+    String updateSecret(@PathParam("secretId") @NotNull String secretId, Secret entity, @PathParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    String deleteSecret(@PathParam("secretId") @NotNull String secretId, @PathParam("namespace") String namespace) throws Exception;
+
+
 
     /**
      * List all the minions on this cluster

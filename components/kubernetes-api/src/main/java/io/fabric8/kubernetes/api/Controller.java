@@ -18,8 +18,13 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -459,6 +464,15 @@ public class Controller {
     protected void doCreateReplicationController(ReplicationController replicationController, String namespace, String sourceName) {
         LOG.info("Creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
         try {
+            // lets check that if secrets are required they exist
+            ReplicationControllerSpec spec = replicationController.getSpec();
+            if (spec != null) {
+                PodTemplateSpec template = spec.getTemplate();
+                if (template != null) {
+                    PodSpec podSpec = template.getSpec();
+                    validatePodSpec(podSpec, namespace);
+                }
+            }
             Object answer;
             if (Strings.isNotBlank(namespace)) {
                 answer = kubernetes.createReplicationController(replicationController, namespace);
@@ -468,6 +482,24 @@ public class Controller {
             LOG.info("Created replicationController: " + answer);
         } catch (Exception e) {
             onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+        }
+    }
+
+    /**
+     * Lets verify that any dependencies are available; such as volumes or secrets
+     */
+    protected void validatePodSpec(PodSpec podSpec, String namespace) {
+        List<Volume> volumes = podSpec.getVolumes();
+        if (volumes != null) {
+            for (Volume volume : volumes) {
+                SecretVolumeSource secret = volume.getSecret();
+                if (secret != null) {
+                    String secretName = secret.getSecretName();
+                    if (Strings.isNotBlank(secretName)) {
+                        KubernetesHelper.validateSecretExists(kubernetes, namespace, secretName);
+                    }
+                }
+            }
         }
     }
 
@@ -512,6 +544,10 @@ public class Controller {
     protected void doCreatePod(Pod pod, String namespace, String sourceName) {
         LOG.info("Creating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
         try {
+            PodSpec podSpec = pod.getSpec();
+            if (podSpec != null) {
+                validatePodSpec(podSpec, namespace);
+            }
             Object answer;
             if (Strings.isNotBlank(namespace)) {
                 answer = kubernetes.createPod(pod, namespace);

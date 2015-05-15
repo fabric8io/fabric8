@@ -29,6 +29,8 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.ReplicationControllerStatus;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.openshift.api.model.Build;
@@ -536,6 +538,52 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
                 throw e;
             }
         }
+    }
+
+    @Override
+    @Path("namespaces/{namespace}/secrets")
+    @POST
+    @Consumes("application/json")
+    public String createSecret(Secret entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        return getKubernetes().createSecret(entity, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    public String deleteSecret(@NotNull String secretId, String namespace) throws Exception {
+        validateNamespace(namespace, secretId);
+        return getKubernetes().deleteSecret(secretId, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Produces("application/json")
+    public Secret getSecret(@NotNull String secretId, String namespace) {
+        validateNamespace(namespace, secretId);
+        return getKubernetes().getSecret(secretId, namespace);
+    }
+
+    @Override
+    @Path("namespaces/{namespace}/secrets")
+    @GET
+    @Produces("application/json")
+    public SecretList getSecrets(String namespace) {
+        validateNamespace(namespace, null);
+        return getKubernetes().getSecrets(namespace);
+    }
+
+    @Override
+    @PUT
+    @Path("namespaces/{namespace}/secrets/{secretId}")
+    @Consumes("application/json")
+    public String updateSecret(@NotNull String secretId, Secret entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        return getKubernetes().updateSecret(secretId, entity, namespace);
     }
 
     @Override
