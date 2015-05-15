@@ -141,7 +141,7 @@
         <cxf.version-range>[3.0,4)</cxf.version-range>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
-        <docker.maven.plugin.version>0.11.3</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.11.4</docker.maven.plugin.version>
         <dropwizard-metrics.version>3.1.0</dropwizard-metrics.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
