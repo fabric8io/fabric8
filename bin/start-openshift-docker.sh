@@ -9,7 +9,7 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-OPENSHIFT_VERSION=v0.5
+OPENSHIFT_VERSION=v0.5.1
 
 FABRIC8_VERSION=2.0.47
 OPENSHIFT_IMAGE=openshift/origin:${OPENSHIFT_VERSION}
@@ -96,7 +96,7 @@ for image in ${DEPLOY_IMAGES}; do
 done
 
 if [ ${CLEANUP} -eq 1 ]; then
-  docker run --rm --privileged -v /var/lib:/var/lib --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/
+  docker run --rm --privileged -v /var/lib:/var/lib -v /var/log:/var/log --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/ /var/log/containers
 fi
 
 if [ ${DONT_RUN} -eq 1 ]; then
@@ -154,7 +154,7 @@ fi
 #  OPENSHIFT_OAUTH_ARGS="-e OPENSHIFT_OAUTH_PASSWORD_AUTH=htpasswd -e OPENSHIFT_OAUTH_HTPASSWD_FILE=/openshift/htpasswd"
 #fi
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift ${OPENSHIFT_VOLUME_MOUNT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/openshift:/var/lib/openshift -v /var/lib/containers:/var/lib/containers --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*' ${PUBLIC_MASTER_ARG})
 
 validateService()
 {
@@ -174,6 +174,7 @@ sleep 30
 
 docker exec openshift sh -c "osadm router --credentials=openshift.local.config/master/openshift-router.kubeconfig --create"
 docker exec openshift sh -c "osadm registry --credentials=openshift.local.config/master/openshift-registry.kubeconfig --create"
+docker exec openshift sh -c "osadm policy add-cluster-role-to-user cluster-admin admin"
 docker exec openshift sh -c "osadm policy add-role-to-user cluster-admin admin -n master"
 
 cat <<EOF | docker exec -i openshift osc create -f -
