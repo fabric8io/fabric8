@@ -16,12 +16,14 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;

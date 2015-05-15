@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.openshift.api.model.OAuthClient;
+
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;

@@ -18,7 +18,7 @@ package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.Namespace;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.utils.Systems;
 
 /**

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.support.KindToClassMapping;
 import io.fabric8.kubernetes.api.support.KubernetesDeserializer;
+import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.AuthorizationHeaderFilter;
 import io.fabric8.utils.cxf.WebClients;

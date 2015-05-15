@@ -19,6 +19,8 @@ import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -38,6 +40,7 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamList;
+import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.WebHookTrigger;
@@ -239,6 +242,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     // Delegated Kubernetes API
     //-------------------------------------------------------------------------
+
+    @Override
+    @GET
+    @Path("namespaces")
+    public NamespaceList getNamespaces() {
+        return getKubernetes().getNamespaces();
+    }
 
     @Override
     public String createNamespace(Namespace entity) throws Exception {

@@ -17,6 +17,8 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -48,6 +50,15 @@ public interface Kubernetes {
     static final String NAMESPACE_ALL = "";
     static final String NAMESPACE_DEFAULT = "";
 
+
+    /**
+     * List all namespaces on this cluster
+     */
+    @GET
+    @Path("namespaces")
+    NamespaceList getNamespaces();
+
+
     @POST
     @Path("namespaces")
     @Consumes("application/json")
@@ -64,7 +75,6 @@ public interface Kubernetes {
      * Update a namespace
      * @param namespaceId
      * @param entity
-     * @param namespace
      */
     @PUT
     @Path("namespaces/{name}")
