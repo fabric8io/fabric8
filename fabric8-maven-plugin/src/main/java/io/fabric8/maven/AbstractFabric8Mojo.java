@@ -220,10 +220,11 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     }
 
     /**
-     * we need to escape <code>${FOO}</code> for template expressions so in maven we have to escape them as <code>\${FOO}</code>
-     *  so lets un-escape those now to be just <code>${FOO}</code>
+     * If supported we should escape <code>${FOO}</code> for template expressions
      */
     public static String unquoteTemplateExpression(String value) {
+        // turns out escaping of ${foo} expressions isn't supported yet in maven inside <properties> elements
+/*
         int idx = 0;
         while (true) {
             idx = value.indexOf("\\${", idx);
@@ -233,6 +234,7 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
                 break;
             }
         }
+*/
         return value;
     }
 
