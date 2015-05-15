@@ -50,6 +50,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -240,6 +241,19 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "fabric8.containerPrivileged")
     protected Boolean containerPrivileged;
+
+    /**
+     * The properties file used to specify the OpenShift Template parameter values and descriptions. The properties file should be of the form
+     * <code>
+     *     <pre>
+     *         FOO.value = ABC
+     *         FOO.description = this is the description of FOO
+     *     </pre>
+     * </code>
+     */
+    @Parameter(property = "fabric8.templateParametersFile", defaultValue = "${basedir}/src/main/fabric8/templateParameters.properties")
+    protected File templateParametersPropertiesFile;
+
 
     @Component
     protected ArtifactResolver resolver;
@@ -918,12 +932,41 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return volumes;
     }
 
-    public Template getTemplate() {
+    public Template getTemplate() throws MojoExecutionException {
         List<io.fabric8.openshift.api.model.template.Parameter> parameters = new ArrayList<>();
         MavenProject project = getProject();
-        Properties properties = project.getProperties();
+        Properties projectProperties = project.getProperties();
         Set<String> paramNames = new HashSet<>();
-        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
+        if (templateParametersPropertiesFile != null && templateParametersPropertiesFile.isFile() && templateParametersPropertiesFile.exists()) {
+            final String valuePostfix = ".value";
+            final String descriptionPostfix = ".description";
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(templateParametersPropertiesFile));
+                // lets append the prefix
+                Set<Object> keys = properties.keySet();
+                Properties prefixedProperties = new Properties();
+                for (Object key : keys) {
+                    if (key != null) {
+                        String name = key.toString();
+                        String value = properties.getProperty(name);
+                        prefixedProperties.put(PARAMETER_PREFIX + "." + name, value);
+                    }
+                }
+                loadParametersFromProperties(prefixedProperties, parameters, paramNames);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Failed to load templateParameters properties file " + templateParametersPropertiesFile + ". " + e, e);
+            }
+        }
+        loadParametersFromProperties(projectProperties, parameters, paramNames);
+        String templateName = projectProperties.containsKey(TEMPLATE_NAME) ?
+                String.valueOf(projectProperties.getProperty(TEMPLATE_NAME)) :
+                project.getArtifactId();
+        return new TemplateBuilder().withNewMetadata().withName(templateName).endMetadata().withParameters(parameters).build();
+    }
+
+    protected void loadParametersFromProperties(Properties properties, List<io.fabric8.openshift.api.model.template.Parameter> parameters, Set<String> paramNames) {
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
                 String s = (String) key;
@@ -956,10 +999,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 }
             }
         }
-        String templateName = properties.containsKey(TEMPLATE_NAME) ?
-                String.valueOf(properties.getProperty(TEMPLATE_NAME)) :
-                project.getArtifactId();
-        return new TemplateBuilder().withNewMetadata().withName(templateName).endMetadata().withParameters(parameters).build();
     }
 
     private String labelValueOrBlank(String label, String value) {
