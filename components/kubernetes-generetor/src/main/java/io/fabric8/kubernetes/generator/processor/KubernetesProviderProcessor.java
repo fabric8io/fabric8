@@ -28,19 +28,13 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.Route;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 import javax.xml.ws.Service;
-import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +46,7 @@ import java.util.concurrent.Callable;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 
 @SupportedAnnotationTypes("io.fabric8.kubernetes.generator.annotation.KubernetesProvider")
-public class KubernetesProviderProcessor extends AbstractProcessor {
+public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationProcessor {
 
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -90,10 +84,12 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
                     KubernetesProvider provider = element.getAnnotation(KubernetesProvider.class);
 
                     ExecutableElement methodElement = (ExecutableElement) element;
+                    String methodName = methodElement.getSimpleName().toString();
                     TypeElement classElement = getClassElement(element);
                     Class<?> cls = Class.forName(classElement.getQualifiedName().toString());
                     Object instance = cls.newInstance();
-                    Method providerMethod = instance.getClass().getDeclaredMethod(methodElement.getSimpleName().toString());
+
+                    Method providerMethod = instance.getClass().getDeclaredMethod(methodName);
                     if (providerMethod != null) {
                         Object obj = providerMethod.invoke(instance);
                         if (obj != null) {
@@ -109,18 +105,6 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
         KubernetesList list = createList(provided);
         generateJson(list);
         return true;
-    }
-
-
-    private void generateJson(KubernetesList list) {
-        try {
-            FileObject fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "kubernetes.json");
-            try (Writer writer = fileObject.openWriter()) {
-                MAPPER.writeValue(writer, list);
-            }
-        } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json.");
-        }
     }
 
     private KubernetesList createList(Iterable<Object> objects) {
@@ -166,24 +150,5 @@ public class KubernetesProviderProcessor extends AbstractProcessor {
                 // TODO KubernetesList no longer has an id/name
                 //withName(sb.toString()).
                 withItems(allItems).build();
-    }
-
-    public static TypeElement getClassElement(Element element) {
-        if (element instanceof PackageElement) {
-            throw new IllegalArgumentException("Invalid element. A package element can't be used to retrieve a class element");
-        } else if (element instanceof TypeElement && element.getEnclosingElement() instanceof PackageElement) {
-            return (TypeElement) element;
-        } else {
-            return getClassElement(element.getEnclosingElement());
-        }
-    }
-
-
-    public static PackageElement getPackageElement(Element element) {
-        if (element instanceof PackageElement) {
-            return (PackageElement) element;
-        } else {
-            return getPackageElement(element.getEnclosingElement());
-        }
     }
 }

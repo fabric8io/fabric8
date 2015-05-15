@@ -14,3 +14,4 @@
 # permissions and limitations under the License.
 #
 io.fabric8.kubernetes.generator.processor.KubernetesProviderProcessor
+io.fabric8.kubernetes.generator.processor.KubernetesModelProcessorProcessor
