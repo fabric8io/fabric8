@@ -9,4 +9,6 @@ Fabric8 provides a number of features to help manage your software on top of Kub
 
 Logging and metrics are key parts of being able to maintain and understand distributed systems. Consolidating log statements and events and being able to query and visualise them is an extremely useful tool. Then capturing historical metrics an extremely useful tool to help diagnose your running system.
  
-
+### Installation
+    
+To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    

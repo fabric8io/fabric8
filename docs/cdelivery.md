@@ -14,4 +14,6 @@ The [Continuous Delivery](http://en.wikipedia.org/wiki/Continuous_delivery) cons
 * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
 * [Chat](chat.html) to support social integration between your teams and the infrastructure
 
+### Installation
  
+To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    

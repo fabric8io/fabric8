@@ -1,12 +1,14 @@
 
 ### 2.1.0 
 
+* Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide//fabric8OnOpenShift.html) 
 * migrates to the v1beta3 version of the Kubernetes schema by default including much better validation
-* [Fabric8 Apps](http://fabric8.io/guide/fabric8Apps.html) are now easier to [install on an existing Kubernetes or OpenShift environment]((http://fabric8.io/guide/fabric8OnOpenShift.html) via a [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html) JSON file.
-* [mvn fabric8:json](http://fabric8.io/guide/mavenFabric8Json.html) now supports the generation of [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html)
-* [mvn fabric8:apply](http://fabric8.io/guide/mavenFabric8Apply.html) is the new name of the old `fabric8:run` goal to better describe applying JSON to a kubernetes environment and creating/updating/deleting resources.
-* the [fabric8 console](http://fabric8.io/guide/console.html) is now more reactive thanks to the support of websockets for real time updates
-xx§x* first spike of [Fabric8 Continuous Delivery](http://fabric8.io/guide/cdelivery.html) making it easier to build, release and provision software faster and more reliably
+* [Fabric8 Apps](http://fabric8.io/guide/fabric8Apps.html) are now easier to [install on an existing Kubernetes or OpenShift environment](http://fabric8.io/guide/fabric8OnOpenShift.html) via a [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html) JSON file.
+* Maven [fabric8:json](http://fabric8.io/guide/mavenFabric8Json.html) goal now supports the generation of [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html)
+* Maven [fabric8:apply](http://fabric8.io/guide/mavenFabric8Apply.html) goal is the new name of the old `fabric8:run` goal to better describe applying JSON to a kubernetes environment and creating/updating/deleting resources.
+* New maven [fabric8:create-routes](http://fabric8.io/guide/mavenFabric8CreateRoutes.html) to lazily create any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html)
+* The [fabric8 console](http://fabric8.io/guide/console.html) is now more reactive thanks to the support of websockets for real time updates
+* First spike of [Fabric8 Continuous Delivery](http://fabric8.io/guide/cdelivery.html) making it easier to build, release and provision software faster and more reliably
 * Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.0)
 
 ### 2.0.44

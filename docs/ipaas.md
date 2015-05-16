@@ -13,3 +13,6 @@ Then to help you and your team provision and manage your integration services:
 * [Continuous Delivery](cdelivery.html) provides a development, building, releasing and provisioning pipeline
 * [Chat](chat.html) provides a [hubot](https://hubot.github.com/) [app](apps.html) and a notification engine to post [build completion](builds.html) events to a chat room (which defaults to one room per kubernetes namespace).
 
+### Installation
+    
+To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    
