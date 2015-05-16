@@ -10,9 +10,11 @@ Note that before trying to apply your Kubernetes JSON you need to make sure your
 
 Also if you are using a local docker registry, make sure it is network accessible to your Kubernetes cluster.
 
-### Default Configuration
+### Creating Routes
 
 You can use the maven property `fabric8.domain` or the environment variable `$KUBERNETES_DOMAIN` to define the DNS host to expose services automatically using [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html)
+
+### Default Configuration
 
 The Kubernetes environment and authentication is defined by the [kubernetes-api environment variables](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api#configuration). In particular:
 
