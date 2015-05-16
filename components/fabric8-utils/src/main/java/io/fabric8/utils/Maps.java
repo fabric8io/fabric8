@@ -112,6 +112,10 @@ public class Maps {
         return defaultValue;
     }
 
+
+    protected static Object valueOrNull(Map<String, Object> map, String key) {
+        return value(map, key, null);
+    }
     /**
      * Returns the value of the given property in the map
      */
@@ -203,4 +207,24 @@ public class Maps {
     }
 
 
+    public static String valueAsString(Map<String, Object> map, String key) {
+        if (map != null) {
+            Object value = valueOrNull(map, key);
+            if (value != null) {
+                return value.toString();
+            }
+        }
+        return null;
+    }
+
+    public static String nestedValueAsString(Map<String, Object> map, String... names) {
+        int lastIdx = names.length -1;
+        for (int i = 0; i < lastIdx; i++) {
+            if (map == null) {
+                return null;
+            }
+            map = (Map<String, Object>) value(map, names[i], null);
+        }
+        return valueAsString(map, names[lastIdx]);
+    }
 }

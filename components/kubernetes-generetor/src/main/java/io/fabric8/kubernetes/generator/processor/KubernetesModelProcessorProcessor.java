@@ -19,10 +19,14 @@ package io.fabric8.kubernetes.generator.processor;
 import io.fabric8.common.Visitor;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.generator.annotation.KubernetesModelProcessor;
+import io.fabric8.utils.Maps;
+import io.fabric8.utils.Strings;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.inject.Named;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -32,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -70,7 +75,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             KubernetesListBuilder builder = new KubernetesListBuilder(readJson());
             try {
                 if (element instanceof TypeElement) {
-                    KubernetesModelProcessor processor = element.getAnnotation(KubernetesModelProcessor.class);
+                    final KubernetesModelProcessor processor = element.getAnnotation(KubernetesModelProcessor.class);
 
                     for (ExecutableElement methodElement :ElementFilter.methodsIn(element.getEnclosedElements())) {
 
@@ -83,6 +88,16 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
                             @Override
                             public void visit(Object o) {
                               for (Method m :findMethods(instance, methodName, o.getClass())) {
+                                  Named named = m.getAnnotation(Named.class);
+                                  if (named != null && !Strings.isNullOrBlank(named.value())) {
+                                      String objectName = getName(o);
+                                      //If a name has been explicitly specified check if there is a match
+                                      if (!named.value().equals(objectName)) {
+                                          processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                                  "Named method:" + m.getName() + " with name:" + named.value() + " doesn't match: " + objectName + ", ignoring");
+                                          return;
+                                      }
+                                  }
                                   try {
                                       m.invoke(instance, o);
                                   } catch (IllegalAccessException e) {
@@ -106,7 +121,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
     }
 
 
-    private Set<Method> findMethods(Object instance, String methodName, Class argumentType) {
+    private static Set<Method> findMethods(Object instance, String methodName, Class argumentType) {
         Set<Method> result = new LinkedHashSet<>();
 
         for (Method m :instance.getClass().getDeclaredMethods()) {
@@ -117,4 +132,47 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
         return result;
     }
 
+    private static <T, V> V getWithReflection(T object, Class<V> clazz, String methodNamed) {
+        if (object == null) {
+            return null;
+        } else {
+            try {
+                Method method = object.getClass().getMethod(methodNamed);
+                return clazz.cast(method.invoke(object));
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+    public static <T> String getUuid(T obj) {
+        return getWithReflection(obj,  String.class, "getUid");
+    }
+
+    public static <T> Map<String, Object> getAdditionalProperties(T obj) {
+        return getWithReflection(obj,  Map.class, "getAdditionalProperties");
+    }
+
+    public static <T> ObjectMeta getObjectMeta(T obj) {
+        return getWithReflection(obj, ObjectMeta.class, "getMetadata");
+    }
+
+    public static <T>  io.fabric8.kubernetes.api.model.base.ObjectMeta getBaseMeta(T obj) {
+        return getWithReflection(obj, io.fabric8.kubernetes.api.model.base.ObjectMeta.class, "getMetadata");
+    }
+
+    public static <T> String getName(T entity) {
+        if (entity != null) {
+            Map<String, Object> additionalProperties = getAdditionalProperties(entity);
+            return Strings.firstNonBlank(
+                    getWithReflection(entity, String.class, "getName"),
+                    getName(getObjectMeta(entity)),
+                    getName(getBaseMeta(entity)),
+                    Maps.nestedValueAsString(additionalProperties, "metadata", "id"),
+                    Maps.nestedValueAsString(additionalProperties, "metadata", "name"),
+                    String.valueOf(additionalProperties.get("id")),
+                    getUuid(entity));
+        } else {
+            return null;
+        }
+    }
 }

@@ -34,7 +34,16 @@
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-api</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-utils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
