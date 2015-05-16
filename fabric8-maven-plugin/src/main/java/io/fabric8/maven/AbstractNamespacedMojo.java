@@ -51,9 +51,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
 
 
-    @Component
-    private MavenProject project;
-
     private KubernetesClient kubernetes = new KubernetesClient();
 
     public KubernetesClient getKubernetes() {
@@ -69,10 +66,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         controller.setThrowExceptionOnError(failOnError);
         controller.setRecreateMode(recreate);
         return controller;
-    }
-
-    public MavenProject getProject() {
-        return project;
     }
 
 }

@@ -96,6 +96,13 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.envFile", defaultValue = "${basedir}/src/main/fabric8/env.properties")
     protected File envPropertiesFile;
 
+    @Component
+    private MavenProject project;
+
+    public MavenProject getProject() {
+        return project;
+    }
+
     protected static URLClassLoader createURLClassLoader(Collection<URL> jars) {
         return new URLClassLoader(jars.toArray(new URL[jars.size()]));
     }

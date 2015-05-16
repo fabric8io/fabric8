@@ -34,7 +34,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
  * Creates any OpenShift Routes for running services which expose ports 80 or 443 but don't yet
  * have a route for them
  */
-@Mojo(name = "create-routes", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "create-routes", requiresProject = false)
 public class CreateRoutesMojo extends AbstractNamespacedMojo {
 
     @Override
