@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * Generates a properties file that contains that env variables that are expected to be passed by kubernetes to the container.
@@ -78,6 +79,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             Object config = loadKubernetesJson();
             List<Object> list = KubernetesHelper.toItemList(config);
             Map<String, String> env = getEnvFromConfig(list);
+            String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
             displayEnv(env);
             
@@ -141,7 +143,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * @throws IOException
      */
     private Map<String, String> getEnvFromConfig(List<Object> entities) throws IOException {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = new TreeMap<>();
 
         for (Object entity : entities) {
             if (entity instanceof Pod) {

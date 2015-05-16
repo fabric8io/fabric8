@@ -29,7 +29,7 @@ import org.apache.maven.project.MavenProject;
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     @Parameter(property = "fabric8.namespace")
-    protected String namespace;
+    private String namespace;
 
     /**
      * The domain added to the service ID when creating OpenShift routes
@@ -68,4 +68,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         return controller;
     }
 
+    protected String getNamespace() {
+        return getKubernetes().getNamespace();
+    }
 }
