@@ -4,10 +4,20 @@ This maven plugin makes it easy to work with Kubernetes from your Maven project.
 
 ### Goals
 
+For building and pushing docker images
+
 * [docker:build](mavenDockerBuild.html) builds the docker image for your maven project
 * [docker:push](mavenDockerPush.html) pushes the locally built docker image to the global or a local docker registry
+
+For generating and applying Kubernetes JSON
+
 * [fabric8:json](mavenFabric8Json.html) generates kubernetes json for your maven project
 * [fabric8:apply](mavenFabric8Apply.html) applies the kubernetes json into a namespace in a kubernetes cluster
+
+Helper goals for working with Kubernetes 
+
+* [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services 
+* [fabric8:create-env](mavenFabric8CreateEnv.html) generates environment variable scripts for Kubernetes [services](services.html) so you can simulate running programs as if they were inside kubernetes
 
 ### Adding the plugin to your project
 
