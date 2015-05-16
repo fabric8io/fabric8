@@ -59,12 +59,6 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     private static final String DOCKER_NAME = "docker.name";
     private static final String EXEC_ENV_SCRIPT = "environmentScript";
 
-    
-    private final KubernetesClient kubernetes = new KubernetesClient();
-
-    @Parameter(property = "fabric8.namespace", defaultValue = "default")
-    private String namespace;
-
     @Parameter(property = "fabric8.envFile", defaultValue = "env.properties")
     private String envPropertiesFileName;
 
@@ -107,8 +101,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * @param namespace The target namespace.
      * @return
      */
-     Map<String, String> getNamespaceServiceEnv(String namespace) {
+    Map<String, String> getNamespaceServiceEnv(String namespace) {
         Map<String, String> result = new HashMap<>();
+        KubernetesClient kubernetes = getKubernetes();
         ServiceList serviceList = kubernetes.getServices(namespace);
         RouteList routeList = kubernetes.getRoutes(namespace);
         for (Service service : serviceList.getItems()) {
@@ -121,10 +116,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
             ServiceSpec serviceSpec = service.getSpec();
             if (spec != null) {
-                    result.put(id + HOST_SUFFIX, spec.getHost());
-                } else if (serviceSpec != null) {
-                    result.put(id + HOST_SUFFIX, serviceSpec.getPortalIP());
-                }
+                result.put(id + HOST_SUFFIX, spec.getHost());
+            } else if (serviceSpec != null) {
+                result.put(id + HOST_SUFFIX, serviceSpec.getPortalIP());
+            }
             if (serviceSpec != null) {
                 List<ServicePort> ports = serviceSpec.getPorts();
                 for (ServicePort port : ports) {
@@ -141,7 +136,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     /**
      * Return Env variables found in the kubernetes config.
      *
-     * @param config The config instance.
+     * @param entities The config instance.
      * @return A map with the env key value pairs.
      * @throws IOException
      */

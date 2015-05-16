@@ -45,7 +45,7 @@ import static io.fabric8.utils.PropertiesHelper.toMap;
 /**
  * Abstract base class for Fabric8 based Mojos
  */
-public abstract class AbstractFabric8Mojo extends AbstractMojo {
+public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     /**
      * Name of the created app zip file
@@ -72,8 +72,6 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     @Parameter(property = "kubernetesSourceJson", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
     protected File kubernetesSourceJson;
 
-    @Component
-    private MavenProject project;
 
     /**
      * The number of replicas of this container if we are auto generating the kubernetes JSON file (creating
@@ -106,9 +104,6 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
         return kubernetesJson;
     }
 
-    public MavenProject getProject() {
-        return project;
-    }
 
     public Integer getReplicas() {
         return replicas;

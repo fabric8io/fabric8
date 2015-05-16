@@ -30,6 +30,7 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
@@ -319,7 +320,7 @@ public class Controller {
         Route route = kubernetes.findRoute(id, namespace);
         if (route == null) {
             try {
-                LOG.info("Creating Route " + namespace + ":" + id);
+                LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
                 kubernetes.createRoute(entity, namespace);
             } catch (Exception e) {
                 onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e + ". " + entity, e);

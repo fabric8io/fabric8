@@ -23,12 +23,13 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.base.ObjectReference;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
-import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -56,12 +58,6 @@ public class ApplyMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.apply.create", defaultValue = "true")
     private boolean createNewResources;
-
-    /**
-     * Should we update resources by deleting them first and then creating them again?
-     */
-    @Parameter(property = "fabric8.apply.recreate")
-    private boolean recreate;
 
     /**
      * Should we fail if there is no kubernetes json
@@ -93,24 +89,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean ignoreRunningOAuthClients;
 
     /**
-     * Should we fail the build if an apply fails?
-     */
-    @Parameter(property = "fabric8.apply.failOnError", defaultValue = "true")
-    private boolean failOnError;
-
-    /**
      * Should we create routes for any services which don't already have them.
      */
     @Parameter(property = "fabric8.apply.createRoutes", defaultValue = "true")
     private boolean createRoutes;
-
-    /**
-     * The domain added to the service ID when creating OpenShift routes
-     */
-    @Parameter(property = "fabric8.apply.domain", defaultValue = "${env.KUBERNETES_DOMAIN}")
-    private String routeDomain;
-
-    private KubernetesClient kubernetes = new KubernetesClient();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -138,10 +120,8 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             if (dto == null) {
                 throw new MojoFailureException("Could not load kubernetes json: " + json);
             }
-            Controller controller = new Controller(this.kubernetes);
+            Controller controller = createController();
             controller.setAllowCreate(createNewResources);
-            controller.setRecreateMode(recreate);
-            controller.setThrowExceptionOnError(failOnError);
             controller.setServicesOnlyMode(servicesOnly);
             controller.setIgnoreServiceMode(ignoreServices);
             controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
@@ -195,8 +175,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     }
 
     protected void createRoutes(KubernetesClient kubernetes, List<Object> list) {
-        if (Strings.isNullOrBlank(routeDomain)) {
-            getLog().warn("No fabric8.apply.routeDomain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
+        String routeDomainPostfix = this.routeDomain;
+        Log log = getLog();
+        if (Strings.isNullOrBlank(routeDomainPostfix)) {
+            log.warn("No fabric8.apply.routeDomain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
             return;
         }
         String namespace = kubernetes.getNamespace();
@@ -207,33 +189,15 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 List<Route> items = routes.getItems();
             }
         } catch (Exception e) {
-            getLog().warn("Could not load routes; we maybe are not connected to an OpenShift environment? " + e, e);
+            log.warn("Could not load routes; we maybe are not connected to an OpenShift environment? " + e, e);
             return;
         }
         List<Route> routes = new ArrayList<>();
         for (Object object : list) {
             if (object instanceof Service) {
                 Service service = (Service) object;
-                String id = KubernetesHelper.getName(service);
-
-                if (Strings.isNotBlank(id)) {
-                    Route route = new Route();
-                    KubernetesHelper.setName(route, namespace, id + "-route");
-                    RouteSpec routeSpec = new RouteSpec();
-                    ObjectReference objectRef = new ObjectReference();
-                    objectRef.setName(id);
-                    objectRef.setNamespace(namespace);
-                    routeSpec.setTo(objectRef);
-                    String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
-                    routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomain, "."));
-                    route.setSpec(routeSpec);
-                    String json = null;
-                    try {
-                        json = KubernetesHelper.toJson(route);
-                    } catch (JsonProcessingException e) {
-                        json = e.getMessage() + ". object: " + route;
-                    }
-                    getLog().debug("Created route: " + json);
+                Route route = createRouteForService(routeDomainPostfix, namespace, service, log);
+                if (route != null) {
                     routes.add(route);
                 }
             }
@@ -241,10 +205,47 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         list.addAll(routes);
     }
 
-    public KubernetesClient getKubernetes() {
-        if (Strings.isNotBlank(namespace)) {
-            kubernetes.setNamespace(namespace);
+    public static Route createRouteForService(String routeDomainPostfix, String namespace, Service service, Log log) {
+        Route route = null;
+        String id = KubernetesHelper.getName(service);
+        if (Strings.isNotBlank(id) && shouldCreateRouteForService(log, service, id)) {
+            route = new Route();
+            KubernetesHelper.setName(route, namespace, id + "-route");
+            RouteSpec routeSpec = new RouteSpec();
+            ObjectReference objectRef = new ObjectReference();
+            objectRef.setName(id);
+            objectRef.setNamespace(namespace);
+            routeSpec.setTo(objectRef);
+            String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
+            routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
+            route.setSpec(routeSpec);
+            String json = null;
+            try {
+                json = KubernetesHelper.toJson(route);
+            } catch (JsonProcessingException e) {
+                json = e.getMessage() + ". object: " + route;
+            }
+            log.debug("Created route: " + json);
         }
-        return kubernetes;
+        return route;
+    }
+
+    /**
+     * Should we try to create a route for the given service?
+     *
+     * By default lets ignore the kubernetes services and any service which does not expose ports 80 and 443
+     *
+     * @returns true if we should create an OpenShift Route for this service.
+     */
+    protected static boolean shouldCreateRouteForService(Log log, Service service, String id) {
+        if ("kubernetes".equals(id) || "kubernetes-ro".equals(id)) {
+            return false;
+        }
+        Set<Integer> ports = KubernetesHelper.getPorts(service);
+        log.debug("Service " + id + " has ports: " + ports);
+        if (!ports.contains(80) && !ports.contains(443)) {
+            return false;
+        }
+        return true;
     }
 }
