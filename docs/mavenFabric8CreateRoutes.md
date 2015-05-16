@@ -60,32 +60,12 @@ The following maven property values are used to configure the behaviour of the a
 <th>Description</th>
 </tr>
 <tr>
-<td>fabric8.apply.create</td>
-<td>Should we create new resources (not in the kubernetes namespace). Defaults to <code>true</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.servicesOnly</td>
-<td>Should only services be processed. This lets you run 2 builds, process the services only first; then process non-services. Defaults to <code>false</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.ignoreServices</td>
-<td>Ignore any services in the JSON. This is useful if you wish to recreate all the ReplicationControllers and Pods but not recreate Services (which can cause <code>PortalIP</code> addresses to change for services which can break some Pods and could cause problems for load balancers. Defaults to <code>false</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.createRoutes</td>
-<td>If there is a route domain (see <code>fabric8.domain</code>) then this option will create an <a href="http://docs.openshift.org/latest/admin_guide/router.html">OpenShift Route</a> for each service for the host expressio: <code>${serviceName}.${fabric8.domain}</code>. Defaults to <code>true</code>.</td>
-</tr>
-<tr>
 <td>fabric8.domain</td>
 <td>The domain to expose the services as <a href="http://docs.openshift.org/latest/admin_guide/router.html">OpenShift Routes</a>. Defaults to <code>$KUBERNETES_DOMAIN</code>.</td>
 </tr>
 <tr>
 <td>fabric8.namespace</td>
 <td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
-</tr>
-<tr>
-<td>fabric8.recreate</td>
-<td>If enabled then all resources that are found are deleted first before being recreated. Defaults to <code>false</code>.</td>
 </tr>
 </table>
 
