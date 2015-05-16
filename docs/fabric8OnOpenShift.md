@@ -95,6 +95,18 @@ Provides all of the above!
 		osc process http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.0-SNAPSHOT/kitchen-sink-2.1.0-kubernetes.json | osc create -f -
 
 
+### Creating Routes
 
+Its likely after installing any of the above applications that there will be Kubernetes [services](services.html) running that you wish to expose via [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html).
+
+To do this use the [mvn fabric8:create-routes](mavenFabric8CreateRoutes.html) goal. e.g.
+
+    mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes -Dfabric8.domain=my.acme.com
+
+You could then setup a wildcard DNS rule on `*.my.acme.com` to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your `/etc/hosts` file for each service.
+                                                                                                         
+e.g. if your IP address for the OpenShift master/router is `127.0.0.1` then add this to your `/etc/hosts` to expose the `foo` and `bar` services:
+
+		127.0.0.1 foo.my.acme.com ba.my.acme.com
  
 
