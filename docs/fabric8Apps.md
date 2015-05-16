@@ -15,3 +15,7 @@ APIs in your cluster.
     * [API Registry](apiRegistry.html) provides a global view of all of your RESTful and web service APIs that is displayed in the [Console](console.html) allowing you to inspect and invoke all the endpoints 
     * [MQ](fabric8MQ.html) implements _Messaging As A Service_ with [Apache ActiveMQ](http://activemq.apache.org/) on Kubernetes.
     * [MQ AutoScaler](fabric8MQAutoScaler.html) monitors and scales the [Apache ActiveMQ](http://activemq.apache.org/) brokers running on Kubernetes
+    
+### Installation
+    
+To install any of the above apps on OpenShift see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    

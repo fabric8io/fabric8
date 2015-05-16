@@ -6,7 +6,7 @@ Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kuberne
 * [Continuous Delivery](cdelivery.html) to help teams delivery software in a faster and more reliable way 
 * [iPaaS](ipaas.html) provides an _Integration Platform As A Service_  
 
-If you have an installation of [OpenShift V3 0.5 or later](http://www.openshift.org/)then [install Fabric8 On OpenShift](fabric8OnOpenShift.md)
+If you have an installation of [OpenShift V3 0.5 or later](http://www.openshift.org/) then [install Fabric8 On OpenShift](fabric8OnOpenShift.md)
 
 ### Supported Platforms
 
