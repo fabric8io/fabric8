@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>FAQ | Fabric8 Documentation</title>
+        <title>fabric8:create-env | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.2">
@@ -20,10 +20,10 @@
         
     
     
-    <link rel="next" href="./faqGeneral.html" />
+    <link rel="next" href="./mavenFabric8CreateRoutes.html" />
     
     
-    <link rel="prev" href="./jube.html" />
+    <link rel="prev" href="./mavenFabric8Apply.html" />
     
 
         
@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="8" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.4" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -519,7 +519,7 @@
             
         </li>
     
-        <li class="chapter " data-level="4.1.4" data-path="mavenFabric8CreateEnv.html">
+        <li class="chapter active" data-level="4.1.4" data-path="mavenFabric8CreateEnv.html">
             
                 
                     <a href="./mavenFabric8CreateEnv.html">
@@ -820,7 +820,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8" data-path="FAQ.html">
+        <li class="chapter " data-level="8" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
@@ -959,11 +959,56 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="faq"><a name="faq" class="plugin-anchor" href="#faq"><span class="fa fa-link"></span></a>FAQ</h3>
-<p>The FAQ is split into the following sections</p>
+                        <h2 id="fabric8-create-env"><a name="fabric8-create-env" class="plugin-anchor" href="#fabric8-create-env"><span class="fa fa-link"></span></a>fabric8:create-env</h2>
+<p>The maven <code>fabric8:create-env</code> goal queries all the <a href="services.html">Services</a> in the current namespace along with looking at the JSON file generated via <a href="mavenFarbic8Json.html">mvn fabric8:json</a> (located at <code>target/classes/kubernetes.json</code>) and generates a list of environment variables that would be required to simulate running a process inside Kubernetes.</p>
+<p>This makes it easy to run, say, Java programs in your IDE as if it was running inside a Kubernetes environment; discovering all the <a href="services.html">services</a> available in the namespace and setting all the same environment variables that are defined inside your <a href="pods.html">pods</a> or <a href="replicationControllers.html">replication controllers</a></p>
+<p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
+<h3 id="generated-files"><a name="generated-files" class="plugin-anchor" href="#generated-files"><span class="fa fa-link"></span></a>Generated files</h3>
+<p>The goal generates  the following files:</p>
 <ul>
-<li><a href="http://fabric8.io/guide/faqGeneral.html" target="_blank">General Questions</a></li>
+<li><code>target/env.sh</code> you can <code>source</code> in a shell to setup your environment together </li>
+<li><code>target/env.properties</code> file you can process easily with Java code or ideally your IDE can accept in its UI for running applications or test cases</li>
 </ul>
+<h3 id="acessing-services"><a name="acessing-services" class="plugin-anchor" href="#acessing-services"><span class="fa fa-link"></span></a>Acessing services</h3>
+<p>Note that your local machine may not be able to see <a href="services.html">services</a> using the <code>PortalIP</code> address of the service (depending on how your networking is setup).</p>
+<p>So the service environment variables like <code>FOO_SERVICE_HOST</code> will use the host names on any defined <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> instead which allow access to services from outside of the Kubernetes cluster.</p>
+<p>If you do not have <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> setup for your services then you can either:</p>
+<ul>
+<li>apply them via <a href="mavenFabric8Apply.html">fabric8:apply</a> so that it <a href="mavenFabric8Apply.html#creating-routes">creates the routes</a> by specifying the maven property <code>fabric8.domain</code> or the environment variable <code>$KUBERNETES_DOMAIN</code> to specify to the DNS/host domain you wish to expose the services on.</li>
+<li>use <a href="mavenFabric8CreateRoutes.html">fabric8:create-routes</a> to generate any missing <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for the current services using the maven property <code>fabric8.domain</code> or the environment variable <code>$KUBERNETES_DOMAIN</code> to specify to the DNS/host domain you wish to expose the services on.</li>
+</ul>
+<h3 id="default-configuration"><a name="default-configuration" class="plugin-anchor" href="#default-configuration"><span class="fa fa-link"></span></a>Default Configuration</h3>
+<p>The Kubernetes environment and authentication is defined by the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api#configuration" target="_blank">kubernetes-api environment variables</a>. In particular:</p>
+<ul>
+<li><code>KUBERNETES_SERVICE_HOST</code>:<code>KUBERNETES_SERVICE_PORT</code> / <code>KUBERNETES_MASTER</code> - the location of the kubernetes master</li>
+<li><code>KUBERNETES_NAMESPACE</code> - the default namespace used on operations</li>
+</ul>
+<h4 id="defaults-from-openshift"><a name="defaults-from-openshift" class="plugin-anchor" href="#defaults-from-openshift"><span class="fa fa-link"></span></a>Defaults from OpenShift</h4>
+<p>If no configuration is supplied through maven properties or environment variables, the <code>fabric8:create-env</code> goal will try to find the current login token and namespace by parsing the users <code>~/.config/openshift/config</code> file.</p>
+<p>This means that if you use the <a href="http://www.openshift.org/" target="_blank">OpenShift</a> command line tool <code>osc</code> you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the <code>fabric8:create-env</code> goal. e.g.</p>
+<pre><code>osc login
+osc project cheese
+mvn fabric8:create-env
+</code></pre><p>In the above, if there is no <code>KUBERNETES_NAMESPACE</code> environment variable or maven property called <code>fabric8.namespace</code> then the <code>fabric8:create-env</code> goal will look at the Kubernetes resources to the <code>cheese</code> namespace.</p>
+<h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
+<p>To setup your shell as if its running inside a Kubernetes environment container:</p>
+<pre><code>mvn fabric8:create-env
+source target/env.sh
+</code></pre><p>To specify an explicit namespace:</p>
+<pre><code>mvn fabric8:create-env -Dfabric8.namespace=cheese   
+</code></pre><h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
+<p>The following maven property values are used to configure the behaviour of the apply goal:</p>
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>fabric8.namespace</td>
+<td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
+</tr>
+</table>
+
 
                     
                     </section>
@@ -974,10 +1019,10 @@
         </div>
 
         
-        <a href="./jube.html" class="navigation navigation-prev " aria-label="Previous page: Jube"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenFabric8Apply.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:apply"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqGeneral.html" class="navigation navigation-next " aria-label="Next page: General Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./mavenFabric8CreateRoutes.html" class="navigation navigation-next " aria-label="Next page: fabric8:create-routes"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

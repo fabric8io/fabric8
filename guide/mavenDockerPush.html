@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>FAQ | Fabric8 Documentation</title>
+        <title>docker:push | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.2">
@@ -20,10 +20,10 @@
         
     
     
-    <link rel="next" href="./faqGeneral.html" />
+    <link rel="next" href="./mavenFabric8Apply.html" />
     
     
-    <link rel="prev" href="./jube.html" />
+    <link rel="prev" href="./mavenDockerBuild.html" />
     
 
         
@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="8" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.2" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -489,7 +489,7 @@
             
         </li>
     
-        <li class="chapter " data-level="4.1.2" data-path="mavenDockerPush.html">
+        <li class="chapter active" data-level="4.1.2" data-path="mavenDockerPush.html">
             
                 
                     <a href="./mavenDockerPush.html">
@@ -820,7 +820,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8" data-path="FAQ.html">
+        <li class="chapter " data-level="8" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
@@ -959,11 +959,54 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="faq"><a name="faq" class="plugin-anchor" href="#faq"><span class="fa fa-link"></span></a>FAQ</h3>
-<p>The FAQ is split into the following sections</p>
-<ul>
-<li><a href="http://fabric8.io/guide/faqGeneral.html" target="_blank">General Questions</a></li>
-</ul>
+                        <h2 id="docker-push"><a name="docker-push" class="plugin-anchor" href="#docker-push"><span class="fa fa-link"></span></a>docker:push</h2>
+<p>The maven <code>fabric8:push</code> goal pushes the docker image generated via <a href="mavenDockerBuild.html">mvn docker:build</a> to either the global docker registry or a local docker registry.</p>
+<p>When running kubernetes on a number of machines your docker image needs to be in a docker registry so that it can be downloaded and cached on each host.</p>
+<p>To push your image you will need to run:</p>
+<pre><code>mvn install docker:build docker:push
+</code></pre><p>If you wish to push docker images to a private or public registry you will need to add a section to your <strong>~/.m2/settings.xml</strong> file with a dummy login and password where the server <strong>id</strong> matches the value of <strong>$DOCKER_REGISTRY</strong>. For example a local boot2docker based registry would look like this:</p>
+<pre><code>    &lt;servers&gt;
+       &lt;server&gt;
+           &lt;id&gt;192.168.59.103:5000&lt;/id&gt;
+           &lt;username&gt;jolokia&lt;/username&gt;
+           &lt;password&gt;jolokia&lt;/password&gt;
+       &lt;/server&gt;
+        ...
+  &lt;/servers&gt;
+</code></pre><pre><code>   &lt;server&gt;
+      &lt;id&gt;172.121.17.4:5000&lt;/id&gt;
+       &lt;username&gt;jolokia&lt;/username&gt;
+       &lt;password&gt;jolokia&lt;/password&gt;
+   &lt;/server&gt;
+    ...
+</code></pre><p>  
+```</p>
+<p>For more details <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication" target="_blank">see the docker maven plugin docs</a></p>
+<h3 id="specifying-the-location-of-your-local-docker-registry"><a name="specifying-the-location-of-your-local-docker-registry" class="plugin-anchor" href="#specifying-the-location-of-your-local-docker-registry"><span class="fa fa-link"></span></a>Specifying the location of your local docker registry</h3>
+<p>When creating new docker images for use in Kubernetes you probably want to run a local docker registry if you do not intend to reuse the public docker registry.</p>
+<p>Make sure you have added this to your <strong>~/.m2/settings.xml</strong> file to define the <strong>docker.registry</strong> value in a profile you can activate by default...</p>
+<p>e.g. add this to the &lt;servers&gt; element:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;settings&gt;
+
+  &lt;profiles&gt;
+    &lt;profile&gt;
+      &lt;id&gt;docker-host&lt;/id&gt;
+      &lt;properties&gt;
+        &lt;docker.registry&gt;${env.DOCKER_REGISTRY}&lt;/docker.registry&gt;
+        &lt;docker.url&gt;${env.DOCKER_HOST}&lt;/docker.url&gt;
+      &lt;/properties&gt;
+    &lt;/profile&gt;
+  &lt;/profiles&gt;
+
+  ...
+
+  &lt;activeProfiles&gt;
+    &lt;activeProfile&gt;docker-host&lt;/activeProfile&gt;
+  &lt;/activeProfiles&gt;
+&lt;/settings&gt;
+</code></pre><h3 id="reference"><a name="reference" class="plugin-anchor" href="#reference"><span class="fa fa-link"></span></a>Reference</h3>
+<p>See the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#dockerpush" target="_blank">reference docs for docker:push</a></p>
 
                     
                     </section>
@@ -974,10 +1017,10 @@
         </div>
 
         
-        <a href="./jube.html" class="navigation navigation-prev " aria-label="Previous page: Jube"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenDockerBuild.html" class="navigation navigation-prev " aria-label="Previous page: docker:build"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqGeneral.html" class="navigation navigation-next " aria-label="Next page: General Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./mavenFabric8Apply.html" class="navigation navigation-next " aria-label="Next page: fabric8:apply"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>FAQ | Fabric8 Documentation</title>
+        <title>Architecture | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.2">
@@ -20,10 +20,10 @@
         
     
     
-    <link rel="next" href="./faqGeneral.html" />
+    <link rel="next" href="./pods.html" />
     
     
-    <link rel="prev" href="./jube.html" />
+    <link rel="prev" href="./forge.html" />
     
 
         
@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="8" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
+    <div class="book" data-level="5" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -649,7 +649,7 @@
             
         </li>
     
-        <li class="chapter " data-level="5" data-path="architecture.html">
+        <li class="chapter active" data-level="5" data-path="architecture.html">
             
                 
                     <a href="./architecture.html">
@@ -820,7 +820,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8" data-path="FAQ.html">
+        <li class="chapter " data-level="8" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
@@ -959,10 +959,25 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="faq"><a name="faq" class="plugin-anchor" href="#faq"><span class="fa fa-link"></span></a>FAQ</h3>
-<p>The FAQ is split into the following sections</p>
+                        <h2 id="architecture"><a name="architecture" class="plugin-anchor" href="#architecture"><span class="fa fa-link"></span></a>Architecture</h2>
+<p>Fabric8 provides a number of microservices and tools above the <a href="http://kubernetes.io" target="_blank">Kubernetes</a> cloud.</p>
 <ul>
-<li><a href="http://fabric8.io/guide/faqGeneral.html" target="_blank">General Questions</a></li>
+<li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
+<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
+<li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
+</ul>
+<h4 id="kubernetes-model"><a name="kubernetes-model" class="plugin-anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
+<ul>
+<li><a href="pods.html">Pods</a></li>
+<li><a href="replicationControllers.html">Replication Controllers</a></li>
+<li><a href="services.html">Services</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="apps.html">Apps</a></li>
+</ul>
+<h4 id="kubernetes-extensions-from-openshift-origin-v3"><a name="kubernetes-extensions-from-openshift-origin-v3" class="plugin-anchor" href="#kubernetes-extensions-from-openshift-origin-v3"><span class="fa fa-link"></span></a>Kubernetes extensions from OpenShift Origin v3</h4>
+<ul>
+<li><a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> </li>
+<li><a href="builds.html">Builds</a></li>
 </ul>
 
                     
@@ -974,10 +989,10 @@
         </div>
 
         
-        <a href="./jube.html" class="navigation navigation-prev " aria-label="Previous page: Jube"><i class="fa fa-angle-left"></i></a>
+        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge Addons"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqGeneral.html" class="navigation navigation-next " aria-label="Next page: General Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

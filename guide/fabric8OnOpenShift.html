@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>FAQ | Fabric8 Documentation</title>
+        <title>Fabric8 On OpenShift | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.2">
@@ -20,10 +20,10 @@
         
     
     
-    <link rel="next" href="./faqGeneral.html" />
+    <link rel="next" href="./setupOpenShift.html" />
     
     
-    <link rel="prev" href="./jube.html" />
+    <link rel="prev" href="./getStarted.html" />
     
 
         
@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="8" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Mon May 18 2015 20:53:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -305,7 +305,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.1" data-path="fabric8OnOpenShift.html">
+        <li class="chapter active" data-level="3.1" data-path="fabric8OnOpenShift.html">
             
                 
                     <a href="./fabric8OnOpenShift.html">
@@ -820,7 +820,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8" data-path="FAQ.html">
+        <li class="chapter " data-level="8" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
@@ -959,12 +959,74 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="faq"><a name="faq" class="plugin-anchor" href="#faq"><span class="fa fa-link"></span></a>FAQ</h3>
-<p>The FAQ is split into the following sections</p>
+                        <h2 id="install-fabric8-on-openshift"><a name="install-fabric8-on-openshift" class="plugin-anchor" href="#install-fabric8-on-openshift"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
+<p><a href="fabric8Apps.html">Fabric8 apps</a> have been packaged to make them easy to install on OpenShift.</p>
+<h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
 <ul>
-<li><a href="http://fabric8.io/guide/faqGeneral.html" target="_blank">General Questions</a></li>
+<li>Fabric8 currently requires <a href="http://www.openshift.org/" target="_blank">OpenShift V3 0.5.1 or later</a>.</li>
+<li>For <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc and osadm</a> to be in your <code>PATH</code></li>
 </ul>
-
+<p>The following commands assume you are on the OpenShift master machine in a folder containing the <code>openshift.local.config</code> directory:</p>
+<ul>
+<li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
+</ul>
+<pre><code>osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.local.config/master/admin.kubeconfig
+</code></pre><ul>
+<li>each namespace you wish to install fabric8 into typically requires the <code>openshift-cert-secrets</code></li>
+</ul>
+<p>You&apos;ll also need to login and switch to the correct project (namespace):</p>
+<pre><code>osc login
+osc project cheese
+</code></pre><p>Then run this command:</p>
+<pre><code>cat &lt;&lt;EOF | osc create -f -
+---
+    apiVersion: &quot;v1beta3&quot;
+    kind: &quot;Secret&quot;
+    metadata:
+        name: &quot;openshift-cert-secrets&quot;                                                                                                                                                          
+    data:
+        root-cert: &quot;$(base64 -w 0 openshift.local.config/master/ca.crt)&quot;
+        admin-cert: &quot;$(base64 -w 0 openshift.local.config/master/admin.crt)&quot;
+        admin-key: &quot;$(base64 -w 0 openshift.local.config/master/admin.key)&quot;
+EOF
+</code></pre><h3 id="install"><a name="install" class="plugin-anchor" href="#install"><span class="fa fa-link"></span></a>Install</h3>
+<p>One you have found the <code>kubernetes.json</code> file for the <a href="fabric8Apps.html">app</a> you wish to install type the following using the <code>osc</code> command from OpenShift:</p>
+<pre><code>    osc process -f kubernetes.json | osc create -f -
+</code></pre><p>Or to install the current releases then choose the commands below to suit the application you wish to install:</p>
+<h4 id="base"><a name="base" class="plugin-anchor" href="#base"><span class="fa fa-link"></span></a>Base</h4>
+<p>Provides the base <a href="console.html">fabric8 console</a></p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/base/2.1.0-SNAPSHOT/base-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h4 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h4>
+<p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/management/2.1.0-SNAPSHOT/management-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h5 id="logging"><a name="logging" class="plugin-anchor" href="#logging"><span class="fa fa-link"></span></a>Logging</h5>
+<p>Provides just the centralised <a href="logging.html">Logging</a></p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.0-SNAPSHOT/logging-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h5 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h5>
+<p>Provides just the centralised <a href="metrics.html">Metrics</a></p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.0-SNAPSHOT/metrics-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h4 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h4>
+<p>Provides the <a href="console.html">fabric8 console</a> and the <a href="ipaas.html">Integration Platform As A Service</a>_</p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.0-SNAPSHOT/ipaas-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h4 id="continuous-delivery"><a name="continuous-delivery" class="plugin-anchor" href="#continuous-delivery"><span class="fa fa-link"></span></a>Continuous Delivery</h4>
+<p>Provides a Continuous Integration and <a href="cdelivery.html">Continuous Delivery</a> system.</p>
+<h5 id="cd-core"><a name="cd-core" class="plugin-anchor" href="#cd-core"><span class="fa fa-link"></span></a>CD Core</h5>
+<p>The core<a href="cdelivery.html">Continuous Delivery</a> installation for building including Gogs for git hosting, Jenkins for building and Nexus as a repository manager.</p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.0-SNAPSHOT/cdelivery-core-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h5 id="cd-full"><a name="cd-full" class="plugin-anchor" href="#cd-full"><span class="fa fa-link"></span></a>CD Full</h5>
+<p>The complete <a href="cdelivery.html">Continuous Delivery</a> installation including <strong>CD Core</strong> plus the social apps like <a href="chat.html">chat such as Hubot</a>.</p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.0-SNAPSHOT/cdelivery-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h4 id="kitchen-sink"><a name="kitchen-sink" class="plugin-anchor" href="#kitchen-sink"><span class="fa fa-link"></span></a>Kitchen Sink</h4>
+<p>Provides all of the above!</p>
+<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.0-SNAPSHOT/kitchen-sink-2.1.0-kubernetes.json | osc create -f -
+</code></pre><h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
+<p>Its likely after installing any of the above applications that there will be Kubernetes <a href="services.html">services</a> running that you wish to expose via <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a>.</p>
+<p>To do this use the <a href="mavenFabric8CreateRoutes.html">mvn fabric8:create-routes</a> goal. e.g.</p>
+<pre><code>mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes -Dfabric8.domain=my.acme.com
+</code></pre><p>You could then setup a wildcard DNS rule on <code>*.my.acme.com</code> to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your <code>/etc/hosts</code> file for each service.</p>
+<p>e.g. if your IP address for the OpenShift master/router is <code>127.0.0.1</code> then add this to your <code>/etc/hosts</code> to expose the <code>foo</code> and <code>bar</code> services:</p>
+<pre><code>    127.0.0.1 foo.my.acme.com ba.my.acme.com
+</code></pre>
                     
                     </section>
                 
@@ -974,10 +1036,10 @@
         </div>
 
         
-        <a href="./jube.html" class="navigation navigation-prev " aria-label="Previous page: Jube"><i class="fa fa-angle-left"></i></a>
+        <a href="./getStarted.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqGeneral.html" class="navigation navigation-next " aria-label="Next page: General Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./setupOpenShift.html" class="navigation navigation-next " aria-label="Next page: Setup OpenShift V3"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

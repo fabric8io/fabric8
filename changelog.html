@@ -105,6 +105,20 @@
 		  <p><div class="container">
     <div id="content"></p>
 
+<h3 id = "2_1_1">2.1.1</h3>
+
+<ul>
+<li>Improved <a href="http://fabric8.io/guide/">user guide</a> which is hopefully more clear along with instructions on how to <a href="http://fabric8.io/guide//fabric8OnOpenShift.html">Install Fabric8 on OpenShift V3</a></li>
+<li>migrates to the v1beta3 version of the Kubernetes schema by default including much better validation</li>
+<li><a href="http://fabric8.io/guide/fabric8Apps.html">Fabric8 Apps</a> are now easier to <a href="http://fabric8.io/guide/fabric8OnOpenShift.html">install on an existing Kubernetes or OpenShift environment</a> via a <a href="http://docs.openshift.org/latest/dev&#95;guide/templates.html">OpenShift templates</a> JSON file.</li>
+<li>Maven <a href="http://fabric8.io/guide/mavenFabric8Json.html">fabric8:json</a> goal now supports the generation of <a href="http://docs.openshift.org/latest/dev&#95;guide/templates.html">OpenShift templates</a></li>
+<li>Maven <a href="http://fabric8.io/guide/mavenFabric8Apply.html">fabric8:apply</a> goal is the new name of the old <code>fabric8:run</code> goal to better describe applying JSON to a kubernetes environment and creating/updating/deleting resources.</li>
+<li>New maven <a href="http://fabric8.io/guide/mavenFabric8CreateRoutes.html">fabric8:create-routes</a> to lazily create any missing <a href="http://docs.openshift.org/latest/admin&#95;guide/router.html">OpenShift Routes</a></li>
+<li>The <a href="http://fabric8.io/guide/console.html">fabric8 console</a> is now more reactive thanks to the support of websockets for real time updates</li>
+<li>First spike of <a href="http://fabric8.io/guide/cdelivery.html">Fabric8 Continuous Delivery</a> making it easier to build, release and provision software faster and more reliably</li>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.1">these 49 issues</a></li>
+</ul>
+
 <h3 id = "2_0_44">2.0.44</h3>
 
 <ul>
@@ -135,7 +149,7 @@
 <h3 id = "2_0_29">2.0.29</h3>
 
 <ul>
-<li>Migrated to hawtio 2.x for the console making it small and lightweight with <a href="fabric8Apps.md">optional modular services</a></li>
+<li>Migrated to hawtio 2.x for the console making it small and lightweight with <a href="http://fabric8.io/guide/fabric8Apps.html">optional modular services</a></li>
 <li>Added the <a href="appLibrary.html">App Library</a> to provide a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.</li>
 <li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.29+is%3Aclosed">these 18 issues</a></li>
 </ul>
