@@ -1,6 +1,6 @@
 ## Fabric8 Vagrant Box
 
-We maintain a [Vagrant]() image if you want to run OpenShift easily with Fabric8 on non-Linux platforms.
+We maintain a [Vagrant](http://www.vagrantup.com/downloads.html) image if you want to run OpenShift easily with Fabric8 on non-Linux platforms.
 
 If you are on a linux box then you might want to [use the Linux instructions](setupOpenShift.html#if-you-are-on-a-linux).
 
