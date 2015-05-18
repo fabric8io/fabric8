@@ -6,6 +6,11 @@ Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kuberne
 * [Continuous Delivery](cdelivery.html) to help teams delivery software in a faster and more reliable way 
 * [iPaaS](ipaas.html) provides an _Integration Platform As A Service_  
 
+In addition Fabric8 provides a number of [tools](tools.html) to help the Java community take full advantage of Kubernetes:
+* [Maven Plugin](mavenPlugin.html) to help generate, apply  and work with Kubernetes resources
+* [Testing](testing.html) of Kubernetes resources easily with [JUnit](http://junit.org/) and [Arquillian](http://arquillian.org/)
+* [Java Libraries](javaLibraries.html) and support for [CDI](cdi.html) extensions for working with Kubernetes
+
 If you have an installation of [OpenShift V3 0.5 or later](http://www.openshift.org/) then [install Fabric8 On OpenShift](fabric8OnOpenShift.md)
 
 ### Supported Platforms

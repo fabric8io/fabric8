@@ -8,16 +8,9 @@ In Fabric8 we recommend the use of [hubot](https://hubot.github.com/), an open s
 
 Fabric8 comes with a hubot [app](apps.html) and a notification engine to post [build completion](builds.html) events to a chat room (which defaults to one room per kubernetes namespace).
 
-### How to run the Chat Apps in Fabric8
-
-If you [installed Fabric8](openShiftDocker.md) using the kitchen sink option then you have all the apps running.
-
-Otherwise if you are running Fabric8 with the [Fabric8 Console](console.html) then go to the **Apps** tab.
-
-* click the **Run...** button and select the **hubot** app to and run it.
-* click the **Run...** button and select the **hubot notifier** app to and run it.
-
-A quick way to do the above is to type **hubot** into the filter box at the top and then just select all the apps it finds and then hit the **Run** button.
+### Installation
+ 
+To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html). Chat is included in the [Continuous Delivery](cdelivery.html), [iPaaS](ipaas.html) and [Kitchen Sink](fabric8OnOpenShift.html#kitchen-sink) apps.    
 
 One you have completed the above you should see the **Chat** item on the navigation bar of the [Console](console.html)
 
