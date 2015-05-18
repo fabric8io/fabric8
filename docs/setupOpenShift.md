@@ -8,11 +8,11 @@ Here are our additional [tips on installing OpenShift](openShiftInstall.html)
 
 ### Other approaches
 
-If you are not on Linux then we recommend using Vagrant:
+If you are not on Linux then you could try using OpenShift's vagrant image:
 
 * [Start OpenShift V3 using OpenShift's Vagrant image](openShiftVagrant.html)
 
-You can try using Docker too:
+For 2.0.x releases we used to recommend using a bash script with docker:
 
 * [Start OpenShift V3 using Docker](openShiftDocker.html)
 

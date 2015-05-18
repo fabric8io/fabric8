@@ -1,36 +1,50 @@
-## Install OpenShift Natively
+## Install OpenShift 
 
-These instructions walk you through natively installing OpenShift on your host operating system.
+We recommend you check out the [OpenShift Origin Installation documentation](http://docs.openshift.org/latest/getting_started/dev_get_started/installation.html) as the default way to install [OpenShift V3](http://www.openshift.org/).
 
-**NOTE** OpenShift used to work in Linux, Windows and OS X; but recent networking/service changes only work on Linux. So until that is fixed if you don't use Linux we recommend you try using [OpenShift with Docker](openShiftDocker.html) or [OpenShift with Vagrant](openShiftVagrant.html)
+The following steps work on a linux box.
 
-### Downloading Openshift V3
+If you are on OS X or Windows then check out how to use [the fabric8 vagrant box](openShiftWithFabric8Vagrant.html).
 
-You can download a [distribution of OpenShift V3](https://github.com/openshift/origin/releases) if there is a download
-for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the <a href="https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz">alpha nightly 20141003/e4d4ecf</a> version of the
-OpenShift 3 - Fabric8 has been tested against it.
+### Install steps
 
-### Building OpenShift V3
-
-It's actually pretty quick and easy to build OpenShift yourself:
-
-* install [go lang](http://golang.org/doc/install)
-* [compile the OpenShift V3 code](https://github.com/jstrachan/origin/blob/master/README.md#getting-started) via this command:
+* download and unpack a [release of OpenShift](https://github.com/openshift/origin/releases/):
 
 ```
-    hack/build-go.sh
+curl -L https://github.com/openshift/origin/releases/download/v0.5.1/openshift-origin-v0.5.1-ce1e6c4-linux-amd64.tar.gz | tar xzv
 ```
 
-* Add the **_output/go/bin** folder to your **PATH** so that you can run the **openshift** command from any directory. e.g. add this to your ~/.bashrc
+Now setup `$OPENSHIFT_MASTER` to point to the IP address or host name of the OpenShift master:
 
 ```
-    export PATH=$PATH:$GOPATH/src/github.com/openshift/origin/_output/go/bin
+export OPENSHIFT_MASTER=https://localhost:8443
+```
+Then start OpenShift: 
+```
+nohup ./openshift start \
+        --cors-allowed-origins='.*' \
+        --master=$OPENSHIFT_MASTER \
+        --volume-dir=/var/lib/openshift/openshift.local.volumes \
+        --etcd-dir=/var/lib/openshift/openshift.local.etcd \
+        > /var/lib/openshift/openshift.log &
 ```
 
-### Next Steps
+When running commands on the OpenShift master type the following to avoid you having to add --config=.... arguments:
 
-* [Setup Your Machine for a local OpenShift Installation](setupMachine.html)
-* [Run Fabric8 on your local OpenShift Installation](runFabric.html)
+```
+mkdir -p ~/.config/openshift
+ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
+```
 
+Now enable the cluster-admin role:
 
+```
+./osadm policy add-cluster-role-to-user cluster-admin admin
+```
 
+Now you can run the router (haproxy to expose services publically) and registry (docker registry):
+ 
+```
+./osadm router --create --credentials=openshift.local.config/master/openshift-router.kubeconfig
+./osadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
+```
