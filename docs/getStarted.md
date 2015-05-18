@@ -6,7 +6,7 @@ There are 2 main ways to get started.
 
 The ideal linux based platform for running Fabric8 is [OpenShift V3](http://www.openshift.org/):
 
-* [Setup OpenShift](setupOpenshift.html)
+* [Setup OpenShift](setupOpenShift.html)
 * [Install Fabric8 on OpenShift](fabric8OnOpenShift.html)
 
 On older 2.0.x versions of Fabric8 you could try using a bash script to provision OpenShift and fabric8 together:

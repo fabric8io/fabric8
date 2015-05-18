@@ -4,11 +4,19 @@
 
 ### Requirements
 
-* Fabric8 currently requires [OpenShift V3 0.5 or later](http://www.openshift.org/).
-* For [osc](https://github.com/openshift/origin/blob/master/docs/cli.md) to be in your `PATH`
+* Fabric8 currently requires [OpenShift V3 0.5.1 or later](http://www.openshift.org/).
+* For [osc and osadm](https://github.com/openshift/origin/blob/master/docs/cli.md) to be in your `PATH`
+
+The following commands assume you are on the OpenShift master machine in a folder containing the `openshift.local.config` directory:
+
+* Enable the `cluster-admin` role to user `admin`
+
+```
+osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.local.config/master/admin.kubeconfig
+```
+
 * each namespace you wish to install fabric8 into typically requires the `openshift-cert-secrets`
 
-To install secrets you need to be on the OpenShift master machine in a folder containing the `openshift.local.config` directory.
 
 You'll also need to login and switch to the correct project (namespace):
 
