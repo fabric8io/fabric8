@@ -8,6 +8,7 @@ If you are on OS X or Windows then check out how to use [the fabric8 vagrant box
 
 ### Install steps
 
+* you should have installed [Docker](https://docs.docker.com/installation/#installation) and have the docker daemon running (see instructions for [CentOs](https://docs.docker.com/installation/centos/), [Fedora](https://docs.docker.com/installation/fedora/) or [Ubuntu](https://docs.docker.com/installation/ubuntulinux/))
 * download and unpack a [release of OpenShift](https://github.com/openshift/origin/releases/):
 
 ```
