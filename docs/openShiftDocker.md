@@ -85,6 +85,9 @@ __Instead, we recommend that the simplest way to get going is to use the Fabric8
    Now at any point you can reset to the cleanstart snapshot via:
 
         vagrant snapshot go default cleanstart
+        
+   Note when using snapshot you must not `destroy` the VM but only
+   `halt` it.
 
 ---
 
@@ -168,7 +171,7 @@ You'll need to set the following environment variables on your host to be able u
 
 These environment variables are presented to you on successful completion of the start script, so the easiest thing to do is copy them from the output into your `~/.bashrc` (linux) or `~/.profile` (mac). Windows users will need to set them individually via the Environment Variables dialog. 
 
-Here's a sample output when the insallation script finishes:
+Here's a sample output when the installation script finishes:
 
 ```
 Waiting for Docker registry
