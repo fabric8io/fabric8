@@ -5,35 +5,46 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $provisionScript = <<SCRIPT
-
-if [ -d 'openshift.local.config' ]; then
+if [ -d '/var/lib/openshift' ]; then
   exit 0
 fi
 
-curl -sSL https://github.com/openshift/origin/releases/download/v0.5.1/openshift-origin-v0.5.1-ce1e6c4-linux-amd64.tar.gz | tar xzv
+mkdir /tmp/openshift
+echo "Downloading OpenShift binaries..."
+curl -sSL https://github.com/openshift/origin/releases/download/v0.5.1/openshift-origin-v0.5.1-ce1e6c4-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+mv /tmp/openshift/* /usr/bin/
 
 mkdir /var/lib/openshift
 restorecon -v /var/lib/openshift
 
-nohup ./openshift start \
-        --cors-allowed-origins='.*' \
-        --master=172.28.128.4 \
-        --volume-dir=/var/lib/openshift/openshift.local.volumes \
-        --etcd-dir=/var/lib/openshift/openshift.local.etcd \
-  > /var/lib/openshift/openshift.log &
+cat <<EOF > /usr/lib/systemd/system/openshift.service
+[Unit]
+Description=OpenShift
+Requires=docker.service network.service
+After=network.service
+[Service]
+ExecStart=/usr/bin/openshift start --master=172.28.128.4
+WorkingDirectory=/var/lib/openshift/
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable openshift.service
+systemctl start openshift.service
 
 mkdir -p ~/.config/openshift
-ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
+ln -s /var/lib/openshift/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
 
 while true; do
-  (./osc get namespaces default | grep default) && break || sleep 1
+  (osc get namespaces default | grep default) && break || sleep 1
 done
 
 sleep 30
 
-./osadm policy add-cluster-role-to-user cluster-admin admin
-./osadm router --create --credentials=openshift.local.config/master/openshift-router.kubeconfig
-./osadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
+osadm policy add-cluster-role-to-user cluster-admin admin
+osadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
+osadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
