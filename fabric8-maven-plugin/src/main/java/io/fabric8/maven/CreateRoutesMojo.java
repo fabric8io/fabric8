@@ -44,10 +44,12 @@ public class CreateRoutesMojo extends AbstractNamespacedMojo {
             Controller controller = createController();
             String namespace = kubernetes.getNamespace();
             Log log = getLog();
+            log.info("Querying services in namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
             ServiceList services = kubernetes.getServices(namespace);
             if (services != null) {
                 List<Service> items = services.getItems();
                 if (items != null) {
+                    log.info("Found " + items.size() + " service(s)");
                     String routeDomainPostfix = routeDomain;
                     for (Service service : items) {
                         Route route = ApplyMojo.createRouteForService(routeDomainPostfix, namespace, service, log);
