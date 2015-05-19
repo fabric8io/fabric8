@@ -23,7 +23,7 @@ Description=OpenShift
 Requires=docker.service network.service
 After=network.service
 [Service]
-ExecStart=/usr/bin/openshift start --master=172.28.128.4 --cors-allowed-origins='.*'
+ExecStart=/usr/bin/openshift start --master=172.28.128.4 --cors-allowed-origins=.*
 WorkingDirectory=/var/lib/openshift/
 [Install]
 WantedBy=multi-user.target
