@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Tue May 19 2015 07:59:11 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Tue May 19 2015 09:17:12 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -982,6 +982,7 @@ vagrant ssh
 </code></pre><h3 id="using-openshift-from-your-host"><a name="using-openshift-from-your-host" class="plugin-anchor" href="#using-openshift-from-your-host"><span class="fa fa-link"></span></a>Using OpenShift from your host</h3>
 <p>On your OS X or Windows box you might want to setup these environment variables to more easily work with OpenShift from your Java code:</p>
 <pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443
+export KUBERNETES_DOMAIN=vagrant.local
 sudo route -n add 172.0.0.0/8 172.28.128.4
 </code></pre><p>The last command makes it easier to see IP address created on the vagrant box</p>
 
