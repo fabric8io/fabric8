@@ -47,7 +47,7 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
                 return MAPPER.readValue(reader, KubernetesJson.class);
             }
         } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Kubernetes json not found.");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Kubernetes JSON not found.");
         }
         return null;
     }
