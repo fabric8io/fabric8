@@ -40,7 +40,7 @@ public class Zips {
     /**
      * Creates a zip fie from the given source directory and output zip file name
      */
-    public static void createZipFile(Log log, File sourceDir, File outputZipFile) throws IOException {
+    public static void createZipFile(Log log, File sourceDir, File outputZipFile, File legalDir) throws IOException {
         outputZipFile.getParentFile().mkdirs();
         OutputStream os = new FileOutputStream(outputZipFile);
         ZipOutputStream zos = new ZipOutputStream(os);
@@ -50,6 +50,9 @@ public class Zips {
             String path = "";
             FileFilter filter = null;
             zipDirectory(log, sourceDir, zos, path, filter);
+            if (legalDir != null && legalDir.exists() && legalDir.isDirectory()) {
+                zipDirectory(log, legalDir, zos, "META-INF/", new LegalFilter());
+            }
         } finally {
             try {
                 zos.close();
@@ -144,6 +147,15 @@ public class Zips {
             return Collections.EMPTY_LIST;
         } else {
             return list;
+        }
+    }
+
+
+    private static class LegalFilter implements FileFilter {
+
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.isFile() && (pathname.getName().startsWith("LICENSE") || pathname.getName().startsWith("NOTICE"));
         }
     }
 }

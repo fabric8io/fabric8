@@ -81,6 +81,12 @@ public class ZipMojo extends AbstractFabric8Mojo {
     private File buildDir;
 
     /**
+     * Whether to include legal files in META-INF directory of the app zip file
+     */
+    @Parameter(property = "fabric8.zip.includeLegal", defaultValue = "true")
+    private boolean includeLegal;
+
+    /**
      * Name of the aggregated app zip file
      */
     @Parameter(property = "fabric8.aggregated.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
@@ -331,7 +337,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
             }
 
             File outputZipFile = getZipFile();
-            Zips.createZipFile(getLog(), buildDir, outputZipFile);
+            File legalDir = null;
+            if (includeLegal) {
+                legalDir = new File(project.getBuild().getOutputDirectory(), "META-INF");
+            }
+            Zips.createZipFile(getLog(), buildDir, outputZipFile, legalDir);
 
             projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputZipFile);
             getLog().info("Created app zip file: " + outputZipFile);
@@ -713,7 +723,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             }
         }
 
-        Zips.createZipFile(getLog(), projectBuildDir, projectOutputFile);
+        Zips.createZipFile(getLog(), projectBuildDir, projectOutputFile, null);
         String relativePath = Files.getRelativePath(projectBaseDir, projectOutputFile);
         while (relativePath.startsWith("/")) {
             relativePath = relativePath.substring(1);
