@@ -41,13 +41,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * A simple helper class for creating instances of Kubernetes
  */
 public class KubernetesFactory {
     public static final String KUBERNETES_SCHEMA_JSON = "schema/kube-schema.json";
+    public static final String OPENSHIFT_CONFIG_FILE_PROPERTY = "openshift.config.file";
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
@@ -277,6 +277,10 @@ public class KubernetesFactory {
     }
 
     public static File getOpenShiftConfigFile() {
+        String file = System.getProperty(OPENSHIFT_CONFIG_FILE_PROPERTY);
+        if (file != null) {
+            return new File(file);
+        }
         String homeDir = System.getProperty("user.home", ".");
         return new File(homeDir, ".config/openshift/config");
     }

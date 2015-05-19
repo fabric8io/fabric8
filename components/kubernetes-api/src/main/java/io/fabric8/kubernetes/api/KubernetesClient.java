@@ -114,10 +114,10 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     private KubernetesGlobalExtensions kubernetesGlobalExtensions;
     private String namespace = defaultNamespace();
 
-    protected static String defaultNamespace() {
+    public static String defaultNamespace() {
         String namespace = System.getenv("KUBERNETES_NAMESPACE");
         if (Strings.isNullOrBlank(namespace)) {
-            namespace = findDefaultOpenShiftContext();
+            namespace = findDefaultOpenShiftNamespace();
         }
         if (Strings.isNotBlank(namespace)) {
             return namespace;
@@ -125,31 +125,74 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return "default";
     }
 
-    private static String findDefaultOpenShiftContext() {
+    public static String findDefaultOpenShiftNamespace() {
         File file = getOpenShiftConfigFile();
+        String namePrefix = "name:";
+        String namespacePrefix = "namespace:";
+
         String answer = null;
         if (file.exists() && file.isFile()) {
             LOG.debug("Parsing OpenShift configuration: " + file);
-            String tokenPrefix = "current-context:";
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                boolean inUsers = false;
-                while (true) {
-                    String line = reader.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    if (line.startsWith(tokenPrefix)) {
-                        String token = line.substring(tokenPrefix.length()).trim();
-                        if (Strings.isNotBlank(token)) {
-                            return token;
+            String context = findDefaultOpenShiftContext(file);
+            if (Strings.isNotBlank(context)) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    boolean inUsers = false;
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        line = line.trim();
+                        String namespaceValue = yamlValue(namespacePrefix, line);
+                        if (namespaceValue != null) {
+                            answer = namespaceValue;
+                        } else {
+                            String nameValue = yamlValue(namePrefix, line);
+                            if (nameValue != null && nameValue.equals(context)) {
+                                return answer;
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.warn("Could not parse OpenShift configuration file: " + file);
                 }
-            } catch (Exception e) {
-                LOG.warn("Could not parse OpenShift configuration file: " + file);
+
             }
         }
         return answer;
+    }
+
+    protected static String yamlValue(String prefix, String text) {
+        if (text.startsWith(prefix)) {
+            String value = text.substring(prefix.length());
+            value = value.trim();
+            if (Strings.isNotBlank(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    protected static String findDefaultOpenShiftContext(File file) {
+        String tokenPrefix = "current-context:";
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            boolean inUsers = false;
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                if (line.startsWith(tokenPrefix)) {
+                    String token = line.substring(tokenPrefix.length()).trim();
+                    if (Strings.isNotBlank(token)) {
+                        return token;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not parse OpenShift configuration file: " + file);
+        }
+        return null;
     }
 
     public KubernetesClient() {
