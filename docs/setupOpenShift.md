@@ -2,15 +2,19 @@
 
 There are a few ways you can install and setup [OpenShift V3](http://www.openshift.org/)
 
+### Using Vagrant
+
+The easiest way to work with fabric8 and OpenShift is via the fabric8 vagrant image:
+
+* [Fabric8 Vagrant Image](openShiftWithFabric8Vagrant.html)
+
 ### If you are on a linux
+
+If you are on linux and want to install OpenShift by hand then follow these instructions:
 
 * [Use the OpenShift Origin Installation documentation](http://docs.openshift.org/latest/getting_started/dev_get_started/installation.html)
 
 Here are our additional [tips on installing OpenShift on Linux](openShiftInstall.html) from the release distro.
-
-### If you are on OS X or Windows
-
-* [Use the fabric8 vagrant box](openShiftWithFabric8Vagrant.html)
 
 ### Setup your local machine
 
