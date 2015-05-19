@@ -1775,6 +1775,16 @@ public class KubernetesHelper {
     /**
      * Creates an IntOrString from the given string which could be a number or a name
      */
+    public static IntOrString createIntOrString(int intVal) {
+        IntOrString answer = new IntOrString();
+        answer.setIntVal(intVal);
+        answer.setKind(INTORSTRING_KIND_INT);
+        return answer;
+    }
+
+    /**
+     * Creates an IntOrString from the given string which could be a number or a name
+     */
     public static IntOrString createIntOrString(String nameOrNumber) {
         if (isNullOrBlank(nameOrNumber)) {
             return null;
