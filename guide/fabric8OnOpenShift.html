@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue May 19 2015 09:48:32 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue May 19 2015 10:05:35 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -360,6 +360,21 @@
                             <b>3.2.2.</b>
                         
                         Fabric8 vagrant box
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3" data-path="setupLocalHost.html">
+            
+                
+                    <a href="./setupLocalHost.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.2.3.</b>
+                        
+                        Setup your local machine
                     </a>
                 
             
@@ -1056,6 +1071,7 @@ EOF
 <h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
 <p>Its likely after installing any of the above applications that there will be Kubernetes <a href="services.html">services</a> running that you wish to expose via <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a>.</p>
 <p>To do this use the <a href="mavenFabric8CreateRoutes.html">mvn fabric8:create-routes</a> goal. </p>
+<p>Before you start make sure you have <a href="setupLocalHost.html">setup your local machine</a> have logged in and setup the environment variables etc.</p>
 <p>If you have defined the <a href="#setup-domain">$KUBERNETES_DOMAIN environment variable</a> then you can use:</p>
 <pre><code>mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes
 </code></pre><p>Otherwise you can be specific and specify the domain you wish to use:</p>
