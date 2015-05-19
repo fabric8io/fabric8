@@ -73,7 +73,7 @@ Or to install the current releases then choose the commands below to suit the ap
 
 Provides the base [fabric8 console](console.html)
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/base/2.1.1/base-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -83,7 +83,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides centralised [Logging](logging.html) and [Metrics](metrics.html)
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/management/2.1.1/management-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -93,7 +93,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides just the centralised [Logging](logging.html)
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.1/logging-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -103,7 +103,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides just the centralised [Metrics](metrics.html)
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.1/metrics-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -113,7 +113,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides the [fabric8 console](console.html) and the [Integration Platform As A Service](ipaas.html)_
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.1/ipaas-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -127,7 +127,7 @@ Provides a Continuous Integration and [Continuous Delivery](cdelivery.html) syst
 
 The core[Continuous Delivery](cdelivery.html) installation for building including Gogs for git hosting, Jenkins for building and Nexus as a repository manager.
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.1/cdelivery-core-2.1.1-kubernetes.json \
 		| osc create -f -
  
@@ -137,7 +137,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 The complete [Continuous Delivery](cdelivery.html) installation including **CD Core** plus the social apps like [chat such as Hubot](chat.html).
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.1/cdelivery-2.1.1-kubernetes.json \
 		| osc create -f -
  
@@ -147,7 +147,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides all of the above!
 
-		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \ 
+		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.1/kitchen-sink-2.1.1-kubernetes.json \
 		| osc create -f -
 
@@ -159,9 +159,11 @@ Its likely after installing any of the above applications that there will be Kub
 
 To do this use the [mvn fabric8:create-routes](mavenFabric8CreateRoutes.html) goal. 
 
+Note that this command can be run in any folder; it doesn't need to be run from inside a maven project.
+
 Before you start make sure you have [setup your local machine](setupLocalHost.html) have logged in and setup the environment variables etc.
 
-If you have defined the [$KUBERNETES_DOMAIN environment variable](#setup-domain) then you can use:
+If you have defined the [$KUBERNETES_DOMAIN environment variable](#setup-domain) then you can use the following command:
 
     mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes
 
