@@ -8,6 +8,7 @@ Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kuberne
 
 In addition Fabric8 provides a number of [tools](tools.html) to help the Java community take full advantage of Kubernetes:
 * [Maven Plugin](mavenPlugin.html) to help generate, apply  and work with Kubernetes resources
+* [Annotation Processors](annotationProcessors.html) to generate modify kubernetes configuration using Java annotations
 * [Testing](testing.html) of Kubernetes resources easily with [JUnit](http://junit.org/) and [Arquillian](http://arquillian.org/)
 * [Java Libraries](javaLibraries.html) and support for [CDI](cdi.html) extensions for working with Kubernetes
 
