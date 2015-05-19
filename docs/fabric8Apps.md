@@ -9,7 +9,11 @@ The following [Apps](apps.html) are included in the Fabric8 distribution.
 (replicationControllers.html) and [services](services.html)
     * [App Library](appLibrary.html) provides a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.
 APIs in your cluster.
-* [Continuous Delivery](cdelivery.html) 
+* [Continuous Delivery](cdelivery.html) to help teams deliver software in a faster and more reliable way 
+    * [Jenkins](https://jenkins-ci.org/) for Building, Continuous Integration and creating Continuous Delivery pipelines
+    * [Nexus](http://www.sonatype.org/nexus/) as the artifact repository for caching public artifacts and hosting canary and real release artifacts
+    * [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
+    * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
     * [Chat](chat.html) provides a [hubot](https://hubot.github.com/) [app](apps.html) and a notification engine to post [build completion](builds.html) events to a chat room (which defaults to one room per kubernetes namespace).
 * [iPaaS](ipaas.html) provides an _Integration Platform As A Service_  
     * [API Registry](apiRegistry.html) provides a global view of all of your RESTful and web service APIs that is displayed in the [Console](console.html) allowing you to inspect and invoke all the endpoints 

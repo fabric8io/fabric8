@@ -8,9 +8,9 @@
 
 **Fabric8 Continuous Delivery** consists of the following parts:
 
-* [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
 * [Jenkins](https://jenkins-ci.org/) for Building, Continuous Integration and creating Continuous Delivery pipelines.
 * [Nexus](http://www.sonatype.org/nexus/) as the artifact repository for caching public artifacts and hosting canary and real release artifacts
+* [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
 * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
 * [Chat](chat.html) to support social integration between your teams and the infrastructure
 
