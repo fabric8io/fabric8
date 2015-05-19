@@ -37,7 +37,7 @@ mkdir -p ~/.config/openshift
 ln -s /var/lib/openshift/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
 
 while true; do
-  (osc get namespaces default | grep default) && break || sleep 1
+  (osc get namespaces default | grep default) > /dev/null 2>&1 && break || sleep 1
 done
 
 sleep 30
@@ -45,6 +45,18 @@ sleep 30
 osadm policy add-cluster-role-to-user cluster-admin admin
 osadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
 osadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
+
+cat <<EOF | osc create -f -
+---
+  apiVersion: "v1beta3"
+  kind: "Secret"
+  metadata:
+    name: "openshift-cert-secrets"
+  data:
+    root-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/ca.crt)"
+    admin-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)"
+    admin-key: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
+EOF
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
