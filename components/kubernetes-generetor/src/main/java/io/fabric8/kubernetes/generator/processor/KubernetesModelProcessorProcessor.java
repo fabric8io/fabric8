@@ -16,11 +16,16 @@
 
 package io.fabric8.kubernetes.generator.processor;
 
+import io.fabric8.KubernetesJson;
+import io.fabric8.common.Builder;
+import io.fabric8.common.Visitable;
 import io.fabric8.common.Visitor;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.generator.annotation.KubernetesModelProcessor;
+import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.template.TemplateBuilder;
 import io.fabric8.utils.Maps;
 import io.fabric8.utils.Strings;
 
@@ -45,8 +50,6 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<Object> provided = new LinkedHashSet<>();
-
         CompilationTaskFactory compilationTaskFactory = new CompilationTaskFactory(processingEnv);
         Set<TypeElement> processors = new HashSet<>();
 
@@ -72,46 +75,59 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
 
         //2nd pass generate json.
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesModelProcessor.class)) {
-            KubernetesListBuilder builder = new KubernetesListBuilder(readJson());
+            KubernetesJson json = readJson();
+
+            Builder<? extends KubernetesJson> builder;
+            if (json instanceof KubernetesList) {
+                builder = new KubernetesListBuilder((KubernetesList) json);
+            } else if (json instanceof Template) {
+                builder = new TemplateBuilder((Template) json);
+            } else {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unknown Kubernetes json type:" + json.getClass());
+                return false;
+            }
+
             try {
                 if (element instanceof TypeElement) {
-                    final KubernetesModelProcessor processor = element.getAnnotation(KubernetesModelProcessor.class);
-
-                    for (ExecutableElement methodElement :ElementFilter.methodsIn(element.getEnclosedElements())) {
+                    for (ExecutableElement methodElement : ElementFilter.methodsIn(element.getEnclosedElements())) {
 
                         TypeElement classElement = getClassElement(element);
                         Class<?> cls = Class.forName(classElement.getQualifiedName().toString());
                         final Object instance = cls.newInstance();
                         final String methodName = methodElement.getSimpleName().toString();
 
-                        builder.accept(new Visitor() {
-                            @Override
-                            public void visit(Object o) {
-                              for (Method m :findMethods(instance, methodName, o.getClass())) {
-                                  Named named = m.getAnnotation(Named.class);
-                                  if (named != null && !Strings.isNullOrBlank(named.value())) {
-                                      String objectName = getName(o);
-                                      //If a name has been explicitly specified check if there is a match
-                                      if (!named.value().equals(objectName)) {
-                                          processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                                                  "Named method:" + m.getName() + " with name:" + named.value() + " doesn't match: " + objectName + ", ignoring");
-                                          return;
-                                      }
-                                  }
-                                  try {
-                                      m.invoke(instance, o);
-                                  } catch (IllegalAccessException e) {
-                                      processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
-                                  } catch (InvocationTargetException e) {
-                                      processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
-                                  }
-                              }
-                            }
-                        });
+                        if (builder instanceof Visitable) {
+                            ((Visitable) builder).accept(new Visitor() {
+                                @Override
+                                public void visit(Object o) {
+                                    for (Method m : findMethods(instance, methodName, o.getClass())) {
+                                        Named named = m.getAnnotation(Named.class);
+                                        if (named != null && !Strings.isNullOrBlank(named.value())) {
+                                            String objectName = getName(o);
+                                            //If a name has been explicitly specified check if there is a match
+                                            if (!named.value().equals(objectName)) {
+                                                processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                                        "Named method:" + m.getName() + " with name:" + named.value() + " doesn't match: " + objectName + ", ignoring");
+                                                return;
+                                            }
+                                        }
+                                        try {
+                                            m.invoke(instance, o);
+                                        } catch (IllegalAccessException e) {
+                                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
+                                        } catch (InvocationTargetException e) {
+                                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Json type is not visitable.");
+                        }
                     }
                 }
-                KubernetesList list = builder.build();
-                generateJson(list);
+                json = builder.build();
+                generateJson(json);
             } catch (Exception ex) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error creating Kubernetes configuration:" + ex.getMessage());
             }
@@ -124,7 +140,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
     private static Set<Method> findMethods(Object instance, String methodName, Class argumentType) {
         Set<Method> result = new LinkedHashSet<>();
 
-        for (Method m :instance.getClass().getDeclaredMethods()) {
+        for (Method m : instance.getClass().getDeclaredMethods()) {
             if (m.getName().equals(methodName) && m.getParameterTypes().length == 1 && m.getParameterTypes()[0].isAssignableFrom(argumentType)) {
                 result.add(m);
             }
@@ -144,20 +160,17 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             }
         }
     }
+
     public static <T> String getUuid(T obj) {
-        return getWithReflection(obj,  String.class, "getUid");
+        return getWithReflection(obj, String.class, "getUid");
     }
 
     public static <T> Map<String, Object> getAdditionalProperties(T obj) {
-        return getWithReflection(obj,  Map.class, "getAdditionalProperties");
+        return getWithReflection(obj, Map.class, "getAdditionalProperties");
     }
 
     public static <T> ObjectMeta getObjectMeta(T obj) {
         return getWithReflection(obj, ObjectMeta.class, "getMetadata");
-    }
-
-    public static <T>  io.fabric8.kubernetes.api.model.base.ObjectMeta getBaseMeta(T obj) {
-        return getWithReflection(obj, io.fabric8.kubernetes.api.model.base.ObjectMeta.class, "getMetadata");
     }
 
     public static <T> String getName(T entity) {
@@ -166,7 +179,6 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             return Strings.firstNonBlank(
                     getWithReflection(entity, String.class, "getName"),
                     getName(getObjectMeta(entity)),
-                    getName(getBaseMeta(entity)),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "id"),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "name"),
                     String.valueOf(additionalProperties.get("id")),

@@ -174,10 +174,10 @@ public class KubernetesHelper {
         return metadata;
     }
 
-    public static io.fabric8.kubernetes.api.model.base.ObjectMeta getOrCreateMetadata(Route entity) {
-        io.fabric8.kubernetes.api.model.base.ObjectMeta metadata = entity.getMetadata();
+    public static ObjectMeta getOrCreateMetadata(Route entity) {
+        ObjectMeta metadata = entity.getMetadata();
         if (metadata == null) {
-            metadata = new io.fabric8.kubernetes.api.model.base.ObjectMeta();
+            metadata = new ObjectMeta();
             entity.setMetadata(metadata);
         }
         return metadata;
@@ -246,18 +246,6 @@ public class KubernetesHelper {
             return null;
         }
     }
-
-    public static String getName(io.fabric8.kubernetes.api.model.base.ObjectMeta entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(entity.getName(),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
-                    entity.getUid());
-        } else {
-            return null;
-        }
-
-    }
-
 
     public static String getName(Pod entity) {
         if (entity != null) {
@@ -379,7 +367,7 @@ public class KubernetesHelper {
     }
 
     public static void setName(Route entity, String namespace, String name) {
-        io.fabric8.kubernetes.api.model.base.ObjectMeta objectMeta = getOrCreateMetadata(entity);
+        ObjectMeta objectMeta = getOrCreateMetadata(entity);
         objectMeta.setNamespace(namespace);
         objectMeta.setName(name);
     }
@@ -401,15 +389,6 @@ public class KubernetesHelper {
             return null;
         }
     }
-
-    public static String getNamespace(io.fabric8.kubernetes.api.model.base.ObjectMeta entity) {
-        if (entity != null) {
-            return entity.getNamespace();
-        } else {
-            return null;
-        }
-    }
-
 
     public static String getNamespace(Pod entity) {
         if (entity != null) {

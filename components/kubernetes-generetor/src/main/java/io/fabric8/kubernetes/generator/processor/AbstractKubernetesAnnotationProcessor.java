@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.generator.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.KubernetesJson;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -39,11 +40,11 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
     private static final String KUBERNETES_JSON = "kubernetes.json";
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    KubernetesList readJson() {
+    KubernetesJson readJson() {
         try {
             FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
             try (Reader reader = fileObject.openReader(false)) {
-                return MAPPER.readValue(reader, KubernetesList.class);
+                return MAPPER.readValue(reader, KubernetesJson.class);
             }
         } catch (IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Kubernetes json not found.");
@@ -51,7 +52,7 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
         return null;
     }
 
-    void generateJson(KubernetesList list) {
+    void generateJson(KubernetesJson json) {
         try {
             FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
             Path path = Paths.get(fileObject.toUri());
@@ -61,7 +62,7 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
             }
             fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
             try (Writer writer = fileObject.openWriter()) {
-                MAPPER.writeValue(writer, list);
+                MAPPER.writeValue(writer, json);
             }
         } catch (IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json.");
