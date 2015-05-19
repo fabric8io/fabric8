@@ -40,6 +40,7 @@ On your OS X or Windows box you might want to setup these environment variables 
 
 ```
 export KUBERNETES_MASTER=https://172.28.128.4:8443
+export KUBERNETES_DOMAIN=vagrant.local
 sudo route -n add 172.0.0.0/8 172.28.128.4
 ```
 
