@@ -12,6 +12,12 @@ Here are our additional [tips on installing OpenShift on Linux](openShiftInstall
 
 * [Use the fabric8 vagrant box](openShiftWithFabric8Vagrant.html)
 
+### Setup your local machine
+
+Whether you run OpenShift locally, remotely or via the [fabric8 vagrant box](openShiftWithFabric8Vagrant.html) you'll need to:
+
+* [setup your local machine to work with Kubernetes and OpenShift](setupLocalHost.html)
+
 ### Other approaches
 
 If you are not on Linux then you could try using OpenShift's vagrant image:

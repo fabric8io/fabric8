@@ -16,6 +16,7 @@
     * [Setup OpenShift V3](setupOpenShift.md)
         * [Install on Linux](openShiftInstall.md)
         * [Fabric8 vagrant box](openShiftWithFabric8Vagrant.md)
+        * [Setup your local machine](setupLocalHost.md)
     * [Setup Jube](getStartedJube.md)
       * [Running a quickstart on Jube](jubeRunQuickstart.md)
       * [Add a quickstart to the App Library](jubeAddQuickstartApp.md)

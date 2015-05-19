@@ -27,7 +27,7 @@ You should now have a running vagrant image running at IP address `172.28.128.4`
 osc login --server=https://172.28.128.4:8443
 ```
 
-You should now be able to use the [osc CLI tool]() to work with Kubernetes and OpenShift resources:
+You should now be able to use the [osc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
 
 ```
 osc get pods

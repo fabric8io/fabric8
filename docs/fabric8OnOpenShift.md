@@ -159,6 +159,8 @@ Its likely after installing any of the above applications that there will be Kub
 
 To do this use the [mvn fabric8:create-routes](mavenFabric8CreateRoutes.html) goal. 
 
+Before you start make sure you have [setup your local machine](setupLocalHost.html) have logged in and setup the environment variables etc.
+
 If you have defined the [$KUBERNETES_DOMAIN environment variable](#setup-domain) then you can use:
 
     mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes
