@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue May 19 2015 06:20:02 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue May 19 2015 07:47:18 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -995,30 +995,30 @@ EOF
 </code></pre><p>Or to install the current releases then choose the commands below to suit the application you wish to install:</p>
 <h4 id="base"><a name="base" class="plugin-anchor" href="#base"><span class="fa fa-link"></span></a>Base</h4>
 <p>Provides the base <a href="console.html">fabric8 console</a></p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/base/2.1.1-SNAPSHOT/base-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/base/2.1.1/base-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h4 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h4>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/management/2.1.1-SNAPSHOT/management-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/management/2.1.1/management-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h5 id="logging"><a name="logging" class="plugin-anchor" href="#logging"><span class="fa fa-link"></span></a>Logging</h5>
 <p>Provides just the centralised <a href="logging.html">Logging</a></p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.1-SNAPSHOT/logging-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.1/logging-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h5 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h5>
 <p>Provides just the centralised <a href="metrics.html">Metrics</a></p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.1-SNAPSHOT/metrics-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.1/metrics-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h4 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h4>
 <p>Provides the <a href="console.html">fabric8 console</a> and the <a href="ipaas.html">Integration Platform As A Service</a>_</p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.1-SNAPSHOT/ipaas-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.1/ipaas-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h4 id="continuous-delivery"><a name="continuous-delivery" class="plugin-anchor" href="#continuous-delivery"><span class="fa fa-link"></span></a>Continuous Delivery</h4>
 <p>Provides a Continuous Integration and <a href="cdelivery.html">Continuous Delivery</a> system.</p>
 <h5 id="cd-core"><a name="cd-core" class="plugin-anchor" href="#cd-core"><span class="fa fa-link"></span></a>CD Core</h5>
 <p>The core<a href="cdelivery.html">Continuous Delivery</a> installation for building including Gogs for git hosting, Jenkins for building and Nexus as a repository manager.</p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.1-SNAPSHOT/cdelivery-core-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.1/cdelivery-core-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h5 id="cd-full"><a name="cd-full" class="plugin-anchor" href="#cd-full"><span class="fa fa-link"></span></a>CD Full</h5>
 <p>The complete <a href="cdelivery.html">Continuous Delivery</a> installation including <strong>CD Core</strong> plus the social apps like <a href="chat.html">chat such as Hubot</a>.</p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.1-SNAPSHOT/cdelivery-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.1/cdelivery-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h4 id="kitchen-sink"><a name="kitchen-sink" class="plugin-anchor" href="#kitchen-sink"><span class="fa fa-link"></span></a>Kitchen Sink</h4>
 <p>Provides all of the above!</p>
-<pre><code>    osc process http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.1-SNAPSHOT/kitchen-sink-2.1.1-kubernetes.json | osc create -f -
+<pre><code>    osc process -f http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.1/kitchen-sink-2.1.1-kubernetes.json | osc create -f -
 </code></pre><h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
 <p>Its likely after installing any of the above applications that there will be Kubernetes <a href="services.html">services</a> running that you wish to expose via <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a>.</p>
 <p>To do this use the <a href="mavenFabric8CreateRoutes.html">mvn fabric8:create-routes</a> goal. e.g.</p>
