@@ -26,7 +26,7 @@ You'll also need to login and switch to the correct project (namespace):
 
 ```
 osc login
-osc project cheese
+osc project default
 ```
 
 Then run this command:
