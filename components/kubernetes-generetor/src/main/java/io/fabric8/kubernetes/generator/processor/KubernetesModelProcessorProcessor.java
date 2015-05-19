@@ -83,7 +83,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             } else if (json instanceof Template) {
                 builder = new TemplateBuilder((Template) json);
             } else if (json != null) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unknown Kubernetes JSON type:" + json.getClass());
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unknown Kubernetes json type:" + json.getClass());
                 return false;
             } else {
                 return false;
