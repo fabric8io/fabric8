@@ -21,13 +21,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.openshift.api.model.Route;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -35,13 +29,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import javax.xml.ws.Service;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
@@ -113,39 +102,14 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         List<HasMetadata> allItems = new ArrayList<>();
         boolean first = true;
         for (HasMetadata obj : objects) {
-            
             if (first) {
                 first = false;
             } else {
                 sb.append("-");
             }
             
-            if (obj instanceof Pod) {
-                sb.append(getName((Pod) obj));
-                allItems.add(obj);
-            } else if (obj instanceof ReplicationController) {
-                sb.append(getName((ReplicationController) obj));
-                allItems.add(obj);
-            }  else if (obj instanceof Service) {
-                sb.append(((Service) obj).getServiceName());
-                allItems.add(obj);
-            } else if (obj instanceof BuildConfig) {
-                sb.append(((BuildConfig) obj).getMetadata().getName());
-                allItems.add(obj);
-            } else if (obj instanceof DeploymentConfig) {
-                sb.append(((DeploymentConfig) obj).getMetadata().getName());
-                allItems.add(obj);
-            } else if (obj instanceof ImageStream) {
-                sb.append(getName((ImageStream) obj));
-                allItems.add(obj);
-            } else if (obj instanceof Route) {
-                sb.append(((Route) obj).getMetadata().getName());
-                allItems.add(obj);
-            } else if (obj instanceof KubernetesList) {
-                // TODO KubernetesList now has no id
-                //sb.append(((KubernetesList) obj).getId());
-                allItems.addAll(((KubernetesList) obj).getItems());
-            }
+            sb.append(getName(obj));
+            allItems.add(obj);
         }
         return new KubernetesListBuilder().
                 // TODO KubernetesList no longer has an id/name

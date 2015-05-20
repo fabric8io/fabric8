@@ -16,7 +16,6 @@
  */
 package io.fabric8.kubernetes.api.extensions;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.openshift.api.model.template.Parameter;
@@ -25,12 +24,7 @@ import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Helper class for working with OpenShift Templates
@@ -103,12 +97,8 @@ public class Templates {
 
     public static void addTemplateObject(Template template, HasMetadata object) {
         List<HasMetadata> objects = template.getObjects();
-        if (objects == null) {
-            objects = new ArrayList<>();
-
-            template.setObjects(objects);
-        }
         objects.add(object);
+        template.setObjects(objects);
     }
 
 
@@ -137,7 +127,6 @@ public class Templates {
                 }
             }
             List<HasMetadata> objects = template.getObjects();
-            KubernetesHelper.moveServicesToFrontOfArray(objects);
             return template;
         } else {
             return kubernetesList;

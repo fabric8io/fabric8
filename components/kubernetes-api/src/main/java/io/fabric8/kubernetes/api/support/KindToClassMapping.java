@@ -119,7 +119,7 @@ public class KindToClassMapping {
         map.put("ResourceRequirements", ResourceRequirements.class);
         map.put("Route", Route.class);
         map.put("RouteList", RouteList.class);
-        map.put("STIBuildStrategy", STIBuildStrategy.class);
+        map.put("SourceBuildStrategy", SourceBuildStrategy.class);
         map.put("SecretVolumeSource", SecretVolumeSource.class);
         map.put("Service", Service.class);
         map.put("ServiceList", ServiceList.class);

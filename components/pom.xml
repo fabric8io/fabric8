@@ -69,7 +69,7 @@
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
-    <module>kubernetes-generetor</module>
+    <module>kubernetes-generator</module>
     <module>mq</module>
     <module>rest-utils</module>
     <module>swagger-model</module>

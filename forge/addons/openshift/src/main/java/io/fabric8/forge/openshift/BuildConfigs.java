@@ -67,9 +67,9 @@ public class BuildConfigs {
                 withNewStrategy().
                 withType("STI").
                 // TODO add builderImage
-                withNewStiStrategy().
+                withNewSourceStrategy().
                 withNewFrom().withName(image).withKind("ImageStreamImage").endFrom().
-                endStiStrategy().
+                endSourceStrategy().
                 endStrategy();
     }
 
