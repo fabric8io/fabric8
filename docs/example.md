@@ -4,15 +4,15 @@ The following example shows you how to build and push a docker image to Kubernet
 
 Make sure you have followed the [Get Started Guide](http://fabric8.io/guide/getStarted.html) so you should have things running.
 
-You should be able to check if the docker registry is running OK via this command (which should return 'true'):
+You should be able to check if the docker registry is running OK via this command (which should return an empty json response '{}'):
 
-    curl http://$DOCKER_REGISTRY/v1/_ping
+    curl http://$DOCKER_REGISTRY/v2/
 
 Or you can use the [ping-registry.sh](https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh) script which will check that you have your **DOCKER_REGISTRY** environment variable setup correctly to point to a valid docker registry:
 
     ping-registry.sh
 
-If either of those return **true** you are ready to build a quickstart!
+If either of those return **{}** you are ready to build a quickstart!
 
 #### Build the camel-servlet web application
 

@@ -111,7 +111,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 #### iPaaS
 
-Provides the [fabric8 console](console.html) and the [Integration Platform As A Service](ipaas.html)_
+Provides the [fabric8 console](console.html) and the [Integration Platform As A Service](ipaas.html)
 
 		osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.1/ipaas-2.1.1-kubernetes.json \
