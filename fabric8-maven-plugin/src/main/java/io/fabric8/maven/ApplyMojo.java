@@ -243,9 +243,11 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
         Set<Integer> ports = KubernetesHelper.getPorts(service);
         log.debug("Service " + id + " has ports: " + ports);
-        if (!ports.contains(80) && !ports.contains(443)) {
+        if (ports.size() == 1) {
+            return true;
+        } else {
+            log.info("Not generating route for service " + id + " as only single port services are supported. Has ports: " + ports);
             return false;
         }
-        return true;
     }
 }
