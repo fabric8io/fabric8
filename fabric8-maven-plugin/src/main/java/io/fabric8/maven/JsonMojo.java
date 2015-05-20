@@ -39,7 +39,6 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -373,7 +372,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         for (Object object : list) {
             if (object != null) {
                 if (object instanceof List) {
-                    printSummary((List<Object>) object);
+                    printSummary(object);
                 } else {
                     String kind = object.getClass().getSimpleName();
                     String id = KubernetesHelper.getObjectId(object);
@@ -731,28 +730,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return answer;
     }
 
-    public List<ServicePort> getServicePorts() {
+    public List<ServicePort> getServicePorts() throws MojoExecutionException {
         if (servicePorts == null) {
             servicePorts = new ArrayList<>();
         }
         if (servicePorts.isEmpty()) {
-            if (serviceContainerPort != null && servicePort != null) {
-                ServicePort actualServicePort = new ServicePort();
-                Integer containerPortNumber = parsePort(serviceContainerPort, FABRIC8_CONTAINER_PORT_SERVICE);
-                IntOrString containerPort = new IntOrString();
-                if (containerPortNumber != null) {
-                    containerPort.setIntVal(containerPortNumber);
-                } else {
-                    containerPort.setStrVal(serviceContainerPort);
-                }
-                actualServicePort.setTargetPort(containerPort);
-                actualServicePort.setPort(servicePort);
-                if (serviceProtocol != null) {
-                    actualServicePort.setProtocol(serviceProtocol);
-                    servicePorts.add(actualServicePort);
-                }
-            }
-
             Properties properties1 = getProject().getProperties();
             Map<String, String> servicePortProperties = findPropertiesWithPrefix(properties1, FABRIC8_PORT_SERVICE_PREFIX);
             Map<String, String> serviceContainerPortProperties = findPropertiesWithPrefix(properties1, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX);
@@ -789,6 +771,29 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     }
                 }
             }
+
+            if (serviceContainerPort != null && servicePort != null) {
+
+                if (servicePorts.size() > 0) {
+                    throw new MojoExecutionException("Multi-port services must use the " + FABRIC8_PORT_SERVICE_PREFIX + "<name> format");
+                }
+
+                ServicePort actualServicePort = new ServicePort();
+                Integer containerPortNumber = parsePort(serviceContainerPort, FABRIC8_CONTAINER_PORT_SERVICE);
+                IntOrString containerPort = new IntOrString();
+                if (containerPortNumber != null) {
+                    containerPort.setIntVal(containerPortNumber);
+                } else {
+                    containerPort.setStrVal(serviceContainerPort);
+                }
+                actualServicePort.setTargetPort(containerPort);
+                actualServicePort.setPort(servicePort);
+                if (serviceProtocol != null) {
+                    actualServicePort.setProtocol(serviceProtocol);
+                    servicePorts.add(actualServicePort);
+                }
+            }
+
         }
         return servicePorts;
     }
