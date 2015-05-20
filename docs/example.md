@@ -4,7 +4,7 @@ The following example shows you how to build and push a docker image to Kubernet
 
 Make sure you have followed the [Get Started Guide](http://fabric8.io/guide/getStarted.html) so you should have things running.
 
-You should be able to check if the docker registry is running OK via this command (which should return an empty json response '{}'):
+You should be able to check if the docker registry is running OK via this command (which should return an empty json response **{}**):
 
     curl http://$DOCKER_REGISTRY/v2/
 
