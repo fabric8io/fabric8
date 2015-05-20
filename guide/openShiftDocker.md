@@ -263,7 +263,9 @@ Sometimes Docker containers are not removed completely.  The lines below will st
 
 #### Running a Hawtio Console
 
-If you are developing and working with hawtio you might want to run a locally built hawtio docker image against OpenShift..
+If you have installed Fabric8 on OpenShift via the 'kitchen-sink' URL, hawt.io is already installed and can be accessed via http://{SERVER_IP}/
+
+Else If you are developing and working with hawtio you might want to run a locally built hawtio docker image against OpenShift..
 
     docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 
