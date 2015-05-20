@@ -29,6 +29,6 @@ Now let's navigate to the specific quickstart:
 
 Now let's deploy the image into the Kubernetes environment:
 
-    mvn fabric8:run
+    mvn fabric8:apply
 
 You should now be able to view the quickstart in the fabric8 console.  On the Services tab you will see the camel-servlet URL which will take you to the running example.
