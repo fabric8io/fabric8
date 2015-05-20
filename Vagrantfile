@@ -45,6 +45,7 @@ sleep 30
 osadm policy add-cluster-role-to-user cluster-admin admin
 osadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
 osadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
+osadm new-project fabric8 --description="fabric8 Apps"
 
 cat <<EOF | osc create -f -
 ---
