@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
 import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Node;
@@ -125,20 +126,14 @@ public class KubernetesHelper {
      * Returns the ID of the given object
      */
     public static String getObjectId(Object object) {
-        if (object instanceof Pod) {
-            return getName((Pod) object);
-        } else if (object instanceof ReplicationController) {
-            return getName((ReplicationController) object);
-        } else if (object instanceof Service) {
-            return getName((Service) object);
-        } else if (object instanceof Route) {
-            return getName((Route) object);
+        if (object instanceof HasMetadata) {
+            return getName((HasMetadata) object);
         } else {
             return object != null ? object.toString() : null;
         }
     }
 
-    public static ObjectMeta getOrCreateMetadata(Pod entity) {
+    public static ObjectMeta getOrCreateMetadata(HasMetadata entity) {
         ObjectMeta metadata = entity.getMetadata();
         if (metadata == null) {
             metadata = new ObjectMeta();
@@ -147,94 +142,28 @@ public class KubernetesHelper {
         return metadata;
     }
 
-    public static ObjectMeta getOrCreateMetadata(ReplicationController entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
+
+    /**
+     * Returns the resource version for the entity or null if it does not have one
+     */
+    public static String getResourceVersion(HasMetadata entity) {
+        if (entity != null) {
+            ObjectMeta metadata = entity.getMetadata();
+            if (metadata != null) {
+                String resourceVersion = metadata.getResourceVersion();
+                if (Strings.isNotBlank(resourceVersion)) {
+                    return resourceVersion;
+                }
+            }
         }
-        return metadata;
+        return null;
     }
 
-    public static ObjectMeta getOrCreateMetadata(Service entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(Namespace entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(Route entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(Build entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(BuildConfig entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(DeploymentConfig entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(ImageStream entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(OAuthClient entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
-    }
-
-    public static ObjectMeta getOrCreateMetadata(Template entity) {
-        ObjectMeta metadata = entity.getMetadata();
-        if (metadata == null) {
-            metadata = new ObjectMeta();
-            entity.setMetadata(metadata);
-        }
-        return metadata;
+    /**
+     * Returns true if this entity has a valid non blank resourceVersion in its metadata
+     */
+    public static boolean hasResourceVersion(HasMetadata entity) {
+        return getResourceVersion(entity) != null;
     }
 
     public static String getName(ObjectMeta entity) {
@@ -247,138 +176,26 @@ public class KubernetesHelper {
         }
     }
 
-    public static String getName(Pod entity) {
+    public static String getName(HasMetadata entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(ReplicationController entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
+            return getName(entity.getMetadata());
         } else {
             return null;
         }
     }
 
 
-    public static String getName(Service entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(OAuthClient entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(Route entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-
-    public static String getName(Node entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(Template entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(ImageStream entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static String getName(Endpoints entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getName(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "name"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "id")
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public static void setName(Pod entity, String name) {
+    public static void setName(HasMetadata entity, String name) {
         getOrCreateMetadata(entity).setName(name);
     }
 
-    public static void setName(Service entity, String name) {
-        getOrCreateMetadata(entity).setName(name);
+    public static void setName(HasMetadata entity, String namespace, String name) {
+        ObjectMeta metadata = getOrCreateMetadata(entity);
+        metadata.setNamespace(namespace);
+        metadata.setName(name);
     }
 
-    public static void setName(ReplicationController entity, String name) {
-        getOrCreateMetadata(entity).setName(name);
-    }
-
-    public static void setName(Route entity, String namespace, String name) {
-        ObjectMeta objectMeta = getOrCreateMetadata(entity);
-        objectMeta.setNamespace(namespace);
-        objectMeta.setName(name);
-    }
-
-
-    public static void setName(Template entity, String name) {
-        getOrCreateMetadata(entity).setName(name);
-    }
-
-
-    public static void setNamespace(Template entity, String namespace) {
+    public static void setNamespace(HasMetadata entity, String namespace) {
         getOrCreateMetadata(entity).setNamespace(namespace);
     }
 
@@ -390,65 +207,14 @@ public class KubernetesHelper {
         }
     }
 
-    public static String getNamespace(Pod entity) {
+    public static String getNamespace(HasMetadata entity) {
         if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
+            return getNamespace(entity.getMetadata());
         } else {
             return null;
         }
     }
 
-    public static String getNamespace(ReplicationController entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
-        } else {
-            return null;
-        }
-    }
-
-    public static String getNamespace(Service entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
-        } else {
-            return null;
-        }
-    }
-
-    public static String getNamespace(OAuthClient entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
-        } else {
-            return null;
-        }
-    }
-
-    public static String getNamespace(Route entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
-        } else {
-            return null;
-        }
-    }
-
-    public static String getNamespace(Template entity) {
-        if (entity != null) {
-            return Strings.firstNonBlank(getNamespace(entity.getMetadata()),
-                    getAdditionalPropertyText(entity.getAdditionalProperties(), "namespace"),
-                    getAdditionalNestedPropertyText(entity.getAdditionalProperties(), "metadata", "namespace"));
-        } else {
-            return null;
-        }
-    }
 
     /**
      * Returns the labels of the given metadata object or an empty map if the metadata or labels are null
@@ -459,6 +225,13 @@ public class KubernetesHelper {
             if (labels != null) {
                 return labels;
             }
+        }
+        return Collections.EMPTY_MAP;
+    }
+
+    public static Map<String, String> getLabels(HasMetadata entity) {
+        if (entity != null) {
+            return getLabels(entity.getMetadata());
         }
         return Collections.EMPTY_MAP;
     }
@@ -506,13 +279,6 @@ public class KubernetesHelper {
         return answer;
     }
 
-    protected static Object getAdditionalProperty(Map<String, Object> additionalProperties, String name) {
-        if (additionalProperties != null) {
-            return additionalProperties.get(name);
-        } else {
-            return null;
-        }
-    }
 
     protected static String getAdditionalPropertyText(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
@@ -524,17 +290,6 @@ public class KubernetesHelper {
         return null;
     }
 
-    protected static String getAdditionalNestedPropertyText(Map<String, Object> additionalProperties, String... names) {
-        int lastIdx = names.length - 1;
-        Map<String, Object> map = additionalProperties;
-        for (int i = 0; i < lastIdx; i++) {
-            if (map == null) {
-                return null;
-            }
-            map = getAdditionalPropertyMap(map, names[i]);
-        }
-        return getAdditionalPropertyText(map, names[lastIdx]);
-    }
 
     protected static Map<String, Object> getMetadata(Map<String, Object> additionalProperties, boolean create) {
         Map<String, Object> answer = getAdditionalPropertyMap(additionalProperties, "metadata");
@@ -631,11 +386,11 @@ public class KubernetesHelper {
     /**
      * Loads the Kubernetes JSON and converts it to a list of entities
      */
-    public static List<Object> toItemList(Object entity) throws IOException {
+    public static List<HasMetadata> toItemList(Object entity) throws IOException {
         if (entity instanceof List) {
-            return (List<Object>) entity;
-        } else if (entity instanceof Object[]) {
-            Object[] array = (Object[]) entity;
+            return (List<HasMetadata>) entity;
+        } else if (entity instanceof HasMetadata[]) {
+            HasMetadata[] array = (HasMetadata[]) entity;
             return Arrays.asList(array);
         } else if (entity instanceof KubernetesList) {
             KubernetesList config = (KubernetesList) entity;
@@ -644,9 +399,9 @@ public class KubernetesHelper {
             Template objects = (Template) entity;
             return objects.getObjects();
         } else {
-            List<Object> answer = new ArrayList<>();
-            if (entity != null) {
-                answer.add(answer);
+            List<HasMetadata> answer = new ArrayList<>();
+            if (entity instanceof HasMetadata) {
+                answer.add((HasMetadata) entity);
             }
             return answer;
         }
@@ -1260,7 +1015,7 @@ public class KubernetesHelper {
      */
     public static Object combineJson(Object... objects) throws IOException {
         KubernetesList list = findOrCreateList(objects);
-        List<Object> items = list.getItems();
+        List<HasMetadata> items = list.getItems();
         if (items == null) {
             items = new ArrayList<>();
             list.setItems(items);
@@ -1281,14 +1036,14 @@ public class KubernetesHelper {
     /**
      * Lets move all Service resources before any other to avoid ordering issues creating things
      */
-    public static void moveServicesToFrontOfArray(List<Object> list) {
+    public static void moveServicesToFrontOfArray(List<HasMetadata> list) {
         int size = list.size();
         int lastNonService = -1;
         for (int i = 0; i < size; i++) {
-            Object item = list.get(i);
+            HasMetadata item = list.get(i);
             if (item instanceof Service) {
                 if (lastNonService >= 0) {
-                    Object nonService = list.get(lastNonService);
+                    HasMetadata nonService = list.get(lastNonService);
                     list.set(i, nonService);
                     list.set(lastNonService, item);
                     lastNonService++;
@@ -1304,12 +1059,12 @@ public class KubernetesHelper {
      *
      * @param itemArray
      */
-    protected static void removeDuplicates(List<Object> itemArray) {
+    protected static void removeDuplicates(List<HasMetadata> itemArray) {
         int size = itemArray.size();
         int lastNonService = -1;
         Set<String> keys = new HashSet<>();
         for (int i = 0; i < size; i++) {
-            Object item = itemArray.get(i);
+            HasMetadata item = itemArray.get(i);
             if (item == null) {
                 itemArray.remove(i);
                 i--;
@@ -1334,7 +1089,7 @@ public class KubernetesHelper {
     protected static void addObjectsToItemArray(List destinationList, Object object) throws IOException {
         if (object instanceof KubernetesList) {
             KubernetesList kubernetesList = (KubernetesList) object;
-            List<Object> items = kubernetesList.getItems();
+            List<HasMetadata> items = kubernetesList.getItems();
             if (items != null) {
                 destinationList.addAll(items);
             }
@@ -1854,9 +1609,10 @@ public class KubernetesHelper {
             return (KubernetesList) dto;
         } else {
             KubernetesList answer = new KubernetesList();
-            List<Object> items = toItemList(dto);
+            List<HasMetadata> items = toItemList(dto);
             answer.setItems(items);
             return answer;
         }
     }
+
 }

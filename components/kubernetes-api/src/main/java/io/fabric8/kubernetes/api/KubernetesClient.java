@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -85,6 +86,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 import static io.fabric8.kubernetes.api.KubernetesFactory.getOpenShiftConfigFile;
 import static io.fabric8.kubernetes.api.KubernetesHelper.defaultOsApiVersion;
@@ -303,8 +305,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("namespaces/{name}")
-    public Namespace getNamespace(@NotNull String name) {
-        return getKubernetes().getNamespace(name);
+    public Namespace getNamespace(final @NotNull String name) {
+        return handle404ByReturningNull(new Callable<Namespace>() {
+            @Override
+            public Namespace call() throws Exception {
+                return getKubernetes().getNamespace(name);
+            }
+        });
     }
 
     @Override
@@ -360,9 +367,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     @Override
-    public ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace) {
+    public ReplicationController getReplicationController(final @PathParam("controllerId") @NotNull String controllerId, final @QueryParam("namespace") String namespace) {
         validateNamespace(namespace, controllerId);
-        return getKubernetes().getReplicationController(controllerId, namespace);
+        return handle404ByReturningNull(new Callable<ReplicationController>() {
+            @Override
+            public ReplicationController call() throws Exception {
+                return getKubernetes().getReplicationController(controllerId, namespace);
+            }
+        });
     }
 
     @DELETE
@@ -433,6 +445,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     public String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @QueryParam("namespace") String namespace) throws Exception {
         validateNamespace(namespace, entity);
+        if (!KubernetesHelper.hasResourceVersion(entity)) {
+            // lets load it from the old service
+            Service service = getService(serviceId, namespace);
+            if (service == null) {
+                // no service so lets create the service
+                return createService(entity, namespace);
+            }
+            String resourceVersion = KubernetesHelper.getResourceVersion(service);
+            KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+        }
         return getWriteableKubernetes().updateService(serviceId, entity, namespace);
     }
 
@@ -444,9 +466,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     @Override
-    public Service getService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace) {
+    public Service getService(final @PathParam("serviceId") @NotNull String serviceId, final @QueryParam("namespace") String namespace) {
         validateNamespace(namespace, serviceId);
-        return getKubernetes().getService(serviceId, namespace);
+        return handle404ByReturningNull(new Callable<Service>() {
+            @Override
+            public Service call() throws Exception {
+                return getKubernetes().getService(serviceId, namespace);
+            }
+        });
     }
 
     @DELETE
@@ -464,9 +491,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     @Override
-    public Pod getPod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace) {
+    public Pod getPod(final @PathParam("podId") @NotNull String podId, final @QueryParam("namespace") String namespace) {
         validateNamespace(namespace, podId);
-        return getKubernetes().getPod(podId, namespace);
+        return handle404ByReturningNull(new Callable<Pod>() {
+            @Override
+            public Pod call() throws Exception {
+                return getKubernetes().getPod(podId, namespace);
+            }
+        });
     }
 
     @PUT
@@ -606,18 +638,32 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("namespaces/{namespace}/secrets/{secretId}")
     @Produces("application/json")
-    public Secret getSecret(@NotNull String secretId, String namespace) {
+    public Secret getSecret(final @NotNull String secretId, final String namespace) {
         validateNamespace(namespace, secretId);
-        return getKubernetes().getSecret(secretId, namespace);
+        return handle404ByReturningNull(new Callable<Secret>() {
+            @Override
+            public Secret call() throws Exception {
+                return getKubernetes().getSecret(secretId, namespace);
+            }
+        });
     }
 
     @Override
     @Path("namespaces/{namespace}/secrets")
     @GET
     @Produces("application/json")
-    public SecretList getSecrets(String namespace) {
+    public SecretList getSecrets(final String namespace) {
         validateNamespace(namespace, null);
-        return getKubernetes().getSecrets(namespace);
+        SecretList answer = handle404ByReturningNull(new Callable<SecretList>() {
+            @Override
+            public SecretList call() throws Exception {
+                return getKubernetes().getSecrets(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new SecretList();
+        }
+        return answer;
     }
 
     @Override
@@ -669,17 +715,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("oauthclients/{name}")
-    public OAuthClient getOAuthClient(@NotNull String name) {
-        try {
-            return getKubernetesGlobalExtensions().getOAuthClient(name);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404) {
-                // does not exist
-                return null;
-            } else {
-                throw e;
+    public OAuthClient getOAuthClient(final @NotNull String name) {
+        return handle404ByReturningNull(new Callable<OAuthClient>() {
+            @Override
+            public OAuthClient call() throws Exception {
+                return getKubernetesGlobalExtensions().getOAuthClient(name);
             }
-        }
+        });
     }
 
     @Override
@@ -736,17 +778,31 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @GET
     @Path("routes")
     @Override
-    public RouteList getRoutes(@QueryParam("namespace") String namespace) {
+    public RouteList getRoutes(final @QueryParam("namespace") String namespace) {
         validateNamespace(namespace, null);
-        return getKubernetesExtensions().getRoutes(namespace);
+        RouteList answer = handle404ByReturningNull(new Callable<RouteList>() {
+            @Override
+            public RouteList call() throws Exception {
+                return getKubernetesExtensions().getRoutes(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new RouteList();
+        }
+        return answer;
     }
 
     @GET
     @Path("routes/{name}")
     @Override
-    public Route getRoute(@PathParam("name") @NotNull String name, @QueryParam("namespace") String namespace) {
+    public Route getRoute(final @PathParam("name") @NotNull String name, final @QueryParam("namespace") String namespace) {
         validateNamespace(namespace, name);
-        return getKubernetesExtensions().getRoute(name, namespace);
+        return handle404ByReturningNull(new Callable<Route>() {
+            @Override
+            public Route call() throws Exception {
+                return getKubernetesExtensions().getRoute(name, namespace);
+            }
+        });
     }
 
     @Override
@@ -786,17 +842,31 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("builds/{name}")
-    public Build getBuild(@NotNull String name, String namespace) {
+    public Build getBuild(final @NotNull String name, final String namespace) {
         validateNamespace(namespace, name);
-        return getKubernetesExtensions().getBuild(name, namespace);
+        return handle404ByReturningNull(new Callable<Build>() {
+            @Override
+            public Build call() throws Exception {
+                return getKubernetesExtensions().getBuild(name, namespace);
+            }
+        });
     }
 
     @Override
     @GET
     @Path("builds")
-    public BuildList getBuilds(String namespace) {
+    public BuildList getBuilds(final String namespace) {
         validateNamespace(namespace, null);
-        return getKubernetesExtensions().getBuilds(namespace);
+        BuildList answer = handle404ByReturningNull(new Callable<BuildList>() {
+            @Override
+            public BuildList call() throws Exception {
+                return getKubernetesExtensions().getBuilds(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new BuildList();
+        }
+        return answer;
     }
 
     @Override
@@ -827,17 +897,31 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("deploymentConfigs/{name}")
-    public DeploymentConfig getDeploymentConfig(@NotNull String name, String namespace) {
+    public DeploymentConfig getDeploymentConfig(final @NotNull String name, final String namespace) {
         validateNamespace(namespace, name);
-        return getKubernetesExtensions().getDeploymentConfig(name, namespace);
+        return handle404ByReturningNull(new Callable<DeploymentConfig>() {
+            @Override
+            public DeploymentConfig call() throws Exception {
+                return getKubernetesExtensions().getDeploymentConfig(name, namespace);
+            }
+        });
     }
 
     @Override
     @GET
     @Path("deploymentConfigs")
-    public DeploymentConfigList getDeploymentConfigs(String namespace) {
+    public DeploymentConfigList getDeploymentConfigs(final String namespace) {
         validateNamespace(namespace, null);
-        return getKubernetesExtensions().getDeploymentConfigs(namespace);
+        DeploymentConfigList answer = handle404ByReturningNull(new Callable<DeploymentConfigList>() {
+            @Override
+            public DeploymentConfigList call() throws Exception {
+                return getKubernetesExtensions().getDeploymentConfigs(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new DeploymentConfigList();
+        }
+        return answer;
     }
 
     @Override
@@ -870,17 +954,31 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("imageStreams/{name}")
-    public ImageStream getImageStream(@NotNull String name, String namespace) {
+    public ImageStream getImageStream(final @NotNull String name, final String namespace) {
         validateNamespace(namespace, name);
-        return getKubernetesExtensions().getImageStream(name, namespace);
+        return handle404ByReturningNull(new Callable<ImageStream>() {
+            @Override
+            public ImageStream call() throws Exception {
+                return getKubernetesExtensions().getImageStream(name, namespace);
+            }
+        });
     }
 
     @Override
     @GET
     @Path("imageStreams")
-    public ImageStreamList getImageStreams(String namespace) {
+    public ImageStreamList getImageStreams(final String namespace) {
         validateNamespace(namespace, null);
-        return getKubernetesExtensions().getImageStreams(namespace);
+        ImageStreamList answer = handle404ByReturningNull(new Callable<ImageStreamList>() {
+            @Override
+            public ImageStreamList call() throws Exception {
+                return getKubernetesExtensions().getImageStreams(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new ImageStreamList();
+        }
+        return answer;
     }
 
     @Override
@@ -1350,6 +1448,25 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             return null;
         }
         //return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, new byte[0]);
+    }
+
+
+
+    /**
+     * A helper method to handle REST APIs which throw a 404 by just returning null
+     */
+    protected static <T> T handle404ByReturningNull(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404) {
+                return null;
+            } else {
+                throw e;
+            }
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
+        }
     }
 
 

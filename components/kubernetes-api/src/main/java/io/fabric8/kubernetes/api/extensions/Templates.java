@@ -17,6 +17,7 @@
 package io.fabric8.kubernetes.api.extensions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.openshift.api.model.template.Parameter;
 import io.fabric8.openshift.api.model.template.Template;
@@ -43,8 +44,8 @@ public class Templates {
      */
     public static Object combineTemplates(KubernetesList kubernetesList) {
         Template firstTemplate = null;
-        List<Object> items = kubernetesList.getItems();
-        for (Object item : items) {
+        List<HasMetadata> items = kubernetesList.getItems();
+        for (HasMetadata item : items) {
             if (item instanceof Template) {
                 Template template = (Template) item;
                 if (firstTemplate == null) {
@@ -55,7 +56,7 @@ public class Templates {
             }
         }
         if (firstTemplate != null) {
-            for (Object object : items) {
+            for (HasMetadata object : items) {
                 if (!(object instanceof Template)) {
                     addTemplateObject(firstTemplate, object);
                 }
@@ -65,9 +66,9 @@ public class Templates {
     }
 
     public static Template combineTemplates(Template firstTemplate, Template template) {
-        List<Object> objects = template.getObjects();
+        List<HasMetadata> objects = template.getObjects();
         if (objects != null) {
-            for (Object object : objects) {
+            for (HasMetadata object : objects) {
                 addTemplateObject(firstTemplate, object);
             }
         }
@@ -100,8 +101,8 @@ public class Templates {
         }
     }
 
-    public static void addTemplateObject(Template template, Object object) {
-        List<Object> objects = template.getObjects();
+    public static void addTemplateObject(Template template, HasMetadata object) {
+        List<HasMetadata> objects = template.getObjects();
         if (objects == null) {
             objects = new ArrayList<>();
 
@@ -116,9 +117,9 @@ public class Templates {
      * @param kubernetesList
      * @param items
      */
-    public static Object combineTemplates(KubernetesList kubernetesList, List<Object> items) {
+    public static Object combineTemplates(KubernetesList kubernetesList, List<HasMetadata> items) {
         Template template = null;
-        for (Object item : items) {
+        for (HasMetadata item : items) {
             if (item instanceof Template) {
                 Template aTemplate = (Template) item;
                 if (template == null) {
@@ -130,12 +131,12 @@ public class Templates {
         }
         if (template != null) {
             // lets move all the content into the template
-            for (Object item : items) {
+            for (HasMetadata item : items) {
                 if (!(item instanceof Template)) {
                     addTemplateObject(template, item);
                 }
             }
-            List<Object> objects = template.getObjects();
+            List<HasMetadata> objects = template.getObjects();
             KubernetesHelper.moveServicesToFrontOfArray(objects);
             return template;
         } else {

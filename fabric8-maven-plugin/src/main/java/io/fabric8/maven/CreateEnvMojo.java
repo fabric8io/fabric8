@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -77,7 +78,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
 
             Object config = loadKubernetesJson();
-            List<Object> list = KubernetesHelper.toItemList(config);
+            List<HasMetadata> list = KubernetesHelper.toItemList(config);
             Map<String, String> env = getEnvFromConfig(list);
             String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
@@ -142,10 +143,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * @return A map with the env key value pairs.
      * @throws IOException
      */
-    private Map<String, String> getEnvFromConfig(List<Object> entities) throws IOException {
+    private Map<String, String> getEnvFromConfig(List<HasMetadata> entities) throws IOException {
         Map<String, String> result = new TreeMap<>();
 
-        for (Object entity : entities) {
+        for (HasMetadata entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 for (Container container : pod.getSpec().getContainers()) {

@@ -42,7 +42,7 @@ public class ParseExamplesTest {
     @Test
     public void testParsePodList() throws Exception {
         KubernetesList podList = assertParseExampleFile("pod-list.json", KubernetesList.class);
-        List<Object> items = podList.getItems();
+        List<HasMetadata> items = podList.getItems();
         assertNotEmpty("items", items);
 
         Pod pod = (Pod) items.get(0);

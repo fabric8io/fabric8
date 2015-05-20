@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.generator.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -52,7 +53,7 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<Object> provided = new LinkedHashSet<>();
+        Set<HasMetadata> provided = new LinkedHashSet<>();
 
         CompilationTaskFactory compilationTaskFactory = new CompilationTaskFactory(processingEnv);
         Set<TypeElement> providers = new HashSet<>();
@@ -92,8 +93,8 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
                     Method providerMethod = instance.getClass().getDeclaredMethod(methodName);
                     if (providerMethod != null) {
                         Object obj = providerMethod.invoke(instance);
-                        if (obj != null) {
-                            provided.add(obj);
+                        if (obj instanceof HasMetadata) {
+                            provided.add((HasMetadata) obj);
                         }
                     }
                 }
@@ -107,11 +108,11 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         return true;
     }
 
-    private KubernetesList createList(Iterable<Object> objects) {
+    private KubernetesList createList(Iterable<HasMetadata> objects) {
         StringBuilder sb = new StringBuilder();
-        List<Object> allItems = new ArrayList<>();
+        List<HasMetadata> allItems = new ArrayList<>();
         boolean first = true;
-        for (Object obj : objects) {
+        for (HasMetadata obj : objects) {
             
             if (first) {
                 first = false;

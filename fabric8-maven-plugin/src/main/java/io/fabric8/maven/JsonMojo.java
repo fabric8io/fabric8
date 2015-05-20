@@ -368,7 +368,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             printSummary(template.getObjects());
             return;
         }
-        List<Object> list = KubernetesHelper.toItemList(kubeResource);
+        List<HasMetadata> list = KubernetesHelper.toItemList(kubeResource);
         for (Object object : list) {
             if (object != null) {
                 if (object instanceof List) {

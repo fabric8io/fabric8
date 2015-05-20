@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -293,8 +294,8 @@ public class Controller {
             printSummary(template.getObjects());
             return;
         }
-        List<Object> list = toItemList(kubeResource);
-        for (Object object : list) {
+        List<HasMetadata> list = toItemList(kubeResource);
+        for (HasMetadata object : list) {
             if (object != null) {
                 if (object == list) {
                     LOG.warn("Ignoring recursive list " + list);
@@ -353,7 +354,7 @@ public class Controller {
     }
 
     public void applyList(KubernetesList list, String sourceName) throws Exception {
-        List<Object> entities = list.getItems();
+        List<HasMetadata> entities = list.getItems();
         if (entities != null) {
             for (Object entity : entities) {
                 applyEntity(entity, sourceName);

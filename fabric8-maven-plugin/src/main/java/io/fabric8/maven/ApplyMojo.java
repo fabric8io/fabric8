@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.openshift.api.model.Route;
@@ -132,7 +133,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 overrideTemplateParameters(template);
                 dto = controller.processTemplate(template, fileName);
             }
-            List<Object> list = KubernetesHelper.toItemList(dto);
+            List<HasMetadata> list = KubernetesHelper.toItemList(dto);
             if (createRoutes) {
                 createRoutes(kubernetes, list);
                 dto = list;
@@ -174,7 +175,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void createRoutes(KubernetesClient kubernetes, List<Object> list) {
+    protected void createRoutes(KubernetesClient kubernetes, List<HasMetadata> list) {
         String routeDomainPostfix = this.routeDomain;
         Log log = getLog();
         if (Strings.isNullOrBlank(routeDomainPostfix)) {

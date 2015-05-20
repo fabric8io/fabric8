@@ -27,6 +27,7 @@ import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -96,7 +97,7 @@ public class SessionListener {
                     }
                 }
                 KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
-                List<Object> items = kubeList.getItems();
+                List<HasMetadata> items = kubeList.getItems();
                 kubeConfigs.add(kubeList);
             }
             if (applyConfiguration(client, controller, configuration, session, kubeConfigs)) {

@@ -45,7 +45,7 @@ public class ParseTest {
     @Test
     public void testParsePodList() throws Exception {
         KubernetesList podList = assertParseExampleFile("pod-list.json", KubernetesList.class);
-        List<Object> items = podList.getItems();
+        List<HasMetadata> items = podList.getItems();
         assertNotEmpty("items", items);
 
         Pod pod = (Pod) items.get(0);
@@ -99,7 +99,7 @@ public class ParseTest {
     @Test
     public void testParseTemplate() throws Exception {
         Template template = assertParseExampleFile("template.json", Template.class);
-        List<Object> objects = template.getObjects();
+        List<HasMetadata> objects = template.getObjects();
         assertNotEmpty("objects", objects);
         assertTrue("size is " + objects.size(), objects.size() == 2);
         Object service = objects.get(0);
@@ -114,7 +114,7 @@ public class ParseTest {
     @Test
     public void testParseList() throws Exception {
         KubernetesList list = assertParseExampleFile("list.json", KubernetesList.class);
-        List<Object> objects = list.getItems();
+        List<HasMetadata> objects = list.getItems();
         assertNotEmpty("objects", objects);
         assertEquals("size", 2, objects.size());
         Object service = objects.get(0);
