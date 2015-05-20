@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Wed May 20 2015 08:52:19 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Wed May 20 2015 09:14:38 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -979,20 +979,31 @@
 <p>If you are on a linux box then you might want to <a href="setupOpenShift.html#if-you-are-on-a-linux">use the Linux instructions</a>.</p>
 <h3 id="create-the-vagrant-image"><a name="create-the-vagrant-image" class="plugin-anchor" href="#create-the-vagrant-image"><span class="fa fa-link"></span></a>Create the vagrant image</h3>
 <ul>
-<li>clone the <a href="https://github.com/fabric8io/fabric8" target="_blank">fabric8 git repository</a> and create the vagrant image</li>
+<li>first clone the <a href="https://github.com/fabric8io/fabric8" target="_blank">fabric8 git repository</a> repository</li>
 </ul>
 <pre><code>git clone https://github.com/fabric8io/fabric8.git
 cd fabric8
-vargrant up
-vagrant ssh
-</code></pre><p>You should now have a running vagrant image running at IP address <code>172.28.128.4</code></p>
-<h3 id="using-the-openshift-cli-tools"><a name="using-the-openshift-cli-tools" class="plugin-anchor" href="#using-the-openshift-cli-tools"><span class="fa fa-link"></span></a>Using the OpenShift CLI tools</h3>
+</code></pre><p>The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can incease the settings, by editing the <code>Vagrantfile</code> in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:</p>
+<pre><code>    v.memory = 4096
+    v.cpus = 2
+</code></pre><ul>
+<li>if the settings are okay, then the vagrant image is created and started by:</li>
+</ul>
+<pre><code>    vagrant up
+</code></pre><ul>
+<li>... that process takes a little while, as resources needs to be downloaded. </li>
+</ul>
+<p>You should now have a running vagrant image running at IP address <code>172.28.128.4</code>.</p>
+<p>You can SSH into the vagrant image using</p>
+<pre><code>    vagrant ssh
+</code></pre><h3 id="using-the-openshift-cli-tools"><a name="using-the-openshift-cli-tools" class="plugin-anchor" href="#using-the-openshift-cli-tools"><span class="fa fa-link"></span></a>Using the OpenShift CLI tools</h3>
 <ul>
-<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform and add the <code>openshift</code>, <code>osc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
+<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform (not for the vagrant image) and add the <code>openshift</code>, <code>osc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
 <li>login to OpenShift</li>
 </ul>
 <pre><code>osc login --server=https://172.28.128.4:8443
-</code></pre><p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
+</code></pre><p>During the login procedure OpenShift you should allow access using insecure mode, and when prompted for an username and password type in <code>admin</code> (also <code>admin</code> as the password).</p>
+<p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
 <pre><code>osc get pods
 </code></pre><h3 id="using-openshift-from-your-host"><a name="using-openshift-from-your-host" class="plugin-anchor" href="#using-openshift-from-your-host"><span class="fa fa-link"></span></a>Using OpenShift from your host</h3>
 <p>On your OS X or Windows box you might want to setup these environment variables to more easily work with OpenShift from your Java code:</p>
