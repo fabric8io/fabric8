@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed May 20 2015 10:37:36 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed May 20 2015 11:33:58 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -993,7 +993,7 @@
 </ul>
 <p>You&apos;ll also need to login and switch to the correct project (namespace):</p>
 <pre><code>osc login
-osc project cheese
+osc project default
 </code></pre><p>Then run this command:</p>
 <pre><code>cat &lt;&lt;EOF | osc create -f -
 ---
@@ -1079,7 +1079,7 @@ EOF
 <pre><code>mvn io.fabric8:fabric8-maven-plugin:2.1.1:create-routes -Dfabric8.domain=my.acme.com
 </code></pre><p>You could then setup a wildcard DNS rule on <code>*.$KUBERNETES_DOMAIN</code> to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your <code>/etc/hosts</code> file for each service.</p>
 <p>e.g. if your IP address for the OpenShift master/router is <code>172.28.128.4</code> (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>) then add this to your <code>/etc/hosts</code> to expose the routes as host names:</p>
-<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local jenkins.vagrant.local 
+<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
 </code></pre>
                     
                     </section>
