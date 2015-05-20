@@ -69,8 +69,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.hostname = "fabric8-master.vagrant.local"
 
   config.vm.provider "virtualbox" do |v|
-    v.memory = 8192
-    v.cpus = 4
+    v.memory = 4096
+    v.cpus = 2
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
