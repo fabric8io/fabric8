@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Wed May 20 2015 09:54:11 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Wed May 20 2015 10:37:36 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1009,6 +1009,7 @@ cd fabric8
 <p>On your OS X or Windows box you might want to setup these environment variables to more easily work with OpenShift from your Java code:</p>
 <pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443
 export KUBERNETES_DOMAIN=vagrant.local
+export KUBERNETES_TRUST_CERT=true
 sudo route -n add 172.0.0.0/8 172.28.128.4
 </code></pre><p>The last command makes it easier to see IP address created on the vagrant box</p>
 

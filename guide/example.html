@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed May 20 2015 09:54:11 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed May 20 2015 10:37:36 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -977,11 +977,11 @@
                         <h3 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
 <p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
 <p>Make sure you have followed the <a href="http://fabric8.io/guide/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
-<p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
-<pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
+<p>You should be able to check if the docker registry is running OK via this command (which should return an empty json response &apos;{}&apos;):</p>
+<pre><code>curl http://$DOCKER_REGISTRY/v2/
 </code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> script which will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
 <pre><code>ping-registry.sh
-</code></pre><p>If either of those return <strong>true</strong> you are ready to build a quickstart!</p>
+</code></pre><p>If either of those return <strong>{}</strong> you are ready to build a quickstart!</p>
 <h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="plugin-anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
 <p>From the distribution or source code perform these commands to push the docker image:</p>
 <pre><code>git clone https://github.com/fabric8io/quickstarts.git
