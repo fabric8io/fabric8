@@ -13,7 +13,7 @@ git clone https://github.com/fabric8io/fabric8.git
 cd fabric8
 ```
 
-The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine’s resources. In case you have plenty of resources on your machine you can incease the settings, by editing the `Vagrantfile` in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:
+The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine’s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the `Vagrantfile` in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:
 
 ```
     v.memory = 4096
