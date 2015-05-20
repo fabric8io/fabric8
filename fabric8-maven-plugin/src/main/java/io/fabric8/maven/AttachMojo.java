@@ -1,0 +1,99 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ *
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package io.fabric8.maven;
+
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.utils.Files;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProjectHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Generates or copies the Kubernetes JSON file and attaches it to the build so its
+ * installed and released to maven repositories like other build artifacts.
+ */
+@Mojo(name = "attach", defaultPhase = LifecyclePhase.PACKAGE)
+public class AttachMojo extends AbstractFabric8Mojo {
+
+    @Component
+    private MavenProjectHelper projectHelper;
+
+    /**
+     * The artifact type for attaching the generated kubernetes json file to the project
+     */
+    @Parameter(property = "fabric8.kubernetes.artifactType", defaultValue = "json")
+    private String artifactType = "json";
+
+    /**
+     * The artifact classifier for attaching the generated kubernetes json file to the project
+     */
+    @Parameter(property = "fabric8.kubernetes.artifactClassifier", defaultValue = "kubernetes")
+    private String artifactClassifier = "kubernetes";
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        File json = getKubernetesJson();
+        if (Files.isFile(json)) {
+            printSummary(json);
+
+            getLog().info("Attaching kubernetes json file: " + json + " to the build");
+            projectHelper.attachArtifact(getProject(), artifactType, artifactClassifier, json);
+        }
+    }
+
+    protected void printSummary(File json) throws MojoExecutionException {
+        try {
+            Object savedObjects = KubernetesHelper.loadJson(json);
+            getLog().info("Generated Kubernetes JSON resources:");
+            printSummary(savedObjects);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to load saved json file " + json + ". Reason: " + e, e);
+        }
+    }
+
+    protected void printSummary(Object kubeResource) throws IOException {
+        if (kubeResource instanceof Template) {
+            Template template = (Template) kubeResource;
+            String id = KubernetesHelper.getName(template);
+            getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
+            printSummary(template.getObjects());
+            return;
+        }
+        List<HasMetadata> list = KubernetesHelper.toItemList(kubeResource);
+        for (Object object : list) {
+            if (object != null) {
+                if (object instanceof List) {
+                    printSummary(object);
+                } else {
+                    String kind = object.getClass().getSimpleName();
+                    String id = KubernetesHelper.getObjectId(object);
+                    getLog().info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
+                }
+            }
+        }
+    }
+
+}
