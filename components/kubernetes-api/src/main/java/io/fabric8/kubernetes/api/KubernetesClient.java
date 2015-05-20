@@ -34,6 +34,7 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
@@ -431,6 +432,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Consumes("application/json")
     public String updateReplicationController(@NotNull String controllerId, ReplicationController entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
+        if (!KubernetesHelper.hasResourceVersion(entity)) {
+            // lets load it from the oldEntity
+            ReplicationController oldEntity = getReplicationController(controllerId, namespace);
+            if (oldEntity == null) {
+                // no entity exists so lets create a new one
+                return createReplicationController(entity, namespace);
+            }
+            String resourceVersion = KubernetesHelper.getResourceVersion(oldEntity);
+            KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+        }
         return getWriteableKubernetes().updateReplicationController(controllerId, entity, namespace);
     }
 
@@ -454,6 +465,16 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             }
             String resourceVersion = KubernetesHelper.getResourceVersion(service);
             KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+
+            // lets copy over some fields set on the spec by kubernetes
+            ServiceSpec oldSpec = service.getSpec();
+            ServiceSpec newSpec = entity.getSpec();
+            if (oldSpec != null && newSpec != null) {
+                if (Strings.isNullOrBlank(newSpec.getPortalIP())) {
+                    newSpec.setPortalIP(oldSpec.getPortalIP());
+                }
+            }
+
         }
         return getWriteableKubernetes().updateService(serviceId, entity, namespace);
     }
