@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed May 20 2015 11:42:51 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Wed May 20 2015 12:57:40 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -991,7 +991,7 @@ cd quickstarts
 mvn clean install docker:build
 docker push $DOCKER_REGISTRY/fabric8/quickstart-war-camel-servlet:2.2-SNAPSHOT
 </code></pre><p>Now let&apos;s deploy the image into the Kubernetes environment:</p>
-<pre><code>mvn fabric8:run
+<pre><code>mvn fabric8:apply
 </code></pre><p>You should now be able to view the quickstart in the fabric8 console.  On the Services tab you will see the camel-servlet URL which will take you to the running example.</p>
 
                     
