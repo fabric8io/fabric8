@@ -47,3 +47,4 @@
 * [Jube](jube.md)
 * [FAQ](FAQ.md)
   * [General Questions](faqGeneral.md)
+  * [Kubernetes Questions](faqKubernetes.md)
