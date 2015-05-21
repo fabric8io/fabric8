@@ -34,7 +34,10 @@ import io.apiman.gateway.vertx.components.HttpClientComponentImpl;
 import io.apiman.gateway.vertx.engine.VertxPluginRegistry;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayServiceClient;
+import io.fabric8.utils.Systems;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,11 +61,28 @@ public class EngineFactory extends DefaultEngineFactory {
         this.vertx = vertx;
         this.httpGateway = httpGateway;
 
-        // TODO use proper/dynamic configuration values for these!
+        String host = null;
+        try {
+            InetAddress initAddress = InetAddress.getByName("ELASTICSEARCH");
+            host = initAddress.getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            System.out.println("INFO: Could not resolve DNS for ELASTICSEARCH, trying ENV settings next.");
+        }
+
+        String hostAndPort = Systems.getServiceHostAndPort("ELASTICSEARCH", "localhost", "9200");
+        String[] hp = hostAndPort.split(":");
+        if (host == null) {
+            System.out.println("ELASTICSEARCH host:port is set to " + hostAndPort + " using ENV settings.");
+            host = hp[0];
+        }
+        String protocol = Systems.getEnvVarOrSystemProperty("ELASTICSEARCH_PROTOCOL", "http");
+        System.out.println("*** Connecting to Elastic at service " + protocol + "://" + host + ":" + hp[1]);
+
         esConfig.put("client.type", "jest");
-        esConfig.put("client.cluster-name", "apiman");
-        esConfig.put("client.host", "localhost");
-        esConfig.put("client.port", "9200");
+        esConfig.put("client.host", host);
+        esConfig.put("client.port", hp[1]);
+        esConfig.put("client.protocol", protocol);
+        esConfig.put("client.cluster-name", "elasticsearch");
     }
 
     /**
