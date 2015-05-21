@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="5.4" data-basepath="." data-revision="Thu May 21 2015 11:27:07 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4" data-basepath="." data-revision="Thu May 21 2015 12:03:17 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -975,21 +975,22 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="service"><a name="service" class="plugin-anchor" href="#service"><span class="fa fa-link"></span></a>Service</h2>
-<p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Service</a> is a kubernetes abstraction to provide a network connection to one or more network services. For more detail see the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">background on how services work</a></p>
-<p>A service uses a label selector to find all the containers running which provide a certain network service on a certain port. The service is then bound to a local port. So to access the service from inside your application or container you just bind to the local network on the port number for the service. </p>
-<p>This means you need to map all services to distinct port numbers. e.g. one for your mysql, one for your ActiveMQ region etc.</p>
+<p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Service</a> is a kubernetes abstraction to provide a network connection to one or more <a href="pods.html">pods</a>. For more detail see the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">background on how services work</a>.</p>
+<p>A service uses a label selector (a set of key/value pairs) to find all the pods running which provide a certain network service on a port. </p>
+<p>Each service is given its own IP address and port which remains constant for the lifetime of the service. So to access the service from inside your application or container you just bind to the IP address and port number for the service. </p>
+<p>Note make sure the services are created before any of your pods which use them; otherwise the service won&apos;t have its IP address defined and you&apos;ll have to restart those pods. </p>
 <h3 id="discovering-services-from-your-application"><a name="discovering-services-from-your-application" class="plugin-anchor" href="#discovering-services-from-your-application"><span class="fa fa-link"></span></a>Discovering services from your application</h3>
 <p>Kubernetes uses 2 environment variables to expose the fixed IP address and port that you can use to access the service.</p>
-<p>So for a service named <code>foo-bar</code> you can use these 2 environment variables to acces the service...</p>
+<p>So for a service named <code>foo-bar</code> you can use these 2 environment variables to access the service:</p>
 <ul>
 <li><code>FOO_BAR_SERVICE_HOST</code> is the host (IP) addresss of the service</li>
 <li><code>FOO_BAR_SERVICE_PORT</code> is the port of the service</li>
 </ul>
 <p>e.g. you could access a web site or service via:</p>
 <pre><code>http://${FOO_BAR_SERVICE_HOST}:${FOO_BAR_SERVICE_PORT}/
-</code></pre><p>The value of the host and port are fixed once a service is created for the lifetime of a kubernetes environment; so you can just resolve this environment variable on startup and you&apos;re good to go!</p>
+</code></pre><p>The value of the host and port are fixed once a service is created for the lifetime of a kubernetes environment; so you can just resolve the environment variables on startup and you&apos;re all set!</p>
 <p>Under the covers Kubernetes will load balance over all the service endpoints for you.</p>
-<p>Note a <a href="pod.html">pod</a> can terminate; so its recommended that any network code using a service is capable of retrying requests if a socket fails.</p>
+<p>Note a <a href="pod.html">pod</a> can terminate at any time; so its recommended that any network code ushould retry requests if a socket fails; then kubernetes will failover to a pod for you.</p>
 <h3 id="internal-and-external-services"><a name="internal-and-external-services" class="plugin-anchor" href="#internal-and-external-services"><span class="fa fa-link"></span></a>Internal and external services</h3>
 <p>You can use the Kubernetes <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">service discovery mechanism</a> to discover services which are internal and running inside Kubernetes or to discover services running outside of Kubernetes or services on the internet or SaaS providers etc.</p>
 <p>For more detail see <a href="http://docs.openshift.org/latest/dev_guide/integrating_external_services.html" target="_blank">integrating external services</a>.</p>
