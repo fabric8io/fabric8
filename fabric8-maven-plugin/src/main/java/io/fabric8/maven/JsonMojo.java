@@ -19,7 +19,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.HTTPGetAction;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.Probe;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceFluent;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -55,7 +66,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,6 +198,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.iconTempDir", defaultValue = "${basedir}/target/fabric8/icons")
     private File iconTempDir;
+
+    /**
+     * The URL to use to link to the icon in the generated Template
+     */
+    @Parameter(property = "fabric8.iconUrl")
+    private String iconUrl;
+
+    /**
+     * The URL prefix added to the relative path of the icon file
+     */
+    @Parameter(property = "fabric8.iconUrlPrefix")
+    private String iconUrlPrefix;
+
+    /**
+     * The SCM branch used when creating a URL to the icon file
+     */
+    @Parameter(property = "fabric8.iconBranch", defaultValue = "master")
+    private String iconBranch;
+
 
     /**
      * The replication controller name used in the generated Kubernetes JSON template
@@ -562,35 +600,38 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * to an external link (e.g. using github).
      */
     protected String getIconUrl() {
-        String answer = null;
-        try {
-            if (iconTempDir != null) {
-                iconTempDir.mkdirs();
-                File iconFile = copyIconToFolder(iconTempDir);
-                if (iconFile == null) {
-                    copyAppConfigFiles(iconTempDir, appConfigDir);
+        String answer = iconUrl;
+        if (Strings.isNullOrBlank(answer)) {
+            try {
+                if (iconTempDir != null) {
+                    iconTempDir.mkdirs();
+                    File iconFile = copyIconToFolder(iconTempDir);
+                    if (iconFile == null) {
+                        copyAppConfigFiles(iconTempDir, appConfigDir);
 
-                    // lets find the icon file...
-                    for (String ext : ICON_EXTENSIONS) {
-                        File file = new File(iconTempDir, "icon" + ext);
-                        if (file.exists() && file.isFile()) {
-                            iconFile = file;
-                            break;
+                        // lets find the icon file...
+                        for (String ext : ICON_EXTENSIONS) {
+                            File file = new File(iconTempDir, "icon" + ext);
+                            if (file.exists() && file.isFile()) {
+                                iconFile = file;
+                                break;
+                            }
                         }
                     }
+                    if (iconFile != null) {
+                        answer = convertIconFileToURL(iconFile);
+                    }
                 }
-                if (iconFile != null) {
-                    answer = convertIconFileToURL(iconFile);
-                }
+            } catch (Exception e) {
+                getLog().warn("Failed to load icon file: " + e, e);
             }
-        } catch (Exception e) {
-            getLog().warn("Failed to load icon file: " + e, e);
         }
         if (Strings.isNullOrBlank(answer)) {
             getLog().warn("No icon file found for this project!");
         } else {
             getLog().debug("Icon URL: " + answer);
         }
+
         return answer;
     }
 
@@ -618,25 +659,32 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 if (rootProjectFolder != null) {
                     String relativePath = Files.getRelativePath(rootProjectFolder, iconSourceFile);
                     String relativeParentPath = Files.getRelativePath(rootProjectFolder, getProject().getBasedir());
-                    Scm scm = getProject().getScm();
-                    if (scm != null) {
-                        String url = scm.getUrl();
-                        if (url != null) {
-                            String[] prefixes = { "http://github.com/", "https://github.com/"};
-                            for (String prefix : prefixes) {
-                                if (url.startsWith(prefix)) {
-                                    url = URLUtils.pathJoin("https://raw.githubusercontent.com/", url.substring(prefix.length()));
-                                    break;
+                    String urlPrefix = iconUrlPrefix;
+                    if (Strings.isNullOrBlank(urlPrefix)) {
+                        Scm scm = getProject().getScm();
+                        if (scm != null) {
+                            String url = scm.getUrl();
+                            if (url != null) {
+                                String[] prefixes = {"http://github.com/", "https://github.com/"};
+                                for (String prefix : prefixes) {
+                                    if (url.startsWith(prefix)) {
+                                        url = URLUtils.pathJoin("https://raw.githubusercontent.com/", url.substring(prefix.length()));
+                                        break;
+                                    }
                                 }
+                                if (url.endsWith(relativeParentPath)) {
+                                    url = url.substring(0, url.length() - relativeParentPath.length());
+                                }
+                                urlPrefix = url;
                             }
-                            if (url.endsWith(relativeParentPath)) {
-                                url = url.substring(0, url.length() - relativeParentPath.length());
-                            }
-                            String branch = "master";
-                            String answer = URLUtils.pathJoin(url, branch, relativePath);
-                            getLog().info("icon url is: " + answer);
-                            return answer;
                         }
+                    }
+                    if (Strings.isNullOrBlank(urlPrefix)) {
+                        getLog().warn("No iconUrlPrefix defined or could be found via SCM in the pom.xml so cannot add an icon URL!");
+                    } else {
+                        String answer = URLUtils.pathJoin(urlPrefix, iconBranch, relativePath);
+                        getLog().info("icon url is: " + answer);
+                        return answer;
                     }
                 }
             }
