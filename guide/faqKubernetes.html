@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title>API Registry | Fabric8 Documentation</title>
+        <title>Kubernetes Questions | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.2">
@@ -20,10 +20,8 @@
         
     
     
-    <link rel="next" href="./fabric8MQ.html" />
     
-    
-    <link rel="prev" href="./ipaas.html" />
+    <link rel="prev" href="./faqGeneral.html" />
     
 
         
@@ -40,7 +38,7 @@
     
 
         
-    <div class="book" data-level="2.3.1" data-basepath="." data-revision="Thu May 21 2015 15:17:49 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2" data-basepath="." data-revision="Thu May 21 2015 15:17:49 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -234,7 +232,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="2.3.1" data-path="apiRegistry.html">
+        <li class="chapter " data-level="2.3.1" data-path="apiRegistry.html">
             
                 
                     <a href="./apiRegistry.html">
@@ -866,7 +864,7 @@
             
         </li>
     
-        <li class="chapter " data-level="8.2" data-path="faqKubernetes.html">
+        <li class="chapter active" data-level="8.2" data-path="faqKubernetes.html">
             
                 
                     <a href="./faqKubernetes.html">
@@ -989,21 +987,26 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="api-registry"><a name="api-registry" class="plugin-anchor" href="#api-registry"><span class="fa fa-link"></span></a>API Registry</h2>
-<p>The API Registry implements a highly available RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a global view of all of your RESTful and web service APIs.</p>
-<p>It currently discovers all <a href="http://swagger.io/" target="_blank">Swagger</a>, <a href="http://www.w3.org/Submission/wadl/" target="_blank">WADL</a> and <a href="http://www.w3.org/TR/wsdl" target="_blank">WSDL</a> contracts used by any <a href="http://cxf.apache.org/" target="_blank">Apache CXF</a> based REST or web services or any <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>. Any JVM is supported; so your CXF and Camel can be running inside Karaf, Tomcat, Wildfly or a vanilla JVM or Spring Boot etc.</p>
-<h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
-<p>For the API Registry to be able to discover the API contracts and endpoints then JMX must be enabled in your JVM (which it tends to be by default), then JMX needs to be enabled in CXF and Camel.</p>
-<p>In addition the JVM needs to expose its <a href="http://jolokia.org/" target="_blank">Jolokia port</a> which it does by default in the base container images used in in the various <a href="quickstarts.html">quickstarts</a>.</p>
-<p>For CXF you need to ensure that JMX is properly enabled and that the <strong>fabric-cxf</strong> library is included in your CXF application which adds the necessary JMX operations so that we can remotely discover the correct endpoints inside the JVM.</p>
-<h3 id="using-the-api-registry"><a name="using-the-api-registry" class="plugin-anchor" href="#using-the-api-registry"><span class="fa fa-link"></span></a>Using the API Registry</h3>
+                        <h3 id="kubernetes-questions"><a name="kubernetes-questions" class="plugin-anchor" href="#kubernetes-questions"><span class="fa fa-link"></span></a>Kubernetes Questions</h3>
+<h4 id="how-do-i-do-service-discovery"><a name="how-do-i-do-service-discovery" class="plugin-anchor" href="#how-do-i-do-service-discovery"><span class="fa fa-link"></span></a>How do I do service discovery?</h4>
+<p>Check the <a href="services.html#discovering-services-from-your-application">service discovery docs</a>.</p>
+<h4 id="how-do-i-browse-the-swagger-docs"><a name="how-do-i-browse-the-swagger-docs" class="plugin-anchor" href="#how-do-i-browse-the-swagger-docs"><span class="fa fa-link"></span></a>How do I browse the Swagger docs?</h4>
+<p>You can browse the Kubernetes REST API using the <a href="http://kubernetes.io/third_party/swagger-ui/" target="_blank">Swagger Site</a>.</p>
+<p>To browse the OpenShift Swagger docs for your installation:</p>
 <ul>
-<li>In the <a href="console.html">Console</a> click on the <strong>Library</strong> tab and then navigate into <strong>apps</strong> and then click on <strong>API Registry</strong></li>
-<li>Click on the <strong>Run</strong> button on the top right to run the <strong>API Registry</strong> service</li>
-<li>Now run any <a href="quickstart.html">Quickstart</a> which uses CXF REST or web services or the <strong>Camel Rest SQL</strong> quickstart.</li>
-<li>Wait a minute or so for everything to be up and running</li>
-<li>You should see a new <strong>APIs</strong> tab in the <a href="console.html">Console</a> click on it</li>
-<li>You should now see the <strong>API Console</strong> which lets you view, search and navigate to all the APIs defined in your environment for <a href="http://cxf.apache.org/" target="_blank">CXF</a> or <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>.</li>
+<li>open the swagger JSON URL for your OpenShift master in your browser<ul>
+<li>the URL is <a href="https://vagrant.local:8443/swaggerapi/" target="_blank">https://vagrant.local:8443/swaggerapi/</a> for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a></li>
+</ul>
+</li>
+<li>if your browser warns you about the certificate continue<ul>
+<li>in chrome: click <code>Advanced</code> then <code>Proceed to vagrant.local (unsafe)</code> </li>
+</ul>
+</li>
+<li>now open the <a href="http://kubernetes.io/third_party/swagger-ui/" target="_blank">Swagger Site</a> and copy the following URL and paste it into the text field at the top of the page to the right of <code>swagger</code></li>
+</ul>
+<pre><code>https://vagrant.local:8443/swaggerapi/
+</code></pre><ul>
+<li>hit return on the keyboard or click the <code>Explore</code> button and profit!</li>
 </ul>
 
                     
@@ -1015,10 +1018,8 @@
         </div>
 
         
-        <a href="./ipaas.html" class="navigation navigation-prev " aria-label="Previous page: iPaaS"><i class="fa fa-angle-left"></i></a>
+        <a href="./faqGeneral.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: General Questions"><i class="fa fa-angle-left"></i></a>
         
-        
-        <a href="./fabric8MQ.html" class="navigation navigation-next " aria-label="Next page: MQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
