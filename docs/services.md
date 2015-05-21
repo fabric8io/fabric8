@@ -14,7 +14,7 @@ Kubernetes uses 2 environment variables to expose the fixed IP address and port 
 
 So for a service named `foo-bar` you can use these 2 environment variables to access the service:
 
-* `FOO_BAR_SERVICE_HOST` is the host (IP) addresss of the service
+* `FOO_BAR_SERVICE_HOST` is the host (IP) address of the service
 * `FOO_BAR_SERVICE_PORT` is the port of the service
 
 e.g. you could access a web site or service via:
