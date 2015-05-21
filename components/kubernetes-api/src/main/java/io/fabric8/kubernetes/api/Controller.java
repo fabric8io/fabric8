@@ -31,7 +31,6 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
@@ -41,11 +40,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
+import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -254,14 +265,51 @@ public class Controller {
         }
     }
 
-    public void applyTemplate(Template entity, String sourceName) {
-        Object result = processTemplate(entity, sourceName);
-        if (result != null) {
-            try {
-                applyEntity(result, sourceName);
-            } catch (Exception e) {
-                onApplyError("Failed to apply result of template expansion from " + sourceName + ". " + e + ". " + result, e);
+    /**
+     * Creates/updates the template and processes it returning the processed DTOs
+     */
+    public Object applyTemplate(Template entity, String sourceName) throws Exception {
+        String namespace = getNamespace();
+        String id = getName(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
+        Template old = kubernetes.getTemplate(id, namespace);
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(entity, old)) {
+                LOG.info("Template hasn't changed so not doing anything");
+            } else {
+                boolean recreateMode = isRecreateMode();
+                // TODO seems you can't update templates right now
+                recreateMode = true;
+                if (recreateMode) {
+                    kubernetes.deleteTemplate(id, namespace);
+                    doCreateTemplate(entity, namespace, sourceName);
+                } else {
+                    LOG.info("Updating a entity from " + sourceName);
+                    try {
+                        Object answer = kubernetes.updateTemplate(id, entity, namespace);
+                        LOG.info("Updated entity: " + answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + entity, e);
+                    }
+                }
             }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a entity from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+            } else {
+                doCreateTemplate(entity, namespace, sourceName);
+            }
+        }
+        return processTemplate(entity, sourceName);
+    }
+
+    protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
+        LOG.info("Creating a template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+        try {
+            Object answer = kubernetes.createTemplate(entity, namespace);
+            LOG.info("Created template: " + answer);
+        } catch (Exception e) {
+            onApplyError("Failed to template entity from " + sourceName + ". " + e + ". " + entity, e);
         }
     }
 
@@ -272,7 +320,7 @@ public class Controller {
         LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
         Object result = null;
         try {
-            String json = kubernetes.createTemplate(entity, namespace);
+            String json = kubernetes.processTemplate(entity, namespace);
             LOG.info("Template processed into: " + json);
             result = loadJson(json);
             printSummary(result);
@@ -578,22 +626,7 @@ public class Controller {
         this.throwExceptionOnError = throwExceptionOnError;
     }
 
-    protected boolean isRunning(OAuthClient entity) {
-        return entity != null;
-    }
-
-    protected boolean isRunning(Pod entity) {
-        // TODO we could maybe ignore failed services?
-        return entity != null;
-    }
-
-    protected boolean isRunning(ReplicationController entity) {
-        // TODO we could maybe ignore failed services?
-        return entity != null;
-    }
-
-    protected boolean isRunning(Service entity) {
-        // TODO we could maybe ignore failed services?
+    protected boolean isRunning(HasMetadata entity) {
         return entity != null;
     }
 

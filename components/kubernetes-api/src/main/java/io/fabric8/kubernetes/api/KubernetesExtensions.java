@@ -36,7 +36,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 
 /**
  * Various Kubernetes extensions defined in the OpenShift project
@@ -49,7 +48,38 @@ public interface KubernetesExtensions {
     @POST
     @Path("processedtemplates")
     @Consumes("application/json")
-    String createTemplate(Template entity, @PathParam("namespace")  String namespace) throws Exception;
+    String processTemplate(Template entity, @PathParam("namespace") String namespace) throws Exception;
+
+
+/*
+    TODO uncomment when TemplateList is in the schema
+
+    @Path("templates")
+    @GET
+    @Produces("application/json")
+    TemplateList getTemplates(@PathParam("namespace") String namespace);
+*/
+
+    @Path("templates")
+    @POST
+    @Consumes("application/json")
+    String createTemplate(Template entity, @PathParam("namespace") String namespace) throws Exception;
+
+    @GET
+    @Path("templates/{name}")
+    @Produces("application/json")
+    Template getTemplate(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace);
+
+    @PUT
+    @Path("templates/{name}")
+    @Consumes("application/json")
+    String updateTemplate(@PathParam("name") @NotNull String name, Template entity, @PathParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("templates/{name}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    String deleteTemplate(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace) throws Exception;
 
 
     // Routes

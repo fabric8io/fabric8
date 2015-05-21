@@ -131,7 +131,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 Template template = (Template) dto;
                 KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
                 overrideTemplateParameters(template);
-                dto = controller.processTemplate(template, fileName);
+                dto = controller.applyTemplate(template, fileName);
             }
             List<HasMetadata> list = KubernetesHelper.toItemList(dto);
             if (createRoutes) {

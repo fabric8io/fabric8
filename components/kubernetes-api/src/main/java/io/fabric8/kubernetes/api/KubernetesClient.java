@@ -72,9 +72,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -715,11 +712,61 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     @POST
-    @Path("templateConfigs")
+    @Path("templates")
+    @Consumes("application/json")
+    public String processTemplate(Template entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        return getKubernetesExtensions().processTemplate(entity, namespace);
+    }
+
+    @Override
+    @Path("templates")
+    @POST
     @Consumes("application/json")
     public String createTemplate(Template entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
         return getKubernetesExtensions().createTemplate(entity, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("templates/{name}")
+    @Produces("application/json")
+    public Template getTemplate(final @NotNull String name, final String namespace) {
+        return handle404ByReturningNull(new Callable<Template>() {
+            @Override
+            public Template call() throws Exception {
+                return getKubernetesExtensions().getTemplate(name, namespace);
+            }
+        });
+    }
+
+    @Override
+    @PUT
+    @Path("templates/{name}")
+    @Consumes("application/json")
+    public String updateTemplate(@NotNull String name, Template entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        if (!KubernetesHelper.hasResourceVersion(entity)) {
+            // lets load it from the oldEntity
+            ReplicationController oldEntity = getReplicationController(name, namespace);
+            if (oldEntity == null) {
+                // no entity exists so lets create a new one
+                return createTemplate(entity, namespace);
+            }
+            String resourceVersion = KubernetesHelper.getResourceVersion(oldEntity);
+            KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+        }
+        return getKubernetesExtensions().updateTemplate(name, entity, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("templates/{name}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    public String deleteTemplate(@NotNull String name, String namespace) throws Exception {
+        return getKubernetesExtensions().deleteTemplate(name, namespace);
     }
 
     @Override
