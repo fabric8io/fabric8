@@ -10,11 +10,15 @@ The easiest way to work with fabric8 and OpenShift is via the fabric8 vagrant im
 
 ### If you are on a linux
 
-If you are on linux and want to install OpenShift by hand then follow these instructions:
+If you are on linux and want to install OpenShift without Vagrant then follow these instructions:
 
 * [Use the OpenShift Origin Installation documentation](http://docs.openshift.org/latest/getting_started/dev_get_started/installation.html)
 
 Here are our additional [tips on installing OpenShift on Linux](openShiftInstall.html) from the release distro.
+
+Now make sure you've configured OpenShift:
+
+* [OpenShift Requirements](openShiftRequirements.html)
 
 ### Setup your local machine
 

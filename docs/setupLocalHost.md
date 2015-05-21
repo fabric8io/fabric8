@@ -28,4 +28,14 @@ The following environment variables are useful. The following are for the [fabri
 
 
 
+#### Adding entries in /etc/hosts
+
+This step is optional but if you are running the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and don't have a wildcard DNS entry setup for `*.vagrant.local` then you might want to add an entry in your `/etc/hosts` file so that you can access services via their routes.
+
+		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
+
+Where `172.28.128.4` is the IP address of your OpenShift master (which it is for the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html)) 
+
+e.g. if you [Install Fabric8 on OpenShift](fabric8OnOpenShift.html) then you should be able to access the console at [http://fabric8.vagrant.local/](http://fabric8.vagrant.local/)
+
 

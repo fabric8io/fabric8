@@ -49,3 +49,9 @@ Now you can run the router (haproxy to expose services publically) and registry 
 ./osadm router --create --credentials=openshift.local.config/master/openshift-router.kubeconfig
 ./osadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
 ```
+
+### Configure OpenShift
+
+Now make sure you've configured OpenShift to be able to [Install Fabric8 on OpenShift](fabric8OnOpenShift.html):
+
+* [OpenShift Requirements](openShiftRequirements.html)

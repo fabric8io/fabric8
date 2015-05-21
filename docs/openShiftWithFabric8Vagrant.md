@@ -67,4 +67,10 @@ sudo route -n add 172.0.0.0/8 172.28.128.4
 
 The last command makes it easier to see IP address created on the vagrant box
 
+### Now setup your development machine
+
+Once the vagrant image is running you'll have OpenShift up and configured. 
+
+Now [Setup your local machine](setupLocalHost.html) so that your host operating system is setup to work with the vagrant image.
+
 

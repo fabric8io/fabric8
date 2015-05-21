@@ -4,46 +4,9 @@
 
 ### Requirements
 
-* Fabric8 currently requires [OpenShift V3 0.5.1 or later](http://www.openshift.org/).
-* For [osc and osadm](https://github.com/openshift/origin/blob/master/docs/cli.md) to be in your `PATH`
-
-#### Added roles
-
-The following commands assume you are on the OpenShift master machine in a folder containing the `openshift.local.config` directory:
-
-* Enable the `cluster-admin` role to user `admin`
-
-```
-osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.local.config/master/admin.kubeconfig
-```
-
-#### Added secrets
-
-* each namespace you wish to install fabric8 into typically requires the `openshift-cert-secrets`
-
-
-You'll also need to login and switch to the correct project (namespace):
-
-```
-osc login
-osc project default
-```
-
-Then run this command:
-
-```
-cat <<EOF | osc create -f -
----
-	apiVersion: "v1beta3"
-	kind: "Secret"
-	metadata:
-		name: "openshift-cert-secrets"                                                                                                                                                          
-	data:
-		root-cert: "$(base64 -w 0 openshift.local.config/master/ca.crt)"
-		admin-cert: "$(base64 -w 0 openshift.local.config/master/admin.crt)"
-		admin-key: "$(base64 -w 0 openshift.local.config/master/admin.key)"
-EOF
-```
+These instructions assume that you have 
+* [Setup OpenShift](setupOpenShift.html) with version [OpenShift V3 0.5.1 or later](http://www.openshift.org/). We recommend using [Fabric8 Vagrant Image](openShiftWithFabric8Vagrant.html)
+* [Setup your local machine to talk to OpenShift](setupLocalHost.html) 
 
 #### Setup domain
 
@@ -177,3 +140,4 @@ e.g. if your IP address for the OpenShift master/router is `172.28.128.4` (which
 
 		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
 
+You should now be able to access the console at [http://fabric8.vagrant.local/](http://fabric8.vagrant.local/)
