@@ -397,4 +397,22 @@ public class Strings {
         };
     }
 
+    /**
+     * Replaces all occurrencies of the from text with to text without any regular expressions
+     */
+    public static String replaceAllWithoutRegex(String text, String from, String to) {
+        if (text == null) {
+            return null;
+        }
+        int idx = 0;
+        while (true) {
+            idx = text.indexOf(from, 0);
+            if (idx >= 0) {
+                text = text.substring(0, idx) + to + text.substring(idx + from.length());
+            } else {
+                break;
+            }
+        }
+        return text;
+    }
 }

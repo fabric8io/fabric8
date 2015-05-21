@@ -232,4 +232,11 @@ public class StringsTest {
     }
 
 
+    @Test
+    public void testReplaceAllWithoutRegex() throws Exception {
+        assertEquals("bar-123-bar-bar", Strings.replaceAllWithoutRegex("foo-123-foo-foo", "foo","bar"));
+        assertEquals("-barbar-", Strings.replaceAllWithoutRegex("-foofoo-", "foo","bar"));
+    }
+
+
 }

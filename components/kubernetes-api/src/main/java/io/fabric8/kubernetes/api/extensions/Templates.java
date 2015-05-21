@@ -186,16 +186,19 @@ public class Templates {
                     KubernetesHelper.toJson(objects) +
                     " }";
 
-            for (Parameter parameter : parameters) {
-                String name = parameter.getName();
-                String regex = "\\$\\{" + name + "\\}";
-                String value = parameter.getValue();
+            // lets make a few passes in case there's expressions in values
+            for (int i = 0; i < 5; i++) {
+                for (Parameter parameter : parameters) {
+                    String name = parameter.getName();
+                    String regex = "\\$\\{" + name + "\\}";
+                    String value = parameter.getValue();
 
-                // TODO generate random strings for passwords etc!
-                if (Strings.isNullOrBlank(value)) {
-                    throw new IllegalArgumentException("No value available for parameter name: " + name);
+                    // TODO generate random strings for passwords etc!
+                    if (Strings.isNullOrBlank(value)) {
+                        throw new IllegalArgumentException("No value available for parameter name: " + name);
+                    }
+                    json = Strings.replaceAllWithoutRegex(json, regex, value);
                 }
-                json = json.replaceAll(regex, value);
             }
             return createObjectMapper().reader(KubernetesList.class).readValue(json);
         } else {
