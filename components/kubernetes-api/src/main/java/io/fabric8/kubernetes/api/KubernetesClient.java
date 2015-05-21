@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
+import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -49,10 +50,12 @@ import io.fabric8.openshift.api.model.ImageStreamList;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.WebHookTrigger;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -73,6 +76,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -699,6 +703,49 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public String createRoute(Route entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
         return getKubernetesExtensions().createRoute(entity, namespace);
+    }
+
+    /**
+     * Temporary workaround for 0.4.x of Openshift not having osapi/v1beta3
+     * @param entity
+     * @param namespace
+     */
+    public void createRouteOldAPi(Route entity, String namespace) {
+        validateNamespace(namespace, entity);
+
+        WebClient webClient = getFactory(true).createWebClient();
+        String name = getName(entity);
+        RouteSpec spec = entity.getSpec();
+        String host = null;
+        String serviceName = null;
+        if (spec != null) {
+            host = spec.getHost();
+            ObjectReference to = spec.getTo();
+            if (to != null) {
+                serviceName = to.getName();
+            }
+        }
+        if (Strings.isNullOrBlank(host)) {
+            throw new IllegalArgumentException("No host defined!");
+        }
+        if (Strings.isNullOrBlank(serviceName)) {
+            throw new IllegalArgumentException("No to.name defined!");
+        }
+        String json = "{ \"kind\": \"Route\", \"apiVersion\": \"v1beta1\",  \"metadata\": { \"name\": \"" + name + "\"}, \"host\": \"" + host + "\", \"serviceName\": \"" + serviceName + "\"}";
+        System.out.println("Posting JSON: " + json);
+        Response response = webClient.path("/osapi/v1beta1/routes").query("namespace", namespace).post(json);
+        Object responseEntity = response.getEntity();
+        if (responseEntity instanceof InputStream) {
+            InputStream inputStream = (InputStream) responseEntity;
+            try {
+                responseEntity = IOHelpers.readFully(inputStream);
+            } catch (IOException e) {
+                LOG.error("Failed to parse response: " + e, e);
+            }
+        }
+        System.out.println("Result: " + responseEntity);
+        int status = response.getStatus();
+        System.out.println("Posted and got result: " + status);
     }
 
     @Override

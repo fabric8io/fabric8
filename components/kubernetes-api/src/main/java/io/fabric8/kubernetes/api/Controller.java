@@ -389,13 +389,11 @@ public class Controller {
                 if (e.getResponse().getStatus() == 404) {
                     // could be OpenShift 0.4.x which has the old style REST API - lets try that...
                     LOG.warn("Got a 404 - could be an old Kubernetes/OpenShift environment - lets try the old style REST API...");
-/*
                     try {
                         kubernetes.createRouteOldAPi(entity, namespace);
                     } catch (Exception e1) {
                         onApplyError("Failed to create Route from " + sourceName + ". " + e1 + ". " + entity, e1);
                     }
-*/
                 } else {
                     onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
                 }
