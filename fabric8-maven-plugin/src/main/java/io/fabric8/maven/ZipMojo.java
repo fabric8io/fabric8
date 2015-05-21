@@ -15,15 +15,11 @@
  */
 package io.fabric8.maven;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,7 +27,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -244,19 +239,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
         if (hasConfigDir() || !ignoreProject) {
 
             if (includeReadMe) {
-                copyReadMe(project.getFile().getParentFile(), appBuildDir);
+                copyReadMe(appBuildDir);
             }
 
             if (generateSummaryFile) {
-                String description = project.getDescription();
-                if (Strings.isNotBlank(description)) {
-                    File summaryMd = new File(appBuildDir, "Summary.md");
-                    summaryMd.getParentFile().mkdirs();
-                    if (!summaryMd.exists()) {
-                        byte[] bytes = description.getBytes();
-                        Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
-                    }
-                }
+                copySummaryText(appBuildDir);
             }
 
             if (generateAppPropertiesFile) {
@@ -511,23 +498,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
         } else {
             return hasAncestor(root, target.getParent());
         }
-    }
-
-    private static File copyReadMe(File src, File appBuildDir) throws IOException {
-        File[] files = src.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
-            }
-        });
-        if (files != null && files.length == 1) {
-            File readme = files[0];
-            File outFile = new File(appBuildDir, readme.getName());
-            Files.copy(readme, outFile);
-            return outFile;
-        }
-
-        return null;
     }
 
     private static String getReadMeFileKey(String relativePath) {

@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -113,6 +115,23 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
     private String[] filesToBeExcluded;
+
+    protected static File copyReadMe(File src, File appBuildDir) throws IOException {
+        File[] files = src.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
+            }
+        });
+        if (files != null && files.length == 1) {
+            File readme = files[0];
+            File outFile = new File(appBuildDir, readme.getName());
+            Files.copy(readme, outFile);
+            return outFile;
+        }
+
+        return null;
+    }
 
     public MavenProject getProject() {
         return project;
@@ -337,5 +356,23 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         List excludedFilesList = Arrays.asList(filesToBeExcluded);
         Boolean result = excludedFilesList.contains(fileName);
         return result;
+    }
+
+    protected void copyReadMe(File appBuildDir) throws IOException {
+        MavenProject project = getProject();
+        copyReadMe(project.getFile().getParentFile(), appBuildDir);
+    }
+
+    protected void copySummaryText(File appBuildDir) throws IOException {
+        MavenProject project = getProject();
+        String description = project.getDescription();
+        if (Strings.isNotBlank(description)) {
+            File summaryMd = new File(appBuildDir, "Summary.md");
+            summaryMd.getParentFile().mkdirs();
+            if (!summaryMd.exists()) {
+                byte[] bytes = description.getBytes();
+                Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
+            }
+        }
     }
 }

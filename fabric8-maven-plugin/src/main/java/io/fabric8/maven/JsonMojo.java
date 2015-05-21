@@ -78,6 +78,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
@@ -194,10 +195,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private File kubernetesExtraJson;
 
     /**
-     * Tempoary directory used for resolving icons
+     * Temporary directory used for creating the template annotations
      */
-    @Parameter(property = "fabric8.iconTempDir", defaultValue = "${basedir}/target/fabric8/icons")
-    private File iconTempDir;
+    @Parameter(property = "fabric8.templateTempDir", defaultValue = "${basedir}/target/fabric8/template-workdir")
+    private File templateTempDir;
 
     /**
      * The URL to use to link to the icon in the generated Template
@@ -572,10 +573,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String iconUrl = getIconUrl();
         boolean hasUrl = Strings.isNotBlank(iconUrl);
         if (!template.getParameters().isEmpty() || hasUrl) {
+            Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
             if (hasUrl) {
-                Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
-                annotations.put("fabric8/iconUrl", iconUrl);
+                annotations.put(AnnotationKeys.ICON_URL, iconUrl);
             }
+            addDocumentationAnnotations(template, annotations);
+
             builder = builder.addToTemplates(template);
         }
 
@@ -593,6 +596,33 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
+    protected void addDocumentationAnnotations(Template template, Map<String, String> annotations) {
+        try {
+            copyReadMe(templateTempDir);
+            copySummaryText(templateTempDir);
+        } catch (IOException e) {
+            getLog().warn("Failed to copy documentation: " + e, e);
+        }
+        File readme = new File(templateTempDir, "ReadMe.md");
+        File summary = new File(templateTempDir, "Summary.md");
+        if (readme.exists() && readme.isFile()) {
+            try {
+                String text = Files.toString(readme);
+                annotations.put(AnnotationKeys.DESCRIPTION, text);
+            } catch (IOException e) {
+                getLog().warn("Failed to load " + readme + ". " + e, e);
+            }
+        }
+        if (summary.exists() && summary.isFile()) {
+            try {
+                String text = Files.toString(summary);
+                annotations.put(AnnotationKeys.SUMMARY, text);
+            } catch (IOException e) {
+                getLog().warn("Failed to load " + summary + ". " + e, e);
+            }
+        }
+    }
+
     /**
      * Generate a URL for the icon.
      *
@@ -603,15 +633,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String answer = iconUrl;
         if (Strings.isNullOrBlank(answer)) {
             try {
-                if (iconTempDir != null) {
-                    iconTempDir.mkdirs();
-                    File iconFile = copyIconToFolder(iconTempDir);
+                if (templateTempDir != null) {
+                    templateTempDir.mkdirs();
+                    File iconFile = copyIconToFolder(templateTempDir);
                     if (iconFile == null) {
-                        copyAppConfigFiles(iconTempDir, appConfigDir);
+                        copyAppConfigFiles(templateTempDir, appConfigDir);
 
                         // lets find the icon file...
                         for (String ext : ICON_EXTENSIONS) {
-                            File file = new File(iconTempDir, "icon" + ext);
+                            File file = new File(templateTempDir, "icon" + ext);
                             if (file.exists() && file.isFile()) {
                                 iconFile = file;
                                 break;
