@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -74,6 +76,7 @@ public class Controller {
     private boolean servicesOnlyMode;
     private boolean ignoreServiceMode;
     private boolean ignoreRunningOAuthClients = true;
+    private boolean processTemplatesLocally;
 
     public Controller() {
         this(new KubernetesClient());
@@ -269,35 +272,37 @@ public class Controller {
      * Creates/updates the template and processes it returning the processed DTOs
      */
     public Object applyTemplate(Template entity, String sourceName) throws Exception {
-        String namespace = getNamespace();
-        String id = getName(entity);
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        Template old = kubernetes.getTemplate(id, namespace);
-        if (isRunning(old)) {
-            if (UserConfigurationCompare.configEqual(entity, old)) {
-                LOG.info("Template hasn't changed so not doing anything");
-            } else {
-                boolean recreateMode = isRecreateMode();
-                // TODO seems you can't update templates right now
-                recreateMode = true;
-                if (recreateMode) {
-                    kubernetes.deleteTemplate(id, namespace);
-                    doCreateTemplate(entity, namespace, sourceName);
+        if (!isProcessTemplatesLocally()) {
+            String namespace = getNamespace();
+            String id = getName(entity);
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            Template old = kubernetes.getTemplate(id, namespace);
+            if (isRunning(old)) {
+                if (UserConfigurationCompare.configEqual(entity, old)) {
+                    LOG.info("Template hasn't changed so not doing anything");
                 } else {
-                    LOG.info("Updating a entity from " + sourceName);
-                    try {
-                        Object answer = kubernetes.updateTemplate(id, entity, namespace);
-                        LOG.info("Updated entity: " + answer);
-                    } catch (Exception e) {
-                        onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + entity, e);
+                    boolean recreateMode = isRecreateMode();
+                    // TODO seems you can't update templates right now
+                    recreateMode = true;
+                    if (recreateMode) {
+                        kubernetes.deleteTemplate(id, namespace);
+                        doCreateTemplate(entity, namespace, sourceName);
+                    } else {
+                        LOG.info("Updating a entity from " + sourceName);
+                        try {
+                            Object answer = kubernetes.updateTemplate(id, entity, namespace);
+                            LOG.info("Updated entity: " + answer);
+                        } catch (Exception e) {
+                            onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + entity, e);
+                        }
                     }
                 }
-            }
-        } else {
-            if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating a entity from " + sourceName + " namespace " + namespace + " name " + getName(entity));
             } else {
-                doCreateTemplate(entity, namespace, sourceName);
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating a entity from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+                } else {
+                    doCreateTemplate(entity, namespace, sourceName);
+                }
             }
         }
         return processTemplate(entity, sourceName);
@@ -314,20 +319,29 @@ public class Controller {
     }
 
     public Object processTemplate(Template entity, String sourceName) {
-        String id = getName(entity);
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
-        LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
-        Object result = null;
-        try {
-            String json = kubernetes.processTemplate(entity, namespace);
-            LOG.info("Template processed into: " + json);
-            result = loadJson(json);
-            printSummary(result);
-        } catch (Exception e) {
-            onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
+        if (isProcessTemplatesLocally()) {
+            try {
+                return Templates.processTemplatesLocally(entity);
+            } catch (IOException e) {
+                onApplyError("Failed to process template " + sourceName + ". " + e + ". " + entity, e);
+                return null;
+            }
+        } else {
+            String id = getName(entity);
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            String namespace = KubernetesHelper.getNamespace(entity);
+            LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
+            Object result = null;
+            try {
+                String json = kubernetes.processTemplate(entity, namespace);
+                LOG.info("Template processed into: " + json);
+                result = loadJson(json);
+                printSummary(result);
+            } catch (Exception e) {
+                onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
+            }
+            return result;
         }
-        return result;
     }
 
 
@@ -371,8 +385,22 @@ public class Controller {
             try {
                 LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
                 kubernetes.createRoute(entity, namespace);
+            } catch (WebApplicationException e) {
+                if (e.getResponse().getStatus() == 404) {
+                    // could be OpenShift 0.4.x which has the old style REST API - lets try that...
+                    LOG.warn("Got a 404 - could be an old Kubernetes/OpenShift environment - lets try the old style REST API...");
+/*
+                    try {
+                        kubernetes.createRouteOldAPi(entity, namespace);
+                    } catch (Exception e1) {
+                        onApplyError("Failed to create Route from " + sourceName + ". " + e1 + ". " + entity, e1);
+                    }
+*/
+                } else {
+                    onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
+                }
             } catch (Exception e) {
-                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
+                onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
             }
         }
     }
@@ -624,6 +652,14 @@ public class Controller {
 
     public void setThrowExceptionOnError(boolean throwExceptionOnError) {
         this.throwExceptionOnError = throwExceptionOnError;
+    }
+
+    public boolean isProcessTemplatesLocally() {
+        return processTemplatesLocally;
+    }
+
+    public void setProcessTemplatesLocally(boolean processTemplatesLocally) {
+        this.processTemplatesLocally = processTemplatesLocally;
     }
 
     protected boolean isRunning(HasMetadata entity) {

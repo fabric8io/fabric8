@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.api.extensions;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.openshift.api.model.template.Parameter;
@@ -24,7 +25,14 @@ import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
 
 /**
  * Helper class for working with OpenShift Templates
@@ -156,6 +164,44 @@ public class Templates {
             if (missingProperty) {
                 LOG.debug("current properties " + new TreeSet<>(properties.keySet()));
             }
+        }
+    }
+
+    /**
+     * Lets locally process the templates so that we can process templates on any kubernetes environment
+     */
+    public static KubernetesList processTemplatesLocally(Template entity) throws IOException {
+        List<HasMetadata> objects = null;
+        if (entity != null) {
+            objects = entity.getObjects();
+            if (objects == null || objects.isEmpty()) {
+                return null;
+            }
+        }
+        List<Parameter> parameters = entity.getParameters();
+        if (parameters != null && !parameters.isEmpty()) {
+            String json = "{\"kind\": \"List\", \"apiVersion\": \"" +
+                    KubernetesHelper.defaultApiVersion + "\",\n" +
+                    "  \"items\": " +
+                    KubernetesHelper.toJson(objects) +
+                    " }";
+
+            for (Parameter parameter : parameters) {
+                String name = parameter.getName();
+                String regex = "\\$\\{" + name + "\\}";
+                String value = parameter.getValue();
+
+                // TODO generate random strings for passwords etc!
+                if (Strings.isNullOrBlank(value)) {
+                    throw new IllegalArgumentException("No value available for parameter name: " + name);
+                }
+                json = json.replaceAll(regex, value);
+            }
+            return createObjectMapper().reader(KubernetesList.class).readValue(json);
+        } else {
+            KubernetesList answer = new KubernetesList();
+            answer.setItems(objects);
+            return answer;
         }
     }
 }

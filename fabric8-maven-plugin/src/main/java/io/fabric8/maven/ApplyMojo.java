@@ -83,6 +83,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean ignoreServices;
 
     /**
+     * Process templates locally in Java so that we can apply OpenShift templates on any Kubernetes environment
+     */
+    @Parameter(property = "fabric8.apply.processTemplatesLocally", defaultValue = "false")
+    private boolean processTemplatesLocally;
+
+    /**
      * Do we want to ignore OAuthClients which are already running?. OAuthClients are shared across namespaces
      * so we should not try to update or create/delete global oauth clients
      */
@@ -126,6 +132,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setServicesOnlyMode(servicesOnly);
             controller.setIgnoreServiceMode(ignoreServices);
             controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
+            controller.setProcessTemplatesLocally(processTemplatesLocally);
 
             if (dto instanceof Template) {
                 Template template = (Template) dto;
