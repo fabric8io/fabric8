@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Thu May 21 2015 12:03:17 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Thu May 21 2015 13:38:03 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -336,30 +336,30 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.2.1" data-path="openShiftInstall.html">
+        <li class="chapter " data-level="3.2.1" data-path="openShiftWithFabric8Vagrant.html">
             
                 
-                    <a href="./openShiftInstall.html">
+                    <a href="./openShiftWithFabric8Vagrant.html">
                         <i class="fa fa-check"></i>
                         
                             <b>3.2.1.</b>
                         
-                        Install on Linux
+                        Fabric8 vagrant image
                     </a>
                 
             
             
         </li>
     
-        <li class="chapter " data-level="3.2.2" data-path="openShiftWithFabric8Vagrant.html">
+        <li class="chapter " data-level="3.2.2" data-path="openShiftInstall.html">
             
                 
-                    <a href="./openShiftWithFabric8Vagrant.html">
+                    <a href="./openShiftInstall.html">
                         <i class="fa fa-check"></i>
                         
                             <b>3.2.2.</b>
                         
-                        Fabric8 vagrant box
+                        Install on Linux
                     </a>
                 
             
@@ -977,36 +977,12 @@
                         <h2 id="install-fabric8-on-openshift"><a name="install-fabric8-on-openshift" class="plugin-anchor" href="#install-fabric8-on-openshift"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
 <p><a href="fabric8Apps.html">Fabric8 apps</a> have been packaged to make them easy to install on OpenShift.</p>
 <h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
+<p>These instructions assume that you have </p>
 <ul>
-<li>Fabric8 currently requires <a href="http://www.openshift.org/" target="_blank">OpenShift V3 0.5.1 or later</a>.</li>
-<li>For <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc and osadm</a> to be in your <code>PATH</code></li>
+<li><a href="setupOpenShift.html">Setup OpenShift</a> with version <a href="http://www.openshift.org/" target="_blank">OpenShift V3 0.5.1 or later</a>. We recommend using <a href="openShiftWithFabric8Vagrant.html">Fabric8 Vagrant Image</a></li>
+<li><a href="setupLocalHost.html">Setup your local machine to talk to OpenShift</a> </li>
 </ul>
-<h4 id="added-roles"><a name="added-roles" class="plugin-anchor" href="#added-roles"><span class="fa fa-link"></span></a>Added roles</h4>
-<p>The following commands assume you are on the OpenShift master machine in a folder containing the <code>openshift.local.config</code> directory:</p>
-<ul>
-<li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
-</ul>
-<pre><code>osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.local.config/master/admin.kubeconfig
-</code></pre><h4 id="added-secrets"><a name="added-secrets" class="plugin-anchor" href="#added-secrets"><span class="fa fa-link"></span></a>Added secrets</h4>
-<ul>
-<li>each namespace you wish to install fabric8 into typically requires the <code>openshift-cert-secrets</code></li>
-</ul>
-<p>You&apos;ll also need to login and switch to the correct project (namespace):</p>
-<pre><code>osc login
-osc project default
-</code></pre><p>Then run this command:</p>
-<pre><code>cat &lt;&lt;EOF | osc create -f -
----
-    apiVersion: &quot;v1beta3&quot;
-    kind: &quot;Secret&quot;
-    metadata:
-        name: &quot;openshift-cert-secrets&quot;                                                                                                                                                          
-    data:
-        root-cert: &quot;$(base64 -w 0 openshift.local.config/master/ca.crt)&quot;
-        admin-cert: &quot;$(base64 -w 0 openshift.local.config/master/admin.crt)&quot;
-        admin-key: &quot;$(base64 -w 0 openshift.local.config/master/admin.key)&quot;
-EOF
-</code></pre><h4 id="setup-domain"><a name="setup-domain" class="plugin-anchor" href="#setup-domain"><span class="fa fa-link"></span></a>Setup domain</h4>
+<h4 id="setup-domain"><a name="setup-domain" class="plugin-anchor" href="#setup-domain"><span class="fa fa-link"></span></a>Setup domain</h4>
 <ul>
 <li>setup the <strong>KUBERNETES_DOMAIN</strong> environment variable for the domain you are installing to. Usually this is a host name or domain name.</li>
 </ul>
@@ -1080,7 +1056,8 @@ EOF
 </code></pre><p>You could then setup a wildcard DNS rule on <code>*.$KUBERNETES_DOMAIN</code> to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your <code>/etc/hosts</code> file for each service.</p>
 <p>e.g. if your IP address for the OpenShift master/router is <code>172.28.128.4</code> (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>) then add this to your <code>/etc/hosts</code> to expose the routes as host names:</p>
 <pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
-</code></pre>
+</code></pre><p>You should now be able to access the console at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
+
                     
                     </section>
                 

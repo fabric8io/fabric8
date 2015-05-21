@@ -20,10 +20,10 @@
         
     
     
-    <link rel="next" href="./openShiftWithFabric8Vagrant.html" />
+    <link rel="next" href="./setupLocalHost.html" />
     
     
-    <link rel="prev" href="./setupOpenShift.html" />
+    <link rel="prev" href="./openShiftWithFabric8Vagrant.html" />
     
 
         
@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu May 21 2015 12:03:17 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Thu May 21 2015 13:38:03 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -336,30 +336,30 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="3.2.1" data-path="openShiftInstall.html">
+        <li class="chapter " data-level="3.2.1" data-path="openShiftWithFabric8Vagrant.html">
             
                 
-                    <a href="./openShiftInstall.html">
+                    <a href="./openShiftWithFabric8Vagrant.html">
                         <i class="fa fa-check"></i>
                         
                             <b>3.2.1.</b>
                         
-                        Install on Linux
+                        Fabric8 vagrant image
                     </a>
                 
             
             
         </li>
     
-        <li class="chapter " data-level="3.2.2" data-path="openShiftWithFabric8Vagrant.html">
+        <li class="chapter active" data-level="3.2.2" data-path="openShiftInstall.html">
             
                 
-                    <a href="./openShiftWithFabric8Vagrant.html">
+                    <a href="./openShiftInstall.html">
                         <i class="fa fa-check"></i>
                         
                             <b>3.2.2.</b>
                         
-                        Fabric8 vagrant box
+                        Install on Linux
                     </a>
                 
             
@@ -1001,7 +1001,12 @@ ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/c
 </code></pre><p>Now you can run the router (haproxy to expose services publically) and registry (docker registry):</p>
 <pre><code>./osadm router --create --credentials=openshift.local.config/master/openshift-router.kubeconfig
 ./osadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
-</code></pre>
+</code></pre><h3 id="configure-openshift"><a name="configure-openshift" class="plugin-anchor" href="#configure-openshift"><span class="fa fa-link"></span></a>Configure OpenShift</h3>
+<p>Now make sure you&apos;ve configured OpenShift to be able to <a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift</a>:</p>
+<ul>
+<li><a href="openShiftRequirements.html">OpenShift Requirements</a></li>
+</ul>
+
                     
                     </section>
                 
@@ -1011,10 +1016,10 @@ ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/c
         </div>
 
         
-        <a href="./setupOpenShift.html" class="navigation navigation-prev " aria-label="Previous page: Setup OpenShift V3"><i class="fa fa-angle-left"></i></a>
+        <a href="./openShiftWithFabric8Vagrant.html" class="navigation navigation-prev " aria-label="Previous page: Fabric8 vagrant image"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./openShiftWithFabric8Vagrant.html" class="navigation navigation-next " aria-label="Next page: Fabric8 vagrant box"><i class="fa fa-angle-right"></i></a>
+        <a href="./setupLocalHost.html" class="navigation navigation-next " aria-label="Next page: Setup your local machine"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
