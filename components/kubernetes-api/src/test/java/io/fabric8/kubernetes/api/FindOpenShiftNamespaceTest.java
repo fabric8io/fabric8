@@ -16,7 +16,7 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.utils.Strings;
+import io.fabric8.kubernetes.api.extensions.Configs;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,13 +26,17 @@ public class FindOpenShiftNamespaceTest {
 
     @Test
     public void testFindsCorrectOpenShiftNamespace() throws Exception {
-        String basedir = System.getProperty("basedir", ".");
-        String configFile = basedir + "/src/test/resources/config.yml";
-
-        System.setProperty(KubernetesFactory.OPENSHIFT_CONFIG_FILE_PROPERTY, configFile);
+        setOPenShfitConfigFileProperty();
         String namespace = KubernetesClient.findDefaultOpenShiftNamespace();
 
         assertEquals("default namespace", "jimmi-does-rock", namespace);
+    }
+
+    public static void setOPenShfitConfigFileProperty() {
+        String basedir = System.getProperty("basedir", ".");
+        String configFile = basedir + "/src/test/resources/config.yml";
+
+        System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY, configFile);
     }
 
 }

@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
@@ -25,11 +26,8 @@ import io.fabric8.kubernetes.api.model.ContainerStateRunning;
 import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
 import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -45,10 +43,6 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -213,6 +207,26 @@ public class KubernetesHelper {
         } else {
             return null;
         }
+    }
+
+    public static Map<String, String> getOrCreateAnnotations(HasMetadata entity) {
+        ObjectMeta metadata = getOrCreateMetadata(entity);
+        Map<String, String> answer = metadata.getAnnotations();
+        if (answer == null) {
+            answer = new HashMap<>();
+            metadata.setAnnotations(answer);
+        }
+        return answer;
+    }
+
+    public static Map<String, String> getOrCreateLabels(HasMetadata entity) {
+        ObjectMeta metadata = getOrCreateMetadata(entity);
+        Map<String, String> answer = metadata.getLabels();
+        if (answer == null) {
+            answer = new HashMap<>();
+            metadata.setLabels(answer);
+        }
+        return answer;
     }
 
 
@@ -382,6 +396,30 @@ public class KubernetesHelper {
         return null;
     }
 
+
+    /**
+     * Loads the YAML file for the given DTO class
+     */
+    public static <T> T loadYaml(InputStream in, Class<T> clazz) throws IOException {
+        byte[] data = Files.readBytes(in);
+        return loadYaml(data, clazz);
+    }
+
+    /**
+     * Loads the YAML file for the given DTO class
+     */
+    public static <T> T loadYaml(File file, Class<T> clazz) throws IOException {
+        byte[] data = Files.readBytes(file);
+        return loadYaml(data, clazz);
+    }
+
+    /**
+     * Loads the YAML file for the given DTO class
+     */
+    public static <T> T loadYaml(byte[] data, Class<T> clazz) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        return mapper.readValue(data, clazz);
+    }
 
     /**
      * Loads the Kubernetes JSON and converts it to a list of entities
@@ -1614,5 +1652,4 @@ public class KubernetesHelper {
             return answer;
         }
     }
-
 }

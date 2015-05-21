@@ -100,6 +100,9 @@ users:
 - name: admin
   user:
     token: ABC
+- name: admin-10
+  user:
+    token: ExpectedToken
 - name: admin-0
   user:
     token: DEF

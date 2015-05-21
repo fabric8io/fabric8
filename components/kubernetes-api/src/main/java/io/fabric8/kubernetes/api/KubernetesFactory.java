@@ -20,7 +20,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.config.Config;
+import io.fabric8.kubernetes.api.model.config.Context;
 import io.fabric8.kubernetes.api.support.KindToClassMapping;
 import io.fabric8.kubernetes.api.support.KubernetesDeserializer;
 import io.fabric8.openshift.api.model.OAuthClient;
@@ -47,7 +50,6 @@ import java.util.Map;
  */
 public class KubernetesFactory {
     public static final String KUBERNETES_SCHEMA_JSON = "schema/kube-schema.json";
-    public static final String OPENSHIFT_CONFIG_FILE_PROPERTY = "openshift.config.file";
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
@@ -234,55 +236,14 @@ public class KubernetesFactory {
     }
 
     protected String findOpenShiftToken() {
-        File file = getOpenShiftConfigFile();
-        String answer = null;
-        if (file.exists() && file.isFile()) {
-            log.debug("Parsing OpenShift configuration: " + file);
-            String tokenPrefix = "token:";
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                boolean inUsers = false;
-                while (true) {
-                    String line = reader.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-                    if (line.startsWith("users:")) {
-                        inUsers = true;
-                    } else {
-                        char ch = line.charAt(0);
-                        if (Character.isWhitespace(ch) || ch == '-') {
-                            if (inUsers) {
-                                String text = line.trim();
-                                if (text.startsWith(tokenPrefix)) {
-                                    String token = text.substring(tokenPrefix.length()).trim();
-                                    if (Strings.isNotBlank(token)) {
-                                        answer = token;
-                                    }
-                                }
-                            }
-                        } else {
-                            inUsers = false;
-                        }
-                    }
-
-                }
-            } catch (Exception e) {
-                log.warn("Could not parse OpenShift configuration file: " + file);
+        Config config = Configs.parseConfigs();
+        if (config != null) {
+            Context context = Configs.getCurrentContext(config);
+            if (context != null) {
+                return Configs.getUserToken(config, context);
             }
         }
-        return answer;
-    }
-
-    public static File getOpenShiftConfigFile() {
-        String file = System.getProperty(OPENSHIFT_CONFIG_FILE_PROPERTY);
-        if (file != null) {
-            return new File(file);
-        }
-        String homeDir = System.getProperty("user.home", ".");
-        return new File(homeDir, ".config/openshift/config");
+        return null;
     }
 
     protected List<Object> createProviders() {

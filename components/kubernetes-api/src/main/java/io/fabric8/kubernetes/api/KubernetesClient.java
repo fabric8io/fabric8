@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
+import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
@@ -23,7 +24,6 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -35,6 +35,8 @@ import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.config.Config;
+import io.fabric8.kubernetes.api.model.config.Context;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
@@ -89,7 +91,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.kubernetes.api.KubernetesFactory.getOpenShiftConfigFile;
 import static io.fabric8.kubernetes.api.KubernetesHelper.defaultOsApiVersion;
 import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
@@ -129,71 +130,12 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public static String findDefaultOpenShiftNamespace() {
-        File file = getOpenShiftConfigFile();
-        String namePrefix = "name:";
-        String namespacePrefix = "namespace:";
-
-        String answer = null;
-        if (file.exists() && file.isFile()) {
-            LOG.debug("Parsing OpenShift configuration: " + file);
-            String context = findDefaultOpenShiftContext(file);
-            if (Strings.isNotBlank(context)) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                    boolean inUsers = false;
-                    while (true) {
-                        String line = reader.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        line = line.trim();
-                        String namespaceValue = yamlValue(namespacePrefix, line);
-                        if (namespaceValue != null) {
-                            answer = namespaceValue;
-                        } else {
-                            String nameValue = yamlValue(namePrefix, line);
-                            if (nameValue != null && nameValue.equals(context)) {
-                                return answer;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Could not parse OpenShift configuration file: " + file);
-                }
-
+        Config config = Configs.parseConfigs();
+        if (config != null) {
+            Context context = Configs.getCurrentContext(config);
+            if (context != null) {
+                return context.getNamespace();
             }
-        }
-        return answer;
-    }
-
-    protected static String yamlValue(String prefix, String text) {
-        if (text.startsWith(prefix)) {
-            String value = text.substring(prefix.length());
-            value = value.trim();
-            if (Strings.isNotBlank(value)) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    protected static String findDefaultOpenShiftContext(File file) {
-        String tokenPrefix = "current-context:";
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            boolean inUsers = false;
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                if (line.startsWith(tokenPrefix)) {
-                    String token = line.substring(tokenPrefix.length()).trim();
-                    if (Strings.isNotBlank(token)) {
-                        return token;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.warn("Could not parse OpenShift configuration file: " + file);
         }
         return null;
     }
