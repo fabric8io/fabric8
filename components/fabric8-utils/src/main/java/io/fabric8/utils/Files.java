@@ -492,4 +492,51 @@ public final class Files {
         }
 
     }
+
+    /**
+     * Returns the MIME type of the given file
+     */
+    public static String guessMediaType(File fileName) {
+        return guessMediaType(fileName.getName());
+    }
+
+    /**
+     * Returns the MIME type of the given file name
+     */
+    public static String guessMediaType(String fileName) {
+        if (fileName.endsWith(".xml")) {
+            return "application/xml";
+        }
+        if (fileName.endsWith(".wadl")) {
+            return "application/wadl+xml";
+        }
+        if (fileName.endsWith(".wsdl")) {
+            return "application/wsdl+xml";
+        }
+        if (fileName.endsWith(".xsd")) {
+            return "application/xsd+xml";
+        }
+        if (fileName.endsWith(".json")) {
+            return "application/json";
+        }
+        if (fileName.endsWith(".html") || fileName.endsWith(".htm")) {
+            return "application/html";
+        }
+        if (fileName.endsWith(".properties")) {
+            return "text/x-java-properties";
+        }
+        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+        if (fileName.endsWith(".png")) {
+            return "image/png";
+        }
+        if (fileName.endsWith(".gif")) {
+            return "image/gif";
+        }
+        if (fileName.endsWith(".svg")) {
+            return "image/svg+xml";
+        }
+        return "text/plain";
+    }
 }

@@ -17,6 +17,7 @@ package io.fabric8.maven;
 
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,12 +27,15 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +51,7 @@ import static io.fabric8.utils.PropertiesHelper.toMap;
  */
 public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
+    public static String[] ICON_EXTENSIONS = new String[]{".svg", ".png", ".gif", ".jpg", ".jpeg"};
     /**
      * Name of the created app zip file
      */
@@ -58,6 +63,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.source.dir", defaultValue = "${basedir}/src/main/fabric8")
     protected File appConfigDir;
+    /**
+     * Provides the resource name of the icon to use; found using the current classpath (including the ones shipped inside the maven plugin).
+     */
+    @Parameter(property = "fabric8.iconRef")
+    protected String iconRef;
 
 
     /**
@@ -98,6 +108,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     @Component
     private MavenProject project;
+    /**
+     * Files to be excluded
+     */
+    @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
+    private String[] filesToBeExcluded;
 
     public MavenProject getProject() {
         return project;
@@ -249,5 +264,78 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         Map<String, String> envs = getEnvironmentVariableProperties();
         JsonSchemas.addEnvironmentVariables(schema, envs);
         return schema;
+    }
+
+    protected File copyIconToFolder(File appBuildDir) throws MojoExecutionException, IOException {
+        if (Strings.isNotBlank(iconRef)) {
+            File[] icons = appBuildDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    if (name == null) {
+                        return false;
+                    }
+                    String lower = name.toLowerCase();
+                    if (lower.startsWith("icon.")) {
+                        for (String ext : ICON_EXTENSIONS) {
+                            if (lower.endsWith(ext)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+            if (icons == null || icons.length == 0) {
+                // lets copy the iconRef
+                InputStream in = loadPluginResource(iconRef);
+                if (in == null) {
+                    // maybe it dont have extension so try to find it
+                    for (String ext : ICON_EXTENSIONS) {
+                        String name = iconRef + ext;
+                        in = loadPluginResource(name);
+                        if (in != null) {
+                            iconRef = name;
+                            break;
+                        }
+                    }
+                }
+                if (in == null) {
+                    getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
+                } else {
+                    String fileName = "icon." + Files.getFileExtension(iconRef);
+                    File outFile = new File(appBuildDir, fileName);
+                    Files.copy(in, new FileOutputStream(outFile));
+                    getLog().info("Generated icon file " + outFile + " from icon reference: " + iconRef);
+                    return outFile;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Copies any local configuration files into the app directory
+     */
+    protected void copyAppConfigFiles(File appBuildDir, File appConfigDir) throws IOException {
+        File[] files = appConfigDir.listFiles();
+        if (files != null) {
+            appBuildDir.mkdirs();
+            for (File file : files) {
+                if (!toBeExclude(file.getName())) {
+                    File outFile = new File(appBuildDir, file.getName());
+                    if (file.isDirectory()) {
+                        copyAppConfigFiles(outFile, file);
+                    } else {
+                        Files.copy(file, outFile);
+                    }
+                }
+            }
+        }
+    }
+
+    protected boolean toBeExclude(String fileName) {
+        List excludedFilesList = Arrays.asList(filesToBeExcluded);
+        Boolean result = excludedFilesList.contains(fileName);
+        return result;
     }
 }

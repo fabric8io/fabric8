@@ -27,10 +27,12 @@ import io.fabric8.maven.support.VolumeType;
 import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
+import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
@@ -39,6 +41,7 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -57,6 +60,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
+import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
 /**
@@ -171,6 +175,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private File kubernetesExtraJson;
 
     /**
+     * Tempoary directory used for resolving icons
+     */
+    @Parameter(property = "fabric8.iconTempDir", defaultValue = "${basedir}/target/fabric8/icons")
+    private File iconTempDir;
+
+    /**
      * The replication controller name used in the generated Kubernetes JSON template
      */
     @Parameter(property = "fabric8.replicationController.name", defaultValue = "${project.artifactId}-controller")
@@ -253,6 +263,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.templateParametersFile", defaultValue = "${basedir}/src/main/fabric8/templateParameters.properties")
     protected File templateParametersPropertiesFile;
 
+    /**
+     * Defines the maximum size in kilobytes that the data encoded URL of the icon should be before we defer
+     * and try to use an external URL
+     */
+    @Parameter(property = "fabric8.maximumDataUrlSizeK", defaultValue = "36")
+    private int maximumDataUrlSizeK;
+
 
     @Component
     protected ArtifactResolver resolver;
@@ -262,7 +279,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "project.remoteArtifactRepositories")
     protected List remoteRepositories;
-
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -515,7 +531,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         Template template = getTemplate();
-        if (!template.getParameters().isEmpty()) {
+        String iconUrl = getIconUrl();
+        boolean hasUrl = Strings.isNotBlank(iconUrl);
+        if (!template.getParameters().isEmpty() || hasUrl) {
+            if (hasUrl) {
+                Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
+                annotations.put("fabric8/iconUrl", iconUrl);
+            }
             builder = builder.addToTemplates(template);
         }
 
@@ -531,6 +553,112 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
         }
+    }
+
+    /**
+     * Generate a URL for the icon.
+     *
+     * Lets use a data URL if possible if the icon is relatively small; otherwise lets try convert the icon name
+     * to an external link (e.g. using github).
+     */
+    protected String getIconUrl() {
+        String answer = null;
+        try {
+            if (iconTempDir != null) {
+                iconTempDir.mkdirs();
+                File iconFile = copyIconToFolder(iconTempDir);
+                if (iconFile == null) {
+                    copyAppConfigFiles(iconTempDir, appConfigDir);
+
+                    // lets find the icon file...
+                    for (String ext : ICON_EXTENSIONS) {
+                        File file = new File(iconTempDir, "icon" + ext);
+                        if (file.exists() && file.isFile()) {
+                            iconFile = file;
+                            break;
+                        }
+                    }
+                }
+                if (iconFile != null) {
+                    answer = convertIconFileToURL(iconFile);
+                }
+            }
+        } catch (Exception e) {
+            getLog().warn("Failed to load icon file: " + e, e);
+        }
+        if (Strings.isNullOrBlank(answer)) {
+            getLog().warn("No icon file found for this project!");
+        } else {
+            getLog().debug("Icon URL: " + answer);
+        }
+        return answer;
+    }
+
+    protected String convertIconFileToURL(File iconFile) throws IOException {
+        long length = iconFile.length();
+
+        int sizeK = Math.round(length / 1024);
+
+        byte[] bytes = Files.readBytes(iconFile);
+        byte[] encoded = Base64Encoder.encode(bytes);
+
+        int base64SizeK = Math.round(encoded.length / 1024);
+
+        getLog().info("found icon file: " + iconFile +
+                " which is " + sizeK + "K" +
+                " base64 encoded " + base64SizeK + "K");
+
+        if (base64SizeK < maximumDataUrlSizeK) {
+            String mimeType = guessMediaType(iconFile);
+            return "data:" + mimeType + ";charset=UTF-8;base64," + new String(encoded);
+        } else {
+            File iconSourceFile = new File(appConfigDir, iconFile.getName());
+            if (iconSourceFile.exists()) {
+                File rootProjectFolder = getRootProjectFolder();
+                if (rootProjectFolder != null) {
+                    String relativePath = Files.getRelativePath(rootProjectFolder, iconSourceFile);
+                    String relativeParentPath = Files.getRelativePath(rootProjectFolder, getProject().getBasedir());
+                    Scm scm = getProject().getScm();
+                    if (scm != null) {
+                        String url = scm.getUrl();
+                        if (url != null) {
+                            String[] prefixes = { "http://github.com/", "https://github.com/"};
+                            for (String prefix : prefixes) {
+                                if (url.startsWith(prefix)) {
+                                    url = URLUtils.pathJoin("https://raw.githubusercontent.com/", url.substring(prefix.length()));
+                                    break;
+                                }
+                            }
+                            if (url.endsWith(relativeParentPath)) {
+                                url = url.substring(0, url.length() - relativeParentPath.length());
+                            }
+                            String branch = "master";
+                            String answer = URLUtils.pathJoin(url, branch, relativePath);
+                            getLog().info("icon url is: " + answer);
+                            return answer;
+                        }
+                    }
+                }
+            }
+            getLog().warn("TODO need to convert this file into a remote URL!");
+        }
+        return null;
+    }
+
+    /**
+     * Returns the root project folder
+     */
+    protected File getRootProjectFolder() {
+        File answer = null;
+        MavenProject project = getProject();
+        while (project != null) {
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                answer = basedir;
+            }
+            project = project.getParent();
+        }
+        return answer;
     }
 
     protected Probe getLivenessProbe() {

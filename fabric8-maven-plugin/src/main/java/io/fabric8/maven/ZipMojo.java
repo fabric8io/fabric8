@@ -22,7 +22,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,8 +71,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 @Mojo(name = "zip", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class ZipMojo extends AbstractFabric8Mojo {
 
-    private static String[] ICON_EXTENSIONS = new String[]{".svg", ".png", ".gif", ".jpg", ".jpeg"};
-
     /**
      * Name of the directory used to create the app configuration zip
      */
@@ -112,12 +109,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
     private String artifactClassifier = "app";
 
     /**
-     * Files to be excluded
-     */
-    @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
-    private String[] filesToBeExcluded;
-
-    /**
      * The projects in the reactor.
      */
     @Parameter(defaultValue = "${reactorProjects}")
@@ -141,12 +132,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.replaceReadmeLinksPrefix")
     protected String replaceReadmeLinksPrefix;
-
-    /**
-     * Provides the resource name of the icon to use; found using the current classpath (including the ones shippped inside the maven plugin).
-     */
-    @Parameter(property = "fabric8.iconRef")
-    protected String iconRef;
 
     /**
      * Whether or not we should generate a <code>Summary.md</code> file from the pom.xml &lt;description&gt; element text value.
@@ -249,48 +234,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             // TODO if no iconRef is specified we could try guess based on the project?
 
             // lets check if we can use an icon reference
-            if (Strings.isNotBlank(iconRef)) {
-                File[] icons = appBuildDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        if (name == null) {
-                            return false;
-                        }
-                        String lower = name.toLowerCase();
-                        if (lower.startsWith("icon.")) {
-                            for (String ext : ICON_EXTENSIONS) {
-                                if (lower.endsWith(ext)) {
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                });
-                if (icons == null || icons.length == 0) {
-                    // lets copy the iconRef
-                    InputStream in = loadPluginResource(iconRef);
-                    if (in == null) {
-                        // maybe it dont have extension so try to find it
-                        for (String ext : ICON_EXTENSIONS) {
-                            String name = iconRef + ext;
-                            in = loadPluginResource(name);
-                            if (in != null) {
-                                iconRef = name;
-                                break;
-                            }
-                        }
-                    }
-                    if (in == null) {
-                        getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
-                    } else {
-                        String fileName = "icon." + Files.getFileExtension(iconRef);
-                        File outFile = new File(appBuildDir, fileName);
-                        Files.copy(in, new FileOutputStream(outFile));
-                        getLog().info("Generated icon file " + outFile + " from icon reference: " + iconRef);
-                    }
-                }
-            }
+            copyIconToFolder(appBuildDir);
 
         }
 
@@ -821,32 +765,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
         Properties answer = new Properties();
         answer.load(new FileReader(file));
         return answer;
-    }
-
-    /**
-     * Copies any local configuration files into the app directory
-     */
-    protected void copyAppConfigFiles(File appBuildDir, File appConfigDir) throws IOException {
-        File[] files = appConfigDir.listFiles();
-        if (files != null) {
-            appBuildDir.mkdirs();
-            for (File file : files) {
-                if (!toBeExclude(file.getName())) {
-                    File outFile = new File(appBuildDir, file.getName());
-                    if (file.isDirectory()) {
-                        copyAppConfigFiles(outFile, file);
-                    } else {
-                        Files.copy(file, outFile);
-                    }
-                }
-            }
-        }
-    }
-
-    protected boolean toBeExclude(String fileName) {
-        List excludedFilesList = Arrays.asList(filesToBeExcluded);
-        Boolean result = excludedFilesList.contains(fileName);
-        return result;
     }
 
     protected String escapeAgentPropertiesKey(String text) {
