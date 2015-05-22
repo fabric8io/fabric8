@@ -4,6 +4,18 @@
 
 Check the [service discovery docs](services.html#discovering-services-from-your-application).
 
+#### How do I do discover external services?
+
+See [Discovering external services](services.html#discovering-external-services)
+
+#### How do I do expose services externally?
+
+See [Exposing services externally](services.html#exposing-services-externally)
+
+#### How to discover services when running outside of Kubernetes?
+
+See [Discovery when outside of Kubernetes](services.html#discovery-when-outside-of-kubernetes)
+
 #### How do I browse the Swagger docs?
 
 You can browse the Kubernetes REST API using the [Swagger Site](http://kubernetes.io/third_party/swagger-ui/).
