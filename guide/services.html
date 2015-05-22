@@ -40,7 +40,7 @@
     
 
         
-    <div class="book" data-level="5.4" data-basepath="." data-revision="Thu May 21 2015 21:25:40 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4" data-basepath="." data-revision="Fri May 22 2015 08:15:31 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -991,7 +991,7 @@
                     
                         <h2 id="service"><a name="service" class="plugin-anchor" href="#service"><span class="fa fa-link"></span></a>Service</h2>
 <p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Service</a> is a kubernetes abstraction to provide a network connection to one or more <a href="pods.html">pods</a>. For more detail see the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">background on how services work</a>.</p>
-<p>A service uses a label selector (a set of key/value pairs) to find all the pods running which provide a certain network service on a port. </p>
+<p>A service uses a <em>label selector</em> to find all the pods running which provide a certain network service on a port. You can add labels to a <a href="pods.html">pod</a> which are just a set of key/value pairs. Then a <em>selector</em> is just a set of key/value pairs used to match pods which have those same key/value pairs.</p>
 <p>Each service is given its own IP address and port which remains constant for the lifetime of the service. So to access the service from inside your application or container you just bind to the IP address and port number for the service. </p>
 <p>Note make sure the services are created before any of your pods which use them; otherwise the service won&apos;t have its IP address defined and you&apos;ll have to restart those pods. </p>
 <h3 id="discovering-services-from-your-application"><a name="discovering-services-from-your-application" class="plugin-anchor" href="#discovering-services-from-your-application"><span class="fa fa-link"></span></a>Discovering services from your application</h3>
@@ -1003,12 +1003,32 @@
 </ul>
 <p>e.g. you could access a web site or service via:</p>
 <pre><code>http://${FOO_BAR_SERVICE_HOST}:${FOO_BAR_SERVICE_PORT}/
-</code></pre><p>The value of the host and port are fixed once a service is created for the lifetime of a kubernetes environment; so you can just resolve the environment variables on startup and you&apos;re all set!</p>
+</code></pre><p>The value of the host and port are fixed for the lifetime of the service; so you can just resolve the environment variables on startup and you&apos;re all set!</p>
 <p>Under the covers Kubernetes will load balance over all the service endpoints for you.</p>
-<p>Note a <a href="pod.html">pod</a> can terminate at any time; so its recommended that any network code ushould retry requests if a socket fails; then kubernetes will failover to a pod for you.</p>
-<h3 id="internal-and-external-services"><a name="internal-and-external-services" class="plugin-anchor" href="#internal-and-external-services"><span class="fa fa-link"></span></a>Internal and external services</h3>
-<p>You can use the Kubernetes <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">service discovery mechanism</a> to discover services which are internal and running inside Kubernetes or to discover services running outside of Kubernetes or services on the internet or SaaS providers etc.</p>
+<p>Note a <a href="pod.html">pod</a> can terminate at any time; so its recommended that any network code should retry requests if a socket fails; then kubernetes will failover to a pod for you.</p>
+<h3 id="discovering-external-services"><a name="discovering-external-services" class="plugin-anchor" href="#discovering-external-services"><span class="fa fa-link"></span></a>Discovering external services</h3>
+<p>You can use the Kubernetes <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">service discovery mechanism</a> with environment variables to discover services which are internal and running inside Kubernetes or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.</p>
+<p>Basically you just need to create the Service metadata for external services; the difference is you list the physical external endpoints rather than letting Kubernetes discover them by using a selector and watching the running pods.</p>
 <p>For more detail see <a href="http://docs.openshift.org/latest/dev_guide/integrating_external_services.html" target="_blank">integrating external services</a>.</p>
+<h3 id="exposing-services-externally"><a name="exposing-services-externally" class="plugin-anchor" href="#exposing-services-externally"><span class="fa fa-link"></span></a>Exposing services externally</h3>
+<p>Kubernetes service discovery is designed for containers running inside the Kubernetes cluster. The host/ports of services and pods typically are only visible to containers running inside the Kubernetes cluster. </p>
+<p>So for software running outside of a Kubernetes cluster - and for browsers to access the services and web applications you need to expose the services externally.</p>
+<p>With kubernetes you can do this via DNS. </p>
+<p>In addition OpenShift <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">supports Routes</a> which provides a haproxy based external load balancer to accessing services.</p>
+<p>To easily create OpenShift routes see these maven goals:</p>
+<ul>
+<li><a href="mavenFabric8Apply.html">fabric8:apply</a> applies the kubernetes json into a namespace in a kubernetes cluster and by default automatically create any required routes for services</li>
+<li><a href="mavenFabric8CreateRoutes.html">fabric8:create-routes</a> generates any missing <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for the current services in the current namespace </li>
+</ul>
+<h3 id="discovery-when-outside-of-kubernetes"><a name="discovery-when-outside-of-kubernetes" class="plugin-anchor" href="#discovery-when-outside-of-kubernetes"><span class="fa fa-link"></span></a>Discovery when outside of Kubernetes</h3>
+<p>When in development its often handy to run your code directly; either inside a docker container or just as a native operating system process; but on your laptop and not inside the kubernetes cluster.</p>
+<p>Since Kubernetes service discovery is essentially about using environment variables, its very easy to setup environment variables so your code can discover services in a remote kubernetes cluster while running on your laptop.</p>
+<p>To try this out see:</p>
+<ul>
+<li><a href="mavenFabric8CreateEnv.html">fabric8:create-env</a> generates environment variable scripts for Kubernetes <a href="services.html">services</a> so you can simulate running programs as if they were inside kubernetes</li>
+</ul>
+<p>You can then run or debug Java programs in your IDE or via maven while discoverying and reusing services running in a remote Kubernetes cluster.</p>
+<p>This is extremely handy in development; though once you&apos;ve commit your changes to your source control we expect your source code to be turned into immutable docker images and run inside a Kubernetes cluster in the usual way.</p>
 <h3 id="see-also"><a name="see-also" class="plugin-anchor" href="#see-also"><span class="fa fa-link"></span></a>See also</h3>
 <ul>
 <li><a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">how services work</a></li>
