@@ -43,6 +43,8 @@ import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.maven.support.VolumeType;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
+import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
@@ -86,6 +88,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
@@ -198,8 +201,22 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * Should we wrap the generated ReplicationController objects in a DeploymentConfig
      */
-    @Parameter(property = "fabric8.useDeploymentConfig", defaultValue = "true")
+    // TODO lets disable by default until its working :)
+    @Parameter(property = "fabric8.useDeploymentConfig", defaultValue = "false")
     private boolean useDeploymentConfig;
+
+    /**
+     * The last triggered image tag if generating a DeploymentConfig
+     */
+    @Parameter(property = "fabric8.lastTriggeredImageTag", defaultValue = "latest")
+    private String lastTriggeredImageTag;
+
+    /**
+     * The strategy name for the DeploymentConfig
+     */
+    @Parameter(property = "fabric8.deploymentStrategy", defaultValue = "Recreate")
+    private String deploymentStrategy;
+
 
     /**
      * The extra additional kubernetes JSON file for things like services
@@ -545,15 +562,22 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected void wrapInDeploymentConfigs(List<HasMetadata> list, ReplicationController replicationController) {
         DeploymentConfigBuilder builder = new DeploymentConfigBuilder();
 
-        String name = KubernetesHelper.getName(replicationController);
+        String name = getName(replicationController);
         if (Strings.isNotBlank(name)) {
-            name = Strings.stripSuffix(name, "controller") + "deployment";
-            Map<String, String> labels = KubernetesHelper.getLabels(replicationController);
-            builder = builder.withNewMetadata().withName(name).withLabels(labels).endMetadata();
+            name = Strings.stripSuffix(name, "controller");
         }
+        if (Strings.isNullOrBlank(name)) {
+            name = getProject().getArtifactId();
+        }
+        String deploymentName = name + "deployment";
+        String imageStream = name + "imagestream";
+
+
+        Map<String, String> labels = KubernetesHelper.getLabels(replicationController);
+        builder = builder.withNewMetadata().withName(deploymentName).withLabels(labels).endMetadata();
+
         ReplicationControllerSpec spec = replicationController.getSpec();
         if (spec != null) {
-
             List<String> containerNames = new ArrayList<>();
             PodTemplateSpec podTemplateSpec = spec.getTemplate();
             if (podTemplateSpec != null) {
@@ -562,30 +586,47 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     List<Container> containers = podSpec.getContainers();
                     if (containers != null) {
                         for (Container container : containers) {
-                            String image = container.getImage();
-                            if (Strings.isNotBlank(image)) {
-                                containerNames.add(image);
+                            String containerName = container.getName();
+                            if (Strings.isNotBlank(containerName)) {
+                                containerNames.add(containerName);
                             }
                         }
                     }
                 }
             }
+            getOrAddImageStream(list, imageStream, labels);
             builder = builder.withNewSpec().
                     withTemplate(podTemplateSpec).withReplicas(spec.getReplicas()).withSelector(spec.getSelector()).
                     withNewStrategy().
-                        withType("ImageChange").
+                        withType(deploymentStrategy).
                         endStrategy().
                     addNewTrigger().
+                        withType("ImageChange").
                         withNewImageChangeParams().
                             withAutomatic(true).
                             withContainerNames(containerNames).
-                            // TODO add a tag or something?
+                            withNewFrom().withName(imageStream + ":" + lastTriggeredImageTag).endFrom().
+                            withLastTriggeredImage(lastTriggeredImageTag).
                         endImageChangeParams().
                     endTrigger().
                     endSpec();
         }
         DeploymentConfig config = builder.build();
         list.add(config);
+    }
+
+    protected ImageStream getOrAddImageStream(List<HasMetadata> list, String imageStreamName, Map<String, String> labels) {
+        for (HasMetadata item : list) {
+            if (item instanceof ImageStream) {
+                ImageStream stream = (ImageStream) item;
+                if (Objects.equal(imageStreamName, getName(stream))) {
+                    return stream;
+                }
+            }
+        }
+        ImageStream imageStream = new ImageStreamBuilder().withNewMetadata().withName(imageStreamName).withLabels(labels).endMetadata().build();
+        list.add(imageStream);
+        return imageStream;
     }
 
     protected static Object loadJsonFile(File file) throws MojoExecutionException {
