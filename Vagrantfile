@@ -58,6 +58,25 @@ cat <<EOF | osc create -f -
     admin-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)"
     admin-key: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
 EOF
+
+# Create route to registry
+cat <<EOF | osc create -f -
+{
+    "kind": "Route",
+    "apiVersion": "v1beta3",
+    "metadata": {
+        "name": "docker-registry-route"
+    },
+    "spec": {
+        "host": "docker-registry.vagrant.local",
+        "to": {
+            "kind": "Service",
+            "name": "docker-registry"
+        }
+    }
+}
+EOF
+
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
