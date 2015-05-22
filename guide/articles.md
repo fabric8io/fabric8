@@ -10,6 +10,8 @@
 
 ### Fabric8
 
+* [Kubernetes for developers](https://medium.com/fabric8-io/kubernetes-for-developers-2a9c7202fcd3) by [James Strachan](http://twitter.com/jstrachan)
+* [Google systems guru explains why containers are the future of computing](https://medium.com/s-c-a-l-e/google-systems-guru-explains-why-containers-are-the-future-of-computing-87922af2cf95)
 * [Developing services on Kubernetes using OpenShift and Fabric8](http://fabric8.io/presentations/kubernetes-london-openshift-fabric8/#/) by [James Strachan](http://twitter.com/jstrachan) at the [Kubernetes Meetup in London](http://www.meetup.com/Kubernetes-London/events/221521966/)
 * [Fabric8 Version 2 released](http://rajdavies.blogspot.co.uk/2014/11/fabric8-version-20-released-next.html) by [Rob Davies](http://rajdavies.blogspot.co.uk/)
 * [Fabric8 V2, Docker, Kubernetes & OpenShift V3 and Jube! Oh My!](https://medium.com/@jstrachan/fabric8-v2-docker-kubernetes-openshift-v3-and-jube-oh-my-4aadddf2037) by [James Strachan](http://twitter.com/jstrachan)

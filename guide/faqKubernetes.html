@@ -38,7 +38,7 @@
     
 
         
-    <div class="book" data-level="8.2" data-basepath="." data-revision="Fri May 22 2015 08:15:31 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2" data-basepath="." data-revision="Fri May 22 2015 10:09:52 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -988,6 +988,15 @@
                     <section class="normal" id="section-">
                     
                         <h3 id="kubernetes-questions"><a name="kubernetes-questions" class="plugin-anchor" href="#kubernetes-questions"><span class="fa fa-link"></span></a>Kubernetes Questions</h3>
+<h4 id="what-is-a-microservice-in-kubernetes"><a name="what-is-a-microservice-in-kubernetes" class="plugin-anchor" href="#what-is-a-microservice-in-kubernetes"><span class="fa fa-link"></span></a>What is a microservice in Kubernetes?</h4>
+<p>Note that the term <a href="http://martinfowler.com/articles/microservices.html" target="_blank">microservice</a> and <a href="services.html">Kubernetes Services</a> they are quite different things.</p>
+<p>Implementing a microservice on Kubernetes typically comprises of: </p>
+<ul>
+<li>a <a href="pods.html">Pod</a> containing the code and configuration of the microservice</li>
+<li>a <a href="replicationControllers.html">Replication Controller</a> to scale the microservice and keep it running in case of hardware or software failure (including liveness checks to kill dead or hung containers)</li>
+<li>a <a href="services.html">Kubernetes Services</a> to expose the pods as a network host and port which may well also be <a href="services.html#exposing-services-externally">exposed externally</a> </li>
+</ul>
+<p>In terms of Kubernetes JSON resources; a micro service is a Replication Controller and Service metadata.</p>
 <h4 id="how-do-i-do-service-discovery"><a name="how-do-i-do-service-discovery" class="plugin-anchor" href="#how-do-i-do-service-discovery"><span class="fa fa-link"></span></a>How do I do service discovery?</h4>
 <p>Check the <a href="services.html#discovering-services-from-your-application">service discovery docs</a>.</p>
 <h4 id="how-do-i-do-discover-external-services"><a name="how-do-i-do-discover-external-services" class="plugin-anchor" href="#how-do-i-do-discover-external-services"><span class="fa fa-link"></span></a>How do I do discover external services?</h4>
