@@ -1,5 +1,17 @@
 ### Kubernetes Questions
 
+#### What is a microservice in Kubernetes?
+
+Note that the term [microservice](http://martinfowler.com/articles/microservices.html) and [Kubernetes Services](services.html) they are quite different things.
+
+Implementing a microservice on Kubernetes typically comprises of: 
+
+* a [Pod](pods.html) containing the code and configuration of the microservice
+* a [Replication Controller](replicationControllers.html) to scale the microservice and keep it running in case of hardware or software failure (including liveness checks to kill dead or hung containers)
+* a [Kubernetes Services](services.html) to expose the pods as a network host and port which may well also be [exposed externally](services.html#exposing-services-externally) 
+
+In terms of Kubernetes JSON resources; a micro service is a Replication Controller and Service metadata.
+
 #### How do I do service discovery?
 
 Check the [service discovery docs](services.html#discovering-services-from-your-application).
