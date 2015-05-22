@@ -74,26 +74,4 @@ public class AttachMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void printSummary(Object kubeResource) throws IOException {
-        if (kubeResource instanceof Template) {
-            Template template = (Template) kubeResource;
-            String id = KubernetesHelper.getName(template);
-            getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
-            printSummary(template.getObjects());
-            return;
-        }
-        List<HasMetadata> list = KubernetesHelper.toItemList(kubeResource);
-        for (Object object : list) {
-            if (object != null) {
-                if (object instanceof List) {
-                    printSummary(object);
-                } else {
-                    String kind = object.getClass().getSimpleName();
-                    String id = KubernetesHelper.getObjectId(object);
-                    getLog().info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
-                }
-            }
-        }
-    }
-
 }

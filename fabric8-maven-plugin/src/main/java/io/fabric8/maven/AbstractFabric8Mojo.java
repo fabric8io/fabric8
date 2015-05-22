@@ -15,8 +15,11 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
@@ -372,6 +375,28 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             if (!summaryMd.exists()) {
                 byte[] bytes = description.getBytes();
                 Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
+            }
+        }
+    }
+
+    protected void printSummary(Object kubeResource) throws IOException {
+        if (kubeResource instanceof Template) {
+            Template template = (Template) kubeResource;
+            String id = KubernetesHelper.getName(template);
+            getLog().info("  Template " +  id + " " + KubernetesHelper.summaryText(template));
+            printSummary(template.getObjects());
+            return;
+        }
+        List<HasMetadata> list = KubernetesHelper.toItemList(kubeResource);
+        for (Object object : list) {
+            if (object != null) {
+                if (object instanceof List) {
+                    printSummary(object);
+                } else {
+                    String kind = object.getClass().getSimpleName();
+                    String id = KubernetesHelper.getObjectId(object);
+                    getLog().info("    " + kind + " " + id + " " + KubernetesHelper.summaryText(object));
+                }
             }
         }
     }

@@ -43,6 +43,8 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigSpec;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -1428,6 +1430,8 @@ public class KubernetesHelper {
             return summaryText((Pod) object);
         } else if (object instanceof Template) {
             return summaryText((Template) object);
+        } else if (object instanceof DeploymentConfig) {
+            return summaryText((DeploymentConfig) object);
         } else if (object instanceof OAuthClient) {
             return summaryText((OAuthClient) object);
         } else if (object instanceof String) {
@@ -1520,6 +1524,22 @@ public class KubernetesHelper {
     public static String summaryText(ReplicationController entity) {
         StringBuilder buffer = new StringBuilder();
         ReplicationControllerSpec spec = entity.getSpec();
+        if (spec != null) {
+            buffer.append("replicas: " + spec.getReplicas());
+            PodTemplateSpec podTemplateSpec = spec.getTemplate();
+            if (podTemplateSpec != null) {
+                appendSummaryText(buffer, podTemplateSpec);
+            }
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Returns a short summary text message for the given kubernetes resource
+     */
+    public static String summaryText(DeploymentConfig entity) {
+        StringBuilder buffer = new StringBuilder();
+        DeploymentConfigSpec spec = entity.getSpec();
         if (spec != null) {
             buffer.append("replicas: " + spec.getReplicas());
             PodTemplateSpec podTemplateSpec = spec.getTemplate();

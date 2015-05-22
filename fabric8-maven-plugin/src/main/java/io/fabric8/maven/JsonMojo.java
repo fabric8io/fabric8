@@ -19,12 +19,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
+import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HTTPGetAction;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.Probe;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceFluent;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -35,6 +41,8 @@ import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.maven.support.VolumeType;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
 import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
@@ -78,7 +86,6 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
@@ -187,6 +194,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.replicas", defaultValue = "1")
     private Integer replicaCount;
+
+    /**
+     * Should we wrap the generated ReplicationController objects in a DeploymentConfig
+     */
+    @Parameter(property = "fabric8.useDeploymentConfig", defaultValue = "true")
+    private boolean useDeploymentConfig;
 
     /**
      * The extra additional kubernetes JSON file for things like services
@@ -337,6 +350,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         combineJsonFiles(json, kubernetesExtraJson);
                     }
                 }
+                if (json.exists() && json.isFile()) {
+                    if (useDeploymentConfig) {
+                        wrapInDeploymentConfigs(json);
+                    }
+                }
             }
         }
     }
@@ -478,6 +496,96 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
+    }
+
+    protected void wrapInDeploymentConfigs(File json) throws MojoExecutionException {
+        try {
+            Object dto = loadJsonFile(json);
+            if (dto instanceof KubernetesList) {
+                KubernetesList container = (KubernetesList) dto;
+                List<HasMetadata> items = container.getItems();
+                items = wrapInDeploymentConfigs(items);
+                getLog().info("Wrapped in DeploymentConfigs:");
+                printSummary(items);
+                container.setItems(items);
+                KubernetesHelper.saveJson(json, container);
+            } else if (dto instanceof Template) {
+                Template container = (Template) dto;
+                List<HasMetadata> items = container.getObjects();
+                items = wrapInDeploymentConfigs(items);
+                getLog().info("Wrapped in DeploymentConfigs:");
+                printSummary(items);
+                container.setObjects(items);
+                getLog().info("Template is now:");
+                printSummary(container.getObjects());
+                KubernetesHelper.saveJson(json, container);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
+        }
+    }
+
+    protected List<HasMetadata> wrapInDeploymentConfigs(List<HasMetadata> items) {
+        List<HasMetadata> answer = new ArrayList<>();
+        for (HasMetadata item : items) {
+            if (item instanceof ReplicationController) {
+                ReplicationController replicationController = (ReplicationController) item;
+                wrapInDeploymentConfigs(answer, replicationController);
+            } else {
+                answer.add(item);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Wraps the given {@link ReplicationController} in a {@link DeploymentConfig} and adds it to the given list
+     * along with any other required entities
+     */
+    protected void wrapInDeploymentConfigs(List<HasMetadata> list, ReplicationController replicationController) {
+        DeploymentConfigBuilder builder = new DeploymentConfigBuilder();
+
+        String name = KubernetesHelper.getName(replicationController);
+        if (Strings.isNotBlank(name)) {
+            name = Strings.stripSuffix(name, "controller") + "deployment";
+            Map<String, String> labels = KubernetesHelper.getLabels(replicationController);
+            builder = builder.withNewMetadata().withName(name).withLabels(labels).endMetadata();
+        }
+        ReplicationControllerSpec spec = replicationController.getSpec();
+        if (spec != null) {
+
+            List<String> containerNames = new ArrayList<>();
+            PodTemplateSpec podTemplateSpec = spec.getTemplate();
+            if (podTemplateSpec != null) {
+                PodSpec podSpec = podTemplateSpec.getSpec();
+                if (podSpec != null) {
+                    List<Container> containers = podSpec.getContainers();
+                    if (containers != null) {
+                        for (Container container : containers) {
+                            String image = container.getImage();
+                            if (Strings.isNotBlank(image)) {
+                                containerNames.add(image);
+                            }
+                        }
+                    }
+                }
+            }
+            builder = builder.withNewSpec().
+                    withTemplate(podTemplateSpec).withReplicas(spec.getReplicas()).withSelector(spec.getSelector()).
+                    withNewStrategy().
+                        withType("ImageChange").
+                        endStrategy().
+                    addNewTrigger().
+                        withNewImageChangeParams().
+                            withAutomatic(true).
+                            withContainerNames(containerNames).
+                            // TODO add a tag or something?
+                        endImageChangeParams().
+                    endTrigger().
+                    endSpec();
+        }
+        DeploymentConfig config = builder.build();
+        list.add(config);
     }
 
     protected static Object loadJsonFile(File file) throws MojoExecutionException {
