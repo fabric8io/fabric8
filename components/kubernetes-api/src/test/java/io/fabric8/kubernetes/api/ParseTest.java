@@ -130,7 +130,7 @@ public class ParseTest {
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
         File exampleFile = new File(getKubernetesExamplesDir(), fileName);
         assertFileExists(exampleFile);
-        Object answer = mapper.reader(Object.class).readValue(exampleFile);
+        Object answer = mapper.reader(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
         LOG.info("Parsed: " + fileName + " as: " + answer);
         assertTrue("Is not an instance of " + clazz.getSimpleName() + " was: "+ answer.getClass().getName(), clazz.isInstance(answer));

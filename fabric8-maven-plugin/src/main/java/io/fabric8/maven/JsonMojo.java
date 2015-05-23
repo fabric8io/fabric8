@@ -664,7 +664,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         KubernetesListBuilder builder = new KubernetesListBuilder()
                 // TODO no id / name in v1beta3
                 // .withId(name)
-                .addNewReplicationController()
+                .addNewReplicationControllerItem()
                 .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
                 .withLabels(labels)
@@ -691,7 +691,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .endSpec()
                 .endTemplate()
                 .endSpec()
-                .endReplicationController();
+                .endReplicationControllerItem();
 
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
@@ -714,7 +714,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             serviceSpecBuilder.endSpec();
 
             if (headlessServices || hasPorts) {
-                builder = builder.addToServices(serviceBuilder.build());
+                builder = builder.addToServiceItems(serviceBuilder.build());
             }
         }
 
@@ -728,7 +728,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             addDocumentationAnnotations(template, annotations);
 
-            builder = builder.addToTemplates(template);
+            builder = builder.addToTemplateItems(template);
         }
 
         KubernetesList kubernetesList = builder.build();

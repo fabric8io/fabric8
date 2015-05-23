@@ -17,16 +17,11 @@ package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.kubernetes.api.extensions.Configs;
-import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.model.config.Context;
-import io.fabric8.kubernetes.api.support.KindToClassMapping;
-import io.fabric8.kubernetes.api.support.KubernetesDeserializer;
-import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.AuthorizationHeaderFilter;
 import io.fabric8.utils.cxf.WebClients;
@@ -36,14 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple helper class for creating instances of Kubernetes
@@ -372,26 +364,6 @@ public class KubernetesFactory {
     public static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        Map<String, Class<?>> kindToClasses = getKindToClassMap();
-        KubernetesDeserializer deserializer = new KubernetesDeserializer(kindToClasses);
-
-        SimpleModule module = new SimpleModule("Kubernetes");
-        module.addDeserializer(Object.class, deserializer);
-        mapper.registerModule(module);
         return mapper;
     }
-
-    protected static Map<String, Class<?>> getKindToClassMap() {
-        Map<String,Class<?>> kindToClasses = KindToClassMapping.getKindToClassMap();
-        if (!kindToClasses.containsKey("List")) {
-            kindToClasses.put("List", KubernetesList.class);
-        }
-        if (!kindToClasses.containsKey("OAuthClient")) {
-            kindToClasses.put("OAuthClient", OAuthClient.class);
-        }
-        return kindToClasses;
-    }
-
-
 }

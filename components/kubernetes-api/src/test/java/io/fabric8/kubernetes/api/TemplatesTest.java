@@ -36,11 +36,11 @@ public class TemplatesTest {
         Service templateService = new ServiceBuilder().withNewMetadata().withName("templateService").endMetadata().build();
 
         KubernetesList list = new KubernetesListBuilder().
-                addNewService().withNewMetadata().withName("service1").endMetadata().endService().
-                addNewTemplate().
+                addNewServiceItem().withNewMetadata().withName("service1").endMetadata().endServiceItem().
+                addNewTemplateItem().
                 addNewParameter().withName("PARAM1").withValue("ABC").endParameter().
-                addToObjects(templateService).endTemplate().
-                addNewService().withNewMetadata().withName("service2").endMetadata().endService().build();
+                addToObjects(templateService).endTemplateItem().
+                addNewServiceItem().withNewMetadata().withName("service2").endMetadata().endServiceItem().build();
 
         Object result = Templates.combineTemplates(list);
         System.out.println("Combined as " + KubernetesHelper.toJson(result));
