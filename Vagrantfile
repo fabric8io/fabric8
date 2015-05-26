@@ -59,7 +59,9 @@ cat <<EOF | osc create -f -
     admin-key: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
 EOF
 
-# Create route to registry
+# Create route to registry. Please not that this route can be used for applications to find
+# the images. Since it goes through the router this is not optimal for production setups
+# when internally images are fetched. 
 cat <<EOF | osc create -f -
 {
     "kind": "Route",
@@ -76,6 +78,7 @@ cat <<EOF | osc create -f -
     }
 }
 EOF
+echo "127.0.0.1\tdocker-registry.vagrant.local" >> /etc/hosts
 
 SCRIPT
 
