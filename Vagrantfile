@@ -78,7 +78,7 @@ cat <<EOF | osc create -f -
     }
 }
 EOF
-echo "127.0.0.1\tdocker-registry.vagrant.local" >> /etc/hosts
+echo "127.0.0.1    docker-registry.vagrant.local" >> /etc/hosts
 
 SCRIPT
 
