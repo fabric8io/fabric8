@@ -19,9 +19,9 @@ package io.fabric8.kubernetes.generator.processor;
 import io.fabric8.common.Builder;
 import io.fabric8.common.Visitable;
 import io.fabric8.common.Visitor;
-import io.fabric8.kubernetes.api.model.HasKind;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.generator.annotation.KubernetesModelProcessor;
 import io.fabric8.openshift.api.model.template.Template;
@@ -75,9 +75,9 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
 
         //2nd pass generate json.
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesModelProcessor.class)) {
-            HasKind json = readJson();
+            KubernetesResource json = readJson();
 
-            Builder<? extends HasKind> builder;
+            Builder<? extends KubernetesResource> builder;
             if (json instanceof KubernetesList) {
                 builder = new KubernetesListBuilder((KubernetesList) json);
             } else if (json instanceof Template) {

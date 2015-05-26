@@ -18,7 +18,7 @@ package io.fabric8.kubernetes.generator.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.fabric8.kubernetes.api.model.HasKind;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.element.Element;
@@ -39,11 +39,11 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
     private static final String KUBERNETES_JSON = "kubernetes.json";
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    HasKind readJson() {
+    KubernetesResource readJson() {
         try {
             FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
             try (Reader reader = fileObject.openReader(false)) {
-                return MAPPER.readValue(reader, HasKind.class);
+                return MAPPER.readValue(reader, KubernetesResource.class);
             }
         } catch (IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Kubernetes JSON not found.");
@@ -51,7 +51,7 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
         return null;
     }
 
-    void generateJson(HasKind json) {
+    void generateJson(KubernetesResource json) {
         try {
             FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
             Path path = Paths.get(fileObject.toUri());

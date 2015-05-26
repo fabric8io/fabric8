@@ -18,7 +18,7 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.fabric8.kubernetes.api.model.HasKind;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
@@ -394,7 +394,7 @@ public class KubernetesHelper {
      */
     public static Object loadJson(byte[] json) throws IOException {
         if (json != null && json.length > 0) {
-            return objectMapper.reader(HasKind.class).readValue(json);
+            return objectMapper.reader(KubernetesResource.class).readValue(json);
         }
         return null;
     }
