@@ -16,7 +16,9 @@
 
 package io.fabric8.spring.boot;
 
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.model.Service;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,8 +33,13 @@ public class Fabric8ApplicationTest {
     @Autowired
     private Kubernetes kubernetes;
 
+    @Autowired
+    @ServiceName("fabric8-console-service")
+    private String consoleService;
+
     @Test
     public void testKubernetesClientAvailable() {
+        System.out.println(consoleService);
         Assert.assertNotNull(kubernetes);
     }
 

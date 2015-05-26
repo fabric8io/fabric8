@@ -17,7 +17,10 @@
 package io.fabric8.spring.boot.internal;
 
 import io.fabric8.annotations.ServiceName;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -55,11 +58,24 @@ public class InternalServiceRegistar implements ImportBeanDefinitionRegistrar {
                     String port = env.get(service + PORT_SUFFIX);
                     String protocol = env.get(service + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
 
+                    Service s = new ServiceBuilder()
+                            .withNewMetadata()
+                                .withName(service)
+                            .endMetadata()
+                            .withNewSpec()
+                                .withPortalIP(serviceHost)
+                                .addNewPort()
+                                    .withNewTargetPort(port)
+                                    .withProtocol(protocol)
+                                .endPort()
+                            .endSpec()
+                            .build();
+
+
                     beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service));
-                    beanDefinition.getPropertyValues().addPropertyValue("id", service);
-                    beanDefinition.getPropertyValues().addPropertyValue("port", port);
-                    beanDefinition.getPropertyValues().addPropertyValue("portalIP", serviceHost);
-                    beanDefinition.getPropertyValues().addPropertyValue("protocol", protocol);
+                    beanDefinition.getPropertyValues().addPropertyValue("metadata", s.getMetadata());
+                    beanDefinition.getPropertyValues().addPropertyValue("spec", s.getSpec());
+                    beanDefinition.getPropertyValues().addPropertyValue("kind", "Service");
                     registry.registerBeanDefinition(service + "-service-bean", beanDefinition);
                 }
             }

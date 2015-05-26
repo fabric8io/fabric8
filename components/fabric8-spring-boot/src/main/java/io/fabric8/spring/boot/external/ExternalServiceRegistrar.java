@@ -36,11 +36,8 @@ public class ExternalServiceRegistrar implements ImportBeanDefinitionRegistrar {
         for (final Service service : kubernetes.getServices("default").getItems()) {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(Service.class);
             beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service.getMetadata().getName()));
-            beanDefinition.getPropertyValues().addPropertyValue("id", service.getMetadata().getName());
-            beanDefinition.getPropertyValues().addPropertyValue("port", service.getSpec().getPorts().iterator().next().getPort());
-            beanDefinition.getPropertyValues().addPropertyValue("portalIP", service.getSpec().getPortalIP());
-            beanDefinition.getPropertyValues().addPropertyValue("protocol", service.getSpec().getPorts().iterator().next().getProtocol());
-            beanDefinition.getPropertyValues().addPropertyValue("containerPort", service.getSpec().getPorts().iterator().next().getTargetPort());
+            beanDefinition.getPropertyValues().addPropertyValue("metadata", service.getMetadata());
+            beanDefinition.getPropertyValues().addPropertyValue("spec", service.getSpec());
             beanDefinition.getPropertyValues().addPropertyValue("kind", service.getKind());
             registry.registerBeanDefinition(service.getMetadata().getName()+"-service-bean", beanDefinition);
         }
