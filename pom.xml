@@ -238,7 +238,7 @@
         <junit.version>4.11</junit.version>
         <karaf.version>2.4.0</karaf.version>
         <kie.version>6.2.0.Final</kie.version>
-        <kubernetes-model.version>0.0.40</kubernetes-model.version>
+        <kubernetes-model.version>0.0.41</kubernetes-model.version>
         <libvirt-bundle.version>1.1</libvirt-bundle.version>
         <libvirt.version>0.4.7</libvirt.version>
         <log4j.version>1.2.17</log4j.version>
@@ -2984,6 +2984,12 @@
               <groupId>org.glassfish.web</groupId>
               <artifactId>javax.el</artifactId>
               <version>${javax.el-version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.eclipse.jetty.websocket</groupId>
+              <artifactId>websocket-client</artifactId>
+              <version>${jetty9.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
