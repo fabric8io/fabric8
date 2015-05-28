@@ -207,23 +207,18 @@ Or on Windows run the following from a DOS prompt as an Administrator:
 
 You should now be able to access the Fabric8 console using the address defined in the previously set $FABRIC8_CONSOLE environment variable.
 
-#### Using the osc command line
+#### Using the osc (OpenShift command line)
 
-The OpenShift container includes the OpenShift Command Line (osc). Therefore, you can use the osc via a docker 'run' command.
+* download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `osc` and `osadm` executables to your `PATH`
+* login to OpenShift
 
-The easiest way to do this is to create an alias in your ~/.bashrc.
+```
+osc login --server=https://172.28.128.4:8443
+```
 
-**Note:** In the aliases below you'll need to update the openshift/origin container tag to be whatever version Fabric8 is currently using. Run `docker ps | grep openshift/origin:` to find this out
+During the login procedure OpenShift you should allow access using insecure mode, and when prompted for an username and password type in `admin` (also `admin` as the password).
 
-**Native Install**
-
-    alias osc="docker run --rm -i --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify"
-
-**Non-Native Install**
-
-    alias osc="docker run --rm -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 --entrypoint=osc --net=host openshift/origin:v0.3.4 --insecure-skip-tls-verify"
-
-You can now use the osc command line to list pods, replication controllers and services; delete or create resources etc:
+You should now be able to use the [osc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
 
     osc get pods
     osc get replicationControllers
