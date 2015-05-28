@@ -40,10 +40,12 @@ import javax.ws.rs.Produces;
 /**
  * Various Kubernetes extensions defined in the OpenShift project
  */
-@Path("osapi/v1beta3/namespaces/{namespace}")
+@Path(KubernetesExtensions.OSAPI_ROOT_PATH + "/namespaces/{namespace}")
 @Produces("application/json")
 @Consumes("application/json")
 public interface KubernetesExtensions {
+
+    String OSAPI_ROOT_PATH = "osapi/v1beta3";
 
     @POST
     @Path("processedtemplates")
