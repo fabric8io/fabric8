@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Preconditions
+REQUIRED_DOCKER_VERSION=1.6
+DOCKER_VERSION=`docker version | grep 'Server version' | cut -d ' ' -f 3`
+if [[ "$DOCKER_VERSION" < "$REQUIRED_DOCKER_VERSION" ]]; then
+  echo "Docker ${REQUIRED_DOCKER_VERSION} is required to run Fabric8."
+  exit -1
+fi
+
 #
 # Discover the APP_BASE from the location of this script.
 #
