@@ -74,7 +74,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConfigureEditEndpointPropertiesStep.class).name(
                 "Camel: Edit Endpoint XML").category(Categories.create(CATEGORY))
-                .description("Configure the options to use on the endpoint");
+                .description("Configure the endpoint options to use");
     }
 
     @Override
