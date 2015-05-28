@@ -44,7 +44,6 @@
       <artifactId>assertj-core</artifactId>
     </dependency>
 
-
     <!-- testing -->
     <dependency>
       <groupId>org.jolokia</groupId>
@@ -54,6 +53,11 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-jolokia</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
