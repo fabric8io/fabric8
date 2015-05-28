@@ -855,6 +855,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("builds")
+    @Produces("application/json")
     public BuildList getBuilds(final String namespace) {
         validateNamespace(namespace, null);
         BuildList answer = handle404ByReturningNull(new Callable<BuildList>() {
@@ -1201,7 +1202,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public WebSocketClient watchPods(String namespace, Map<String, String> labels, Watcher<Pod> watcher, String resourceVersion) throws Exception {
-        return watchEntities("pods", namespace, labels, watcher, resourceVersion);
+        return watchKubernetesEntities("pods", namespace, labels, watcher, resourceVersion);
     }
 
     public WebSocketClient watchServices(Watcher<Service> watcher) throws Exception {
@@ -1219,7 +1220,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public WebSocketClient watchServices(String namespace, Map<String, String> labels, Watcher<Service> watcher, String resourceVersion) throws Exception {
-        return watchEntities("services", namespace, labels, watcher, resourceVersion);
+        return watchKubernetesEntities("services", namespace, labels, watcher, resourceVersion);
     }
 
     public WebSocketClient watchReplicationControllers(Watcher<ReplicationController> watcher) throws Exception {
@@ -1237,11 +1238,55 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public WebSocketClient watchReplicationControllers(String namespace, Map<String, String> labels, Watcher<ReplicationController> watcher, String resourceVersion) throws Exception {
-        return watchEntities("replicationcontrollers", namespace, labels, watcher, resourceVersion);
+        return watchKubernetesEntities("replicationcontrollers", namespace, labels, watcher, resourceVersion);
     }
 
-    private WebSocketClient watchEntities(String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
-        String watchUrl = getAddress().replaceFirst("^http", "ws") + "/" + Kubernetes.ROOT_API_PATH + "/namespaces/" + namespace + "/" + entityType + "?watch=true&resourceVersion=" + resourceVersion;
+    public WebSocketClient watchBuilds(Watcher<Build> watcher) throws Exception {
+        return watchBuilds(null, watcher);
+    }
+
+    public WebSocketClient watchBuilds(Map<String, String> labels, Watcher<Build> watcher) throws Exception {
+        return watchBuilds(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchBuilds(String namespace, Map<String, String> labels, Watcher<Build> watcher) throws Exception {
+        BuildList currentList = getBuilds(namespace);
+        return watchBuilds(namespace, labels, watcher,
+                currentList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchBuilds(String namespace, Map<String, String> labels, Watcher<Build> watcher, String resourceVersion) throws Exception {
+        return watchOpenShiftEntities("builds", namespace, labels, watcher, resourceVersion);
+    }
+
+    public WebSocketClient watchRoutes(Watcher<Route> watcher) throws Exception {
+        return watchRoutes(null, watcher);
+    }
+
+    public WebSocketClient watchRoutes(Map<String, String> labels, Watcher<Route> watcher) throws Exception {
+        return watchRoutes(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchRoutes(String namespace, Map<String, String> labels, Watcher<Route> watcher) throws Exception {
+        RouteList currentList = getRoutes(namespace);
+        return watchRoutes(namespace, labels, watcher,
+                currentList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchRoutes(String namespace, Map<String, String> labels, Watcher<Route> watcher, String resourceVersion) throws Exception {
+        return watchOpenShiftEntities("routes", namespace, labels, watcher, resourceVersion);
+    }
+
+    private WebSocketClient watchKubernetesEntities(String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
+        return watchEntities(Kubernetes.ROOT_API_PATH, entityType, namespace, labels, watcher, resourceVersion);
+    }
+
+    private WebSocketClient watchOpenShiftEntities(String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
+        return watchEntities(KubernetesExtensions.OSAPI_ROOT_PATH, entityType, namespace, labels, watcher, resourceVersion);
+    }
+
+    private WebSocketClient watchEntities(String apiPath, String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
+        String watchUrl = getAddress().replaceFirst("^http", "ws") + "/" + apiPath + "/namespaces/" + namespace + "/" + entityType + "?watch=true&resourceVersion=" + resourceVersion;
         String labelsString = toLabelsString(labels);
         if (Strings.isNotBlank(labelsString)) {
             watchUrl += "&labelSelector=" + labelsString;
