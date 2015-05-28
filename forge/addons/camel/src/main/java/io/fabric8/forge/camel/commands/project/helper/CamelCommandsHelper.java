@@ -170,9 +170,9 @@ public final class CamelCommandsHelper {
      */
     public static Class<Object> loadValidInputTypes(String javaType, String type) {
         try {
-            Class<Object> clazz = getPrimitiveClassType(type);
+            Class<Object> clazz = getPrimitiveWrapperClassType(type);
             if (clazz == null) {
-                clazz = loadPrimitiveType(javaType);
+                clazz = loadPrimitiveWrapperType(javaType);
             }
             if (clazz == null) {
                 clazz = loadStringSupportedType(javaType);
@@ -208,24 +208,24 @@ public final class CamelCommandsHelper {
      * @param   name the json type
      * @return  the primitive Java Class type
      */
-    public static Class getPrimitiveClassType(String name) {
+    public static Class getPrimitiveWrapperClassType(String name) {
         if ("string".equals(name)) {
             return String.class;
         } else if ("boolean".equals(name)) {
-            return boolean.class;
+            return Boolean.class;
         } else if ("integer".equals(name)) {
-            return int.class;
+            return Integer.class;
         } else if ("number".equals(name)) {
-            return float.class;
+            return Float.class;
         }
 
         return null;
     }
 
-    private static Class loadPrimitiveType(String name) {
+    private static Class loadPrimitiveWrapperType(String name) {
         // special for byte[] or Object[] as its common to use
         if ("java.lang.byte[]".equals(name) || "byte[]".equals(name)) {
-            return byte[].class;
+            return Byte[].class;
         } else if ("java.lang.Byte[]".equals(name) || "Byte[]".equals(name)) {
             return Byte[].class;
         } else if ("java.lang.Object[]".equals(name) || "Object[]".equals(name)) {
@@ -238,35 +238,35 @@ public final class CamelCommandsHelper {
         } else if ("java.lang.Boolean".equals(name) || "Boolean".equals(name)) {
             return Boolean.class;
         } else if ("boolean".equals(name)) {
-            return boolean.class;
+            return Boolean.class;
         } else if ("java.lang.Integer".equals(name) || "Integer".equals(name)) {
             return Integer.class;
         } else if ("int".equals(name)) {
-            return int.class;
+            return Integer.class;
         } else if ("java.lang.Long".equals(name) || "Long".equals(name)) {
             return Long.class;
         } else if ("long".equals(name)) {
-            return long.class;
+            return Long.class;
         } else if ("java.lang.Short".equals(name) || "Short".equals(name)) {
             return Short.class;
         } else if ("short".equals(name)) {
-            return short.class;
+            return Short.class;
         } else if ("java.lang.Byte".equals(name) || "Byte".equals(name)) {
             return Byte.class;
         } else if ("byte".equals(name)) {
-            return byte.class;
+            return Byte.class;
         } else if ("java.lang.Float".equals(name) || "Float".equals(name)) {
             return Float.class;
         } else if ("float".equals(name)) {
-            return float.class;
+            return Float.class;
         } else if ("java.lang.Double".equals(name) || "Double".equals(name)) {
             return Double.class;
         } else if ("double".equals(name)) {
-            return double.class;
+            return Double.class;
         } else if ("java.lang.Character".equals(name) || "Character".equals(name)) {
             return Character.class;
         } else if ("char".equals(name)) {
-            return char.class;
+            return Character.class;
         }
         return null;
     }
