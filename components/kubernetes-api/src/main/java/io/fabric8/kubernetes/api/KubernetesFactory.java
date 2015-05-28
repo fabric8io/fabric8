@@ -27,6 +27,8 @@ import io.fabric8.utils.cxf.AuthorizationHeaderFilter;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -211,7 +214,6 @@ public class KubernetesFactory {
             WebClients.disableSslChecks(webClient);
         } else if (caCertFile != null || caCertData != null) {
             WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
-            registeredCert = true;
         }
         if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
             WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
@@ -227,7 +229,33 @@ public class KubernetesFactory {
         return webClient;
     }
 
-    protected String findOpenShiftToken() {
+    public WebSocketClient createWebSocketClient() throws Exception {
+        SslContextFactory sslContextFactory = null;
+        boolean registeredCert = false;
+        if (trustAllCerts) {
+            sslContextFactory = new SslContextFactory(trustAllCerts);
+        } else if (caCertData != null || caCertFile != null) {
+            KeyStore trustStore = WebClients.createTrustStore(caCertData, caCertFile);
+            sslContextFactory = new SslContextFactory();
+            sslContextFactory.setTrustStore(trustStore);
+        }
+        if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
+            if (sslContextFactory == null) {
+                sslContextFactory = new SslContextFactory();
+            }
+            KeyStore keyStore = WebClients.createKeyStore(this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
+            sslContextFactory = new SslContextFactory();
+            sslContextFactory.setKeyStore(keyStore);
+        }
+
+        sslContextFactory.setIncludeProtocols("TLSv1", "TLSv1.1", "TLSv1.2");
+
+        WebSocketClient client = new WebSocketClient(sslContextFactory);
+
+        return client;
+    }
+
+    public String findOpenShiftToken() {
         Config config = Configs.parseConfigs();
         if (config != null) {
             Context context = Configs.getCurrentContext(config);

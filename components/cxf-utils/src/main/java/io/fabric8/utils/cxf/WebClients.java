@@ -22,19 +22,18 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.utils.Strings;
 import net.oauth.signature.pem.PEMReader;
 import net.oauth.signature.pem.PKCS1EncodedKeySpec;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -44,10 +43,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static io.fabric8.utils.cxf.JsonHelper.createObjectMapper;
 
@@ -66,7 +61,7 @@ public class WebClients {
         return null;
     }
 
-    public static void configureCaCert(WebClient webClient, String caCertData, File caCertFile) {
+    public static KeyStore createTrustStore(String caCertData, File caCertFile) throws Exception {
         try (InputStream pemInputStream = getInputStreamFromDataOrFile(caCertData, caCertFile)) {
             CertificateFactory certFactory = CertificateFactory.getInstance("X509");
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(pemInputStream);
@@ -77,9 +72,17 @@ public class WebClients {
             String alias = cert.getSubjectX500Principal().getName();
             trustStore.setCertificateEntry(alias, cert);
 
+            return trustStore;
+        }
+    }
+
+    public static void configureCaCert(WebClient webClient, String caCertData, File caCertFile) {
+        try {
+            KeyStore trustStore = createTrustStore(caCertData, caCertFile);
             TrustManagerFactory trustManagerFactory =
                     TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(trustStore);
+            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
 
             HTTPConduit conduit = WebClient.getConfig(webClient)
                     .getHttpConduit();
@@ -92,16 +95,12 @@ public class WebClients {
             }
 
             TrustManager[] existingTrustManagers = params.getTrustManagers();
-            TrustManager[] trustManagers;
 
-            if (existingTrustManagers == null || ArrayUtils.isEmpty(existingTrustManagers)) {
-                trustManagers = trustManagerFactory.getTrustManagers();
-            } else {
-                trustManagers = (TrustManager[]) ArrayUtils.addAll(existingTrustManagers, trustManagerFactory.getTrustManagers());
+            if (!ArrayUtils.isEmpty(existingTrustManagers)) {
+                trustManagers = (TrustManager[]) ArrayUtils.addAll(existingTrustManagers, trustManagers);
             }
 
             params.setTrustManagers(trustManagers);
-
         } catch (Exception e) {
             LOG.error("Could not create trust manager for " + caCertFile, e);
         }
@@ -124,6 +123,37 @@ public class WebClients {
     }
 
     public static void configureClientCert(WebClient webClient, String clientCertData, File clientCertFile, String clientKeyData, File clientKeyFile, String clientKeyAlgo, char[] clientKeyPassword) {
+        try {
+            KeyStore keyStore = createKeyStore(clientCertData, clientCertFile, clientKeyData, clientKeyFile, clientKeyAlgo, clientKeyPassword);
+            KeyManagerFactory keyManagerFactory =
+                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, clientKeyPassword);
+            KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
+
+            HTTPConduit conduit = WebClient.getConfig(webClient)
+                    .getHttpConduit();
+
+            TLSClientParameters params = conduit.getTlsClientParameters();
+
+            if (params == null) {
+                params = new TLSClientParameters();
+                conduit.setTlsClientParameters(params);
+            }
+
+            KeyManager[] existingKeyManagers = params.getKeyManagers();
+
+            if (!ArrayUtils.isEmpty(existingKeyManagers)) {
+                keyManagers = (KeyManager[]) ArrayUtils.addAll(existingKeyManagers, keyManagers);
+            }
+
+            params.setKeyManagers(keyManagers);
+
+        } catch (Exception e) {
+            LOG.error("Could not create key manager for " + clientCertFile + " (" + clientKeyFile + ")", e);
+        }
+    }
+
+    public static KeyStore createKeyStore(String clientCertData, File clientCertFile, String clientKeyData, File clientKeyFile, String clientKeyAlgo, char[] clientKeyPassword) throws Exception {
         try (InputStream certInputStream = getInputStreamFromDataOrFile(clientCertData, clientCertFile)) {
             CertificateFactory certFactory = CertificateFactory.getInstance("X509");
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certInputStream);
@@ -140,33 +170,7 @@ public class WebClients {
             String alias = cert.getSubjectX500Principal().getName();
             keyStore.setKeyEntry(alias, privKey, clientKeyPassword, new Certificate[] {cert});
 
-            KeyManagerFactory keyManagerFactory =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, clientKeyPassword);
-
-            HTTPConduit conduit = WebClient.getConfig(webClient)
-                    .getHttpConduit();
-
-            TLSClientParameters params = conduit.getTlsClientParameters();
-
-            if (params == null) {
-                params = new TLSClientParameters();
-                conduit.setTlsClientParameters(params);
-            }
-
-            KeyManager[] existingKeyManagers = params.getKeyManagers();
-            KeyManager[] keyManagers;
-
-            if (existingKeyManagers == null || ArrayUtils.isEmpty(existingKeyManagers)) {
-                keyManagers = keyManagerFactory.getKeyManagers();
-            } else {
-                keyManagers = (KeyManager[]) ArrayUtils.addAll(existingKeyManagers, keyManagerFactory.getKeyManagers());
-            }
-
-            params.setKeyManagers(keyManagers);
-
-        } catch (Exception e) {
-            LOG.error("Could not create key manager for " + clientCertFile + " (" + clientKeyFile + ")", e);
+            return keyStore;
         }
     }
 

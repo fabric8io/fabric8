@@ -17,90 +17,33 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.extensions.Configs;
-import io.fabric8.kubernetes.api.model.EndpointSubset;
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.EndpointsList;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceList;
-import io.fabric8.kubernetes.api.model.Node;
-import io.fabric8.kubernetes.api.model.NodeList;
-import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.ReplicationControllerStatus;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.SecretList;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.model.config.Context;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigList;
-import io.fabric8.openshift.api.model.BuildList;
-import io.fabric8.openshift.api.model.BuildTriggerPolicy;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.DeploymentConfigList;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.openshift.api.model.ImageStreamList;
-import io.fabric8.openshift.api.model.OAuthClient;
-import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteList;
-import io.fabric8.openshift.api.model.RouteSpec;
-import io.fabric8.openshift.api.model.WebHookTrigger;
+import io.fabric8.openshift.api.model.*;
 import io.fabric8.openshift.api.model.template.Template;
-import io.fabric8.utils.Filter;
-import io.fabric8.utils.Filters;
-import io.fabric8.utils.IOHelpers;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.URLUtils;
+import io.fabric8.utils.*;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Objects;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.defaultOsApiVersion;
-import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToHost;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToPort;
-import static io.fabric8.kubernetes.api.KubernetesHelper.serviceToProtocol;
-import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 
 /**
  * A simple client interface abstracting away the details of working with
@@ -1240,6 +1183,87 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             return Collections.EMPTY_LIST;
         } else {
             return getPodsForService(service);
+        }
+    }
+
+    public WebSocketClient watchPods(Watcher<Pod> watcher) throws Exception {
+        return watchPods(null, watcher);
+    }
+
+    public WebSocketClient watchPods(Map<String, String> labels, Watcher<Pod> watcher) throws Exception {
+        return watchPods(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchPods(String namespace, Map<String, String> labels, Watcher<Pod> watcher) throws Exception {
+        PodList currentPodList = getPods(namespace);
+        return watchPods(namespace, labels, watcher,
+                currentPodList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchPods(String namespace, Map<String, String> labels, Watcher<Pod> watcher, String resourceVersion) throws Exception {
+        return watchEntities("pods", namespace, labels, watcher, resourceVersion);
+    }
+
+    public WebSocketClient watchServices(Watcher<Service> watcher) throws Exception {
+        return watchServices(null, watcher);
+    }
+
+    public WebSocketClient watchServices(Map<String, String> labels, Watcher<Service> watcher) throws Exception {
+        return watchServices(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchServices(String namespace, Map<String, String> labels, Watcher<Service> watcher) throws Exception {
+        ServiceList currentServiceList = getServices(namespace);
+        return watchServices(namespace, labels, watcher,
+                currentServiceList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchServices(String namespace, Map<String, String> labels, Watcher<Service> watcher, String resourceVersion) throws Exception {
+        return watchEntities("services", namespace, labels, watcher, resourceVersion);
+    }
+
+    public WebSocketClient watchReplicationControllers(Watcher<ReplicationController> watcher) throws Exception {
+        return watchReplicationControllers(null, watcher);
+    }
+
+    public WebSocketClient watchReplicationControllers(Map<String, String> labels, Watcher<ReplicationController> watcher) throws Exception {
+        return watchReplicationControllers(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchReplicationControllers(String namespace, Map<String, String> labels, Watcher<ReplicationController> watcher) throws Exception {
+        ReplicationControllerList currentReplicationControllerList = getReplicationControllers(namespace);
+        return watchReplicationControllers(namespace, labels, watcher,
+                currentReplicationControllerList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchReplicationControllers(String namespace, Map<String, String> labels, Watcher<ReplicationController> watcher, String resourceVersion) throws Exception {
+        return watchEntities("replicationcontrollers", namespace, labels, watcher, resourceVersion);
+    }
+
+    private WebSocketClient watchEntities(String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
+        String watchUrl = getAddress().replaceFirst("^http", "ws") + "/" + Kubernetes.ROOT_API_PATH + "/namespaces/" + namespace + "/" + entityType + "?watch=true&resourceVersion=" + resourceVersion;
+        String labelsString = toLabelsString(labels);
+        if (Strings.isNotBlank(labelsString)) {
+            watchUrl += "&labelSelector=" + labelsString;
+        }
+        String openShiftToken = getFactory(false).findOpenShiftToken();
+        if (openShiftToken != null) {
+            watchUrl += "&access_token=" + openShiftToken;
+        }
+        LOG.debug("Connecting to {}", watchUrl);
+
+        WebSocketClient client = getFactory(false).createWebSocketClient();
+        try {
+            URI watchUri = URI.create(watchUrl);
+            ClientUpgradeRequest upgradeRequest = new ClientUpgradeRequest();
+            upgradeRequest.setRequestURI(watchUri);
+            upgradeRequest.setHeader("Origin", watchUri.getHost() + ":" + watchUri.getPort());
+            client.start();
+            client.connect(watcher, watchUri, upgradeRequest);
+            return client;
+        } catch (Throwable t) {
+            LOG.error("Failed to watch pods", t);
+            return null;
         }
     }
 

@@ -44,13 +44,15 @@ import javax.ws.rs.Produces;
  * Represents the Remote API to working with <a href="http://kubernetes.io/">Kubernetes</a> providing a facade
  * over the generated JAXRS client.
  */
-@Path("api/v1beta3")
+@Path(Kubernetes.ROOT_API_PATH)
 @Produces("application/json")
 @Consumes("application/json")
 public interface Kubernetes {
 
+    static final String ROOT_API_PATH = "api/v1beta3";
+
     static final String NAMESPACE_ALL = "";
-    static final String NAMESPACE_DEFAULT = "";
+    static final String NAMESPACE_DEFAULT = "default";
 
 
     /**
