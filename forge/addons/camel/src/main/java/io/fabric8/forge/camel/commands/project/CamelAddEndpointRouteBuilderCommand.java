@@ -56,7 +56,7 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
 
     @Inject
     @WithAttributes(label = "instanceName", required = true, description = "Name of endpoint instance to add")
-    private UISelectOne<String> instanceName;
+    private UIInput<String> instanceName;
 
     @Inject
     @WithAttributes(label = "routeBuilder", required = true, description = "The RouteBuilder class to use")

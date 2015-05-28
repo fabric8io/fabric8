@@ -56,7 +56,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
 
     @Inject
     @WithAttributes(label = "instanceName", required = true, description = "Name of endpoint instance to add")
-    private UISelectOne<String> instanceName;
+    private UIInput<String> instanceName;
 
     @Inject
     @WithAttributes(label = "file", required = true, description = "The XML file to use (either Spring or Blueprint)")
