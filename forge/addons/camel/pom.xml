@@ -31,11 +31,11 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- to include hawtio version in pom.xml which is needed by camel setup command -->
-    <hawtio.version>1.4.48</hawtio.version>
+    <hawtio.version>1.4.51</hawtio.version>
     <!-- docker maven plugin -->
-    <docker.version>0.11.2</docker.version>
+    <docker.version>0.11.5</docker.version>
     <!-- jube version -->
-    <jube.version>2.0.37</jube.version>
+    <jube.version>2.1.5</jube.version>
   </properties>
 
   <dependencyManagement>

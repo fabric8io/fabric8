@@ -91,7 +91,6 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         return false;
     }
 
-
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
@@ -152,6 +151,5 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         }
         return null;
     }
-
 
 }
