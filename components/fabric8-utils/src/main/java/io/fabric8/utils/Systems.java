@@ -21,7 +21,25 @@ import org.slf4j.LoggerFactory;
 /**
  */
 public class Systems {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(Systems.class);
+
+    public static String getSystemPropertyOrEnvVar(String systemProperty, String envVarName, String defaultValue) {
+        String answer = null;
+        try {
+            answer = System.getProperty(systemProperty);
+        } catch (Exception e) {
+            LOG.warn("Failed to look up environment variable $" + envVarName + ". " + e, e);
+        }
+        if (Strings.isNullOrBlank(answer)) {
+            answer = System.getenv(envVarName);
+        }
+        if (Strings.isNotBlank(answer)) {
+            return answer;
+        } else {
+            return defaultValue;
+        }
+    }
 
     /**
      * Returns the value of the given environment variable or system property and if both are blank return the default value

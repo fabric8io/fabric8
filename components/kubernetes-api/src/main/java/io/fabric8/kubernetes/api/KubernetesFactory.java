@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.model.config.Context;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.cxf.AuthorizationHeaderFilter;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -95,7 +96,7 @@ public class KubernetesFactory {
     }
 
     public KubernetesFactory(String address, boolean writeable) {
-        this (address, writeable, Boolean.parseBoolean(System.getProperty(KUBERNETES_VERIFY_SYSTEM_PROPERTY, "true")));
+        this(address, writeable, Boolean.parseBoolean(System.getProperty(KUBERNETES_VERIFY_SYSTEM_PROPERTY, "true")));
     }
 
     public KubernetesFactory(String address, boolean writeable, boolean verifyAddress) {
@@ -374,16 +375,9 @@ public class KubernetesFactory {
             kubernetesMaster = proto + "://" + kubernetesMaster + ":" + System.getenv(portEnvVar);
         } else {
             // If not then fall back to KUBERNETES_MASTER env var
-            kubernetesMaster = System.getenv(KUBERNETES_MASTER_ENV_VAR);
+            kubernetesMaster = Systems.getSystemPropertyOrEnvVar(KUBERNETES_MASTER_SYSTEM_PROPERTY, KUBERNETES_MASTER_ENV_VAR, DEFAULT_KUBERNETES_MASTER);
         }
-
-        if (Strings.isNullOrBlank(kubernetesMaster)) {
-            kubernetesMaster = System.getProperty(KUBERNETES_MASTER_SYSTEM_PROPERTY);
-        }
-        if (Strings.isNotBlank(kubernetesMaster)) {
-            return kubernetesMaster;
-        }
-        return DEFAULT_KUBERNETES_MASTER;
+        return kubernetesMaster;
     }
 
     /**
