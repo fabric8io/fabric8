@@ -179,7 +179,6 @@
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
-        <hadoop.version>1.2.1</hadoop.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
         <hawtio-dockerui.version>1.0.4</hawtio-dockerui.version>
@@ -2071,19 +2070,6 @@
                 <groupId>org.libvirt</groupId>
                 <artifactId>libvirt</artifactId>
                 <version>${libvirt.version}</version>
-            </dependency>
-
-
-            <!-- Hadoop -->
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-core</artifactId>
-                <version>${hadoop.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-tools</artifactId>
-                <version>${hadoop.version}</version>
             </dependency>
 
             <dependency>
