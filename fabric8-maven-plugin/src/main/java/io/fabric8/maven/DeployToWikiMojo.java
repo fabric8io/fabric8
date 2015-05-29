@@ -15,6 +15,14 @@
  */
 package io.fabric8.maven;
 
+import java.io.Console;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.annotations.VisibleForTesting;
 import io.fabric8.maven.support.Apps;
 import io.fabric8.utils.Files;
@@ -36,14 +44,6 @@ import org.apache.maven.settings.io.SettingsWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Console;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Deploys the generated App Zip file into the wiki
  */
@@ -53,7 +53,8 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
     private static final transient Logger LOG = LoggerFactory.getLogger(DeployToWikiMojo.class);
 
     public static final String DEFAULT_CONSOLE_URL = "http://dockerhost:8484/hawtio/";
-    @Component
+
+    @Parameter(defaultValue = "${settings}", readonly = true)
     Settings mavenSettings;
 
     @Parameter(defaultValue = "${user.home}/.m2/settings.xml")
@@ -73,7 +74,6 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "project.remoteArtifactRepositories")
     protected List remoteRepositories;
-
 
     /**
      * The server ID in ~/.m2/settings/xml used for the username and password to login to
@@ -103,8 +103,6 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
     @VisibleForTesting
     Server fabricServer;
 
-    private boolean customUsernameAndPassword;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (isIgnoreProject()) return;
@@ -128,7 +126,6 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
                     int idx = s.indexOf(':');
                     jolokiaUsername = s.substring(0, idx);
                     jolokiaPassword = s.substring(idx + 1);
-                    customUsernameAndPassword = true;
                 }
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException("Option consoleUrl is invalid due " + e.getMessage());
@@ -227,7 +224,6 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
             throw new MojoExecutionException("Error executing", e);
         }
     }
-
 
     protected String readInput(String prompt) {
         Console console = System.console();

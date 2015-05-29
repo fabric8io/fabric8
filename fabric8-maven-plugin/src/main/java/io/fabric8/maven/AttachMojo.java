@@ -15,9 +15,10 @@
  */
 package io.fabric8.maven;
 
+import java.io.File;
+import java.io.IOException;
+
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -26,10 +27,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its

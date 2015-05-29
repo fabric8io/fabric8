@@ -15,6 +15,8 @@
  */
 package io.fabric8.maven;
 
+import java.util.List;
+
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Service;
@@ -23,10 +25,7 @@ import io.fabric8.openshift.api.model.Route;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-
-import java.util.List;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 

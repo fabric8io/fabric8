@@ -15,19 +15,6 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.maven.support.JsonSchema;
-import io.fabric8.maven.support.JsonSchemas;
-import io.fabric8.openshift.api.model.template.Template;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Strings;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +35,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
 
@@ -57,6 +55,7 @@ import static io.fabric8.utils.PropertiesHelper.toMap;
 public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     public static String[] ICON_EXTENSIONS = new String[]{".svg", ".png", ".gif", ".jpg", ".jpeg"};
+
     /**
      * Name of the created app zip file
      */
@@ -74,7 +73,6 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.iconRef")
     protected String iconRef;
 
-
     /**
      * The generated kubernetes JSON file
      */
@@ -87,7 +85,6 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.json.source", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
     protected File kubernetesSourceJson;
 
-
     /**
      * The number of replicas of this container if we are auto generating the kubernetes JSON file (creating
      * a <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if this value
@@ -96,13 +93,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.replicas", defaultValue = "1")
     private Integer replicas;
 
-
     /**
      * Whether or not we should ignoreProject this maven project from goals like fabric8:deploy
      */
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
     private boolean ignoreProject;
-
 
     /**
      * The properties file used to specify environment variables which allows ${FOO_BAR} expressions to be used
@@ -111,8 +106,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.envProperties", defaultValue = "${basedir}/src/main/fabric8/env.properties")
     protected File envPropertiesFile;
 
-    @Component
+    @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
+
     /**
      * Files to be excluded
      */

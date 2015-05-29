@@ -20,12 +20,8 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
-/**
- */
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     @Parameter(property = "fabric8.namespace")
@@ -49,8 +45,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     @Parameter(property = "fabric8.recreate")
     protected boolean recreate;
 
-
-
     private KubernetesClient kubernetes = new KubernetesClient();
 
     public KubernetesClient getKubernetes() {
@@ -59,7 +53,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         }
         return kubernetes;
     }
-
 
     protected Controller createController() {
         Controller controller = new Controller(getKubernetes());

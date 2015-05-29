@@ -20,7 +20,9 @@ package io.fabric8.maven;
  * Keys used to add annotations to the generated Template
  */
 public class AnnotationKeys {
+
     public static final String ICON_URL = "fabric8/iconUrl";
     public static final String SUMMARY = "fabric8/summary";
     public static final String DESCRIPTION = "fabric8/description";
+
 }

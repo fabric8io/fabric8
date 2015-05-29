@@ -15,21 +15,20 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.maven.support.JsonSchema;
-import io.fabric8.maven.support.JsonSchemaProperty;
-import io.fabric8.maven.support.JsonSchemas;
-import io.fabric8.utils.TablePrinter;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemaProperty;
+import io.fabric8.utils.TablePrinter;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Displays the currently known environment variables for the container using

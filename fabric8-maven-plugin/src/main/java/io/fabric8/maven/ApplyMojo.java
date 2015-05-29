@@ -48,6 +48,7 @@ import java.util.TreeSet;
  */
 @Mojo(name = "apply", defaultPhase = LifecyclePhase.INSTALL)
 public class ApplyMojo extends AbstractFabric8Mojo {
+
     /**
      * Specifies the namespace to use
      */

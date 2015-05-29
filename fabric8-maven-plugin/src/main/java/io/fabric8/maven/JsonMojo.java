@@ -15,6 +15,22 @@
  */
 package io.fabric8.maven;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -72,22 +88,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
@@ -125,7 +125,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private static final String PARAMETER_NAME_PREFIX = PARAMETER_PREFIX + ".%s";
     private static final String PARAMETER_PROPERTY = PARAMETER_NAME_PREFIX + ".%s";
 
-    private static final String GENEATE = "generate";
+    private static final String GENERATE = "generate";
     private static final String FROM = "from";
     private static final String VALUE = "value";
     private static final String DESCRIPTION = "description";
@@ -217,7 +217,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.deploymentStrategy", defaultValue = "Recreate")
     private String deploymentStrategy;
 
-
     /**
      * The extra additional kubernetes JSON file for things like services
      */
@@ -247,7 +246,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.iconBranch", defaultValue = "master")
     private String iconBranch;
-
 
     /**
      * The replication controller name used in the generated Kubernetes JSON template
@@ -339,7 +337,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.maximumDataUrlSizeK", defaultValue = "36")
     private int maximumDataUrlSizeK;
 
-
     @Component
     protected ArtifactResolver resolver;
 
@@ -416,7 +413,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             if (jsonObjectList.isEmpty()) {
                 throw new MojoExecutionException("Could not find any dependent kubernetes JSON files!");
             }
-            Object combinedJson = null;
+            Object combinedJson;
             if (jsonObjectList.size() == 1) {
                 combinedJson = jsonObjectList.get(0);
             } else {
@@ -433,8 +430,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
     }
-
-
 
     private void addKubernetesJsonFileToList(List<Object> list, File file) {
         if (file.exists() && file.isFile()) {
@@ -469,7 +464,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return resolve.getArtifacts();
     }
 
-
     @SuppressWarnings("unchecked")
     private void addNeededRemoteRepository() {
         // TODO: Remove this code when we use releases from Maven Central
@@ -499,7 +493,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
             remoteRepositories.add(fsPublic);
         }
     }
-
 
     protected void combineJsonFiles(File json, File kubernetesExtraJson) throws MojoExecutionException {
         // lets combine json files together
@@ -1300,7 +1293,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         String value = properties.getProperty(String.format(PARAMETER_PROPERTY, name, VALUE));
                         String from = properties.getProperty(String.format(PARAMETER_PROPERTY, name, FROM));
                         String description = properties.getProperty(String.format(PARAMETER_PROPERTY, name, DESCRIPTION));
-                        String generate = properties.getProperty(String.format(PARAMETER_PROPERTY, name, GENEATE));
+                        String generate = properties.getProperty(String.format(PARAMETER_PROPERTY, name, GENERATE));
                         //If neither value nor from has been specified read the value inline.
                         if (Strings.isNullOrBlank(value) && Strings.isNullOrBlank(from)) {
                             value = properties.getProperty(String.format(PARAMETER_NAME_PREFIX, name));

@@ -15,8 +15,6 @@
  */
 package io.fabric8.maven;
 
-import org.apache.maven.plugin.logging.Log;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -31,11 +29,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.maven.plugin.logging.Log;
+
 import static com.google.common.io.Closeables.close;
 
-/**
- */
-public class Zips {
+public final class Zips {
 
     /**
      * Creates a zip fie from the given source directory and output zip file name
@@ -57,6 +55,7 @@ public class Zips {
             try {
                 zos.close();
             } catch (Exception e) {
+                // ignore
             }
         }
     }
@@ -142,6 +141,7 @@ public class Zips {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static List<String> notNullList(List<String> list) {
         if (list == null) {
             return Collections.EMPTY_LIST;
@@ -149,7 +149,6 @@ public class Zips {
             return list;
         }
     }
-
 
     private static class LegalFilter implements FileFilter {
 

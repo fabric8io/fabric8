@@ -15,18 +15,27 @@
  */
 package io.fabric8.maven;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
-import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -37,15 +46,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
 
 /**
  * Generates a properties file that contains that env variables that are expected to be passed by kubernetes to the container.
@@ -101,8 +101,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 
     /**
      * Return the Env Variables that correspond to each services that runs under the specified namespace.
+     *
      * @param namespace The target namespace.
-     * @return
+     * @return the env variables
      */
     Map<String, String> getNamespaceServiceEnv(String namespace) {
         Map<String, String> result = new HashMap<>();
@@ -192,8 +193,6 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
      * Load the kubernetes configuration found in the project
      *
      * @return The Kubernetes config.
-     * @throws MojoFailureException
-     * @throws IOException
      */
     private Object loadKubernetesJson() throws MojoFailureException, IOException {
         File json = getKubernetesJson();
