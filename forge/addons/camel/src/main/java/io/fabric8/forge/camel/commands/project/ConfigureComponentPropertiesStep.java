@@ -105,7 +105,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
                     Class<Object> inputClazz = loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
-                            InputComponent input = createUIInput(componentFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
+                            InputComponent input = createUIInput(componentFactory, getConverterFactory(), name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 builder.add(input);
                                 inputs.add(input);

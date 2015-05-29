@@ -45,6 +45,8 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
     private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
 
+    // TODO: no MAIN if WAR / Karaf
+
     @Inject
     @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
     private UISelectOne<String> from;

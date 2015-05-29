@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import org.jboss.forge.addon.convert.Converter;
+import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.ui.facets.HintsFacet;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
@@ -33,17 +35,27 @@ public final class UIHelper {
      *
      * @return the input widget, or <tt>null</tt> if not supported because of inputClazz not possible to be used
      */
-    public static InputComponent createUIInput(InputComponentFactory factory, String name, Class inputClazz,
+    public static InputComponent createUIInput(InputComponentFactory factory, ConverterFactory converterFactory, String name, Class inputClazz,
                                                String required, String currentValue, String defaultValue, String enums, String description) {
 
         InputComponent input;
         if (enums != null) {
             UISelectOne ui = factory.createSelectOne(name, inputClazz);
             if (defaultValue != null) {
-                ui.setDefaultValue(defaultValue);
+                Object value = defaultValue;
+                Converter converter = converterFactory.getConverter(String.class, inputClazz);
+                if (converter != null) {
+                    value = converter.convert(defaultValue);
+                }
+                ui.setDefaultValue(value);
             }
             if (currentValue != null) {
-                ui.setValue(currentValue);
+                Object value = currentValue;
+                Converter converter = converterFactory.getConverter(String.class, inputClazz);
+                if (converter != null) {
+                    value = converter.convert(currentValue);
+                }
+                ui.setValue(value);
             }
             // the enums are comma separated
             List<String> list  = new ArrayList<>();
@@ -66,10 +78,20 @@ public final class UIHelper {
         } else {
             UIInput ui = factory.createInput(name, inputClazz);
             if (defaultValue != null) {
-                ui.setDefaultValue(defaultValue);
+                Object value = defaultValue;
+                Converter converter = converterFactory.getConverter(String.class, inputClazz);
+                if (converter != null) {
+                    value = converter.convert(defaultValue);
+                }
+                ui.setDefaultValue(value);
             }
             if (currentValue != null) {
-                ui.setValue(currentValue);
+                Object value = currentValue;
+                Converter converter = converterFactory.getConverter(String.class, inputClazz);
+                if (converter != null) {
+                    value = converter.convert(currentValue);
+                }
+                ui.setValue(value);
             }
 
             // This will always prompt, regardless if there is a value set
