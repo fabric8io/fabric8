@@ -16,8 +16,15 @@
 
 package io.fabric8.cdi.weld;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.mockwebserver.Dispatcher;
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesFactory;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -41,13 +48,11 @@ import java.util.Set;
 @RunWith(Arquillian.class)
 public class ExtensionTest {
 
-    @BeforeClass
-    public static void setUp() {
-        System.setProperty("MY_CONFIG_TEST", "value1");
-        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
-        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
-        System.setProperty("KUBERNETES_PROTOCOL", "https");
-    }
+    private static final MockWebServer server = new MockWebServer();
+
+    private static String KUBERNETES_SERVICE_JSON;
+    private static String FABRIC8_CONSOLE_SERVICE_JSON;
+    private static String APP_LIBRARY_SERVICE_JSON;
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -55,7 +60,64 @@ public class ExtensionTest {
                 .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, ServiceStringBean.class, ServiceUrlBean.class)
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
-                .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml").resolve("org.apache.deltaspike.core:deltaspike-core-impl").withTransitivity().as(File.class));
+                .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")
+                        .resolve(
+                                "org.apache.deltaspike.core:deltaspike-core-impl",
+                                "com.google.mockwebserver:mockwebserver"
+                        )
+                        .withTransitivity().as(File.class));
+    }
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        System.setProperty("MY_CONFIG_TEST", "value1");
+        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
+        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
+        System.setProperty("KUBERNETES_PROTOCOL", "https");
+
+        KUBERNETES_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
+        FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
+        APP_LIBRARY_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
+
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                if (request.getPath().equals("/api/v1beta3/namespaces/default/services/kubernetes")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(KUBERNETES_SERVICE_JSON);
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/fabric8-console-service")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/app-library")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(APP_LIBRARY_SERVICE_JSON);
+                } else if (request.getPath().equals("/osapi/v1beta3/namespaces/default/routes")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody("{}");
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/endpoints")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody("{}");
+                } else {
+                    return new MockResponse().setResponseCode(401);
+                }
+            }
+        });
+
+        server.play();
+        System.setProperty(KubernetesFactory.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
+        System.setProperty(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, "true");
+        System.setProperty(KubernetesFactory.KUBERNETES_VERIFY_SYSTEM_PROPERTY, "false");
+
     }
 
     @Inject

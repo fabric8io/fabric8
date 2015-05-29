@@ -65,6 +65,7 @@ public class KubernetesFactory {
     public static final String KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR = "KUBERNETES_CLIENT_KEY_ALGO";
     public static final String KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR = "KUBERNETES_CLIENT_KEY_PASSWORD";
     public static final String KUBERNETES_MASTER_SYSTEM_PROPERTY = "kubernetes.master";
+    public static final String KUBERNETES_VERIFY_SYSTEM_PROPERTY = "kubernetes.verify";
 
     private String address;
     private boolean verifyAddress = true;
@@ -94,8 +95,7 @@ public class KubernetesFactory {
     }
 
     public KubernetesFactory(String address, boolean writeable) {
-        init();
-        initAddress(address, writeable);
+        this (address, writeable, Boolean.parseBoolean(System.getProperty(KUBERNETES_VERIFY_SYSTEM_PROPERTY, "true")));
     }
 
     public KubernetesFactory(String address, boolean writeable, boolean verifyAddress) {
