@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
@@ -36,6 +37,9 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
 
     @Inject
     protected ProjectFactory projectFactory;
+
+    @Inject
+    protected ConverterFactory converterFactory;
 
     @Override
     protected boolean isProjectRequired() {
@@ -64,6 +68,10 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
     @Override
     protected ProjectFactory getProjectFactory() {
         return projectFactory;
+    }
+
+    protected ConverterFactory getConverterFactory() {
+        return converterFactory;
     }
 
     protected PrintStream getOutput(UIExecutionContext context) {
