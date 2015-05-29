@@ -72,9 +72,6 @@ import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -456,42 +453,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected Set<Artifact> resolveArtifacts(Artifact artifact) {
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
-        addNeededRemoteRepository();
         request.setRemoteRepositories(remoteRepositories);
         request.setLocalRepository(localRepository);
 
         ArtifactResolutionResult resolve = resolver.resolve(request);
         return resolve.getArtifacts();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void addNeededRemoteRepository() {
-        // TODO: Remove this code when we use releases from Maven Central
-        // included jboss-fs repo which is required until we use an Apache version of Karaf
-        boolean found = false;
-        if (remoteRepositories != null) {
-            for (Object obj : remoteRepositories) {
-                if (obj instanceof ArtifactRepository) {
-                    ArtifactRepository repo = (ArtifactRepository) obj;
-                    if (repo.getUrl().contains("repository.jboss.org/nexus/content/groups/fs-public")) {
-                        found = true;
-                        getLog().debug("Found existing (" + repo.getId() + ") remote repository: " + repo.getUrl());
-                        break;
-                    }
-                }
-            }
-        }
-        if (!found) {
-            ArtifactRepository fsPublic = new MavenArtifactRepository();
-            fsPublic.setUrl("http://repository.jboss.org/");
-            fsPublic.setLayout(new DefaultRepositoryLayout());
-            fsPublic.setReleaseUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
-            fsPublic.setSnapshotUpdatePolicy(new ArtifactRepositoryPolicy(false, "never", "ignore"));
-            if (remoteRepositories == null) {
-                remoteRepositories = new ArrayList();
-            }
-            remoteRepositories.add(fsPublic);
-        }
     }
 
     protected void combineJsonFiles(File json, File kubernetesExtraJson) throws MojoExecutionException {
