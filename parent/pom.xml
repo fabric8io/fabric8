@@ -132,20 +132,6 @@
                             <_include>-osgi.bnd</_include>
                         </instructions>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <id>cleanVersions</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>cleanVersions</goal>
-                            </goals>
-                            <configuration>
-                                <versions>
-                                    <karaf.osgi.version>${karaf.version}</karaf.osgi.version>
-                                </versions>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
