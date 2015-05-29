@@ -180,7 +180,7 @@ public final class CamelCommandsHelper {
             if (clazz == null) {
                 clazz = (Class<Object>) Class.forName(javaType);
             }
-            if (clazz.equals(String.class) || clazz.equals(Date.class)
+            if (clazz.equals(String.class) || clazz.equals(Date.class) || clazz.equals(Boolean.class)
                     || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz)) {
                 return clazz;
             }
@@ -200,7 +200,6 @@ public final class CamelCommandsHelper {
         }
         return null;
     }
-
 
     /**
      * Gets the JSon schema primitive type.
