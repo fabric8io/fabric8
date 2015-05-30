@@ -71,8 +71,6 @@
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
-        <perfectus-build>379</perfectus-build>
-        <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -84,9 +82,6 @@
         <maven.compiler.argument.target>${maven.compiler.target}</maven.compiler.argument.target>
         <maven.compiler.argument.source>${maven.compiler.source}</maven.compiler.argument.source>
 
-        <fabric-perfectus.version>7.3.0.redhat-${perfectus-build}</fabric-perfectus.version>
-        <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
-
         <activemq.version>5.11.1</activemq.version>
         <aether.version>1.11</aether.version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
@@ -95,22 +90,13 @@
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <arquillian-core.version>1.1.7.Final</arquillian-core.version>
         <arquillian-junit-container.version>1.1.7.Final</arquillian-junit-container.version>
-        <arquillian-osgi.version>2.1.0.CR17</arquillian-osgi.version>
-        <arquillian-tomcat.version>1.0.0.CR7</arquillian-tomcat.version>
         <arquillian-weld-ee-embedded.version>1.0.0.CR3</arquillian-weld-ee-embedded.version>
-        <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <asm.version>5.0.3</asm.version>
         <assertj.core.version>1.7.0</assertj.core.version>
-        <blueprint-web.version>1.0.0</blueprint-web.version>
-        <bndlib.version>2.1.0</bndlib.version>
-        <bouncycastle.version>1.52</bouncycastle.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
         <camel.version-range>[2.15,3)</camel.version-range>
         <camel.version>2.15.2</camel.version>
-        <cassandra.version>2.0.7</cassandra.version>
-        <commons-beanutils.version>1.8.3</commons-beanutils.version>
         <commons-codec.version>1.6</commons-codec.version>
-        <commons-collections.version>3.2.1</commons-collections.version>
         <commons-compress.version>1.8</commons-compress.version>
         <commons-fileupload.version>1.3.1</commons-fileupload.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
@@ -368,16 +354,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons-beanutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
