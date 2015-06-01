@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Mon Jun 01 2015 15:22:25 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Mon Jun 01 2015 23:22:30 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1072,7 +1072,7 @@
 <pre><code>mvn io.fabric8:fabric8-maven-plugin:2.1.3:create-routes -Dfabric8.domain=my.acme.com
 </code></pre><p>You could then setup a wildcard DNS rule on <code>*.$KUBERNETES_DOMAIN</code> to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your <code>/etc/hosts</code> file for each service.</p>
 <p>e.g. if your IP address for the OpenShift master/router is <code>172.28.128.4</code> (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>) then add this to your <code>/etc/hosts</code> to expose the routes as host names:</p>
-<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
+<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs-http.vagrant.local gogs-ssh.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
 </code></pre><p>You should now be able to access the console at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
 
                     
