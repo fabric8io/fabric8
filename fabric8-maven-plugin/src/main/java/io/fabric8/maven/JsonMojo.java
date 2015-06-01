@@ -247,7 +247,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The replication controller name used in the generated Kubernetes JSON template
      */
-    @Parameter(property = "fabric8.replicationController.name", defaultValue = "${project.artifactId}-controller")
+    @Parameter(property = "fabric8.replicationController.name", defaultValue = "${project.artifactId}")
     private String replicationControllerName;
 
     /**
@@ -259,7 +259,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The name label used in the generated Kubernetes JSON template
      */
-    @Parameter(property = "fabric8.container.name", defaultValue = "${project.artifactId}-container")
+    @Parameter(property = "fabric8.container.name", defaultValue = "${project.artifactId}")
     private String kubernetesContainerName;
 
     /**
@@ -331,7 +331,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * Defines the maximum size in kilobytes that the data encoded URL of the icon should be before we defer
      * and try to use an external URL
      */
-    @Parameter(property = "fabric8.maximumDataUrlSizeK", defaultValue = "36")
+    @Parameter(property = "fabric8.maximumDataUrlSizeK", defaultValue = "2")
     private int maximumDataUrlSizeK;
 
     @Component
@@ -684,7 +684,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
             addDocumentationAnnotations(template, annotations);
             if (hasUrl) {
-                annotations.put(AnnotationKeys.ICON_URL, iconUrl);
+                annotations.put(getTemplateKey(template, AnnotationKeys.ICON_URL), iconUrl);
             }
 
             builder = builder.addToTemplateItems(template);
@@ -704,6 +704,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
+    protected String getTemplateKey(Template template, String key) {
+        String name = getName(template);
+        if (Strings.isNullOrBlank(name)) {
+            name = getProject().getArtifactId();
+        }
+        return AnnotationKeys.PREFIX + name + "/" + key;
+    }
+
     protected void addDocumentationAnnotations(Template template, Map<String, String> annotations) {
         // we want summary before description
         try {
@@ -717,7 +725,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (summary.exists() && summary.isFile()) {
             try {
                 String text = Files.toString(summary);
-                annotations.put(AnnotationKeys.SUMMARY, text);
+                annotations.put(getTemplateKey(template, AnnotationKeys.SUMMARY), text);
             } catch (IOException e) {
                 getLog().warn("Failed to load " + summary + ". " + e, e);
             }
@@ -809,7 +817,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                                 String[] prefixes = {"http://github.com/", "https://github.com/"};
                                 for (String prefix : prefixes) {
                                     if (url.startsWith(prefix)) {
-                                        url = URLUtils.pathJoin("https://raw.githubusercontent.com/", url.substring(prefix.length()));
+                                        url = URLUtils.pathJoin("https://cdn.rawgit.com/", url.substring(prefix.length()));
                                         break;
                                     }
                                 }

@@ -219,7 +219,8 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         String id = KubernetesHelper.getName(service);
         if (Strings.isNotBlank(id) && shouldCreateRouteForService(log, service, id)) {
             route = new Route();
-            KubernetesHelper.setName(route, namespace, id + "-route");
+            String routeId = id;
+            KubernetesHelper.setName(route, namespace, routeId);
             RouteSpec routeSpec = new RouteSpec();
             ObjectReference objectRef = new ObjectReference();
             objectRef.setName(id);

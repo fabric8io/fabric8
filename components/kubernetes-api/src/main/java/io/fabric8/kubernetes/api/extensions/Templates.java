@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
@@ -80,6 +81,20 @@ public class Templates {
             firstTemplate.setParameters(parameters);
         }
         combineParameters(parameters, template.getParameters());
+        String name = KubernetesHelper.getName(template);
+        if (Strings.isNotBlank(name)) {
+            // lets merge all the fabric8 annotations using the template id qualifier as a postfix
+            Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(firstTemplate);
+            Map<String, String> otherAnnotations = KubernetesHelper.getOrCreateAnnotations(template);
+            Set<Map.Entry<String, String>> entries = otherAnnotations.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (!annotations.containsKey(key)) {
+                    annotations.put(key, value);
+                }
+            }
+        }
         return firstTemplate;
     }
 

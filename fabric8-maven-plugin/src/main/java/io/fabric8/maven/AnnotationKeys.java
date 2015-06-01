@@ -21,8 +21,10 @@ package io.fabric8.maven;
  */
 public class AnnotationKeys {
 
-    public static final String ICON_URL = "fabric8/iconUrl";
-    public static final String SUMMARY = "fabric8/summary";
-    public static final String DESCRIPTION = "fabric8/description";
+    public static final String PREFIX = "fabric8.";
+
+    public static final String ICON_URL = "iconUrl";
+    public static final String SUMMARY = "summary";
+    public static final String DESCRIPTION = "description";
 
 }
