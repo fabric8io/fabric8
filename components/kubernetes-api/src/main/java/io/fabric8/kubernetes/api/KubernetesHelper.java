@@ -90,6 +90,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,10 +98,10 @@ import java.util.Set;
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
 
-
 /**
+ * Kubernetes utility methods.
  */
-public class KubernetesHelper {
+public final class KubernetesHelper {
     public static final int INTORSTRING_KIND_INT = 0;
     public static final int INTORSTRING_KIND_STRING = 1;
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
@@ -109,7 +110,6 @@ public class KubernetesHelper {
     protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
-
     public static final String defaultApiVersion = "v1beta3";
     public static final String defaultOsApiVersion = "v1beta3";
 
@@ -117,7 +117,6 @@ public class KubernetesHelper {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     public static final String DEFAULT_PROTO = "tcp";
-
 
     /**
      * Returns the ID of the given object
@@ -138,7 +137,6 @@ public class KubernetesHelper {
         }
         return metadata;
     }
-
 
     /**
      * Returns the resource version for the entity or null if it does not have one
@@ -181,7 +179,6 @@ public class KubernetesHelper {
         }
     }
 
-
     public static void setName(HasMetadata entity, String name) {
         getOrCreateMetadata(entity).setName(name);
     }
@@ -216,7 +213,8 @@ public class KubernetesHelper {
         ObjectMeta metadata = getOrCreateMetadata(entity);
         Map<String, String> answer = metadata.getAnnotations();
         if (answer == null) {
-            answer = new HashMap<>();
+            // use linked so the annotations can be in the FIFO order
+            answer = new LinkedHashMap<>();
             metadata.setAnnotations(answer);
         }
         return answer;
@@ -226,16 +224,17 @@ public class KubernetesHelper {
         ObjectMeta metadata = getOrCreateMetadata(entity);
         Map<String, String> answer = metadata.getLabels();
         if (answer == null) {
-            answer = new HashMap<>();
+            // use linked so the annotations can be in the FIFO order
+            answer = new LinkedHashMap<>();
             metadata.setLabels(answer);
         }
         return answer;
     }
 
-
     /**
      * Returns the labels of the given metadata object or an empty map if the metadata or labels are null
      */
+    @SuppressWarnings("unchecked")
     public static Map<String, String> getLabels(ObjectMeta metadata) {
         if (metadata != null) {
             Map<String, String> labels = metadata.getLabels();
@@ -246,6 +245,7 @@ public class KubernetesHelper {
         return Collections.EMPTY_MAP;
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, String> getLabels(HasMetadata entity) {
         if (entity != null) {
             return getLabels(entity.getMetadata());
@@ -271,6 +271,7 @@ public class KubernetesHelper {
         return answer;
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, String> getSelector(Service entity) {
         Map<String, String> answer = null;
         if (entity != null) {
@@ -296,7 +297,6 @@ public class KubernetesHelper {
         return answer;
     }
 
-
     protected static String getAdditionalPropertyText(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
             Object value = additionalProperties.get(name);
@@ -307,11 +307,10 @@ public class KubernetesHelper {
         return null;
     }
 
-
     protected static Map<String, Object> getMetadata(Map<String, Object> additionalProperties, boolean create) {
         Map<String, Object> answer = getAdditionalPropertyMap(additionalProperties, "metadata");
         if (answer == null) {
-            answer = new HashMap<>();
+            answer = new LinkedHashMap<>();
             if (create) {
                 additionalProperties.put("metadata", answer);
             }
@@ -319,6 +318,7 @@ public class KubernetesHelper {
         return answer;
     }
 
+    @SuppressWarnings("unchecked")
     protected static Map<String, Object> getAdditionalPropertyMap(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
             Object value = additionalProperties.get(name);
@@ -399,7 +399,6 @@ public class KubernetesHelper {
         return null;
     }
 
-
     /**
      * Loads the YAML file for the given DTO class
      */
@@ -427,6 +426,7 @@ public class KubernetesHelper {
     /**
      * Loads the Kubernetes JSON and converts it to a list of entities
      */
+    @SuppressWarnings("unchecked")
     public static List<HasMetadata> toItemList(Object entity) throws IOException {
         if (entity instanceof List) {
             return (List<HasMetadata>) entity;
@@ -447,7 +447,6 @@ public class KubernetesHelper {
             return answer;
         }
     }
-
 
     /**
      * Saves the json object to the given file
@@ -512,7 +511,6 @@ public class KubernetesHelper {
         return toServiceMap(filteredList);
     }
 
-
     /**
      * Returns a map indexed by replicationController id of the replicationControllers
      */
@@ -526,7 +524,6 @@ public class KubernetesHelper {
         List<ReplicationController> filteredList = Filters.filter(list, filter);
         return toReplicationControllerMap(filteredList);
     }
-
 
     /**
      * Returns a map indexed by replicationController id of the replicationControllers
@@ -880,6 +877,7 @@ public class KubernetesHelper {
     /**
      * Returns all the containers from the given pod
      */
+    @SuppressWarnings("unchecked")
     public static List<Container> getContainers(Pod pod) {
         if (pod != null) {
             PodSpec podSpec = pod.getSpec();
@@ -892,6 +890,7 @@ public class KubernetesHelper {
     /**
      * Returns all the containers from the given Replication Controller
      */
+    @SuppressWarnings("unchecked")
     public static List<Container> getContainers(ReplicationController replicationController) {
         if (replicationController != null) {
             ReplicationControllerSpec replicationControllerSpec = replicationController.getSpec();
@@ -903,6 +902,7 @@ public class KubernetesHelper {
     /**
      * Returns all the containers from the given Replication Controller's replicationControllerSpec
      */
+    @SuppressWarnings("unchecked")
     public static List<Container> getContainers(ReplicationControllerSpec replicationControllerSpec) {
         if (replicationControllerSpec != null) {
             PodTemplateSpec podTemplateSpec = replicationControllerSpec.getTemplate();
@@ -911,6 +911,7 @@ public class KubernetesHelper {
         return Collections.EMPTY_LIST;
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Container> getContainers(PodSpec podSpec) {
         if (podSpec != null) {
             return podSpec.getContainers();
@@ -918,6 +919,7 @@ public class KubernetesHelper {
         return Collections.EMPTY_LIST;
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Container> getContainers(PodTemplateSpec podTemplateSpec) {
         if (podTemplateSpec != null) {
             return getContainers(podTemplateSpec.getSpec());
@@ -928,6 +930,7 @@ public class KubernetesHelper {
     /**
      * Returns all the containers from the given Replication Controller
      */
+    @SuppressWarnings("unchecked")
     public static List<Container> getCurrentContainers(ReplicationController replicationController) {
         if (replicationController != null) {
             // TODO
@@ -938,6 +941,7 @@ public class KubernetesHelper {
     /**
      * Returns all the current containers from the given currentState
      */
+    @SuppressWarnings("unchecked")
     public static Map<String, ContainerStatus> getCurrentContainers(Pod pod) {
         if (pod != null) {
             PodStatus currentStatus = pod.getStatus();
@@ -950,6 +954,7 @@ public class KubernetesHelper {
     /**
      * Returns all the current containers from the given podStatus
      */
+    @SuppressWarnings("unchecked")
     public static Map<String, ContainerStatus> getCurrentContainers(PodStatus podStatus) {
         if (podStatus != null) {
             List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
@@ -978,6 +983,7 @@ public class KubernetesHelper {
     /**
      * Returns the container port number for the given service
      */
+    @SuppressWarnings("unchecked")
     public static Set<Integer> getContainerPorts(Service service) {
         Set<Integer> answer = Collections.EMPTY_SET;
         String id = getName(service);
@@ -1024,6 +1030,7 @@ public class KubernetesHelper {
     /**
      * Returns the container port number for the given service
      */
+    @SuppressWarnings("unchecked")
     public static Set<String> getContainerPortsStrings(Service service) {
         Set<String> answer = Collections.EMPTY_SET;
         String id = getName(service);
@@ -1097,8 +1104,6 @@ public class KubernetesHelper {
 
     /**
      * Remove any duplicate resources using the kind and id
-     *
-     * @param itemArray
      */
     protected static void removeDuplicates(List<HasMetadata> itemArray) {
         int size = itemArray.size();
@@ -1127,6 +1132,7 @@ public class KubernetesHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected static void addObjectsToItemArray(List destinationList, Object object) throws IOException {
         if (object instanceof KubernetesList) {
             KubernetesList kubernetesList = (KubernetesList) object;
@@ -1142,7 +1148,6 @@ public class KubernetesHelper {
         }
     }
 
-
     protected static KubernetesList findOrCreateList(Object[] objects) {
         KubernetesList list = null;
         for (Object object : objects) {
@@ -1156,7 +1161,6 @@ public class KubernetesHelper {
         }
         return list;
     }
-
 
     /**
      * Returns the URL to access the service; using the service portalIP and port
@@ -1194,11 +1198,9 @@ public class KubernetesHelper {
         return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + PORT_SUFFIX + "_" + servicePort + PROTO_SUFFIX), DEFAULT_PROTO);
     }
 
-
     public static String toEnvVariable(String str) {
         return str.toUpperCase().replaceAll("-", "_");
     }
-
 
     /**
      * Returns the port for the given port number on the pod
@@ -1232,7 +1234,6 @@ public class KubernetesHelper {
         return null;
     }
 
-
     /**
      * Returns the port for the given port number or name
      */
@@ -1244,7 +1245,6 @@ public class KubernetesHelper {
             return findContainerPortByName(pod, numberOrName);
         }
     }
-
 
     /**
      * Returns the number if it can be parsed or null
@@ -1296,6 +1296,7 @@ public class KubernetesHelper {
     /**
      * Returns the pods for the given replication controller
      */
+    @SuppressWarnings("unchecked")
     public static List<Pod> getPodsForReplicationController(ReplicationController replicationController, Iterable<Pod> pods) {
         ReplicationControllerSpec replicationControllerSpec = replicationController.getSpec();
         if (replicationControllerSpec == null) {
@@ -1324,6 +1325,7 @@ public class KubernetesHelper {
      * <p/>
      * See https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#headless-services
      */
+    @SuppressWarnings("unchecked")
     public static Set<String> lookupServiceInDns(String serviceName) throws IllegalArgumentException, UnknownHostException {
         try {
             Lookup l = new Lookup(serviceName);
@@ -1348,7 +1350,7 @@ public class KubernetesHelper {
 
     public static boolean isServiceSsl(String host, int port, boolean trustAllCerts) {
         try {
-            SSLSocketFactory sslsocketfactory = null;
+            SSLSocketFactory sslsocketfactory;
             if (trustAllCerts) {
                 sslsocketfactory = TrustEverythingSSLTrustManager.getTrustingSSLSocketFactory();
             } else {
@@ -1402,7 +1404,7 @@ public class KubernetesHelper {
         for (int i = 0; i < size; i++) {
             char ch = currentValue.charAt(i);
             if (Character.isUpperCase(ch)) {
-                throw new IllegalArgumentException("Invalid upper case letter '" + Character.valueOf(ch) + "' at index " + i + " for " + description + " value: " + currentValue);
+                throw new IllegalArgumentException("Invalid upper case letter '" + ch + "' at index " + i + " for " + description + " value: " + currentValue);
             }
         }
         return currentValue;
@@ -1510,7 +1512,7 @@ public class KubernetesHelper {
                         if (portText.length() > 0) {
                             portText.append(", ");
                         }
-                        portText.append("" + number);
+                        portText.append("").append(number);
                     }
                 }
 
@@ -1526,7 +1528,7 @@ public class KubernetesHelper {
         StringBuilder buffer = new StringBuilder();
         ReplicationControllerSpec spec = entity.getSpec();
         if (spec != null) {
-            buffer.append("replicas: " + spec.getReplicas());
+            buffer.append("replicas: ").append(spec.getReplicas());
             PodTemplateSpec podTemplateSpec = spec.getTemplate();
             if (podTemplateSpec != null) {
                 appendSummaryText(buffer, podTemplateSpec);
@@ -1673,4 +1675,5 @@ public class KubernetesHelper {
             return answer;
         }
     }
+
 }

@@ -682,10 +682,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         boolean hasUrl = Strings.isNotBlank(iconUrl);
         if (!template.getParameters().isEmpty() || hasUrl) {
             Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
+            addDocumentationAnnotations(template, annotations);
             if (hasUrl) {
                 annotations.put(AnnotationKeys.ICON_URL, iconUrl);
             }
-            addDocumentationAnnotations(template, annotations);
 
             builder = builder.addToTemplateItems(template);
         }
@@ -705,28 +705,31 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected void addDocumentationAnnotations(Template template, Map<String, String> annotations) {
+        // we want summary before description
         try {
-            copyReadMe(templateTempDir);
             copySummaryText(templateTempDir);
+            copyReadMe(templateTempDir);
         } catch (IOException e) {
             getLog().warn("Failed to copy documentation: " + e, e);
         }
-        File readme = new File(templateTempDir, "ReadMe.md");
+
         File summary = new File(templateTempDir, "Summary.md");
-        if (readme.exists() && readme.isFile()) {
-            try {
-                String text = Files.toString(readme);
-                annotations.put(AnnotationKeys.DESCRIPTION, text);
-            } catch (IOException e) {
-                getLog().warn("Failed to load " + readme + ". " + e, e);
-            }
-        }
         if (summary.exists() && summary.isFile()) {
             try {
                 String text = Files.toString(summary);
                 annotations.put(AnnotationKeys.SUMMARY, text);
             } catch (IOException e) {
                 getLog().warn("Failed to load " + summary + ". " + e, e);
+            }
+        }
+
+        File readme = new File(templateTempDir, "ReadMe.md");
+        if (readme.exists() && readme.isFile()) {
+            try {
+                String text = Files.toString(readme);
+                annotations.put(AnnotationKeys.DESCRIPTION, text);
+            } catch (IOException e) {
+                getLog().warn("Failed to load " + readme + ". " + e, e);
             }
         }
     }
