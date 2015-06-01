@@ -69,7 +69,7 @@ public class Example {
                 }
             });
 
-            assertThat(client).podsForService("fabric8-console-service").runningStatus().hasSize(1).extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForService("fabric8").runningStatus().hasSize(1).extracting("labels").contains(consoleLabels);
 
             System.out.println("Done!");
         } catch (Throwable e) {

@@ -41,7 +41,7 @@ public class GitUserHelper {
     // TODO it'd be nice to pick either http or https based on the port number of the gogs service
     // so if folks configured it on https then we'd just work
     @Inject
-    public GitUserHelper(@ServiceName("GOGS_HTTP_SERVICE") @Protocol("http") String gogsUrl,
+    public GitUserHelper(@ServiceName("GOGS_HTTP") @Protocol("http") String gogsUrl,
                          @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
                          @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;

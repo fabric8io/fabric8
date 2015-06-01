@@ -1511,7 +1511,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         boolean useFabric8Console = true;
         if (useFabric8Console) {
             // lets proxy through the fabric8 console REST API to work around bugs in OpenShift...
-            baseUrl = getServiceURL("fabric8-console-service", namespace, "http", false);
+            baseUrl = getServiceURL("fabric8", namespace, "http", false);
             url = URLUtils.pathJoin("/kubernetes/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
             webClient = new KubernetesFactory(baseUrl, true).createWebClient();
         } else {

@@ -34,7 +34,7 @@ public class Fabric8ApplicationTest {
     private Kubernetes kubernetes;
 
     @Autowired
-    @ServiceName("fabric8-console-service")
+    @ServiceName("fabric8")
     private String consoleService;
 
     @Test

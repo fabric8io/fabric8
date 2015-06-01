@@ -425,7 +425,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
         if (kubeAddress == null) {
             try {
-                kubeAddress = kubernetes.getServiceURL("fabric8-console-service", namespace, "http", false);
+                kubeAddress = kubernetes.getServiceURL("fabric8", namespace, "http", false);
                 webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
             } catch (Exception e) {
                 LOG.warn("failed to find fabric8 console service URL: " + e, e);
