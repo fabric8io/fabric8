@@ -206,4 +206,33 @@ public final class CamelCatalogHelper {
 
         return answer;
     }
+
+    /**
+     * Checks whether the given value is matching the default value from the given component.
+     *
+     * @param scheme     the component name
+     * @param key        the option key
+     * @param value      the option value
+     * @return <tt>true</tt> if matching the default value, <tt>false</tt> otherwise
+     */
+    public static boolean isDefaultValue(String scheme, String key, String value) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(scheme);
+        if (json == null) {
+            throw new IllegalArgumentException("Could not find catalog entry for component name: " + scheme);
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String name = propertyMap.get("name");
+                String defaultValue = propertyMap.get("defaultValue");
+                if (key.equals(name)) {
+                    return value.equalsIgnoreCase(defaultValue);
+                }
+            }
+        }
+        return false;
+    }
 }

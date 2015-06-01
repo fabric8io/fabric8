@@ -53,6 +53,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.util.Strings;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.isDefaultValue;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
@@ -181,11 +182,15 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         Map<String, String> options = new HashMap<String, String>();
         for (InputComponent input : inputs) {
             String key = input.getName();
-            // only use the value if a value was set
+            // only use the value if a value was set (and the value is not the same as the default value)
             if (input.hasValue()) {
                 String value = input.getValue().toString();
                 if (value != null) {
-                    options.put(key, value);
+                    // do not add the value if it match the default value
+                    boolean matchDefault = isDefaultValue(camelComponentName, key, value);
+                    if (!matchDefault) {
+                        options.put(key, value);
+                    }
                 }
             } else if (input.isRequired() && input.hasDefaultValue()) {
                 // if its required then we need to grab the value
