@@ -48,13 +48,18 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
 
     @Override
     public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (!enabled) {
+            return false;
+        }
         if (requiresCamelSetup()) {
             // requires camel is already setup
             Project project = getSelectedProjectOrNull(context);
-            return project != null && super.isEnabled(context) && findCamelCoreDependency(project) != null;
-        } else {
-            return super.isEnabled(context);
+            if (project != null) {
+                return findCamelCoreDependency(project) != null;
+            }
         }
+        return false;
     }
 
     protected Project getSelectedProjectOrNull(UIContext context) {

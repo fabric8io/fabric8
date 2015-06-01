@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -59,7 +60,19 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelEditEndpointXmlCommand.class).name(
                 "Camel: Edit Endpoint XML").category(Categories.create(CATEGORY))
-                .description("Edit Camel endpoint to an existing XML file");
+                .description("Edit Camel endpoint from an existing XML file");
+    }
+
+    @Override
+    public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (enabled) {
+            // must be spring or blueprint project for editing xml files
+            boolean spring = CamelCommandsHelper.isSpringProject(getSelectedProject(context));
+            boolean blueprint = CamelCommandsHelper.isBlueprintProject(getSelectedProject(context));
+            return spring || blueprint;
+        }
+        return false;
     }
 
     @Override

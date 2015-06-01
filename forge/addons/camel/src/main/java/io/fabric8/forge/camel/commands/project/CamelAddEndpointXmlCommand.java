@@ -76,6 +76,18 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        boolean enabled = super.isEnabled(context);
+        if (enabled) {
+            // must be spring or blueprint project for editing xml files
+            boolean spring = CamelCommandsHelper.isSpringProject(getSelectedProject(context));
+            boolean blueprint = CamelCommandsHelper.isBlueprintProject(getSelectedProject(context));
+            return spring || blueprint;
+        }
+        return false;
+    }
+
+    @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
