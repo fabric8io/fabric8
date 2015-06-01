@@ -138,6 +138,6 @@ You could then setup a wildcard DNS rule on `*.$KUBERNETES_DOMAIN` to point to t
                                                                                                          
 e.g. if your IP address for the OpenShift master/router is `172.28.128.4` (which it is for the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html)) then add this to your `/etc/hosts` to expose the routes as host names:
 
-		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
+		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs-http.vagrant.local gogs-ssh.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
 
 You should now be able to access the console at [http://fabric8.vagrant.local/](http://fabric8.vagrant.local/)
