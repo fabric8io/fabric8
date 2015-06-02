@@ -37,6 +37,7 @@ import java.util.List;
  */
 public class Configs {
     public static final String OPENSHIFT_CONFIG_FILE_PROPERTY = "openshift.config.file";
+    public static final String OPENSHIFT_CONFIG_FILE_ENV_VAR = "OPENSHIFTCONFIG";
     private static final transient Logger LOG = LoggerFactory.getLogger(Configs.class);
 
     public static Config parseConfigs() {
@@ -103,6 +104,10 @@ public class Configs {
 
     public static File getOpenShiftConfigFile() {
         String file = System.getProperty(OPENSHIFT_CONFIG_FILE_PROPERTY);
+        if (file != null) {
+            return new File(file);
+        }
+        file = System.getenv(OPENSHIFT_CONFIG_FILE_ENV_VAR);
         if (file != null) {
             return new File(file);
         }
