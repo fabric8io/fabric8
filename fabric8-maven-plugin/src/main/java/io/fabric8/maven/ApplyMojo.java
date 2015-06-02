@@ -189,7 +189,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         String routeDomainPostfix = this.routeDomain;
         Log log = getLog();
         if (Strings.isNullOrBlank(routeDomainPostfix)) {
-            log.warn("No fabric8.apply.routeDomain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
+            log.warn("No fabric8.domain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
             return;
         }
         String namespace = kubernetes.getNamespace();
