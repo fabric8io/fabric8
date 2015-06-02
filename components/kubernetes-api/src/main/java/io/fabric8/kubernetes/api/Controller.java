@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -34,6 +35,7 @@ import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.json.JSONObject;
@@ -77,6 +79,8 @@ public class Controller {
     private boolean ignoreServiceMode;
     private boolean ignoreRunningOAuthClients = true;
     private boolean processTemplatesLocally;
+    private File logJsonDir;
+    private File basedir;
 
     public Controller() {
         this(new KubernetesClient());
@@ -312,10 +316,68 @@ public class Controller {
         LOG.info("Creating a template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
         try {
             Object answer = kubernetes.createTemplate(entity, namespace);
-            LOG.info("Created template: " + answer);
+            logGeneratedEntity("Created template: ", namespace, entity, answer);
         } catch (Exception e) {
             onApplyError("Failed to template entity from " + sourceName + ". " + e + ". " + entity, e);
         }
+    }
+
+    protected void logGeneratedEntity(String message, String namespace, HasMetadata entity, Object result) {
+        if (logJsonDir != null) {
+            File namespaceDir = new File(logJsonDir, namespace);
+            namespaceDir.mkdirs();
+            String kind = KubernetesHelper.getKind(entity);
+            String name = KubernetesHelper.getName(entity);
+            if (Strings.isNotBlank(kind)) {
+                name = kind.toLowerCase() + "-" + name;
+            }
+            if (Strings.isNullOrBlank(name)) {
+                LOG.warn("No name for the entity " + entity);
+            } else {
+                String fileName = name + ".json";
+                File file = new File(namespaceDir, fileName);
+                if (file.exists()) {
+                    int idx = 1;
+                    while (true) {
+                        fileName = name + "-" + idx++ + ".json";
+                        file = new File(namespaceDir, fileName);
+                        if (!file.exists()) {
+                            break;
+                        }
+                    }
+                }
+                String text;
+                if (result instanceof String) {
+                    text = result.toString();
+                } else {
+                    try {
+                        text = KubernetesHelper.toJson(result);
+                    } catch (JsonProcessingException e) {
+                        LOG.warn("Could not convert " + result + " to JSON: " + e, e);
+                        if (result != null) {
+                            text = result.toString();
+                        } else {
+                            text = "null";
+                        }
+                    }
+                }
+                try {
+                    IOHelpers.writeFully(file, text);
+                    Object fileLocation = file;
+                    if (basedir != null) {
+                        String path = Files.getRelativePath(basedir, file);
+                        if (path != null) {
+                            fileLocation = Strings.stripPrefix(path, "/");
+                        }
+                    }
+                    LOG.info(message + fileLocation);
+                } catch (IOException e) {
+                    LOG.warn("Failed to write to file " + file + ". " + e, e);
+                }
+                return;
+            }
+        }
+        LOG.info(message + result);
     }
 
     public Object processTemplate(Template entity, String sourceName) {
@@ -334,7 +396,7 @@ public class Controller {
             Object result = null;
             try {
                 String json = kubernetes.processTemplate(entity, namespace);
-                LOG.info("Template processed into: " + json);
+                logGeneratedEntity("Template processed into: ", namespace, entity, json);
                 result = loadJson(json);
                 printSummary(result);
             } catch (Exception e) {
@@ -459,7 +521,7 @@ public class Controller {
                     LOG.info("Updating a service from " + sourceName);
                     try {
                         Object answer = kubernetes.updateService(id, service, namespace);
-                        LOG.info("Updated service: " + answer);
+                        logGeneratedEntity("Updated service: ", namespace, service, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
                     }
@@ -483,17 +545,18 @@ public class Controller {
             } else {
                 answer = kubernetes.createService(service);
             }
-            LOG.info("Created service: " + answer);
+            logGeneratedEntity("Created service: ", namespace, service, answer);
         } catch (Exception e) {
             onApplyError("Failed to create service from " + sourceName + ". " + e + ". " + service, e);
         }
     }
 
     public void applyNamespace(Namespace entity) {
-        LOG.info("Creating a namespace " + getOrCreateMetadata(entity).getName());
+        String namespace = getOrCreateMetadata(entity).getName();
+        LOG.info("Creating a namespace " + namespace);
         try {
             Object answer = kubernetes.createNamespace(entity);
-            LOG.info("Created namespace: " + answer);
+            logGeneratedEntity("Created namespace: ", namespace, entity, answer);
         } catch (Exception e) {
             onApplyError("Failed to create namespace. " + e + ". " + entity, e);
         }
@@ -522,7 +585,7 @@ public class Controller {
                     LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
                     try {
                         Object answer = kubernetes.updateReplicationController(id, replicationController);
-                        LOG.info("Updated replicationController: " + answer);
+                        logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
                     }
@@ -555,7 +618,7 @@ public class Controller {
             } else {
                 answer = kubernetes.createReplicationController(replicationController);
             }
-            LOG.info("Created replicationController: " + answer);
+            logGeneratedEntity("Created replicationController: ", namespace, replicationController, answer);
         } catch (Exception e) {
             onApplyError("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
         }
@@ -658,6 +721,25 @@ public class Controller {
 
     public void setProcessTemplatesLocally(boolean processTemplatesLocally) {
         this.processTemplatesLocally = processTemplatesLocally;
+    }
+
+    public File getLogJsonDir() {
+        return logJsonDir;
+    }
+
+    /**
+     * Lets you configure the directory where JSON logging files should go
+     */
+    public void setLogJsonDir(File logJsonDir) {
+        this.logJsonDir = logJsonDir;
+    }
+
+    public File getBasedir() {
+        return basedir;
+    }
+
+    public void setBasedir(File basedir) {
+        this.basedir = basedir;
     }
 
     protected boolean isRunning(HasMetadata entity) {

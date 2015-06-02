@@ -396,4 +396,20 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             }
         }
     }
+
+    /**
+     * Returns the root project folder
+     */
+    protected File getRootProjectFolder() {
+        File answer = null;
+        MavenProject project = getProject();
+        while (project != null) {
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                answer = basedir;
+            }
+            project = project.getParent();
+        }
+        return answer;
+    }
 }

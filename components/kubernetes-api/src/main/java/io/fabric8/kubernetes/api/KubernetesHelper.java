@@ -171,6 +171,23 @@ public final class KubernetesHelper {
         }
     }
 
+
+    /**
+     * Returns the kind of the entity
+     */
+    public static String getKind(HasMetadata entity) {
+        if (entity != null) {
+            // TODO use reflection to find the kind?
+            if (entity instanceof KubernetesList) {
+                return "List";
+            } else {
+                return entity.getClass().getSimpleName();
+            }
+        } else {
+            return null;
+        }
+    }
+
     public static String getName(HasMetadata entity) {
         if (entity != null) {
             return getName(entity.getMetadata());

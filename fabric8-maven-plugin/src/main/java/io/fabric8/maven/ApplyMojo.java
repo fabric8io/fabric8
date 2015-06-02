@@ -96,6 +96,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.apply.createRoutes", defaultValue = "true")
     private boolean createRoutes;
 
+    /**
+     * The folder we should store any temporary json files or results
+     */
+    @Parameter(property = "fabric8.apply.jsonLogDir", defaultValue = "${basedir}/target/fabric8/applyJson")
+    private File jsonLogDir;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
@@ -128,6 +134,8 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setIgnoreServiceMode(ignoreServices);
             controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
             controller.setProcessTemplatesLocally(processTemplatesLocally);
+            controller.setLogJsonDir(jsonLogDir);
+            controller.setBasedir(getRootProjectFolder());
 
             if (dto instanceof Template) {
                 Template template = (Template) dto;

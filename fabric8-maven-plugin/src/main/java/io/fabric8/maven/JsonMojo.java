@@ -842,22 +842,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return null;
     }
 
-    /**
-     * Returns the root project folder
-     */
-    protected File getRootProjectFolder() {
-        File answer = null;
-        MavenProject project = getProject();
-        while (project != null) {
-            File basedir = project.getBasedir();
-            if (basedir != null) {
-                answer = basedir;
-            }
-            project = project.getParent();
-        }
-        return answer;
-    }
-
     protected Probe getLivenessProbe() {
         Probe answer = new Probe();
         boolean added = false;
