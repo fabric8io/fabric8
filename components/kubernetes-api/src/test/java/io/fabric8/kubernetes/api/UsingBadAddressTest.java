@@ -40,7 +40,7 @@ public class UsingBadAddressTest {
 
     @Test
     public void testUseBadAddressWithoutValidation() throws Exception {
-        KubernetesFactory factory = new KubernetesFactory(badAddress, true, false);
+        KubernetesFactory factory = new KubernetesFactory(badAddress, false);
         assertThat(factory).isNotNull();
     }
 
