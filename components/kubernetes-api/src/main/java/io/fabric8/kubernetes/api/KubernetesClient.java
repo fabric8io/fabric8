@@ -1194,6 +1194,24 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return watchKubernetesEntities("services", namespace, labels, watcher, resourceVersion);
     }
 
+    public WebSocketClient watchEndpoints(Watcher<Endpoints> watcher) throws Exception {
+        return watchEndpoints(null, watcher);
+    }
+
+    public WebSocketClient watchEndpoints(Map<String, String> labels, Watcher<Endpoints> watcher) throws Exception {
+        return watchEndpoints(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchEndpoints(String namespace, Map<String, String> labels, Watcher<Endpoints> watcher) throws Exception {
+        EndpointsList currentEndpointList = getEndpoints(namespace);
+        return watchEndpoints(namespace, labels, watcher,
+                currentEndpointList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchEndpoints(String namespace, Map<String, String> labels, Watcher<Endpoints> watcher, String resourceVersion) throws Exception {
+        return watchKubernetesEntities("endpoints", namespace, labels, watcher, resourceVersion);
+    }
+
     public WebSocketClient watchReplicationControllers(Watcher<ReplicationController> watcher) throws Exception {
         return watchReplicationControllers(null, watcher);
     }
@@ -1246,6 +1264,24 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     public WebSocketClient watchRoutes(String namespace, Map<String, String> labels, Watcher<Route> watcher, String resourceVersion) throws Exception {
         return watchOpenShiftEntities("routes", namespace, labels, watcher, resourceVersion);
+    }
+
+    public WebSocketClient watchDeploymentConfigs(Watcher<Route> watcher) throws Exception {
+        return watchDeploymentConfigs(null, watcher);
+    }
+
+    public WebSocketClient watchDeploymentConfigs(Map<String, String> labels, Watcher<Route> watcher) throws Exception {
+        return watchDeploymentConfigs(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchDeploymentConfigs(String namespace, Map<String, String> labels, Watcher<Route> watcher) throws Exception {
+        DeploymentConfigList currentList = getDeploymentConfigs(namespace);
+        return watchDeploymentConfigs(namespace, labels, watcher,
+                currentList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchDeploymentConfigs(String namespace, Map<String, String> labels, Watcher<Route> watcher, String resourceVersion) throws Exception {
+        return watchOpenShiftEntities("deploymentconfigs", namespace, labels, watcher, resourceVersion);
     }
 
     private WebSocketClient watchKubernetesEntities(String entityType, String namespace, Map<String, String> labels, Watcher<? extends HasMetadata> watcher, String resourceVersion) throws Exception {
