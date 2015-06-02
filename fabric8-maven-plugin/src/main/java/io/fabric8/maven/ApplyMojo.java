@@ -50,12 +50,6 @@ import java.util.TreeSet;
 public class ApplyMojo extends AbstractFabric8Mojo {
 
     /**
-     * Specifies the namespace to use
-     */
-    @Parameter(property = "fabric8.apply.namespace")
-    private String namespace;
-
-    /**
      * Should we create new kubernetes resources?
      */
     @Parameter(property = "fabric8.apply.create", defaultValue = "true")
