@@ -1,36 +1,34 @@
 {
   "kind": "Pod",
-  "apiVersion": "v1beta1",
-  "id": "php",
-  "desiredState": {
-    "manifest": {
-      "version": "v1beta1",
-      "id": "php",
-      "containers": [
-        {
-          "name": "nginx",
-          "image": "dockerfile/nginx",
-          "ports": [
-            {
-              "containerPort": 80,
-              "hostPort": 8080
-            }
-          ],
-          "livenessProbe": {
-            "initialDelaySeconds": 30,
-            "httpGet": {
-              "path": "/index.html",
-              "port": {
-                "IntVal": 8080
-              }
-            }
-          }
-        }
-      ]
+  "apiVersion": "v1beta3",
+  "metadata": {
+    "name": "php",
+    "labels": {
+      "name": "foo"
     }
   },
-  "labels": {
-    "name": "foo"
+  "spec": {
+    "containers": [
+      {
+        "name": "nginx",
+        "image": "dockerfile/nginx",
+        "ports": [
+          {
+            "hostPort": 8080,
+            "containerPort": 80,
+            "protocol": "TCP"
+          }
+        ],
+        "livenessProbe": {
+          "httpGet": {
+            "path": "/index.html",
+            "port": 8080
+          },
+          "initialDelaySeconds": 30,
+          "timeoutSeconds": 1
+        },
+        "imagePullPolicy": "IfNotPresent"
+      }
+    ]
   }
 }
-
