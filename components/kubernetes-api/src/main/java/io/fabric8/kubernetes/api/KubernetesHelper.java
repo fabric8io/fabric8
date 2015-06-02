@@ -1655,7 +1655,7 @@ public final class KubernetesHelper {
         }
         if (secret == null) {
             throw new IllegalArgumentException("No secret named: " + secretName +
-                    " is available on Kubernetes at address " + kubernetes.getAddress() +
+                    " for namespace " + namespace + " is available on Kubernetes at address " + kubernetes.getAddress() +
                     ". For how to create secrets see: http://fabric8.io/guide/fabric8OnOpenShift.html#requirements ");
         } else {
             return secret;
