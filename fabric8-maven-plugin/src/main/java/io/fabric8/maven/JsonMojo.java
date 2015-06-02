@@ -523,13 +523,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         String name = getName(replicationController);
         if (Strings.isNotBlank(name)) {
-            name = Strings.stripSuffix(name, "controller");
+            name = Strings.stripSuffix(name, "-controller");
         }
         if (Strings.isNullOrBlank(name)) {
             name = getProject().getArtifactId();
         }
-        String deploymentName = name + "deployment";
-        String imageStream = name + "imagestream";
+        String deploymentName = name;
+        String imageStream = name;
 
 
         Map<String, String> labels = KubernetesHelper.getLabels(replicationController);
