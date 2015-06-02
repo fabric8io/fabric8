@@ -35,8 +35,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
@@ -206,7 +209,7 @@ public class KubernetesFactory {
             registeredCert = true;
         }
         if (!registeredCert) {
-            String token = findOpenShiftToken();
+            String token = findToken();
             if (Strings.isNotBlank(token)) {
                 String authHeader = "Bearer " + token;
                 authorizationHeaderFilter.setAuthorizationHeader(authHeader);
@@ -239,6 +242,23 @@ public class KubernetesFactory {
         WebSocketClient client = new WebSocketClient(sslContextFactory);
 
         return client;
+    }
+
+    public String findToken() {
+        String token = getServiceAccountToken();
+        if (Strings.isNotBlank(token)) {
+            return token;
+        }
+        return findOpenShiftToken();
+    }
+
+    public String getServiceAccountToken() {
+        try {
+            return new String(Files.readAllBytes(Paths.get(Kubernetes.SERVICE_ACCOUNT_TOKEN_FILE)));
+        } catch (IOException e) {
+            log.debug("Cannot read service account token");
+        }
+        return null;
     }
 
     public String findOpenShiftToken() {

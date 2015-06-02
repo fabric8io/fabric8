@@ -54,6 +54,7 @@ public interface Kubernetes {
     static final String NAMESPACE_ALL = "";
     static final String NAMESPACE_DEFAULT = "default";
 
+    static final String SERVICE_ACCOUNT_TOKEN_FILE = "/var/run/secrets/kubernetes.io/servicaccount/token";
 
     /**
      * List all namespaces on this cluster

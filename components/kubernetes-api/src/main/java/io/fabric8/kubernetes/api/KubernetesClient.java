@@ -1262,7 +1262,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         if (Strings.isNotBlank(labelsString)) {
             watchUrl += "&labelSelector=" + labelsString;
         }
-        String openShiftToken = getFactory().findOpenShiftToken();
+        String openShiftToken = getFactory().findToken();
         if (openShiftToken != null) {
             watchUrl += "&access_token=" + openShiftToken;
         }
