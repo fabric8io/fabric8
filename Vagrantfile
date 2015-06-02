@@ -11,7 +11,7 @@ fi
 
 mkdir /tmp/openshift
 echo "Downloading OpenShift binaries..."
-curl -sSL https://github.com/openshift/origin/releases/download/v0.5.1/openshift-origin-v0.5.1-ce1e6c4-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+curl -sSL https://github.com/openshift/origin/releases/download/v0.5.3/openshift-origin-v0.5.3-9503be8-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
 mv /tmp/openshift/* /usr/bin/
 
 mkdir /var/lib/openshift
