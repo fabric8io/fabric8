@@ -54,8 +54,6 @@ public class KubernetesFactory {
 
     public static final String KUBERNETES_SERVICE_HOST_ENV_VAR = "KUBERNETES_SERVICE_HOST";
     public static final String KUBERNETES_SERVICE_PORT_ENV_VAR = "KUBERNETES_SERVICE_PORT";
-    public static final String KUBERNETES_RO_SERVICE_HOST_ENV_VAR = "KUBERNETES_RO_SERVICE_HOST";
-    public static final String KUBERNETES_RO_SERVICE_PORT_ENV_VAR = "KUBERNETES_RO_SERVICE_PORT";
     public static final String KUBERNETES_MASTER_ENV_VAR = "KUBERNETES_MASTER";
     public static final String KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR = "KUBERNETES_CA_CERTIFICATE_FILE";
     public static final String KUBERNETES_CLIENT_CERTIFICATE_FILE_ENV_VAR = "KUBERNETES_CLIENT_CERTIFICATE_FILE";
@@ -87,39 +85,26 @@ public class KubernetesFactory {
         this(null);
     }
 
-    public KubernetesFactory(boolean writeable) {
-        this(null, writeable);
-    }
-
     public KubernetesFactory(String address) {
-        this(address, false);
+        this(address, Boolean.parseBoolean(System.getProperty(KUBERNETES_VERIFY_SYSTEM_PROPERTY, "true")));
     }
 
-    public KubernetesFactory(String address, boolean writeable) {
-        this(address, writeable, Boolean.parseBoolean(System.getProperty(KUBERNETES_VERIFY_SYSTEM_PROPERTY, "true")));
-    }
-
-    public KubernetesFactory(String address, boolean writeable, boolean verifyAddress) {
+    public KubernetesFactory(String address, boolean verifyAddress) {
         this.verifyAddress = verifyAddress;
         init();
-        initAddress(address, writeable);
+        initAddress(address);
     }
 
-    protected void initAddress(String address, boolean writeable) {
+    protected void initAddress(String address) {
         if (Strings.isNullOrBlank(address)) {
-            setAddress(findKubernetesMaster(writeable));
+            setAddress(findKubernetesMaster());
         } else {
             setAddress(address);
         }
     }
 
-
     protected String findKubernetesMaster() {
-        return findKubernetesMaster(false);
-    }
-
-    protected String findKubernetesMaster(boolean writeable) {
-        return resolveHttpKubernetesMaster(writeable);
+        return resolveHttpKubernetesMaster();
     }
 
     private void init() {
@@ -344,12 +329,9 @@ public class KubernetesFactory {
     }
 
     // Helpers
-    public static String resolveHttpKubernetesMaster() {
-        return resolveHttpKubernetesMaster(false);
-    }
 
-    public static String resolveHttpKubernetesMaster(boolean writeable) {
-        String kubernetesMaster = resolveKubernetesMaster(writeable);
+    public static String resolveHttpKubernetesMaster() {
+        String kubernetesMaster = resolveKubernetesMaster();
         if (kubernetesMaster.startsWith("tcp:")) {
             return "https:" + kubernetesMaster.substring(4);
         }
@@ -357,17 +339,9 @@ public class KubernetesFactory {
     }
 
     public static String resolveKubernetesMaster() {
-        return resolveKubernetesMaster(false);
-    }
-
-    public static String resolveKubernetesMaster(boolean writeable) {
-        String hostEnvVar = KUBERNETES_RO_SERVICE_HOST_ENV_VAR;
-        String portEnvVar = KUBERNETES_RO_SERVICE_PORT_ENV_VAR;
+        String hostEnvVar = KUBERNETES_SERVICE_HOST_ENV_VAR;
+        String portEnvVar = KUBERNETES_SERVICE_PORT_ENV_VAR;
         String proto = "https";
-        if (writeable) {
-            hostEnvVar = KUBERNETES_SERVICE_HOST_ENV_VAR;
-            portEnvVar = KUBERNETES_SERVICE_PORT_ENV_VAR;
-        }
 
         // First let's check if it's available as a kubernetes service like it should be...
         String kubernetesMaster = System.getenv(hostEnvVar);

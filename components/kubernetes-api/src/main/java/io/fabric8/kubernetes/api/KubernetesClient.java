@@ -54,10 +54,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
     private static final long DEFAULT_TRIGGER_TIMEOUT = 60 * 1000;
 
-    private KubernetesFactory factoryReadOnly;
-    private KubernetesFactory factoryWriteable;
+    private KubernetesFactory factory;
     private Kubernetes kubernetes;
-    private Kubernetes kubernetesWriteable;
     private KubernetesExtensions kubernetesExtensions;
     private KubernetesGlobalExtensions kubernetesGlobalExtensions;
     private String namespace = defaultNamespace();
@@ -93,12 +91,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public KubernetesClient(KubernetesFactory factory) {
-        this.factoryReadOnly = factory;
-    }
-
-    public KubernetesClient(KubernetesFactory factoryReadOnly, KubernetesFactory factoryWriteable) {
-        this.factoryReadOnly = factoryReadOnly;
-        this.factoryWriteable = factoryWriteable;
+        this.factory = factory;
     }
 
     // Properties
@@ -112,65 +105,43 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     }
 
     public Kubernetes getKubernetes() {
-        return getKubernetes(false);
-    }
-
-    public Kubernetes getKubernetes(boolean writeable) {
-        if (writeable) {
-            if (kubernetesWriteable == null) {
-                kubernetesWriteable = getFactory(true).createKubernetes();
-            }
-            return kubernetesWriteable;
-        } else {
-            if (kubernetes == null) {
-                kubernetes = getFactory(false).createKubernetes();
-            }
-            return kubernetes;
+        if (kubernetes == null) {
+            kubernetes = getFactory().createKubernetes();
         }
+        return kubernetes;
     }
 
     public KubernetesExtensions getKubernetesExtensions() {
         if (kubernetesExtensions == null) {
-            kubernetesExtensions = getFactory(true).createKubernetesExtensions();
+            kubernetesExtensions = getFactory().createKubernetesExtensions();
         }
         return kubernetesExtensions;
     }
 
     public KubernetesGlobalExtensions getKubernetesGlobalExtensions() {
         if (kubernetesGlobalExtensions == null) {
-            kubernetesGlobalExtensions = getFactory(true).createKubernetesGlobalExtensions();
+            kubernetesGlobalExtensions = getFactory().createKubernetesGlobalExtensions();
         }
         return kubernetesGlobalExtensions;
     }
 
-    public KubernetesFactory getFactory(boolean writeable) {
-        if (writeable) {
-            if (factoryWriteable == null) {
-                factoryWriteable = new KubernetesFactory(true);
-            }
-            return factoryWriteable;
-        } else {
-            if (factoryReadOnly == null) {
-                factoryReadOnly = new KubernetesFactory();
-            }
-            return factoryReadOnly;
+    public KubernetesFactory getFactory() {
+        if (factory == null) {
+            factory = new KubernetesFactory();
         }
+        return factory;
     }
 
     public void setFactory(KubernetesFactory factory) {
-        this.factoryReadOnly = factoryReadOnly;
-    }
-
-    public void setWriteableFactory(KubernetesFactory factory) {
-        this.factoryWriteable = factory;
+        this.factory = factory;
     }
 
     public String getAddress() {
-        return getFactory(false).getAddress();
+        return getFactory().getAddress();
     }
 
     public String getWriteableAddress() {
-        return getFactory(true).getAddress();
+        return getFactory().getAddress();
     }
 
 
@@ -233,7 +204,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Path("pods/{podId}")
     public String deletePod(@NotNull String podId) throws Exception {
         validateNamespace(namespace, podId);
-        return getWriteableKubernetes().deletePod(podId, getNamespace());
+        return getKubernetes().deletePod(podId, getNamespace());
     }
 
     @Override
@@ -242,7 +213,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Consumes("text/plain")
     public String deletePod(@NotNull String podId, String namespace) throws Exception {
         validateNamespace(namespace, podId);
-        return getWriteableKubernetes().deletePod(podId, namespace);
+        return getKubernetes().deletePod(podId, namespace);
     }
 
     @GET
@@ -269,7 +240,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Produces("application/json")
     public String deleteReplicationController(@NotNull String controllerId) throws Exception {
         validateNamespace(namespace, controllerId);
-        return getWriteableKubernetes().deleteReplicationController(controllerId, getNamespace());
+        return getKubernetes().deleteReplicationController(controllerId, getNamespace());
     }
 
     @Override
@@ -279,7 +250,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Consumes("text/plain")
     public String deleteReplicationController(@NotNull String controllerId, String namespace) throws Exception {
         validateNamespace(namespace, controllerId);
-        return getWriteableKubernetes().deleteReplicationController(controllerId, namespace);
+        return getKubernetes().deleteReplicationController(controllerId, namespace);
     }
 
     @Override
@@ -289,7 +260,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Consumes("text/plain")
     public String deleteService(@NotNull String serviceId, String namespace) throws Exception {
         validateNamespace(namespace, serviceId);
-        return getWriteableKubernetes().deleteService(serviceId, namespace);
+        return getKubernetes().deleteService(serviceId, namespace);
     }
 
     @Path("replicationControllers")
@@ -328,7 +299,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             String resourceVersion = KubernetesHelper.getResourceVersion(oldEntity);
             KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
         }
-        return getWriteableKubernetes().updateReplicationController(controllerId, entity, namespace);
+        return getKubernetes().updateReplicationController(controllerId, entity, namespace);
     }
 
     @PUT
@@ -362,7 +333,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             }
 
         }
-        return getWriteableKubernetes().updateService(serviceId, entity, namespace);
+        return getKubernetes().updateService(serviceId, entity, namespace);
     }
 
     @GET
@@ -450,7 +421,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public String createPod(Pod entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
-        return getWriteableKubernetes().createPod(entity, namespace);
+        return getKubernetes().createPod(entity, namespace);
     }
 
     @Path("services")
@@ -468,7 +439,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public String createService(Service entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
-        return getWriteableKubernetes().createService(entity, namespace);
+        return getKubernetes().createService(entity, namespace);
     }
 
     @Path("replicationControllers")
@@ -486,7 +457,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public String createReplicationController(ReplicationController entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
         getOrCreateMetadata(entity).setNamespace(namespace);
-        return getWriteableKubernetes().createReplicationController(entity, namespace);
+        return getKubernetes().createReplicationController(entity, namespace);
     }
 
     @GET
@@ -656,7 +627,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public void createRouteOldAPi(Route entity, String namespace) {
         validateNamespace(namespace, entity);
 
-        WebClient webClient = getFactory(true).createWebClient();
+        WebClient webClient = getFactory().createWebClient();
         String name = getName(entity);
         RouteSpec spec = entity.getSpec();
         String host = null;
@@ -1291,13 +1262,13 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         if (Strings.isNotBlank(labelsString)) {
             watchUrl += "&labelSelector=" + labelsString;
         }
-        String openShiftToken = getFactory(false).findOpenShiftToken();
+        String openShiftToken = getFactory().findOpenShiftToken();
         if (openShiftToken != null) {
             watchUrl += "&access_token=" + openShiftToken;
         }
         LOG.debug("Connecting to {}", watchUrl);
 
-        WebSocketClient client = getFactory(false).createWebSocketClient();
+        WebSocketClient client = getFactory().createWebSocketClient();
         try {
             URI watchUri = URI.create(watchUrl);
             ClientUpgradeRequest upgradeRequest = new ClientUpgradeRequest();
@@ -1516,7 +1487,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             webClient = new KubernetesFactory(baseUrl, true).createWebClient();
         } else {
             // using the direct REST API...
-            KubernetesFactory factory = getFactory(true);
+            KubernetesFactory factory = getFactory();
             baseUrl = factory.getAddress();
             webClient = factory.createWebClient();
             url = URLUtils.pathJoin("/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
@@ -1598,10 +1569,6 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     // implementation methods
     //-------------------------------------------------------------------------
-
-    protected Kubernetes getWriteableKubernetes() {
-        return getKubernetes(true);
-    }
 
     protected Collection<Pod> getPodList() {
         return getPodMap(this, namespace).values();
