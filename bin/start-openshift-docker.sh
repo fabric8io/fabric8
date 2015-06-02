@@ -223,7 +223,7 @@ deployFabric8Console() {
                   imagePullPolicy: "PullIfNotPresent"
                   env:
                     - name: OAUTH_CLIENT_ID
-                      value: fabric8-console
+                      value: fabric8
                     - name: OAUTH_AUTHORIZE_URI
                       value: https://${OPENSHIFT_MASTER_URL}:8443/oauth/authorize
                   ports:
@@ -414,7 +414,7 @@ cat <<EOF | docker exec -i openshift osc create -f -
   "kind": "OAuthClient",
   "apiVersion": "v1beta1",
   "metadata": {
-    "name": "fabric8-console"
+    "name": "fabric8"
   },
   "redirectURIs": [
     "http://localhost:9090",
