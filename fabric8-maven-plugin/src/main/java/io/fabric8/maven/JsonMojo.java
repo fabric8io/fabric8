@@ -15,44 +15,11 @@
  */
 package io.fabric8.maven;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.Probe;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceFluent;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -64,12 +31,8 @@ import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.openshift.api.model.template.ParameterBuilder;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.openshift.api.model.template.TemplateBuilder;
-import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.Files;
+import io.fabric8.utils.*;
 import io.fabric8.utils.Objects;
-import io.fabric8.utils.PropertiesHelper;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.URLUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -84,6 +47,14 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
@@ -314,6 +285,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "fabric8.containerPrivileged")
     protected Boolean containerPrivileged;
+
+    @Parameter(property = "fabric8.serviceAccount")
+    protected String serviceAccount;
 
     /**
      * The properties file used to specify the OpenShift Template parameter values and descriptions. The properties file should be of the form
@@ -599,19 +573,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected void generateKubernetesJson(File kubernetesJson) throws MojoExecutionException {
         // TODO populate properties, project etc.
         MavenProject project = getProject();
-        Properties properties = project.getProperties();
-        Map<String, Object> variables = new HashMap<>();
-        Set<Map.Entry<Object, Object>> entries = properties.entrySet();
-        for (Map.Entry<Object, Object> entry : entries) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            if (key instanceof String) {
-                String keyText = key.toString();
-                // lets replace dots so we can access properties directly inside MVEL
-                keyText = keyText.replace('.', '_');
-                variables.put(keyText, value);
-            }
-        }
         Map<String, String> labelMap = getLabels();
         String name = getKubernetesName();
         if (labelMap.isEmpty() && Strings.isNotBlank(name)) {
@@ -619,10 +580,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labelMap.put("component", name);
         }
 
-
         KubernetesListBuilder builder = new KubernetesListBuilder()
-                // TODO no id / name in v1beta3
-                // .withId(name)
                 .addNewReplicationControllerItem()
                 .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
@@ -636,6 +594,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withLabels(labelMap)
                 .endMetadata()
                 .withNewSpec()
+                .withServiceAccount(serviceAccount)
                 .addNewContainer()
                 .withName(getKubernetesContainerName())
                 .withImage(getDockerImage())

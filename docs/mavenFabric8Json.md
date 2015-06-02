@@ -110,6 +110,10 @@ You can use maven properties to customize the generation of the JSON:
 <td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
 </tr>
 <tr>
+<td>fabric8.serviceAccount</td>
+<td>The name of the service account to use in this pod (defaults to none)</td>
+</tr>
+<tr>
 <td>fabric8.env.FOO = BAR</td>
 <td>Defines the environment variable FOO and value BAR.</td>
 </tr>
