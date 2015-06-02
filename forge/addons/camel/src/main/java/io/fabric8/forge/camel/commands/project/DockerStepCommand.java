@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
+import io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -44,8 +44,6 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     private String[] jarImages = new String[]{"fabric8/java"};
     private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
     private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
-
-    // TODO: no MAIN if WAR / Karaf
 
     @Inject
     @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
@@ -112,13 +110,7 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
         main.setRequired(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                // is required for jar images
-                for (String jar : jarImages) {
-                    if (jar.equals(from.getValue())) {
-                        return true;
-                    }
-                }
-                return false;
+                return DockerSetupHelper.isJarImage(from.getValue());
             }
         });
         // only enable main if its required

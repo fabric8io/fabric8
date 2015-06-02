@@ -17,8 +17,6 @@ package io.fabric8.forge.camel.commands.project.helper;
 
 import java.util.Properties;
 
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
@@ -50,7 +48,8 @@ public class DockerSetupHelper {
         cfgBuild.getChildren().add(cfgFrom);
         cfgBuild.getChildren().add(cfgAssembly);
 
-        if (main != null) {
+        // only include main for jar images
+        if (isJarImage(fromImage) && main != null) {
             ConfigurationElement cfgMain = ConfigurationElementBuilder.create().setName("MAIN").setText("${docker.env.MAIN}");
             ConfigurationElement cfgEnv = ConfigurationElementBuilder.create().setName("env");
             cfgEnv.getChildren().add(cfgMain);
@@ -123,6 +122,16 @@ public class DockerSetupHelper {
             return maven.getModel().getPackaging();
         }
         return null;
+    }
+
+    public static boolean isJarImage(String fromImage) {
+        // is required for jar images
+        for (String jar : jarImages) {
+            if (jar.equals(fromImage)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Coordinate createCoordinate(String groupId, String artifactId, String version) {
