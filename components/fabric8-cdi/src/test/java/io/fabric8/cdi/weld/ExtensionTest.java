@@ -108,7 +108,7 @@ public class ExtensionTest {
                             .setHeader("Content-Type", "application/json")
                             .setBody("{}");
                 } else {
-                    return new MockResponse().setResponseCode(401);
+                    return new MockResponse().setResponseCode(404);
                 }
             }
         });
@@ -183,7 +183,7 @@ public class ExtensionTest {
 
 
     @Test
-    public void testNestingFacvtories() {
+    public void testNestingFactories() {
         Assert.assertNotNull(nestingFactoryBean);
         Assert.assertNotNull(nestingFactoryBean.getConsoleConnection());
         Assert.assertNotNull(nestingFactoryBean.getAppLibraryConnection());
