@@ -24,7 +24,6 @@ import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.Service;
@@ -120,10 +119,10 @@ public class Fabric8ApplicationTest {
     private String appLibraryService;
 
 
-   // @Autowired
-   // @ServiceName("kubernetes")
-   // @Protocol("http")
-   // private String kubernetesService;
+   @Autowired
+   @ServiceName("kubernetes")
+   @Protocol("http")
+    private String kubernetesService;
 
     @Test
     public void testSpringBoot() {
@@ -137,6 +136,6 @@ public class Fabric8ApplicationTest {
         Assert.assertNotNull(appLibraryService);
 
         //Assert injection as string with protocol
-        //Assert.assertNotNull(kubernetesService);
+        Assert.assertNotNull(kubernetesService);
     }
 }
