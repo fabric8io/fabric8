@@ -17,13 +17,8 @@
 package io.fabric8.repo.git.resteasy;
 
 import io.fabric8.repo.git.GitRepoClientSupport;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
 import org.jboss.resteasy.plugins.providers.FileProvider;
 import org.jboss.resteasy.plugins.providers.InputStreamProvider;
