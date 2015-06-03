@@ -61,10 +61,7 @@ import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xbill.DNS.ARecord;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.*;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -82,18 +79,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -1336,13 +1322,55 @@ public final class KubernetesHelper {
     }
 
     /**
+     * Looks up the service endpoints in DNS.
+     *
+     * Endpoints are registered as SRV records in DNS so this method returns
+     * endpoints in the format "host:port". This is a list as SRV records are ordered
+     * by priority & weight before being returned to the client.
+     *
+     * See https://github.com/GoogleCloudPlatform/kubernetes/blob/master/cluster/addons/dns/README.md
+     */
+    public static List<String> lookupServiceEndpointsInDns(String serviceName) throws IllegalArgumentException, UnknownHostException {
+        try {
+            Lookup l = new Lookup(serviceName, Type.SRV);
+            Record[] records = l.run();
+            if (l.getResult() == Lookup.SUCCESSFUL) {
+
+                SRVRecord[] srvRecords = Arrays.copyOf(records, records.length, SRVRecord[].class);
+                Arrays.sort(srvRecords, new Comparator<SRVRecord>() {
+                    @Override
+                    public int compare(SRVRecord a, SRVRecord b) {
+                        int ret = Integer.compare(b.getPriority(), a.getPriority());
+                        if (ret == 0) {
+                            ret = Integer.compare(b.getWeight(), a.getWeight());
+                        }
+                        return ret;
+                    }
+                });
+
+                List<String> endpointAddresses = new ArrayList<>(srvRecords.length);
+                for (SRVRecord srvRecord : srvRecords) {
+                    endpointAddresses.add(srvRecord.getTarget().toString(true).concat(":").concat(String.valueOf(srvRecord.getPort())));
+                }
+                return endpointAddresses;
+            } else {
+                LOG.warn("Lookup {} result: {}", serviceName, l.getErrorString());
+            }
+        } catch (TextParseException e) {
+            LOG.error("Unparseable service name: {}", serviceName, e);
+        } catch (ClassCastException e) {
+            LOG.error("Invalid response from DNS server - should have been A records", e);
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
      * Looks up the service in DNS.
      * If this is a headless service, this call returns the endpoint IPs from DNS.
      * If this is a non-headless service, this call returns the service IP only.
      * <p/>
      * See https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#headless-services
      */
-    @SuppressWarnings("unchecked")
     public static Set<String> lookupServiceInDns(String serviceName) throws IllegalArgumentException, UnknownHostException {
         try {
             Lookup l = new Lookup(serviceName);
