@@ -12,8 +12,8 @@ This project provides a REST service implemented via JAX-RS for interacting with
 
 You need to define a few environment variables. e.g. point KUBERNETES_MASTER at a running kubernetes environment or specify where the [gogs](http://gogs.io/) git hosting service is running:
 
-    export GOGS_HTTP_SERVICE_SERVICE_HOST=localhost
-    export GOGS_HTTP_SERVICE_SERVICE_PORT=3000
+    export GOGS_SERVICE_SERVICE_HOST=localhost
+    export GOGS_SERVICE_SERVICE_PORT=3000
 
 Then run:
 
