@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.6" data-basepath="." data-revision="Wed Jun 03 2015 12:59:48 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.6" data-basepath="." data-revision="Wed Jun 03 2015 14:05:40 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1064,10 +1064,6 @@ ANOTHER = some ${CHEESE}
 <td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
 </tr>
 <tr>
-<td>fabric8.serviceAccount</td>
-<td>The name of the service account to use in this pod (defaults to none)</td>
-</tr>
-<tr>
 <td>fabric8.env.FOO = BAR</td>
 <td>Defines the environment variable FOO and value BAR.</td>
 </tr>
@@ -1092,8 +1088,16 @@ ANOTHER = some ${CHEESE}
 <td>Should the environment variable JSON Schema files, generate by the **fabric-apt** API plugin be discovered and included in the generated kuberentes JSON file. Defaults to true.</td>
 </tr>
 <tr>
+<td>fabric8.includeNamespaceEnvVar</td>
+<td>Whether we should include the namespace in the containers&apos; env vars. Defaults to <code>true
+</code></td></tr>
+<tr>
 <td>fabric8.label.FOO = BAR</td>
 <td>Defines the kubernetes label FOO and value BAR.</td>
+</tr>
+<tr>
+<td>fabric8.namespaceEnvVar</td>
+<td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
 </tr>
 <tr>
 <td>fabric8.parameter.FOO.description</td>
@@ -1112,12 +1116,20 @@ ANOTHER = some ${CHEESE}
 <td>Declares that the pod&apos;s container has a port port named FOO which is mapped to host port 4567.</td>
 </tr>
 <tr>
+<td>fabric8.provider</td>
+<td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
+</tr>
+<tr>
 <td>fabric8.replicas</td>
 <td>The number of pods to create for the <a href="http://fabric8.io/guide/replicationControllers.html" target="_blank">Replication Controller</a> if the plugin is generating the App JSON file.</td>
 </tr>
 <tr>
 <td>fabric8.replicationController.name</td>
 <td>The name of the replication controller used in the generated JSON. This defaults to <code>${project.artifactId}-controller</code></td>
+</tr>
+<tr>
+<td>fabric8.serviceAccount</td>
+<td>The name of the service account to use in this pod (defaults to none)</td>
 </tr>
 <tr>
 <td>fabric8.service.name</td>
