@@ -1298,10 +1298,6 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         if (Strings.isNotBlank(labelsString)) {
             watchUrl += "&labelSelector=" + labelsString;
         }
-        String openShiftToken = getFactory().findToken();
-        if (openShiftToken != null) {
-            watchUrl += "&access_token=" + openShiftToken;
-        }
         LOG.debug("Connecting to {}", watchUrl);
 
         WebSocketClient client = getFactory().createWebSocketClient();
@@ -1310,6 +1306,10 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             ClientUpgradeRequest upgradeRequest = new ClientUpgradeRequest();
             upgradeRequest.setRequestURI(watchUri);
             upgradeRequest.setHeader("Origin", watchUri.getHost() + ":" + watchUri.getPort());
+            String token = getFactory().findToken();
+            if (token != null) {
+                upgradeRequest.setHeader("Authorization", "Bearer " + token);
+            }
             client.start();
             client.connect(watcher, watchUri, upgradeRequest);
             return client;
