@@ -64,6 +64,7 @@ public class ResteasyGitRepoClient extends GitRepoClientSupport {
         providerFactory.register(FileProvider.class);
         providerFactory.register(InputStreamProvider.class);
         providerFactory.register(new Authenticator());
+        providerFactory.register(clientType);
 
         ResteasyClientBuilder builder = new ResteasyClientBuilder();
         builder.providerFactory(providerFactory);
