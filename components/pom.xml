@@ -63,6 +63,7 @@
     <module>gateway-servlet</module>
     <module>gateway-servlet-example</module>
     <module>gitrepo-api</module>
+    <module>gitrepo-resteasy</module>
     <module>hubot-api</module>
     <module>jolokia-assertions</module>
     <module>karaf-features</module>

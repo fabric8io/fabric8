@@ -17,15 +17,10 @@
  */
 package io.fabric8.repo.git;
 
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
 import io.fabric8.utils.cxf.WebClients;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
 
-import javax.net.ssl.TrustManager;
 import java.util.List;
 
 import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
@@ -35,49 +30,17 @@ import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
  * A client API for working with git hosted repositories using back ends like
  * <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
  */
-public class GitRepoClient {
-    private final String address;
-    private final String username;
-    private final String password;
-    private GitApi api;
+public class GitRepoClient extends GitRepoClientSupport {
 
     public GitRepoClient(String address, String username, String password) {
-        this.address = address;
-        this.username = username;
-        this.password = password;
+        super(address, username, password);
     }
 
-    public RepositoryDTO createRepository(CreateRepositoryDTO createRepository) {
-        return getApi().createRepository(createRepository);
-    }
-
-    public List<RepositoryDTO> listRepositories() {
-        return getApi().listRepositories();
-    }
-
-    public List<RepositoryDTO> listOrganisationRepositories(String organisation) {
-        return getApi().listOrganisationRepositories(organisation);
-    }
-
-    public List<OrganisationDTO> listUserOrganisations() {
-        return getApi().listUserOrganisations();
-    }
-
-
-    public WebHookDTO createWebhook(String owner, String repo, CreateWebhookDTO dto) {
-        return getApi().createWebhook(owner, repo, dto);
-    }
-
-    protected GitApi getApi() {
-        if (api == null) {
-            api = createWebClient(GitApi.class);
-        }
-        return api;
-    }
 
     /**
      * Creates a JAXRS web client for the given JAXRS client
      */
+    @Override
     protected <T> T createWebClient(Class<T> clientType) {
         List<Object> providers = WebClients.createProviders();
         WebClient webClient = WebClient.create(address, providers);
@@ -85,7 +48,5 @@ public class GitRepoClient {
         configureUserAndPassword(webClient, username, password);
         return JAXRSClientFactory.fromClient(webClient, clientType);
     }
-
-
 
 }
