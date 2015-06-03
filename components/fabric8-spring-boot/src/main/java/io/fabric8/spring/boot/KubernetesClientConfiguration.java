@@ -17,35 +17,34 @@
 package io.fabric8.spring.boot;
 
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
-import io.fabric8.spring.boot.annotations.ConditionalOnKubernetesAvailable;
+import io.fabric8.spring.boot.converters.KubernetesConverterServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.inject.Inject;
+import org.springframework.context.support.ConversionServiceFactoryBean;
 
 @Configuration
-@ConditionalOnClass({Kubernetes.class})
-@EnableConfigurationProperties(KubernetesProperties.class)
-public class KubernetesAutoconfigure {
+public class KubernetesClientConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesAutoconfigure.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesClientConfiguration.class);
 
-    @Inject
-    private KubernetesProperties kubernetesProperties;
+    @Value("${kubernetes.master}")
+    private String kubernetesMasterUrl;
 
-    @Bean(name = "kubernetes")
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(Kubernetes.class)
-    public Kubernetes kubernetes() {
+    @Bean
+    public KubernetesClient kubernetesClient() {
         LOGGER.debug("Trying to init {} by auto-configuration.", Kubernetes.class.getSimpleName());
-        KubernetesFactory factory = new KubernetesFactory(kubernetesProperties.getKubernetesMasterUrl());
-        return factory.createKubernetes();
+        KubernetesFactory factory = new KubernetesFactory(kubernetesMasterUrl);
+        return new KubernetesClient(factory);
+    }
+
+    @Bean
+    public ConversionServiceFactoryBean conversionService() {
+        return new KubernetesConverterServiceFactory(kubernetesClient());
     }
 
 }

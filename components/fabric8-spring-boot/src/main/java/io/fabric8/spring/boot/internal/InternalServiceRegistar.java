@@ -16,22 +16,16 @@
 
 package io.fabric8.spring.boot.internal;
 
-import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import org.springframework.beans.factory.support.AutowireCandidateQualifier;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
+import io.fabric8.spring.boot.AbstractServiceRegistar;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InternalServiceRegistar implements ImportBeanDefinitionRegistrar {
+@Configuration
+public class InternalServiceRegistar extends AbstractServiceRegistar {
 
     private static final String SERVICE = "service";
     private static final String SERVICE_HOST_REGEX = "(?<service>[A-Z_]+)_SERVICE_HOST";
@@ -42,49 +36,25 @@ public class InternalServiceRegistar implements ImportBeanDefinitionRegistrar {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
 
+
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    public Service getService(String name) {
         Map<String, String> env = System.getenv();
+        String serviceHost = env.get(name + HOST_SUFFIX);
+        String port = env.get(name + PORT_SUFFIX);
+        String protocol = env.get(name + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
 
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            String key = entry.getKey();
-            Matcher matcher = SERVICE_HOST_PATTERN.matcher(key);
-            if (matcher.matches()) {
-                String service = matcher.group(SERVICE);
-                if (areEnvVariablesAvailable(service, env)) {
-                    RootBeanDefinition beanDefinition = new RootBeanDefinition(Service.class);
-
-                    String serviceHost = env.get(service + HOST_SUFFIX);
-                    String port = env.get(service + PORT_SUFFIX);
-                    String protocol = env.get(service + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
-
-                    Service s = new ServiceBuilder()
-                            .withNewMetadata()
-                                .withName(service)
-                            .endMetadata()
-                            .withNewSpec()
-                                .withPortalIP(serviceHost)
-                                .addNewPort()
-                                    .withNewTargetPort(port)
-                                    .withProtocol(protocol)
-                                .endPort()
-                            .endSpec()
-                            .build();
-
-
-                    beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service));
-                    beanDefinition.getPropertyValues().addPropertyValue("metadata", s.getMetadata());
-                    beanDefinition.getPropertyValues().addPropertyValue("spec", s.getSpec());
-                    beanDefinition.getPropertyValues().addPropertyValue("kind", "Service");
-                    registry.registerBeanDefinition(service + "-service-bean", beanDefinition);
-                }
-            }
-        }
-    }
-
-    private boolean areEnvVariablesAvailable(String service, Map<String, String> env) {
-        return env.containsKey(service + HOST_SUFFIX)
-                && env.containsKey(service + PORT_SUFFIX)
-                && env.containsKey(service + PORT_SUFFIX);
+        return new ServiceBuilder()
+                .withNewMetadata()
+                .withName(name)
+                .endMetadata()
+                .withNewSpec()
+                .withPortalIP(serviceHost)
+                .addNewPort()
+                .withNewTargetPort(port)
+                .withProtocol(protocol)
+                .endPort()
+                .endSpec()
+                .build();
     }
 }

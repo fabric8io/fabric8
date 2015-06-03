@@ -16,20 +16,11 @@
 
 package io.fabric8.spring.boot;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-@Component
-public class KubernetesProperties {
-    
-    @Value("${kubernetes.master}")
-    private String kubernetesMasterUrl;
+@Configuration
+@Import(KubernetesClientConfiguration.class)
+public class KubernetesAutoconfiguration {
 
-    public String getKubernetesMasterUrl() {
-        return kubernetesMasterUrl;
-    }
-
-    public void setKubernetesMasterUrl(String kubernetesMasterUrl) {
-        this.kubernetesMasterUrl = kubernetesMasterUrl;
-    }
 }

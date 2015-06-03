@@ -16,30 +16,15 @@
 
 package io.fabric8.spring.boot.external;
 
-import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.spring.boot.KubernetesProperties;
-import org.springframework.beans.factory.support.AutowireCandidateQualifier;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.type.AnnotationMetadata;
+import io.fabric8.spring.boot.AbstractServiceRegistar;
 
-public class ExternalServiceRegistrar implements ImportBeanDefinitionRegistrar {
+public class ExternalServiceRegistrar extends AbstractServiceRegistar {
+
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        KubernetesProperties kubernetesProperties = new KubernetesProperties();
-        KubernetesFactory kubernetesFactory = new KubernetesFactory(kubernetesProperties.getKubernetesMasterUrl());
-        Kubernetes kubernetes = kubernetesFactory.createKubernetes();
-        for (final Service service : kubernetes.getServices("default").getItems()) {
-            RootBeanDefinition beanDefinition = new RootBeanDefinition(Service.class);
-            beanDefinition.addQualifier(new AutowireCandidateQualifier(ServiceName.class, service.getMetadata().getName()));
-            beanDefinition.getPropertyValues().addPropertyValue("metadata", service.getMetadata());
-            beanDefinition.getPropertyValues().addPropertyValue("spec", service.getSpec());
-            beanDefinition.getPropertyValues().addPropertyValue("kind", service.getKind());
-            registry.registerBeanDefinition(service.getMetadata().getName()+"-service-bean", beanDefinition);
-        }
+    public Service getService(String name) {
+        KubernetesClient kubernetes = new KubernetesClient();
+        return kubernetes.getService(name);
     }
 }

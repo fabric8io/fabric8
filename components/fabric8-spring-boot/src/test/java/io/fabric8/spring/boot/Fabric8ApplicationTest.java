@@ -16,10 +16,20 @@
 
 package io.fabric8.spring.boot;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.mockwebserver.Dispatcher;
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
+import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.Service;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,18 +40,103 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringApplicationConfiguration(classes = Fabric8Application.class)
 public class Fabric8ApplicationTest {
 
-    @Autowired
-    private Kubernetes kubernetes;
 
-    @Autowired
-    @ServiceName("fabric8")
-    private String consoleService;
+    private static final MockWebServer server = new MockWebServer();
 
-    @Test
-    public void testKubernetesClientAvailable() {
-        System.out.println(consoleService);
-        Assert.assertNotNull(kubernetes);
+    private static String SERVICES_JSON;
+    private static String FABRIC8_CONSOLE_SERVICE_JSON;
+    private static String KUBERNETES_SERVICE_JSON;
+    private static String APP_LIBRARY_SERVICE_JSON;
+
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        System.setProperty("MY_CONFIG_TEST", "value1");
+        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
+        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
+        System.setProperty("KUBERNETES_PROTOCOL", "https");
+
+        FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/fabric8-console-service.json"), Charsets.UTF_8);
+        KUBERNETES_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
+        APP_LIBRARY_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
+        SERVICES_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/services.json"), Charsets.UTF_8);
+
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                if (request.getPath().equals("/api/v1beta3/services") || request.getPath().equals("/api/v1beta3/namespaces/default/services")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(SERVICES_JSON);
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/kubernetes")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(KUBERNETES_SERVICE_JSON);
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/app-library")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(APP_LIBRARY_SERVICE_JSON);
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/fabric8")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
+                } else if (request.getPath().equals("/osapi/v1beta3/namespaces/default/routes")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody("{}");
+                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/endpoints")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody("{}");
+                } else {
+                    return new MockResponse().setResponseCode(401);
+                }
+            }
+        });
+
+        server.play();
+        System.setProperty(KubernetesFactory.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
+        System.setProperty(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, "true");
+        System.setProperty(KubernetesFactory.KUBERNETES_VERIFY_SYSTEM_PROPERTY, "false");
+
     }
 
 
+    @Autowired
+    private KubernetesClient kubernetes;
+
+    @Autowired
+    @ServiceName("fabric8")
+    private Service consoleService;
+
+    @Autowired
+    @ServiceName("app-library")
+    private String appLibraryService;
+
+
+   // @Autowired
+   // @ServiceName("kubernetes")
+   // @Protocol("http")
+   // private String kubernetesService;
+
+    @Test
+    public void testSpringBoot() {
+        //Assert client is injected
+        Assert.assertNotNull(kubernetes);
+
+        //Assert injection as service
+        Assert.assertNotNull(consoleService);
+
+        //Assert injection as string
+        Assert.assertNotNull(appLibraryService);
+
+        //Assert injection as string with protocol
+        //Assert.assertNotNull(kubernetesService);
+    }
 }
