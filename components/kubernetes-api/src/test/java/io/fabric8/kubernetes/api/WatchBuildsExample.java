@@ -1,7 +1,6 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.openshift.api.model.Build;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 public class WatchBuildsExample {
@@ -14,7 +13,6 @@ public class WatchBuildsExample {
         client.stop();
     }
 
-    @WebSocket
     static class ExampleWatcher extends AbstractWatcher<Build> {
         @Override
         public void eventReceived(Action action, Build object) {
