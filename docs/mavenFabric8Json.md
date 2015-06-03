@@ -162,6 +162,10 @@ You can use maven properties to customize the generation of the JSON:
 <td>Declares that the pod's container has a port port named FOO which is mapped to host port 4567.</td>
 </tr>
 <tr>
+<td>fabric8.provider</td>
+<td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
+</tr>
+<tr>
 <td>fabric8.replicas</td>
 <td>The number of pods to create for the <a href="http://fabric8.io/guide/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
 </tr>

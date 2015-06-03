@@ -139,6 +139,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String kubernetesNamespaceEnvVar;
 
     /**
+     * The provider to include as a label. Set to empty to disable.
+     */
+    @Parameter(property = "fabric8.provider", defaultValue = "fabric8")
+    private String provider;
+
+    /**
      * The labels passed into the generated Kubernetes JSON template.
      * <p/>
      * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.label."
@@ -591,12 +597,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
             // lets add a default label
             labelMap.put("component", name);
         }
+        if (!labelMap.containsKey("provider") && Strings.isNotBlank(provider)) {
+            labelMap.put("provider", provider);
+        }
 
         KubernetesListBuilder builder = new KubernetesListBuilder()
                 .addNewReplicationControllerItem()
                 .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
-                .withLabels(labels)
+                .withLabels(labelMap)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(replicaCount)
@@ -967,8 +976,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             answer = new ContainerPort();
             portMap.put(name, answer);
 
-            // TODO should we set the name?
-            // answer.setName(name);
+            answer.setName(name);
         }
         return answer;
     }
