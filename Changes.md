@@ -1,4 +1,8 @@
 
+### 2.1.6
+
+* Fixes [these 39 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.6)
+
 ### 2.1.1 
 
 * Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide//fabric8OnOpenShift.html) 
