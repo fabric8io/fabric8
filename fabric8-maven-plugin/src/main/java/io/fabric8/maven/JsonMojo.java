@@ -127,6 +127,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean combineDependencies;
 
     /**
+     * Whether we should include the namespace in the containers' env vars
+     */
+    @Parameter(property = "fabric8.includeNamespaceEnvVar", defaultValue = "true")
+    private boolean includeNamespaceEnvVar;
+
+    /**
+     * The name of the env var to add that will contain the namespace at container runtime
+     */
+    @Parameter(property = "fabric8.namespaceEnvVar", defaultValue = "KUBERNETES_NAMESPACE")
+    private String kubernetesNamespaceEnvVar;
+
+    /**
      * The labels passed into the generated Kubernetes JSON template.
      * <p/>
      * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.label."
@@ -1092,6 +1104,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
             getLog().debug("from envs: " + envs);
             environmentVariables.addAll(envMap.values());
         }
+
+        if (includeNamespaceEnvVar) {
+            environmentVariables.add(
+                    new EnvVarBuilder().withName(kubernetesNamespaceEnvVar).
+                            withNewValueFrom().withNewFieldRef().
+                            withFieldPath("metadata.namespace").endFieldRef().
+                            endValueFrom().
+                            build());
+        }
+
         return environmentVariables;
     }
 

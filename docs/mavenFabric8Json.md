@@ -110,10 +110,6 @@ You can use maven properties to customize the generation of the JSON:
 <td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
 </tr>
 <tr>
-<td>fabric8.serviceAccount</td>
-<td>The name of the service account to use in this pod (defaults to none)</td>
-</tr>
-<tr>
 <td>fabric8.env.FOO = BAR</td>
 <td>Defines the environment variable FOO and value BAR.</td>
 </tr>
@@ -138,8 +134,16 @@ You can use maven properties to customize the generation of the JSON:
 <td>Should the environment variable JSON Schema files, generate by the **fabric-apt** API plugin be discovered and included in the generated kuberentes JSON file. Defaults to true.</td>
 </tr>
 <tr>
+<td>fabric8.includeNamespaceEnvVar</td>
+<td>Whether we should include the namespace in the containers' env vars. Defaults to <code>true</code.</td>
+</tr>
+<tr>
 <td>fabric8.label.FOO = BAR</td>
 <td>Defines the kubernetes label FOO and value BAR.</td>
+</tr>
+<tr>
+<td>fabric8.namespaceEnvVar</td>
+<td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
 </tr>
 <tr>
 <td>fabric8.parameter.FOO.description</td>
@@ -164,6 +168,10 @@ You can use maven properties to customize the generation of the JSON:
 <tr>
 <td>fabric8.replicationController.name</td>
 <td>The name of the replication controller used in the generated JSON. This defaults to <code>${project.artifactId}-controller</code></td>
+</tr>
+<tr>
+<td>fabric8.serviceAccount</td>
+<td>The name of the service account to use in this pod (defaults to none)</td>
 </tr>
 <tr>
 <td>fabric8.service.name</td>
