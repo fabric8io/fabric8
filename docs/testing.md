@@ -176,6 +176,6 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-arquillian</artifactId>
-                <version>2.1.1</version>
+                <version>2.1.6</version>
                 <scope>test</scope>
             </dependency>
