@@ -41,6 +41,16 @@ import java.io.UnsupportedEncodingException;
  */
 public class ResteasyGitRepoClient extends GitRepoClientSupport {
 
+    /**
+     * When used in the Jenkins Job DSL we may not have the right class loader setup.
+     *
+     * So lets set the context class loader first to ensure things are OK
+     */
+    public static ResteasyGitRepoClient createWithContextClassLoader(String address, String username, String password) {
+        Thread.currentThread().setContextClassLoader(ResteasyGitRepoClient.class.getClassLoader());
+        return new ResteasyGitRepoClient(address, username, password);
+
+    }
     public ResteasyGitRepoClient(String address, String username, String password) {
         super(address, username, password);
     }
