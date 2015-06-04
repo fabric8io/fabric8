@@ -298,7 +298,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The docker image pull policy for snapshot releases (which should pull always)
      */
-    @Parameter(property = "fabric8.imagePullPolicySnapshot", defaultValue = "Always")
+    @Parameter(property = "fabric8.imagePullPolicySnapshot", defaultValue = "IfNotPresent")
     private String imagePullPolicySnapshot;
 
     /**
