@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -85,12 +86,31 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             displayEnv(env);
             
             for (Map.Entry<String, String> entry : env.entrySet()) {
-                getProject().getProperties().setProperty(DOCKE_ENV_PREFIX + entry.getKey(), entry.getValue());
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key == null) {
+                    getLog().warn("Ignoring null key!");
+                } else if (value == null) {
+                    getLog().warn("Ignoring null value for key: " + key);
+                } else {
+                    getProject().getProperties().setProperty(DOCKE_ENV_PREFIX + key, value);
+                }
             }
             getProject().getProperties().setProperty(DOCKER_NAME, name);
             getProject().getProperties().setProperty(EXEC_ENV_SCRIPT, scriptFile.getAbsolutePath());
             Properties envProperties = new Properties();
-            envProperties.putAll(env);
+            Set<Map.Entry<String, String>> entries = env.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key == null) {
+                    getLog().warn("Ignoring null key!");
+                } else if (value == null) {
+                    getLog().warn("Ignoring null value for key: " + key);
+                } else {
+                    envProperties.put(key ,value);
+                }
+            }
             saveScript(env, scriptFile);
             saveProperties(envProperties, propertiesFile);
 
