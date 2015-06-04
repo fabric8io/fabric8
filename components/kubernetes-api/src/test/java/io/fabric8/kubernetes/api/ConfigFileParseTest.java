@@ -38,15 +38,15 @@ public class ConfigFileParseTest {
         assertThat(config).isNotNull();
 
         String currentContextName = config.getCurrentContext();
-        assertThat(currentContextName).describedAs("currentContext").isEqualTo("default-admin-10");
+        assertThat(currentContextName).describedAs("currentContext").isEqualTo("default/localhost:8443/admin");
         System.out.println("Found current context name: " + currentContextName);
 
         Context context = Configs.getCurrentContext(config);
         assertThat(context).describedAs("currentContext").isNotNull();
 
         assertThat(context.getNamespace()).describedAs("namespace").isEqualTo("jimmi-does-rock");
-        assertThat(context.getUser()).describedAs("user").isEqualTo("admin-10");
-        assertThat(context.getCluster()).describedAs("cluster").isEqualTo("172-28-128-4-8443-0");
+        assertThat(context.getUser()).describedAs("user").isEqualTo("admin/localhost:8443");
+        assertThat(context.getCluster()).describedAs("cluster").isEqualTo("172-28-128-4:8443");
 
         String token = Configs.getUserToken(config, context);
         assertThat(token).describedAs("token").isEqualTo("ExpectedToken");
