@@ -40,7 +40,9 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
 public class FabricSetupCommand extends AbstractFabricProjectCommand implements UIWizard {
 
-    private String[] platforms = new String[]{"Docker", "Jube", "Docker-and-Jube"};
+    // TODO: Jube does not currently work so disable jube until working again
+    // private String[] platforms = new String[]{"Docker", "Jube", "Docker-and-Jube"};
+    private String[] platforms = new String[]{"Docker"};
 
     @Inject
     @WithAttributes(label = "platform", required = true, description = "The runtime platform")
@@ -72,12 +74,14 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
 
         platform.setValueChoices(Arrays.asList(platforms));
 
+        // TODO: Jube does not currently work so disable jube until working again
+        platform.setDefaultValue("Docker");
         // if windows use jube, otherwise docker
-        if (isPlatform("windows")) {
-            platform.setDefaultValue("Jube");
-        } else {
-            platform.setDefaultValue("Docker");
-        }
+        //if (isPlatform("windows")) {
+        //    platform.setDefaultValue("Jube");
+        //} else {
+        //    platform.setDefaultValue("Docker");
+        //}
     }
 
     @Override
