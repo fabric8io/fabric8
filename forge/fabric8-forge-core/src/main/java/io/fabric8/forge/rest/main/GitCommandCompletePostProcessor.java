@@ -61,6 +61,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -77,19 +80,23 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
     public static final String PROJECT_NEW_COMMAND = "project-new";
     public static final String TARGET_LOCATION_PROPERTY = "targetLocation";
+    public static final String DEFAULT_JENKINS_SEED_JOB = "seed";
     private final KubernetesClient kubernetes;
     private final GitUserHelper gitUserHelper;
     private final ProjectFileSystem projectFileSystem;
+    private final String jenkinsSeedJob;
     private final boolean createOpenShiftBuildResources;
 
     @Inject
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
                                            GitUserHelper gitUserHelper,
                                            ProjectFileSystem projectFileSystem,
-                                           @ConfigProperty(name = "OPENSHIFT_CREATE_BUILD_ON_PROJECT_CREATE") boolean createOpenShiftBuildResources) {
+                                           @ConfigProperty(name = "JENKINS_SEED_JOB", defaultValue = DEFAULT_JENKINS_SEED_JOB) String jenkinsSeedJob,
+                                           @ConfigProperty(name = "OPENSHIFT_CREATE_BUILD_ON_PROJECT_CREATE", defaultValue = "false") boolean createOpenShiftBuildResources) {
         this.kubernetes = kubernetes;
         this.gitUserHelper = gitUserHelper;
         this.projectFileSystem = projectFileSystem;
+        this.jenkinsSeedJob = jenkinsSeedJob;
         this.createOpenShiftBuildResources = createOpenShiftBuildResources;
     }
 
@@ -189,6 +196,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         String message = createCommitMessage(name, executionRequest);
                         doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
+
+                        triggerJenkinsSeedBuild();
                     }
                 }
             } else {
@@ -216,6 +225,42 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+
+    /**
+     * We've created a project so lets try trigger a jenkins seed build
+     */
+    protected void triggerJenkinsSeedBuild() {
+        if (!Strings.isNullOrEmpty(jenkinsSeedJob)) {
+            String address = kubernetes.getServiceURL("cdelivery", kubernetes.getNamespace(), "http", false);
+            if (!Strings.isNullOrEmpty(address)) {
+                String jobUrl = URLUtils.pathJoin(address, "/job/", jenkinsSeedJob);
+
+                LOG.info("Attempting to trigger the jenkins seed build on: " + jobUrl);
+
+                String json = "{}";
+                HttpURLConnection connection = null;
+                try {
+                    URL url = new URL(jobUrl);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setDoOutput(true);
+
+                    OutputStreamWriter out = new OutputStreamWriter(
+                            connection.getOutputStream());
+                    out.write(json);
+
+                    out.close();
+                } catch (Exception e) {
+                    LOG.error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                }
+            }
         }
     }
 
@@ -269,7 +314,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String secret = "secret101";
         String builderImage = "fabric8/java-main";
         String osapiVersion = "v1beta1";
-        String namespace = "default";
+        String namespace = kubernetes.getNamespace();
         String gitServiceName = "gogs-http-service";
 
 
