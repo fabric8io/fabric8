@@ -49,7 +49,8 @@ public class DockerSetupHelper {
         cfgBuild.getChildren().add(cfgAssembly);
 
         // only include main for jar images
-        if (isJarImage(fromImage) && main != null) {
+        boolean springBoot = hasSpringBootMavenPlugin(project);
+        if (!springBoot && isJarImage(fromImage) && main != null) {
             ConfigurationElement cfgMain = ConfigurationElementBuilder.create().setName("MAIN").setText("${docker.env.MAIN}");
             ConfigurationElement cfgEnv = ConfigurationElementBuilder.create().setName("env");
             cfgEnv.getChildren().add(cfgMain);
@@ -87,7 +88,13 @@ public class DockerSetupHelper {
         properties.put("docker.from", fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
         properties.put("docker.port.container.jolokia", "8778");
-        if (!springBoot && war) {
+
+        if (springBoot) {
+            properties.put("docker.assemblyDescriptorRef", "artifact");
+            properties.put("docker.port.container.http", "8080");
+            properties.put("docker.env.JAR", "${project.artifactId}-${project.version}.war");
+            properties.put("docker.env.JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
+        } else if (war) {
             // spring-boot is packaged as war but runs as fat WARs
             properties.put("docker.assemblyDescriptorRef", "rootWar");
             properties.put("docker.port.container.http", "8080");
@@ -97,7 +104,7 @@ public class DockerSetupHelper {
         } else {
             properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
         }
-        if (main != null) {
+        if (!springBoot && main != null) {
             properties.put("docker.env.MAIN", main);
         }
 
