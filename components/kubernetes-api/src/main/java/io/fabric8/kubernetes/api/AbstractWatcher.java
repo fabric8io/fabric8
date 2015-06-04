@@ -17,9 +17,6 @@ public abstract class AbstractWatcher<T extends HasMetadata> extends WebSocketAd
 
     private ObjectMapper objectMapper;
 
-    public void onClose(int statusCode, String reason) {
-    }
-
     @Override
     public void onWebSocketConnect(Session sess) {
         super.onWebSocketConnect(sess);
