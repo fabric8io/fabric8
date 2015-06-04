@@ -127,6 +127,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean combineDependencies;
 
     /**
+     * Should we fail the build if no json files could be found
+     */
+    @Parameter(property = "fabric8.failOnMissingJsonFiles", defaultValue = "true")
+    private boolean failOnMissingJsonFiles;
+
+    /**
      * Whether we should include the namespace in the containers' env vars
      */
     @Parameter(property = "fabric8.includeNamespaceEnvVar", defaultValue = "true")
@@ -400,7 +406,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 addKubernetesJsonFileToList(jsonObjectList, file);
             }
             if (jsonObjectList.isEmpty()) {
-                throw new MojoExecutionException("Could not find any dependent kubernetes JSON files!");
+                if (failOnMissingJsonFiles) {
+                    throw new MojoExecutionException("Could not find any dependent kubernetes JSON files!");
+                } else {
+                    getLog().warn("Could not find any dependent kubernetes JSON files");
+                    return;
+                }
             }
             Object combinedJson;
             if (jsonObjectList.size() == 1) {
