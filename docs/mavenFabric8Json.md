@@ -127,7 +127,7 @@ You can use maven properties to customize the generation of the JSON:
 </tr>
 <tr>
 <td>fabric8.imagePullPolicySnapshot</td>
-<td>Specifies the image pull policy used by default for <code>SNAPSHOT</code> maven versions. Defaults to <code>IfNotPresent</code> so that developers can build images locally in a vagrant image and not have to push or pull</td>
+<td>Specifies the image pull policy used by default for <code>SNAPSHOT</code> maven versions.</td>
 </tr>
 <tr>
 <td>fabric8.includeAllEnvironmentVariables</td>
