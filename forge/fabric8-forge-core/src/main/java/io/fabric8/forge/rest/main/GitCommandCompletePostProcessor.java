@@ -34,6 +34,7 @@ import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
@@ -79,14 +80,17 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     private final KubernetesClient kubernetes;
     private final GitUserHelper gitUserHelper;
     private final ProjectFileSystem projectFileSystem;
+    private final boolean createOpenShiftBuildResources;
 
     @Inject
     public GitCommandCompletePostProcessor(KubernetesClient kubernetes,
                                            GitUserHelper gitUserHelper,
-                                           ProjectFileSystem projectFileSystem) {
+                                           ProjectFileSystem projectFileSystem,
+                                           @ConfigProperty(name = "OPENSHIFT_CREATE_BUILD_ON_PROJECT_CREATE") boolean createOpenShiftBuildResources) {
         this.kubernetes = kubernetes;
         this.gitUserHelper = gitUserHelper;
         this.projectFileSystem = projectFileSystem;
+        this.createOpenShiftBuildResources = createOpenShiftBuildResources;
     }
 
     @Override
@@ -401,59 +405,65 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 "   ]\n" +
                 "}";
 
-        Controller controller = new Controller(kubernetes);
-        controller.applyJson(json);
+        if (createOpenShiftBuildResources) {
+            Controller controller = new Controller(kubernetes);
+            controller.applyJson(json);
 
 
-        String type = "generic";
+            String type = "generic";
 
-        // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
-        // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
-        String webhookUrl = null;
-        String kubeAddress = null;
-        boolean appendNamespaceQuery = true;
+            // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
+            // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
+            String webhookUrl = null;
+            String kubeAddress = null;
+            boolean appendNamespaceQuery = true;
 
-        // lets try the cdelivery first
-        if (kubeAddress == null) {
-            try {
-                kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http", false);
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
-                appendNamespaceQuery = false;
-            } catch (Exception e) {
-                LOG.warn("failed to find cdelivery service URL: " + e, e);
+            // lets try the cdelivery first
+            if (kubeAddress == null) {
+                try {
+                    kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http", false);
+                    webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
+                    appendNamespaceQuery = false;
+                } catch (Exception e) {
+                    LOG.warn("failed to find cdelivery service URL: " + e, e);
+                }
             }
-        }
+/*
         if (kubeAddress == null) {
             try {
                 kubeAddress = kubernetes.getServiceURL("fabric8", namespace, "http", false);
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "kubernetes", "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
             } catch (Exception e) {
                 LOG.warn("failed to find fabric8 console service URL: " + e, e);
             }
         }
-        if (kubeAddress == null) {
-            kubeAddress = kubernetes.getAddress();
-        }
-        if (webhookUrl == null) {
-            webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
-        }
-        if (appendNamespaceQuery && !Strings.isNullOrEmpty(namespace)) {
-            webhookUrl += "?namespace=" + namespace;
-        }
-
-        LOG.info("creating a web hook at: " + webhookUrl);
-        try {
-            CreateWebhookDTO createWebhook = new CreateWebhookDTO();
-            createWebhook.setType("gogs");
-            WebhookConfig config = createWebhook.getConfig();
-            config.setUrl(webhookUrl);
-            config.setSecret(secret);
-            WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Got web hook: " + toJson(webhook));
+*/
+            if (kubeAddress == null) {
+                kubeAddress = kubernetes.getAddress();
             }
-        } catch (Exception e) {
-            LOG.warn("Failed to create web hook in git repo: " + e, e);
+            String namespacePath = "";
+            if (appendNamespaceQuery && !Strings.isNullOrEmpty(namespace)) {
+                namespacePath = "/namespace=" + namespace;
+            }
+
+            if (webhookUrl == null) {
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion + namespacePath, "buildConfigHooks", buildName, secret, type);
+            }
+
+            LOG.info("creating a web hook at: " + webhookUrl);
+            try {
+                CreateWebhookDTO createWebhook = new CreateWebhookDTO();
+                createWebhook.setType("gogs");
+                WebhookConfig config = createWebhook.getConfig();
+                config.setUrl(webhookUrl);
+                config.setSecret(secret);
+                WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Got web hook: " + toJson(webhook));
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to create web hook in git repo: " + e, e);
+            }
         }
 
 
