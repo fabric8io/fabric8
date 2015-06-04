@@ -220,7 +220,6 @@ public class KubernetesFactory {
 
     public WebSocketClient createWebSocketClient() throws Exception {
         SslContextFactory sslContextFactory = null;
-        boolean registeredCert = false;
         if (trustAllCerts) {
             sslContextFactory = new SslContextFactory(trustAllCerts);
         } else if (caCertData != null || caCertFile != null) {
