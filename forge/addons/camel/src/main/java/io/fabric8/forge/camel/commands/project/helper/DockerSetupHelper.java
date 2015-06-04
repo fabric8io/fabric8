@@ -74,6 +74,7 @@ public class DockerSetupHelper {
     public static void setupDockerProperties(Project project, String fromImage, String main) {
         String packaging = getProjectPackaging(project);
 
+        boolean springBoot = hasSpringBootMavenPlugin(project);
         boolean war = packaging != null && packaging.equals("war");
         boolean bundle = packaging != null && packaging.equals("bundle");
         boolean jar = packaging != null && packaging.equals("jar");
@@ -86,7 +87,8 @@ public class DockerSetupHelper {
         properties.put("docker.from", fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
         properties.put("docker.port.container.jolokia", "8778");
-        if (war) {
+        if (!springBoot && war) {
+            // spring-boot is packaged as war but runs as fat WARs
             properties.put("docker.assemblyDescriptorRef", "rootWar");
             properties.put("docker.port.container.http", "8080");
         } else if (bundle) {
@@ -101,6 +103,15 @@ public class DockerSetupHelper {
 
         // to save then set the model
         maven.setModel(pom);
+    }
+
+    public static boolean hasSpringBootMavenPlugin(Project project) {
+        if (project != null) {
+            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+            Coordinate coor = CoordinateBuilder.create("org.springframework.boot:spring-boot-maven-plugin");
+            return pluginFacet.hasPlugin(coor);
+        }
+        return false;
     }
 
     public static String defaultDockerImage(Project project) {

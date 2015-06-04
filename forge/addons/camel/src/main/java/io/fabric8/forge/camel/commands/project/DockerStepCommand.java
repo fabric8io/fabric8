@@ -23,7 +23,11 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper;
+import org.jboss.forge.addon.dependencies.Coordinate;
+import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
+import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -38,6 +42,8 @@ import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+
+import static io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper.hasSpringBootMavenPlugin;
 
 public class DockerStepCommand extends AbstractDockerProjectCommand implements UIWizard {
 
@@ -79,15 +85,17 @@ public class DockerStepCommand extends AbstractDockerProjectCommand implements U
     public void initializeUI(final UIBuilder builder) throws Exception {
         String packaging = getProjectPackaging(getSelectedProject(builder));
 
+        boolean springBoot = hasSpringBootMavenPlugin(getSelectedProject(builder));
+
         // limit the choices depending on the project packaging
         List<String> choices = new ArrayList<String>();
-        if (packaging == null || "jar".equals(packaging)) {
+        if (packaging == null || springBoot || "jar".equals(packaging)) {
             choices.add(jarImages[0]);
         }
         if (packaging == null || "bundle".equals(packaging)) {
             choices.add(bundleImages[0]);
         }
-        if (packaging == null || "war".equals(packaging)) {
+        if (!springBoot && (packaging == null || "war".equals(packaging))) {
             choices.add(warImages[0]);
             choices.add(warImages[1]);
         }
