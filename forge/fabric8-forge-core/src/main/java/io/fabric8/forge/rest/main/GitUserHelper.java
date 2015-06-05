@@ -55,7 +55,17 @@ public class GitUserHelper {
     public UserDetails createUserDetails(HttpServletRequest request) {
         String user = gitUser;
         String password = gitPassword;
+
+        // lets try custom headers or request parameters
         String authorization = request.getHeader("GogsAuthorization");
+        if (Strings.isNullOrEmpty(authorization)) {
+            authorization = request.getParameter("_gogsAuth");
+        }
+        String emailHeader = request.getHeader("GogsEmail");
+        if (Strings.isNullOrEmpty(emailHeader)) {
+            emailHeader = request.getParameter("_gogsEmail");
+        }
+
         if (!Strings.isNullOrEmpty(authorization)) {
             String basicPrefix = "basic";
             String lower = authorization.toLowerCase();
@@ -72,7 +82,6 @@ public class GitUserHelper {
             }
         }
         String email = "dummy@gmail.com";
-        String emailHeader = request.getHeader("GogsEmail");
         if (!Strings.isNullOrEmpty(emailHeader)) {
             email = emailHeader;
         }

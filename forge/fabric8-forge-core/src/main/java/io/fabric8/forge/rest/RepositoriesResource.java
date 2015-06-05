@@ -99,6 +99,9 @@ public class RepositoriesResource {
 
     protected GitRepoClient createGitRepoClient() {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
+
+        LOG.info("Using  user " + userDetails.getUser() + " at " + userDetails.getAddress());
+
         return userDetails.createRepoClient();
     }
 
