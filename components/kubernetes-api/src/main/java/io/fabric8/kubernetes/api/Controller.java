@@ -466,8 +466,44 @@ public class Controller {
     }
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
+        String id = getName(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
+        String namespace = KubernetesHelper.getNamespace(entity);
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = kubernetes.getNamespace();
+        }
+        BuildConfig old = kubernetes.getBuildConfig(id, namespace);
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(entity, old)) {
+                LOG.info("BuildConfig hasn't changed so not doing anything");
+            } else {
+                if (isRecreateMode()) {
+                    kubernetes.deleteBuildConfig(id, namespace);
+                    doCreateBuildConfig(entity, namespace, sourceName);
+                } else {
+                    LOG.info("Updating BuildConfig from " + sourceName);
+                    try {
+                        String resourceVersion = KubernetesHelper.getResourceVersion(old);
+                        KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+                        Object answer = kubernetes.updateBuildConfig(id, entity, namespace);
+                        logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating BuildConfig from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+            } else {
+                doCreateBuildConfig(entity, namespace, sourceName);
+            }
+        }
+    }
+
+    public void doCreateBuildConfig(BuildConfig entity, String namespace ,String sourceName) {
         try {
-            kubernetes.createBuildConfig(entity, getNamespace());
+            kubernetes.createBuildConfig(entity, namespace);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
