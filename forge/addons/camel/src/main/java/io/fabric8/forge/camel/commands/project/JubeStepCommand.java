@@ -138,7 +138,7 @@ public class JubeStepCommand extends AbstractDockerProjectCommand implements UIW
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         JubeSetupHelper.setupJube(dependencyInstaller, getSelectedProject(context), from.getValue());
-        DockerSetupHelper.setupDockerProperties(getSelectedProject(context), from.getValue(), main.getValue());
+        DockerSetupHelper.setupDockerProperties(getSelectedProject(context), from.getValue());
         return Results.success("Adding Jube using image " + from.getValue());
     }
 
