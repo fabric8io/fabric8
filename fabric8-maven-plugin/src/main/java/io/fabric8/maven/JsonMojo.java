@@ -866,11 +866,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return containerPrivileged;
     }
 
-    public String getDockerImage() {
-        MavenProject project = getProject();
-        return project.getProperties().getProperty("docker.image");
-    }
-
     public String getImagePullPolicy() {
         MavenProject project = getProject();
         String pullPolicy = imagePullPolicy;

@@ -18,6 +18,7 @@ Helper goals for working with Kubernetes
 
 * [fabric8:create-env](mavenFabric8CreateEnv.html) generates environment variable scripts for Kubernetes [services](services.html) so you can simulate running programs as if they were inside kubernetes
 * [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services 
+* [fabric8:delete-pods](mavenFabric8DeletePods.html) deletes pods for the current projects docker image so that they get recreated by the [replication controllers](replicationControllers.html) to use the latest image
 
 ### Adding the plugin to your project
 
