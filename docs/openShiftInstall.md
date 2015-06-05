@@ -1,4 +1,4 @@
-## Install OpenShift 
+## Install OpenShift
 
 We recommend you check out the [OpenShift Origin Installation documentation](http://docs.openshift.org/latest/getting_started/dev_get_started/installation.html) as the default way to install [OpenShift V3](http://www.openshift.org/).
 
@@ -20,7 +20,7 @@ Now setup `$OPENSHIFT_MASTER` to point to the IP address or host name of the Ope
 ```
 export OPENSHIFT_MASTER=https://localhost:8443
 ```
-Then start OpenShift: 
+Then start OpenShift:
 ```
 nohup ./openshift start \
         --cors-allowed-origins='.*' \
@@ -44,7 +44,7 @@ Now enable the cluster-admin role:
 ```
 
 Now you can run the router (haproxy to expose services publically) and registry (docker registry):
- 
+
 ```
 ./osadm router --create --credentials=openshift.local.config/master/openshift-router.kubeconfig
 ./osadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
@@ -52,6 +52,43 @@ Now you can run the router (haproxy to expose services publically) and registry 
 
 ### Configure OpenShift
 
-Now make sure you've configured OpenShift to be able to [Install Fabric8 on OpenShift](fabric8OnOpenShift.html):
+OpenShift needs some extra installation steps in order to use the fabric8 applications as described in
+"[Install Fabric8 on OpenShift](fabric8OnOpenShift.html)":
 
-* [OpenShift Requirements](openShiftRequirements.html)
+### Add roles
+
+The following commands assume you are on the OpenShift master machine in a folder containing the `openshift.local.config` directory:
+
+* Enable the `cluster-admin` role to user `admin`
+
+```
+osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.local.config/master/admin.kubeconfig
+```
+
+### Add secrets
+
+* each namespace you wish to install fabric8 into typically requires the `openshift-cert-secrets`
+
+
+You'll also need to login and switch to the correct project (namespace):
+
+```
+osc login
+osc project default
+```
+
+Then run this command:
+
+```
+cat <<EOF | osc create -f -
+---
+	apiVersion: "v1beta3"
+	kind: "Secret"
+	metadata:
+		name: "openshift-cert-secrets"
+	data:
+		root-cert: "$(base64 -w 0 openshift.local.config/master/ca.crt)"
+		admin-cert: "$(base64 -w 0 openshift.local.config/master/admin.crt)"
+		admin-key: "$(base64 -w 0 openshift.local.config/master/admin.key)"
+EOF
+```
