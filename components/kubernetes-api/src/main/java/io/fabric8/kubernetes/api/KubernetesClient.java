@@ -853,9 +853,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Override
     @GET
     @Path("buildConfigs/{name}")
-    public BuildConfig getBuildConfig(@NotNull String name, String namespace) {
+    public BuildConfig getBuildConfig(final @NotNull String name, final String namespace) {
         validateNamespace(namespace, name);
-        return getKubernetesExtensions().getBuildConfig(name, namespace);
+        return handle404ByReturningNull(new Callable<BuildConfig>() {
+            @Override
+            public BuildConfig call() throws Exception {
+                return getKubernetesExtensions().getBuildConfig(name, namespace);
+            }
+        });
     }
 
     @Override
