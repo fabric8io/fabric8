@@ -24,6 +24,7 @@ import io.fabric8.forge.rest.ui.RestUIContext;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.CreateWebhookDTO;
@@ -59,6 +60,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -233,9 +235,9 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
      */
     protected void triggerJenkinsSeedBuild() {
         if (!Strings.isNullOrEmpty(jenkinsSeedJob)) {
-            String address = kubernetes.getServiceURL("cdelivery", kubernetes.getNamespace(), "http", false);
+            String address = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", false);
             if (!Strings.isNullOrEmpty(address)) {
-                String jobUrl = URLUtils.pathJoin(address, "/job/", jenkinsSeedJob);
+                String jobUrl = URLUtils.pathJoin(address, "/job/", jenkinsSeedJob, "/build");
 
                 LOG.info("Attempting to trigger the jenkins seed build on: " + jobUrl);
 
@@ -253,6 +255,12 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     out.write(json);
 
                     out.close();
+                    int status = connection.getResponseCode();
+                    String message = connection.getResponseMessage();
+                    LOG.info("Got response code from Jenkins: " + status + " message: " + message);
+                    if (status != 200) {
+                        LOG.error("Failed to trigger job " + jenkinsSeedJob + " on " + jobUrl + ". Status: " + status + " message: " + message);
+                    }
                 } catch (Exception e) {
                     LOG.error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
                 } finally {
@@ -315,7 +323,11 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String builderImage = "fabric8/java-main";
         String osapiVersion = "v1beta1";
         String namespace = kubernetes.getNamespace();
-        String gitServiceName = "gogs-http-service";
+        if (Strings.isNullOrEmpty(namespace)) {
+            namespace = KubernetesClient.defaultNamespace();
+            kubernetes.setNamespace(namespace);
+        }
+        String gitServiceName = "gogs";
 
 
         // TODO we should replace the remote with the actual service IP address???
@@ -466,7 +478,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             // lets try the cdelivery first
             if (kubeAddress == null) {
                 try {
-                    kubeAddress = kubernetes.getServiceURL("cdelivery", namespace, "http", false);
+                    kubeAddress = kubernetes.getServiceURL(ServiceNames.CDELIVERY_API, namespace, "http", false);
                     webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
                     appendNamespaceQuery = false;
                 } catch (Exception e) {
@@ -581,6 +593,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     protected String getServiceAddress(String serviceName, String namespace) {
+        LOG.info("Looking up service " + serviceName + " for namespace: " + namespace);
         io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(serviceName, namespace);
 
         String serviceAddress = null;
