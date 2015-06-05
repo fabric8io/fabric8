@@ -15,6 +15,8 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.model.Model;
@@ -48,13 +50,23 @@ public class DockerSetupHelper {
         cfgBuild.getChildren().add(cfgFrom);
         cfgBuild.getChildren().add(cfgAssembly);
 
-        // only include main for jar images
+        Map<String, String> envs = new LinkedHashMap<>();
+
         boolean springBoot = hasSpringBootMavenPlugin(project);
-        if (!springBoot && isJarImage(fromImage) && main != null) {
-            ConfigurationElement cfgMain = ConfigurationElementBuilder.create().setName("MAIN").setText("${docker.env.MAIN}");
+        if (springBoot) {
+            envs.put("JAR", "${project.artifactId}-${project.version}.war");
+            envs.put("JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
+        } else if (main != null) {
+            envs.put("MAIN", main);
+        }
+
+        if (!envs.isEmpty()) {
             ConfigurationElement cfgEnv = ConfigurationElementBuilder.create().setName("env");
-            cfgEnv.getChildren().add(cfgMain);
-            cfgBuild.getChildren().add(cfgMain);
+            cfgBuild.getChildren().add(cfgEnv);
+            for (Map.Entry<String, String> env : envs.entrySet()) {
+                ConfigurationElement cfg = ConfigurationElementBuilder.create().setName(env.getKey()).setText(env.getValue());
+                cfgEnv.getChildren().add(cfg);
+            }
         }
 
         ConfigurationElement cfgImage = ConfigurationElementBuilder.create().setName("image");
@@ -92,8 +104,6 @@ public class DockerSetupHelper {
         if (springBoot) {
             properties.put("docker.assemblyDescriptorRef", "artifact");
             properties.put("docker.port.container.http", "8080");
-            properties.put("docker.env.JAR", "${project.artifactId}-${project.version}.war");
-            properties.put("docker.env.JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
         } else if (war) {
             // spring-boot is packaged as war but runs as fat WARs
             properties.put("docker.assemblyDescriptorRef", "rootWar");
@@ -103,9 +113,6 @@ public class DockerSetupHelper {
             properties.put("docker.port.container.http", "8181");
         } else {
             properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
-        }
-        if (!springBoot && main != null) {
-            properties.put("docker.env.MAIN", main);
         }
 
         // to save then set the model
