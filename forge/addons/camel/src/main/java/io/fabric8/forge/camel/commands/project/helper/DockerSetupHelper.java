@@ -76,7 +76,7 @@ public class DockerSetupHelper {
         ConfigurationElement cfgImages = ConfigurationElementBuilder.create().setName("images");
         cfgImages.getChildren().add(cfgImage);
 
-        setupDockerProperties(project, fromImage, main);
+        setupDockerProperties(project, fromImage);
 
         // add docker-maven-plugin using latest version
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
@@ -84,7 +84,7 @@ public class DockerSetupHelper {
         pluginFacet.addPlugin(plugin);
     }
 
-    public static void setupDockerProperties(Project project, String fromImage, String main) {
+    public static void setupDockerProperties(Project project, String fromImage) {
         String packaging = getProjectPackaging(project);
 
         boolean springBoot = hasSpringBootMavenPlugin(project);
@@ -99,16 +99,19 @@ public class DockerSetupHelper {
         properties.put("docker.registryPrefix", "${env.DOCKER_REGISTRY}/");
         properties.put("docker.from", fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
+        // jolokia is exposed on our docker images on port 8778
         properties.put("docker.port.container.jolokia", "8778");
 
         if (springBoot) {
+            // spring-boot is packaged as war but runs as fat WARs
             properties.put("docker.assemblyDescriptorRef", "artifact");
             properties.put("docker.port.container.http", "8080");
         } else if (war) {
-            // spring-boot is packaged as war but runs as fat WARs
+            // tomcat/jetty on port 8080
             properties.put("docker.assemblyDescriptorRef", "rootWar");
             properties.put("docker.port.container.http", "8080");
         } else if (bundle) {
+            // karaf
             properties.put("docker.assemblyDescriptorRef", "artifact-with-dependencies");
             properties.put("docker.port.container.http", "8181");
         } else {
