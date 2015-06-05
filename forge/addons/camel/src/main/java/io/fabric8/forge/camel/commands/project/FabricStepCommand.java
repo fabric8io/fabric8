@@ -16,11 +16,15 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import javax.annotation.Resources;
 import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.MavenHelpers;
@@ -35,6 +39,15 @@ import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+import org.jboss.forge.addon.projects.facets.ResourcesFacet;
+import org.jboss.forge.addon.resource.FileResource;
+import org.jboss.forge.addon.resource.Resource;
+import org.jboss.forge.addon.resource.ResourceFacet;
+import org.jboss.forge.addon.resource.ResourceFactory;
+import org.jboss.forge.addon.resource.URLResource;
+import org.jboss.forge.addon.templates.Template;
+import org.jboss.forge.addon.templates.TemplateFactory;
+import org.jboss.forge.addon.templates.freemarker.FreemarkerTemplate;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -67,6 +80,12 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
 
     @Inject
     private DependencyInstaller dependencyInstaller;
+
+    @Inject
+    private TemplateFactory factory;
+
+    @Inject
+    ResourceFactory resourceFactory;
 
     @Override
     public boolean isEnabled(UIContext context) {
@@ -157,6 +176,19 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
                     .setCoordinate(MavenHelpers.createCoordinate("org.jboss.arquillian.junit", "arquillian-junit-container", null))
                     .setScopeType("test");
             dependencyInstaller.installManaged(project, dependency);
+        }
+
+        // include jolokia-access.xml workaround
+        ResourcesFacet resourcesFactory = project.getFacet(ResourcesFacet.class);
+        FileResource fileResource = resourcesFactory.getResource("jolokia-access.xml");
+        if (!fileResource.exists()) {
+            Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/jolokia-access.ftl")).reify(URLResource.class);
+            Template template = factory.create(xml, FreemarkerTemplate.class);
+            Map<String, Object> params = new HashMap<String, Object>();
+            String output = template.process(params);
+            // create the new file and set the content
+            fileResource.createNewFile();
+            fileResource.setContents(output);
         }
 
         // add fabric8 plugin
