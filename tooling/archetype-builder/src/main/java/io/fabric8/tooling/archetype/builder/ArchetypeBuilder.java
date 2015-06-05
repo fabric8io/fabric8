@@ -293,42 +293,40 @@ public class ArchetypeBuilder {
                 // lets recursively copy files replacing the package names
                 File outputMainSrc = new File(archetypeOutputDir, archetypeUtils.relativePath(projectDir, mainSrcDir));
                 copyCodeFiles(rootPackage, outputMainSrc, replaceFunction);
+            }
+        }
 
-                // tests copied only if there's something in "src/main"
+        File testSrcDir = null;
+        for (String it : ArchetypeUtils.sourceCodeDirNames) {
+            File dir = new File(testDir, it);
+            if (dir.exists()) {
+                testSrcDir = dir;
+                break;
+            }
+        }
 
-                File testSrcDir = null;
-                for (String it : ArchetypeUtils.sourceCodeDirNames) {
-                    File dir = new File(testDir, it);
-                    if (dir.exists()) {
-                        testSrcDir = dir;
-                        break;
+        if (testSrcDir != null) {
+            File rootPackage = archetypeUtils.findRootPackage(testSrcDir);
+
+            if (rootPackage != null) {
+                String packagePath = archetypeUtils.relativePath(testSrcDir, rootPackage);
+                String packageName = packagePath.replace(File.separatorChar, '.');
+                LOG.debug("Found root package in {}: {}", testSrcDir, packageName);
+                final String regex = packageName.replace(".", "\\.");
+
+                replaceFunction = new Replacement() {
+                    @Override
+                    public String replace(String token) {
+                        return token.replaceAll(regex, "\\${package}");
                     }
-                }
+                };
 
-                if (testSrcDir != null) {
-                    rootPackage = archetypeUtils.findRootPackage(testSrcDir);
-
-                    if (rootPackage != null) {
-                        packagePath = archetypeUtils.relativePath(testSrcDir, rootPackage);
-                        packageName = packagePath.replace(File.separatorChar, '.');
-                        LOG.debug("Found root package in {}: {}", testSrcDir, packageName);
-                        final String regexTest = packageName.replace(".", "\\.");
-
-                        replaceFunction = new Replacement() {
-                            @Override
-                            public String replace(String token) {
-                                return token.replaceAll(regexTest, "\\${package}");
-                            }
-                        };
-
-                        File rootTestDir = new File(testSrcDir, packagePath);
-                        File outputTestSrc = new File(archetypeOutputDir, archetypeUtils.relativePath(projectDir, testSrcDir));
-                        if (rootTestDir.exists()) {
-                            copyCodeFiles(rootTestDir, outputTestSrc, replaceFunction);
-                        } else {
-                            copyCodeFiles(testSrcDir, outputTestSrc, replaceFunction);
-                        }
-                    }
+                File rootTestDir = new File(testSrcDir, packagePath);
+                File outputTestSrc = new File(archetypeOutputDir, archetypeUtils.relativePath(projectDir, testSrcDir));
+                if (rootTestDir.exists()) {
+                    copyCodeFiles(rootTestDir, outputTestSrc, replaceFunction);
+                } else {
+                    copyCodeFiles(testSrcDir, outputTestSrc, replaceFunction);
                 }
             }
         }
