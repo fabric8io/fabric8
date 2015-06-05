@@ -53,10 +53,16 @@ public class DockerSetupHelper {
         Map<String, String> envs = new LinkedHashMap<>();
 
         boolean springBoot = hasSpringBootMavenPlugin(project);
+        String packaging = getProjectPackaging(project);
+        boolean war = packaging != null && packaging.equals("war");
+        boolean bundle = packaging != null && packaging.equals("bundle");
+        boolean jar = packaging != null && packaging.equals("jar");
+
         if (springBoot) {
             envs.put("JAR", "${project.artifactId}-${project.version}.war");
             envs.put("JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
-        } else if (main != null) {
+        } else if (jar && main != null) {
+            // only include main for JAR deployment as WAR/bundle is container based
             envs.put("MAIN", main);
         }
 
