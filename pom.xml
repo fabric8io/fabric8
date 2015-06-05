@@ -2430,7 +2430,7 @@
         <profile>
             <id>kubernetes-model-snapshot</id>
             <properties>
-                <kubernetes-model.version>0.0.41-SNAPSHOT</kubernetes-model.version>
+                <kubernetes-model.version>0.0.44-SNAPSHOT</kubernetes-model.version>
             </properties>
         </profile>
         <profile>
