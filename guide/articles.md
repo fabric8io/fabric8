@@ -24,10 +24,9 @@
 * [Continuous Integration with JBoss Fuse, Jenkins and Nexus](http://giallone.blogspot.se/2014/05/continuous-integration-with-jboss-fuse.html) by [Paolo Antinori](http://giallone.blogspot.se/)
 * [DevOps with Apache Tomcat/TomEE and Fabric8](http://www.christianposta.com/blog/?p=393) by [Christian Posta](http://www.christianposta.com/blog/)
 * [Apache Camel in the Clouds](http://fabric8.io/presentations/camel-in-the-clouds-2014/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan)
+* [fabric8 ... and Docker, Kubernetes & OpenShift](http://de.slideshare.net/roland.huss/fabric8-and-docker-kubernetes-openshift) presentation by [Roland Huss](https://ro14nd.de) at [DevOpsCon 2015](http://devopsconference.de/2015/de), Berlin
 
 ### Docker, Kubernetes and OpenShift
 
 * [The New PaaS](http://reinvent-hripps.rhcloud.com/#/): Using Docker and Containers to Simplify Your Life and Accelerate Development on AWS by [N. Harrison Ripps](http://twitter.com/nhripps) and [Steven Pousty](http://twitter.com/TheSteve0)
 * [An Introduction to Kubernetes](https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernetes) by [Digital Ocean](https://www.digitalocean.com)
-
-

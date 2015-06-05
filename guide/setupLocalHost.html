@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Fri Jun 05 2015 10:19:51 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Fri Jun 05 2015 11:55:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1006,7 +1006,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="setup-your-local-host"><a name="setup-your-local-host" class="plugin-anchor" href="#setup-your-local-host"><span class="fa fa-link"></span></a>Setup your local host</h2>
+                        <h2 id="setup-the-openshift-client-locally"><a name="setup-the-openshift-client-locally" class="plugin-anchor" href="#setup-the-openshift-client-locally"><span class="fa fa-link"></span></a>Setup the OpenShift client locally</h2>
 <p>This page describes how to setup your local development machine or host to work with Kubernetes or OpenShift either remotely or via <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>.</p>
 <h3 id="install-the-openshift-binaries-to-your-path"><a name="install-the-openshift-binaries-to-your-path" class="plugin-anchor" href="#install-the-openshift-binaries-to-your-path"><span class="fa fa-link"></span></a>Install the OpenShift binaries to your $PATH</h3>
 <ul>
@@ -1023,8 +1023,8 @@ export KUBERNETES_DOMAIN=vagrant.local
 export KUBERNETES_NAMESPACE=default
 </code></pre><h4 id="adding-entries-in-etc-hosts"><a name="adding-entries-in-etc-hosts" class="plugin-anchor" href="#adding-entries-in-etc-hosts"><span class="fa fa-link"></span></a>Adding entries in /etc/hosts</h4>
 <p>This step is optional but if you are running the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a> and don&apos;t have a wildcard DNS entry setup for <code>*.vagrant.local</code> then you might want to add an entry in your <code>/etc/hosts</code> file so that you can access services via their routes.</p>
-<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local 
-</code></pre><p>Where <code>172.28.128.4</code> is the IP address of your OpenShift master (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>) </p>
+<pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local
+</code></pre><p>Where <code>172.28.128.4</code> is the IP address of your OpenShift master (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>)</p>
 <p>e.g. if you <a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift</a> then you should be able to access the console at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
 
                     
