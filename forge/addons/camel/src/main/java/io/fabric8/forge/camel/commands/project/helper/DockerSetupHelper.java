@@ -61,6 +61,9 @@ public class DockerSetupHelper {
         if (springBoot) {
             envs.put("JAR", "${project.artifactId}-${project.version}.war");
             envs.put("JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
+        } else if (war) {
+            // need jolokia-access workaround for jolokia jvm javaagent to be able to load the policy file from embedded in the ROOT.war file
+            envs.put("CATALINA_OPTS", "-javaagent:/opt/tomcat/jolokia-agent.jar=host=0.0.0.0,port=8778,policyLocation=jar:file:///maven/ROOT.war!/WEB-INF/classes/jolokia-access.xml");
         } else if (jar && main != null) {
             // only include main for JAR deployment as WAR/bundle is container based
             envs.put("MAIN", main);
