@@ -78,6 +78,12 @@ public class DockerSetupHelper {
             }
         }
 
+        if (bundle) {
+            // need to add command config when using bundle/karaf
+            ConfigurationElement cfgCommand = ConfigurationElementBuilder.create().setName("command").setText("/usr/bin/deploy-and-start");
+            cfgBuild.getChildren().add(cfgCommand);
+        }
+
         ConfigurationElement cfgImage = ConfigurationElementBuilder.create().setName("image");
         cfgImage.getChildren().add(cfgName);
         cfgImage.getChildren().add(cfgBuild);
