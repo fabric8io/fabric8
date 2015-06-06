@@ -66,6 +66,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         filter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         filter.setDefaultValue("<all>");
         name.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, filter, false));
+        // show note about the chosen component
         name.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {

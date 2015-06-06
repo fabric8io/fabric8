@@ -260,4 +260,54 @@ public final class CamelCatalogHelper {
         }
         return null;
     }
+
+    /**
+     * Gets the description for this data format.
+     *
+     * @param dataFormat     the data format name
+     */
+    public static String getDataFormatDescription(String dataFormat) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.dataFormatJSonSchema(dataFormat);
+        if (json == null) {
+            return null;
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String description = propertyMap.get("description");
+                if (description != null) {
+                    return description;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the description for this language.
+     *
+     * @param language     the language name
+     */
+    public static String getLanguageDescription(String language) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.languageJSonSchema(language);
+        if (json == null) {
+            return null;
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String description = propertyMap.get("description");
+                if (description != null) {
+                    return description;
+                }
+            }
+        }
+        return null;
+    }
 }

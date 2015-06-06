@@ -18,6 +18,7 @@ package io.fabric8.forge.camel.commands.project;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.CamelLanguagesCompleter;
+import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -26,6 +27,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UISelectOne;
+import org.jboss.forge.addon.ui.input.ValueChangeListener;
+import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -56,6 +59,19 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
         Project project = getSelectedProject(builder);
         // use value choices instead of completer as that works better in web console
         name.setValueChoices(new CamelLanguagesCompleter(project).getValueChoices());
+        // show note about the chosen language
+        name.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                String language = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                if (language != null) {
+                    String description = CamelCatalogHelper.getLanguageDescription(language);
+                    name.setNote(description != null ? description : "");
+                } else {
+                    name.setNote("");
+                }
+            }
+        });
 
         builder.add(name);
     }
