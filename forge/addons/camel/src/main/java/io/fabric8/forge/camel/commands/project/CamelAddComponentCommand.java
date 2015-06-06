@@ -15,8 +15,10 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
@@ -26,6 +28,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UISelectOne;
+import org.jboss.forge.addon.ui.input.ValueChangeListener;
+import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -62,7 +66,18 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         filter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         filter.setDefaultValue("<all>");
         name.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, filter, false));
-
+        name.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                String component = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                if (component != null) {
+                    String description = CamelCatalogHelper.getComponentDescription(component);
+                    name.setNote(description != null ? description : "");
+                } else {
+                    name.setNote("");
+                }
+            }
+        });
         builder.add(filter).add(name);
     }
 

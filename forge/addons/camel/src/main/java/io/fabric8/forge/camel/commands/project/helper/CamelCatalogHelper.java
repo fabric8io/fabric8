@@ -235,4 +235,29 @@ public final class CamelCatalogHelper {
         }
         return false;
     }
+
+    /**
+     * Gets the description for this component.
+     *
+     * @param scheme     the component name
+     */
+    public static String getComponentDescription(String scheme) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(scheme);
+        if (json == null) {
+            return null;
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String description = propertyMap.get("description");
+                if (description != null) {
+                    return description;
+                }
+            }
+        }
+        return null;
+    }
 }
