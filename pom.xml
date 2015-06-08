@@ -2269,13 +2269,13 @@
 				      <goal>install-bom</goal>
 			      </goals>
 		      </execution>
-		      <execution>
+		      <!--execution>
 			      <id>deploy-bom</id>
 			      <phase>deploy</phase>
 			      <goals>
 				      <goal>deploy-bom</goal>
 			      </goals>
-		      </execution>
+		      </execution-->
 	      </executions>
 	  </plugin>
           <plugin>
