@@ -41,6 +41,13 @@ If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-
 ```
     export KUBERNETES_DOMAIN=vagrant.local
 ```
+
+* if you have run the Fabric8 Continuous Deployment before its a good idea to get the latest console and jenkins images. If this is the first time you are running it you can skip this step (though it does no harm):
+    
+```
+    docker pull fabric8/fabric8-console
+    docker pull fabric8/jenkins
+``` 
     
 * type the following commands
 
@@ -73,5 +80,5 @@ For now use user `ceposta` and password `RedHat$1` as the user and password in g
 * The create project wizard should also now have triggered the Jenkins Job DSL to generate the CI / CD builds for this new project by triggering the **seed** build in Jenkins. If you look at the jenkins install - by default at [http://jenkins.vagrant.local](http://jenkins.vagrant.local) you should see either the **seed** build running or the new builds created for your project! 
 
 * Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
- 
+
 For more information see [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html).
