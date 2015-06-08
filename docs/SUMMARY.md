@@ -20,6 +20,7 @@
     * [Setup Jube](getStartedJube.md)
       * [Running a quickstart on Jube](jubeRunQuickstart.md)
       * [Add a quickstart to the App Library](jubeAddQuickstartApp.md)
+    * [Develop locally](developLocally.md)
     * [Deploy an example](example.md)
 * [Tools](tools.md)
     * [Maven Plugin](mavenPlugin.md)

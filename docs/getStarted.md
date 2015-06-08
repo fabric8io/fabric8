@@ -9,10 +9,6 @@ The ideal linux based platform for running Fabric8 is [OpenShift V3](http://www.
 * [Setup OpenShift](setupOpenShift.html)
 * [Install Fabric8 on OpenShift](fabric8OnOpenShift.html)
 
-On older 2.0.x versions of Fabric8 you could try using a bash script to provision OpenShift and fabric8 together:
-
-* [Getting started with OpenShift v3 using Docker](openShiftDocker.html)
-
 ### Jube
 
 The easiest as a Java developer is to start with [Jube](jube.html); since you've probably already got Java and Maven installed so you're almost ready to go:
@@ -24,6 +20,7 @@ The easiest as a Java developer is to start with [Jube](jube.html); since you've
 
 * [Run a Fabric8 App](fabric8Apps.html)
 * [Check out the Quickstarts](quickstarts.html)
+* [Learn how to develop applications locally](developLocally.html)
 * [Running a quickstart on the iPaaS](http://fabric8.io/guide/example.html)
 
 
