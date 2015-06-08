@@ -32,5 +32,46 @@ The Jenkins app comes with a template parameter **SEED_GIT_URL** which is the lo
 The `SEED_GIT_URL` parameter defaults to the value `https://github.com/fabric8io/default-jenkins-dsl.git` for the [default-jenkins-dsl](https://github.com/fabric8io/default-jenkins-dsl) project which provides an example set of scripts to iterate over your projects and create the necessary jobs for them. We hope soon those scripts will automatically setup CI / CD jobs for projects in the hosted [Gogs](http://gogs.io/) repositories (for now it will iterate over a github organisation and generates builds for matching projects).
 
 ### Installation
+    
+If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) installed then the following instructions should get you going.
+   
+* type `osc login` to ensure you are logged in and [your machine is setup](setupLocalHost.html)
+* set the `KUBERNETES_DOMAIN` environment variable which if you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) will be:
+
+```
+    export KUBERNETES_DOMAIN=vagrant.local
+```
+    
+* type the following commands
+
+```
+    git clone https://github.com/fabric8io/fabric8-installer.git
+    cd fabric8-installer
+    cd cdelivery-core
+    mvn install
+    
+    cd ../app 
+    mvn install -DartifactId=fabric8-forge
+```    
+
+Currently there is [not a user created by default in gogs](https://github.com/fabric8io/fabric8/issues/4059) so you need to open the gogs web application and sign up. 
+
+If you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.local/](http://gogs.vagrant.local/) then click the `sign up` link.
+
+For now use user `ceposta` and password `RedHat$1` as the user and password in gogs.
+
+* Now in the [fabric8 console](console.html) if you click the **Projects** tab the **Repositories** sub tab should be available. This prompts you to login to gogs with your user and password (until we can get [single sign on working with gogs and OpenShift](https://github.com/gogits/gogs/issues/1271))
+
+* Once you are logged in the **Repositories** tab should show a **Create Project** button on the top right. Click that and try create a project. On the second page of the wizard you get to choose which archetype to use as the start of the project. (If this combo box doesn't populate first time, its a little bug, go back in your browser and try again ;).
+
+* A good start project is the **camel-cdi** archetype but try any of the archetypes you like the look of. 
+
+* Once you click the **Execute** button the new git repository should be created, the initial code for the project generated from the archetype using the group and artifact IDs and Java package names you picked.
+
+* You should now be able to see the new repository in the **Repositories** page and browse the repository in gogs via the **Browse** button and open the editor using the **Edit** button.
  
-To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    
+* The create project wizard should also now have triggered the Jenkins Job DSL to generate the CI / CD builds for this new project by triggering the **seed** build in Jenkins. If you look at the jenkins install - by default at [http://jenkins.vagrant.local](http://jenkins.vagrant.local) you should see either the **seed** build running or the new builds created for your project! 
+
+* Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
+ 
+For more information see [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html).
