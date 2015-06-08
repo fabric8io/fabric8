@@ -636,6 +636,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withPorts(getContainerPorts())
                 .withVolumeMounts(getVolumeMounts())
                 .withLivenessProbe(getLivenessProbe())
+                .withReadinessProbe(getReadinessProbe())
                 .endContainer()
                 .withVolumes(getVolumes())
                 .endSpec()
@@ -834,12 +835,20 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected Probe getLivenessProbe() {
+        return getProbe("fabric8.livenessProbe");
+    }
+
+    protected Probe getReadinessProbe() {
+        return getProbe("fabric8.readinessProbe");
+    }
+
+    protected Probe getProbe(String prefix) {
         Probe answer = new Probe();
         boolean added = false;
         Properties properties = getProject().getProperties();
-        String httpGetPath = properties.getProperty("fabric8.livenessProbe.httpGet.path");
-        String httpGetPort = properties.getProperty("fabric8.livenessProbe.httpGet.port");
-        String httpGetHost = properties.getProperty("fabric8.livenessProbe.httpGet.host");
+        String httpGetPath = properties.getProperty(prefix + ".httpGet.path");
+        String httpGetPort = properties.getProperty(prefix + ".httpGet.port");
+        String httpGetHost = properties.getProperty(prefix + ".httpGet.host");
         if (Strings.isNotBlank(httpGetPath)) {
             added = true;
             HTTPGetAction httpGet = new HTTPGetAction();
@@ -851,11 +860,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             answer.setHttpGet(httpGet);
         }
-        Long initialDelaySeconds = PropertiesHelper.getLong(properties, "fabric8.livenessProbe.initialDelaySeconds");
+        Long initialDelaySeconds = PropertiesHelper.getLong(properties, prefix + ".initialDelaySeconds");
         if (initialDelaySeconds != null) {
             answer.setInitialDelaySeconds(initialDelaySeconds);
         }
-        Long timeoutSeconds = PropertiesHelper.getLong(properties, "fabric8.livenessProbe.timeoutSeconds");
+        Long timeoutSeconds = PropertiesHelper.getLong(properties, prefix + ".timeoutSeconds");
         if (timeoutSeconds != null) {
             answer.setTimeoutSeconds(timeoutSeconds);
         }
