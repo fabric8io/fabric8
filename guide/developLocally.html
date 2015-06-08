@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Testing | Fabric8 Documentation</title>
+        <title>Develop locally | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./quickstarts.html" />
+    <link rel="next" href="./example.html" />
     
     
-    <link rel="prev" href="./cdi.html" />
+    <link rel="prev" href="./jubeAddQuickstartApp.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.4" data-basepath="." data-revision="Mon Jun 08 2015 05:34:02 GMT+0000 (UTC)">
+    <div class="book" data-level="3.4" data-basepath="." data-revision="Mon Jun 08 2015 05:34:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -437,7 +437,7 @@
             
         </li>
     
-        <li class="chapter " data-level="3.4" data-path="developLocally.html">
+        <li class="chapter active" data-level="3.4" data-path="developLocally.html">
             
                 
                     <a href="./developLocally.html">
@@ -644,7 +644,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="4.4" data-path="testing.html">
+        <li class="chapter " data-level="4.4" data-path="testing.html">
             
                 
                     <a href="./testing.html">
@@ -1021,131 +1021,30 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="testing"><a name="testing" class="plugin-anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h2>
-<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian" target="_blank">fabric8-arquillian</a> which provides an extension for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
-<p>Using this extension you can easily:</p>
-<ul>
-<li>Apply the kubernetes configuration of your application, including its dependencies.</li>
-<li>Wait until pods and services are ready to be used.</li>
-<li>Make created services, replication controllers and kubernetes client available inside your test case (via @ArquillianResource).</li>
-</ul>
-<p><a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian" target="_blank">fabric8-arquillian</a> uses:</p>
-<ul>
-<li>Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases</li>
-<li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
-</ul>
-<h3 id="session-lifecycle-amp-labels"><a name="session-lifecycle-amp-labels" class="plugin-anchor" href="#session-lifecycle-amp-labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
-<p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
-To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
-<p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
-This namespace is also going to be used to cleanup everything after the end of the suite or upon termination of the process.</p>
-<p>The Session is also made available to the test cases as an arquillian resource <em>(see below)</em>.</p>
-<h3 id="keeping-the-namespace-around"><a name="keeping-the-namespace-around" class="plugin-anchor" href="#keeping-the-namespace-around"><span class="fa fa-link"></span></a>Keeping the namespace around</h3>
-<p>If a test fails you may want to look inside the Kubernetes namespace took at the failed pods. By default the namespace gets garbage collected immediately.</p>
-<p>To delay this you can use these environment variables</p>
-<ul>
-<li>FABRIC8_NAMESPACE_CONFIRM_DESTROY set this to &apos;true&apos; to force the user to type &apos;Q&apos; in the command line terminal to terminate the namespace</li>
-<li>FABRIC8_NAMESPACE_DESTROY_TIMEOUT set this to the number of seconds to keep the namespace around for before destroying it</li>
-</ul>
-<h3 id="arquillian-resources-available-to-test-cases"><a name="arquillian-resources-available-to-test-cases" class="plugin-anchor" href="#arquillian-resources-available-to-test-cases"><span class="fa fa-link"></span></a>Arquillian Resources available to test cases</h3>
-<p>A typical integration test, would need to apply the kubernetes configuration, wait for everything to start up and then assert that that expected pods and services are available and of course test the actual services.</p>
-<p>To do that, the test needs to have access to information like:</p>
-<ul>
-<li>Pods</li>
-<li>Services</li>
-<li>Replication Controllers</li>
-<li>Session Namespace</li>
-</ul>
-<p>Each of the items above is made available to the test as an arquillian resource. </p>
-<p>To obtain a reference to the KubernetesClient:</p>
-<pre><code> @ArquillianResource
- io.fabric8.kubernetes.api.KubernetesClient client;
-</code></pre><h4 id="services"><a name="services" class="plugin-anchor" href="#services"><span class="fa fa-link"></span></a>Services</h4>
-<p>To obtain the list of all services created in the current session:</p>
-<pre><code>@ArquillianResource
-io.fabric8.kubernetes.api.model.ServiceList sessionServices;
-</code></pre><p>To obtain a reference to a particular service created in the current session:</p>
-<pre><code>@Id(&quot;my-service-id&quot;)
-@ArquillianResource
-io.fabric8.kubernetes.api.model.Service myService;
-</code></pre><h4 id="replication-controllers"><a name="replication-controllers" class="plugin-anchor" href="#replication-controllers"><span class="fa fa-link"></span></a>Replication Controllers</h4>
-<p>To obtain the list of all replication controllers created in the current session:</p>
-<pre><code>@ArquillianResource
-io.fabric8.kubernetes.api.model.ReplicationControllerList sessionControllers;
-</code></pre><p>To obtain a refernce to a particular replication controller created in the current session:</p>
-<pre><code>@Id(&quot;my-controller-id&quot;)
-@ArquillianResource
-io.fabric8.kubernetes.api.model.ReplicationController myController;
-</code></pre><p>To obtain the list of all pods created in the current session:</p>
-<pre><code>@ArquillianResource
-io.fabric8.kubernetes.api.model.PodList sessionPods;
-</code></pre><p>To obtain the Session:</p>
-<pre><code> @ArquillianResource
- io.fabric8.arquillian.kubernetes.Session mySession;
-</code></pre><h3 id="configuration-options"><a name="configuration-options" class="plugin-anchor" href="#configuration-options"><span class="fa fa-link"></span></a>Configuration Options</h3>
-<p>Any configuration option can be provided as an environment variable, system property or arquillian property. 
-For example:</p>
-<pre><code>    &lt;arquillian xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-                xmlns=&quot;http://jboss.org/schema/arquillian&quot;
-                xsi:schemaLocation=&quot;http://jboss.org/schema/arquillian
-                http://jboss.org/schema/arquillian/arquillian_1_0.xsd&quot;&gt;
+                        <h2 id="develop-locally"><a name="develop-locally" class="plugin-anchor" href="#develop-locally"><span class="fa fa-link"></span></a>Develop locally</h2>
+<p>Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your <code>edit -&gt; compile -&gt; run</code> cycle time and helps you develop faster.</p>
+<p>So if you are running Kubernetes locally on your laptop such as via the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a> its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.</p>
+<h3 id="setup-your-machine"><a name="setup-your-machine" class="plugin-anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h3>
+<p>Set this environment variable if you use the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a>:</p>
+<pre><code>export DOCKER_HOST=tcp://vagrant.local:2375
+</code></pre><p>And don&apos;t define any of the other docker env vars like <code>DOCKER_CERT_PATH</code> or <code>DOCKER_TLS_VERIFY</code>.</p>
+<p>Now when in a shell on your host (OS X / Windows) you can type <code>docker ps</code> and the output is the same as if you type the same command inside the <code>vagrant ssh</code> shell inside the vagrant VM.</p>
+<p>This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don&apos;t need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don&apos;t try to push or pull the image! </p>
+<p><strong>NOTE</strong>  you need to make sure that your kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.1.10 the default in <code>mvn fabric8:json</code> is to now omit this value which means it uses the kubernetes default which is <code>PullIfAbsent</code>.</p>
+<h3 id="build-and-apply"><a name="build-and-apply" class="plugin-anchor" href="#build-and-apply"><span class="fa fa-link"></span></a>Build and apply</h3>
+<p>So in a Maven project type the following:</p>
+<pre><code>mvn install docker:build fabric8:json fabric8:apply
+</code></pre><p>This will then build the docker image - in the fabric8 vagrant image - and then generate and apply the kubernetes JSON. This should then run your application on kubernetes. Kubernetes should not need to try pull the image from anywhere since its local in the docker daemon and it should startup fine.</p>
+<p>If it doesn&apos;t try to start up - or you see it keep retrying from the openshift logs - then there could be an issue with your docker image or code. So its a good idea to try just run it yourself on the console.</p>
+<pre><code>docker run -itP imageName
+</code></pre><p>Ideally passing in the environment variables your image needs to discover other services. There&apos;s a handy command, <a href="mavenFabric8CreateEnv.html">mvn fabric8:create-env</a> to figure out the env vars for you so that you can run docker images outside of kubernetes as if they are inside (in terms of service discovery and environment variables defined in the kubernetes json).</p>
+<h3 id="apply-new-images-faster"><a name="apply-new-images-faster" class="plugin-anchor" href="#apply-new-images-faster"><span class="fa fa-link"></span></a>Apply new images faster</h3>
+<p>Rather than doing the whole regeneration of the JSON and reapplying (which is fairly fast but can take a couple of seconds) and doing a docker push/pull (which can take many seconds) you can just do:</p>
+<pre><code>mvn install docker:build fabric8:delete-pods
+</code></pre><p>For more background see a <a href="http://fabric8.io/guide/mavenFabric8DeletePods.html" target="_blank">description of the mvn fabric8:delete-pods command</a>.</p>
+<p>What this does is builds the docker image in the docker daemon and deletes all the pods in kubernetes which use the same image as your current maven project; this immediately causes the kubernetes <a href="replicationControllers.html">Replication Controller</a> to recreate any of the pods you deleted. </p>
+<p>Basically this causes an immediate rolling upgrade to the new image! Its a pretty nice, quick way of working.</p>
 
-        &lt;extension qualifier=&quot;kubernetes&quot;&gt;
-            &lt;property name=&quot;masterUrl&quot;&gt;true&lt;/property&gt;
-        &lt;/extension&gt;
-    &lt;/arquillian&gt;
-</code></pre><p>The only required configuration option is url to the kubernetes master. Since in most cases this will be specified as KUBERNETES_MASTER env variable, there is no need
-to specify it again. 
-This means that the arquillian.xml configuration file is completely optional.</p>
-<p>Supported options:</p>
-<ul>
-<li>masterUrl: The url to the kubernetes master.</li>
-<li>configFileName: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
-<li>configUrl: The url to the kubernetes configuration to be tested.</li>
-<li>connectToServices: Whether or not an attempt is made to connect to a service port; failing the test if it can&apos;t be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)</li>
-<li>dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.</li>
-<li>waitForServiceConnection: Wait until a network connection to all applied services is possible.</li>
-<li>serviceConnectionTimeout: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
-<li>waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.</li>
-<li>timeout: The total amount of time for to wait for pods and service to be ready.</li>
-<li>pollInterval: The interval between polling the status of pods and services.</li>
-</ul>
-<h3 id="maven-integration"><a name="maven-integration" class="plugin-anchor" href="#maven-integration"><span class="fa fa-link"></span></a>Maven Integration</h3>
-<p>If dependencies have not been explicitly specified, the extension will find all test scoped dependencies and search inside those artifacts for kubernetes.json resources.
-Then it will treat those as dependencies and apply them along with the configuration.</p>
-<p>One thing to be careful of is that adding test dependencies on kubernetes.json will add transitive dependencies to your test project; so you may want to add exclusions as <a href="https://github.com/fabric8io/fabric8/blob/master/itests/pom.xml#L57" target="_blank">this example shows</a>.</p>
-<h3 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
-<p>There are lots of examples in the <a href="http://fabric8.io/guide/quickstarts.html" target="_blank">quickstarts</a>.</p>
-<p>Here is an <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">example Arquillian Fabric8 integration test</a> that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.</p>
-<p>In particular <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74" target="_blank">here is the code that does JMX assertions via jolokia on the containers</a> that are created by the integration test.</p>
-<h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
-<p>When running an <strong>fabric8-arquillian</strong> integration test then the environment variable <strong>KUBERNETES_MASTER</strong> needs to be specified to point to the kubernetes environment in which to create the containers and services.</p>
-<p>Also you may want to set the <strong>KUBERNETES_TRUST_CERT</strong> variable to allow connection to kubernetes without a client certificatE:</p>
-<pre><code>export KUBERNETES_TRUST_CERT=true
-export KUBERNETES_MASTER=http://localhost:8443
-</code></pre><p>Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube installation</a>. Also note that different integration tests can be running at the same time on the same kubernetes environment.</p>
-<p>If you find that you are getting exceptions and output of the form:</p>
-<pre><code>Waiting for: SomeException....
-Waiting for: SomeException....
-</code></pre><p>and if the exception isn&apos;t clear from the message, you could define this environment variable to get an additional full stack trace (which is very noisy but can be handy):</p>
-<pre><code>export FABRIC8_VERBOSE_ASSERT=true
-</code></pre><h3 id="assertion-libraries"><a name="assertion-libraries" class="plugin-anchor" href="#assertion-libraries"><span class="fa fa-link"></span></a>Assertion libraries</h3>
-<p>The following libraries are provided to help you create concise assertions using <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> based DSL:</p>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="http://fabric8.io/guide/pods.html" target="_blank">Pods</a> inside Kubernetes which expose the Jolokia port</li>
-</ul>
-<h3 id="add-it-to-your-maven-pom-xml"><a name="add-it-to-your-maven-pom-xml" class="plugin-anchor" href="#add-it-to-your-maven-pom-xml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
-<p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>
-<pre><code>        &lt;dependency&gt;
-            &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-            &lt;artifactId&gt;fabric8-arquillian&lt;/artifactId&gt;
-            &lt;version&gt;2.1.10&lt;/version&gt;
-            &lt;scope&gt;test&lt;/scope&gt;
-        &lt;/dependency&gt;
-</code></pre>
                     
                     </section>
                 
@@ -1155,10 +1054,10 @@ Waiting for: SomeException....
         </div>
 
         
-        <a href="./cdi.html" class="navigation navigation-prev " aria-label="Previous page: CDI"><i class="fa fa-angle-left"></i></a>
+        <a href="./jubeAddQuickstartApp.html" class="navigation navigation-prev " aria-label="Previous page: Add a quickstart to the App Library"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./quickstarts.html" class="navigation navigation-next " aria-label="Next page: QuickStarts"><i class="fa fa-angle-right"></i></a>
+        <a href="./example.html" class="navigation navigation-next " aria-label="Next page: Deploy an example"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

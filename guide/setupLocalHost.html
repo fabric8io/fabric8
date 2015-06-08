@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Sun Jun 07 2015 18:56:30 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Mon Jun 08 2015 05:34:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -437,13 +437,28 @@
             
         </li>
     
-        <li class="chapter " data-level="3.4" data-path="example.html">
+        <li class="chapter " data-level="3.4" data-path="developLocally.html">
+            
+                
+                    <a href="./developLocally.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.4.</b>
+                        
+                        Develop locally
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5" data-path="example.html">
             
                 
                     <a href="./example.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.4.</b>
+                            <b>3.5.</b>
                         
                         Deploy an example
                     </a>
@@ -1026,6 +1041,15 @@ export KUBERNETES_NAMESPACE=default
 <pre><code>    172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local
 </code></pre><p>Where <code>172.28.128.4</code> is the IP address of your OpenShift master (which it is for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>)</p>
 <p>e.g. if you <a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift</a> then you should be able to access the console at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
+<h3 id="reuse-docker-from-vagrant"><a name="reuse-docker-from-vagrant" class="plugin-anchor" href="#reuse-docker-from-vagrant"><span class="fa fa-link"></span></a>Reuse Docker from Vagrant</h3>
+<p>If you are using a vagrant image such as the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a> then you should setup your host to reuse the same docker daemon that is inside the vagrant image; this lets you <a href="developLocally.html">develop locally without having to push or pull images to or from a docker registry</a> which greatly speeds up local development.</p>
+<p>So set this environment variable:</p>
+<pre><code>export DOCKER_HOST=tcp://vagrant.local:2375
+</code></pre><p>And don&apos;t define any of the other docker env vars like <code>DOCKER_CERT_PATH</code> or <code>DOCKER_TLS_VERIFY</code>.</p>
+<p>Now when in a shell on your host (OS X / Windows) you can type <code>docker ps</code> and the output is the same as if you type the same command inside the <code>vagrant ssh</code> shell inside the vagrant VM.</p>
+<p>This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don&apos;t need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don&apos;t try to push or pull the image! </p>
+<p><strong>NOTE</strong>  you need to make sure that your kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.1.10 the default in <code>mvn fabric8:json</code> is to now omit this value which means it uses the kubernetes default which is <code>PullIfAbsent</code>.</p>
+<p>You now should be able to <a href="developLocally.html">build and use docker images locally without pushing or pulling</a>.</p>
 
                     
                     </section>

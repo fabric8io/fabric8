@@ -32,7 +32,7 @@
     <link rel="next" href="./tools.html" />
     
     
-    <link rel="prev" href="./jubeAddQuickstartApp.html" />
+    <link rel="prev" href="./developLocally.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.4" data-basepath="." data-revision="Sun Jun 07 2015 18:56:30 GMT+0000 (UTC)">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="Mon Jun 08 2015 05:34:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -437,13 +437,28 @@
             
         </li>
     
-        <li class="chapter active" data-level="3.4" data-path="example.html">
+        <li class="chapter " data-level="3.4" data-path="developLocally.html">
+            
+                
+                    <a href="./developLocally.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.4.</b>
+                        
+                        Develop locally
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="3.5" data-path="example.html">
             
                 
                     <a href="./example.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.4.</b>
+                            <b>3.5.</b>
                         
                         Deploy an example
                     </a>
@@ -1007,23 +1022,18 @@
                     <section class="normal" id="section-">
                     
                         <h3 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
-<p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
-<p>Make sure you have followed the <a href="http://fabric8.io/guide/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
-<p>You should be able to check if the docker registry is running OK via this command (which should return an empty json response <strong>{}</strong>):</p>
-<pre><code>curl http://$DOCKER_REGISTRY/v2/
-</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> script which will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
-<pre><code>ping-registry.sh
-</code></pre><p>If either of those return <strong>{}</strong> you are ready to build a quickstart!</p>
+<p>The following example shows you how to build a docker image and run it on Kubernetes.</p>
+<p>Make sure you have followed the <a href="http://fabric8.io/guide/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running and you have <a href="setupLocalHost.html">setup your local machine</a>.</p>
+<p>Also check out <a href="developLocally.html">how to develop applications locally</a>.</p>
 <h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="plugin-anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
 <p>From the distribution or source code perform these commands to push the docker image:</p>
 <pre><code>git clone https://github.com/fabric8io/quickstarts.git
 cd quickstarts
 </code></pre><p>Now let&apos;s navigate to the specific quickstart:</p>
 <pre><code>cd quickstarts/war/camel-servlet
-mvn clean install docker:build
-docker push $DOCKER_REGISTRY/fabric8/quickstart-war-camel-servlet:2.2-SNAPSHOT
+mvn clean install docker:build 
 </code></pre><p>Now let&apos;s deploy the image into the Kubernetes environment:</p>
-<pre><code>mvn fabric8:apply
+<pre><code>mvn fabric8:json fabric8:apply
 </code></pre><p>You should now be able to view the quickstart in the fabric8 console.  On the Services tab you will see the camel-servlet URL which will take you to the running example.</p>
 
                     
@@ -1035,7 +1045,7 @@ docker push $DOCKER_REGISTRY/fabric8/quickstart-war-camel-servlet:2.2-SNAPSHOT
         </div>
 
         
-        <a href="./jubeAddQuickstartApp.html" class="navigation navigation-prev " aria-label="Previous page: Add a quickstart to the App Library"><i class="fa fa-angle-left"></i></a>
+        <a href="./developLocally.html" class="navigation navigation-prev " aria-label="Previous page: Develop locally"><i class="fa fa-angle-left"></i></a>
         
         
         <a href="./tools.html" class="navigation navigation-next " aria-label="Next page: Tools"><i class="fa fa-angle-right"></i></a>
