@@ -90,6 +90,9 @@ public class ZipMojo extends AbstractFabric8Mojo {
     @Parameter(defaultValue = "${project.distributionManagementArtifactRepository}", readonly = true, required = false)
     private ArtifactRepository deploymentRepository;
 
+    @Parameter(defaultValue = "${altDeploymentRepository}", readonly = true, required = false)
+    private String altDeploymentRepository;
+
     /**
      * The artifact type for attaching the generated app zip file to the project
      */
@@ -433,8 +436,8 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
         if (rootProject.hasLifecyclePhase("deploy")) {
 
-            if (deploymentRepository == null) {
-                String msg = "Cannot run deploy phase as Maven project has no <distributionManagement> with the maven url to use for deploying the aggregated zip file";
+            if (deploymentRepository == null && Strings.isNullOrBlank(altDeploymentRepository)) {
+                String msg = "Cannot run deploy phase as Maven project has no <distributionManagement> with the maven url to use for deploying the aggregated zip file, neither an altDeploymentRepository property.";
                 getLog().warn(msg);
                 throw new MojoExecutionException(msg);
             }
@@ -449,6 +452,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setRecursive(false);
             request.setInteractive(false);
             request.setProfiles(activeProfileIds);
+            request.setProperties(getProject().getProperties());
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);
@@ -457,10 +461,16 @@ public class ZipMojo extends AbstractFabric8Mojo {
             props.setProperty("version", rootProjectVersion);
             props.setProperty("classifier", "app");
             props.setProperty("packaging", "zip");
-            String deployUrl = deployFileUrl;
-            if (Strings.isNullOrBlank(deployUrl)) {
+            String deployUrl = null;
+
+            if (! Strings.isNullOrBlank(deployFileUrl)) {
+                deployUrl = deployFileUrl;
+            } else if (altDeploymentRepository != null && altDeploymentRepository.contains("::")) {
+                deployUrl = altDeploymentRepository.substring(altDeploymentRepository.lastIndexOf("::") + 2);
+            } else {
                 deployUrl = deploymentRepository.getUrl();
             }
+
             props.setProperty("url", deployUrl);
             props.setProperty("repositoryId", deploymentRepository.getId());
             props.setProperty("generatePom", "false");
