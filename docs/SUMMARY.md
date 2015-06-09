@@ -31,6 +31,7 @@
       * [fabric8:create-routes](mavenFabric8CreateRoutes.md)
       * [fabric8:delete-pods](mavenFabric8DeletePods.md) 
       * [fabric8:json](mavenFabric8Json.md)
+        * [annotation processors](annotationProcessors.md) 
     * [Java Libraries](javaLibraries.md)
     * [CDI](cdi.md)
     * [Testing](testing.md)

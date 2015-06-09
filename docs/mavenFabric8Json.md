@@ -8,12 +8,12 @@ For a summary of the options see the [Maven Property Reference](#maven-propertie
 
 You have various options for how to create the `kubernetes.json`
 
-* hand craft yourself
-* you can put it into **src/main/resources** so that you can use Maven's default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)
+* hand craft yourself and put it into **src/main/resources** so that you can use Maven's default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)
 * let the fabric8:json goal generate it for you using its default rules and maven properties (see below)
+* use the [annotation processors and typesafe builders](annotationProcessors.html) to create the metadata yourself; or enrich the default created metadata 
 * you can enrich the generated JSON with additional metadata JSON file (using the `fabric8.extra.json` property which defaults to the file `target/classes/kubernetes-extra.json`)
-* use the typesafe builders in the Java [kubernetes-api API](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) to create the metadata yourself 
 
+If you have a maven project which is a typical microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).  
 
 ### Example usage
 
