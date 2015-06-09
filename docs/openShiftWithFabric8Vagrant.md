@@ -67,6 +67,22 @@ sudo route -n add 172.0.0.0/8 172.28.128.4
 
 The last command makes it easier to see IP address created on the vagrant box
 
+### Looking at the OpenShift logs
+
+If you hit any issues then try look at the logs for the `openshift` master:
+
+```
+vagrant ssh
+journalctl -u openshift
+```
+
+Or you can tail the logs via 
+
+```
+vagrant ssh
+journalctl -fu openshift
+```
+
 ### Now setup your development machine
 
 Once the vagrant image is running you'll have OpenShift up and configured. 
