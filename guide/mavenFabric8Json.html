@@ -29,7 +29,7 @@
         
     
     
-    <link rel="next" href="./javaLibraries.html" />
+    <link rel="next" href="./annotationProcessors.html" />
     
     
     <link rel="prev" href="./mavenFabric8DeletePods.html" />
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.7" data-basepath="." data-revision="Tue Jun 09 2015 07:42:19 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.7" data-basepath="." data-revision="Tue Jun 09 2015 13:26:48 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -607,6 +607,27 @@
                 
             
             
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1.7.1" data-path="annotationProcessors.html">
+            
+                
+                    <a href="./annotationProcessors.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.7.1.</b>
+                        
+                        annotation processors
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
         </li>
     
 
@@ -1027,12 +1048,12 @@
 <h3 id="generation-options"><a name="generation-options" class="plugin-anchor" href="#generation-options"><span class="fa fa-link"></span></a>Generation options</h3>
 <p>You have various options for how to create the <code>kubernetes.json</code></p>
 <ul>
-<li>hand craft yourself</li>
-<li>you can put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)</li>
+<li>hand craft yourself and put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)</li>
 <li>let the fabric8:json goal generate it for you using its default rules and maven properties (see below)</li>
+<li>use the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create the metadata yourself; or enrich the default created metadata </li>
 <li>you can enrich the generated JSON with additional metadata JSON file (using the <code>fabric8.extra.json</code> property which defaults to the file <code>target/classes/kubernetes-extra.json</code>)</li>
-<li>use the typesafe builders in the Java <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api API</a> to create the metadata yourself </li>
 </ul>
+<p>If you have a maven project which is a typical microservice style application with a single <a href="replicationControllers.html">replication controller</a> and <a href="services.html">service</a> then we recommend just using the defaults that get generated; otherwise try the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create, edit or enrich the generated metadata (e.g. to add extra services).  </p>
 <h3 id="example-usage"><a name="example-usage" class="plugin-anchor" href="#example-usage"><span class="fa fa-link"></span></a>Example usage</h3>
 <p>In a maven project type:</p>
 <pre><code>mvn fabric8:json
@@ -1224,7 +1245,7 @@ ANOTHER = some ${CHEESE}
         <a href="./mavenFabric8DeletePods.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:delete-pods"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./javaLibraries.html" class="navigation navigation-next " aria-label="Next page: Java Libraries"><i class="fa fa-angle-right"></i></a>
+        <a href="./annotationProcessors.html" class="navigation navigation-next " aria-label="Next page: annotation processors"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

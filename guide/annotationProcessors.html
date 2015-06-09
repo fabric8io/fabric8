@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Overview | Fabric8 Documentation</title>
+        <title>annotation processors | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./fabric8Apps.html" />
+    <link rel="next" href="./javaLibraries.html" />
     
     
-    <link rel="prev" href="./index.html" />
+    <link rel="prev" href="./mavenFabric8Json.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="1" data-basepath="." data-revision="Tue Jun 09 2015 13:26:48 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.7.1" data-basepath="." data-revision="Tue Jun 09 2015 13:26:48 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -70,7 +70,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1" data-path="overview.html">
+        <li class="chapter " data-level="1" data-path="overview.html">
             
                 
                     <a href="./overview.html">
@@ -610,7 +610,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="4.1.7.1" data-path="annotationProcessors.html">
+        <li class="chapter active" data-level="4.1.7.1" data-path="annotationProcessors.html">
             
                 
                     <a href="./annotationProcessors.html">
@@ -1042,25 +1042,155 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="overview"><a name="overview" class="plugin-anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
-<p>Fabric8 provides a number of <a href="fabric8Apps.html">applications</a> on top of <a href="http://kubernetes.io" target="_blank">Kubernetes</a> for :</p>
+                        <h2 id="annotation-processors"><a name="annotation-processors" class="plugin-anchor" href="#annotation-processors"><span class="fa fa-link"></span></a>Annotation Processors</h2>
+<p>Fabric8 provides annotations and processors for manipulating Kubernetes resources at compile time using the Fabric8 Kubernetes API.
+The processors are meant to be used as a supplement or an alternative to the <a href="mavenPlugin.html">Maven Plugin</a>.</p>
+<p>Using the annotation processors one can easily use Java to:</p>
 <ul>
-<li><a href="management.html">Management</a> to help you visualise, understand and manage your software</li>
-<li><a href="cdelivery.html">Continuous Delivery</a> to help teams deliver software in a faster and more reliable way </li>
-<li><a href="ipaas.html">iPaaS</a> provides an <em>Integration Platform As A Service</em>  </li>
+<li>Use Java Fluent Builders to generate Kubernetes resources</li>
+<li>Use Java to modify existing Kubernetes resources</li>
 </ul>
-<p>In addition Fabric8 provides a number of <a href="tools.html">tools</a> to help the Java community take full advantage of Kubernetes:</p>
+<p>Both features are provided by the <em>kubernetes-generator</em> module.</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+    &lt;artifactId&gt;kubernetes-generator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre><h3 id="generating-kubernetes-resources"><a name="generating-kubernetes-resources" class="plugin-anchor" href="#generating-kubernetes-resources"><span class="fa fa-link"></span></a>Generating Kubernetes Resources</h3>
+<p>To generate a kubernetes json file all you need to do is to add the <em>@KubernetesProvider</em> on a method that returns a KubernetesList or Template.
+For example:</p>
+<pre><code>@KubernetesProvider
+public KubernetesList create() {
+    return new KubernetesBuilder()
+            .withNewReplicationController()
+                .withNewMetadata()
+                    .withName(&quot;Hello-Controller&quot;)
+                .endNewMetadata()
+             .withNewSpec()
+                .withReplicas(1)
+                .addToSelector(&quot;component&quot;, &quot;my-component&quot;)
+                .withNewTemplate()
+                    .withNewSpec()
+                        .addNewContainer()
+                            .withName(&quot;my-container)
+                            .withImage(&quot;my/image&quot;)
+                        .endContainer()
+                    .endSpec()
+                .endTemplate()
+            .endSpec()
+            .endReplicationController()
+            .build();
+}
+</code></pre><p>When a class that contains a method like this gets compiled, it will generate a kubernetes.json file in the build output folder.
+The particular method will generate a json file that will look like:</p>
+<pre><code>    {
+      &quot;apiVersion&quot;: &quot;v1beta3&quot;,
+      &quot;kind&quot;: &quot;List&quot;,
+      &quot;items&quot;: [
+        {
+          &quot;apiVersion&quot;: &quot;v1beta3&quot;,
+          &quot;kind&quot;: &quot;ReplicationController&quot;,
+          &quot;metadata&quot;: {
+            &quot;annotations&quot;: {},
+            &quot;labels&quot;: {
+              &quot;component&quot;: &quot;jenkins&quot;,
+              &quot;provider&quot;: &quot;fabric8&quot;
+            },
+            &quot;name&quot;: &quot;my-controller&quot;
+          },
+          &quot;spec&quot;: {
+            &quot;replicas&quot;: 1,
+            &quot;selector&quot;: {
+              &quot;component&quot;: &quot;my-component&quot;,
+            },
+            &quot;template&quot;: {
+              &quot;metadata&quot;: {
+                &quot;labels&quot;: {
+                  &quot;component&quot;: &quot;my-component&quot;,
+                }
+              },
+              &quot;spec&quot;: {
+                &quot;containers&quot;: [
+                  {
+                    &quot;image&quot;: &quot;my/container&quot;,
+                    &quot;name&quot;: &quot;my-container&quot;
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+</code></pre><p>So what is the benefit of using java instead of json? The most noteworthy are:</p>
 <ul>
-<li><a href="mavenPlugin.html">Maven Plugin</a> to help generate, apply  and work with Kubernetes resources</li>
-<li><a href="annotationProcessors.html">Annotation Processors</a> to generate modify kubernetes configuration using Java annotations</li>
-<li><a href="testing.html">Testing</a> of Kubernetes resources easily with <a href="http://junit.org/" target="_blank">JUnit</a> and <a href="http://arquillian.org/" target="_blank">Arquillian</a></li>
-<li><a href="javaLibraries.html">Java Libraries</a> and support for <a href="cdi.html">CDI</a> extensions for working with Kubernetes</li>
+<li>Type Safety</li>
+<li>Dynamic generation of JSON</li>
+<li>Tooling support (IDEs etc)</li>
 </ul>
-<p>If you have an installation of <a href="http://www.openshift.org/" target="_blank">OpenShift V3 0.5 or later</a> then <a href="fabric8OnOpenShift.html">install Fabric8 On OpenShift</a></p>
-<h3 id="supported-platforms"><a name="supported-platforms" class="plugin-anchor" href="#supported-platforms"><span class="fa fa-link"></span></a>Supported Platforms</h3>
-<p>Fabric8 works great with <a href="http://www.docker.com/" target="_blank">Docker</a> and implementations of Kubernetes such as <a href="http://openshift.github.io/" target="_blank">OpenShift V3</a>, <a href="http://www.projectatomic.io/" target="_blank">Project Atomic</a> and <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine</a>.</p>
-<p>For non-linux platforms which don&apos;t yet support native Docker we have <a href="jube.html">Jube</a> which is an open source pure Java implementation of Kubernetes.</p>
-<p>Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and <em>Container As A Service</em> on the open hybrid clouds. <a href="jube.html">Jube</a> then helps extend Kubernetes to run Java based middleware on any operating system which supports Java 7.</p>
+<p>And what are the benefits over using the <a href="mavenPlugin.html">Maven Plugin</a>?</p>
+<ul>
+<li>No limitation to the structure or the number of the generated items.</li>
+<li>Doesn&apos;t require maven. Can be used with gradle or even directly with the java compiler.</li>
+</ul>
+<h3 id="manipulating-existing-kubernetes-resources"><a name="manipulating-existing-kubernetes-resources" class="plugin-anchor" href="#manipulating-existing-kubernetes-resources"><span class="fa fa-link"></span></a>Manipulating existing Kubernetes Resources</h3>
+<p>There are cases, where you need to modify an existing Kubernetes resource instead of generating one from scratch. Cases like this can be:</p>
+<ul>
+<li>Adding a service</li>
+<li>Adding/Removing labels to selectors</li>
+<li>Adding/Removing a container to a pod</li>
+</ul>
+<p>Due to the deep nesting of those objects, any kind of manipulation is not trivial and requires to know exactly how to navigate the object/json graph.</p>
+<p>To make this task simpler all the builders objects that are used to model the Kubernetes resources support the <em>&quot;Visitor Pattern&quot;</em> and Fabric8 offers annotations that
+make it very easy to use them.</p>
+<p>The @KubernetesModelProcessor can be added to any Java Class that is intended to manipulate an existing kubernetes json file.
+Upon compilation the annotation processor will look for all methods in the class that accept as argument a builder object of a Kubernetes resource (e.g. A Pod, a Service, a ReplicationController etc).
+Then it will navigate through all the elements to the existing json file and for each element will invoke all matching methods.</p>
+<p>For example:</p>
+<p>&quot;We want to add a key/pair to all replica selectors&quot;</p>
+<pre><code>@KubernetesModelProcessor
+public class ManipulationExample {
+    public void on(ReplicationControllerSpecBuilder builder) {
+        builder.addToSelector(&quot;mykey&quot;,&quot;myvalue&quot;);
+    }
+}
+</code></pre><p>An other example can be &quot;Add a container to all pods&quot;</p>
+<pre><code>@KubernetesModelProcessor
+public class ManipulationExample {
+    public void on(PodTemplateSpecBuilder builder) {
+        builder.withNewSpec()
+                .addNewContainer()
+                    .withName(&quot;my-container)
+                    .withImage(&quot;my/image&quot;)
+                .endContainer()
+        .endSpec();
+    }
+}
+</code></pre><p>In many cases we would want to apply a change not to <em>&quot;ALL&quot;</em> items of a particular type, but to some or to a specific one.
+For this purpose the annotation processor used the @Named annotation (javax.inject.Named) to specify the name of element we want to manipulate.</p>
+<p>The last example could use the @Named annotation to specify the name of the replication controller.</p>
+<pre><code>@KubernetesModelProcessor
+public class ManipulationExample {
+
+    @Named(&quot;my-controller&quot;)
+    public void on(ReplicationController builder) {
+        builder.withNewSpec()
+                    .withNewTemplate(builder.getSpec().getTemplate())
+                        .addNewContainer()
+                            .withName(&quot;my-container)
+                            .withImage(&quot;my/image&quot;)
+                        .endContainer()
+                    .endTemplate()
+                .endSpec();
+        }
+    }
+</code></pre><p>Using the @Named annotation we specified that we want this method to be applied to all replication controllers that are named &quot;my-controller&quot;.
+Then starting from the replication controller of our choice we performed the desired manipulation (added a new container).</p>
+<h4 id="performing-manipulation-on-resources-generated-by-the-maven-plugin"><a name="performing-manipulation-on-resources-generated-by-the-maven-plugin" class="plugin-anchor" href="#performing-manipulation-on-resources-generated-by-the-maven-plugin"><span class="fa fa-link"></span></a>Performing manipulation on resources generated by the maven plugin.</h4>
+<p>In some cases it may be handy to generate the skeleton of the json file using the <a href="mavenPlugin.html">Maven Plugin</a> and then apply minor modifications (for fine tuning) using the annotation processors.</p>
+<p>It is important to remember that the maven plugin is using as default maven phase the &quot;generate-resources&quot;, while the annotation processors are using the compile phase.
+This makes possible doing something like:</p>
+<pre><code>    mvn clean fabric8:json compile
+</code></pre><p>This will cause the maven plugin to generate the kubernetes.json file during the &quot;generated-sources&quot; and if a valid @KubernetesModelProcessor is found in the sources, it will be used modify the generated kubernetes.json file.</p>
 
                     
                     </section>
@@ -1071,10 +1201,10 @@
         </div>
 
         
-        <a href="./index.html" class="navigation navigation-prev " aria-label="Previous page: Introduction"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenFabric8Json.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:json"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./fabric8Apps.html" class="navigation navigation-next " aria-label="Next page: Fabric8 Apps"><i class="fa fa-angle-right"></i></a>
+        <a href="./javaLibraries.html" class="navigation navigation-next " aria-label="Next page: Java Libraries"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

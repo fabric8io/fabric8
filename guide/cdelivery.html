@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2" data-basepath="." data-revision="Tue Jun 09 2015 07:42:19 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2" data-basepath="." data-revision="Tue Jun 09 2015 13:26:48 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -607,6 +607,27 @@
                 
             
             
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1.7.1" data-path="annotationProcessors.html">
+            
+                
+                    <a href="./annotationProcessors.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.7.1.</b>
+                        
+                        annotation processors
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
         </li>
     
 
@@ -1058,16 +1079,12 @@
 </ul>
 <pre><code>    git clone https://github.com/fabric8io/fabric8-installer.git
     cd fabric8-installer
-    cd cdelivery-core
+    cd cdelivery
     mvn install
-
-    cd ../app 
-    mvn install -DartifactId=fabric8-forge
-</code></pre><p>Currently there is <a href="https://github.com/fabric8io/fabric8/issues/4059" target="_blank">not a user created by default in gogs</a> so you need to open the gogs web application and sign up. </p>
-<p>If you are running the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a> and have <a href="setupLocalHost.html#adding-entries-in-etc-hosts">setup your local machine&apos;s /etc/hosts file</a> then you should be able to open <a href="http://gogs.vagrant.local/" target="_blank">http://gogs.vagrant.local/</a> then click the <code>sign up</code> link.</p>
-<p>For now use user <code>ceposta</code> and password <code>RedHat$1</code> as the user and password in gogs.</p>
+</code></pre><p>If you are running the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a> and have <a href="setupLocalHost.html#adding-entries-in-etc-hosts">setup your local machine&apos;s /etc/hosts file</a> then you should be able to open <a href="http://gogs.vagrant.local/" target="_blank">http://gogs.vagrant.local/</a> then click the <code>sign in up</code> link.</p>
+<p>For now use user <code>gogsadmin</code> and password <code>RedHat$1</code> as the user and password in gogs (unless you changed the defaults).</p>
 <ul>
-<li><p>Now in the <a href="console.html">fabric8 console</a> if you click the <strong>Projects</strong> tab the <strong>Repositories</strong> sub tab should be available. This prompts you to login to gogs with your user and password (until we can get <a href="https://github.com/gogits/gogs/issues/1271" target="_blank">single sign on working with gogs and OpenShift</a>)</p>
+<li><p>Now in the <a href="console.html">fabric8 console</a> if you click the <strong>Projects</strong> tab the <strong>Repositories</strong> sub tab should be available. This prompts you to login to gogs with the user and password (until we can get <a href="https://github.com/gogits/gogs/issues/1271" target="_blank">single sign on working with gogs and OpenShift</a>)</p>
 </li>
 <li><p>Once you are logged in the <strong>Repositories</strong> tab should show a <strong>Create Project</strong> button on the top right. Click that and try create a project. On the second page of the wizard you get to choose which archetype to use as the start of the project. (If this combo box doesn&apos;t populate first time, its a little bug, go back in your browser and try again ;).</p>
 </li>

@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Jun 09 2015 07:42:19 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Jun 09 2015 13:26:48 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -607,6 +607,27 @@
                 
             
             
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1.7.1" data-path="annotationProcessors.html">
+            
+                
+                    <a href="./annotationProcessors.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.7.1.</b>
+                        
+                        annotation processors
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
         </li>
     
 
@@ -1044,31 +1065,31 @@
 <h4 id="base"><a name="base" class="plugin-anchor" href="#base"><span class="fa fa-link"></span></a>Base</h4>
 <p>Provides the base <a href="console.html">fabric8 console</a></p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/base/2.1.10/base-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/base/2.1.11/base-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h4 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h4>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/management/2.1.10/management-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/management/2.1.11/management-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="logging"><a name="logging" class="plugin-anchor" href="#logging"><span class="fa fa-link"></span></a>Logging</h5>
 <p>Provides just the centralised <a href="logging.html">Logging</a></p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.10/logging-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/logging/2.1.11/logging-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h5>
 <p>Provides just the centralised <a href="metrics.html">Metrics</a></p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.10/metrics-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/metrics/2.1.11/metrics-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h4 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h4>
 <p>Provides the <a href="console.html">fabric8 console</a> and the <a href="ipaas.html">Integration Platform As A Service</a></p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.10/ipaas-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.1.11/ipaas-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h4 id="continuous-delivery"><a name="continuous-delivery" class="plugin-anchor" href="#continuous-delivery"><span class="fa fa-link"></span></a>Continuous Delivery</h4>
@@ -1076,19 +1097,19 @@
 <h5 id="cd-core"><a name="cd-core" class="plugin-anchor" href="#cd-core"><span class="fa fa-link"></span></a>CD Core</h5>
 <p>The core<a href="cdelivery.html">Continuous Delivery</a> installation for building including Gogs for git hosting, Jenkins for building and Nexus as a repository manager.</p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.10/cdelivery-core-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/cdelivery-core/2.1.11/cdelivery-core-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="cd-full"><a name="cd-full" class="plugin-anchor" href="#cd-full"><span class="fa fa-link"></span></a>CD Full</h5>
 <p>The complete <a href="cdelivery.html">Continuous Delivery</a> installation including <strong>CD Core</strong> plus the social apps like <a href="chat.html">chat such as Hubot</a>.</p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.10/cdelivery-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/cdelivery/2.1.11/cdelivery-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h4 id="kitchen-sink"><a name="kitchen-sink" class="plugin-anchor" href="#kitchen-sink"><span class="fa fa-link"></span></a>Kitchen Sink</h4>
 <p>Provides all of the above!</p>
 <pre><code>    osc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.10/kitchen-sink-2.1.10-kubernetes.json \
+    http://central.maven.org/maven2/io/fabric8/apps/kitchen-sink/2.1.11/kitchen-sink-2.1.11-kubernetes.json \
     | osc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
