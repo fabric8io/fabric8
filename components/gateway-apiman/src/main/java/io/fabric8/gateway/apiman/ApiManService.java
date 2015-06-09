@@ -64,9 +64,9 @@ public class ApiManService implements ApiManagerService {
 		int portRest = Integer.valueOf(port) - 1;
 		if (config.containsKey(ApiManagerService.PORT_REST)) portRest = (Integer) config.get(ApiManagerService.PORT_REST);
 		engineRestServer.requestHandler(new ApiManRestRequestHandler(engine));
-		engineRestServer.listen(portRest, "localhost");
-		LOG.info("The ApiMan REST Service is listening at on port " + portRest);
-
+		engineRestServer.listen(portRest, "0.0.0.0");
+		LOG.info("The ApiMan REST Service is listening at '0.0.0.0' on port " + portRest);
+		System.out.println("Apiman Admin at 0.0.0.0:8999");
 	}
 
 	@PreDestroy

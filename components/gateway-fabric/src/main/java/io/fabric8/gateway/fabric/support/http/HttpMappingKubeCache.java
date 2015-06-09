@@ -115,7 +115,8 @@ public class HttpMappingKubeCache implements Runnable {
                     //is there a better way to obtain the complete url?
                     Set<Integer> ports = getPorts(service1);
                     for (Integer port : ports) {
-                        String service = "http://localhost:" + port + "/" + KubernetesHelper.getName(service1);
+                        System.out.println("Service URL=" + KubernetesHelper.getServiceURL(service1));
+                    	String service = "http://localhost:" + port + "/" + KubernetesHelper.getName(service1);
                         List<String> services = Arrays.asList(service);
                         if (!contextPathsCache.contains(contextPath)) {
                             LOG.info("Adding " + service);
