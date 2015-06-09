@@ -110,6 +110,7 @@ public class RestDispatcher {
 						if (request.method().equals("PUT")) {
 							Service service = getObjectMapper().readValue(body, Service.class);
 							engine.getRegistry().publishService(service, voidHandler);
+							LOG.info("Published to Registry " + service.getEndpoint());
 						}
 						else if (request.method().equals("DELETE"))  {
 							//path {organizationId}/{serviceId}/{version}
@@ -120,6 +121,7 @@ public class RestDispatcher {
 					        service.setServiceId(pathSegment[4]);
 					        service.setVersion(pathSegment[5]);
                             engine.getRegistry().retireService(service , voidHandler);
+                            LOG.info("Retired " + service.getEndpoint() + ", version " + service.getVersion());
 						} else if (request.method().equals("GET")) {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 7) throw new UserException("Query Parse Exception , "

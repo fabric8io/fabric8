@@ -98,6 +98,8 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 	        IMappedServices mappedServices = HttpMapping.getMapping(request, httpGateway.getMappedServices());
 	        if (mappedServices!=null) {
 		    	ProxyMappingDetails proxyMappingDetails = mappedServices.getProxyMappingDetails();
+		    	LOG.info("Proxy Mapping Details " + proxyMappingDetails.getServicePath());
+		    	
 		        ServiceMapping apiManagerServiceInfo = apiManager.getApiManagerServiceMapping(proxyMappingDetails.getServicePath());
 		        if (apiManagerServiceInfo==null) throw new Exception("Service Not Found in API Manager.");
 		        srequest.setServiceOrgId(apiManagerServiceInfo.getOrganizationId());
