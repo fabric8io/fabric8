@@ -36,6 +36,7 @@ import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
+import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -159,6 +160,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
 
         Project project = getSelectedProject(context);
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
+        WebResourcesFacet webFacet = project.getFacet(WebResourcesFacet.class);
 
         // does the project already have camel?
         Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
@@ -210,8 +212,11 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         // TODO need to replace & with &amp;
         uri = org.apache.camel.util.StringHelper.xmlEncode(uri);
 
-        FileResource file = facet.getResource(xml);
-        if (!file.exists()) {
+        FileResource file = facet != null ? facet.getResource(xml) : null;
+        if (file == null || !file.exists()) {
+            file = webFacet != null ? webFacet.getWebResource(xml) : null;
+        }
+        if (file == null || !file.exists()) {
             return Results.fail("Cannot find XML file " + xml);
         }
 
