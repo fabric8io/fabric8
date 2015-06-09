@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Tue Jun 09 2015 14:15:57 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Tue Jun 09 2015 14:18:13 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1080,7 +1080,14 @@ export KUBERNETES_DOMAIN=vagrant.local
 export KUBERNETES_TRUST_CERT=true
 sudo route -n add 172.0.0.0/8 172.28.128.4
 </code></pre><p>The last command makes it easier to see IP address created on the vagrant box</p>
-<h3 id="now-setup-your-development-machine"><a name="now-setup-your-development-machine" class="plugin-anchor" href="#now-setup-your-development-machine"><span class="fa fa-link"></span></a>Now setup your development machine</h3>
+<h3 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h3>
+<p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
+<pre><code>vagrant ssh
+journalctl -u openshift
+</code></pre><p>Or you can tail the logs via </p>
+<pre><code>vagrant ssh
+journalctl -fu openshift
+</code></pre><h3 id="now-setup-your-development-machine"><a name="now-setup-your-development-machine" class="plugin-anchor" href="#now-setup-your-development-machine"><span class="fa fa-link"></span></a>Now setup your development machine</h3>
 <p>Once the vagrant image is running you&apos;ll have OpenShift up and configured. </p>
 <p>Now <a href="setupLocalHost.html">Setup your local machine</a> so that your host operating system is setup to work with the vagrant image.</p>
 
