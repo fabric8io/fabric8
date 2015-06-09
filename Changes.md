@@ -1,7 +1,11 @@
 
+### 2.1.11
+
+* Fixes [these 3 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.11)
+
 ### 2.1.10
 
-* Fixes [these 8 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.6)
+* Fixes [these 8 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.10)
 
 ### 2.1.6
 
