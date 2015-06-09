@@ -54,20 +54,15 @@ If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-
 ```
     git clone https://github.com/fabric8io/fabric8-installer.git
     cd fabric8-installer
-    cd cdelivery-core
+    cd cdelivery
     mvn install
-    
-    cd ../app 
-    mvn install -DartifactId=fabric8-forge
 ```    
 
-Currently there is [not a user created by default in gogs](https://github.com/fabric8io/fabric8/issues/4059) so you need to open the gogs web application and sign up. 
+If you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.local/](http://gogs.vagrant.local/) then click the `sign in up` link.
 
-If you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.local/](http://gogs.vagrant.local/) then click the `sign up` link.
+For now use user `gogsadmin` and password `RedHat$1` as the user and password in gogs (unless you changed the defaults).
 
-For now use user `ceposta` and password `RedHat$1` as the user and password in gogs.
-
-* Now in the [fabric8 console](console.html) if you click the **Projects** tab the **Repositories** sub tab should be available. This prompts you to login to gogs with your user and password (until we can get [single sign on working with gogs and OpenShift](https://github.com/gogits/gogs/issues/1271))
+* Now in the [fabric8 console](console.html) if you click the **Projects** tab the **Repositories** sub tab should be available. This prompts you to login to gogs with the user and password (until we can get [single sign on working with gogs and OpenShift](https://github.com/gogits/gogs/issues/1271))
 
 * Once you are logged in the **Repositories** tab should show a **Create Project** button on the top right. Click that and try create a project. On the second page of the wizard you get to choose which archetype to use as the start of the project. (If this combo box doesn't populate first time, its a little bug, go back in your browser and try again ;).
 
