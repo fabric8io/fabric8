@@ -36,11 +36,11 @@ public class XmlEndpointsCompleter implements UICompleter<String> {
     public XmlEndpointsCompleter(final ResourcesFacet facet, final WebResourcesFacet webFacet) {
         // find package names in the source code
         if (facet != null) {
-            ResourceVisitor visitor = new XmlResourcesVisitor(facet, endpoints);
+            ResourceVisitor visitor = new XmlResourcesCamelEndpointsVisitor(facet, endpoints);
             facet.visitResources(visitor);
         }
         if (webFacet != null) {
-            ResourceVisitor visitor = new XmlWebResourcesVisitor(webFacet, endpoints);
+            ResourceVisitor visitor = new XmlWebResourcesCamelEndpointsVisitor(webFacet, endpoints);
             webFacet.visitWebResources(visitor);
         }
     }

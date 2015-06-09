@@ -23,10 +23,11 @@ import io.fabric8.forge.camel.commands.project.completer.XmlFileCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
+import org.jboss.forge.addon.facets.constraints.FacetConstraintType;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
-import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
+import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -42,7 +43,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-@FacetConstraint({ResourcesFacet.class, ClassLoaderFacet.class})
+@FacetConstraint(value = {ResourcesFacet.class, WebResourcesFacet.class}, type = FacetConstraintType.OPTIONAL)
 public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
@@ -90,6 +91,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
+        WebResourcesFacet webResourcesFacet = project.getFacet(WebResourcesFacet.class);
 
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
@@ -109,7 +111,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         });
 
         // use value choices instead of completer as that works better in web console
-        xml.setValueChoices(new XmlFileCompleter(resourcesFacet).getFiles());
+        xml.setValueChoices(new XmlFileCompleter(resourcesFacet, webResourcesFacet).getFiles());
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(xml);
     }
 

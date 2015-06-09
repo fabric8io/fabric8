@@ -30,12 +30,12 @@ import org.w3c.dom.Node;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.getSafeAttribute;
 
-public class XmlWebResourcesVisitor implements ResourceVisitor {
+public class XmlWebResourcesCamelEndpointsVisitor implements ResourceVisitor {
 
     private final WebResourcesFacet facet;
     private final List<CamelEndpointDetails> endpoints;
 
-    public XmlWebResourcesVisitor(WebResourcesFacet facet, List<CamelEndpointDetails> endpoints) {
+    public XmlWebResourcesCamelEndpointsVisitor(WebResourcesFacet facet, List<CamelEndpointDetails> endpoints) {
         this.facet = facet;
         this.endpoints = endpoints;
     }

@@ -21,9 +21,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
-import org.jboss.forge.addon.resource.Resource;
+import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
 import org.jboss.forge.addon.resource.visit.ResourceVisitor;
-import org.jboss.forge.addon.resource.visit.VisitContext;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
@@ -35,28 +34,16 @@ public class XmlFileCompleter implements UICompleter<String> {
 
     private final Set<String> files = new TreeSet<String>();
 
-    public XmlFileCompleter(final ResourcesFacet facet) {
-        // find package names in the source code
-        facet.visitResources(new ResourceVisitor() {
-            @Override
-            public void visit(VisitContext context, Resource<?> resource) {
-                String name = resource.getName();
-                if (name.endsWith(".xml")) {
-                    // must contain <camelContext...
-                    boolean camel = resource.getContents().contains("<camelContext");
-                    if (camel) {
-                        // we only want the relative dir name from the resource directory, eg META-INF/spring/foo.xml
-                        String baseDir = facet.getResourceDirectory().getFullyQualifiedName();
-                        String fqn = resource.getFullyQualifiedName();
-                        if (fqn.startsWith(baseDir)) {
-                            fqn = fqn.substring(baseDir.length() + 1);
-                        }
-
-                        files.add(fqn);
-                    }
-                }
-            }
-        });
+    public XmlFileCompleter(final ResourcesFacet facet, final WebResourcesFacet webFacet) {
+        // find Camel XML files
+        if (facet != null) {
+            ResourceVisitor visitor = new XmlResourcesCamelFilesVisitor(facet, files);
+            facet.visitResources(visitor);
+        }
+        if (webFacet != null) {
+            ResourceVisitor visitor = new XmlWebResourcesCamelFilesVisitor(webFacet, files);
+            webFacet.visitWebResources(visitor);
+        }
     }
 
     public Set<String> getFiles() {
