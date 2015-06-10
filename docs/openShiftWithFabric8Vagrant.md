@@ -73,15 +73,23 @@ If you hit any issues then try look at the logs for the `openshift` master:
 
 ```
 vagrant ssh
-journalctl -u openshift
+sudo journalctl -u openshift
 ```
 
 Or you can tail the logs via 
 
 ```
 vagrant ssh
-journalctl -fu openshift
+sudo journalctl -fu openshift
 ```
+
+You can watch the docker daemon too via
+
+```
+vagrant ssh
+sudo journalctl -fu docker
+```
+
 
 ### Now setup your development machine
 
