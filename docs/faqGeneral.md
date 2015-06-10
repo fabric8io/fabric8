@@ -36,6 +36,10 @@ Try reading the [overview](/guide/overview.html) to see if that helps give you a
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
     * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.
 
+#### What maven plugin goals are available?
+ 
+See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html) 
+
 #### What Java versions are supported?
 
 fabric8 runs on Java 7 and 8.
