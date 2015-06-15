@@ -61,8 +61,16 @@ public class Systems {
         }
     }
 
+    public static boolean hasEnvVarOrSystemProperty(String envVarName) {
+        return getEnvVarOrSystemProperty(envVarName) != null;
+    }
+
     public static String getEnvVarOrSystemProperty(String envVarName, String defaultValue) {
         return getEnvVarOrSystemProperty(envVarName,envVarName,defaultValue);
+    }
+
+    public static String getEnvVarOrSystemProperty(String envVarName) {
+        return getEnvVarOrSystemProperty(envVarName,envVarName,(String)null);
     }
 
     public static Number getEnvVarOrSystemProperty(final String name, final Number defaultValue) {

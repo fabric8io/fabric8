@@ -111,10 +111,10 @@ public class KubernetesFactory {
     }
 
     private void init() {
-        if (System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES) != null) {
-            this.trustAllCerts = Boolean.valueOf(System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES));
-        } else if (System.getenv(KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR) != null) {
-            File candidateCaCertFile = new File(System.getenv(KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR));
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_TRUST_ALL_CERIFICATES)) {
+            this.trustAllCerts = Systems.getEnvVarOrSystemProperty(KUBERNETES_TRUST_ALL_CERIFICATES, false);
+        } else if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR)) {
+            File candidateCaCertFile = new File(Systems.getEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR));
             if (candidateCaCertFile.exists() && candidateCaCertFile.canRead()) {
                 this.caCertFile = candidateCaCertFile;
             } else {
@@ -122,12 +122,12 @@ public class KubernetesFactory {
             }
         }
 
-        if (System.getenv(KUBERNETES_CA_CERTIFICATE_DATA_ENV_VAR) != null) {
-            this.caCertData = System.getenv(KUBERNETES_CA_CERTIFICATE_DATA_ENV_VAR);
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_DATA_ENV_VAR)) {
+            this.caCertData = Systems.getEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_DATA_ENV_VAR);
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_CERTIFICATE_FILE_ENV_VAR) != null) {
-            File candidateClientCertFile = new File(System.getenv(KUBERNETES_CLIENT_CERTIFICATE_FILE_ENV_VAR));
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_CERTIFICATE_FILE_ENV_VAR)) {
+            File candidateClientCertFile = new File(Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_CERTIFICATE_FILE_ENV_VAR));
             if (candidateClientCertFile.exists() && candidateClientCertFile.canRead()) {
                 this.clientCertFile = candidateClientCertFile;
             } else {
@@ -135,12 +135,12 @@ public class KubernetesFactory {
             }
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_CERTIFICATE_DATA_ENV_VAR) != null) {
-            this.clientCertData = System.getenv(KUBERNETES_CLIENT_CERTIFICATE_DATA_ENV_VAR);
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_CERTIFICATE_DATA_ENV_VAR)) {
+            this.clientCertData = Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_CERTIFICATE_DATA_ENV_VAR);
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_KEY_FILE_ENV_VAR) != null) {
-            File candidateClientKeyFile = new File(System.getenv(KUBERNETES_CLIENT_KEY_FILE_ENV_VAR));
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_FILE_ENV_VAR)) {
+            File candidateClientKeyFile = new File(Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_FILE_ENV_VAR));
             if (candidateClientKeyFile.exists() && candidateClientKeyFile.canRead()) {
                 this.clientKeyFile = candidateClientKeyFile;
             } else {
@@ -148,16 +148,16 @@ public class KubernetesFactory {
             }
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_KEY_DATA_ENV_VAR) != null) {
-            this.clientKeyData = System.getenv(KUBERNETES_CLIENT_KEY_DATA_ENV_VAR);
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_DATA_ENV_VAR)) {
+            this.clientKeyData = Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_DATA_ENV_VAR);
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR) != null) {
-            this.clientKeyAlgo = System.getenv(KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR);
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR)) {
+            this.clientKeyAlgo = Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_ALGO_ENV_VAR);
         }
 
-        if (System.getenv(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR) != null) {
-            this.clientKeyPassword = System.getenv(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR).toCharArray();
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR)) {
+            this.clientKeyPassword = Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR).toCharArray();
         }
     }
 
