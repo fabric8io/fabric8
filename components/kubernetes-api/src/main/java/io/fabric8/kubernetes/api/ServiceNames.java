@@ -38,7 +38,7 @@ public class ServiceNames {
 
     // Continuous Delivery
     //-------------------------------------------------------------------------
-    public static final String GOGS = "fabric8";
+    public static final String GOGS = "gogs";
     public static final String JENKINS = "jenkins";
     public static final String NEXUS = "nexus";
     public static final String GERRIT = "gerrit";
