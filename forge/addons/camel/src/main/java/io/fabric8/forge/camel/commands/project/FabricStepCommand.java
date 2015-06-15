@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import javax.annotation.Resources;
 import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.MavenHelpers;
@@ -32,6 +31,7 @@ import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPlugin;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
@@ -42,7 +42,6 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.resource.Resource;
-import org.jboss.forge.addon.resource.ResourceFacet;
 import org.jboss.forge.addon.resource.ResourceFactory;
 import org.jboss.forge.addon.resource.URLResource;
 import org.jboss.forge.addon.templates.Template;
@@ -60,6 +59,7 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
+@FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class FabricStepCommand extends AbstractDockerProjectCommand implements UIWizard {
 
     @Inject

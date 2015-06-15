@@ -23,6 +23,7 @@ import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
+import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -37,7 +38,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-@FacetConstraint({MavenFacet.class, MavenPluginFacet.class})
+@FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class FabricSetupCommand extends AbstractFabricProjectCommand implements UIWizard {
 
     // TODO: Jube does not currently work so disable jube until working again

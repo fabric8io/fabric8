@@ -55,16 +55,15 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     private DependencyInstaller dependencyInstaller;
 
     @Override
-    protected boolean requiresCamelSetup() {
-        return false;
-    }
-
-    @Override
     public boolean isEnabled(UIContext context) {
         Project project = getSelectedProjectOrNull(context);
         // only enable if we do not have Camel yet
-        boolean noCamel = project == null || findCamelCoreDependency(project) == null;
-        return super.isEnabled(context) && noCamel;
+        if (project == null) {
+            // must have a project
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
