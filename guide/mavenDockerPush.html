@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.2" data-basepath="." data-revision="Mon Jun 15 2015 14:33:06 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.2" data-basepath="." data-revision="Mon Jun 15 2015 15:04:25 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1048,22 +1048,15 @@
 <p>To push your image you will need to run:</p>
 <pre><code>mvn install docker:build docker:push
 </code></pre><p>If you wish to push docker images to a private or public registry you will need to add a section to your <strong>~/.m2/settings.xml</strong> file with a dummy login and password where the server <strong>id</strong> matches the value of <strong>$DOCKER_REGISTRY</strong>. For example a local boot2docker based registry would look like this:</p>
-<pre><code>    &lt;servers&gt;
-       &lt;server&gt;
-           &lt;id&gt;192.168.59.103:5000&lt;/id&gt;
-           &lt;username&gt;jolokia&lt;/username&gt;
-           &lt;password&gt;jolokia&lt;/password&gt;
-       &lt;/server&gt;
+<pre><code class="lang-xml">    <span class="hljs-tag">&lt;<span class="hljs-title">servers</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">server</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-title">id</span>&gt;</span>192.168.59.103:5000<span class="hljs-tag">&lt;/<span class="hljs-title">id</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-title">username</span>&gt;</span>jolokia<span class="hljs-tag">&lt;/<span class="hljs-title">username</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-title">password</span>&gt;</span>jolokia<span class="hljs-tag">&lt;/<span class="hljs-title">password</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">server</span>&gt;</span>
         ...
-  &lt;/servers&gt;
-</code></pre><pre><code>   &lt;server&gt;
-      &lt;id&gt;172.121.17.4:5000&lt;/id&gt;
-       &lt;username&gt;jolokia&lt;/username&gt;
-       &lt;password&gt;jolokia&lt;/password&gt;
-   &lt;/server&gt;
-    ...
-</code></pre><p>  
-```</p>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">servers</span>&gt;</span>
+</code></pre>
 <p>For more details <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication" target="_blank">see the docker maven plugin docs</a></p>
 <h3 id="specifying-the-location-of-your-local-docker-registry"><a name="specifying-the-location-of-your-local-docker-registry" class="plugin-anchor" href="#specifying-the-location-of-your-local-docker-registry"><span class="fa fa-link"></span></a>Specifying the location of your local docker registry</h3>
 <p>When creating new docker images for use in Kubernetes you probably want to run a local docker registry if you do not intend to reuse the public docker registry.</p>
