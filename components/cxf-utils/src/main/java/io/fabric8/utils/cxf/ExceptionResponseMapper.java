@@ -1,9 +1,11 @@
 package io.fabric8.utils.cxf;
 
+import io.fabric8.utils.IOHelpers;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 public class ExceptionResponseMapper implements ResponseExceptionMapper<Exception> {
     @Override
@@ -11,7 +13,10 @@ public class ExceptionResponseMapper implements ResponseExceptionMapper<Exceptio
         try {
             Object entity = response.getEntity();
             String message = "No message";
-            if (entity != null) {
+            if (entity instanceof InputStream) {
+                InputStream inputStream = (InputStream) entity;
+                message = IOHelpers.readFully(inputStream);
+            } else if (entity != null) {
                 message = entity.toString();
             }
             message = "HTTP " + response.getStatus() + " " + message;
