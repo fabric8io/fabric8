@@ -31,6 +31,7 @@ import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.facets.FacetFactory;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPlugin;
@@ -86,6 +87,9 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
 
     @Inject
     ResourceFactory resourceFactory;
+
+    @Inject
+    FacetFactory facetFactory;
 
     @Override
     public boolean isEnabled(UIContext context) {
@@ -157,9 +161,12 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        // install fabric8 bom
         Project project = getSelectedProject(context);
 
+        // make sure we have resources as we need it later
+        facetFactory.install(project, ResourcesFacet.class);
+
+        // install fabric8 bom
         Dependency bom = DependencyBuilder.create()
                 .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
                 .setScopeType("import");
