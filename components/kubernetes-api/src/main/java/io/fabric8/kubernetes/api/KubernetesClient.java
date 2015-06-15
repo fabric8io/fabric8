@@ -1253,6 +1253,24 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return watchOpenShiftEntities("builds", namespace, labels, watcher, resourceVersion);
     }
 
+    public WebSocketClient watchBuildConfigs(Watcher<BuildConfig> watcher) throws Exception {
+        return watchBuildConfigs(null, watcher);
+    }
+
+    public WebSocketClient watchBuildConfigs(Map<String, String> labels, Watcher<BuildConfig> watcher) throws Exception {
+        return watchBuildConfigs(getNamespace(), labels, watcher);
+    }
+
+    public WebSocketClient watchBuildConfigs(String namespace, Map<String, String> labels, Watcher<BuildConfig> watcher) throws Exception {
+        BuildConfigList currentList = getBuildConfigs(namespace);
+        return watchBuildConfigs(namespace, labels, watcher,
+                currentList.getMetadata().getResourceVersion());
+    }
+
+    public WebSocketClient watchBuildConfigs(String namespace, Map<String, String> labels, Watcher<BuildConfig> watcher, String resourceVersion) throws Exception {
+        return watchOpenShiftEntities("buildconfigs", namespace, labels, watcher, resourceVersion);
+    }
+
     public WebSocketClient watchRoutes(Watcher<Route> watcher) throws Exception {
         return watchRoutes(null, watcher);
     }
