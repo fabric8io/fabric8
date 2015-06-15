@@ -37,10 +37,16 @@ import java.util.Map;
 public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
     /**
-     *
+     * the gogs user name to use
      */
-    @Parameter(property = "fabric8.username")
+    @Parameter(property = "fabric8.gogsUsername")
     protected String username;
+
+    /**
+     * the gogs password
+     */
+    @Parameter(property = "fabric8.gogsPassword")
+    protected String password;
 
     /**
      *
@@ -96,6 +102,25 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.jenkinsPipelineView")
     protected  String jenkinsPipelineView;
 
+    /**
+     * The name of the taiga project name to use
+     */
+    @Parameter(property = "fabric8.tagiaProjectName")
+    protected String taigaProjectName;
+
+
+    /**
+     * The user name to use for taiga links
+     */
+    @Parameter(property = "fabric8.tagiaUserName")
+    protected String taigaUserName;
+
+    /**
+     * The kind of taiga project to link to
+     */
+    @Parameter(property = "fabric8.taigaProjectKind", defaultValue = "kanban")
+    protected String taigaProjectKind;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -131,6 +156,12 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
 
+        String taigaLink = getTaigaProjectUrl();
+        if (Strings.isNotBlank(taigaLink)) {
+            annotations.put("fabric8.link.taiga/url", taigaLink);
+            annotations.put("fabric8.link.taiga/label", "Issues");
+        }
+
         BuildConfig buildConfig = new BuildConfigBuilder().
                 withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
                 withNewSpec().
@@ -153,7 +184,55 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         controller.applyBuildConfig(buildConfig, "maven");
         getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
 
+        createJenkinsWebhook();
+        createTaigaWebhook();
     }
 
+    protected String getTaigaProjectUrl() {
+        String url = getTaigaUrl();
+        if (Strings.isNotBlank(url)) {
+            return URLUtils.pathJoin(url, "/project/", taigaUserName + "-" + taigaProjectName + "/", taigaProjectKind);
+        }
+        return null;
+    }
 
+    protected String getTaigaWebhookUrl() {
+        String url = getTaigaUrl();
+        if (Strings.isNotBlank(url)) {
+            return URLUtils.pathJoin(url, "/api/v1/github-hook?project=" + taigaProjectName);
+        }
+        return null;
+    }
+
+    protected String getTaigaUrl() {
+        String url = null;
+        if (Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
+            KubernetesClient kubernetes = getKubernetes();
+            url = kubernetes.getServiceURL(ServiceNames.TAIGA, kubernetes.getNamespace(), "http", true);
+        }
+        return url;
+    }
+
+    protected void createJenkinsWebhook() {
+        String jenkinsWebHook = jenkinsJob;
+        if (Strings.isNotBlank(jenkinsWebHook)) {
+            jenkinsWebHook = URLUtils.pathJoin(jenkinsJob, "/build");
+            createWebHook(jenkinsWebHook);
+        }
+    }
+
+    protected void createTaigaWebhook() {
+        String webhook = getTaigaWebhookUrl();
+        if (Strings.isNotBlank(webhook)) {
+            createWebHook(webhook);
+        }
+    }
+
+    protected void createWebHook(String url) {
+        try {
+            CreateGogsWebhook.createGogsWebhook(getKubernetes(), getLog(), username, password, repoName, url, secret);
+        } catch (Exception e) {
+            getLog().error("Failed to create webhook " + url + " on repository " + repoName + ". Reason: " + e, e);
+        }
+    }
 }
