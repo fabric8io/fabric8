@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
@@ -484,7 +485,9 @@ public class Controller {
                     LOG.info("Updating BuildConfig from " + sourceName);
                     try {
                         String resourceVersion = KubernetesHelper.getResourceVersion(old);
-                        KubernetesHelper.getOrCreateMetadata(entity).setResourceVersion(resourceVersion);
+                        ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
+                        metadata.setNamespace(namespace);
+                        metadata.setResourceVersion(resourceVersion);
                         Object answer = kubernetes.updateBuildConfig(id, entity, namespace);
                         logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
                     } catch (Exception e) {
