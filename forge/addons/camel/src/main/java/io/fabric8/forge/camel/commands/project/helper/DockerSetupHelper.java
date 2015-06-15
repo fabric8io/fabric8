@@ -31,6 +31,9 @@ import org.jboss.forge.addon.projects.Project;
 
 public class DockerSetupHelper {
 
+    // see https://github.com/fabric8io/fabric8/issues/4160
+    private static String dockerFromImagePrefix = "docker.io/";
+
     private static String[] jarImages = new String[]{"fabric8/java"};
     private static String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
     private static String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
@@ -112,7 +115,7 @@ public class DockerSetupHelper {
         Model pom = maven.getModel();
         Properties properties = pom.getProperties();
         properties.put("docker.registryPrefix", "${env.DOCKER_REGISTRY}/");
-        properties.put("docker.from", fromImage);
+        properties.put("docker.from", dockerFromImagePrefix + fromImage);
         properties.put("docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}");
         // jolokia is exposed on our docker images on port 8778
         properties.put("docker.port.container.jolokia", "8778");
