@@ -135,6 +135,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         labels.put("repo", repoName);
 
         Map<String,String> annotations = new HashMap<>();
+        String jenkinsJobUrl = null;
         try {
             String jenkinsUrl = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", true);
 
@@ -148,7 +149,8 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
                     annotations.put("fabric8.link.jenkins.pipeline/label", "Pipeline");
                 }
                 if (Strings.isNotBlank(jenkinsJob)) {
-                    annotations.put("fabric8.link.jenkins.job/url", URLUtils.pathJoin(jenkinsUrl, "/job", jenkinsJob));
+                    jenkinsJobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", jenkinsJob);
+                    annotations.put("fabric8.link.jenkins.job/url", jenkinsJobUrl);
                     annotations.put("fabric8.link.jenkins.job/label", "Job");
                 }
             }
@@ -184,7 +186,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         controller.applyBuildConfig(buildConfig, "maven");
         getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
 
-        createJenkinsWebhook();
+        createJenkinsWebhook(jenkinsJobUrl);
         createTaigaWebhook();
     }
 
@@ -213,10 +215,9 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         return url;
     }
 
-    protected void createJenkinsWebhook() {
-        String jenkinsWebHook = jenkinsJob;
-        if (Strings.isNotBlank(jenkinsWebHook)) {
-            jenkinsWebHook = URLUtils.pathJoin(jenkinsJob, "/build");
+    protected void createJenkinsWebhook(String jenkinsJobUrl) {
+        if (Strings.isNotBlank(jenkinsJobUrl)) {
+            String jenkinsWebHook = URLUtils.pathJoin(jenkinsJobUrl, "/build");
             createWebHook(jenkinsWebHook);
         }
     }
