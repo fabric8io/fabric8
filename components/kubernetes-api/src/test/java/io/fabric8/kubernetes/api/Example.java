@@ -51,7 +51,7 @@ public class Example {
         String image = "fabric8/hawtio";
 
         Pod pod = new Pod();
-        pod.getMetadata().setName(name);
+        KubernetesHelper.setName(pod, name);
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");
@@ -77,7 +77,7 @@ public class Example {
 
     protected static void listPods(Kubernetes kube) {
         System.out.println("Looking up pods");
-        PodList pods = kube.getPods(Kubernetes.NAMESPACE_ALL);
+        PodList pods = kube.getPods(Kubernetes.NAMESPACE_DEFAULT);
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
@@ -106,7 +106,7 @@ public class Example {
 
     protected static void listServices(Kubernetes kube) {
         System.out.println("Looking up services");
-        ServiceList services = kube.getServices(Kubernetes.NAMESPACE_ALL);
+        ServiceList services = kube.getServices(Kubernetes.NAMESPACE_DEFAULT);
         List<Service> serviceItems = services.getItems();
         for (Service service : serviceItems) {
             System.out.println("Service " + KubernetesHelper.getName(service) + " labels: " + service.getMetadata().getLabels() + " selector: " + getSelector(service) + " ports: " + getPorts(service));
@@ -117,7 +117,7 @@ public class Example {
 
     protected static void listReplicationControllers(Kubernetes kube) {
         System.out.println("Looking up replicationControllers");
-        ReplicationControllerList replicationControllers = kube.getReplicationControllers(Kubernetes.NAMESPACE_ALL);
+        ReplicationControllerList replicationControllers = kube.getReplicationControllers(Kubernetes.NAMESPACE_DEFAULT);
         List<ReplicationController> items = replicationControllers.getItems();
         for (ReplicationController item : items) {
             ReplicationControllerSpec replicationControllerSpec = item.getSpec();

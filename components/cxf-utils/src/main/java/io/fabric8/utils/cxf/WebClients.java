@@ -167,7 +167,7 @@ public class WebClients {
             RSAPrivateKey privKey = (RSAPrivateKey) kf.generatePrivate(keySpec);
 
             KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(null);
+            keyStore.load(null, clientKeyPassword);
 
             String alias = cert.getSubjectX500Principal().getName();
             keyStore.setKeyEntry(alias, privKey, clientKeyPassword, new Certificate[] {cert});

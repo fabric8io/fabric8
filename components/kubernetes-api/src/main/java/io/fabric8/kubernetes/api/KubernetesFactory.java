@@ -80,7 +80,7 @@ public class KubernetesFactory {
     private String clientCertData;
     private String clientKeyData;
     private String clientKeyAlgo = "RSA";
-    private char[] clientKeyPassword = new char[]{};
+    private char[] clientKeyPassword = "changeit".toCharArray();
     private String username;
     private String password;
 
@@ -232,8 +232,9 @@ public class KubernetesFactory {
                 sslContextFactory = new SslContextFactory();
             }
             KeyStore keyStore = WebClients.createKeyStore(this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
-            sslContextFactory = new SslContextFactory();
             sslContextFactory.setKeyStore(keyStore);
+            sslContextFactory.setKeyStorePassword(new String(this.clientKeyPassword));
+            sslContextFactory.setKeyManagerPassword(new String(this.clientKeyPassword));
         }
 
         sslContextFactory.setIncludeProtocols("TLSv1", "TLSv1.1", "TLSv1.2");
