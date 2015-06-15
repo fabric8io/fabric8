@@ -10,18 +10,10 @@ To push your image you will need to run:
 
 If you wish to push docker images to a private or public registry you will need to add a section to your **~/.m2/settings.xml** file with a dummy login and password where the server **id** matches the value of **$DOCKER_REGISTRY**. For example a local boot2docker based registry would look like this:
 
-```
+```xml
 	<servers>
        <server>
            <id>192.168.59.103:5000</id>
-           <username>jolokia</username>
-           <password>jolokia</password>
-       </server>
-        ...
-  </servers>
-```
-       <server>
-          <id>172.121.17.4:5000</id>
            <username>jolokia</username>
            <password>jolokia</password>
        </server>
