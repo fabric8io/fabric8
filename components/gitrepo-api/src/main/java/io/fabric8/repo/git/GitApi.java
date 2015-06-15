@@ -51,6 +51,10 @@ public interface GitApi {
     public RepositoryDTO createRepository(CreateRepositoryDTO dto);
 
 
+    @GET
+    @Path("repos/{owner}/{repo}/hooks")
+    public List<WebHookDTO> getWebhooks(@PathParam("owner") String owner, @PathParam("repo") String repo);
+
     @POST
     @Path("repos/{owner}/{repo}/hooks")
     public WebHookDTO createWebhook(@PathParam("owner") String owner, @PathParam("repo") String repo, CreateWebhookDTO dto);

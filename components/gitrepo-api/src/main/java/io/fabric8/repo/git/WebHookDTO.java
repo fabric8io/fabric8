@@ -33,6 +33,21 @@ public class WebHookDTO extends EntitySupport {
     private String updatedAt;
     private String createdAt;
 
+    @Override
+    public String toString() {
+        return "WebHookDTO{" +
+                "url='" + url + '\'' +
+                ", testUrl='" + testUrl + '\'' +
+                ", pingUrl='" + pingUrl + '\'' +
+                ", name='" + name + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", config=" + config +
+                ", active=" + active +
+                ", events=" + events +
+                ", updatedAt='" + updatedAt + '\'' +
+                '}';
+    }
+
     public Boolean getActive() {
         return active;
     }

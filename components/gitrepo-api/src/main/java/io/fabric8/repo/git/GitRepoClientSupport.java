@@ -16,6 +16,7 @@
  */
 package io.fabric8.repo.git;
 
+import javax.ws.rs.PathParam;
 import java.util.List;
 
 /**
@@ -46,6 +47,10 @@ public abstract class GitRepoClientSupport {
 
     public WebHookDTO createWebhook(String owner, String repo, CreateWebhookDTO dto) {
         return getApi().createWebhook(owner, repo, dto);
+    }
+
+    public List<WebHookDTO> getWebhooks(String owner, String repo) {
+        return getApi().getWebhooks(owner, repo);
     }
 
     public RepositoryDTO createRepository(CreateRepositoryDTO createRepository) {

@@ -26,6 +26,7 @@ import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -98,6 +99,19 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
             log.info("Querying webhooks in gogs for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
 
             GitRepoClient repoClient = new GitRepoClient(gogsAddress, gogsUsername, gogsPassword);
+            List<WebHookDTO> webhooks = repoClient.getWebhooks(gogsUsername, repo);
+            for (WebHookDTO webhook : webhooks) {
+                String url = null;
+                WebhookConfig config = webhook.getConfig();
+                if (config != null) {
+                    url = config.getUrl();
+                    if (Objects.equal(webhookUrl, url)) {
+                        log.info("Already has webhook for: " + url + " so not creating again");
+                        return;
+                    }
+                    log.info("Ignoring webhook " + url + " from: " + toJson(config));
+                }
+            }
             CreateWebhookDTO createWebhook = new CreateWebhookDTO();
             createWebhook.setType("gogs");
             WebhookConfig config = createWebhook.getConfig();
@@ -105,8 +119,9 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
             config.setSecret(secret);
             WebHookDTO webhook = repoClient.createWebhook(gogsUsername, repo, createWebhook);
             if (log.isDebugEnabled()) {
-                log.debug("Got web hook: " + toJson(webhook));
+                log.debug("Got created web hook: " + toJson(webhook));
             }
+            log.info("Created webhook for " + webhookUrl + " for namespace: " + namespace + " on gogs URL: " + gogsAddress);
         } catch (MojoExecutionException e) {
             throw e;
         } catch (Exception e) {
