@@ -49,7 +49,7 @@
     </licenses>
 
     <prerequisites>
-      <maven>3.2.1</maven>
+      <maven>3.2.5</maven>
     </prerequisites>
 
       <!-- including A developer as it's required by the maven poms going into central -->
