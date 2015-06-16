@@ -545,11 +545,16 @@
                 <artifactId>kubernetes-model</artifactId>
                 <version>${kubernetes-model.version}</version>
             </dependency>
-          <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>taiga-api</artifactId>
-              <version>${project.version}</version>
-          </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>letschat-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>taiga-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Internal testing modules -->
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>

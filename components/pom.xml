@@ -71,6 +71,7 @@
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-generator</module>
+    <module>letschat-api</module>
     <module>mq</module>
     <module>rest-utils</module>
     <module>swagger-model</module>
