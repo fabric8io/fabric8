@@ -83,7 +83,7 @@ public class Fabric8ApplicationTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().matches("/osapi/[^/]+/namespaces/[^/]+/routes")) {
+                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")

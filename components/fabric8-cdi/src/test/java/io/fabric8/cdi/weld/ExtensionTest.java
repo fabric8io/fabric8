@@ -97,7 +97,7 @@ public class ExtensionTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(APP_LIBRARY_SERVICE_JSON);
-                } else if (request.getPath().matches("/osapi/[^/]+/namespaces/[^/]+/routes")) {
+                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")

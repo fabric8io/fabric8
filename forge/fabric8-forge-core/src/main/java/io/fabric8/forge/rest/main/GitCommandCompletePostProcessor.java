@@ -321,7 +321,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String imageTag = "test";
         String secret = "secret101";
         String builderImage = "fabric8/java-main";
-        String osapiVersion = "v1beta1";
+        String osapiVersion = "v1";
         String namespace = kubernetes.getNamespace();
         if (Strings.isNullOrEmpty(namespace)) {
             namespace = KubernetesClient.defaultNamespace();
@@ -489,7 +489,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         if (kubeAddress == null) {
             try {
                 kubeAddress = kubernetes.getServiceURL("fabric8", namespace, "http", false);
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "oapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
             } catch (Exception e) {
                 LOG.warn("failed to find fabric8 console service URL: " + e, e);
             }
@@ -504,7 +504,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
 
             if (webhookUrl == null) {
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "osapi", KubernetesHelper.defaultOsApiVersion + namespacePath, "buildConfigHooks", buildName, secret, type);
+                webhookUrl = URLUtils.pathJoin(kubeAddress, "oapi", KubernetesHelper.defaultOsApiVersion + namespacePath, "buildConfigHooks", buildName, secret, type);
             }
 
             LOG.info("creating a web hook at: " + webhookUrl);

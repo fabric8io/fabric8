@@ -4,7 +4,7 @@
   "metadata": {
     "name": "jenkins",
     "namespace": "default",
-    "selfLink": "/osapi/v1beta1/templates/jenkins?namespace=default",
+    "selfLink": "/oapi/v1beta1/templates/jenkins?namespace=default",
     "uid": "420dc894-f24f-11e4-b882-fa163ee36154",
     "resourceVersion": "66310",
     "creationTimestamp": "2015-05-04T11:18:15Z"

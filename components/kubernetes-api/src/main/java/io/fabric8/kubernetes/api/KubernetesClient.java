@@ -647,7 +647,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         }
         String json = "{ \"kind\": \"Route\", \"apiVersion\": \"v1beta1\",  \"metadata\": { \"name\": \"" + name + "\"}, \"host\": \"" + host + "\", \"serviceName\": \"" + serviceName + "\"}";
         System.out.println("Posting JSON: " + json);
-        Response response = webClient.path("/osapi/v1beta1/routes").query("namespace", namespace).post(json);
+        Response response = webClient.path("/oapi/v1/routes").query("namespace", namespace).post(json);
         Object responseEntity = response.getEntity();
         if (responseEntity instanceof InputStream) {
             InputStream inputStream = (InputStream) responseEntity;
@@ -1562,14 +1562,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         if (useFabric8Console) {
             // lets proxy through the fabric8 console REST API to work around bugs in OpenShift...
             baseUrl = getServiceURL(ServiceNames.FABRIC8_CONSOLE, namespace, "http", false);
-            url = URLUtils.pathJoin("/kubernetes/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+            url = URLUtils.pathJoin("/kubernetes/oapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
             webClient = new KubernetesFactory(baseUrl, true).createWebClient();
         } else {
             // using the direct REST API...
             KubernetesFactory factory = getFactory();
             baseUrl = factory.getAddress();
             webClient = factory.createWebClient();
-            url = URLUtils.pathJoin("/osapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
+            url = URLUtils.pathJoin("/oapi", defaultOsApiVersion, "buildConfigHooks", name, secret, type);
         }
         if (Strings.isNotBlank(namespace)) {
             url += "?namespace=" + namespace;
