@@ -112,6 +112,6 @@ public class Configs {
             return new File(file);
         }
         String homeDir = System.getProperty("user.home", ".");
-        return new File(homeDir, ".config/openshift/config");
+        return new File(homeDir, ".kube/config");
     }
 }
