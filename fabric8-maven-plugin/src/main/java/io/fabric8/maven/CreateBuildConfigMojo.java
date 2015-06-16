@@ -201,6 +201,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     protected String getTaigaWebhookUrl() {
         String url = getTaigaUrl();
         if (Strings.isNotBlank(url)) {
+            // TODO whats the correct webhook for Taiga?
             return URLUtils.pathJoin(url, "/api/v1/github-hook?project=" + taigaProjectName);
         }
         return null;

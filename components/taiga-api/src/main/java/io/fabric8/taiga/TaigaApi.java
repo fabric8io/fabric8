@@ -53,4 +53,16 @@ public interface TaigaApi {
     @POST
     @Path("auth")
     public AuthDetailDTO authenticate(AuthDTO dto);
+
+
+    // Users
+    //-------------------------------------------------------------------------
+    @GET
+    @Path("users/me")
+    public UserDTO getMe();
+
+    @GET
+    @Path("users/{userId}")
+    public UserDTO getUser(@PathParam("userId") String id);
+
 }

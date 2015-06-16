@@ -16,13 +16,14 @@
  */
 package io.fabric8.taiga;
 
-import javax.xml.stream.events.Namespace;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static io.fabric8.taiga.Projects.addUser;
 import static io.fabric8.utils.cxf.WebClients.handle404ByReturningNull;
 
 /**
+ * Default base class for a TaigaClient implementation
  */
 public abstract class TaigaClientSupport {
     protected final String address;
@@ -36,6 +37,32 @@ public abstract class TaigaClientSupport {
         this.password = password;
         this.username = username;
     }
+
+    /**
+     * Returns the project ID for the given slug or null if none could be found
+     */
+    public Long getProjectIdForSlug(String slug) {
+        ProjectDTO project = getProjectBySlug(slug);
+        return project != null ? project.getId() : null;
+    }
+
+    public ProjectDTO getOrCreateProjectBySlug(final String slug, final String name) {
+        ProjectDTO project = getProjectBySlug(slug);
+        if (project == null) {
+            project = new ProjectDTO();
+            project.setSlug(slug);
+            project.setName(name);
+
+            // lets default a user
+            addUser(project, getMe());
+            return createProject(project);
+        } else {
+            return project;
+        }
+    }
+
+    // Delegate of TaigaApi
+    //-------------------------------------------------------------------------
 
     public ProjectDTO createProject(ProjectDTO dto) {
         return getApi().createProject(dto);
@@ -63,21 +90,26 @@ public abstract class TaigaClientSupport {
         });
     }
 
-    protected TaigaApi getApi() {
-        if (api == null) {
-            api = createWebClient(TaigaApi.class);
-            doAuthentication(api);
-        }
-        return api;
+    public UserDTO getMe() {
+        return handle404ByReturningNull(new Callable<UserDTO>() {
+            @Override
+            public UserDTO call() throws Exception {
+                return getApi().getMe();
+            }
+        });
     }
 
-    protected void doAuthentication(TaigaApi api) {
-        AuthDTO authDto = new AuthDTO();
-        authDto.setUsername(username);
-        authDto.setPassword(password);
-        authentication = getApi().authenticate(authDto);
-        System.out.println("Got authentication: " + authentication);
+    public UserDTO getUser(final String id) {
+        return handle404ByReturningNull(new Callable<UserDTO>() {
+            @Override
+            public UserDTO call() throws Exception {
+                return getApi().getUser(id);
+            }
+        });
     }
+
+    // Properties
+    //-------------------------------------------------------------------------
 
     public String getAddress() {
         return address;
@@ -91,7 +123,24 @@ public abstract class TaigaClientSupport {
         return username;
     }
 
+    // Implementation
+    //-------------------------------------------------------------------------
     protected abstract <T> T createWebClient(Class<T> clientType);
+
+    protected TaigaApi getApi() {
+        if (api == null) {
+            api = createWebClient(TaigaApi.class);
+            doAuthentication(api);
+        }
+        return api;
+    }
+
+    protected void doAuthentication(TaigaApi api) {
+        AuthDTO authDto = new AuthDTO();
+        authDto.setUsername(username);
+        authDto.setPassword(password);
+        authentication = getApi().authenticate(authDto);
+    }
 
     protected String getAuthToken() {
         if (authentication != null) {

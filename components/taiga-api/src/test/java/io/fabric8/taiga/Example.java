@@ -53,8 +53,14 @@ public class Example {
             ProjectDTO myProject = client.getProjectBySlug(projectName);
             System.out.println("Found project: " + myProject + " by slug: " + projectName);
 
+            System.out.println("Project id for slug: " + myProject + " is: " + client.getProjectIdForSlug(projectName));
+
             ProjectDTO notExist = client.getProjectBySlug("does-not-exist");
             System.out.println("Found non existing project: " + notExist);
+
+            ProjectDTO autoCreateProject = client.getOrCreateProjectBySlug("admin-thingy", "thingy");
+            System.out.println("getOrCreateProject: " + autoCreateProject);
+
 
             List<ProjectDTO> projects = client.getProjects();
             for (ProjectDTO project : projects) {
