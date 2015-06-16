@@ -5,6 +5,8 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.DtoSupport;
+import io.fabric8.repo.git.GerritGitApi;
+import io.fabric8.repo.git.GerritRepositoryDTO;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -15,7 +17,11 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import javax.annotation.Priority;
 import javax.ws.rs.*;
+import javax.ws.rs.ext.ReaderInterceptor;
+import javax.ws.rs.ext.ReaderInterceptorContext;
+import java.io.*;
 import java.util.List;
 
 import static io.fabric8.utils.cxf.JsonHelper.toJson;
@@ -83,9 +89,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
 
         String namespace = kubernetes.getNamespace();
-        // TODO Change gerrit service name after redeploying project on OS as it is still using gerrit-http name
-        // String gerritAddress = kubernetes.getServiceURL(ServiceNames.GERRIT, namespace, "http", true);
-        String gerritAddress = kubernetes.getServiceURL("gerrit-http", namespace, "http", true);
+        String gerritAddress = kubernetes.getServiceURL(ServiceNames.GERRIT, namespace, "http", true);
         log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
         if (Strings.isNullOrBlank(gerritAddress)) {
             throw new MojoExecutionException("No address for service " + ServiceNames.GERRIT + " in namespace: "
@@ -94,82 +98,53 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
 
         List<Object> providers = WebClients.createProviders();
+        providers.add(new RemovePrefix());
         WebClient webClient = WebClient.create(gerritAddress, providers);
         disableSslChecks(webClient);
         configureUserAndPassword(webClient, gerritUser, gerritPwd);
         enableDigestAuthenticaionType(webClient);
-        GitApi gitApi = JAXRSClientFactory.fromClient(webClient, GitApi.class);
+        GerritGitApi gitApi = JAXRSClientFactory.fromClient(webClient, GerritGitApi.class);
 
         CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
         createRepoDTO.setDescription(description);
         createRepoDTO.setName(repoName);
 
-        RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
+        GerritRepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
 
         if (log.isDebugEnabled()) {
-            log.debug("Got created web hook: " + toJson(repository));
+            log.debug("Git Repo created : " + toJson(repository));
         }
         log.info("Created git repo for " + repoName + " for namespace: " + namespace + " on gogs URL: " + gerritAddress);
 
         return true;
     }
-    
-    @Path("a")
-    @Produces("application/json")
-    @Consumes("application/json")
-    protected interface GitApi {
 
-        @POST
-        @Path("projects/{repo}")
-        public RepositoryDTO createRepository(@PathParam("repo") String repo, CreateRepositoryDTO dto);
-    }
-    
-    protected class RepositoryDTO extends DtoSupport {
-        private String name;
-        private String description;
-        private String id;
-        private String parent;
-        private String state;
+    @Priority(value = 1000)
+    protected static class RemovePrefix implements ReaderInterceptor {
 
+        @Override
+        public Object aroundReadFrom(ReaderInterceptorContext interceptorContext)
+                throws IOException, WebApplicationException {
+            InputStream in = interceptorContext.getInputStream();
 
-        public String getName() {
-            return name;
-        }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder received = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                received.append(line);
+            }
+            
+            String s = received.toString();
+            s = s.replace(")]}'","");
 
-        public void setName(String name) {
-            this.name = name;
-        }
+            System.out.println("Reader Interceptor removing the prefix invoked.");
+            System.out.println("Content cleaned : " + s);
+            
+            String responseContent = new String(s);
+            interceptorContext.setInputStream(new ByteArrayInputStream(
+                    responseContent.getBytes()));
 
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getParent() {
-            return parent;
-        }
-
-        public void setParent(String parent) {
-            this.parent = parent;
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        public void setState(String state) {
-            this.state = state;
+            return interceptorContext.proceed();
         }
     }
 
