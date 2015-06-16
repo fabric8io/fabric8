@@ -75,37 +75,37 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
      * The webhook secret used for generic and github webhooks
      */
     @Parameter(property = "fabric8.webhookSecret", defaultValue = "secret101")
-    protected  String secret;
+    protected String secret;
 
     /**
      * the build image stream name
      */
     @Parameter(property = "fabric8.buildImageStream", defaultValue = "triggerJenkins")
-    protected  String buildImageStream;
+    protected String buildImageStream;
 
     /**
      * the build image stream tag
      */
     @Parameter(property = "fabric8.buildImageTag", defaultValue = "latest")
-    protected  String buildImageTag;
+    protected String buildImageTag;
 
     /**
      * The name of the jenkins job to link to as the first job in the pipeline
      */
     @Parameter(property = "fabric8.jenkinsJob")
-    protected  String jenkinsJob;
+    protected String jenkinsJob;
 
     /**
      * The name of the jenkins monitor view
      */
     @Parameter(property = "fabric8.jenkinsMonitorView")
-    protected  String jenkinsMonitorView;
+    protected String jenkinsMonitorView;
 
     /**
      * The name of the jenkins pipline view
      */
     @Parameter(property = "fabric8.jenkinsPipelineView")
-    protected  String jenkinsPipelineView;
+    protected String jenkinsPipelineView;
 
     /**
      * The name of the taiga project name to use
@@ -152,13 +152,14 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         if (Strings.isNotBlank(username)) {
             name = username + "-" + name;
         }
-        Map<String,String> labels = new HashMap<>();
+        Map<String, String> labels = new HashMap<>();
         labels.put("user", username);
         labels.put("repo", repoName);
 
         TaigaClient taiga = createTaiga();
+        ProjectDTO taigaProject = createTaigaProject(taiga);
 
-        Map<String,String> annotations = new HashMap<>();
+        Map<String, String> annotations = new HashMap<>();
         String jenkinsJobUrl = null;
         try {
             String jenkinsUrl = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", true);
@@ -182,7 +183,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
 
-        String taigaLink = getTaigaProjectUrl(taiga);
+        String taigaLink = getTaigaProjectUrl(taiga, taigaProject);
         if (Strings.isNotBlank(taigaLink)) {
             annotations.put("fabric8.link.taiga/url", taigaLink);
             annotations.put("fabric8.link.taiga/label", "Issues");
@@ -211,7 +212,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
 
         createJenkinsWebhook(jenkinsJobUrl);
-        createTaigaWebhook(taiga);
+        createTaigaWebhook(taiga, taigaProject);
     }
 
     protected TaigaClient createTaiga() {
@@ -223,10 +224,19 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         return taiga;
     }
 
-    protected String getTaigaProjectUrl(TaigaClient taiga) {
-        String url = taiga.getAddress();
-        if (Strings.isNotBlank(url) && Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
-            return URLUtils.pathJoin(url, "/project/", taigaUserName + "-" + taigaProjectName + "/", taigaProjectKind);
+    protected String getTaigaProjectUrl(TaigaClient taiga, ProjectDTO taigaProject) {
+        if (taiga != null && taigaProject != null) {
+            String url = taiga.getAddress();
+            String slug = taigaProject.getSlug();
+            if (Strings.isNullOrBlank(slug)) {
+                slug = taigaProjectSlug;
+            }
+            if (Strings.isNullOrBlank(slug)) {
+                slug = taigaUserName + "-" + taigaProjectName;
+            }
+            if (Strings.isNotBlank(url) && Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
+                return URLUtils.pathJoin(url, "/project/", slug + "/", taigaProjectKind);
+            }
         }
         return null;
     }
@@ -238,23 +248,27 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         }
     }
 
-    protected void createTaigaWebhook(TaigaClient taiga) {
+    protected ProjectDTO createTaigaProject(TaigaClient taiga) {
         if (taiga != null) {
-            ProjectDTO project = taiga.getOrCreateProject(taigaProjectName, taigaProjectSlug);
-            if (project != null) {
-                Long projectId = project.getId();
-                ModuleDTO module = taiga.moduleForProject(projectId, TaigaModule.GOGS);
-                if (module != null) {
-                    String webhookSecret = module.getSecret();
-                    String webhook = taiga.getPublicWebhookUrl(module);
-                    if (Strings.isNotBlank(webhookSecret) && Strings.isNotBlank(webhook)) {
-                        createWebhook(webhook, webhookSecret);
-                    } else {
-                        getLog().warn("Could not create webhook for Taiga. Missing module data for url: " + webhook + " secret: " + webhookSecret);
-                    }
+            return taiga.getOrCreateProject(taigaProjectName, taigaProjectSlug);
+        }
+        return null;
+    }
+
+    protected void createTaigaWebhook(TaigaClient taiga, ProjectDTO project) {
+        if (taiga != null && project != null) {
+            Long projectId = project.getId();
+            ModuleDTO module = taiga.moduleForProject(projectId, TaigaModule.GOGS);
+            if (module != null) {
+                String webhookSecret = module.getSecret();
+                String webhook = taiga.getPublicWebhookUrl(module);
+                if (Strings.isNotBlank(webhookSecret) && Strings.isNotBlank(webhook)) {
+                    createWebhook(webhook, webhookSecret);
                 } else {
-                    getLog().warn("No module for gogs so cannot create Taiga webhook");
+                    getLog().warn("Could not create webhook for Taiga. Missing module data for url: " + webhook + " secret: " + webhookSecret);
                 }
+            } else {
+                getLog().warn("No module for gogs so cannot create Taiga webhook");
             }
         }
     }
