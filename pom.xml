@@ -178,7 +178,7 @@
         <netty.version>4.0.28.Final</netty.version>
         <openejb.container.version>4.7.1</openejb.container.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
-        <openshift.client.version>2.5.0.Final</openshift.client.version>
+        <openshift.client.version>2.7.0.Final</openshift.client.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
         <osgi-enterprise.version>5.0.0</osgi-enterprise.version>
         <osgi-metadata.version>4.0.0.CR1</osgi-metadata.version>
