@@ -16,7 +16,12 @@
  */
 package io.fabric8.taiga;
 
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.taiga.Projects.addUser;
@@ -31,6 +36,7 @@ public abstract class TaigaClientSupport {
     protected final String password;
     private TaigaApi api;
     private AuthDetailDTO authentication;
+    private boolean autoCreateProjects = true;
 
     public TaigaClientSupport(String address, String username, String password) {
         this.address = address;
@@ -46,12 +52,24 @@ public abstract class TaigaClientSupport {
         return project != null ? project.getId() : null;
     }
 
-    public ProjectDTO getOrCreateProjectBySlug(final String slug, final String name) {
+    /**
+     * For the given project name try find the project by its slug or create a new project
+     */
+    public ProjectDTO getOrCreateProject(String name) {
+        return getOrCreateProject(name, null);
+    }
+
+    /**
+     * Find the project from the given name and optional slug; or create one if its not already existing
+     */
+    public ProjectDTO getOrCreateProject(final String name, final String slugOrNull) {
+        String slug = validateSlug(slugOrNull, name);
         ProjectDTO project = getProjectBySlug(slug);
         if (project == null) {
             project = new ProjectDTO();
             project.setSlug(slug);
             project.setName(name);
+            project.setDescription("Description of project " + name);
 
             // lets default a user
             addUser(project, getMe());
@@ -59,6 +77,44 @@ public abstract class TaigaClientSupport {
         } else {
             return project;
         }
+    }
+
+    public ModuleDTO moduleForProject(String slug, TaigaModule module) {
+        return moduleForProject(slug, module.toModuleKey());
+    }
+
+    public ModuleDTO moduleForProject(String slug, String module) {
+        Map<String, ModuleDTO> map = getModulesForProject(slug);
+        return map.get(module);
+    }
+
+    public ModuleDTO moduleForProject(Long projectId, TaigaModule module) {
+        return moduleForProject(projectId, module.toModuleKey());
+    }
+
+    public ModuleDTO moduleForProject(Long projectId, String module) {
+        Map<String, ModuleDTO> map = getModulesForProject(projectId);
+        return map.get(module);
+    }
+
+    /**
+     * Returns the webhook URL for the given module.
+     *
+     * The module webhook might not use the correct public host name so lets convert it.
+     */
+    public String getPublicWebhookUrl(ModuleDTO module) {
+        if (module != null) {
+            String webhooksUrl = module.getWebhooksUrl();
+            if (Strings.isNotBlank(webhooksUrl)) {
+                int idx = webhooksUrl.indexOf("/api/v");
+                if (idx > 0) {
+                    return URLUtils.pathJoin(getAddress(), webhooksUrl.substring(idx));
+                }
+            }
+            return webhooksUrl;
+
+        }
+        return null;
     }
 
     // Delegate of TaigaApi
@@ -108,6 +164,29 @@ public abstract class TaigaClientSupport {
         });
     }
 
+    public Map<String, ModuleDTO> getModulesForProject(String slug) {
+        Long id = getProjectIdForSlug(slug);
+        if (id != null) {
+            return getModulesForProject(id);
+        } else {
+            return new HashMap<>();
+        }
+    }
+
+    public Map<String, ModuleDTO> getModulesForProject(final Long id) {
+        Map<String, ModuleDTO> answer = handle404ByReturningNull(new Callable<Map<String, ModuleDTO>>() {
+            @Override
+            public Map<String, ModuleDTO> call() throws Exception {
+                return getApi().getModulesForProject(id);
+            }
+        });
+        if (answer == null) {
+            answer = new HashMap<>();
+        }
+        return answer;
+    }
+
+
     // Properties
     //-------------------------------------------------------------------------
 
@@ -121,6 +200,14 @@ public abstract class TaigaClientSupport {
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean isAutoCreateProjects() {
+        return autoCreateProjects;
+    }
+
+    public void setAutoCreateProjects(boolean autoCreateProjects) {
+        this.autoCreateProjects = autoCreateProjects;
     }
 
     // Implementation
@@ -148,4 +235,16 @@ public abstract class TaigaClientSupport {
         }
         return null;
     }
+
+    /**
+     * If a slug is not supplied then lets generate it from the project name
+     */
+    protected String validateSlug(String slug, String name) {
+        if (Strings.isNotBlank(slug)) {
+            return slug;
+        } else {
+            return getUsername() + "-" + name;
+        }
+    }
+
 }

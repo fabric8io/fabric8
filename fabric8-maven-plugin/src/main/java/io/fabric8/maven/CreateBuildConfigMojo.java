@@ -20,6 +20,11 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.taiga.ModuleDTO;
+import io.fabric8.taiga.ProjectDTO;
+import io.fabric8.taiga.TaigaClient;
+import io.fabric8.taiga.TaigaKubernetes;
+import io.fabric8.taiga.TaigaModule;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -105,9 +110,14 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     /**
      * The name of the taiga project name to use
      */
-    @Parameter(property = "fabric8.tagiaProjectName")
+    @Parameter(property = "fabric8.tagiaProjectName", defaultValue = "${fabric8.repoName}")
     protected String taigaProjectName;
 
+    /**
+     * The slug name of the project in Taiga or will be auto-generated from the user and project name if not configured
+     */
+    @Parameter(property = "fabric8.taigaProjectSlug")
+    protected String taigaProjectSlug;
 
     /**
      * The user name to use for taiga links
@@ -121,6 +131,18 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.taigaProjectKind", defaultValue = "kanban")
     protected String taigaProjectKind;
 
+    /**
+     * Should we auto-create projects in taiga if they are missing?
+     */
+    @Parameter(property = "fabric8.taigaAutoCreate", defaultValue = "true")
+    protected boolean taigaAutoCreate;
+
+    /**
+     * Should we enable Taiga integration
+     */
+    @Parameter(property = "fabric8.taigaEnabled", defaultValue = "true")
+    protected boolean taigaEnabled;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -133,6 +155,8 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         Map<String,String> labels = new HashMap<>();
         labels.put("user", username);
         labels.put("repo", repoName);
+
+        TaigaClient taiga = createTaiga();
 
         Map<String,String> annotations = new HashMap<>();
         String jenkinsJobUrl = null;
@@ -158,7 +182,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
 
-        String taigaLink = getTaigaProjectUrl();
+        String taigaLink = getTaigaProjectUrl(taiga);
         if (Strings.isNotBlank(taigaLink)) {
             annotations.put("fabric8.link.taiga/url", taigaLink);
             annotations.put("fabric8.link.taiga/label", "Issues");
@@ -187,52 +211,57 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
 
         createJenkinsWebhook(jenkinsJobUrl);
-        createTaigaWebhook();
+        createTaigaWebhook(taiga);
     }
 
-    protected String getTaigaProjectUrl() {
-        String url = getTaigaUrl();
-        if (Strings.isNotBlank(url)) {
+    protected TaigaClient createTaiga() {
+        if (!taigaEnabled) {
+            return null;
+        }
+        TaigaClient taiga = TaigaKubernetes.createTaiga(getKubernetes());
+        taiga.setAutoCreateProjects(taigaAutoCreate);
+        return taiga;
+    }
+
+    protected String getTaigaProjectUrl(TaigaClient taiga) {
+        String url = taiga.getAddress();
+        if (Strings.isNotBlank(url) && Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
             return URLUtils.pathJoin(url, "/project/", taigaUserName + "-" + taigaProjectName + "/", taigaProjectKind);
         }
         return null;
     }
 
-    protected String getTaigaWebhookUrl() {
-        String url = getTaigaUrl();
-        if (Strings.isNotBlank(url)) {
-            // TODO whats the correct webhook for Taiga?
-            return URLUtils.pathJoin(url, "/api/v1/github-hook?project=" + taigaProjectName);
-        }
-        return null;
-    }
-
-    protected String getTaigaUrl() {
-        String url = null;
-        if (Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
-            KubernetesClient kubernetes = getKubernetes();
-            url = kubernetes.getServiceURL(ServiceNames.TAIGA, kubernetes.getNamespace(), "http", true);
-        }
-        return url;
-    }
-
     protected void createJenkinsWebhook(String jenkinsJobUrl) {
         if (Strings.isNotBlank(jenkinsJobUrl)) {
             String jenkinsWebHook = URLUtils.pathJoin(jenkinsJobUrl, "/build");
-            createWebHook(jenkinsWebHook);
+            createWebhook(jenkinsWebHook, this.secret);
         }
     }
 
-    protected void createTaigaWebhook() {
-        String webhook = getTaigaWebhookUrl();
-        if (Strings.isNotBlank(webhook)) {
-            createWebHook(webhook);
+    protected void createTaigaWebhook(TaigaClient taiga) {
+        if (taiga != null) {
+            ProjectDTO project = taiga.getOrCreateProject(taigaProjectName, taigaProjectSlug);
+            if (project != null) {
+                Long projectId = project.getId();
+                ModuleDTO module = taiga.moduleForProject(projectId, TaigaModule.GOGS);
+                if (module != null) {
+                    String webhookSecret = module.getSecret();
+                    String webhook = taiga.getPublicWebhookUrl(module);
+                    if (Strings.isNotBlank(webhookSecret) && Strings.isNotBlank(webhook)) {
+                        createWebhook(webhook, webhookSecret);
+                    } else {
+                        getLog().warn("Could not create webhook for Taiga. Missing module data for url: " + webhook + " secret: " + webhookSecret);
+                    }
+                } else {
+                    getLog().warn("No module for gogs so cannot create Taiga webhook");
+                }
+            }
         }
     }
 
-    protected void createWebHook(String url) {
+    protected void createWebhook(String url, String webhookSecret) {
         try {
-            CreateGogsWebhook.createGogsWebhook(getKubernetes(), getLog(), username, password, repoName, url, secret);
+            CreateGogsWebhook.createGogsWebhook(getKubernetes(), getLog(), username, password, repoName, url, webhookSecret);
         } catch (Exception e) {
             getLog().error("Failed to create webhook " + url + " on repository " + repoName + ". Reason: " + e, e);
         }

@@ -52,13 +52,13 @@
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-api</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- testing -->
-    <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-api</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>

@@ -64,7 +64,6 @@ public class TaigaClient extends TaigaClientSupport {
             String authenticationHeader = getAuthenticationHeader();
             if (Strings.isNotBlank(authenticationHeader)) {
                 headers.add("Authorization", authenticationHeader);
-                System.out.println("added auth header: " + authenticationHeader);
             }
         }
 

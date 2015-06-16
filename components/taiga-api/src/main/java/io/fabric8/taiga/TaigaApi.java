@@ -25,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST API for working with <a href="http://taiga.io/">Taiga</a> or <a href="http://github.com/">github</a>
@@ -33,6 +34,9 @@ import java.util.List;
 @Produces("application/json")
 @Consumes("application/json")
 public interface TaigaApi {
+
+    // Projects
+    //-------------------------------------------------------------------------
 
     @GET
     @Path("projects")
@@ -53,6 +57,14 @@ public interface TaigaApi {
     @POST
     @Path("auth")
     public AuthDetailDTO authenticate(AuthDTO dto);
+
+
+    // Modules
+    //-------------------------------------------------------------------------
+
+    @GET
+    @Path("projects/{id}/modules")
+    public Map<String,ModuleDTO> getModulesForProject(@PathParam("id") Long id);
 
 
     // Users
