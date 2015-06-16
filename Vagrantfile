@@ -9,6 +9,11 @@ if [ -d '/var/lib/openshift' ]; then
   exit 0
 fi
 
+yum remove -y docker-logrotate
+yum install -y http://cbs.centos.org/kojifiles/packages/docker/1.6.2/3.gitc3ca5bb.el7/x86_64/docker-1.6.2-3.gitc3ca5bb.el7.x86_64.rpm
+
+systemctl restart docker.service
+
 mkdir /tmp/openshift
 echo "Downloading OpenShift binaries..."
 curl -sSL https://github.com/openshift/origin/releases/download/v0.6.1/openshift-origin-v0.6.1-160d4b6-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
