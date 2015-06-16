@@ -1,1 +1,0 @@
-The insight-jetty profile adds an HTTP request logs for Jetty in [ElasticSearch](http://www.elasticsearch.org/).

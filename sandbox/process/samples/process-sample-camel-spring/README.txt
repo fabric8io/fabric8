@@ -1,1 +1,0 @@
-Welcome to this sample Camel service

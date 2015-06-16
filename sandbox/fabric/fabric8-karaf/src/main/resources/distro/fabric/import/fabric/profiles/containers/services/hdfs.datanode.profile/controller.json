@@ -1,9 +1,0 @@
-{
-    "startCommand": " sh -c \" exec bin/hdfs --config ./etc/hadoop datanode & 2>&1 ; echo $! > datanode.pid  \"  ",
-    "statusCommand": " sh -c \" ls -ld /proc/$(cat datanode.pid) > /dev/null 2>/dev/null && echo Native Process id: $(cat datanode.pid)|| echo Process Stopped \" ",
-    
-    "pidFile": "datanode.pid",
-    "installCommands": [
-        "mkdir -p mydata/hdfs/datanode"
-    ]
-}

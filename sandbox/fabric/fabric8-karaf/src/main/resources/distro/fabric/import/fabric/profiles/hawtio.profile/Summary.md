@@ -1,1 +1,0 @@
-This profile installs the [hawtio](http://hawt.io/) web console.

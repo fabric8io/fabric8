@@ -1,1 +1,0 @@
-Profile for using Apache Camel with Fabric
