@@ -907,6 +907,18 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     @Consumes("application/json")
     public String updateBuildConfig(@NotNull String name, BuildConfig entity, String namespace) throws Exception {
         validateNamespace(namespace, entity);
+        ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
+        metadata.setNamespace(namespace);
+        if (!KubernetesHelper.hasResourceVersion(entity)) {
+            // lets load it from the old entity
+            BuildConfig old = getBuildConfig(name, namespace);
+            if (old == null) {
+                // no service so lets create the entity
+                return createBuildConfig(entity, namespace);
+            }
+            String resourceVersion = KubernetesHelper.getResourceVersion(old);
+            metadata.setResourceVersion(resourceVersion);
+        }
         return getKubernetesExtensions().updateBuildConfig(name, entity, namespace);
     }
 
