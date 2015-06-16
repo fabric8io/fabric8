@@ -20,34 +20,74 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies the Kubernetes JSON to a namespace in a kubernetes environment
  */
 @Mojo(name = "apply", defaultPhase = LifecyclePhase.INSTALL)
 public class ApplyMojo extends AbstractFabric8Mojo {
+
+    private static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+
+    /**
+     * Used to look up Artifacts in the remote repository.
+     */
+    @Component
+    protected ArtifactResolver resolver;
+
+    /**
+     * Location of the localRepository repository.
+     */
+    @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
+    private ArtifactRepository localRepository;
+
+    /**
+     * List of Remote Repositories used by the resolver
+     */
+    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true, required = true)
+    protected List<ArtifactRepository> remoteRepositories;
 
     /**
      * Should we create new kubernetes resources?
@@ -118,16 +158,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
         }
         KubernetesClient kubernetes = getKubernetes();
-
         getLog().info("Using kubernetes at: " + kubernetes.getAddress() + " in namespace " + kubernetes.getNamespace());
         getLog().info("Kubernetes JSON: " + json);
 
         try {
-            String fileName = json.getName();
-            Object dto = KubernetesHelper.loadJson(json);
-            if (dto == null) {
-                throw new MojoFailureException("Could not load kubernetes json: " + json);
-            }
             Controller controller = createController();
             controller.setAllowCreate(createNewResources);
             controller.setServicesOnlyMode(servicesOnly);
@@ -137,19 +171,71 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setLogJsonDir(jsonLogDir);
             controller.setBasedir(getRootProjectFolder());
 
+
+            String fileName = json.getName();
+            Object dto = KubernetesHelper.loadJson(json);
+            if (dto == null) {
+                throw new MojoFailureException("Could not load kubernetes json: " + json);
+            }
+
             if (dto instanceof Template) {
                 Template template = (Template) dto;
                 KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
                 overrideTemplateParameters(template);
                 dto = controller.applyTemplate(template, fileName);
             }
-            List<HasMetadata> list = KubernetesHelper.toItemList(dto);
-            if (createRoutes) {
-                createRoutes(kubernetes, list);
-                dto = list;
+
+            Set<KubernetesList> kubeConfigs = new LinkedHashSet<>();
+
+            for (File dependency : getDependencies()) {
+                getLog().info("Found dependency: " + dependency);
+                loadDependency(getLog(), kubeConfigs, dependency);
             }
 
-            controller.apply(dto, fileName);
+            Comparator<HasMetadata> metadataComparator = new Comparator<HasMetadata>() {
+                @Override
+                public int compare(HasMetadata left, HasMetadata right) {
+                    if (left instanceof Service) {
+                        return -1;
+                    } else if (right instanceof Service) {
+                        return 1;
+                    } else if (left instanceof ReplicationController) {
+                        return -1;
+                    } else if (right instanceof ReplicationController) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
+
+            Set<HasMetadata> entities = new TreeSet<>(metadataComparator);
+            for (KubernetesList c : kubeConfigs) {
+                entities.addAll(c.getItems());
+            }
+
+            entities.addAll(KubernetesHelper.toItemList(dto));
+
+            if (createRoutes) {
+                createRoutes(kubernetes, entities);
+            }
+
+            controller.setRecreateMode(true);
+            //Apply all items
+            for (HasMetadata entity : entities) {
+                if (entity instanceof Pod) {
+                    Pod pod = (Pod) entity;
+                    controller.applyPod(pod, fileName);
+                } else if (entity instanceof Service) {
+                    Service service = (Service) entity;
+                    controller.applyService(service, fileName);
+                } else if (entity instanceof ReplicationController) {
+                    ReplicationController replicationController = (ReplicationController) entity;
+                    controller.applyReplicationController(replicationController, fileName);
+                } else if (entity != null) {
+                    controller.apply(entity, fileName);
+                }
+            }
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -185,7 +271,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void createRoutes(KubernetesClient kubernetes, List<HasMetadata> list) {
+    protected void createRoutes(KubernetesClient kubernetes, Collection<HasMetadata> collection) {
         String routeDomainPostfix = this.routeDomain;
         Log log = getLog();
         if (Strings.isNullOrBlank(routeDomainPostfix)) {
@@ -204,7 +290,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             return;
         }
         List<Route> routes = new ArrayList<>();
-        for (Object object : list) {
+        for (Object object : collection) {
             if (object instanceof Service) {
                 Service service = (Service) object;
                 Route route = createRouteForService(routeDomainPostfix, namespace, service, log);
@@ -213,7 +299,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 }
             }
         }
-        list.addAll(routes);
+        collection.addAll(routes);
     }
 
     public static Route createRouteForService(String routeDomainPostfix, String namespace, Service service, Log log) {
@@ -244,7 +330,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
     /**
      * Should we try to create a route for the given service?
-     *
+     * <p/>
      * By default lets ignore the kubernetes services and any service which does not expose ports 80 and 443
      *
      * @returns true if we should create an OpenShift Route for this service.
@@ -261,5 +347,87 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             log.info("Not generating route for service " + id + " as only single port services are supported. Has ports: " + ports);
             return false;
         }
+    }
+
+    private Set<File> getDependencies() throws IOException {
+        Set<File> dependnencies = new LinkedHashSet<>();
+        MavenProject project = getProject();
+
+        Path dir = Paths.get(project.getBuild().getOutputDirectory(), "deps");
+        if (!dir.toFile().exists() && !dir.toFile().mkdirs()) {
+            throw new IOException("Cannot create temp directory at:" + dir.toAbsolutePath());
+        }
+
+        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+        request.setLocalRepository(localRepository);
+        request.setRemoteRepositories(remoteRepositories);
+        request.setArtifact(project.getArtifact());
+        request.setArtifactDependencies(project.getDependencyArtifacts());
+        request.setResolveTransitively(false);
+        request.setResolveRoot(false);
+        request.setForceUpdate(false);
+        request.setOffline(true);
+
+        ArtifactResolutionResult result = resolver.resolve(request);
+        for (Artifact missing : result.getMissingArtifacts()) {
+            getLog().warn("Missing:" + missing);
+
+        }
+
+        for (Exception exception : result.getExceptions()) {
+            getLog().error("Exception:" + exception);
+        }
+        for (Artifact dependency : result.getArtifacts()) {
+            File f = dependency.getFile();
+            getLog().debug("Checking file:" + f.getAbsolutePath());
+            if (f.getName().endsWith("jar") && hasKubernetesJson(f)) {
+                getLog().info("Found file:" + f.getAbsolutePath());
+                try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
+                    Zips.unzip(new FileInputStream(f), dir.toFile());
+                    File jsonPath = dir.resolve(DEFAULT_CONFIG_FILE_NAME).toFile();
+                    if (jsonPath.exists()) {
+                        dependnencies.add(jsonPath);
+                    }
+                }
+            } else if (f.getName().endsWith(".json")) {
+                dependnencies.add(f);
+            }
+        }
+        return dependnencies;
+    }
+
+    public static void addConfig(Collection<KubernetesList> kubeConfigs, Object kubeCfg) {
+        if (kubeCfg instanceof KubernetesList) {
+            kubeConfigs.add((KubernetesList) kubeCfg);
+        }
+    }
+
+
+    public static void loadDependency(Log log, Collection<KubernetesList> kubeConfigs, File file) throws IOException {
+        if (file.isFile()) {
+            log.info("Loading file " + file);
+            addConfig(kubeConfigs, loadJson(file));
+        } else {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    String name = child.getName().toLowerCase();
+                    if (name.endsWith(".json") || name.endsWith(".yaml")) {
+                        loadDependency(log, kubeConfigs, child);
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean hasKubernetesJson(File f) throws IOException {
+        try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
+            for (JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+                if (entry.getName().equals(DEFAULT_CONFIG_FILE_NAME)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
