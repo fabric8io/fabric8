@@ -26,6 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,6 +183,11 @@ public class WebClients {
             conduit.getAuthorization().setUserName(username);
             conduit.getAuthorization().setPassword(password);
         }
+    }
+    
+    public static void enableDigestAuthenticaionType(WebClient webClient) {
+        HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
+        conduit.setAuthSupplier(new DigestAuthSupplier());
     }
 
     public static List<Object> createProviders() {
