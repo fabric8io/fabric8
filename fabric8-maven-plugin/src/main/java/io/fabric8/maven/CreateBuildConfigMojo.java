@@ -18,6 +18,9 @@ package io.fabric8.maven;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.letschat.LetsChatClient;
+import io.fabric8.letschat.LetsChatKubernetes;
+import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.taiga.ModuleDTO;
@@ -155,6 +158,26 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.taigaEnabled", defaultValue = "true")
     protected boolean taigaEnabled;
 
+    /**
+     * Should we enable LetsChat integration if $LETSCHAT_TOKEN is enabled
+     */
+    @Parameter(property = "fabric8.letschatEnabled", defaultValue = "true")
+    protected boolean letschatEnabled;
+
+    /**
+     * The label for the chat room page
+     */
+    @Parameter(property = "fabric8.letschatRoomLinkLabel", defaultValue = "Room")
+    protected String letschatRoomLinkLabel;
+
+    /**
+     * The expression used to define the room name for this project; using expressions like
+     * <code>${namespace}</code> or <code>${repoName}</code> to replace project specific values
+     *
+     */
+    @Parameter(property = "fabric8.letschatRoomLinkLabel", defaultValue = "fabric8_${namespace}")
+    protected String letschatRoomExpression;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -175,6 +198,13 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             taigaProject = createTaigaProject(taiga);
         } catch (Exception e) {
             getLog().error("Failed to load or lazily create the Taiga project: " + e, e);
+        }
+
+        LetsChatClient letschat = null;
+        try {
+            letschat = createLetsChat();
+        } catch (Exception e) {
+            getLog().error("Failed to load or lazily create the LetsChat client: " + e, e);
         }
 
         Map<String, String> annotations = new HashMap<>();
@@ -212,6 +242,12 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             annotations.put("fabric8.link.taiga.team/label", taigaTeamLinkLabel);
         }
 
+        String chatRoomLink = getChatRoomLink(letschat);
+        if (Strings.isNotBlank(chatRoomLink)) {
+            annotations.put("fabric8.link.letschat.room/url", chatRoomLink);
+            annotations.put("fabric8.link.letschat.room/label", letschatRoomLinkLabel);
+        }
+
         BuildConfig buildConfig = new BuildConfigBuilder().
                 withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
                 withNewSpec().
@@ -236,6 +272,65 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
         createJenkinsWebhook(jenkinsJobUrl);
         createTaigaWebhook(taiga, taigaProject);
+    }
+
+    protected String getChatRoomLink(LetsChatClient letschat) {
+        if (letschat != null) {
+            String url = letschat.getAddress();
+            String slug = evaluateRoomExpression(letschatRoomExpression);
+            if (Strings.isNotBlank(url) && Strings.isNotBlank(slug)) {
+                RoomDTO room = letschat.getOrCreateRoom(slug);
+                if (room != null) {
+                    String roomId = room.getId();
+                    if (Strings.isNotBlank(roomId)) {
+                        return URLUtils.pathJoin(url, "/#!/room/" + roomId);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    protected String evaluateRoomExpression(String roomExpresion) {
+        if (Strings.isNotBlank(roomExpresion)) {
+            String namespace = getKubernetes().getNamespace();
+            if (namespace == null) {
+                namespace = KubernetesClient.defaultNamespace();
+            }
+            String answer = roomExpresion;
+            answer = replaceExpression(answer, "namespace", namespace);
+            answer = replaceExpression(answer, "repoName", repoName);
+            answer = replaceExpression(answer, "username", username);
+            return answer;
+        } else {
+            return null;
+        }
+    }
+
+    protected String replaceExpression(String text, String key, String value) {
+        if (Strings.isNotBlank(key) && Strings.isNotBlank(value)) {
+            String replace = "${" + key + "}";
+            return text.replace(replace, value);
+        } else {
+            return text;
+        }
+    }
+
+    protected LetsChatClient createLetsChat() {
+        if (!letschatEnabled) {
+            return null;
+        }
+        KubernetesClient kubernetes = getKubernetes();
+        LetsChatClient letsChat = LetsChatKubernetes.createLetsChat(kubernetes);
+        if (letsChat == null) {
+            getLog().warn("No letschat service availble n kubernetes " + kubernetes.getNamespace() + " on address: " + kubernetes.getAddress());
+            return null;
+        }
+        if (!letsChat.isValid()) {
+            getLog().warn("No $LETSCHAT_TOKEN environment variable defined so LetsChat support is disabled");
+            return null;
+        }
+        return letsChat;
     }
 
     protected TaigaClient createTaiga() {
