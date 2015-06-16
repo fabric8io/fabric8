@@ -96,8 +96,8 @@ public final class KubernetesHelper {
     protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
-    public static final String defaultApiVersion = "v1beta3";
-    public static final String defaultOsApiVersion = "v1beta3";
+    public static final String defaultApiVersion = "v1";
+    public static final String defaultOsApiVersion = "v1";
 
     private static final String HOST_SUFFIX = "_SERVICE_HOST";
     private static final String PORT_SUFFIX = "_SERVICE_PORT";

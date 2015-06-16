@@ -49,7 +49,7 @@ import javax.ws.rs.Produces;
 @Consumes("application/json")
 public interface Kubernetes {
 
-    static final String ROOT_API_PATH = "api/v1beta3";
+    static final String ROOT_API_PATH = "api/v1";
 
     static final String NAMESPACE_ALL = "";
     static final String NAMESPACE_DEFAULT = "default";

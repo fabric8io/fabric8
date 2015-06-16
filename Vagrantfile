@@ -11,7 +11,7 @@ fi
 
 mkdir /tmp/openshift
 echo "Downloading OpenShift binaries..."
-curl -sSL https://github.com/openshift/origin/releases/download/v0.5.3/openshift-origin-v0.5.3-9503be8-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+curl -sSL https://github.com/openshift/origin/releases/download/v0.6.1/openshift-origin-v0.6.1-160d4b6-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
 mv /tmp/openshift/* /usr/bin/
 
 mkdir /var/lib/openshift
@@ -33,23 +33,23 @@ systemctl daemon-reload
 systemctl enable openshift.service
 systemctl start openshift.service
 
-mkdir -p ~/.config/openshift
-ln -s /var/lib/openshift/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
+mkdir -p ~/.kube/
+ln -s /var/lib/openshift/openshift.local.config/master/admin.kubeconfig ~/.kube/config
 
 while true; do
-  (osc get namespaces default | grep default) > /dev/null 2>&1 && break || sleep 1
+  curl -k -s -f -o /dev/null --connect-timeout 1 https://localhost:8443/healthz/ready && break || sleep 1
 done
 
 sleep 30
 
-osadm policy add-cluster-role-to-user cluster-admin admin
-osadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
-osadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
-osadm new-project fabric8 --description="fabric8 Apps"
+oadm policy add-cluster-role-to-user cluster-admin admin
+oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
+oadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
+oadm new-project fabric8 --description="fabric8 Apps"
 
-cat <<EOF | osc create -f -
+cat <<EOF | oc create -f -
 ---
-  apiVersion: "v1beta3"
+  apiVersion: "v1"
   kind: "Secret"
   metadata:
     name: "openshift-cert-secrets"
@@ -58,14 +58,24 @@ cat <<EOF | osc create -f -
     admin-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)"
     admin-key: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
 EOF
+cat <<EOF | oc create -f -
+---
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: fabric8
+  secrets:
+    -
+      name: openshift-cert-secrets
+EOF
 
 # Create route to registry. Please not that this route can be used for applications to find
 # the images. Since it goes through the router this is not optimal for production setups
 # when internally images are fetched. 
-cat <<EOF | osc create -f -
+cat <<EOF | oc create -f -
 {
     "kind": "Route",
-    "apiVersion": "v1beta3",
+    "apiVersion": "v1",
     "metadata": {
         "name": "docker-registry-route"
     },

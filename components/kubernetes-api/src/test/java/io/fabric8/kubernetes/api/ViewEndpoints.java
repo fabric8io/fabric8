@@ -74,7 +74,7 @@ public class ViewEndpoints {
             for (EndpointSubset endpointSubset : endpointsSubsets) {
                 for (EndpointAddress endpointAddress : endpointSubset.getAddresses()) {
                     for (EndpointPort endpointPort : endpointSubset.getPorts()) {
-                        urls.add(endpointAddress.getIP() + ":" + endpointPort.getPort());
+                        urls.add(endpointAddress.getIp() + ":" + endpointPort.getPort());
                     }
                 }
             }

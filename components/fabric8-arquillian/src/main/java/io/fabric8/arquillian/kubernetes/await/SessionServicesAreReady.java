@@ -85,7 +85,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
                     List<EndpointAddress> addresses = subset.getAddresses();
                     if (addresses != null) {
                         for (EndpointAddress address : addresses) {
-                            String ip = address.getIP();
+                            String ip = address.getIp();
                             String addr = ip;
 /*
     TODO v1beta2...

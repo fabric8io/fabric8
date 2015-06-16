@@ -60,7 +60,7 @@ public class Services {
             if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
                 for (EndpointSubset subset : item.getSubsets()) {
                     for (EndpointAddress address : subset.getAddresses()) {
-                        endpoints.add(serviceProto +"://" +address.getIP());
+                        endpoints.add(serviceProto +"://" +address.getIp());
                     }
                 }
                 break;

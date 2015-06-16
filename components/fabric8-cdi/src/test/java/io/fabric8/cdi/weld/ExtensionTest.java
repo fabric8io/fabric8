@@ -82,7 +82,7 @@ public class ExtensionTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/api/v1beta3/namespaces/default/services/kubernetes")) {
+                if (request.getPath().equals("/api/v1/namespaces/default/services/kubernetes")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")

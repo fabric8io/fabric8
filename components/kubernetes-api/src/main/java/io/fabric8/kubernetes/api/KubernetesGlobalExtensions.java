@@ -30,7 +30,7 @@ import javax.ws.rs.Produces;
 /**
  * Various Kubernetes extensions defined in the OpenShift project which are namespace agnostic
  */
-@Path("osapi/v1beta3")
+@Path("osapi/v1")
 @Produces("application/json")
 @Consumes("application/json")
 public interface KubernetesGlobalExtensions {

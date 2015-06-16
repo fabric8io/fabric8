@@ -82,7 +82,7 @@ Then run this command:
 ```
 cat <<EOF | osc create -f -
 ---
-	apiVersion: "v1beta3"
+	apiVersion: "v1"
 	kind: "Secret"
 	metadata:
 		name: "openshift-cert-secrets"

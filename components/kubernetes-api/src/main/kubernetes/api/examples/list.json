@@ -1,9 +1,9 @@
 {
   "kind" : "List",
-  "apiVersion" : "v1beta3",
+  "apiVersion" : "v1",
   "items" : [ {
     "kind": "Service",
-    "apiVersion": "v1beta3",
+    "apiVersion": "v1",
     "metadata": {
       "name": "fabric8-console-service",
       "namespace": "default",
@@ -35,7 +35,7 @@
     "status": {}
   }, {
     "kind": "ReplicationController",
-    "apiVersion": "v1beta3",
+    "apiVersion": "v1",
     "metadata": {
       "name": "fabric8-console-controller",
       "namespace": "default",

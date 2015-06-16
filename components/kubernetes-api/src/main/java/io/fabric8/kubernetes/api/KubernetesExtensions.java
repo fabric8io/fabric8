@@ -45,7 +45,7 @@ import javax.ws.rs.Produces;
 @Consumes("application/json")
 public interface KubernetesExtensions {
 
-    String OSAPI_ROOT_PATH = "osapi/v1beta3";
+    String OSAPI_ROOT_PATH = "osapi/v1";
 
     @POST
     @Path("processedtemplates")

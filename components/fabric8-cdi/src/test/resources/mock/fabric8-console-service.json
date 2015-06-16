@@ -3,7 +3,7 @@
   "metadata": {
     "name": "fabric8-console-service",
     "namespace": "default",
-    "selfLink": "/api/v1beta3/namespaces/default/services/fabric8-console-service",
+    "selfLink": "/api/v1/namespaces/default/services/fabric8-console-service",
     "uid": "a49c15ec-046f-11e5-9ad2-0800275503ae",
     "resourceVersion": "95",
     "creationTimestamp": "2015-05-27T12:55:25Z"

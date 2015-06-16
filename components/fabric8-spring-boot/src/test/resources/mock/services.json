@@ -1,8 +1,8 @@
 {
   "kind": "ServiceList",
-  "apiVersion": "v1beta3",
+  "apiVersion": "v1",
   "metadata": {
-    "selfLink": "/api/v1beta3/services",
+    "selfLink": "/api/v1/services",
     "resourceVersion": "473"
   },
   "items": [
@@ -10,7 +10,7 @@
       "metadata": {
         "name": "app-library",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/app-library",
+        "selfLink": "/api/v1/namespaces/default/services/app-library",
         "uid": "77610c49-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "77",
         "creationTimestamp": "2015-06-02T10:52:30Z",
@@ -41,7 +41,7 @@
       "metadata": {
         "name": "app-library-jolokia",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/app-library-jolokia",
+        "selfLink": "/api/v1/namespaces/default/services/app-library-jolokia",
         "uid": "776e11ed-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "80",
         "creationTimestamp": "2015-06-02T10:52:30Z"
@@ -68,7 +68,7 @@
       "metadata": {
         "name": "cdelivery",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/cdelivery",
+        "selfLink": "/api/v1/namespaces/default/services/cdelivery",
         "uid": "85ad8cb8-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "166",
         "creationTimestamp": "2015-06-02T10:52:54Z",
@@ -99,7 +99,7 @@
       "metadata": {
         "name": "docker-registry",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/docker-registry",
+        "selfLink": "/api/v1/namespaces/default/services/docker-registry",
         "uid": "7550bb91-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "69",
         "creationTimestamp": "2015-06-02T10:52:27Z",
@@ -128,7 +128,7 @@
       "metadata": {
         "name": "elasticsearch",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/elasticsearch",
+        "selfLink": "/api/v1/namespaces/default/services/elasticsearch",
         "uid": "97fbb96f-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "219",
         "creationTimestamp": "2015-06-02T10:53:25Z",
@@ -159,7 +159,7 @@
       "metadata": {
         "name": "elasticsearch-cluster",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/elasticsearch-cluster",
+        "selfLink": "/api/v1/namespaces/default/services/elasticsearch-cluster",
         "uid": "995912f3-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "222",
         "creationTimestamp": "2015-06-02T10:53:27Z"
@@ -186,7 +186,7 @@
       "metadata": {
         "name": "fabric8",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/fabric8",
+        "selfLink": "/api/v1/namespaces/default/services/fabric8",
         "uid": "79c1040b-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "102",
         "creationTimestamp": "2015-06-02T10:52:34Z"
@@ -212,7 +212,7 @@
       "metadata": {
         "name": "fabric8-forge",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/fabric8-forge",
+        "selfLink": "/api/v1/namespaces/default/services/fabric8-forge",
         "uid": "78a53979-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "90",
         "creationTimestamp": "2015-06-02T10:52:32Z",
@@ -243,7 +243,7 @@
       "metadata": {
         "name": "gogs-http-service",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/gogs-http-service",
+        "selfLink": "/api/v1/namespaces/default/services/gogs-http-service",
         "uid": "7b2b925f-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "118",
         "creationTimestamp": "2015-06-02T10:52:37Z",
@@ -274,7 +274,7 @@
       "metadata": {
         "name": "gogs-ssh-service",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/gogs-ssh-service",
+        "selfLink": "/api/v1/namespaces/default/services/gogs-ssh-service",
         "uid": "7b4dc565-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "121",
         "creationTimestamp": "2015-06-02T10:52:37Z"
@@ -301,7 +301,7 @@
       "metadata": {
         "name": "hubot",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/hubot",
+        "selfLink": "/api/v1/namespaces/default/services/hubot",
         "uid": "7ca7c77c-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "128",
         "creationTimestamp": "2015-06-02T10:52:39Z"
@@ -327,7 +327,7 @@
       "metadata": {
         "name": "hubot-web-hook",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/hubot-web-hook",
+        "selfLink": "/api/v1/namespaces/default/services/hubot-web-hook",
         "uid": "7cf2f5ab-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "131",
         "creationTimestamp": "2015-06-02T10:52:39Z"
@@ -353,7 +353,7 @@
       "metadata": {
         "name": "influxdb-service",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/influxdb-service",
+        "selfLink": "/api/v1/namespaces/default/services/influxdb-service",
         "uid": "91b25205-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "201",
         "creationTimestamp": "2015-06-02T10:53:14Z",
@@ -384,7 +384,7 @@
       "metadata": {
         "name": "jbpm-designer",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/jbpm-designer",
+        "selfLink": "/api/v1/namespaces/default/services/jbpm-designer",
         "uid": "8b37d998-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "187",
         "creationTimestamp": "2015-06-02T10:53:03Z",
@@ -415,7 +415,7 @@
       "metadata": {
         "name": "kibana-service",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/kibana-service",
+        "selfLink": "/api/v1/namespaces/default/services/kibana-service",
         "uid": "9dbe8da3-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "228",
         "creationTimestamp": "2015-06-02T10:53:35Z",
@@ -446,7 +446,7 @@
       "metadata": {
         "name": "kubernetes",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/kubernetes",
+        "selfLink": "/api/v1/namespaces/default/services/kubernetes",
         "uid": "44729d65-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "4",
         "creationTimestamp": "2015-06-02T10:51:05Z",
@@ -474,7 +474,7 @@
       "metadata": {
         "name": "kubernetes-ro",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/kubernetes-ro",
+        "selfLink": "/api/v1/namespaces/default/services/kubernetes-ro",
         "uid": "447a6c89-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "5",
         "creationTimestamp": "2015-06-02T10:51:05Z",
@@ -502,7 +502,7 @@
       "metadata": {
         "name": "letschat",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/letschat",
+        "selfLink": "/api/v1/namespaces/default/services/letschat",
         "uid": "82380abe-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "151",
         "creationTimestamp": "2015-06-02T10:52:48Z"
@@ -528,7 +528,7 @@
       "metadata": {
         "name": "orion",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/orion",
+        "selfLink": "/api/v1/namespaces/default/services/orion",
         "uid": "a40628e9-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "242",
         "creationTimestamp": "2015-06-02T10:53:45Z",
@@ -559,7 +559,7 @@
       "metadata": {
         "name": "router",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/router",
+        "selfLink": "/api/v1/namespaces/default/services/router",
         "uid": "70c5f465-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "58",
         "creationTimestamp": "2015-06-02T10:52:19Z",
@@ -588,7 +588,7 @@
       "metadata": {
         "name": "taiga",
         "namespace": "default",
-        "selfLink": "/api/v1beta3/namespaces/default/services/taiga",
+        "selfLink": "/api/v1/namespaces/default/services/taiga",
         "uid": "ac36ef71-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "252",
         "creationTimestamp": "2015-06-02T10:53:59Z"

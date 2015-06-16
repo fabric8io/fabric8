@@ -1,6 +1,6 @@
 {
   "kind": "Template",
-  "apiVersion": "v1beta3",
+  "apiVersion": "v1",
   "metadata": {
     "name": "jenkins",
     "namespace": "default",
@@ -12,7 +12,7 @@
   "objects": [
     {
       "kind": "Service",
-      "apiVersion": "v1beta3",
+      "apiVersion": "v1",
       "metadata": {
         "name": "jenkins",
         "creationTimestamp": null,
@@ -41,7 +41,7 @@
     },
     {
       "kind": "ReplicationController",
-      "apiVersion": "v1beta3",
+      "apiVersion": "v1",
       "metadata": {
         "name": "jenkins-controller",
         "creationTimestamp": null,

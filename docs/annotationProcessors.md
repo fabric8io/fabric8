@@ -48,11 +48,11 @@ When a class that contains a method like this gets compiled, it will generate a 
 The particular method will generate a json file that will look like:
 
         {
-          "apiVersion": "v1beta3",
+          "apiVersion": "v1",
           "kind": "List",
           "items": [
             {
-              "apiVersion": "v1beta3",
+              "apiVersion": "v1",
               "kind": "ReplicationController",
               "metadata": {
                 "annotations": {},
