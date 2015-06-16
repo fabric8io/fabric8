@@ -174,7 +174,7 @@
         <mina.version>2.0.7</mina.version>
         <mockserver.version>3.4</mockserver.version>
         <mongo-java-driver.version>2.12.3</mongo-java-driver.version>
-        <mvel.version>2.2.1.Final</mvel.version>
+        <mvel.version>2.2.4.Final</mvel.version>
         <netty.version>4.0.28.Final</netty.version>
         <openejb.container.version>4.7.1</openejb.container.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
