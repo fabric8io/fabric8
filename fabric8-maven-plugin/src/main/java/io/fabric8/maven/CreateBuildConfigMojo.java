@@ -120,16 +120,28 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     protected String taigaProjectSlug;
 
     /**
-     * The user name to use for taiga links
+     * The project page to link to
      */
-    @Parameter(property = "fabric8.tagiaUserName")
-    protected String taigaUserName;
+    @Parameter(property = "fabric8.taigaProjectLinkPage", defaultValue = "backlog")
+    protected String taigaProjectLinkPage;
 
     /**
-     * The kind of taiga project to link to
+     * The label for the issue tracker/kanban/scrum taiga project link
      */
-    @Parameter(property = "fabric8.taigaProjectKind", defaultValue = "kanban")
-    protected String taigaProjectKind;
+    @Parameter(property = "fabric8.taigaProjectLinkLabel", defaultValue = "Backlog")
+    protected String taigaProjectLinkLabel;
+
+    /**
+     * The team page to link to
+     */
+    @Parameter(property = "fabric8.taigaTeamLinkPage", defaultValue = "team")
+    protected String taigaTeamLinkPage;
+
+    /**
+     * The label for the team page
+     */
+    @Parameter(property = "fabric8.taigaTeamLinkLabel", defaultValue = "Team")
+    protected String taigaTeamLinkLabel;
 
     /**
      * Should we auto-create projects in taiga if they are missing?
@@ -189,10 +201,15 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
 
-        String taigaLink = getTaigaProjectUrl(taiga, taigaProject);
+        String taigaLink = getProjectPageLink(taiga, taigaProject, this.taigaProjectLinkPage);
         if (Strings.isNotBlank(taigaLink)) {
             annotations.put("fabric8.link.taiga/url", taigaLink);
-            annotations.put("fabric8.link.taiga/label", "Issues");
+            annotations.put("fabric8.link.taiga/label", taigaProjectLinkLabel);
+        }
+        String taigaTeamLink = getProjectPageLink(taiga, taigaProject, this.taigaTeamLinkPage);
+        if (Strings.isNotBlank(taigaTeamLink)) {
+            annotations.put("fabric8.link.taiga.team/url", taigaTeamLink);
+            annotations.put("fabric8.link.taiga.team/label", taigaTeamLinkLabel);
         }
 
         BuildConfig buildConfig = new BuildConfigBuilder().
@@ -230,18 +247,19 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         return taiga;
     }
 
-    protected String getTaigaProjectUrl(TaigaClient taiga, ProjectDTO taigaProject) {
+    protected String getProjectPageLink(TaigaClient taiga, ProjectDTO taigaProject, String projectRelativePage) {
         if (taiga != null && taigaProject != null) {
             String url = taiga.getAddress();
             String slug = taigaProject.getSlug();
             if (Strings.isNullOrBlank(slug)) {
                 slug = taigaProjectSlug;
             }
+            String userName = taiga.getUsername();
             if (Strings.isNullOrBlank(slug)) {
-                slug = taigaUserName + "-" + taigaProjectName;
+                slug = userName + "-" + taigaProjectName;
             }
-            if (Strings.isNotBlank(url) && Strings.isNotBlank(taigaProjectName) && Strings.isNotBlank(taigaUserName)) {
-                return URLUtils.pathJoin(url, "/project/", slug + "/", taigaProjectKind);
+            if (Strings.isNotBlank(url) && Strings.isNotBlank(slug) && Strings.isNotBlank(projectRelativePage)) {
+                return URLUtils.pathJoin(url, "/project/", slug + "/", projectRelativePage);
             }
         }
         return null;
