@@ -156,8 +156,14 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         labels.put("user", username);
         labels.put("repo", repoName);
 
-        TaigaClient taiga = createTaiga();
-        ProjectDTO taigaProject = createTaigaProject(taiga);
+        TaigaClient taiga = null;
+        ProjectDTO taigaProject = null;
+        try {
+            taiga = createTaiga();
+            taigaProject = createTaigaProject(taiga);
+        } catch (Exception e) {
+            getLog().error("Failed to load or lazily create the Taiga project: " + e, e);
+        }
 
         Map<String, String> annotations = new HashMap<>();
         String jenkinsJobUrl = null;
