@@ -1,1 +1,0 @@
-Runs the redis slave in the [guestbook demo](/fabric/profiles/example/kubernetes/guestbook)

@@ -1,3 +1,0 @@
-FAB-Provided-Dependency: org.apache.* org.springframework* javax*
-FAB-Include-Optional-Dependency: javax* org.apache.xbean org.apache.geronimo.specs commons-pool org.springframework
-FAB-Exclude-Dependency: org.apache.activemq:activeio-core

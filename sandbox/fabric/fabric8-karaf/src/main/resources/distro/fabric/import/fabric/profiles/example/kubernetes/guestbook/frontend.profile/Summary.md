@@ -1,1 +1,0 @@
-Runs the front end in the [guestbook demo](/fabric/profiles/example/kubernetes/guestbook)

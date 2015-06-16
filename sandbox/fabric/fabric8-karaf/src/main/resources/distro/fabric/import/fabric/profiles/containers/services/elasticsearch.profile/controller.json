@@ -1,4 +1,0 @@
-{
-    "startCommand": "bin/elasticsearch -p elasticsearch.pid -d",
-    "pidFile": "elasticsearch.pid"
-}

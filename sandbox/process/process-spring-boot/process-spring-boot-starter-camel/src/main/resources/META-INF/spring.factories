@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.fabric8.process.spring.boot.starter.camel.CamelAutoConfiguration
