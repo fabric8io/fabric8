@@ -998,7 +998,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     @Override
     @POST
-    @Path("buildConfigHooks/{name}/{secret}/{type}")
+    @Path("buildconfigs/{name}/webhooks/{secret}/{type}")
     public String triggerBuild(@NotNull String name, String namespace, @NotNull String secret, @NotNull String type, byte[] body) {
         validateNamespace(namespace, name);
         return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, body);
