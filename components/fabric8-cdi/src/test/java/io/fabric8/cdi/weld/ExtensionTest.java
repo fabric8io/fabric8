@@ -87,22 +87,22 @@ public class ExtensionTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(KUBERNETES_SERVICE_JSON);
-                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/fabric8-console-service")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/fabric8-console-service")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/services/app-library")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(APP_LIBRARY_SERVICE_JSON);
-                } else if (request.getPath().equals("/osapi/v1beta3/namespaces/default/routes")) {
+                } else if (request.getPath().matches("/osapi/[^/]+/namespaces/[^/]+/routes")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody("{}");
-                } else if (request.getPath().equals("/api/v1beta3/namespaces/default/endpoints")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
