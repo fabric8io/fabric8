@@ -1004,6 +1004,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return getKubernetesExtensions().triggerBuild(name, namespace, secret, type, body);
     }
 
+    @Override
+    @POST
+    @Path("buildconfigs/{name}/instantiate")
+    public String instantiateBuild(@NotNull String name, BuildRequest request, String namespace) {
+        return getKubernetesExtensions().instantiateBuild(name, request, namespace);
+    }
+
+
     // Helper methods
     //-------------------------------------------------------------------------
     public void deletePod(Pod entity, String namespace) throws Exception {

@@ -19,6 +19,7 @@ import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.api.model.BuildList;
+import io.fabric8.openshift.api.model.BuildRequest;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -171,6 +172,11 @@ public interface KubernetesExtensions {
                         @PathParam("secret") @NotNull String secret,
                         @PathParam("type") @NotNull String type,
                         byte[] body);
+
+    @POST
+    @Path("buildconfigs/{name}/instantiate")
+    @Produces("application/json")
+    String instantiateBuild(@PathParam("name") String name, BuildRequest request, @PathParam("namespace") String namespace);
 
 
     // ImageRepositorys
