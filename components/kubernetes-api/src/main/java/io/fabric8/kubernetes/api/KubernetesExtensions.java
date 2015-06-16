@@ -164,7 +164,7 @@ public interface KubernetesExtensions {
     // BuildConfigHooks
     //-------------------------------------------------------------------------
     @POST
-    @Path("buildconfigHooks/{name}/{secret}/{type}")
+    @Path("buildconfigs/{name}/webhooks/{secret}/{type}")
     @Produces("text/plain")
     @Consumes("application/json")
     String triggerBuild(@PathParam("name") @NotNull String name, @PathParam("namespace") String namespace,
