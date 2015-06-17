@@ -54,6 +54,7 @@ public class KubernetesFactory {
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
 
     public static final String KUBERNETES_TRUST_ALL_CERIFICATES = "KUBERNETES_TRUST_CERT";
+    public static final String KUBERNETES_DISABLE_HOSTNAME_CHECK = "KUBERNETES_DISABLE_HOSTNAME_CHECK";
 
     public static final String KUBERNETES_SERVICE_HOST_ENV_VAR = "KUBERNETES_SERVICE_HOST";
     public static final String KUBERNETES_SERVICE_PORT_ENV_VAR = "KUBERNETES_SERVICE_PORT";
@@ -72,6 +73,7 @@ public class KubernetesFactory {
     private String address;
     private boolean verifyAddress = true;
     private boolean trustAllCerts = false;
+    private boolean disableHostNameChecks = false;
 
     private File caCertFile;
     private File clientCertFile;
@@ -120,6 +122,10 @@ public class KubernetesFactory {
             } else {
                 log.error("Specified CA certificate file {} does not exist or is not readable", candidateCaCertFile);
             }
+        }
+
+        if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_DISABLE_HOSTNAME_CHECK)) {
+            this.disableHostNameChecks = Systems.getEnvVarOrSystemProperty(KUBERNETES_DISABLE_HOSTNAME_CHECK, false);
         }
 
         if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_DATA_ENV_VAR)) {
@@ -203,6 +209,11 @@ public class KubernetesFactory {
             WebClients.disableSslChecks(webClient);
         } else if (caCertFile != null || caCertData != null) {
             WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
+
+            // had host verification errors - this should avoid it
+            if (disableHostNameChecks) {
+                WebClients.disableHostNameChecks(webClient);
+            }
         }
         if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
             WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);

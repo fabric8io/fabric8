@@ -30,12 +30,18 @@ import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.WebApplicationException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -123,6 +129,26 @@ public class WebClients {
         params.setTrustManagers(new TrustManager[]{new TrustEverythingSSLTrustManager()});
 
         params.setDisableCNCheck(true);
+    }
+
+    public static void disableHostNameChecks(WebClient webClient) {
+        HTTPConduit conduit = WebClient.getConfig(webClient)
+                .getHttpConduit();
+
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+            conduit.setTlsClientParameters(params);
+        }
+        LOG.debug("Disabling host name checks");
+
+        params.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String s, SSLSession sslSession) {
+                return true;
+            }
+        });
     }
 
     public static void configureClientCert(WebClient webClient, String clientCertData, File clientCertFile, String clientKeyData, File clientKeyFile, String clientKeyAlgo, char[] clientKeyPassword) {
