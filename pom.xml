@@ -2232,7 +2232,7 @@
 				      <goal>generate-bom</goal>
 			      </goals>
 		      </execution>
-		      <execution>
+		      <!--execution>
 			      <id>install-bom</id>
 			      <phase>install</phase>
 			      <goals>
@@ -2245,7 +2245,7 @@
 			      <goals>
 				      <goal>deploy-bom</goal>
 			      </goals>
-		      </execution>
+		      </execution-->
 	      </executions>
 	  </plugin>
           <plugin>
