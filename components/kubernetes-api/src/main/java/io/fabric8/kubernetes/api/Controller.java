@@ -545,10 +545,7 @@ public class Controller {
             LOG.debug("Ignoring Service: " + namespace + ":" + id);
             return;
         }
-        if (serviceMap == null) {
-            serviceMap = getServiceMap(kubernetes, namespace);
-        }
-        Service old = serviceMap.get(id);
+        Service old = kubernetes.getService(id, namespace);
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
@@ -609,10 +606,7 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
         }
-        if (replicationControllerMap == null) {
-            replicationControllerMap = getReplicationControllerMap(kubernetes, namespace);
-        }
-        ReplicationController old = replicationControllerMap.get(id);
+        ReplicationController old = kubernetes.getReplicationController(id, namespace);
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
@@ -689,10 +683,7 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
             return;
         }
-        if (podMap == null) {
-            podMap = getPodMap(kubernetes, namespace);
-        }
-        Pod old = podMap.get(id);
+        Pod old = kubernetes.getPod(id, namespace);
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
