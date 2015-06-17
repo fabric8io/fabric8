@@ -169,7 +169,7 @@
         <tomcat-plugin.version>2.2</tomcat-plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <vertx.version>2.1.5</vertx.version>
-        <weld.version>2.2.5.Final</weld.version>
+        <weld.version>2.2.13.Final</weld.version>
         <wildfly.version>8.1.0.Final</wildfly.version>
         <zookeeper.version>3.4.6</zookeeper.version>
 
