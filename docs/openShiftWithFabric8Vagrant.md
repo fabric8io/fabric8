@@ -6,12 +6,14 @@ If you are on a linux box then you might want to [use the Linux instructions](se
 
 ### Create the vagrant image
 
-* first clone the [fabric8 git repository](https://github.com/fabric8io/fabric8) repository
+* first clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository
 
 ```
-git clone https://github.com/fabric8io/fabric8.git
-cd fabric8
+git clone https://github.com/fabric8io/fabric8-installer.git
+cd fabric8-installer/vagrantopenshift-latest
+vagrant up
 ```
+There are other openshift versions supported too if you prefer to use an older version
 
 The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine’s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the `Vagrantfile` in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:
 
