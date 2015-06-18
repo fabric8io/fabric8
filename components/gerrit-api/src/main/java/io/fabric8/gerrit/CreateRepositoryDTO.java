@@ -25,23 +25,14 @@ import io.fabric8.repo.git.DtoSupport;
 public class CreateRepositoryDTO extends DtoSupport {
     private String name;
     private String description;
-    private String homepage;
-    private String gitignoreTemplate;
-    private String licenseTemplate;
-    @JsonProperty("private")
-    private Boolean privateRepository;
-    private Boolean hasIssues;
-    private Boolean hasWiki;
-    private Boolean hasDownloads;
-    private Boolean autoInit;
-    private Number teamId;
-
-    public Boolean getAutoInit() {
-        return autoInit;
+    private boolean create_empty_commit;
+    
+    public String getName() {
+        return name;
     }
 
-    public void setAutoInit(Boolean autoInit) {
-        this.autoInit = autoInit;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -52,75 +43,12 @@ public class CreateRepositoryDTO extends DtoSupport {
         this.description = description;
     }
 
-    public String getGitignoreTemplate() {
-        return gitignoreTemplate;
+    public boolean isCreate_empty_commit() {
+        return create_empty_commit;
     }
 
-    public void setGitignoreTemplate(String gitignoreTemplate) {
-        this.gitignoreTemplate = gitignoreTemplate;
+    public void setCreate_empty_commit(boolean create_empty_commit) {
+        this.create_empty_commit = create_empty_commit;
     }
 
-    public Boolean getHasDownloads() {
-        return hasDownloads;
-    }
-
-    public void setHasDownloads(Boolean hasDownloads) {
-        this.hasDownloads = hasDownloads;
-    }
-
-    public Boolean getHasIssues() {
-        return hasIssues;
-    }
-
-    public void setHasIssues(Boolean hasIssues) {
-        this.hasIssues = hasIssues;
-    }
-
-    public Boolean getHasWiki() {
-        return hasWiki;
-    }
-
-    public void setHasWiki(Boolean hasWiki) {
-        this.hasWiki = hasWiki;
-    }
-
-    public String getHomepage() {
-        return homepage;
-    }
-
-    public void setHomepage(String homepage) {
-        this.homepage = homepage;
-    }
-
-    public String getLicenseTemplate() {
-        return licenseTemplate;
-    }
-
-    public void setLicenseTemplate(String licenseTemplate) {
-        this.licenseTemplate = licenseTemplate;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Boolean getPrivateRepository() {
-        return privateRepository;
-    }
-
-    public void setPrivateRepository(Boolean privateRepository) {
-        this.privateRepository = privateRepository;
-    }
-
-    public Number getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(Number teamId) {
-        this.teamId = teamId;
-    }
 }
