@@ -1,9 +1,11 @@
-package io.fabric8.repo.git;
+package io.fabric8.gerrit;
+
+import io.fabric8.repo.git.DtoSupport;
 
 import java.util.List;
 import java.util.Map;
 
-public class GerritProjectInfoDTO {
+public class ProjectInfoDTO extends DtoSupport {
         
         public String id;
         public String name;
@@ -69,24 +71,6 @@ public class GerritProjectInfoDTO {
         public void setWebLinks(List<WebLinkInfo> webLinks) {
                 this.webLinks = webLinks;
         }
-
-
-        public enum ProjectState {
-                ACTIVE,
-                READ_ONLY,
-                HIDDEN
-        }
-
-        public class WebLinkInfo {
-                public String name;
-                public String url;
-
-                public WebLinkInfo(String name, String url) {
-                        this.name = name;
-                        this.url = url;
-                }
-        }
-
 
 }
 
