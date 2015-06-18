@@ -40,19 +40,19 @@ You can SSH into the vagrant image using
 
 ### Using the OpenShift CLI tools
 
-* download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `osc` and `osadm` executables to your `PATH`
+* download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `oc` and `osadm` executables to your `PATH`
 * login to OpenShift
 
 ```
-osc login --server=https://172.28.128.4:8443
+oc login --server=https://172.28.128.4:8443
 ```
 
 During the login procedure OpenShift you should allow access using insecure mode, and when prompted for an username and password type in `admin` (also `admin` as the password).
 
-You should now be able to use the [osc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
+You should now be able to use the [oc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
 
 ```
-osc get pods
+oc get pods
 ```
 
 
