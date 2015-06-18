@@ -51,6 +51,12 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
     private String description;
 
     /**
+     * The empty commit to be created 
+     */
+    @Parameter(property = "empty_commit", required = false, defaultValue = "true")
+    private String empty_commit;
+
+    /**
      * The user name to use in gerrit
      */
     @Parameter(property = "gerritAdminUsername", defaultValue = "${GERRIT_ADMIN_USER}")
@@ -71,8 +77,9 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
             String gerritPwd = this.gerritAdminPassword;
             String repoName = this.repo;
             String description = this.description;
+            String empty_commit = this.empty_commit;
 
-            createGerritRepo(kubernetes, log, gerritUser, gerritPwd, repoName, repoName, description);
+            createGerritRepo(kubernetes, log, gerritUser, gerritPwd, repoName, description, empty_commit);
 
         } catch (MojoExecutionException e) {
             throw e;
@@ -81,7 +88,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
     }
 
-    private static boolean createGerritRepo(KubernetesClient kubernetes, Log log, String gerritUser, String gerritPwd, String repoName, String repoName1, String description) throws MojoExecutionException, JsonProcessingException {
+    private static boolean createGerritRepo(KubernetesClient kubernetes, Log log, String gerritUser, String gerritPwd, String repoName, String description, String empty_commit) throws MojoExecutionException, JsonProcessingException {
 
         // lets add defaults if not env vars
         if (Strings.isNullOrBlank(gerritUser)) {
@@ -118,6 +125,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
                 CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
                 createRepoDTO.setDescription(description);
                 createRepoDTO.setName(repoName);
+                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(empty_commit));
 
                 RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
 
