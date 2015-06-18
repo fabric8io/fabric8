@@ -38,6 +38,14 @@ You can SSH into the vagrant image using
     vagrant ssh
 ```
 
+Note: in case you already ran this and want to update you need to destroy and recreate the vagrant image.
+You can do that using
+
+```
+vagrant destroy -f
+vagrant up
+```
+
 ### Using the OpenShift CLI tools
 
 * download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `oc` and `osadm` executables to your `PATH`
