@@ -19,7 +19,7 @@ To install Hubot in the short term requires first a manual step.
 1. Set up a user in Lets Chat, say 'fabric8'   
 2. Create a room and take note of the room id in the URL   
 3. Generate an auth token from the Lets Chat user preferences   
-4. Run Hubot by setting the template values you have just generated   
+4. Run Hubot by setting the template values you have just generated. e.g.   
 
 e.g.
 
@@ -29,6 +29,10 @@ e.g.
 or using the fabric8 maven pugin...
 
 		mvn fabric8:apply -Dfabric8.apply.LETSCHAT_TOKEN=[ADD TOKEN HERE] -Dfabric8.apply.LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE]
+
+
+* Now register a **different** user in Let's Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)
+* Login as yourself
 
 ### How to use Chat in Fabric8
 
