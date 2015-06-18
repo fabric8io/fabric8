@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Tue Jun 16 2015 18:58:04 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu Jun 18 2015 08:55:49 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1047,11 +1047,13 @@
 <p>If you are on a linux box then you might want to <a href="setupOpenShift.html#if-you-are-on-a-linux">use the Linux instructions</a>.</p>
 <h3 id="create-the-vagrant-image"><a name="create-the-vagrant-image" class="plugin-anchor" href="#create-the-vagrant-image"><span class="fa fa-link"></span></a>Create the vagrant image</h3>
 <ul>
-<li>first clone the <a href="https://github.com/fabric8io/fabric8" target="_blank">fabric8 git repository</a> repository</li>
+<li>first clone the <a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a> repository</li>
 </ul>
-<pre><code>git clone https://github.com/fabric8io/fabric8.git
-cd fabric8
-</code></pre><p>The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code> in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:</p>
+<pre><code>git clone https://github.com/fabric8io/fabric8-installer.git
+cd fabric8-installer/vagrantopenshift-latest
+vagrant up
+</code></pre><p>There are other openshift versions supported too if you prefer to use an older version</p>
+<p>The vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code> in the fabric8 project, you just cloned. The settings are defined in the bottom of the file:</p>
 <pre><code>    v.memory = 4096
     v.cpus = 2
 </code></pre><ul>

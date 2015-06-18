@@ -150,11 +150,62 @@
 
 <h2 id = "Submitting_changes_to_fabric8">Submitting changes to fabric8</h2>
 
-<ul>
-<li>Push your changes to your fork of the <a href="https://github.com/fabric8io/fabric8">fabric8 repository</a>.</li>
-<li>Submit a pull request to the repository in the <strong>fabric8io</strong> organization.</li>
-<li>If your change references an existing <a href="https://github.com/fabric8io/fabric8/issues?state=open">issue</a> then use &ldquo;fixes #123&rdquo; in the commit message (using the correct issue number ;).</li>
-</ul>
+<p>Adhering to the following process is the best way to get your work
+included in the project:</p>
+
+<ol>
+<li><p><a href="https://help.github.com/fork-a-repo/">Fork</a> the project, clone your fork,
+and configure the remotes:</p>
+
+<p>```bash</p>
+
+<h1 id = "Clone_your_fork_of_the_repo_into_the_current_directory">Clone your fork of the repo into the current directory</h1>
+
+<p>git clone https://github.com/&lt;your-username&gt;/fabric8.git</p>
+
+<h1 id = "Navigate_to_the_newly_cloned_directory">Navigate to the newly cloned directory</h1>
+
+<p>cd fabric8</p>
+
+<h1 id = "Assign_the_original_repo_to_a_remote_called__ldquo_upstream_rdquo_">Assign the original repo to a remote called &ldquo;upstream&rdquo;</h1>
+
+<p>git remote add upstream https://github.com/fabric8io/fabric8.git
+```</p></li>
+<li><p>If you cloned a while ago, get the latest changes from upstream:</p>
+
+<p>```bash
+git checkout master
+git pull upstream master
+```</p></li>
+<li><p>Create a new topic branch (off the main project development branch) to
+contain your feature, change, or fix:</p>
+
+<p>```bash
+git checkout -b &lt;topic-branch-name&gt;
+```</p></li>
+<li><p>Commit your changes in logical chunks. If you have many commits you can use Git's
+<a href="https://help.github.com/articles/interactive-rebase">interactive rebase</a>
+feature to tidy up your commits before making them public.
+If your change references an existing <a href="https://github.com/fabric8io/fabric8/issues?state=open">issue</a> then use &ldquo;fixes #123&rdquo; in the commit message (using the correct issue number ;).</p></li>
+<li><p>Documentation chagnes is located in the <a href="docs">docs</a> directory. Take a moment to consider if your code changes 
+should also be documented. You may need to update any of the existing topics, or create a new topic by adding a new <code>.md</code> file.
+A new file should be added into the table of contents which is the <a href="docs/SUMMARY.MD">summary</a> file.</p></li>
+<li><p>Locally merge (or rebase) the upstream development branch into your topic branch:</p>
+
+<p>```bash
+git pull [&mdash;rebase] upstream master
+```</p></li>
+<li><p>Push your topic branch up to your fork:</p>
+
+<p>```bash
+git push origin &lt;topic-branch-name&gt;
+```</p></li>
+<li><p><a href="https://help.github.com/articles/using-pull-requests/">Open a Pull Request</a>
+with a clear title and description against the <code>master</code> branch.</p>
+
+<p><strong>IMPORTANT</strong>: By submitting a patch, you agree to allow the project owners to
+license your work under the terms of the <a href="license.txt">Apache License</a></p></li>
+</ol>
 
 <h1 id = "Additional_Resources">Additional Resources</h1>
 
