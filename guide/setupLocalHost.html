@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Thu Jun 18 2015 09:50:20 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.3" data-basepath="." data-revision="Thu Jun 18 2015 10:04:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1046,12 +1046,12 @@
 <p>This page describes how to setup your local development machine or host to work with Kubernetes or OpenShift either remotely or via <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>.</p>
 <h3 id="install-the-openshift-binaries-to-your-path"><a name="install-the-openshift-binaries-to-your-path" class="plugin-anchor" href="#install-the-openshift-binaries-to-your-path"><span class="fa fa-link"></span></a>Install the OpenShift binaries to your $PATH</h3>
 <ul>
-<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform and add the <code>openshift</code>, <code>osc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
+<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform and add the <code>openshift</code>, <code>oc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
 <li>login to OpenShift</li>
 </ul>
-<pre><code>osc login --server=https://172.28.128.4:8443
-</code></pre><p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
-<pre><code>osc get pods
+<pre><code>oc login --server=https://172.28.128.4:8443
+</code></pre><p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">oc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
+<pre><code>oc get pods
 </code></pre><h3 id="environment-variables"><a name="environment-variables" class="plugin-anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
 <p>The following environment variables are useful. The following are for the <a href="openShiftWithFabric8Vagrant.html">fabric8 vagrant image</a>; if you are running on a different box just update the IP / domain names:</p>
 <pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443

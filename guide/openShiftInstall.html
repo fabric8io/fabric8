@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Thu Jun 18 2015 09:50:20 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.2" data-basepath="." data-revision="Thu Jun 18 2015 10:04:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1083,10 +1083,10 @@ ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/c
 <li>each namespace you wish to install fabric8 into typically requires the <code>openshift-cert-secrets</code></li>
 </ul>
 <p>You&apos;ll also need to login and switch to the correct project (namespace):</p>
-<pre><code>osc login
-osc project default
+<pre><code>oc login
+oc project default
 </code></pre><p>Then run this command:</p>
-<pre><code>cat &lt;&lt;EOF | osc create -f -
+<pre><code>cat &lt;&lt;EOF | oc create -f -
 ---
     apiVersion: &quot;v1&quot;
     kind: &quot;Secret&quot;

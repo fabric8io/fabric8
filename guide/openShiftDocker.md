@@ -207,32 +207,32 @@ Or on Windows run the following from a DOS prompt as an Administrator:
 
 You should now be able to access the Fabric8 console using the address defined in the previously set $FABRIC8_CONSOLE environment variable.
 
-#### Using the osc (OpenShift command line)
+#### Using the oc (OpenShift command line)
 
-* download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `osc` and `osadm` executables to your `PATH`
+* download and unpack a [release of OpenShift 0.5.1 or later](https://github.com/openshift/origin/releases/) for your platform (not for the vagrant image) and add the `openshift`, `oc` and `osadm` executables to your `PATH`
 * login to OpenShift
 
 ```
-osc login --server=https://172.28.128.4:8443
+oc login --server=https://172.28.128.4:8443
 ```
 
 During the login procedure OpenShift you should allow access using insecure mode, and when prompted for an username and password type in `admin` (also `admin` as the password).
 
-You should now be able to use the [osc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
+You should now be able to use the [oc CLI tool](https://github.com/openshift/origin/blob/master/docs/cli.md) to work with Kubernetes and OpenShift resources:
 
-    osc get pods
-    osc get replicationControllers
-    osc get services
+    oc get pods
+    oc get replicationControllers
+    oc get services
 
 To see all the available commands:
 
-    osc --help
+    oc --help
 
-**Note** that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the osc command which itself runs in a linux container won't be able to access local files when supplying -c to create.
+**Note** that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the oc command which itself runs in a linux container won't be able to access local files when supplying -c to create.
 
 However you can pipe them into the command line via
 
-    cat mything.json | osc create -f -
+    cat mything.json | oc create -f -
 ---
 
 ### Miscellaneous

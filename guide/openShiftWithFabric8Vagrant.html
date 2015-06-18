@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu Jun 18 2015 09:50:20 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu Jun 18 2015 10:04:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1068,13 +1068,13 @@ vagrant up
 <pre><code>    vagrant ssh
 </code></pre><h3 id="using-the-openshift-cli-tools"><a name="using-the-openshift-cli-tools" class="plugin-anchor" href="#using-the-openshift-cli-tools"><span class="fa fa-link"></span></a>Using the OpenShift CLI tools</h3>
 <ul>
-<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform (not for the vagrant image) and add the <code>openshift</code>, <code>osc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
+<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform (not for the vagrant image) and add the <code>openshift</code>, <code>oc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
 <li>login to OpenShift</li>
 </ul>
-<pre><code>osc login --server=https://172.28.128.4:8443
+<pre><code>oc login --server=https://172.28.128.4:8443
 </code></pre><p>During the login procedure OpenShift you should allow access using insecure mode, and when prompted for an username and password type in <code>admin</code> (also <code>admin</code> as the password).</p>
-<p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">osc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
-<pre><code>osc get pods
+<p>You should now be able to use the <a href="https://github.com/openshift/origin/blob/master/docs/cli.md" target="_blank">oc CLI tool</a> to work with Kubernetes and OpenShift resources:</p>
+<pre><code>oc get pods
 </code></pre><h3 id="using-openshift-from-your-host"><a name="using-openshift-from-your-host" class="plugin-anchor" href="#using-openshift-from-your-host"><span class="fa fa-link"></span></a>Using OpenShift from your host</h3>
 <p>On your OS X or Windows box you might want to setup these environment variables to more easily work with OpenShift from your Java code:</p>
 <pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443

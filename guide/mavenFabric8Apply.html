@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.3" data-basepath="." data-revision="Thu Jun 18 2015 09:50:20 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.3" data-basepath="." data-revision="Thu Jun 18 2015 10:04:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1058,9 +1058,9 @@
 </ul>
 <h4 id="defaults-from-openshift"><a name="defaults-from-openshift" class="plugin-anchor" href="#defaults-from-openshift"><span class="fa fa-link"></span></a>Defaults from OpenShift</h4>
 <p>If no configuration is supplied through maven properties or environment variables, the <code>fabric8:apply</code> goal will try to find the current login token and namespace by parsing the users <code>~/.config/openshift/config</code> file.</p>
-<p>This means that if you use the <a href="http://www.openshift.org/" target="_blank">OpenShift</a> command line tool <code>osc</code> you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the <code>fabric8:apply</code> goal. e.g.</p>
-<pre><code>osc login
-osc project cheese
+<p>This means that if you use the <a href="http://www.openshift.org/" target="_blank">OpenShift</a> command line tool <code>oc</code> you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the <code>fabric8:apply</code> goal. e.g.</p>
+<pre><code>oc login
+oc project cheese
 mvn fabric8:apply
 </code></pre><p>In the above, if there is no <code>KUBERNETES_NAMESPACE</code> environment variable or maven property called <code>fabric8.namespace</code> then the <code>fabric8:apply</code> goal will apply the Kubernetes resources to the <code>cheese</code> namespace.</p>
 <h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
