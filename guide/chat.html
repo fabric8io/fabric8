@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Thu Jun 18 2015 10:23:33 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Thu Jun 18 2015 11:02:57 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1055,13 +1055,17 @@
 <li>Set up a user in Lets Chat, say &apos;fabric8&apos;   </li>
 <li>Create a room and take note of the room id in the URL   </li>
 <li>Generate an auth token from the Lets Chat user preferences   </li>
-<li>Run Hubot by setting the template values you have just generated   </li>
+<li>Run Hubot by setting the template values you have just generated. e.g.   </li>
 </ol>
 <p>e.g.</p>
 <pre><code>    oc process -v LETSCHAT_TOKEN=[ADD TOKEN HERE],LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE] -f http://repo1.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-letschat/2.2.0/hubot-letschat-2.2.0-kubernetes.json | osc create -f -
 </code></pre><p>or using the fabric8 maven pugin...</p>
 <pre><code>    mvn fabric8:apply -Dfabric8.apply.LETSCHAT_TOKEN=[ADD TOKEN HERE] -Dfabric8.apply.LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE]
-</code></pre><h3 id="how-to-use-chat-in-fabric8"><a name="how-to-use-chat-in-fabric8" class="plugin-anchor" href="#how-to-use-chat-in-fabric8"><span class="fa fa-link"></span></a>How to use Chat in Fabric8</h3>
+</code></pre><ul>
+<li>Now register a <strong>different</strong> user in Let&apos;s Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)</li>
+<li>Login as yourself</li>
+</ul>
+<h3 id="how-to-use-chat-in-fabric8"><a name="how-to-use-chat-in-fabric8" class="plugin-anchor" href="#how-to-use-chat-in-fabric8"><span class="fa fa-link"></span></a>How to use Chat in Fabric8</h3>
 <p>Click the <strong>Chat</strong> item on the navigation bar of the <a href="console.html">Console</a>. By default you are then prompted to enter your nickname (which defaults to the user name you used to work with the git repositories on the <strong>Repositories</strong> tab.</p>
 <h3 id="hubot"><a name="hubot" class="plugin-anchor" href="#hubot"><span class="fa fa-link"></span></a>Hubot</h3>
 <p>Hubot uses <a href="https://github.com/github/hubot/blob/master/docs/scripting.md" target="_blank">scripts</a> to add functionality.  OOTB Hubot comes with a number of <a href="http://coffeescript.org/" target="_blank">coffee scripts</a> that provide a base set of features.  To communicate with fabric8&apos;s bot you need to be in the chat room you configured hubot to listen to in the install step above.  Once there you can speak to the bot by typing &apos;fabric8&apos;.  </p>
