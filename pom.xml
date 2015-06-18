@@ -515,6 +515,11 @@
                 <artifactId>taiga-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>gerrit-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Internal testing modules -->
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>

@@ -76,6 +76,7 @@
     <module>rest-utils</module>
     <module>swagger-model</module>
     <module>taiga-api</module>
+    <module>gerrit-api</module>
   </modules>
 
   <profiles>
