@@ -14,6 +14,7 @@ git clone -b gh-pages git@github.com:fabric8io/fabric8.git sitegen && \
 cd .. && \
 mvn scalate:sitegen && \
 mkdir -p target/sitegen/guide && \
+mkdir ../docs/_book/
 gitbook install ../docs  && \
 gitbook build ../docs && \
 echo "copying generated gitbook"
