@@ -45,6 +45,10 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 
 * [hubot-api](https://github.com/fabric8io/fabric8/blob/master/components/hubot-api/) provides a Java API for working with the <a href="http://hubot.github.com/">Hubot chat bot</a> for sending notifications to chat services like Lets Chat, IRC, Slack, HipChat and Campfire
 
+### Hubot
+
+* [hubot-letschat](https://github.com/fabric8io/fabric8/blob/master/components/letschat-api/) provides a Java API for working with the <a href="http://sdelements.github.io/lets-chat/">Let's Chat</a> to auto-create rooms etc.
+
 ### Taiga
 
 * [taiga-api](https://github.com/fabric8io/fabric8/blob/master/components/taiga-api/) provides a Java API for working with the <a href="http://taiga.io/">Taiga</a> issue tracker / kanban / scrum management system
