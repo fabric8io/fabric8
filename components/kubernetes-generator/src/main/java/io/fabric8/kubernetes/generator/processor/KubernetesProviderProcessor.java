@@ -18,9 +18,12 @@ package io.fabric8.kubernetes.generator.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -92,8 +95,16 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
             }
         }
 
-        KubernetesList list = createList(provided);
-        generateJson(list);
+        KubernetesResource answer = null;
+        try {
+            answer = (KubernetesResource)KubernetesHelper.combineJson(provided);
+
+        } catch (Exception e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
+            return false;
+        }
+
+        generateJson(answer);
         return true;
     }
 
