@@ -1,12 +1,12 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.fabric8.gerrit.ProjectInfoDTO;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.repo.git.CreateRepositoryDTO;
-import io.fabric8.repo.git.DtoSupport;
-import io.fabric8.repo.git.GerritGitApi;
-import io.fabric8.repo.git.GerritRepositoryDTO;
+import io.fabric8.gerrit.GitApi;
+import io.fabric8.gerrit.CreateRepositoryDTO;
+import io.fabric8.gerrit.RepositoryDTO;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -19,6 +19,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import javax.annotation.Priority;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import java.io.*;
@@ -34,6 +35,8 @@ import static io.fabric8.utils.cxf.WebClients.enableDigestAuthenticaionType;
  */
 @Mojo(name = "create-gitrepo", requiresProject = false)
 public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
+
+    private static final String JSON_MAGIC = ")]}'";
 
     /**
      * The gerrit git repo to create
@@ -103,20 +106,35 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         disableSslChecks(webClient);
         configureUserAndPassword(webClient, gerritUser, gerritPwd);
         enableDigestAuthenticaionType(webClient);
-        GerritGitApi gitApi = JAXRSClientFactory.fromClient(webClient, GerritGitApi.class);
+        GitApi gitApi = JAXRSClientFactory.fromClient(webClient, GitApi.class);
+        
+        // Check first if a Git repo already exists in Gerrit
+        ProjectInfoDTO project = null;
+        try {
+            project = gitApi.getRepository(repoName);
+        } catch (WebApplicationException ex) {
+            // If we get Response Status = 404, then no repo exists. So we can create it
+            if (ex.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
+                createRepoDTO.setDescription(description);
+                createRepoDTO.setName(repoName);
 
-        CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
-        createRepoDTO.setDescription(description);
-        createRepoDTO.setName(repoName);
+                RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
 
-        GerritRepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
+                if (log.isDebugEnabled()) {
+                    log.debug("Git Repo created : " + toJson(repository));
+                }
+                log.info("Created git repo for " + repoName + " for namespace: " + namespace + " on gogs URL: " + gerritAddress);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Git Repo created : " + toJson(repository));
+                return true;
+            }
         }
-        log.info("Created git repo for " + repoName + " for namespace: " + namespace + " on gogs URL: " + gerritAddress);
 
-        return true;
+        if ((project != null) && (project.getName().equals(repoName))) {
+            throw new MojoExecutionException("Repository " + repoName + " already exists !");
+        }
+        
+        return false;
     }
 
     @Priority(value = 1000)
@@ -135,7 +153,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
             }
             
             String s = received.toString();
-            s = s.replace(")]}'","");
+            s = s.replace(JSON_MAGIC,"");
 
             System.out.println("Reader Interceptor removing the prefix invoked.");
             System.out.println("Content cleaned : " + s);

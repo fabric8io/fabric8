@@ -1,6 +1,8 @@
-package io.fabric8.repo.git;
+package io.fabric8.gerrit;
 
-public class GerritRepositoryDTO extends DtoSupport {
+import io.fabric8.repo.git.DtoSupport;
+
+public class RepositoryDTO extends DtoSupport {
 
     private String name;
     private String description;
