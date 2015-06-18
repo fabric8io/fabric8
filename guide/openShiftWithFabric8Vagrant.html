@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu Jun 18 2015 10:04:02 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2.1" data-basepath="." data-revision="Thu Jun 18 2015 10:23:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1066,6 +1066,10 @@ vagrant up
 <p>You should now have a running vagrant image running at IP address <code>172.28.128.4</code>.</p>
 <p>You can SSH into the vagrant image using</p>
 <pre><code>    vagrant ssh
+</code></pre><p>Note: in case you already ran this and want to update you need to destroy and recreate the vagrant image.
+You can do that using</p>
+<pre><code>vagrant destroy -f
+vagrant up
 </code></pre><h3 id="using-the-openshift-cli-tools"><a name="using-the-openshift-cli-tools" class="plugin-anchor" href="#using-the-openshift-cli-tools"><span class="fa fa-link"></span></a>Using the OpenShift CLI tools</h3>
 <ul>
 <li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a> for your platform (not for the vagrant image) and add the <code>openshift</code>, <code>oc</code> and <code>osadm</code> executables to your <code>PATH</code></li>
