@@ -25,15 +25,20 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -41,7 +46,9 @@ import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemas;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -54,6 +61,7 @@ import static io.fabric8.utils.PropertiesHelper.toMap;
  */
 public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
+    private static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
     public static String[] ICON_EXTENSIONS = new String[]{".svg", ".png", ".gif", ".jpg", ".jpeg"};
 
     /**
@@ -84,6 +92,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.json.source", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
     protected File kubernetesSourceJson;
+
+    /**
+     * Whether we should combine kubernetes JSON dependencies on the classpath into the generated JSON
+     */
+    @Parameter(property = "fabric8.combineDependencies", defaultValue = "false")
+    protected boolean combineDependencies;
 
     /**
      * The number of replicas of this container if we are auto generating the kubernetes JSON file (creating
@@ -416,5 +430,50 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     public String getDockerImage() {
         MavenProject project = getProject();
         return project.getProperties().getProperty("docker.image");
+    }
+
+    Set<File> getDependencies() throws IOException {
+        Set<File> dependnencies = new LinkedHashSet<>();
+        MavenProject project = getProject();
+
+        Path dir = Paths.get(project.getBuild().getOutputDirectory(), "deps");
+        if (!dir.toFile().exists() && !dir.toFile().mkdirs()) {
+            throw new IOException("Cannot create temp directory at:" + dir.toAbsolutePath());
+        }
+
+        for (Artifact candidate : project.getDependencyArtifacts()) {
+            File f = candidate.getFile();
+            if (f == null) {
+                continue;
+            } else if (f.getName().endsWith("jar") && hasKubernetesJson(f)) {
+                getLog().info("Found file:" + f.getAbsolutePath());
+                try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
+                    Zips.unzip(new FileInputStream(f), dir.toFile());
+                    File jsonPath = dir.resolve(DEFAULT_CONFIG_FILE_NAME).toFile();
+                    if (jsonPath.exists()) {
+                        dependnencies.add(jsonPath);
+                    }
+                }
+            } else if (isKubernetesJsonArtifact(candidate.getClassifier(), candidate.getType())) {
+                dependnencies.add(f);
+            }
+        }
+        return dependnencies;
+    }
+
+
+    static boolean isKubernetesJsonArtifact(String classifier, String type) {
+        return Objects.equal("json", type) && Objects.equal("kubernetes", classifier);
+    }
+
+    static boolean hasKubernetesJson(File f) throws IOException {
+        try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
+            for (JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+                if (entry.getName().equals(DEFAULT_CONFIG_FILE_NAME)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -31,10 +31,7 @@ import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -43,13 +40,11 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -58,18 +53,15 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies the Kubernetes JSON to a namespace in a kubernetes environment
  */
-@Mojo(name = "apply", defaultPhase = LifecyclePhase.INSTALL)
+@Mojo(name = "apply", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.INSTALL)
 public class ApplyMojo extends AbstractFabric8Mojo {
 
-    private static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
 
     /**
      * Used to look up Artifacts in the remote repository.
@@ -187,9 +179,11 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
             Set<KubernetesList> kubeConfigs = new LinkedHashSet<>();
 
-            for (File dependency : getDependencies()) {
-                getLog().info("Found dependency: " + dependency);
-                loadDependency(getLog(), kubeConfigs, dependency);
+            if (!combineDependencies) {
+                for (File dependency : getDependencies()) {
+                    getLog().info("Found dependency: " + dependency);
+                    loadDependency(getLog(), kubeConfigs, dependency);
+                }
             }
 
             Comparator<HasMetadata> metadataComparator = new Comparator<HasMetadata>() {
@@ -349,53 +343,6 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private Set<File> getDependencies() throws IOException {
-        Set<File> dependnencies = new LinkedHashSet<>();
-        MavenProject project = getProject();
-
-        Path dir = Paths.get(project.getBuild().getOutputDirectory(), "deps");
-        if (!dir.toFile().exists() && !dir.toFile().mkdirs()) {
-            throw new IOException("Cannot create temp directory at:" + dir.toAbsolutePath());
-        }
-
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setLocalRepository(localRepository);
-        request.setRemoteRepositories(remoteRepositories);
-        request.setArtifact(project.getArtifact());
-        request.setArtifactDependencies(project.getDependencyArtifacts());
-        request.setResolveTransitively(false);
-        request.setResolveRoot(false);
-        request.setForceUpdate(false);
-        request.setOffline(true);
-
-        ArtifactResolutionResult result = resolver.resolve(request);
-        for (Artifact missing : result.getMissingArtifacts()) {
-            getLog().warn("Missing:" + missing);
-
-        }
-
-        for (Exception exception : result.getExceptions()) {
-            getLog().error("Exception:" + exception);
-        }
-        for (Artifact dependency : result.getArtifacts()) {
-            File f = dependency.getFile();
-            getLog().debug("Checking file:" + f.getAbsolutePath());
-            if (f.getName().endsWith("jar") && hasKubernetesJson(f)) {
-                getLog().info("Found file:" + f.getAbsolutePath());
-                try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
-                    Zips.unzip(new FileInputStream(f), dir.toFile());
-                    File jsonPath = dir.resolve(DEFAULT_CONFIG_FILE_NAME).toFile();
-                    if (jsonPath.exists()) {
-                        dependnencies.add(jsonPath);
-                    }
-                }
-            } else if (f.getName().endsWith(".json")) {
-                dependnencies.add(f);
-            }
-        }
-        return dependnencies;
-    }
-
     public static void addConfig(Collection<KubernetesList> kubeConfigs, Object kubeCfg) {
         if (kubeCfg instanceof KubernetesList) {
             kubeConfigs.add((KubernetesList) kubeCfg);
@@ -420,14 +367,4 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private static boolean hasKubernetesJson(File f) throws IOException {
-        try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
-            for (JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-                if (entry.getName().equals(DEFAULT_CONFIG_FILE_NAME)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

@@ -121,12 +121,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean generateJson;
 
     /**
-     * Whether we should combine kubernetes JSON dependencies on the classpath into the generated JSON
-     */
-    @Parameter(property = "fabric8.combineDependencies", defaultValue = "false")
-    private boolean combineDependencies;
-
-    /**
      * Should we fail the build if no json files could be found
      */
     @Parameter(property = "fabric8.failOnMissingJsonFiles", defaultValue = "true")
@@ -447,10 +441,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } else {
             getLog().warn("Ignoring missing file " + file);
         }
-    }
-
-    protected static boolean isKubernetesJsonArtifact(String classifier, String type) {
-        return Objects.equal("json", type) && Objects.equal("kubernetes", classifier);
     }
 
     protected Set<Artifact> resolveArtifacts(Artifact artifact) {
