@@ -1,4 +1,10 @@
 
+### 2.2.0
+
+* Updates to the `v1` schema version in kubernetes
+* The [fabric8 vagrant image](http://fabric8.io/guide/openShiftWithFabric8Vagrant.html) has moved into the [fabric8-installer](https://github.com/fabric8io/fabric8-installer/tree/master/vagrant/openshift-latest) repository
+* Fixes [these 15 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.0)
+
 ### 2.1.11
 
 * Fixes [these 3 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.11)
