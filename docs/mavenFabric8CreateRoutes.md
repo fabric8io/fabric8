@@ -34,7 +34,7 @@ To generate any missing routes for services use the following goal:
 
 Note if you are not in a maven project which has the [fabric8 maven plugin enabled](mavenPlugin.html) then you can use the more verbose version:
 
-    mvn io.fabric8:fabric8-maven-plugin:2.1.11:create-routes
+    mvn io.fabric8:fabric8-maven-plugin:2.2.0:create-routes
 
 To specify an explicit namespace and domain in recreate mode:
 

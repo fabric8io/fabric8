@@ -23,7 +23,7 @@ To install Hubot in the short term requires first a manual step.
 
 e.g.
 
-		osc process -v LETSCHAT_TOKEN=[ADD TOKEN HERE],LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE] -f http://repo1.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-letschat/2.1.11/hubot-letschat-2.1.11-kubernetes.json | osc create -f -
+		osc process -v LETSCHAT_TOKEN=[ADD TOKEN HERE],LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE] -f http://repo1.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-letschat/2.2.0/hubot-letschat-2.2.0-kubernetes.json | osc create -f -
 
 
 or using the fabric8 maven pugin...
