@@ -10,7 +10,7 @@ If you are on a linux box then you might want to [use the Linux instructions](se
 
 ```
 git clone https://github.com/fabric8io/fabric8-installer.git
-cd fabric8-installer/vagrantopenshift-latest
+cd fabric8-installer/vagrant/openshift-latest
 vagrant up
 ```
 There are other openshift versions supported too if you prefer to use an older version
