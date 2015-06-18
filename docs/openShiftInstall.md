@@ -73,14 +73,14 @@ osadm policy add-cluster-role-to-user cluster-admin admin --config=openshift.loc
 You'll also need to login and switch to the correct project (namespace):
 
 ```
-osc login
-osc project default
+oc login
+oc project default
 ```
 
 Then run this command:
 
 ```
-cat <<EOF | osc create -f -
+cat <<EOF | oc create -f -
 ---
 	apiVersion: "v1"
 	kind: "Secret"

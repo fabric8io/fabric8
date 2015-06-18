@@ -35,7 +35,7 @@ The `SEED_GIT_URL` parameter defaults to the value `https://github.com/fabric8io
     
 If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) installed then the following instructions should get you going.
    
-* type `osc login` to ensure you are logged in and [your machine is setup](setupLocalHost.html)
+* type `oc login` to ensure you are logged in and [your machine is setup](setupLocalHost.html)
 * set the `KUBERNETES_DOMAIN` environment variable which if you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) will be:
 
 ```

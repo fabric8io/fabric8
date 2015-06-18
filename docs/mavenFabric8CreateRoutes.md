@@ -17,11 +17,11 @@ The Kubernetes environment and authentication is defined by the [kubernetes-api 
 
 If no configuration is supplied through maven properties or environment variables, the `fabric8:create-routes` goal will try to find the current login token and namespace by parsing the users `~/.config/openshift/config` file.
 
-This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `osc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `fabric8:create-routes` goal. e.g.
+This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `oc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `fabric8:create-routes` goal. e.g.
 
 ```
-osc login
-osc project cheese
+oc login
+oc project cheese
 mvn fabric8:create-routes
 ```
 In the above, if there is no `KUBERNETES_NAMESPACE` environment variable or maven property called `fabric8.namespace` then the `fabric8:create-routes` goal will apply the Kubernetes resources to the `cheese` namespace.
