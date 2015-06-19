@@ -1,17 +1,28 @@
 ## Getting Started
 
-There are 2 main ways to get started.
+The easiest way to get started with Fabric8 on your laptop is via  [Vagrant](getStartedVagrant.html) below:
 
-### OpenShift
+### Vagrant
 
+We highly recommend using the Fabric8 Vagrant image as the fastest way to get started:
+
+* [Fabric8 Vagrant](getStartedVagrant.md)
+
+### Other options
+ 
 The ideal linux based platform for running Fabric8 is [OpenShift V3](http://www.openshift.org/):
 
-* [Setup OpenShift](setupOpenShift.html)
+If you already have OpenShift installed then try:
+
 * [Install Fabric8 on OpenShift](fabric8OnOpenShift.html)
 
-### Jube
+Otherwise checkout how to install OpenShift:
 
-The easiest as a Java developer is to start with [Jube](jube.html); since you've probably already got Java and Maven installed so you're almost ready to go:
+* [Setup OpenShift](setupOpenShift.html)
+
+If you are Java developer then [Jube](jube.html) is an option. 
+
+**Note** currently Jube got broken as fabric8 followed OpenShift 1.0 and Kubernetes 1.0. We will be fixing this soon ;)
 
 * [Get Started with Jube](getStartedJube.html)
 * [Troubleshooting with Jube](http://fabric8.io/jube/troubleshooting.html)
