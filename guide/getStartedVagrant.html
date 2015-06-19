@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>fabric8:apply | Fabric8 Documentation</title>
+        <title>Fabric8 Vagrant | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./mavenFabric8CreateEnv.html" />
+    <link rel="next" href="./fabric8OnOpenShift.html" />
     
     
-    <link rel="prev" href="./mavenDockerPush.html" />
+    <link rel="prev" href="./getStarted.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.3" data-basepath="." data-revision="Fri Jun 19 2015 16:04:27 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Fri Jun 19 2015 16:04:27 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -305,7 +305,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.1" data-path="getStartedVagrant.html">
+        <li class="chapter active" data-level="3.1" data-path="getStartedVagrant.html">
             
                 
                     <a href="./getStartedVagrant.html">
@@ -549,7 +549,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="4.1.3" data-path="mavenFabric8Apply.html">
+        <li class="chapter " data-level="4.1.3" data-path="mavenFabric8Apply.html">
             
                 
                     <a href="./mavenFabric8Apply.html">
@@ -1057,75 +1057,70 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-apply"><a name="fabric8-apply" class="plugin-anchor" href="#fabric8-apply"><span class="fa fa-link"></span></a>fabric8:apply</h2>
-<p>The maven <code>fabric8:apply</code> goal takes the JSON file generated via <a href="mavenFarbic8Json.html">mvn fabric8:json</a> located at <code>target/classes/kubernetes.json</code> and applies it to the current Kubernetes environment and namespace. </p>
-<p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
-<h3 id="prerequisites"><a name="prerequisites" class="plugin-anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
-<p>Note that before trying to apply your Kubernetes JSON you need to make sure your docker image is available to Kubernetes. See the <a href="mavenDockerBuild.html">mvn docker:build</a> and <a href="mavenDockerPush.html">mvn docker:push</a> goals. </p>
-<p>Also if you are using a local docker registry, make sure it is network accessible to your Kubernetes cluster.</p>
-<h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
-<p>You can use the maven property <code>fabric8.domain</code> or the environment variable <code>$KUBERNETES_DOMAIN</code> to define the DNS host to expose services automatically using <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a></p>
-<h3 id="default-configuration"><a name="default-configuration" class="plugin-anchor" href="#default-configuration"><span class="fa fa-link"></span></a>Default Configuration</h3>
-<p>The Kubernetes environment and authentication is defined by the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api#configuration" target="_blank">kubernetes-api environment variables</a>. In particular:</p>
+                        <h2 id="fabric8-vagrant-image"><a name="fabric8-vagrant-image" class="plugin-anchor" href="#fabric8-vagrant-image"><span class="fa fa-link"></span></a>Fabric8 Vagrant Image</h2>
+<p>This is the fastest way to get going with Fabric8 and OpenShift on your laptop.</p>
 <ul>
-<li><code>KUBERNETES_SERVICE_HOST</code>:<code>KUBERNETES_SERVICE_PORT</code> / <code>KUBERNETES_MASTER</code> - the location of the kubernetes master</li>
-<li><code>KUBERNETES_NAMESPACE</code> - the default namespace used on operations</li>
+<li>Download and install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox</a> </li>
+<li>Download and install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
 </ul>
-<h4 id="defaults-from-openshift"><a name="defaults-from-openshift" class="plugin-anchor" href="#defaults-from-openshift"><span class="fa fa-link"></span></a>Defaults from OpenShift</h4>
-<p>If no configuration is supplied through maven properties or environment variables, the <code>fabric8:apply</code> goal will try to find the current login token and namespace by parsing the users <code>~/.config/openshift/config</code> file.</p>
-<p>This means that if you use the <a href="http://www.openshift.org/" target="_blank">OpenShift</a> command line tool <code>oc</code> you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the <code>fabric8:apply</code> goal. e.g.</p>
+<p>Now first clone the <a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a> repository and type these commands:</p>
+<pre><code>git clone https://github.com/fabric8io/fabric8-installer.git
+cd fabric8-installer/vagrant/openshift-latest
+vagrant plugin install vagrant-hostmanager
+vagrant up
+</code></pre><p>Then follow the on screen instructions.</p>
+<ul>
+<li><p>Downloading the docker images may take a few minutes so you might want to jump ahead to the <a href="#setting-up-your-local-machine">Setting up your local machine</a> then coming back here when you&apos;re done. </p>
+</li>
+<li><p>After the vagrant box is created and docker images are downloaded, the <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> should appear at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
+</li>
+<li><p>When you first open your browser Chrome will say:</p>
+</li>
+</ul>
+<pre><code>Your connection is not private
+</code></pre><ul>
+<li>Don&apos;t panic! This is to be expected.</li>
+<li>Click on the small <code>Advanced</code> link on the bottom left</li>
+<li>Now click on the link that says <code>Proceed to fabric8.vagrant.local (unsafe)</code> bottom left</li>
+<li>Now the browser should redirect to the login page </li>
+<li>Enter <code>admin</code> and <code>admin</code></li>
+<li>You should now be in the main fabric8 console! That was easy eh! :)</li>
+<li>Make sure you start off in the <code>default</code> namespace.</li>
+</ul>
+<h3 id="installing-other-applications"><a name="installing-other-applications" class="plugin-anchor" href="#installing-other-applications"><span class="fa fa-link"></span></a>Installing other applications</h3>
+<p>When you are on the <code>Apps</code> tab in the <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> click on the <code>Run...</code> button. </p>
+<p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> on your installation.</p>
+<ul>
+<li>To Run any of the installed templates just click the <code>Run</code> button (the green play button).</li>
+<li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab! </li>
+</ul>
+<h3 id="setting-up-your-local-machine"><a name="setting-up-your-local-machine" class="plugin-anchor" href="#setting-up-your-local-machine"><span class="fa fa-link"></span></a>Setting up your local machine</h3>
+<p>Its useful being able to use the command line tools in OpenShift or using <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">fabric8 maven tooling</a> or reusing the docker daemon inside vagrant; so that all images built are accesible inside the OpenShift environment.</p>
+<p>Follow these steps:</p>
+<ul>
+<li><a href="https://github.com/openshift/origin/releases/" target="_blank">Download the recent OpenShift release binaries for your platform</a></li>
+<li>unpack the tarball and put the binaries on your PATH</li>
+<li>Set the following environment variables:</li>
+</ul>
+<pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443
+export KUBERNETES_DOMAIN=vagrant.local
+export KUBERNETES_TRUST_CERT=true
+export DOCKER_HOST=tcp://vagrant.local:2375
+</code></pre><ul>
+<li><p>Now login to OpenShift via this command:</p>
+<pre><code>oc login --insecure-skip-tls-verify=false https://172.28.128.4:8443
+</code></pre></li>
+<li><p>Enter <code>admin</code> and <code>admin</code> for user/password</p>
+</li>
+</ul>
+<p>ver time your token may expire and you will need to re-authenticate via:</p>
 <pre><code>oc login
-oc project cheese
-mvn fabric8:apply
-</code></pre><p>In the above, if there is no <code>KUBERNETES_NAMESPACE</code> environment variable or maven property called <code>fabric8.namespace</code> then the <code>fabric8:apply</code> goal will apply the Kubernetes resources to the <code>cheese</code> namespace.</p>
-<h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
-<p>To apply the kubernetes resources generated by the <a href="mavenFabric8Json.html">mvn fabric8:json</a> goal use the following goal:</p>
-<pre><code>mvn fabric8:apply
-</code></pre><p>To specify an explicit namespace and domain in recreate mode:</p>
-<pre><code>mvn fabric8:apply -Dfabric8.recreate=true \
--Dfabric8.domain=foo.acme.com -Dfabric8.namespace=cheese   
-</code></pre><h3 id="templates"><a name="templates" class="plugin-anchor" href="#templates"><span class="fa fa-link"></span></a>Templates</h3>
-<p>Applying an <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> works the same as a regular <code>List</code> of Kubernetes resources. </p>
-<p>One difference is that you may wish to override some of the template parameter values as you apply the template which you can do on the command line via system properties.</p>
-<pre><code>mvn fabric8:apply -Dfabric8.apply.FOO=bar
-</code></pre><p>The above will apply the OpenShift template defined in <code>target/classes/kubernetes.json</code> overriding the template parameter <code>FOO</code> with the value <code>bar</code> before processing the template and creating/updating the resources.    </p>
-<h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
-<p>The following maven property values are used to configure the behaviour of the apply goal:</p>
-<table class="table table-striped">
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-<tr>
-<td>fabric8.apply.create</td>
-<td>Should we create new resources (not in the kubernetes namespace). Defaults to <code>true</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.servicesOnly</td>
-<td>Should only services be processed. This lets you run 2 builds, process the services only first; then process non-services. Defaults to <code>false</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.ignoreServices</td>
-<td>Ignore any services in the JSON. This is useful if you wish to recreate all the ReplicationControllers and Pods but not recreate Services (which can cause <code>PortalIP</code> addresses to change for services which can break some Pods and could cause problems for load balancers. Defaults to <code>false</code>.</td>
-</tr>
-<tr>
-<td>fabric8.apply.createRoutes</td>
-<td>If there is a route domain (see <code>fabric8.domain</code>) then this option will create an <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Route</a> for each service for the host expressio: <code>${serviceName}.${fabric8.domain}</code>. Defaults to <code>true</code>.</td>
-</tr>
-<tr>
-<td>fabric8.domain</td>
-<td>The domain to expose the services as <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a>. Defaults to <code>$KUBERNETES_DOMAIN</code>.</td>
-</tr>
-<tr>
-<td>fabric8.namespace</td>
-<td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
-</tr>
-<tr>
-<td>fabric8.recreate</td>
-<td>If enabled then all resources that are found are deleted first before being recreated. Defaults to <code>false</code>.</td>
-</tr>
-</table>
-
+</code></pre><p>Now to see the status of the system:</p>
+<pre><code>oc get pods
+</code></pre><p>or you can watch from the command line via one of these commands:</p>
+<pre><code>watch oc get pods
+oc get pods --watch
+</code></pre><p>Have fun! We <a href="http://fabric8.io/community/" target="_blank">love feedback</a></p>
 
                     
                     </section>
@@ -1136,10 +1131,10 @@ mvn fabric8:apply
         </div>
 
         
-        <a href="./mavenDockerPush.html" class="navigation navigation-prev " aria-label="Previous page: docker:push"><i class="fa fa-angle-left"></i></a>
+        <a href="./getStarted.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./mavenFabric8CreateEnv.html" class="navigation navigation-next " aria-label="Next page: fabric8:create-env"><i class="fa fa-angle-right"></i></a>
+        <a href="./fabric8OnOpenShift.html" class="navigation navigation-next " aria-label="Next page: Install Fabric8 On OpenShift"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
