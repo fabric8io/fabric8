@@ -98,7 +98,7 @@
         <commons-io2.version>2.4</commons-io2.version>
         <commons-lang.version>2.6</commons-lang.version>
         <compiler.plugin.version>3.2</compiler.plugin.version>
-        <curator.version>2.7.1</curator.version>
+        <curator.version>2.8.0</curator.version>
         <cxf.version>3.0.4</cxf.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
