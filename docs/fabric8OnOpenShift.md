@@ -28,7 +28,7 @@ export KUBERNETES_DOMAIN=fabric8.local
 
 Once you have found the `kubernetes.json` file for the [app](fabric8Apps.html) you wish to install type the following using the `oc` command from OpenShift:
  
-		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | osc create -f -
+		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | oc create -f -
 
 Or to install the current releases then choose the commands below to suit the application you wish to install:
 

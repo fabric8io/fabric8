@@ -68,13 +68,13 @@ The `*_DATA` variants take precedence over the `*_FILE` variants.
 
 If no configuration is supplied through explicit code or environment variables, the `kubernetes-api` library will try to find the current login token and namespace by parsing the users `~/.config/openshift/config` file.
 
-This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `osc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `kubernetes-api` library.
+This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `oc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `kubernetes-api` library.
 
 e.g.
 
 ```
-osc login
-osc project cheese
+oc login
+oc project cheese
 mvn fabric8:apply
 ```
 
