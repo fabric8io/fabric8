@@ -28,7 +28,7 @@ Please see the [building.md](building.md) file.
 
 ### Contributing to the project
 
-We love [contributions](Contributing) and you are very welcome to help.
+We love [contributions](Contributing.md) and you are very welcome to help.
 
 ### License
 
