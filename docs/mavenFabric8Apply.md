@@ -23,7 +23,7 @@ The Kubernetes environment and authentication is defined by the [kubernetes-api 
 
 #### Defaults from OpenShift
 
-If no configuration is supplied through maven properties or environment variables, the `fabric8:apply` goal will try to find the current login token and namespace by parsing the users `~/.config/openshift/config` file.
+If no configuration is supplied through maven properties or environment variables, the `fabric8:apply` goal will try to find the current login token and namespace by parsing the users `~/.kube/config` file.
 
 This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `oc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `fabric8:apply` goal. e.g.
 
@@ -54,7 +54,7 @@ One difference is that you may wish to override some of the template parameter v
 
     mvn fabric8:apply -Dfabric8.apply.FOO=bar
     
-The above will apply the OpenShift template defined in `target/classes/kubernetes.json` overriding the template parameter `FOO` with the value `bar` before processing the template and creating/updating the resources.    
+The above will apply the OpenShift template defined in `target/classes/kubernetes.json` overriding the template parameter `FOO` with the value `bar` before processing the template and creating/updating the resources.
 
 ### Maven Properties
 

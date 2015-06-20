@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Helper class for working with the YAML config file thats located in
- * <code>~/.config/openshift/config</code> which is updated when you use commands
+ * <code>~/.kube/config</code> which is updated when you use commands
  * like <code>osc login</code> and <code>osc project myproject</code>
  */
 public class Configs {
