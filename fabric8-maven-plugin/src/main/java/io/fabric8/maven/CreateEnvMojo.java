@@ -37,11 +37,13 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.maven.support.OrderedProperties;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.TablePrinter;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -98,7 +100,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
             getProject().getProperties().setProperty(DOCKER_NAME, name);
             getProject().getProperties().setProperty(EXEC_ENV_SCRIPT, scriptFile.getAbsolutePath());
-            Properties envProperties = new Properties();
+            Properties envProperties = new OrderedProperties();
             Set<Map.Entry<String, String>> entries = env.entrySet();
             for (Map.Entry<String, String> entry : entries) {
                 String key = entry.getKey();
