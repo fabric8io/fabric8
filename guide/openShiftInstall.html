@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Sat Jun 20 2015 08:26:47 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Sat Jun 20 2015 08:29:57 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1064,9 +1064,9 @@
 <h3 id="install-steps"><a name="install-steps" class="plugin-anchor" href="#install-steps"><span class="fa fa-link"></span></a>Install steps</h3>
 <ul>
 <li>you should have installed <a href="https://docs.docker.com/installation/#installation" target="_blank">Docker 1.6 or later</a> and have the docker daemon running (see instructions for <a href="https://docs.docker.com/installation/centos/" target="_blank">CentOs</a>, <a href="https://docs.docker.com/installation/fedora/" target="_blank">Fedora</a> or <a href="https://docs.docker.com/installation/ubuntulinux/" target="_blank">Ubuntu</a>)</li>
-<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 0.5.1 or later</a>:</li>
+<li>download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 1.0 or later</a>:</li>
 </ul>
-<pre><code>curl -L https://github.com/openshift/origin/releases/download/v0.5.1/openshift-origin-v0.5.1-ce1e6c4-linux-amd64.tar.gz | tar xzv
+<pre><code>curl -L https://github.com/openshift/origin/releases/download/v1.0.0/openshift-origin-v1.0.0-67617dd-linux-amd64.tar.gz | tar xzv
 </code></pre><p>Now setup <code>$OPENSHIFT_MASTER</code> to point to the IP address or host name of the OpenShift master:</p>
 <pre><code>export OPENSHIFT_MASTER=https://localhost:8443
 </code></pre><p>Then start OpenShift:</p>
@@ -1077,8 +1077,8 @@
         --etcd-dir=/var/lib/openshift/openshift.local.etcd \
         &gt; /var/lib/openshift/openshift.log &amp;
 </code></pre><p>When running commands on the OpenShift master type the following to avoid you having to add --config=.... arguments:</p>
-<pre><code>mkdir -p ~/.config/openshift
-ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.config/openshift/config
+<pre><code>mkdir -p ~/.kube
+ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.kube/config
 </code></pre><p>Now enable the cluster-admin role:</p>
 <pre><code>./osadm policy add-cluster-role-to-user cluster-admin admin
 </code></pre><p>Now you can run the router (haproxy to expose services publically) and registry (docker registry):</p>

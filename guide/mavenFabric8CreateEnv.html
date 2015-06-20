@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.4" data-basepath="." data-revision="Sat Jun 20 2015 08:26:47 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.4" data-basepath="." data-revision="Sat Jun 20 2015 08:29:57 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1082,7 +1082,7 @@
 <li><code>KUBERNETES_NAMESPACE</code> - the default namespace used on operations</li>
 </ul>
 <h4 id="defaults-from-openshift"><a name="defaults-from-openshift" class="plugin-anchor" href="#defaults-from-openshift"><span class="fa fa-link"></span></a>Defaults from OpenShift</h4>
-<p>If no configuration is supplied through maven properties or environment variables, the <code>fabric8:create-env</code> goal will try to find the current login token and namespace by parsing the users <code>~/.config/openshift/config</code> file.</p>
+<p>If no configuration is supplied through maven properties or environment variables, the <code>fabric8:create-env</code> goal will try to find the current login token and namespace by parsing the users <code>~/.kube/config</code> file.</p>
 <p>This means that if you use the <a href="http://www.openshift.org/" target="_blank">OpenShift</a> command line tool <code>oc</code> you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the <code>fabric8:create-env</code> goal. e.g.</p>
 <pre><code>oc login
 oc project cheese
