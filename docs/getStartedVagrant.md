@@ -43,6 +43,10 @@ This will list all of the installed [OpenShift Templates](http://docs.openshift.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab! 
+* You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
+
+    oc create -f jsonOrYamlFileOrUrl
+
 
 ### Setting up your local machine
 
@@ -69,7 +73,7 @@ oc login --insecure-skip-tls-verify=false https://172.28.128.4:8443
 
 * Enter `admin` and `admin` for user/password
 
-ver time your token may expire and you will need to re-authenticate via:
+Over time your token may expire and you will need to re-authenticate via:
 ```
 oc login
 ```
