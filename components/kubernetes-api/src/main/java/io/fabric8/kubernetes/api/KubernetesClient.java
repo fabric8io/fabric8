@@ -63,7 +63,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     public static String defaultNamespace() {
         String namespace = System.getenv("KUBERNETES_NAMESPACE");
         if (Strings.isNullOrBlank(namespace)) {
-            namespace = findDefaultOpenShiftNamespace();
+            namespace = findDefaultKubernetesNamespace();
         }
         if (Strings.isNotBlank(namespace)) {
             return namespace;
@@ -71,7 +71,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return "default";
     }
 
-    public static String findDefaultOpenShiftNamespace() {
+    public static String findDefaultKubernetesNamespace() {
         Config config = Configs.parseConfigs();
         if (config != null) {
             Context context = Configs.getCurrentContext(config);

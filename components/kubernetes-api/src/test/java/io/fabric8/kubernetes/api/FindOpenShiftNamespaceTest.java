@@ -24,14 +24,14 @@ import static org.junit.Assert.assertEquals;
 public class FindOpenShiftNamespaceTest {
 
     @Test
-    public void testFindsCorrectOpenShiftNamespace() throws Exception {
-        setOPenShfitConfigFileProperty();
-        String namespace = KubernetesClient.findDefaultOpenShiftNamespace();
+    public void testFindsCorrectKubernetesNamespace() throws Exception {
+        setKubernetesConfigFileProperty();
+        String namespace = KubernetesClient.findDefaultKubernetesNamespace();
 
         assertEquals("default namespace", "jimmi-does-rock", namespace);
     }
 
-    public static void setOPenShfitConfigFileProperty() {
+    public static void setKubernetesConfigFileProperty() {
         String basedir = System.getProperty("basedir", ".");
         String configFile = basedir + "/src/test/resources/config.yml";
 

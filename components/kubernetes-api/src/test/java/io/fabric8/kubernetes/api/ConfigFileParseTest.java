@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigFileParseTest {
     @Test
     public void testParseConfig() throws Exception {
-        FindOpenShiftNamespaceTest.setOPenShfitConfigFileProperty();
+        FindOpenShiftNamespaceTest.setKubernetesConfigFileProperty();
 
         File file = getKubernetesConfigFile();
         assertThat(file).isFile().exists();
