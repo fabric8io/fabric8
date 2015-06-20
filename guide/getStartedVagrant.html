@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Sat Jun 20 2015 08:10:25 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Sat Jun 20 2015 08:26:47 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1093,6 +1093,9 @@ vagrant up
 <ul>
 <li>To Run any of the installed templates just click the <code>Run</code> button (the green play button).</li>
 <li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab! </li>
+<li><p>You can also install other OpenShift Templates or Kubernetes resources via the <strong>oc</strong> command line tool:</p>
+<p>  oc create -f jsonOrYamlFileOrUrl</p>
+</li>
 </ul>
 <h3 id="setting-up-your-local-machine"><a name="setting-up-your-local-machine" class="plugin-anchor" href="#setting-up-your-local-machine"><span class="fa fa-link"></span></a>Setting up your local machine</h3>
 <p>Its useful being able to use the command line tools in OpenShift or using <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">fabric8 maven tooling</a> or reusing the docker daemon inside vagrant; so that all images built are accesible inside the OpenShift environment.</p>
@@ -1113,7 +1116,7 @@ export DOCKER_HOST=tcp://vagrant.local:2375
 <li><p>Enter <code>admin</code> and <code>admin</code> for user/password</p>
 </li>
 </ul>
-<p>ver time your token may expire and you will need to re-authenticate via:</p>
+<p>Over time your token may expire and you will need to re-authenticate via:</p>
 <pre><code>oc login
 </code></pre><p>Now to see the status of the system:</p>
 <pre><code>oc get pods
