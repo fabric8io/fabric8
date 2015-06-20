@@ -35,7 +35,7 @@ public class FindOpenShiftNamespaceTest {
         String basedir = System.getProperty("basedir", ".");
         String configFile = basedir + "/src/test/resources/config.yml";
 
-        System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY, configFile);
+        System.setProperty(Configs.KUBERNETES_CONFIG_FILE_PROPERTY, configFile);
     }
 
 }

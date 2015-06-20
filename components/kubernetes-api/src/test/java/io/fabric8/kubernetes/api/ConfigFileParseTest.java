@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static io.fabric8.kubernetes.api.extensions.Configs.getOpenShiftConfigFile;
+import static io.fabric8.kubernetes.api.extensions.Configs.getKubernetesConfigFile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigFileParseTest {
@@ -31,7 +31,7 @@ public class ConfigFileParseTest {
     public void testParseConfig() throws Exception {
         FindOpenShiftNamespaceTest.setOPenShfitConfigFileProperty();
 
-        File file = getOpenShiftConfigFile();
+        File file = getKubernetesConfigFile();
         assertThat(file).isFile().exists();
 
         Config config = Configs.parseConfigs();

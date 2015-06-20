@@ -32,12 +32,12 @@ import java.util.List;
  * like <code>osc login</code> and <code>osc project myproject</code>
  */
 public class Configs {
-    public static final String OPENSHIFT_CONFIG_FILE_PROPERTY = "openshift.config.file";
-    public static final String OPENSHIFT_CONFIG_FILE_ENV_VAR = "OPENSHIFTCONFIG";
+    public static final String KUBERNETES_CONFIG_FILE_PROPERTY = "kubernetes.config.file";
+    public static final String KUBERNETES_CONFIG_FILE_ENV_VAR = "KUBECONFIG";
     private static final transient Logger LOG = LoggerFactory.getLogger(Configs.class);
 
     public static Config parseConfigs() {
-        File file = getOpenShiftConfigFile();
+        File file = getKubernetesConfigFile();
         if (file.exists() && file.isFile()) {
             try {
                 return KubernetesHelper.loadYaml(file, Config.class);
@@ -119,12 +119,12 @@ public class Configs {
         return cluster;
     }
 
-    public static File getOpenShiftConfigFile() {
-        String file = System.getProperty(OPENSHIFT_CONFIG_FILE_PROPERTY);
+    public static File getKubernetesConfigFile() {
+        String file = System.getProperty(KUBERNETES_CONFIG_FILE_PROPERTY);
         if (file != null) {
             return new File(file);
         }
-        file = System.getenv(OPENSHIFT_CONFIG_FILE_ENV_VAR);
+        file = System.getenv(KUBERNETES_CONFIG_FILE_ENV_VAR);
         if (file != null) {
             return new File(file);
         }

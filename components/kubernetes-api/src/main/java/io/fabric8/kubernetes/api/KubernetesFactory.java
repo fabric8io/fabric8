@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.kubernetes.api.extensions.Configs;
+import io.fabric8.kubernetes.api.model.config.AuthInfo;
 import io.fabric8.kubernetes.api.model.config.Cluster;
 import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.model.config.Context;
@@ -195,6 +196,42 @@ public class KubernetesFactory {
 
                 }
 
+                AuthInfo authInfo = Configs.getUserAuthInfo(kubeConfig, currentContext);
+                if (authInfo != null) {
+                    if (authInfo.getClientCertificate() != null) {
+                        File candidateClientCertFile = new File(authInfo.getClientCertificate());
+                        if (candidateClientCertFile.exists() && candidateClientCertFile.canRead()) {
+                            this.clientCertFile = candidateClientCertFile;
+                        } else {
+                            log.error("Specified client certificate file {} does not exist or is not readable", candidateClientCertFile);
+                        }
+                    }
+
+                    if (authInfo.getClientCertificateData() != null) {
+                        this.clientCertData = authInfo.getClientCertificateData();
+                    }
+
+                    if (authInfo.getClientKey() != null) {
+                        File candidateClientKeyFile = new File(authInfo.getClientKey());
+                        if (candidateClientKeyFile.exists() && candidateClientKeyFile.canRead()) {
+                            this.clientKeyFile = candidateClientKeyFile;
+                        } else {
+                            log.error("Specified client key file {} does not exist or is not readable", candidateClientKeyFile);
+                        }
+                    }
+
+                    if (authInfo.getClientKeyData() != null) {
+                        this.clientKeyData = authInfo.getClientKeyData();
+                    }
+
+                    if (authInfo.getUsername() != null) {
+                        this.username = authInfo.getUsername();
+                    }
+
+                    if (authInfo.getPassword() != null) {
+                        this.password = authInfo.getPassword();
+                    }
+                }
             }
         }
     }

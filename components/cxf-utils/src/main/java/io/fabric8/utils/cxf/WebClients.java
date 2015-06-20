@@ -23,6 +23,7 @@ import io.fabric8.utils.Strings;
 import net.oauth.signature.pem.PEMReader;
 import net.oauth.signature.pem.PKCS1EncodedKeySpec;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.cxf.attachment.Base64DecoderStream;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -30,18 +31,9 @@ import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 import javax.ws.rs.WebApplicationException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -62,7 +54,7 @@ public class WebClients {
 
     public static InputStream getInputStreamFromDataOrFile(String data, File file) throws FileNotFoundException {
         if (data != null) {
-            return new ByteArrayInputStream(data.getBytes());
+            return new Base64DecoderStream(new ByteArrayInputStream(data.getBytes()));
         }
         if (file != null) {
             return new FileInputStream(file);
