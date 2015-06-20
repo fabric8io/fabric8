@@ -16,12 +16,8 @@
  */
 package io.fabric8.kubernetes.api.extensions;
 
-import io.fabric8.kubernetes.api.model.config.AuthInfo;
-import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.config.Context;
-import io.fabric8.kubernetes.api.model.config.NamedAuthInfo;
-import io.fabric8.kubernetes.api.model.config.NamedContext;
+import io.fabric8.kubernetes.api.model.config.*;
 import io.fabric8.utils.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +96,27 @@ public class Configs {
             }
         }
         return authInfo;
+    }
+
+    /**
+     * Returns the current {@link Cluster} for the current context
+     */
+    public static Cluster getCluster(Config config, Context context) {
+        Cluster cluster = null;
+        if (config != null && context != null) {
+            String clusterName = context.getCluster();
+            if (clusterName != null) {
+                List<NamedCluster> clusters = config.getClusters();
+                if (clusters != null) {
+                    for (NamedCluster namedCluster : clusters) {
+                        if (Objects.equal(clusterName, namedCluster.getName())) {
+                            cluster = namedCluster.getCluster();
+                        }
+                    }
+                }
+            }
+        }
+        return cluster;
     }
 
     public static File getOpenShiftConfigFile() {

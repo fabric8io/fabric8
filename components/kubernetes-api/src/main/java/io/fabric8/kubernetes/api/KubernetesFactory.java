@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.kubernetes.api.extensions.Configs;
+import io.fabric8.kubernetes.api.model.config.Cluster;
 import io.fabric8.kubernetes.api.model.config.Config;
 import io.fabric8.kubernetes.api.model.config.Context;
 import io.fabric8.utils.Strings;
@@ -50,8 +51,6 @@ import java.util.List;
 public class KubernetesFactory {
     public static final String KUBERNETES_SCHEMA_JSON = "schema/kube-schema.json";
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
 
     public static final String KUBERNETES_TRUST_ALL_CERIFICATES = "KUBERNETES_TRUST_CERT";
     public static final String KUBERNETES_DISABLE_HOSTNAME_CHECK = "KUBERNETES_DISABLE_HOSTNAME_CHECK";
@@ -96,23 +95,25 @@ public class KubernetesFactory {
 
     public KubernetesFactory(String address, boolean verifyAddress) {
         this.verifyAddress = verifyAddress;
-        init();
-        initAddress(address);
-    }
-
-    protected void initAddress(String address) {
-        if (Strings.isNullOrBlank(address)) {
-            setAddress(findKubernetesMaster());
-        } else {
-            setAddress(address);
-        }
+        init(address);
     }
 
     protected String findKubernetesMaster() {
         return resolveHttpKubernetesMaster();
     }
 
-    private void init() {
+    private void init(String address) {
+        if (Strings.isNullOrBlank(address)) {
+            String kubeAddress = findKubernetesMaster();
+            if (kubeAddress != null) {
+                setAddress(kubeAddress);
+            } else {
+                configureFromKubeConfig();
+            }
+        } else {
+            setAddress(address);
+        }
+
         if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_TRUST_ALL_CERIFICATES)) {
             this.trustAllCerts = Systems.getEnvVarOrSystemProperty(KUBERNETES_TRUST_ALL_CERIFICATES, false);
         } else if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CA_CERTIFICATE_FILE_ENV_VAR)) {
@@ -164,6 +165,37 @@ public class KubernetesFactory {
 
         if (Systems.hasEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR)) {
             this.clientKeyPassword = Systems.getEnvVarOrSystemProperty(KUBERNETES_CLIENT_KEY_PASSWORD_ENV_VAR).toCharArray();
+        }
+    }
+
+    private void configureFromKubeConfig() {
+        Config kubeConfig = Configs.parseConfigs();
+
+        if (kubeConfig != null) {
+            Context currentContext = Configs.getCurrentContext(kubeConfig);
+            if (currentContext != null) {
+                Cluster currentCluster = Configs.getCluster(kubeConfig, currentContext);
+                if (currentCluster.getServer() != null) {
+                    setAddress(currentCluster.getServer());
+                    if (currentCluster.getInsecureSkipTlsVerify() != null) {
+                        this.trustAllCerts = currentCluster.getInsecureSkipTlsVerify();
+                    }
+                    if (currentCluster.getCertificateAuthority() != null) {
+                        File candidateCaCertFile = new File(currentCluster.getCertificateAuthority());
+                        if (candidateCaCertFile.exists() && candidateCaCertFile.canRead()) {
+                            this.caCertFile = candidateCaCertFile;
+                        } else {
+                            log.error("Specified CA certificate file {} does not exist or is not readable", candidateCaCertFile);
+                        }
+                    }
+
+                    if (currentCluster.getCertificateAuthorityData() != null) {
+                        this.caCertData = currentCluster.getCertificateAuthorityData();
+                    }
+
+                }
+
+            }
         }
     }
 
@@ -363,7 +395,7 @@ public class KubernetesFactory {
 
     public static String resolveHttpKubernetesMaster() {
         String kubernetesMaster = resolveKubernetesMaster();
-        if (kubernetesMaster.startsWith("tcp:")) {
+        if (kubernetesMaster != null && kubernetesMaster.startsWith("tcp:")) {
             return "https:" + kubernetesMaster.substring(4);
         }
         return kubernetesMaster;
@@ -380,7 +412,7 @@ public class KubernetesFactory {
             kubernetesMaster = proto + "://" + kubernetesMaster + ":" + System.getenv(portEnvVar);
         } else {
             // If not then fall back to KUBERNETES_MASTER env var
-            kubernetesMaster = Systems.getSystemPropertyOrEnvVar(KUBERNETES_MASTER_SYSTEM_PROPERTY, KUBERNETES_MASTER_ENV_VAR, DEFAULT_KUBERNETES_MASTER);
+            kubernetesMaster = Systems.getSystemPropertyOrEnvVar(KUBERNETES_MASTER_SYSTEM_PROPERTY, KUBERNETES_MASTER_ENV_VAR, null);
         }
         return kubernetesMaster;
     }
