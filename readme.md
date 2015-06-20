@@ -14,9 +14,9 @@
 
 ### Demos
 
-* <a href="https://vimeo.com/125255595">Using the Console</a></p>
-* <a href="https://vimeo.com/125066673">Creating a Project</a></p>
-* <a href="https://vimeo.com/album/2635012">more video demos</a>
+* [Using the web console](https://vimeo.com/125255595)
+* [Creating a project](https://vimeo.com/125066673)
+* [More videos](https://vimeo.com/album/2635012)
 
 ### Getting Started
 
