@@ -1076,7 +1076,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
      */
     protected void validateNamespace(String namespace, Object entity) {
         if (Strings.isNullOrBlank(namespace)) {
-            String message = "No namespace supported";
+            String message = "No namespace supplied";
             if (entity != null) {
                 message += " for " + KubernetesHelper.summaryText(entity);
             }
