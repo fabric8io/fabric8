@@ -3,7 +3,11 @@ fabric8
 
 ![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)
 
-[![fabric8](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/cover_small.png)](http://fabric8.io/)
+<p align="center">
+  <a href="http://fabric8.io/">
+  	<img src="https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/cover_small.png" alt="fabric8 logo"/>
+  </a>
+</p>
 
 [Fabric8](http://fabric8.io) is an open source set of microservices that run on top of [Kubernetes](http://kubernetes.io/) and [OpenShift V3](http://www.openshift.org/) to provide:
 
