@@ -102,7 +102,6 @@ public class EngineFactory extends DefaultEngineFactory {
         return new Fabric8ConnectorFactory(vertx, httpGatewayServiceClient);
     }
 
-    @Override
     protected IRegistry createRegistry() {
         ESRegistry registry = new ESRegistry(esConfig);
         ServiceMappingStorage mappingStorage = new ESServiceMappingStorage(esConfig);
