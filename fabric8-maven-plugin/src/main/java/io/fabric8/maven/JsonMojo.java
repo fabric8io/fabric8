@@ -820,9 +820,47 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         return answer;
                     }
                 }
+            } else {
+                String commonRef = asCommonIconRef(iconRef);
+                if (commonRef != null) {
+                    String answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8/master/fabric8-maven-plugin/src/main/resources/", commonRef);
+                    getLog().info("icon url is: " + answer);
+                    return answer;
+                } else {
+                    getLog().warn("Cannot find url for icon to use " + iconUrl);
+                }
             }
-            getLog().warn("TODO need to convert this file into a remote URL!");
         }
+        return null;
+    }
+
+    protected String asCommonIconRef(String iconRef) {
+        if (iconRef.startsWith("icons/")) {
+            iconRef = iconRef.substring(6);
+        }
+
+        if (iconRef.contains("activemq")) {
+            return "icons/activemq.svg";
+        } else if (iconRef.contains("camel")) {
+            return "icons/camel.svg";
+        } else if (iconRef.contains("java")) {
+            return "icons/java.svg";
+        } else if (iconRef.contains("jetty")) {
+            return "icons/jetty.svg";
+        } else if (iconRef.contains("karaf")) {
+            return "icons/karaf.svg";
+        } else if (iconRef.contains("mule")) {
+            return "icons/mule.svg";
+        } else if (iconRef.contains("tomcat")) {
+            return "icons/tomcat.svg";
+        } else if (iconRef.contains("tomee")) {
+            return "icons/tomee.svg";
+        } else if (iconRef.contains("weld")) {
+            return "icons/weld.svg";
+        } else if (iconRef.contains("wildfly")) {
+            return "icons/wildfly.svg";
+        }
+
         return null;
     }
 
