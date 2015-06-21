@@ -851,6 +851,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             return "icons/karaf.svg";
         } else if (iconRef.contains("mule")) {
             return "icons/mule.svg";
+        } else if (iconRef.contains("spring-boot")) {
+            return "icons/spring-boot.svg";
         } else if (iconRef.contains("tomcat")) {
             return "icons/tomcat.svg";
         } else if (iconRef.contains("tomee")) {
