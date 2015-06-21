@@ -1,6 +1,9 @@
-## fabric8
+fabric8
+=======
 
-[![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)
+
+![fabric8](website/src/images/fabric8_logo.svg)
 
 [Fabric8](http://fabric8.io) is an open source set of microservices that run on top of [Kubernetes](http://kubernetes.io/) and [OpenShift V3](http://www.openshift.org/) to provide:
 
