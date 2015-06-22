@@ -57,6 +57,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
@@ -416,6 +417,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             if (combinedJson instanceof Template) {
                 Template template = (Template) combinedJson;
                 setName(template, getKubernetesName());
+                configureTemplateDescriptionAndIcon(template, getIconUrl());
             }
             json.getParentFile().mkdirs();
             KubernetesHelper.saveJson(json, combinedJson);
@@ -663,20 +665,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         Template template = getTemplate();
         String iconUrl = getIconUrl();
-        boolean hasUrl = Strings.isNotBlank(iconUrl);
-        if (!template.getParameters().isEmpty() || hasUrl) {
-            Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
-            addDocumentationAnnotations(template, annotations);
-            if (hasUrl) {
-                annotations.put(getTemplateKey(template, AnnotationKeys.ICON_URL), iconUrl);
-            }
-
+        if (!template.getParameters().isEmpty() || Strings.isNotBlank(iconUrl)) {
+            configureTemplateDescriptionAndIcon(template, iconUrl);
             builder = builder.addToTemplateItems(template);
         }
 
         KubernetesList kubernetesList = builder.build();
 
         Object result = Templates.combineTemplates(kubernetesList);
+        if (result instanceof Template) {
+            Template resultTemplate = (Template) result;
+            configureTemplateDescriptionAndIcon(template, iconUrl);
+        }
 
         try {
             ObjectMapper mapper = new ObjectMapper()
@@ -685,6 +685,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
+        }
+    }
+
+    protected void configureTemplateDescriptionAndIcon(Template template, String iconUrl) {
+        Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(template);
+        addDocumentationAnnotations(template, annotations);
+        if (Strings.isNotBlank(iconUrl)) {
+            annotations.put(getTemplateKey(template, AnnotationKeys.ICON_URL), iconUrl);
         }
     }
 
@@ -715,14 +723,20 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
         }
 
+        String description = null;
         File readme = new File(templateTempDir, "ReadMe.md");
         if (readme.exists() && readme.isFile()) {
             try {
-                String text = Files.toString(readme);
-                annotations.put(AnnotationKeys.DESCRIPTION, text);
+                description = Files.toString(readme);
             } catch (IOException e) {
                 getLog().warn("Failed to load " + readme + ". " + e, e);
             }
+        }
+        if (description == null) {
+            description = getProject().getDescription();
+        }
+        if (Strings.isNotBlank(description)) {
+            annotations.put(AnnotationKeys.DESCRIPTION, description);
         }
     }
 
