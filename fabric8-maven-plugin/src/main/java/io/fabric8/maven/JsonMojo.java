@@ -775,6 +775,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 getLog().warn("Failed to load icon file: " + e, e);
             }
         }
+
+        if (Strings.isNullOrBlank(answer)) {
+            // maybe its a common icon
+            String commonRef = asCommonIconRef(iconRef);
+            if (commonRef != null) {
+                answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8", iconBranch, "/fabric8-maven-plugin/src/main/resources/", commonRef);
+            }
+        }
+
         if (Strings.isNullOrBlank(answer)) {
             getLog().warn("No icon file found for this project!");
         } else {
