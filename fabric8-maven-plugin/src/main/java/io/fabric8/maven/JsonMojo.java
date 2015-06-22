@@ -859,6 +859,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected String asCommonIconRef(String iconRef) {
+        if (iconRef == null) {
+            return null;
+        }
+
         if (iconRef.startsWith("icons/")) {
             iconRef = iconRef.substring(6);
         }
