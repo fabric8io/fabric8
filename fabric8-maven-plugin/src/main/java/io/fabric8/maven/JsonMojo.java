@@ -218,21 +218,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The URL to use to link to the icon in the generated Template.
      * <p/>
-     * You can refer to a common set of icons by setting this option to a value of:
-     * <ul>
-     *     <li>activemq</li>
-     *     <li>camel</li>
-     *     <li>java</li>
-     *     <li>jetty</li>
-     *     <li>karaf</li>
-     *     <li>mule</li>
-     *     <li>spring-boot</li>
-     *     <li>tomcat</li>
-     *     <li>tomee</li>
-     *     <li>weld</li>
-     *     <li>wildfly</li>
-     * </ul>
-     * and not configure <tt>iconUrlPrefix</tt> option.
+     * For using a common set of icons, see the {@link #iconRef} option.
      */
     @Parameter(property = "fabric8.iconUrl")
     private String iconUrl;

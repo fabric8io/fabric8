@@ -122,6 +122,23 @@ You can use maven properties to customize the generation of the JSON:
 <td>If set to false then the generation of the JSON is disabled.</td>
 </tr>
 <tr>
+<td>fabric8.iconRef</td>
+<td>Provides the resource name of the icon to use; found using the current classpath (including the ones shipped inside the maven plugin). For example <code>icons/myicon.svg</code> to find the icon in the <code>src/main/resources/icons</code> directorty. You can refer to a common set of icons by setting this option to a value of: activemq, camel, java, jetty, karaf, mule, spring-boot, tomcat, tomee, weld, wildfly</td>
+</tr>
+<tr>
+<td>fabric8.iconUrl</td>
+<td>The URL to use to link to the icon in the generated Template.</td>
+</tr>
+<tr>
+<td>fabric8.iconUrlPrefix</td>
+<td>The URL prefix added to the relative path of the icon file</td>
+</tr>
+<tr>
+<td>fabric8.iconBranch</td>
+<td>The SCM branch used when creating a URL to the icon file. The default value is <code>master</code>.</td>
+</tr>
+<tr>
+<tr>
 <td>fabric8.imagePullPolicy</td>
 <td>Specifies the image pull policy; one of <code>Always</code>,  <code>Never</code> or <code>IfNotPresent</code>, . Defaults to <code>Always</code> if the project version ends with <code>SNAPSHOT</code> otherwise it is left blank. On newer OpenShift / Kubernetes versions a blank value implies <code>IfNotPresent</code></td>
 </tr>
