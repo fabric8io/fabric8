@@ -75,8 +75,24 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.source.dir", defaultValue = "${basedir}/src/main/fabric8")
     protected File appConfigDir;
+
     /**
      * Provides the resource name of the icon to use; found using the current classpath (including the ones shipped inside the maven plugin).
+     * <p/>
+     * You can refer to a common set of icons by setting this option to a value of:
+     * <ul>
+     *     <li>activemq</li>
+     *     <li>camel</li>
+     *     <li>java</li>
+     *     <li>jetty</li>
+     *     <li>karaf</li>
+     *     <li>mule</li>
+     *     <li>spring-boot</li>
+     *     <li>tomcat</li>
+     *     <li>tomee</li>
+     *     <li>weld</li>
+     *     <li>wildfly</li>
+     * </ul>
      */
     @Parameter(property = "fabric8.iconRef")
     protected String iconRef;
