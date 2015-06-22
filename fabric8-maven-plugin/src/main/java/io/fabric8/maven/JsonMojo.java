@@ -677,7 +677,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         Object result = Templates.combineTemplates(kubernetesList);
         if (result instanceof Template) {
             Template resultTemplate = (Template) result;
-            configureTemplateDescriptionAndIcon(template, iconUrl);
+            configureTemplateDescriptionAndIcon(resultTemplate, iconUrl);
         }
 
         try {
