@@ -216,7 +216,23 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private File templateTempDir;
 
     /**
-     * The URL to use to link to the icon in the generated Template
+     * The URL to use to link to the icon in the generated Template.
+     * <p/>
+     * You can refer to a common set of icons by setting this option to a value of:
+     * <ul>
+     *     <li>activemq</li>
+     *     <li>camel</li>
+     *     <li>java</li>
+     *     <li>jetty</li>
+     *     <li>karaf</li>
+     *     <li>mule</li>
+     *     <li>spring-boot</li>
+     *     <li>tomcat</li>
+     *     <li>tomee</li>
+     *     <li>weld</li>
+     *     <li>wildfly</li>
+     * </ul>
+     * and not configure <tt>iconUrlPrefix</tt> option.
      */
     @Parameter(property = "fabric8.iconUrl")
     private String iconUrl;
@@ -823,7 +839,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             } else {
                 String commonRef = asCommonIconRef(iconRef);
                 if (commonRef != null) {
-                    String answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8/master/fabric8-maven-plugin/src/main/resources/", commonRef);
+                    String answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8", iconBranch, "/fabric8-maven-plugin/src/main/resources/", commonRef);
                     getLog().info("icon url is: " + answer);
                     return answer;
                 } else {
