@@ -4,10 +4,10 @@ export PODNAMES=""
 
 for var in "$@"
 do
-  PODNAMES="$PODNAMES $(osc get pods | grep $var | cut -f 1 -d ' ')"
+  PODNAMES="$PODNAMES $(oc get pods | grep $var | cut -f 1 -d ' ')"
 done
 
 export POD=$(echo $PODNAMES | cut -f 1 -d ' ')
 echo "viewing logs for pod: $POD"
-osc log -f $POD
+oc log -f $POD
 

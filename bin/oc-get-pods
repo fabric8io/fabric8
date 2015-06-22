@@ -2,7 +2,7 @@
 
 for var in "$@"
 do
-  osc get pods | grep $var
+  oc get pods | grep $var
 done
 
 

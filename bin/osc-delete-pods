@@ -4,7 +4,7 @@ export PODNAMES=""
 
 for var in "$@"
 do
-  PODNAMES="$PODNAMES $(osc get pods | grep $var | cut -f 1 -d ' ')"
+  PODNAMES="$PODNAMES $(oc get pods | grep $var | cut -f 1 -d ' ')"
 done
 
 osc delete pods $PODNAMES

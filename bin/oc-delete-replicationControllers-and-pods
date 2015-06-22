@@ -4,11 +4,11 @@ export RCNAMES=""
 
 for var in "$@"
 do
-  RCNAMES="$RCNAMES $(osc get replicationControllers | grep $var | cut -f 1 -d ' ')"
+  RCNAMES="$RCNAMES $(oc get replicationControllers | grep $var | cut -f 1 -d ' ')"
 done
 
-osc delete replicationControllers $RCNAMES
+oc delete replicationControllers $RCNAMES
 
-osc-delete-pods $@
+oc-delete-pods $@
 
 

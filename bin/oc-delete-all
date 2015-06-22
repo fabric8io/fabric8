@@ -4,7 +4,7 @@
 
 export SERVICENAMES=""
 
-osc-delete-replicationControllers-and-pods $@
-osc-delete-services $@
+oc-delete-replicationControllers-and-pods $@
+oc-delete-services $@
 
 
