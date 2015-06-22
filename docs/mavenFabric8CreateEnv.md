@@ -13,7 +13,7 @@ The goal generates  the following files:
  * `target/env.sh` you can `source` in a shell to setup your environment together 
  * `target/env.properties` file you can process easily with Java code or ideally your IDE can accept in its UI for running applications or test cases
 
-### Acessing services 
+### Accessing services 
 
 Note that your local machine may not be able to see [services](services.html) using the `PortalIP` address of the service (depending on how your networking is setup).
 
