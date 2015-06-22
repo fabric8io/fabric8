@@ -347,9 +347,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         }
                     }
                 }
-                if (in == null) {
-                    getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
-                } else {
+                if (in != null) {
                     String fileName = "icon." + Files.getFileExtension(iconRef);
                     File outFile = new File(appBuildDir, fileName);
                     Files.copy(in, new FileOutputStream(outFile));

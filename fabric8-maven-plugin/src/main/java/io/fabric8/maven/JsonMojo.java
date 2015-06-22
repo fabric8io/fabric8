@@ -787,7 +787,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (Strings.isNullOrBlank(answer)) {
             getLog().warn("No icon file found for this project!");
         } else {
-            getLog().debug("Icon URL: " + answer);
+            getLog().info("Icon URL: " + answer);
         }
 
         return answer;
@@ -849,7 +849,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 String commonRef = asCommonIconRef(iconRef);
                 if (commonRef != null) {
                     String answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8", iconBranch, "/fabric8-maven-plugin/src/main/resources/", commonRef);
-                    getLog().info("icon url is: " + answer);
                     return answer;
                 } else {
                     getLog().warn("Cannot find url for icon to use " + iconUrl);
