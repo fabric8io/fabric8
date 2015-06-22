@@ -147,7 +147,7 @@
         <maven.enforcer.plugin.version>1.3.1</maven.enforcer.plugin.version>
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
-        <mockserver.version>3.4</mockserver.version>
+        <mockserver.version>3.9.16</mockserver.version>
         <mvel.version>2.2.5.Final</mvel.version>
         <openejb.container.version>4.7.1</openejb.container.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
