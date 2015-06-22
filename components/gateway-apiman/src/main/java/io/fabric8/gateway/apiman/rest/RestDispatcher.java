@@ -121,7 +121,7 @@ public class RestDispatcher {
 					        service.setServiceId(pathSegment[4]);
 					        service.setVersion(pathSegment[5]);
                             engine.getRegistry().retireService(service , voidHandler);
-                            LOG.info("Retired " + service.getEndpoint() + ", version " + service.getVersion());
+                            LOG.info("Retired service " + service.getOrganizationId() + "/" + service.getServiceId() + ", version " + service.getVersion());
 						} else if (request.method().equals("GET")) {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 7) throw new UserException("Query Parse Exception , "
