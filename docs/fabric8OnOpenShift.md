@@ -154,11 +154,11 @@ Before you start make sure you have [setup your local machine](setupLocalHost.ht
 
 If you have defined the [$KUBERNETES_DOMAIN environment variable](#setup-domain) then you can use the following command:
 
-    mvn io.fabric8:fabric8-maven-plugin:2.1.3:create-routes
+    mvn io.fabric8:fabric8-maven-plugin:2.2.2:create-routes
 
 Otherwise you can be specific and specify the domain you wish to use:
 
-    mvn io.fabric8:fabric8-maven-plugin:2.1.3:create-routes -Dfabric8.domain=my.acme.com
+    mvn io.fabric8:fabric8-maven-plugin:2.2.2:create-routes -Dfabric8.domain=my.acme.com
 
 You could then setup a wildcard DNS rule on `*.$KUBERNETES_DOMAIN` to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your `/etc/hosts` file for each service.
                                                                                                          
