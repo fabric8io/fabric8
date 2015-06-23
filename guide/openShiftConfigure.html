@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>API Registry | Fabric8 Documentation</title>
+        <title>Configure OpenShift | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./fabric8MQ.html" />
+    <link rel="next" href="./setupLocalHost.html" />
     
     
-    <link rel="prev" href="./ipaas.html" />
+    <link rel="prev" href="./openShiftInstall.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3.1" data-basepath="." data-revision="Tue Jun 23 2015 11:06:19 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Tue Jun 23 2015 11:06:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -234,7 +234,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="2.3.1" data-path="apiRegistry.html">
+        <li class="chapter " data-level="2.3.1" data-path="apiRegistry.html">
             
                 
                     <a href="./apiRegistry.html">
@@ -366,7 +366,7 @@
             
         </li>
     
-        <li class="chapter " data-level="3.3.2" data-path="openShiftConfigure.html">
+        <li class="chapter active" data-level="3.3.2" data-path="openShiftConfigure.html">
             
                 
                     <a href="./openShiftConfigure.html">
@@ -1057,23 +1057,73 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="api-registry"><a name="api-registry" class="plugin-anchor" href="#api-registry"><span class="fa fa-link"></span></a>API Registry</h2>
-<p>The API Registry implements a highly available RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a global view of all of your RESTful and web service APIs.</p>
-<p>It currently discovers all <a href="http://swagger.io/" target="_blank">Swagger</a>, <a href="http://www.w3.org/Submission/wadl/" target="_blank">WADL</a> and <a href="http://www.w3.org/TR/wsdl" target="_blank">WSDL</a> contracts used by any <a href="http://cxf.apache.org/" target="_blank">Apache CXF</a> based REST or web services or any <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>. Any JVM is supported; so your CXF and Camel can be running inside Karaf, Tomcat, Wildfly or a vanilla JVM or Spring Boot etc.</p>
-<h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
-<p>For the API Registry to be able to discover the API contracts and endpoints then JMX must be enabled in your JVM (which it tends to be by default), then JMX needs to be enabled in CXF and Camel.</p>
-<p>In addition the JVM needs to expose its <a href="http://jolokia.org/" target="_blank">Jolokia port</a> which it does by default in the base container images used in in the various <a href="quickstarts.html">quickstarts</a>.</p>
-<p>For CXF you need to ensure that JMX is properly enabled and that the <strong>fabric-cxf</strong> library is included in your CXF application which adds the necessary JMX operations so that we can remotely discover the correct endpoints inside the JVM.</p>
-<h3 id="using-the-api-registry"><a name="using-the-api-registry" class="plugin-anchor" href="#using-the-api-registry"><span class="fa fa-link"></span></a>Using the API Registry</h3>
+                        <h3 id="configure-openshift"><a name="configure-openshift" class="plugin-anchor" href="#configure-openshift"><span class="fa fa-link"></span></a>Configure OpenShift</h3>
+<p>OpenShift needs some extra installation steps in order to be able to run all the <a href="fabric8Apps.html">Fabric8 apps</a>. Various apps (like <a href="cdelivery.html">Continuous Delivery</a> and <a href="mq.html">MQ</a> requires secrets and service accounts to be setup). </p>
+<h3 id="add-roles"><a name="add-roles" class="plugin-anchor" href="#add-roles"><span class="fa fa-link"></span></a>Add roles</h3>
+<p>The following commands assume you are on the OpenShift master machine :</p>
 <ul>
-<li>In the <a href="console.html">Console</a> click on the <strong>Library</strong> tab and then navigate into <strong>apps</strong> and then click on <strong>API Registry</strong></li>
-<li>Click on the <strong>Run</strong> button on the top right to run the <strong>API Registry</strong> service</li>
-<li>Now run any <a href="quickstart.html">Quickstart</a> which uses CXF REST or web services or the <strong>Camel Rest SQL</strong> quickstart.</li>
-<li>Wait a minute or so for everything to be up and running</li>
-<li>You should see a new <strong>APIs</strong> tab in the <a href="console.html">Console</a> click on it</li>
-<li>You should now see the <strong>API Console</strong> which lets you view, search and navigate to all the APIs defined in your environment for <a href="http://cxf.apache.org/" target="_blank">CXF</a> or <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>.</li>
+<li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
 </ul>
-
+<pre><code>oadm policy add-cluster-role-to-user cluster-admin admin
+</code></pre><h3 id="add-secrets-and-service-accounts"><a name="add-secrets-and-service-accounts" class="plugin-anchor" href="#add-secrets-and-service-accounts"><span class="fa fa-link"></span></a>Add secrets and service accounts</h3>
+<p>Run the following on the master node; assuming <code>/var/lib/openshift/openshift.local.config/</code> is where the local configuration is installed for OpenShift:</p>
+<pre><code>oc delete scc restricted
+cat &lt;&lt;EOF | oc create -f -
+---
+  apiVersion: v1
+  groups:
+  - system:authenticated
+  kind: SecurityContextConstraints
+  metadata:
+    name: restricted
+  runAsUser:
+    type: RunAsAny
+  seLinuxContext:
+    type: MustRunAs
+EOF
+oc delete scc privileged
+cat &lt;&lt;EOF | oc create -f -
+---
+  allowHostDirVolumePlugin: true
+  allowPrivilegedContainer: true
+  apiVersion: v1
+  groups:
+  - system:cluster-admins
+  - system:nodes
+  kind: SecurityContextConstraints
+  metadata:
+    name: privileged
+  runAsUser:
+    type: RunAsAny
+  seLinuxContext:
+    type: RunAsAny
+  users:
+  - system:serviceaccount:openshift-infra:build-controller
+  - system:serviceaccount:default:default
+  - system:serviceaccount:default:fabric8
+EOF
+cat &lt;&lt;EOF | oc create -f -
+---
+  apiVersion: &quot;v1&quot;
+  kind: &quot;Secret&quot;
+  metadata:
+    name: &quot;openshift-cert-secrets&quot;
+  data:
+    root-cert: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/ca.crt)&quot;
+    admin-cert: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)&quot;
+    admin-key: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)&quot;
+EOF
+cat &lt;&lt;EOF | oc create -f -
+---
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: fabric8
+  secrets:
+    -
+      name: openshift-cert-secrets
+EOF
+</code></pre>
                     
                     </section>
                 
@@ -1083,10 +1133,10 @@
         </div>
 
         
-        <a href="./ipaas.html" class="navigation navigation-prev " aria-label="Previous page: iPaaS"><i class="fa fa-angle-left"></i></a>
+        <a href="./openShiftInstall.html" class="navigation navigation-prev " aria-label="Previous page: Install on Linux"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./fabric8MQ.html" class="navigation navigation-next " aria-label="Next page: MQ"><i class="fa fa-angle-right"></i></a>
+        <a href="./setupLocalHost.html" class="navigation navigation-next " aria-label="Next page: Setup your local machine"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
