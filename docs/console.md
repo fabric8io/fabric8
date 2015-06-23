@@ -4,14 +4,14 @@ The Fabric8 Console provides a rich HTML5 web application for working with [Kube
 
 ### Installing 
 
-Here is [how to install the Console on Kubernetes / OpenShift](fabric8OnOpenShift.html#base)
+Here is [how to install the Console on Kubernetes / OpenShift](fabric8OnOpenShift.html#console)
 
 ### Getting Started
 
 The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you'll need to use:
 
 #### Controllers
-
+                                                                                     
 The main tab to get a feel for what's running in your system is the **Controllers** tab which shows all the [replication controllers](replicationControllers.html).
 
 To scale up or down a controller to run more or less [pods](pods.html) (containers) just increase or decrease the **Desired Replicas** value and hit **Save** and hey presto pods are created or destroyed.
@@ -37,19 +37,15 @@ You can also drag folder from the Library to your desktop and local file system 
 
 If you are using Kubernetes or OpenShift you need to find the URL for the console service. From there you should be able to navigate to the tabs for [pods](pods.html), [replication controllers] and [services](services.html).
 
-e.g. if you are using the command line after [installing fabric8](getStartedOpenShift.html) and you have setup the **kube** alias then you can find the IP and port thats running the console via:
+If you use the [Fabric8 Vagrant](getStartedVagrant.html) approach then the URL is `http://fabric8.vagrant.f8/`.
 
-    kube list services | grep hawtio
+Otherwise you need to find the host name to use. 
 
-e.g.
+e.g. on OpenShift V3 you can find it via:
 
-    $ kube list services | grep hawtio
-    hawtio-service                          name=hawtioPod      172.121.17.3        8080
+    oc get route fabric8
 
-So now in this case you can open the console at [http://172.121.17.3:8080](http://172.121.17.3:8080). The actual IP address may vary based on your installation. (We will use DNS names soon instead.)
-
-Note that if you use the [single command installer](http://fabric8.io/guide/openShiftDocker.html#run-openshift-v3-using-docker) then a browser window with the console should open automatically.
-
+    
 ### Using Jube
 
 If you are using Jube then the web console should be visible at [http://localhost:8585/hawtio/](http://localhost:8585/hawtio/). You can then view these tabs:
