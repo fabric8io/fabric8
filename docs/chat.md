@@ -10,29 +10,15 @@ Fabric8 comes with a hubot [app](apps.html) and a notification engine to post [b
 
 ### Installation
  
-To install the Chat app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html). Chat is included in the [Continuous Delivery](cdelivery.html), [iPaaS](ipaas.html) and [Kitchen Sink](fabric8OnOpenShift.html#kitchen-sink) apps.    
+To install the Chat app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html). Chat is included as a stand alone app or included in the [Continuous Delivery](cdelivery.html), [iPaaS](ipaas.html) and [Kitchen Sink](fabric8OnOpenShift.html#kitchen-sink) apps.    
 
 Once you have completed the above you should see the **Chat** item on the navigation bar of the [Console](console.html)
 
-To install Hubot in the short term requires first a manual step.  
-
-1. Set up a user in Lets Chat, say 'fabric8'   
-2. Create a room and take note of the room id in the URL   
-3. Generate an auth token from the Lets Chat user preferences   
-4. Run Hubot by setting the template values you have just generated. e.g.   
-
-e.g.
-
-		oc process -v LETSCHAT_TOKEN=[ADD TOKEN HERE],LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE] -f http://repo1.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-letschat/2.2.3/hubot-letschat-2.2.3-kubernetes.json | oc create -f -
-
-
-or using the fabric8 maven pugin...
-
-		mvn fabric8:apply -Dfabric8.apply.LETSCHAT_TOKEN=[ADD TOKEN HERE] -Dfabric8.apply.LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE]
-
-
-* Now register a **different** user in Let's Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)
+* Now you need to register yourself as a user in Let's Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)
 * Login as yourself
+* If you join the room `#fabric8_default` you should see the hubot bot
+* Ask fabric8 help
+* Type `ship it` ;)
 
 ### How to use Chat in Fabric8
 
