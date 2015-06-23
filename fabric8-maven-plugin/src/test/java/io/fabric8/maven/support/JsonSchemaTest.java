@@ -20,7 +20,6 @@ package io.fabric8.maven.support;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
