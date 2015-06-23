@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Tue Jun 23 2015 11:06:19 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Tue Jun 23 2015 16:54:17 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1123,6 +1123,14 @@ cat &lt;&lt;EOF | oc create -f -
     -
       name: openshift-cert-secrets
 EOF
+cat &lt;&lt;EOF | oc create -f -
+---
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: metrics
+EOF
+oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
 </code></pre>
                     
                     </section>
