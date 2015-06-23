@@ -22,7 +22,9 @@ This will list all of the installed [OpenShift Templates](http://docs.openshift.
 These instructions assume that you have either
  
 * [Fabric8 Vagrant](getStartedVagrant.md) and setup your local machine
-* [Setup OpenShift](setupOpenShift.html) with version [OpenShift V3 1.0 or later](http://www.openshift.org/) and then [setup your local machine to talk to OpenShift](setupLocalHost.html) 
+* [Setup OpenShift](setupOpenShift.html) with version [OpenShift V3 1.0 or later](http://www.openshift.org/)
+  * [Configured OpenShift](openShiftConfigure.md) to add the necessary secrets and service accounts
+  * [Setup your local machine to talk to OpenShift](setupLocalHost.html) 
 
 #### Setup domain
 

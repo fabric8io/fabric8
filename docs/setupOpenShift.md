@@ -16,7 +16,9 @@ If you are on Linux and want to install OpenShift without Vagrant then follow th
 
 Here are our additional [tips on installing OpenShift on Linux](openShiftInstall.html) from the release distro.
 
-Somme additional [requirements](openShiftInstall.html#configure-openshift) are needed for running the [fabric8 applications](fabric8OnOpenShift.html)
+#### Configure OpenShift
+
+Once you have an installation you will need to [configure OpenShift](openShiftConfigure.md) to add the necessary secrets and service accounts for running the [fabric8 applications](fabric8OnOpenShift.html)
 
 ### Setup the OpenShift client on your local machine
 

@@ -16,6 +16,7 @@
     * [Install Fabric8 On OpenShift](fabric8OnOpenShift.md)
     * [Setup OpenShift V3](setupOpenShift.md)
         * [Install on Linux](openShiftInstall.md)
+        * [Configure OpenShift](openShiftConfigure.md)
         * [Setup your local machine](setupLocalHost.md)
     * [Setup Jube](getStartedJube.md)
       * [Running a quickstart on Jube](jubeRunQuickstart.md)

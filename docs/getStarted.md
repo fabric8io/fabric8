@@ -6,7 +6,7 @@ The easiest way to get started with Fabric8 on your laptop is via  [Vagrant](get
 
 We highly recommend using the Fabric8 Vagrant image as the fastest way to get started:
 
-* [Fabric8 Vagrant](getStartedVagrant.md)
+* [Fabric8 Vagrant](getStartedVagrant.html)
 
 ### Other options
  
