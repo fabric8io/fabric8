@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Tue Jun 23 2015 17:08:22 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="Tue Jun 23 2015 21:11:11 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1063,22 +1063,14 @@
 <p>In Fabric8 we recommend the use of <a href="http://sdelements.github.io/lets-chat/" target="_blank">Lets Chat</a> and we also suggest runnning <a href="https://hubot.github.com/" target="_blank">hubot</a>, an open source chat bot along with it.  Combining these two together enables extensible automation along with the all important communication channels that are required to take features from ideas through to running in a live environment, whilst also establishing those all important feedback loops.</p>
 <p>Fabric8 comes with a hubot <a href="apps.html">app</a> and a notification engine to post <a href="builds.html">build completion</a> events to a chat room (which defaults to one room per kubernetes namespace).</p>
 <h3 id="installation"><a name="installation" class="plugin-anchor" href="#installation"><span class="fa fa-link"></span></a>Installation</h3>
-<p>To install the Chat app please see the <a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift Guide</a>. Chat is included in the <a href="cdelivery.html">Continuous Delivery</a>, <a href="ipaas.html">iPaaS</a> and <a href="fabric8OnOpenShift.html#kitchen-sink">Kitchen Sink</a> apps.    </p>
+<p>To install the Chat app please see the <a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift Guide</a>. Chat is included as a stand alone app or included in the <a href="cdelivery.html">Continuous Delivery</a>, <a href="ipaas.html">iPaaS</a> and <a href="fabric8OnOpenShift.html#kitchen-sink">Kitchen Sink</a> apps.    </p>
 <p>Once you have completed the above you should see the <strong>Chat</strong> item on the navigation bar of the <a href="console.html">Console</a></p>
-<p>To install Hubot in the short term requires first a manual step.  </p>
-<ol>
-<li>Set up a user in Lets Chat, say &apos;fabric8&apos;   </li>
-<li>Create a room and take note of the room id in the URL   </li>
-<li>Generate an auth token from the Lets Chat user preferences   </li>
-<li>Run Hubot by setting the template values you have just generated. e.g.   </li>
-</ol>
-<p>e.g.</p>
-<pre><code>    oc process -v LETSCHAT_TOKEN=[ADD TOKEN HERE],LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE] -f http://repo1.maven.org/maven2/io/fabric8/jube/images/fabric8/hubot-letschat/2.2.2/hubot-letschat-2.2.2-kubernetes.json | oc create -f -
-</code></pre><p>or using the fabric8 maven pugin...</p>
-<pre><code>    mvn fabric8:apply -Dfabric8.apply.LETSCHAT_TOKEN=[ADD TOKEN HERE] -Dfabric8.apply.LETSCHAT_ROOMS=[ADD COMMA LIST OF ROOM IDS HERE]
-</code></pre><ul>
-<li>Now register a <strong>different</strong> user in Let&apos;s Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)</li>
+<ul>
+<li>Now you need to register yourself as a user in Let&apos;s Chat so that when you login hubot will join the room too. (You need 2 different users so that both you and Hubot can join the same room ;)</li>
 <li>Login as yourself</li>
+<li>If you join the room <code>#fabric8_default</code> you should see the hubot bot</li>
+<li>Ask fabric8 help</li>
+<li>Type <code>ship it</code> ;)</li>
 </ul>
 <h3 id="how-to-use-chat-in-fabric8"><a name="how-to-use-chat-in-fabric8" class="plugin-anchor" href="#how-to-use-chat-in-fabric8"><span class="fa fa-link"></span></a>How to use Chat in Fabric8</h3>
 <p>Click the <strong>Chat</strong> item on the navigation bar of the <a href="console.html">Console</a>. By default you are then prompted to enter your nickname (which defaults to the user name you used to work with the git repositories on the <strong>Repositories</strong> tab.</p>
