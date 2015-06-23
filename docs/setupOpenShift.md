@@ -6,7 +6,7 @@ There are a few ways you can install and setup [OpenShift V3](http://www.openshi
 
 The easiest way to work with fabric8 and OpenShift is via the fabric8 vagrant image:
 
-* [Fabric8 Vagrant Image](openShiftWithFabric8Vagrant.html)
+* [Fabric8 Vagrant Image](getStartedVagrant.html)
 
 ### Native Linux installation
 
@@ -20,16 +20,6 @@ Somme additional [requirements](openShiftInstall.html#configure-openshift) are n
 
 ### Setup the OpenShift client on your local machine
 
-Whether you run OpenShift locally, remotely or via the [fabric8 vagrant box](openShiftWithFabric8Vagrant.html) you'll need to:
+Whether you run OpenShift locally, remotely or via the [fabric8 vagrant box](getStartedVagrant.html) you'll need to:
 
 * [Setup the OpenShift clients on your local machine to work with Kubernetes and OpenShift](setupLocalHost.html)
-
-### Other approaches
-
-If you are not on Linux then you could try using OpenShift's vagrant image:
-
-* [Start OpenShift V3 using OpenShift's Vagrant image](openShiftVagrant.html)
-
-For 2.0.x releases we used to recommend using a bash script with docker:
-
-* [Start OpenShift V3 using Docker](openShiftDocker.html)

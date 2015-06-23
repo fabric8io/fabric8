@@ -36,10 +36,10 @@ The `SEED_GIT_URL` parameter defaults to the value `https://github.com/fabric8io
 If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) installed then the following instructions should get you going.
    
 * type `oc login` to ensure you are logged in and [your machine is setup](setupLocalHost.html)
-* set the `KUBERNETES_DOMAIN` environment variable which if you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) will be:
+* set the `KUBERNETES_DOMAIN` environment variable which if you are running the [Fabric8 vagrant image](getStartedVagrant.html) will be:
 
 ```
-    export KUBERNETES_DOMAIN=vagrant.local
+    export KUBERNETES_DOMAIN=vagrant.f8
 ```
 
 * if you have run the Fabric8 Continuous Deployment before its a good idea to get the latest console and jenkins images. If this is the first time you are running it you can skip this step (though it does no harm):
@@ -58,7 +58,7 @@ If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-
     mvn install
 ```    
 
-If you are running the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.local/](http://gogs.vagrant.local/) then click the `sign in up` link.
+If you are running the [Fabric8 vagrant image](getStartedVagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.f8/](http://gogs.vagrant.f8/) then click the `sign in up` link.
 
 For now use user `gogsadmin` and password `RedHat$1` as the user and password in gogs (unless you changed the defaults).
 
@@ -72,7 +72,7 @@ For now use user `gogsadmin` and password `RedHat$1` as the user and password in
 
 * You should now be able to see the new repository in the **Repositories** page and browse the repository in gogs via the **Browse** button and open the editor using the **Edit** button.
  
-* The create project wizard should also now have triggered the Jenkins Job DSL to generate the CI / CD builds for this new project by triggering the **seed** build in Jenkins. If you look at the jenkins install - by default at [http://jenkins.vagrant.local](http://jenkins.vagrant.local) you should see either the **seed** build running or the new builds created for your project! 
+* The create project wizard should also now have triggered the Jenkins Job DSL to generate the CI / CD builds for this new project by triggering the **seed** build in Jenkins. If you look at the jenkins install - by default at [http://jenkins.vagrant.f8](http://jenkins.vagrant.f8) you should see either the **seed** build running or the new builds created for your project! 
 
 * Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
 

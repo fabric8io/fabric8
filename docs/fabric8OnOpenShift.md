@@ -1,15 +1,18 @@
 ## Install Fabric8 on OpenShift
 
-[Fabric8 apps](fabric8Apps.html) have been packaged to make them easy to install on Kubernetes or OpenShift.
+[Fabric8 apps](fabric8Apps.html) have been [packaged](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip) to make them easy to install on Kubernetes or OpenShift.
 
 ### Install via the console
 
-When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on the `Run...` button. 
+If you are already running the [fabric8 console](http://fabric8.io/guide/console.html) you can use it to install all the other [Fabric8 apps](fabric8Apps.html) and quickstarts. If you are not yet running the [fabric8 console](http://fabric8.io/guide/console.html) then try [install it via the CLI below](#console).
+
+When you open the [fabric8 console](http://fabric8.io/guide/console.html) select the `Apps` tab then click on the `Run...` button (top right green butotn). 
 
 This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) on your installation.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab! 
+  * You can download the [fabric8 templates 2.2.2 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip) unzip and drag the JSON files you want to install onto the [fabric8 console](http://fabric8.io/guide/console.html) and they should appear on the `Run...` page  
 * You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
 
     oc create -f jsonOrYamlFileOrUrl
@@ -25,29 +28,40 @@ These instructions assume that you have either
 
 * setup the **KUBERNETES_DOMAIN** environment variable for the domain you are installing to. Usually this is a host name or domain name.
 
-e.g. if you are using the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html) then use
+e.g. if you are using the [fabric8 vagrant image](getStartedVagrant.html) then use
 
 ```
-export KUBERNETES_DOMAIN=vagrant.local
+export KUBERNETES_DOMAIN=vagrant.f8
 ```
 
-If not use something unique such as
+#### Downloading the templates
+
+Download and unzip the [fabric8 templates 2.2.2 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip).
+
+e.g.
 
 ```
-export KUBERNETES_DOMAIN=fabric8.local
+curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip
+unzip fabric8.zip
+cd main
 ```
-
 
 Once you have found the `kubernetes.json` file for the [app](fabric8Apps.html) you wish to install type the following using the `oc` command from OpenShift:
  
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | oc create -f -
 
-Or to install the current releases then choose the commands below to suit the application you wish to install:
+For example to install the [fabric8 console](console.html) then type:
 
-#### Base
+		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f base-2.2.2.json | oc create -f -
 
-Provides the base [fabric8 console](console.html)
+Or to install from the central repository then choose the commands below to suit the application you wish to install:
 
+
+#### Console
+
+Provides the base [fabric8 console](console.html) at the `vagrant.f8` domain:
+
+		export KUBERNETES_DOMAIN=vagrant.f8
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
 		http://central.maven.org/maven2/io/fabric8/apps/base/2.2.2/base-2.2.2-kubernetes.json \
 		| oc create -f -
@@ -130,7 +144,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 ### Creating Routes
 
-Its likely after installing any of the above applications that there will be Kubernetes [services](services.html) running that you wish to expose via [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html).
+If you install via the command line then you will need to create the [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for any [services](services.html) you created. Note that this is done automatically if you create applications via the [fabric8 console](console.html).
 
 To do this use the [mvn fabric8:create-routes](mavenFabric8CreateRoutes.html) goal. 
 
@@ -148,8 +162,8 @@ Otherwise you can be specific and specify the domain you wish to use:
 
 You could then setup a wildcard DNS rule on `*.$KUBERNETES_DOMAIN` to point to the IP address of your OpenShift master or haproxy installation. Or you could add custom entries to your `/etc/hosts` file for each service.
                                                                                                          
-e.g. if your IP address for the OpenShift master/router is `172.28.128.4` (which it is for the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html)) then add this to your `/etc/hosts` to expose the routes as host names:
+e.g. if your IP address for the OpenShift master/router is `172.28.128.4` (which it is for the [fabric8 vagrant image](getStartedVagrant.html)) then add this to your `/etc/hosts` to expose the routes as host names:
 
-		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs-http.vagrant.local gogs-ssh.vagrant.local nexus.vagrant.local jenkins.vagrant.local kibana.vagrant.local
+		172.28.128.4 vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 docker-registry.vagrant.f8 gogs-http.vagrant.f8 gogs-ssh.vagrant.f8 nexus.vagrant.f8 jenkins.vagrant.f8 kibana.vagrant.f8
 
-You should now be able to access the console at [http://fabric8.vagrant.local/](http://fabric8.vagrant.local/)
+You should now be able to access the console at [http://fabric8.vagrant.f8/](http://fabric8.vagrant.f8/)

@@ -1,6 +1,6 @@
 ## Setup the OpenShift client locally
 
-This page describes how to setup your local development machine or host to work with Kubernetes or OpenShift either remotely or via [fabric8 vagrant image](openShiftWithFabric8Vagrant.html).
+This page describes how to setup your local development machine or host to work with Kubernetes or OpenShift either remotely or via [fabric8 vagrant image](getStartedVagrant.html).
 
 ### Install the OpenShift binaries to your $PATH
 
@@ -19,29 +19,29 @@ oc get pods
 
 ### Environment variables
 
-The following environment variables are useful. The following are for the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html); if you are running on a different box just update the IP / domain names:
+The following environment variables are useful. The following are for the [fabric8 vagrant image](getStartedVagrant.html); if you are running on a different box just update the IP / domain names:
 
     export KUBERNETES_MASTER=https://172.28.128.4:8443
-    export KUBERNETES_DOMAIN=vagrant.local
+    export KUBERNETES_DOMAIN=vagrant.f8
     export KUBERNETES_NAMESPACE=default
 
 #### Adding entries in /etc/hosts
 
-This step is optional but if you are running the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html) and don't have a wildcard DNS entry setup for `*.vagrant.local` then you might want to add an entry in your `/etc/hosts` file so that you can access services via their routes.
+This step is optional but if you are running the [fabric8 vagrant image](getStartedVagrant.html) and don't have a wildcard DNS entry setup for `*.vagrant.f8` then you might want to add an entry in your `/etc/hosts` file so that you can access services via their routes.
 
-		172.28.128.4 vagrant.local fabric8.vagrant.local fabric8-master.vagrant.local docker-registry.vagrant.local gogs.vagrant.local nexus.vagrant.local jenkins.vagrant.local
+		172.28.128.4 vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 docker-registry.vagrant.f8 gogs.vagrant.f8 nexus.vagrant.f8 jenkins.vagrant.f8
 
-Where `172.28.128.4` is the IP address of your OpenShift master (which it is for the [fabric8 vagrant image](openShiftWithFabric8Vagrant.html))
+Where `172.28.128.4` is the IP address of your OpenShift master (which it is for the [fabric8 vagrant image](getStartedVagrant.html))
 
-e.g. if you [Install Fabric8 on OpenShift](fabric8OnOpenShift.html) then you should be able to access the console at [http://fabric8.vagrant.local/](http://fabric8.vagrant.local/)
+e.g. if you [Install Fabric8 on OpenShift](fabric8OnOpenShift.html) then you should be able to access the console at [http://fabric8.vagrant.f8/](http://fabric8.vagrant.f8/)
 
 ### Reuse Docker from Vagrant
 
-If you are using a vagrant image such as the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) then you should setup your host to reuse the same docker daemon that is inside the vagrant image; this lets you [develop locally without having to push or pull images to or from a docker registry](developLocally.html) which greatly speeds up local development.
+If you are using a vagrant image such as the [Fabric8 vagrant image](getStartedVagrant.html) then you should setup your host to reuse the same docker daemon that is inside the vagrant image; this lets you [develop locally without having to push or pull images to or from a docker registry](developLocally.html) which greatly speeds up local development.
 
 So set this environment variable:
 
-    export DOCKER_HOST=tcp://vagrant.local:2375
+    export DOCKER_HOST=tcp://vagrant.f8:2375
 
 And don't define any of the other docker env vars like `DOCKER_CERT_PATH` or `DOCKER_TLS_VERIFY`.
 

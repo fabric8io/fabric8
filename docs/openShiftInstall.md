@@ -4,7 +4,7 @@ We recommend you check out the [OpenShift Origin Installation documentation](htt
 
 The following steps work on a linux box.
 
-If you are on OS X or Windows then check out how to use [the fabric8 vagrant box](openShiftWithFabric8Vagrant.html).
+If you are on OS X or Windows then check out how to use [the fabric8 vagrant box](getStartedVagrant.html).
 
 ### Install steps
 

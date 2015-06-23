@@ -15,7 +15,6 @@
     * [Fabric8 Vagrant](getStartedVagrant.md)
     * [Install Fabric8 On OpenShift](fabric8OnOpenShift.md)
     * [Setup OpenShift V3](setupOpenShift.md)
-        * [Fabric8 vagrant image](openShiftWithFabric8Vagrant.md)
         * [Install on Linux](openShiftInstall.md)
         * [Setup your local machine](setupLocalHost.md)
     * [Setup Jube](getStartedJube.md)

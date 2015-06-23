@@ -2,13 +2,13 @@
 
 Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your `edit -> compile -> run` cycle time and helps you develop faster.
 
-So if you are running Kubernetes locally on your laptop such as via the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html) its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.
+So if you are running Kubernetes locally on your laptop such as via the [Fabric8 vagrant image](getStartedVagrant.html) its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.
 
 ### Setup your machine
 
-Set this environment variable if you use the [Fabric8 vagrant image](openShiftWithFabric8Vagrant.html):
+Set this environment variable if you use the [Fabric8 vagrant image](getStartedVagrant.html):
 
-    export DOCKER_HOST=tcp://vagrant.local:2375
+    export DOCKER_HOST=tcp://vagrant.f8:2375
 
 And don't define any of the other docker env vars like `DOCKER_CERT_PATH` or `DOCKER_TLS_VERIFY`.
 
