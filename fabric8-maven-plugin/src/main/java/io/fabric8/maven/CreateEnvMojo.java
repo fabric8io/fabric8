@@ -37,6 +37,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.maven.support.DockerCommandPlainPrint;
+import io.fabric8.maven.support.IDockerCommandPlainPrintCostants;
 import io.fabric8.maven.support.OrderedProperties;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
@@ -79,13 +81,19 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             String basedir = System.getProperty("basedir", ".");
             File propertiesFile = new File(basedir + "/target/" + envPropertiesFileName).getCanonicalFile();
             File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
-
+            
             Object config = loadKubernetesJson();
             List<HasMetadata> list = KubernetesHelper.toItemList(config);
             Map<String, String> env = getEnvFromConfig(list);
             String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
             displayEnv(env);
+
+            StringBuilder sb = new StringBuilder();
+            DockerCommandPlainPrint dockerCommandPlainPrint = new DockerCommandPlainPrint(sb);
+            dockerCommandPlainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
+            dockerCommandPlainPrint.appendImageName(name);
+            displayDockerRunCommand(dockerCommandPlainPrint);
             
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 String key = entry.getKey();
@@ -209,6 +217,12 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
         getLog().info("");
 
+    }
+    
+    private void displayDockerRunCommand(DockerCommandPlainPrint dockerCommandPlainPrint) {
+        getLog().info("Docker Run Command:");
+        getLog().info("-------------------------------");
+        getLog().info(dockerCommandPlainPrint.getDockerPlainTextCommand().toString());
     }
     
     /**
