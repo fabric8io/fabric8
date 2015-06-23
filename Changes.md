@@ -1,9 +1,9 @@
 
 ### 2.2.2
 
-* New getting started guide based on a new easier to use [vagrant image](getStartedVagrant.html)
+* New getting started guide based on a new easier to use [vagrant image](http://fabric8.io/guide/getStartedVagrant.html)
 * The vagrant domain is now `vagrant.f8` getting ready for DNS support inside the vagrant image
-* You can now easily run the [fabric8 apps](fabric8Apps.html) from the `Run...` button on the [console](console.html) 
+* You can now easily run the [fabric8 apps](http://fabric8.io/guide/fabric8Apps.html) from the `Run...` button on the [console](http://fabric8.io/guide/console.html) 
 * Fixes [these 39 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.2)
 
 ### 2.2.0
