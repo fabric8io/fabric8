@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.6" data-basepath="." data-revision="Tue Jun 23 2015 06:27:25 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.6" data-basepath="." data-revision="Tue Jun 23 2015 08:47:21 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -351,28 +351,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.3.1" data-path="openShiftWithFabric8Vagrant.html">
-            
-                
-                    <a href="./openShiftWithFabric8Vagrant.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.3.1.</b>
-                        
-                        Fabric8 vagrant image
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.3.2" data-path="openShiftInstall.html">
+        <li class="chapter " data-level="3.3.1" data-path="openShiftInstall.html">
             
                 
                     <a href="./openShiftInstall.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.2.</b>
+                            <b>3.3.1.</b>
                         
                         Install on Linux
                     </a>
@@ -381,13 +366,13 @@
             
         </li>
     
-        <li class="chapter " data-level="3.3.3" data-path="setupLocalHost.html">
+        <li class="chapter " data-level="3.3.2" data-path="setupLocalHost.html">
             
                 
                     <a href="./setupLocalHost.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.3.</b>
+                            <b>3.3.2.</b>
                         
                         Setup your local machine
                     </a>
@@ -1062,12 +1047,12 @@
 <p>This will then cause the <a href="replicationControllers.html">replication controllers</a> in Kubernetes to recreate the pods again.</p>
 <p>This is a useful way in development to quickly upgrade to a new docker image.</p>
 <h2 id="quickly-try-docker-images-locally"><a name="quickly-try-docker-images-locally" class="plugin-anchor" href="#quickly-try-docker-images-locally"><span class="fa fa-link"></span></a>Quickly try docker images locally</h2>
-<p>When running with <code>DOCKER_HOST</code> and <code>KUBERNETES_MASTER</code> pointing at your local <a href="http://fabric8.io/guide/openShiftWithFabric8Vagrant.html" target="_blank">fabric8 vagrant image</a> if you are inside a project you can run:</p>
+<p>When running with <code>DOCKER_HOST</code> and <code>KUBERNETES_MASTER</code> pointing at your local <a href="http://fabric8.io/guide/getStartedVagrant.html" target="_blank">fabric8 vagrant image</a> if you are inside a project you can run:</p>
 <pre><code>mvn clean install docker:build fabric8:delete-pods
 </code></pre><p>Then the following happens:</p>
 <ul>
 <li>the maven project will be rebuilt</li>
-<li>the docker image is built inside the docker daemon in the <a href="http://fabric8.io/guide/openShiftWithFabric8Vagrant.html" target="_blank">fabric8 vagrant image</a> </li>
+<li>the docker image is built inside the docker daemon in the <a href="http://fabric8.io/guide/getStartedVagrant.html" target="_blank">fabric8 vagrant image</a> </li>
 <li>all current pods using this image are then deleted, causing the <a href="replicationControllers.html">replication controllers</a> to recreate the pods again using the newly created image.</li>
 </ul>
 <p>i.e. you should now have all the pods running in your vagrant image updated to the new docker image you just built.</p>

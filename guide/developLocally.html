@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.5" data-basepath="." data-revision="Tue Jun 23 2015 06:27:25 GMT+0000 (UTC)">
+    <div class="book" data-level="3.5" data-basepath="." data-revision="Tue Jun 23 2015 08:47:21 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -351,28 +351,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.3.1" data-path="openShiftWithFabric8Vagrant.html">
-            
-                
-                    <a href="./openShiftWithFabric8Vagrant.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.3.1.</b>
-                        
-                        Fabric8 vagrant image
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.3.2" data-path="openShiftInstall.html">
+        <li class="chapter " data-level="3.3.1" data-path="openShiftInstall.html">
             
                 
                     <a href="./openShiftInstall.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.2.</b>
+                            <b>3.3.1.</b>
                         
                         Install on Linux
                     </a>
@@ -381,13 +366,13 @@
             
         </li>
     
-        <li class="chapter " data-level="3.3.3" data-path="setupLocalHost.html">
+        <li class="chapter " data-level="3.3.2" data-path="setupLocalHost.html">
             
                 
                     <a href="./setupLocalHost.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.3.</b>
+                            <b>3.3.2.</b>
                         
                         Setup your local machine
                     </a>
@@ -1059,10 +1044,10 @@
                     
                         <h2 id="develop-locally"><a name="develop-locally" class="plugin-anchor" href="#develop-locally"><span class="fa fa-link"></span></a>Develop locally</h2>
 <p>Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your <code>edit -&gt; compile -&gt; run</code> cycle time and helps you develop faster.</p>
-<p>So if you are running Kubernetes locally on your laptop such as via the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a> its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.</p>
+<p>So if you are running Kubernetes locally on your laptop such as via the <a href="getStartedVagrant.html">Fabric8 vagrant image</a> its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.</p>
 <h3 id="setup-your-machine"><a name="setup-your-machine" class="plugin-anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h3>
-<p>Set this environment variable if you use the <a href="openShiftWithFabric8Vagrant.html">Fabric8 vagrant image</a>:</p>
-<pre><code>export DOCKER_HOST=tcp://vagrant.local:2375
+<p>Set this environment variable if you use the <a href="getStartedVagrant.html">Fabric8 vagrant image</a>:</p>
+<pre><code>export DOCKER_HOST=tcp://vagrant.f8:2375
 </code></pre><p>And don&apos;t define any of the other docker env vars like <code>DOCKER_CERT_PATH</code> or <code>DOCKER_TLS_VERIFY</code>.</p>
 <p>Now when in a shell on your host (OS X / Windows) you can type <code>docker ps</code> and the output is the same as if you type the same command inside the <code>vagrant ssh</code> shell inside the vagrant VM.</p>
 <p>This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don&apos;t need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don&apos;t try to push or pull the image! </p>

@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Jun 23 2015 06:27:25 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Tue Jun 23 2015 08:47:21 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -351,28 +351,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="3.3.1" data-path="openShiftWithFabric8Vagrant.html">
-            
-                
-                    <a href="./openShiftWithFabric8Vagrant.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.3.1.</b>
-                        
-                        Fabric8 vagrant image
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.3.2" data-path="openShiftInstall.html">
+        <li class="chapter " data-level="3.3.1" data-path="openShiftInstall.html">
             
                 
                     <a href="./openShiftInstall.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.2.</b>
+                            <b>3.3.1.</b>
                         
                         Install on Linux
                     </a>
@@ -381,13 +366,13 @@
             
         </li>
     
-        <li class="chapter " data-level="3.3.3" data-path="setupLocalHost.html">
+        <li class="chapter " data-level="3.3.2" data-path="setupLocalHost.html">
             
                 
                     <a href="./setupLocalHost.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>3.3.3.</b>
+                            <b>3.3.2.</b>
                         
                         Setup your local machine
                     </a>
@@ -1068,11 +1053,16 @@
 cd fabric8-installer/vagrant/openshift-latest
 vagrant plugin install vagrant-hostmanager
 vagrant up
+</code></pre><p>Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
+<pre><code>    v.memory = 4096
+    v.cpus = 2
 </code></pre><p>Then follow the on screen instructions.</p>
 <ul>
+<li><p>You should now have a running vagrant image running at IP address <code>172.28.128.4</code> or at <code>vagrant.f8</code></p>
+</li>
 <li><p>Downloading the docker images may take a few minutes so you might want to jump ahead to the <a href="#setting-up-your-local-machine">Setting up your local machine</a> then coming back here when you&apos;re done. </p>
 </li>
-<li><p>After the vagrant box is created and docker images are downloaded, the <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> should appear at <a href="http://fabric8.vagrant.local/" target="_blank">http://fabric8.vagrant.local/</a></p>
+<li><p>After the vagrant box is created and docker images are downloaded, the <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> should appear at <a href="http://fabric8.vagrant.f8/" target="_blank">http://fabric8.vagrant.f8/</a></p>
 </li>
 <li><p>When you first open your browser Chrome will say:</p>
 </li>
@@ -1081,7 +1071,7 @@ vagrant up
 </code></pre><ul>
 <li>Don&apos;t panic! This is to be expected.</li>
 <li>Click on the small <code>Advanced</code> link on the bottom left</li>
-<li>Now click on the link that says <code>Proceed to fabric8.vagrant.local (unsafe)</code> bottom left</li>
+<li>Now click on the link that says <code>Proceed to fabric8.vagrant.f8 (unsafe)</code> bottom left</li>
 <li>Now the browser should redirect to the login page </li>
 <li>Enter <code>admin</code> and <code>admin</code></li>
 <li>You should now be in the main fabric8 console! That was easy eh! :)</li>
@@ -1092,7 +1082,10 @@ vagrant up
 <p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> on your installation.</p>
 <ul>
 <li>To Run any of the installed templates just click the <code>Run</code> button (the green play button).</li>
-<li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab! </li>
+<li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab!<ul>
+<li>You can download the <a href="http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip" target="_blank">fabric8 templates 2.2.2 distribution</a> unzip and drag the JSON files you want to install onto the <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> and they should appear on the <code>Run...</code> page  </li>
+</ul>
+</li>
 <li><p>You can also install other OpenShift Templates or Kubernetes resources via the <strong>oc</strong> command line tool:</p>
 <p>  oc create -f jsonOrYamlFileOrUrl</p>
 </li>
@@ -1106,9 +1099,9 @@ vagrant up
 <li>Set the following environment variables:</li>
 </ul>
 <pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443
-export KUBERNETES_DOMAIN=vagrant.local
+export KUBERNETES_DOMAIN=vagrant.f8
 export KUBERNETES_TRUST_CERT=true
-export DOCKER_HOST=tcp://vagrant.local:2375
+export DOCKER_HOST=tcp://vagrant.f8:2375
 </code></pre><ul>
 <li><p>Now login to OpenShift via this command:</p>
 <pre><code>oc login --insecure-skip-tls-verify=false https://172.28.128.4:8443
@@ -1124,7 +1117,38 @@ export DOCKER_HOST=tcp://vagrant.local:2375
 <pre><code>watch oc get pods
 oc get pods --watch
 </code></pre><p>Have fun! We <a href="http://fabric8.io/community/" target="_blank">love feedback</a></p>
-
+<h3 id="trying-a-fresh-image"><a name="trying-a-fresh-image" class="plugin-anchor" href="#trying-a-fresh-image"><span class="fa fa-link"></span></a>Trying a fresh image</h3>
+<p>Note: in case you already ran the above and want to update to the latest vagrant image, OpenShift and Fabric8 release you need to destroy and recreate the vagrant image.
+You can do that using:</p>
+<pre><code>vagrant destroy -f
+git pull
+vagrant up
+</code></pre><h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
+<p>The <code>oc</code> command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so they get recreated, looking at logs etc.</p>
+<p>If you add the <code>fabric8-installer/bin</code> folder to your <code>$PATH</code> then there are a few handy shell scripts</p>
+<ul>
+<li><code>oc-bash name</code> finds the first pod with the given name pattern and runs a bash shell in the docker container</li>
+<li><code>oc-log name</code> finds the first pod with the given name pattern and shows the container&apos;s log</li>
+</ul>
+<p>On your host machine or inside the vagrant image you should have access to docker thanks to the environment variable:</p>
+<pre><code>export DOCKER_HOST=tcp://vagrant.f8:2375
+</code></pre><p>So you should be able to run things like</p>
+<pre><code>docker ps
+docker log nameOfContainer
+</code></pre><p>You can SSH into the vagrant image using:</p>
+<pre><code>vagrant ssh
+</code></pre><p>Then you can look around.</p>
+<h4 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h4>
+<p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
+<pre><code>vagrant ssh
+sudo journalctl -u openshift
+</code></pre><p>Or you can tail the logs via </p>
+<pre><code>vagrant ssh
+sudo journalctl -fu openshift
+</code></pre><p>You can watch the docker daemon too via</p>
+<pre><code>vagrant ssh
+sudo journalctl -fu docker
+</code></pre>
                     
                     </section>
                 
