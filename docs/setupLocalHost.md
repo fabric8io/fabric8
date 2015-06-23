@@ -49,6 +49,6 @@ Now when in a shell on your host (OS X / Windows) you can type `docker ps` and t
 
 This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don't need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don't try to push or pull the image! 
 
-**NOTE**  you need to make sure that your kubernetes JSON uses the imagePullPolicy of `PullIfAbsent` (via the maven property `fabric8.imagePullPolicy`); as any attempt to pull an image just built locally that isn't pushed to a docker registry won't work; since the image isn't public yet. In fabric8 2.2.2 the default in `mvn fabric8:json` is to now omit this value which means it uses the kubernetes default which is `PullIfAbsent`.
+**NOTE**  you need to make sure that your kubernetes JSON uses the imagePullPolicy of `PullIfAbsent` (via the maven property `fabric8.imagePullPolicy`); as any attempt to pull an image just built locally that isn't pushed to a docker registry won't work; since the image isn't public yet. In fabric8 2.2.3 the default in `mvn fabric8:json` is to now omit this value which means it uses the kubernetes default which is `PullIfAbsent`.
 
 You now should be able to [build and use docker images locally without pushing or pulling](developLocally.html).

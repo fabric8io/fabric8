@@ -2,12 +2,12 @@
 
  **Important: Jube 2.x does not work currently**. We are aware of issues with Jube 2.x due recent Kubernetes schema updates and ongoing migration of using the same hawtio web console for Jube and OpenShift/Docker. 
 
-First you need to get the latest [Jube](jube.html) by [downloading jube-2.2.2-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.2/jube-2.2.2-image.zip) and unzipping it:
+First you need to get the latest [Jube](jube.html) by [downloading jube-2.2.3-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.3/jube-2.2.3-image.zip) and unzipping it:
 
-    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.2/jube-2.2.2-image.zip
-    mkdir jube-2.2.2-image
-    cd jube-2.2.2-image
-    unzip ../jube-2.2.2-image.zip
+    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.3/jube-2.2.3-image.zip
+    mkdir jube-2.2.3-image
+    cd jube-2.2.3-image
+    unzip ../jube-2.2.3-image.zip
 
 You can then startup Jube via:
 

@@ -54,7 +54,7 @@ This will list all of the installed [OpenShift Templates](http://docs.openshift.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab!
-  * You can download the [fabric8 templates 2.2.2 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.2/distro-2.2.2-templates.zip) unzip and drag the JSON files you want to install onto the [fabric8 console](http://fabric8.io/guide/console.html) and they should appear on the `Run...` page  
+  * You can download the [fabric8 templates 2.2.3 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.3/distro-2.2.3-templates.zip) unzip and drag the JSON files you want to install onto the [fabric8 console](http://fabric8.io/guide/console.html) and they should appear on the `Run...` page  
 * You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
 
     oc create -f jsonOrYamlFileOrUrl
