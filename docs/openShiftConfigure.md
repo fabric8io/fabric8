@@ -73,4 +73,12 @@ cat <<EOF | oc create -f -
     -
       name: openshift-cert-secrets
 EOF
+cat <<EOF | oc create -f -
+---
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: metrics
+EOF
+oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
 ```
