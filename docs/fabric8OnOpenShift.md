@@ -1,12 +1,25 @@
 ## Install Fabric8 on OpenShift
 
-[Fabric8 apps](fabric8Apps.html) have been packaged to make them easy to install on OpenShift.
+[Fabric8 apps](fabric8Apps.html) have been packaged to make them easy to install on Kubernetes or OpenShift.
 
-### Requirements
+### Install via the console
 
-These instructions assume that you have 
-* [Setup OpenShift](setupOpenShift.html) with version [OpenShift V3 0.5.1 or later](http://www.openshift.org/). We recommend using [Fabric8 Vagrant Image](openShiftWithFabric8Vagrant.html)
-* [Setup your local machine to talk to OpenShift](setupLocalHost.html) 
+When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on the `Run...` button. 
+
+This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) on your installation.
+
+* To Run any of the installed templates just click the `Run` button (the green play button).
+* To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab! 
+* You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
+
+    oc create -f jsonOrYamlFileOrUrl
+
+### Install via the CLI
+
+These instructions assume that you have either
+ 
+* [Fabric8 Vagrant](getStartedVagrant.md) and setup your local machine
+* [Setup OpenShift](setupOpenShift.html) with version [OpenShift V3 1.0 or later](http://www.openshift.org/) and then [setup your local machine to talk to OpenShift](setupLocalHost.html) 
 
 #### Setup domain
 
@@ -24,7 +37,6 @@ If not use something unique such as
 export KUBERNETES_DOMAIN=fabric8.local
 ```
 
-### Install Fabric8 Apps
 
 Once you have found the `kubernetes.json` file for the [app](fabric8Apps.html) you wish to install type the following using the `oc` command from OpenShift:
  

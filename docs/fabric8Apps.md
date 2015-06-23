@@ -22,4 +22,4 @@ APIs in your cluster.
     
 ### Installation
     
-To install any of the above apps on OpenShift see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)    
+To install any of the above apps see the [Install Fabric8 on Kubernetes or OpenShift Guide](fabric8OnOpenShift.html)    
