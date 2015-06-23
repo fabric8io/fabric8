@@ -1,4 +1,10 @@
 
+### 2.2.3
+
+* The [Metrics](http://fabric8.io/guide/metrics.html) and [Logging](http://fabric8.io/guide/chat.html) now work out of the box if you run them by pressing the `Run...` button on the `Apps` tab in the [console](http://fabric8.io/guide/console.html) when using the [vagrant image](http://fabric8.io/guide/getStartedVagrant.html) 
+* The [Chat](http://fabric8.io/guide/chat.html) now works out of the box without having to manually figure out rooms and tokens and pass them on the command line so that Hubot can connect to Let's Chat
+* Fixes [these 3 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.3)
+
 ### 2.2.2
 
 * New getting started guide based on a new easier to use [vagrant image](http://fabric8.io/guide/getStartedVagrant.html)
