@@ -153,7 +153,7 @@
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
         <osgi-enterprise.version>5.0.0</osgi-enterprise.version>
         <osgi.version>5.0.0</osgi.version>
-        <pax.url.version>2.1.0</pax.url.version>
+        <pax.url.version>2.4.1</pax.url.version>
         <qpid-jms.version>0.28</qpid-jms.version>
         <reflections.version>0.9.10</reflections.version>
         <resteasy.version>3.0.11.Final</resteasy.version>
