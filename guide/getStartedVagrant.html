@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 07:15:59 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 08:56:26 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1067,6 +1067,7 @@
 <pre><code>git clone https://github.com/fabric8io/fabric8-installer.git
 cd fabric8-installer/vagrant/openshift-latest
 vagrant plugin install vagrant-hostmanager
+vagrant plugin install landrush
 vagrant up
 </code></pre><p>Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
 <pre><code>    v.memory = 4096
