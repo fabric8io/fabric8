@@ -103,8 +103,8 @@ Follow these steps:
 * Set the following environment variables
   - Unix flavored OSs:
   
-         export KUBERNETES_DOMAIN=vagrant.f8
-         export DOCKER_HOST=tcp://vagrant.f8:2375
+          export KUBERNETES_DOMAIN=vagrant.f8
+          export DOCKER_HOST=tcp://vagrant.f8:2375
 
   - Windows:
 
