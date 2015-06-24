@@ -100,13 +100,19 @@ Follow these steps:
 
 * [Download the recent OpenShift release binaries for your platform](https://github.com/openshift/origin/releases/)
 * unpack the tarball and put the binaries on your PATH
-* Set the following environment variables:
+* Set the following environment variables
+  - Unix flavored OSs:
+  
+         export KUBERNETES_DOMAIN=vagrant.f8
+         export DOCKER_HOST=tcp://vagrant.f8:2375
 
-```
-export KUBERNETES_DOMAIN=vagrant.f8
-export DOCKER_HOST=tcp://vagrant.f8:2375
-```
+  - Windows:
 
+          set KUBERNETES_DOMAIN=vagrant.f8
+          set DOCKER_HOST=tcp://vagrant.f8:2375
+
+ It is probably a good idea to add this into your `~/.profile` (Linux, OS X) or *System* -> *Advance System Settings* -> *Environment Variables* (Windows)
+ 
 
 * Now login to OpenShift via this command:
 ```
