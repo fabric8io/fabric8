@@ -12,6 +12,7 @@ Now first clone the [fabric8 installer git repository](https://github.com/fabric
 git clone https://github.com/fabric8io/fabric8-installer.git
 cd fabric8-installer/vagrant/openshift-latest
 vagrant plugin install vagrant-hostmanager
+vagrant plugin install landrush
 vagrant up
 ```
 
