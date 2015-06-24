@@ -185,19 +185,6 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
             dependencyInstaller.installManaged(project, dependency);
         }
 
-        // include jolokia-access.xml workaround
-        ResourcesFacet resourcesFactory = project.getFacet(ResourcesFacet.class);
-        FileResource fileResource = resourcesFactory.getResource("jolokia-access.xml");
-        if (!fileResource.exists()) {
-            Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/jolokia-access.ftl")).reify(URLResource.class);
-            Template template = factory.create(xml, FreemarkerTemplate.class);
-            Map<String, Object> params = new HashMap<String, Object>();
-            String output = template.process(params);
-            // create the new file and set the content
-            fileResource.createNewFile();
-            fileResource.setContents(output);
-        }
-
         // add fabric8 plugin
         MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
         MavenPlugin plugin = MavenPluginBuilder.create()
