@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Wed Jun 24 2015 05:54:15 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3.2" data-basepath="." data-revision="Wed Jun 24 2015 07:15:59 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1065,6 +1065,10 @@
 <li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
 </ul>
 <pre><code>oadm policy add-cluster-role-to-user cluster-admin admin
+</code></pre><h3 id="enable-the-openshift-router"><a name="enable-the-openshift-router" class="plugin-anchor" href="#enable-the-openshift-router"><span class="fa fa-link"></span></a>Enable the OpenShift router</h3>
+<p>The <a href="https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router" target="_blank">OpenShift Router</a> enables external access to services inside a Kubernetes cluster using haproxy; e.g. so you can access web apps from your browser for apps running inside Kubernetes.</p>
+<p>Either try following the <a href="https://docs.openshift.org/latest/admin_guide/install/deploy_router.html" target="_blank">Router installation documentation</a> or try this command:</p>
+<pre><code>oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
 </code></pre><h3 id="add-secrets-and-service-accounts"><a name="add-secrets-and-service-accounts" class="plugin-anchor" href="#add-secrets-and-service-accounts"><span class="fa fa-link"></span></a>Add secrets and service accounts</h3>
 <p>Run the following on the master node; assuming <code>/var/lib/openshift/openshift.local.config/</code> is where the local configuration is installed for OpenShift:</p>
 <pre><code>oc delete scc restricted
