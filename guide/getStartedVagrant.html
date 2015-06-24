@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 15:53:17 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 16:12:51 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1079,8 +1079,8 @@
 <li>Download and install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
 </ul>
 <p>First clone the <a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a> repository and type these commands:</p>
-<pre><code class="lang-bash">git <span class="hljs-built_in">clone</span> https://github.com/fabric8io/fabric8-installer.git
-<span class="hljs-built_in">cd</span> fabric8-installer/vagrant/openshift-latest
+<pre><code class="lang-sh">$ git <span class="hljs-built_in">clone</span> https://github.com/fabric8io/fabric8-installer.git
+$ <span class="hljs-built_in">cd</span> fabric8-installer/vagrant/openshift-latest
 </code></pre>
 <p>Depending on your host operating system you need to install an additional vagrant plugin:</p>
 <ul>
@@ -1092,7 +1092,7 @@
 <li><strong>Linux</strong>: Setup up once a <code>dnsmasq</code> DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
 Here is the example for Ubuntu:</li>
 </ul>
-<pre><code class="lang-bash">sudo apt-get install -y resolvconf dnsmasq
+<pre><code class="lang-sh">sudo apt-get install -y resolvconf dnsmasq
 sudo sh -c <span class="hljs-string">&apos;echo &quot;server=/vagrant.dev/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;</span>
 sudo service dnsmasq restart
 </code></pre>
@@ -1102,18 +1102,19 @@ manually to <code>%WINDIR%\System32\drivers\etc\hosts</code>. For your convenien
 has been pre-added. For new services look for the following line and add your new routes (<code>&lt;service-name&gt;.vagrant.f8</code>) to 
 the end:</li>
 </ul>
-<pre><code>## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
-172.28.128.4  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
-## vagrant-hostmanager-end
-</code></pre><ul>
+<pre><code class="lang-sh"><span class="hljs-comment">## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc</span>
+<span class="hljs-number">172.28</span>.<span class="hljs-number">128.4</span>  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
+<span class="hljs-comment">## vagrant-hostmanager-end</span>
+</code></pre>
+<ul>
 <li><strong>OS X</strong>: Nothing has to be done, everything&apos;s fine. OS X will automatically resolve now all routes to <code>*.vagrant.f8</code> 
 your Vagrant VM. This is done vial OS X&apos;s resolver feature (see <code>man 5 resolver</code> for details)</li>
 </ul>
 <p>Now startup the Vagrant VM</p>
-<pre><code class="lang-bash">vagrant up
+<pre><code class="lang-sh">vagrant up
 </code></pre>
 <p>Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
-<pre><code class="lang-sh">v.memory = <span class="hljs-number">4096</span>
+<pre><code class="lang-ruby">v.memory = <span class="hljs-number">4096</span>
 v.cpus = <span class="hljs-number">2</span>
 </code></pre>
 <p>Then follow the on screen instructions.</p>
@@ -1171,27 +1172,32 @@ v.cpus = <span class="hljs-number">2</span>
 </li>
 </ul>
 <ul>
-<li><p>Now login to OpenShift via this command:</p>
-<pre><code>oc login https://172.28.128.4:8443
-</code></pre></li>
-<li><p>Enter <code>admin</code> and <code>admin</code> for user/password</p>
-</li>
+<li>Now login to OpenShift via this command:</li>
+</ul>
+<pre><code class="lang-sh">oc login https://<span class="hljs-number">172.28</span>.<span class="hljs-number">128.4</span>:<span class="hljs-number">8443</span>
+</code></pre>
+<ul>
+<li>Enter <code>admin</code> and <code>admin</code> for user/password</li>
 </ul>
 <p>Over time your token may expire and you will need to re-authenticate via:</p>
-<pre><code>oc login
-</code></pre><p>Now to see the status of the system:</p>
-<pre><code>oc get pods
-</code></pre><p>or you can watch from the command line via one of these commands:</p>
-<pre><code>watch oc get pods
+<pre><code class="lang-sh">oc login
+</code></pre>
+<p>Now to see the status of the system:</p>
+<pre><code class="lang-sh">oc get pods
+</code></pre>
+<p>or you can watch from the command line via one of these commands:</p>
+<pre><code class="lang-sh">watch oc get pods
 oc get pods --watch
-</code></pre><p>Have fun! We <a href="http://fabric8.io/community/" target="_blank">love feedback</a></p>
+</code></pre>
+<p>Have fun! We <a href="http://fabric8.io/community/" target="_blank">love feedback</a></p>
 <h3 id="trying-a-fresh-image"><a name="trying-a-fresh-image" class="plugin-anchor" href="#trying-a-fresh-image"><span class="fa fa-link"></span></a>Trying a fresh image</h3>
 <p>Note: in case you already ran the above and want to update to the latest vagrant image, OpenShift and Fabric8 release you need to destroy and recreate the vagrant image.
 You can do that using:</p>
-<pre><code>vagrant destroy -f
+<pre><code class="lang-sh">vagrant destroy <span class="hljs-operator">-f</span>
 git pull
 vagrant up
-</code></pre><h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
+</code></pre>
+<h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
 <p>The <code>oc</code> command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so they get recreated, looking at logs etc.</p>
 <p>If you add the <code>fabric8-installer/bin</code> folder to your <code>$PATH</code> then there are a few handy shell scripts</p>
 <ul>
@@ -1199,24 +1205,30 @@ vagrant up
 <li><code>oc-log name</code> finds the first pod with the given name pattern and shows the container&apos;s log</li>
 </ul>
 <p>On your host machine or inside the vagrant image you should have access to docker thanks to the environment variable:</p>
-<pre><code>export DOCKER_HOST=tcp://vagrant.f8:2375
-</code></pre><p>So you should be able to run things like</p>
-<pre><code>docker ps
-docker log nameOfContainer
-</code></pre><p>You can SSH into the vagrant image using:</p>
-<pre><code>vagrant ssh
-</code></pre><p>Then you can look around.</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> DOCKER_HOST=tcp://vagrant.f8:<span class="hljs-number">2375</span>
+</code></pre>
+<p>So you should be able to run things like</p>
+<pre><code class="lang-sh">docker ps
+docker <span class="hljs-built_in">log</span> nameOfContainer
+</code></pre>
+<p>You can SSH into the vagrant image using:</p>
+<pre><code class="lang-sh">vagrant ssh
+</code></pre>
+<p>Then you can look around.</p>
 <h4 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h4>
 <p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
-<pre><code>vagrant ssh
+<pre><code class="lang-sh">vagrant ssh
 sudo journalctl -u openshift
-</code></pre><p>Or you can tail the logs via </p>
-<pre><code>vagrant ssh
+</code></pre>
+<p>Or you can tail the logs via </p>
+<pre><code class="lang-sh">vagrant ssh
 sudo journalctl -fu openshift
-</code></pre><p>You can watch the docker daemon too via</p>
-<pre><code>vagrant ssh
+</code></pre>
+<p>You can watch the docker daemon too via</p>
+<pre><code class="lang-sh">vagrant ssh
 sudo journalctl -fu docker
 </code></pre>
+
                     
                     </section>
                 
