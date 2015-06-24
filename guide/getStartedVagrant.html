@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 08:56:26 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 09:55:01 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1063,16 +1063,45 @@
 <li>Download and install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox</a> </li>
 <li>Download and install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
 </ul>
-<p>Now first clone the <a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a> repository and type these commands:</p>
-<pre><code>git clone https://github.com/fabric8io/fabric8-installer.git
-cd fabric8-installer/vagrant/openshift-latest
-vagrant plugin install vagrant-hostmanager
-vagrant plugin install landrush
-vagrant up
-</code></pre><p>Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
-<pre><code>    v.memory = 4096
-    v.cpus = 2
-</code></pre><p>Then follow the on screen instructions.</p>
+<p>First clone the <a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a> repository and type these commands:</p>
+<pre><code class="lang-bash">git <span class="hljs-built_in">clone</span> https://github.com/fabric8io/fabric8-installer.git
+<span class="hljs-built_in">cd</span> fabric8-installer/vagrant/openshift-latest
+</code></pre>
+<p>Depending on your host operating system you need to install an additional vagrant plugin:</p>
+<ul>
+<li><code>vagrant plugin install landrush</code> for Linux and OS X</li>
+<li><code>vagrant plugin install vagrant-hostmanager</code> for Windows</li>
+</ul>
+<p>The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: </p>
+<ul>
+<li><strong>Linux</strong>: Setup up once a <code>dnsmasq</code> DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
+Here is the example for Ubunut:</li>
+</ul>
+<pre><code class="lang-bash">sudo apt-get install -y resolvconf dnsmasq
+sudo sh -c <span class="hljs-string">&apos;echo &quot;server=/vagrant.dev/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;</span>
+sudo service dnsmasq restart
+</code></pre>
+<ul>
+<li><strong>Windows</strong>: Unfortunately for Windows no automatic routing for new services is possible now. You have to add new routes 
+manually to <code>%WINDIR%\System32\drivers\etc\hosts</code>. For your convenience, a set of routes for default Fabric8 applications 
+has been pre-added. For new services look for the following line and add your new routes (<code>&lt;service-name&gt;.vagrant.f8</code>) to 
+the end:</li>
+</ul>
+<pre><code>## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
+172.28.128.4  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
+## vagrant-hostmanager-end
+</code></pre><ul>
+<li><strong>OS X</strong>: Nothing has to be done, everything&apos;s fine. OS X will automatically resolve now all routes to <code>*.vagrant.f8</code> 
+your Vagrant VM. This is done vial OS X&apos;s resolver feature (see <code>man 5 resolver</code> for details)</li>
+</ul>
+<p>Now startup the Vagrant VM</p>
+<pre><code class="lang-bash">vagrant up
+</code></pre>
+<p>Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine&#x2019;s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
+<pre><code class="lang-sh">v.memory = <span class="hljs-number">4096</span>
+v.cpus = <span class="hljs-number">2</span>
+</code></pre>
+<p>Then follow the on screen instructions.</p>
 <ul>
 <li><p>You should now have a running vagrant image running at IP address <code>172.28.128.4</code> or at <code>vagrant.f8</code></p>
 </li>
