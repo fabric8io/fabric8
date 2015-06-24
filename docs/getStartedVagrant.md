@@ -20,7 +20,7 @@ Depending on your host operating system you need to install an additional vagran
 The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: 
 
 * **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
-  Here is the example for Ubunut:
+  Here is the example for Ubuntu:
    
 ````bash
 sudo apt-get install -y resolvconf dnsmasq
@@ -103,9 +103,7 @@ Follow these steps:
 * Set the following environment variables:
 
 ```
-export KUBERNETES_MASTER=https://172.28.128.4:8443
 export KUBERNETES_DOMAIN=vagrant.f8
-export KUBERNETES_TRUST_CERT=true
 export DOCKER_HOST=tcp://vagrant.f8:2375
 ```
 
