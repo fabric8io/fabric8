@@ -1,5 +1,32 @@
 ## Fabric8 MQ
 
+Fabric8MQ isn’t a new message broker, its a smart messaging proxy that utilises Fabric8/Kubernetes to create Messaging as a Service out of automatically sharded ActiveMQ brokers. It sits on top of a Vert.x core to provide highly scalable asynchronous connection handling:
+
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mq.png "Fabric8MQ core")
+
+Its best explained by following what happens to messages as they flow through Fabric8MQ:
+
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqflow.png "Fabric8MQ message flow")
+
+1. Protocol Conversion — by moving MQTT,STOMP,AMQP protocol conversion outside of the ActiveMQ broker reduces the amount of work the broker needs to do: As ActiveMQ isn’t well designed for modern, asynchronous tasks, the less work the broker does, the better.
+
+2. Camel Routing is built right into the router — so we can easily convert on the fly between, say Topics (Publish/Subscribe) and Queues (point-2-point).
+
+3. API Management — utlizing API Man, so you can apply security and rate limiting policies to destinations
+
+4. Multiplexer — reducing the amount of physical connections an ActiveMQ broker has, increases the throughput of the overall system.
+
+5. Destination Sharding — this is where a lot of the magic pixie dust is used, to shard connections across many different backend ActiveMQ brokers. Its also where messages and clients are moved between brokers, as brokers are spun up and down, depending on load
+
+6. Broker Control — this monitors the brokers under Fabric8MQ’s control and monitors load — and it decides if more ActiveMQ brokers are needed, or less — depending on load. An embedded rules engine is used to make the decisions.
+
+
+Fabric8MQ utilises Fabric8 and Kubernetes and its individual components are all independently scalable:
+
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqscalable.png "Fabric8MQ scales")
+
+
+
 The Fabric8 MQ [App](apps.html) creates a [service](services.html) using a [replication controller](replicationControllers.html) for using [Apache ActiveMQ](http://activemq.apache.org/) effectively within Fabric8 or Kubernetes.
 
 ### Running Fabric8 MQ
