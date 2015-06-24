@@ -12,6 +12,16 @@ The following commands assume you are on the OpenShift master machine :
 oadm policy add-cluster-role-to-user cluster-admin admin
 ```
 
+### Enable the OpenShift router
+
+The [OpenShift Router](https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router) enables external access to services inside a Kubernetes cluster using haproxy; e.g. so you can access web apps from your browser for apps running inside Kubernetes.
+
+Either try following the [Router installation documentation](https://docs.openshift.org/latest/admin_guide/install/deploy_router.html) or try this command:
+
+```
+oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
+```
+
 ### Add secrets and service accounts
 
 Run the following on the master node; assuming `/var/lib/openshift/openshift.local.config/` is where the local configuration is installed for OpenShift:
