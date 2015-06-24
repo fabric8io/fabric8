@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>MQ AutoScaler | Fabric8 Documentation</title>
+        <title>API Management | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./apiManagement.html" />
+    <link rel="next" href="./getStarted.html" />
     
     
-    <link rel="prev" href="./fabric8MQ.html" />
+    <link rel="prev" href="./fabric8MQAutoScaler.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3.3" data-basepath="." data-revision="Wed Jun 24 2015 13:17:06 GMT+0000 (UTC)">
+    <div class="book" data-level="2.3.4" data-basepath="." data-revision="Wed Jun 24 2015 13:17:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -264,7 +264,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.3.3" data-path="fabric8MQAutoScaler.html">
+        <li class="chapter " data-level="2.3.3" data-path="fabric8MQAutoScaler.html">
             
                 
                     <a href="./fabric8MQAutoScaler.html">
@@ -279,7 +279,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2.3.4" data-path="apiManagement.html">
+        <li class="chapter active" data-level="2.3.4" data-path="apiManagement.html">
             
                 
                     <a href="./apiManagement.html">
@@ -1072,11 +1072,31 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-mq-auto-scaler"><a name="fabric8-mq-auto-scaler" class="plugin-anchor" href="#fabric8-mq-auto-scaler"><span class="fa fa-link"></span></a>Fabric8 MQ Auto Scaler</h2>
-<p>The Fabric8 MQ Auto Scaler <a href="apps.html">App</a> monitors and scales the <a href="http://activemq.apache.org/" target="_blank">Apache ActiveMQ</a> brokers running on Kubernetes.</p>
-<p>The MQ autoscaler uses <a href="services.html">kubernetes servicse</a> to monitor a group of MQ brokers, matching a group of labels defined by ENV variables <strong>AMQ_SERVICE_ID</strong> (default is <em>fabricMQ</em>), and <strong>AMQ_GROUP_NAME</strong> (default is <em>default</em>).</p>
-<p>The MQ Auto Scaler will examine all MQ brokers run in the group defined by the <strong>AMQ_GROUP_NAME</strong> and spin up additional brokers, or remove them.</p>
-<p>After changing the number of running MQ brokers, the auto scaler will request some clients reconnect, to balance the load.</p>
+                        <h2 id="api-management"><a name="api-management" class="plugin-anchor" href="#api-management"><span class="fa fa-link"></span></a>API Management</h2>
+<p>The API Management component provides a highly available Gateway that sits in between your
+clients and your APIs.  This Gateway adds governance and metrics to any integration service
+you choose.</p>
+<p>This API Management functionality is provided by integrating the <a href="http://apiman.io" target="_blank">apiman</a>
+project into fabric8.  To learn more about its capabilities and how to use it, please
+refer to the <a href="http://www.apiman.io/latest/user-guide.html" target="_blank">apiman User Guide</a> and other
+<a href="http://www.apiman.io/latest/tutorials.html" target="_blank">tutorial</a> resources on the apiman project site.</p>
+<p>Some common use-cases addressed by API Management are:</p>
+<ul>
+<li><em>Quotas/Rate Limiting</em> : limit the number of requests users or clients are allowed to send to the service.</li>
+<li><em>Security</em> : add security (e.g. BASIC authentication, IP Address white/blacklisting) to your services.</li>
+<li><em>Metrics</em> : track who is using your services (number of requests), when they use them, and how.</li>
+</ul>
+<h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
+<p>For API Management to function, you must run the <strong>apiman</strong> app.  This app provides the API
+Management configuration layer, which consists of a REST layer and a User Interface.</p>
+<p>In addition, for the configuration layer and the Gateway to work properly, an elasticsearch
+app must also be running.  The API Management component stores configuration information in
+elasticsearch.</p>
+<h3 id="using-api-management"><a name="using-api-management" class="plugin-anchor" href="#using-api-management"><span class="fa fa-link"></span></a>Using API Management</h3>
+<ul>
+<li>In the <a href="console.html">Console</a> click on the <strong>Library</strong> tab and then navigate into <strong>apps</strong> and then click on <strong>API Management</strong></li>
+<li>Click on the <strong>Run</strong> button on the top right to run the <strong>API Management</strong> service</li>
+</ul>
 
                     
                     </section>
@@ -1087,10 +1107,10 @@
         </div>
 
         
-        <a href="./fabric8MQ.html" class="navigation navigation-prev " aria-label="Previous page: MQ"><i class="fa fa-angle-left"></i></a>
+        <a href="./fabric8MQAutoScaler.html" class="navigation navigation-prev " aria-label="Previous page: MQ AutoScaler"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./apiManagement.html" class="navigation navigation-next " aria-label="Next page: API Management"><i class="fa fa-angle-right"></i></a>
+        <a href="./getStarted.html" class="navigation navigation-next " aria-label="Next page: Getting Started"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
