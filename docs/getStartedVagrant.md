@@ -116,7 +116,7 @@ Follow these steps:
 
 * Now login to OpenShift via this command:
 ```
-oc login --insecure-skip-tls-verify=false https://172.28.128.4:8443
+oc login https://172.28.128.4:8443
 ```
 
 * Enter `admin` and `admin` for user/password
