@@ -32,7 +32,10 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -44,6 +47,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -89,12 +93,19 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             env.putAll(getNamespaceServiceEnv(namespace));
             displayEnv(env);
 
+            if (name == null) {
+                name = findFirstImageName(list);
+            }
             StringBuilder sb = new StringBuilder();
             DockerCommandPlainPrint dockerCommandPlainPrint = new DockerCommandPlainPrint(sb);
             dockerCommandPlainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
             dockerCommandPlainPrint.appendImageName(name);
             displayDockerRunCommand(dockerCommandPlainPrint);
-            
+
+            Properties properties = getProject().getProperties();
+            if (properties == null) {
+                properties = new Properties();
+            }
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -103,11 +114,16 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
                 } else if (value == null) {
                     getLog().warn("Ignoring null value for key: " + key);
                 } else {
-                    getProject().getProperties().setProperty(DOCKE_ENV_PREFIX + key, value);
+                    properties.setProperty(DOCKE_ENV_PREFIX + key, value);
                 }
             }
-            getProject().getProperties().setProperty(DOCKER_NAME, name);
-            getProject().getProperties().setProperty(EXEC_ENV_SCRIPT, scriptFile.getAbsolutePath());
+            if (name != null) {
+                properties.setProperty(DOCKER_NAME, name);
+            }
+            String scriptFileAbsolutePath = scriptFile.getAbsolutePath();
+            if (scriptFileAbsolutePath != null) {
+                properties.setProperty(EXEC_ENV_SCRIPT, scriptFileAbsolutePath);
+            }
             Properties envProperties = new OrderedProperties();
             Set<Map.Entry<String, String>> entries = env.entrySet();
             for (Map.Entry<String, String> entry : entries) {
@@ -127,6 +143,36 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to load environment schemas: " + e, e);
         }
+    }
+
+    /**
+     * Returns the first docker image name found in a ReplicationController
+     */
+    protected String findFirstImageName(List<HasMetadata> list) {
+        for (HasMetadata hasMetadata : list) {
+            if (hasMetadata instanceof ReplicationController) {
+                ReplicationController rc = (ReplicationController) hasMetadata;
+                ReplicationControllerSpec spec = rc.getSpec();
+                if (spec != null) {
+                    PodTemplateSpec podTemplateSpec = spec.getTemplate();
+                    if (podTemplateSpec != null) {
+                        PodSpec podSpec = podTemplateSpec.getSpec();
+                        if (podSpec != null) {
+                            List<Container> containers = podSpec.getContainers();
+                            if (containers != null) {
+                                for (Container container : containers) {
+                                    String image = container.getImage();
+                                    if (Strings.isNotBlank(image)) {
+                                        return image;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
