@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 09:55:01 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 10:05:20 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1075,7 +1075,7 @@
 <p>The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: </p>
 <ul>
 <li><strong>Linux</strong>: Setup up once a <code>dnsmasq</code> DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
-Here is the example for Ubunut:</li>
+Here is the example for Ubuntu:</li>
 </ul>
 <pre><code class="lang-bash">sudo apt-get install -y resolvconf dnsmasq
 sudo sh -c <span class="hljs-string">&apos;echo &quot;server=/vagrant.dev/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;</span>
@@ -1143,9 +1143,7 @@ v.cpus = <span class="hljs-number">2</span>
 <li>unpack the tarball and put the binaries on your PATH</li>
 <li>Set the following environment variables:</li>
 </ul>
-<pre><code>export KUBERNETES_MASTER=https://172.28.128.4:8443
-export KUBERNETES_DOMAIN=vagrant.f8
-export KUBERNETES_TRUST_CERT=true
+<pre><code>export KUBERNETES_DOMAIN=vagrant.f8
 export DOCKER_HOST=tcp://vagrant.f8:2375
 </code></pre><ul>
 <li><p>Now login to OpenShift via this command:</p>
