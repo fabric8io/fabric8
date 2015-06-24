@@ -5,22 +5,54 @@ This is the fastest way to get going with Fabric8 and OpenShift on your laptop.
 * Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) 
 * Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
   
+First clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository and type these commands:
 
-Now first clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository and type these commands:
-
-```
+```bash
 git clone https://github.com/fabric8io/fabric8-installer.git
 cd fabric8-installer/vagrant/openshift-latest
-vagrant plugin install vagrant-hostmanager
-vagrant plugin install landrush
+```
+
+Depending on your host operating system you need to install an additional vagrant plugin:
+
+* `vagrant plugin install landrush` for Linux and OS X
+* `vagrant plugin install vagrant-hostmanager` for Windows
+
+The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: 
+
+* **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
+  Here is the example for Ubunut:
+   
+````bash
+sudo apt-get install -y resolvconf dnsmasq
+sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
+sudo service dnsmasq restart
+````
+
+* **Windows**: Unfortunately for Windows no automatic routing for new services is possible now. You have to add new routes 
+  manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications 
+  has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to 
+  the end:
+  
+```
+## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
+172.28.128.4  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
+## vagrant-hostmanager-end
+```
+
+* **OS X**: Nothing has to be done, everything's fine. OS X will automatically resolve now all routes to `*.vagrant.f8` 
+  your Vagrant VM. This is done vial OS X's resolver feature (see `man 5 resolver` for details)
+
+Now startup the Vagrant VM
+
+```bash
 vagrant up
 ```
 
 Note the vagrant image is by default configured with 2 cpu cores and 4gb of memory. It is recommended to not exceed about half of your machine’s resources. In case you have plenty of resources on your machine you can increase the settings, by editing the `Vagrantfile`. The settings are defined in the bottom of the file:
 
-```
-    v.memory = 4096
-    v.cpus = 2
+```sh
+v.memory = 4096
+v.cpus = 2
 ```
 
 Then follow the on screen instructions.
@@ -44,7 +76,6 @@ Your connection is not private
 * Enter `admin` and `admin`
 * You should now be in the main fabric8 console! That was easy eh! :)
 * Make sure you start off in the `default` namespace.
-
 
 
 ### Installing other applications
