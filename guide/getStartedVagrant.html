@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.1" data-basepath="." data-revision="Wed Jun 24 2015 18:35:30 GMT+0000 (UTC)">
+    <div class="book" data-level="3.1" data-basepath="." data-revision="Thu Jun 25 2015 13:33:16 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1097,17 +1097,18 @@ sudo sh -c <span class="hljs-string">&apos;echo &quot;server=/vagrant.dev/127.0.
 sudo service dnsmasq restart
 </code></pre>
 <ul>
-<li><strong>Windows</strong>: Unfortunately for Windows no automatic routing for new services is possible now. You have to add new routes 
+<li><strong>Windows</strong>: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes 
 manually to <code>%WINDIR%\System32\drivers\etc\hosts</code>. For your convenience, a set of routes for default Fabric8 applications 
 has been pre-added. For new services look for the following line and add your new routes (<code>&lt;service-name&gt;.vagrant.f8</code>) to 
-the end:</li>
+this file on new lines since Windows has a limitation of 9 host names per entry:</li>
 </ul>
 <pre><code class="lang-sh"><span class="hljs-comment">## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc</span>
 <span class="hljs-number">172.28</span>.<span class="hljs-number">128.4</span>  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
+<span class="hljs-number">172.28</span>.<span class="hljs-number">128.4</span>  myservice.vagrant.f8
 <span class="hljs-comment">## vagrant-hostmanager-end</span>
 </code></pre>
 <ul>
-<li><strong>OS X</strong>: Nothing has to be done, everything&apos;s fine. OS X will automatically resolve now all routes to <code>*.vagrant.f8</code> 
+<li><strong>OS X</strong>: Nothing has to be done. OS X will automatically resolve all routes to <code>*.vagrant.f8</code> to 
 your Vagrant VM. This is done vial OS X&apos;s resolver feature (see <code>man 5 resolver</code> for details)</li>
 </ul>
 <p>Now startup the Vagrant VM</p>
