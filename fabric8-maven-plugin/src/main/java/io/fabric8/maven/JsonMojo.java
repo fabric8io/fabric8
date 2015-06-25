@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.util.IntOrString;
+import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.maven.support.VolumeType;
@@ -57,7 +58,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
@@ -903,32 +903,78 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected Probe getProbe(String prefix) {
-        Probe answer = new Probe();
-        boolean added = false;
+        Probe probe = new Probe();
         Properties properties = getProject().getProperties();
+        Long initialDelaySeconds = PropertiesHelper.getLong(properties, prefix + ".initialDelaySeconds");
+        if (initialDelaySeconds != null) {
+            probe.setInitialDelaySeconds(initialDelaySeconds);
+        }
+        Long timeoutSeconds = PropertiesHelper.getLong(properties, prefix + ".timeoutSeconds");
+        if (timeoutSeconds != null) {
+            probe.setTimeoutSeconds(timeoutSeconds);
+        }
+        HTTPGetAction httpGetAction = getHTTPGetAction(prefix, properties);
+        if (httpGetAction != null) {
+            probe.setHttpGet(httpGetAction);
+            return probe;
+        }
+        ExecAction execAction = getExecAction(prefix, properties);
+        if (execAction != null) {
+            probe.setExec(execAction);
+            return probe;
+        }
+        TCPSocketAction tcpSocketAction = getTCPSocketAction(prefix, properties);
+        if (tcpSocketAction != null) {
+            probe.setTcpSocket(tcpSocketAction);
+            return probe;
+        }
+
+        return null;
+    }
+
+    private HTTPGetAction getHTTPGetAction(String prefix, Properties properties) {
+        HTTPGetAction action = null;
         String httpGetPath = properties.getProperty(prefix + ".httpGet.path");
         String httpGetPort = properties.getProperty(prefix + ".httpGet.port");
         String httpGetHost = properties.getProperty(prefix + ".httpGet.host");
         if (Strings.isNotBlank(httpGetPath)) {
-            added = true;
-            HTTPGetAction httpGet = new HTTPGetAction();
-            httpGet.setPath(httpGetPath);
-            httpGet.setHost(httpGetHost);
+            action = new HTTPGetAction();
+            action.setPath(httpGetPath);
+            action.setHost(httpGetHost);
             if (Strings.isNotBlank(httpGetPort)) {
                 IntOrString httpGetPortIntOrString = KubernetesHelper.createIntOrString(httpGetPort);
-                httpGet.setPort(httpGetPortIntOrString);
+                action.setPort(httpGetPortIntOrString);
             }
-            answer.setHttpGet(httpGet);
         }
-        Long initialDelaySeconds = PropertiesHelper.getLong(properties, prefix + ".initialDelaySeconds");
-        if (initialDelaySeconds != null) {
-            answer.setInitialDelaySeconds(initialDelaySeconds);
+        return action;
+    }
+
+    private TCPSocketAction getTCPSocketAction(String prefix, Properties properties) {
+        TCPSocketAction action = null;
+        String port = properties.getProperty(prefix + ".port");
+        if (Strings.isNotBlank(port)) {
+            IntOrString portObj = new IntOrString();
+            try {
+                Integer portInt = Integer.parseInt(port);
+                portObj.setIntVal(portInt);
+            } catch (NumberFormatException e) {
+                portObj.setStrVal(port);
+            }
+            action = new TCPSocketAction(portObj);
         }
-        Long timeoutSeconds = PropertiesHelper.getLong(properties, prefix + ".timeoutSeconds");
-        if (timeoutSeconds != null) {
-            answer.setTimeoutSeconds(timeoutSeconds);
+        return action;
+    }
+
+    private ExecAction getExecAction(String prefix, Properties properties) {
+        ExecAction action = null;
+        String execCmd = properties.getProperty(prefix + ".exec");
+        if (Strings.isNotBlank(execCmd)) {
+            List<String> splitCommandLine = Commandline.translateCommandline(execCmd);
+            if (!splitCommandLine.isEmpty()) {
+                action = new ExecAction(splitCommandLine);
+            }
         }
-        return added ? answer : null;
+        return action;
     }
 
     public Boolean getContainerPrivileged() {
