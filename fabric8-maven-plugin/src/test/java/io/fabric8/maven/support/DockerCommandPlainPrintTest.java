@@ -15,12 +15,15 @@
  */
 package io.fabric8.maven.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test the DockerCommandPlainPrint class
@@ -42,6 +45,31 @@ public class DockerCommandPlainPrintTest {
         String expected = "docker run -dP -e FOO=bar -e USER=test -e PWD=pass test/test_image";
         
         assertThat(plainPrint.getDockerPlainTextCommand().toString()).isEqualTo(expected);
-
-	}
+    }
+    
+    @Test
+    public void testDockerCommandPlainPrintWithVolumeTest() throws Exception {
+        Map<String,String> env = new LinkedHashMap<String,String>();
+        env.put("FOO", "bar");
+        env.put("USER", "test");
+        env.put("PWD", "pass");
+        
+        List<VolumeMount> vmList = new ArrayList<VolumeMount>();
+        
+        VolumeMount vm = new VolumeMount();
+        vm.setName("test");
+        vm.setMountPath("/var/testtest/");
+        vm.setReadOnly(true);
+        vmList.add(vm);
+        
+        StringBuilder sb = new StringBuilder();
+        DockerCommandPlainPrint plainPrint = new DockerCommandPlainPrint(sb);
+        plainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
+        plainPrint.appendVolumeMounts(vmList, IDockerCommandPlainPrintCostants.VOLUME_FLAG);
+        plainPrint.appendImageName("test/test_image");
+        
+        String expected = "docker run -dP -e FOO=bar -e USER=test -e PWD=pass -v /var/testtest/:ro test/test_image";
+        
+        assertThat(plainPrint.getDockerPlainTextCommand().toString()).isEqualTo(expected);
+    }
 }
