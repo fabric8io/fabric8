@@ -15,7 +15,7 @@ $ cd fabric8-installer/vagrant/openshift-latest
 Depending on your host operating system you need to install an additional vagrant plugin:
 
 * `vagrant plugin install landrush` for Linux and OS X
-* `vagrant plugin install vagrant-hostmanager` for Windows
+* `vagrant plugin install vagrant-hostmanager-fabric8` for Windows
 
 The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: 
 
@@ -31,7 +31,7 @@ sudo service dnsmasq restart
 * **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes 
   manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications 
   has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to 
-  this file on new lines since Windows has a limitation of 9 host names per entry:
+  this file on a new line like this:
   
 ```sh
 ## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
