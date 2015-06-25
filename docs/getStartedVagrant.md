@@ -28,18 +28,19 @@ sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-
 sudo service dnsmasq restart
 ```
 
-* **Windows**: Unfortunately for Windows no automatic routing for new services is possible now. You have to add new routes 
+* **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes 
   manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications 
   has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to 
-  the end:
+  this file on new lines since Windows has a limitation of 9 host names per entry:
   
 ```sh
 ## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
 172.28.128.4  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
+172.28.128.4  myservice.vagrant.f8
 ## vagrant-hostmanager-end
 ```
 
-* **OS X**: Nothing has to be done, everything's fine. OS X will automatically resolve now all routes to `*.vagrant.f8` 
+* **OS X**: Nothing has to be done. OS X will automatically resolve all routes to `*.vagrant.f8` to 
   your Vagrant VM. This is done vial OS X's resolver feature (see `man 5 resolver` for details)
 
 Now startup the Vagrant VM
