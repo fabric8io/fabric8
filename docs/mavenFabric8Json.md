@@ -159,6 +159,26 @@ You can use maven properties to customize the generation of the JSON:
 <td>Defines the kubernetes label FOO and value BAR.</td>
 </tr>
 <tr>
+<td>fabric8.livenessProbe.exec</td>
+<td>Creates a exec action liveness probe with this command.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action liveness probe on with this path.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.httpGet.port</td>
+<td>Creates a HTTP GET action liveness probe on this port.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action liveness probe on this host.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.port</td>
+<td>Creates a TCP socket action liveness probe on specified port.</td>
+</tr>
+<tr>
 <td>fabric8.namespaceEnvVar</td>
 <td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
 </tr>
@@ -181,6 +201,26 @@ You can use maven properties to customize the generation of the JSON:
 <tr>
 <td>fabric8.provider</td>
 <td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.exec</td>
+<td>Creates a exec action readiness probe with this command.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action readiness probe on with this path.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.httpGet.port</td>
+<td>Creates a HTTP GET action readiness probe on this port.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action readiness probe on this host.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.port</td>
+<td>Creates a TCP socket action readiness probe on specified port.</td>
 </tr>
 <tr>
 <td>fabric8.replicas</td>
