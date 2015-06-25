@@ -216,7 +216,6 @@
         <fuse.osgi.require.bundle />
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
-      <jopt-simple.version>4.9-beta-1</jopt-simple.version>
     </properties>
 
     <distributionManagement>
