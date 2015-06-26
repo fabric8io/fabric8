@@ -28,6 +28,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.api.model.ServiceList;
 
 import javax.validation.constraints.NotNull;
@@ -264,6 +266,34 @@ public interface Kubernetes {
     @Consumes("text/plain")
     String deleteSecret(@PathParam("secretId") @NotNull String secretId, @PathParam("namespace") String namespace) throws Exception;
 
+
+    @GET
+    @Path("namespaces/{namespace}/serviceaccounts")
+    @Produces("application/json")
+    ServiceAccountList getServiceAccounts(@PathParam("namespace") String namespace);
+
+    @GET
+    @Path("namespaces/{namespace}/serviceaccounts/{serviceAccountId}")
+    @Produces("application/json")
+    ServiceAccount getServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, @PathParam("namespace") String namespace);
+
+    @POST
+    @Path("namespaces/{namespace}/serviceaccounts")
+    @Consumes("application/json")
+    String createServiceAccount(ServiceAccount entity, @PathParam("namespace") String namespace) throws Exception;
+
+    @PUT
+    @Path("namespaces/{namespace}/serviceaccounts/{serviceAccountId}")
+    @Consumes("application/json")
+    String updateServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, ServiceAccount entity,
+                                @PathParam("namespace") String namespace) throws Exception;
+
+    @DELETE
+    @Path("namespaces/{namespace}/serviceaccounts/{serviceAccountId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    String deleteServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, @PathParam
+            ("namespace") String namespace) throws Exception;
 
 
     /**

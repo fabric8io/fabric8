@@ -131,4 +131,14 @@ public class Example {
         System.out.println();
     }
 
+    protected static void listServiceAccounts(Kubernetes kube) {
+        System.out.println("Looking up service accounts");
+        ServiceAccountList serviceAccounts = kube.getServiceAccounts(Kubernetes.NAMESPACE_DEFAULT);
+        List<ServiceAccount> serviceAccountItems = serviceAccounts.getItems();
+        for (ServiceAccount serviceAccount : serviceAccountItems) {
+            System.out.println("Service Account " + KubernetesHelper.getName(serviceAccount) + " labels: " + serviceAccount.getMetadata().getLabels());
+        }
+        System.out.println();    
+    }
+
 }

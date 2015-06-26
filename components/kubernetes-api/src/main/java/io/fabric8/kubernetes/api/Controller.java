@@ -28,6 +28,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -222,6 +223,8 @@ public class Controller {
             applyOAuthClient((OAuthClient) dto, sourceName);
         } else if (dto instanceof Template) {
             applyTemplate((Template) dto, sourceName);
+        } else if (dto instanceof ServiceAccount) {
+            applyServiceAccount((ServiceAccount) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -320,6 +323,60 @@ public class Controller {
             logGeneratedEntity("Created template: ", namespace, entity, answer);
         } catch (Exception e) {
             onApplyError("Failed to template entity from " + sourceName + ". " + e + ". " + entity, e);
+        }
+    }
+
+    /**
+     * Creates/updates a service account and processes it returning the processed DTOs
+     */
+    public void applyServiceAccount(ServiceAccount serviceAccount, String sourceName) throws Exception {
+        String namespace = getNamespace();
+        String id = getName(serviceAccount);
+        Objects.notNull(id, "No name for " + serviceAccount + " " + sourceName);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring ServiceAccount: " + id);
+            return;
+        }
+        ServiceAccount old = kubernetes.getServiceAccount(id, namespace);
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(serviceAccount, old)) {
+                LOG.info("ServiceAccount hasn't changed so not doing anything");
+            } else {
+                if (isRecreateMode()) {
+                    kubernetes.deleteServiceAccount(serviceAccount, namespace);
+                    doCreateServiceAccount(serviceAccount, namespace, sourceName);
+                } else {
+                    LOG.info("Updating a service account from " + sourceName);
+                    try {
+                        Object answer = kubernetes.updateServiceAccount(id, serviceAccount, namespace);
+                        logGeneratedEntity("Updated service account: ", namespace, serviceAccount, answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update service account from " + sourceName + ". " + e + ". " + serviceAccount, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a service from " + sourceName + " namespace " + namespace + " name " + getName(serviceAccount));
+            } else {
+                doCreateServiceAccount(serviceAccount, namespace, sourceName);
+            }
+        }
+    }
+
+    protected void doCreateServiceAccount(ServiceAccount serviceAccount, String namespace, String sourceName) {
+        LOG.info("Creating a service account from " + sourceName + " namespace " + namespace + " name " + getName
+                (serviceAccount));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetes.createServiceAccount(serviceAccount, namespace);
+            } else {
+                answer = kubernetes.createServiceAccount(serviceAccount);
+            }
+            logGeneratedEntity("Created service account: ", namespace, serviceAccount, answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create service account from " + sourceName + ". " + e + ". " + serviceAccount, e);
         }
     }
 

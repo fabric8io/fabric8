@@ -553,6 +553,86 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         return getKubernetes().updateSecret(secretId, entity, namespace);
     }
 
+
+    public String createServiceAccount(ServiceAccount entity) throws Exception {
+        validateNamespace(namespace, entity);
+        return createServiceAccount(entity, getNamespace());
+    }
+
+    public String deleteServiceAccount(ServiceAccount entity) throws Exception {
+        String namespace = KubernetesHelper.getNamespace(entity);
+        String id = getName(entity);
+        validateNamespace(namespace, entity);
+
+        LOG.info("Deleting Service Account: " + id + " namespace: " + namespace);
+        return deleteServiceAccount(id, namespace);
+    }
+
+    public String deleteServiceAccount(ServiceAccount entity, String namespace) throws Exception {
+        String id = getName(entity);
+        validateNamespace(namespace, entity);
+
+        LOG.info("Deleting Service Account: " + id + " namespace: " + namespace);
+        return deleteServiceAccount(id, namespace);
+    }
+
+    @Override
+    @Path("namespaces/{namespace}/serviceaccounts")
+    @POST
+    @Consumes("application/json")
+    public String createServiceAccount(ServiceAccount entity, String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        getOrCreateMetadata(entity).setNamespace(namespace);
+        return getKubernetes().createServiceAccount(entity, namespace);
+    }
+
+    @Override
+    @Path("namespaces/{namespace}/serviceaccounts/{serviceAccountId")
+    @Consumes("application/json")
+    public String updateServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, ServiceAccount entity, @PathParam("namespace") String namespace) throws Exception {
+        validateNamespace(namespace, entity);
+        return getKubernetes().updateServiceAccount(serviceAccountId, entity, namespace);
+    }
+
+    @Override
+    public String deleteServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, @PathParam("namespace") String namespace) throws Exception {
+        validateNamespace(namespace, serviceAccountId);
+        return getKubernetes().deleteServiceAccount(serviceAccountId, namespace);
+    }
+
+    @Override
+    @Path("namespaces/{namespace}/serviceaccounts")
+    @GET
+    @Produces("application/json")
+    public ServiceAccountList getServiceAccounts(final String namespace) {
+        validateNamespace(namespace, null);
+        ServiceAccountList answer = handle404ByReturningNull(new Callable<ServiceAccountList>() {
+            @Override
+            public ServiceAccountList call() throws Exception {
+                return getKubernetes().getServiceAccounts(namespace);
+            }
+        });
+        if (answer == null) {
+            answer = new ServiceAccountList();
+        }
+        return answer;
+    }
+
+    @Override
+    @GET
+    @Path("namespaces/{namespace}/serviceaccounts/{serviceAccountId}")
+    @Produces("application/json")
+    public ServiceAccount getServiceAccount(final @NotNull String serviceAccountId, final String namespace) {
+        validateNamespace(namespace, serviceAccountId);
+
+        return handle404ByReturningNull(new Callable<ServiceAccount>() {
+            @Override
+            public ServiceAccount call() throws Exception {
+                return getKubernetes().getServiceAccount(serviceAccountId, namespace);
+            }
+        });
+    }
+
     @Override
     @GET
     @Path("nodes")
