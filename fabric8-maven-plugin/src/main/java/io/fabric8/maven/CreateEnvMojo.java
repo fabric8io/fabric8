@@ -15,16 +15,6 @@
  */
 package io.fabric8.maven;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
@@ -40,6 +30,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.maven.support.DockerCommandPlainPrint;
 import io.fabric8.maven.support.IDockerCommandPlainPrintCostants;
 import io.fabric8.maven.support.OrderedProperties;
@@ -49,6 +40,17 @@ import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -97,8 +99,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
                 name = findFirstImageName(list);
             }
             StringBuilder sb = new StringBuilder();
+            List<VolumeMount> volumeMount = getVolumeMountsFromConfig(list);
             DockerCommandPlainPrint dockerCommandPlainPrint = new DockerCommandPlainPrint(sb);
             dockerCommandPlainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
+            dockerCommandPlainPrint.appendVolumeMounts(volumeMount, IDockerCommandPlainPrintCostants.VOLUME_FLAG);
             dockerCommandPlainPrint.appendImageName(name);
             displayDockerRunCommand(dockerCommandPlainPrint);
 
@@ -242,6 +246,32 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
         return result;
     }
+    
+	/**
+	 * Return VolumeMounts found in the kubernetes config.
+	 *
+	 * @param entities The config instance.
+	 * @return A list of VolumeMount objects.
+	 * @throws IOException
+	 */
+	private List<VolumeMount> getVolumeMountsFromConfig(
+			List<HasMetadata> entities) throws IOException {
+		List<VolumeMount> volumeList = new ArrayList<VolumeMount>();
+
+		for (HasMetadata entity : entities) {
+			if (entity instanceof ReplicationController) {
+				ReplicationController replicationController = (ReplicationController) entity;
+				for (Container container : replicationController.getSpec().getTemplate().getSpec().getContainers()) {
+					if (container.getImage().equals(name)) {
+						if (!container.getVolumeMounts().isEmpty()) {
+							return container.getVolumeMounts();
+						}
+					}
+				}
+			}
+		}
+		return volumeList;
+	}
 
     private void displayEnv(Map<String, String> map) {
         TablePrinter table = new TablePrinter();
