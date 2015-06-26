@@ -77,6 +77,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "fabric8.envScript", defaultValue = "env.sh")
     private String envScriptFileName;
+    
+    @Parameter(property = "fabric8.dockerRunScript", defaultValue = "docker-run.sh")
+    private String dockerRunScriptFileName;
 
     @Parameter(property = "docker.image")
     private String name;
@@ -87,6 +90,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             String basedir = System.getProperty("basedir", ".");
             File propertiesFile = new File(basedir + "/target/" + envPropertiesFileName).getCanonicalFile();
             File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
+            File dockerRunFile = new File(basedir + "/target/" + dockerRunScriptFileName).getCanonicalFile();
             
             Object config = loadKubernetesJson();
             List<HasMetadata> list = KubernetesHelper.toItemList(config);
@@ -141,7 +145,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
                     envProperties.put(key ,value);
                 }
             }
-            saveScript(env, scriptFile);
+            saveEnvScript(env, scriptFile);
+            saveDockerRunScript(dockerCommandPlainPrint, dockerRunFile);
             saveProperties(envProperties, propertiesFile);
 
         } catch (IOException e) {
@@ -254,8 +259,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 	 * @return A list of VolumeMount objects.
 	 * @throws IOException
 	 */
-	private List<VolumeMount> getVolumeMountsFromConfig(
-			List<HasMetadata> entities) throws IOException {
+	private List<VolumeMount> getVolumeMountsFromConfig(List<HasMetadata> entities) throws IOException {
 		List<VolumeMount> volumeList = new ArrayList<VolumeMount>();
 
 		for (HasMetadata entity : entities) {
@@ -332,12 +336,20 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private static void saveScript(Map<String, String> map, File scroptFile) throws IOException {
+    private static void saveEnvScript(Map<String, String> map, File scroptFile) throws IOException {
         try (FileWriter writer = new FileWriter(scroptFile)) {
             writer.append("#!/bin/bash").append("\n");
             for (Map.Entry<String, String> entry: map.entrySet()) {
                 writer.append("export ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
             }
+            writer.flush();
+        }
+    }
+    
+    private static void saveDockerRunScript(DockerCommandPlainPrint printer, File scriptFile) throws IOException {
+        try (FileWriter writer = new FileWriter(scriptFile)) {
+            writer.append("#!/bin/bash").append("\n");
+            writer.append(printer.getDockerPlainTextCommand().toString()).append("\n");
             writer.flush();
         }
     }
