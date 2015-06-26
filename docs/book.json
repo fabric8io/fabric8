@@ -19,7 +19,7 @@
     }
   },
 
-  "plugins" : [ "anchors" ],
+  "plugins" : [ "anchors", "richquotes" ],
 
   "pdf": {
     "toc": true,

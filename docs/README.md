@@ -1,2 +1,2 @@
-![fabric8 logo](cover.png)
+![fabric8 logo](images/cover/cover.png)
 

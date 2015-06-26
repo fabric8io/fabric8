@@ -2,11 +2,11 @@
 
 Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your `edit -> compile -> run` cycle time and helps you develop faster.
 
-So if you are running Kubernetes locally on your laptop such as via the [Fabric8 vagrant image](getStartedVagrant.html) its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.
+So if you are running Kubernetes locally on your laptop such as via the [Fabric8 vagrant image](vagrant.html) its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.
 
 ### Setup your machine
 
-Set this environment variable if you use the [Fabric8 vagrant image](getStartedVagrant.html):
+Set this environment variable if you use the [Fabric8 vagrant image](vagrant.html):
 
     export DOCKER_HOST=tcp://vagrant.f8:2375
 
@@ -31,7 +31,7 @@ If it doesn't try to start up - or you see it keep retrying from the openshift l
 
     docker run -itP imageName
 
-Ideally passing in the environment variables your image needs to discover other services. There's a handy command, [mvn fabric8:create-env](mavenFabric8CreateEnv.html) to figure out the env vars for you so that you can run docker images outside of kubernetes as if they are inside (in terms of service discovery and environment variables defined in the kubernetes json).
+Ideally passing in the environment variables your image needs to discover other services. There's a handy command, [mvn fabric8:create-env](../mavenFabric8CreateEnv.html) to figure out the env vars for you so that you can run docker images outside of kubernetes as if they are inside (in terms of service discovery and environment variables defined in the kubernetes json).
 
 
 ### Apply new images faster
@@ -40,8 +40,8 @@ Rather than doing the whole regeneration of the JSON and reapplying (which is fa
 
     mvn install docker:build fabric8:delete-pods
 
-For more background see a [description of the mvn fabric8:delete-pods command](http://fabric8.io/guide/mavenFabric8DeletePods.html).
+For more background see a [description of the mvn fabric8:delete-pods command](../mavenFabric8DeletePods.html).
 
-What this does is builds the docker image in the docker daemon and deletes all the pods in kubernetes which use the same image as your current maven project; this immediately causes the kubernetes [Replication Controller](replicationControllers.html) to recreate any of the pods you deleted. 
+What this does is builds the docker image in the docker daemon and deletes all the pods in kubernetes which use the same image as your current maven project; this immediately causes the kubernetes [Replication Controller](../replicationControllers.html) to recreate any of the pods you deleted. 
 
 Basically this causes an immediate rolling upgrade to the new image! Its a pretty nice, quick way of working.

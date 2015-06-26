@@ -22,23 +22,19 @@ The next steps are needed for proper routing from the host to OpenShift services
 * **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
   Here is the example for Ubuntu:
    
-```sh
-sudo apt-get install -y resolvconf dnsmasq
-sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
-sudo service dnsmasq restart
-```
+        sudo apt-get install -y resolvconf dnsmasq
+        sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
+        sudo service dnsmasq restart
 
 * **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes 
   manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications 
   has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to 
   this file on a new line like this:
   
-```sh
-## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
-172.28.128.4  vagrant.f8 fabric8.vagrant.f8 fabric8-master.vagrant.f8 jenkins.vagrant.f8 .....
-172.28.128.4  myservice.vagrant.f8
-## vagrant-hostmanager-end
-```
+        ## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
+        172.28.128.4  vagrant.f8 fabric8.vagrant.f8 jenkins.vagrant.f8 .....
+        172.28.128.4  myservice.vagrant.f8
+        ## vagrant-hostmanager-end
 
 * **OS X**: Nothing has to be done. OS X will automatically resolve all routes to `*.vagrant.f8` to 
   your Vagrant VM. This is done vial OS X's resolver feature (see `man 5 resolver` for details)
@@ -59,16 +55,13 @@ v.cpus = 2
 Then follow the on screen instructions.
  
 * You should now have a running vagrant image running at IP address `172.28.128.4` or at `vagrant.f8`
-
-* Downloading the docker images may take a few minutes so you might want to jump ahead to the [Setting up your local machine](#setting-up-your-local-machine) then coming back here when you're done. 
-
-* After the vagrant box is created and docker images are downloaded, the [fabric8 console](http://fabric8.io/guide/console.html) should appear at [http://fabric8.vagrant.f8/](http://fabric8.vagrant.f8/)
-  
+* Downloading the docker images may take a few minutes so you might want to jump ahead 
+  to the [Local Setup](local.html) recipe then coming back here when you're done. 
+* After the vagrant box is created and docker images are downloaded, the [fabric8 console](../console.html) should 
+  appear at [http://fabric8.vagrant.f8/](http://fabric8.vagrant.f8/)
 * When you first open your browser Chrome will say:
 
-```
-Your connection is not private
-```
+        Your connection is not private
 
 * Don't panic! This is to be expected.
 * Click on the small `Advanced` link on the bottom left
@@ -81,9 +74,11 @@ Your connection is not private
 
 ### Installing other applications
 
-When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on the `Run...` button. 
+When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on 
+the `Run...` button. 
 
-This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) on your installation.
+This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) 
+on your installation.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab!
@@ -92,56 +87,15 @@ This will list all of the installed [OpenShift Templates](http://docs.openshift.
 
     oc create -f jsonOrYamlFileOrUrl
 
-
 ### Setting up your local machine
 
-Its useful being able to use the command line tools in OpenShift or using [fabric8 maven tooling](http://fabric8.io/guide/mavenPlugin.html) or reusing the docker daemon inside vagrant; so that all images built are accesible inside the OpenShift environment.
+In order to communicate with the Vagrant VM from you localhost it is recommended to install the OpenShift client 
+tools. This is explained in an extra [document](local.html). 
 
-Follow these steps:
+This is also useful using the [fabric8 maven tooling](../mavenPlugin.html) or reusing the docker daemon 
+inside vagrant; so that all images built are accessible inside the OpenShift environment.
 
-* [Download the recent OpenShift release binaries for your platform](https://github.com/openshift/origin/releases/)
-* unpack the tarball and put the binaries on your PATH
-* Set the following environment variables
-  - Unix flavored OSs:
-  
-          export KUBERNETES_DOMAIN=vagrant.f8
-          export DOCKER_HOST=tcp://vagrant.f8:2375
-
-  - Windows:
-
-          set KUBERNETES_DOMAIN=vagrant.f8
-          set DOCKER_HOST=tcp://vagrant.f8:2375
-
- It is probably a good idea to add this into your `~/.profile` (Linux, OS X) or *System* -> *Advance System Settings* -> *Environment Variables* (Windows)
- 
-
-* Now login to OpenShift via this command:
-
-```sh
-oc login https://172.28.128.4:8443
-```
-
-* Enter `admin` and `admin` for user/password
-
-Over time your token may expire and you will need to re-authenticate via:
-
-```sh
-oc login
-```
-
-Now to see the status of the system:
-
-```sh
-oc get pods
-```
-or you can watch from the command line via one of these commands:
-
-```sh
-watch oc get pods
-oc get pods --watch
-```
-
-Have fun! We [love feedback](http://fabric8.io/community/)
+Alternatively you can log into the Vagrant VM also via `vagrant ssh`. The OpenShift tools (`oc`, `oadmn`) are installed in the VM, too.
 
 ### Trying a fresh image
 
@@ -156,7 +110,8 @@ vagrant up
 
 ### Troubleshooting
 
-The `oc` command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so they get recreated, looking at logs etc.
+The `oc` command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so 
+they get recreated, looking at logs etc.
 
 If you add the `fabric8-installer/bin` folder to your `$PATH` then there are a few handy shell scripts
 

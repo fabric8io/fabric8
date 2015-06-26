@@ -58,7 +58,7 @@ If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-
     mvn install
 ```    
 
-If you are running the [Fabric8 vagrant image](getStartedVagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.f8/](http://gogs.vagrant.f8/) then click the `sign in up` link.
+If you are running the [Fabric8 vagrant image](getStarted/vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.f8/](http://gogs.vagrant.f8/) then click the `sign in up` link.
 
 For now use user `gogsadmin` and password `RedHat$1` as the user and password in gogs (unless you changed the defaults).
 
@@ -76,4 +76,4 @@ For now use user `gogsadmin` and password `RedHat$1` as the user and password in
 
 * Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
 
-For more information see [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html).
+For more information see [Install Fabric8 on OpenShift Guide](getStarted/openshift.html).

@@ -35,7 +35,7 @@ You can browse the Kubernetes REST API using the [Swagger Site](http://kubernete
 To browse the OpenShift Swagger docs for your installation:
 
 * open the swagger JSON URL for your OpenShift master in your browser
-    * the URL is [https://vagrant.f8:8443/swaggerapi/](https://vagrant.f8:8443/swaggerapi/) for the [fabric8 vagrant image](getStartedVagrant.html)
+    * the URL is [https://vagrant.f8:8443/swaggerapi/](https://vagrant.f8:8443/swaggerapi/) for the [fabric8 Vagrant image](getStarted/vagrant.html)
 * if your browser warns you about the certificate continue
     * in chrome: click `Advanced` then `Proceed to vagrant.f8 (unsafe)` 
 * now open the [Swagger Site](http://kubernetes.io/third_party/swagger-ui/) and copy the following URL and paste it into the text field at the top of the page to the right of `swagger`

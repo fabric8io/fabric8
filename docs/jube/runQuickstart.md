@@ -1,5 +1,7 @@
 ### Running a quickstart on Jube
 
+> **Note** currently Jube got broken as fabric8 followed OpenShift 1.0 and Kubernetes 1.0. We will be fixing this soon ;)
+
 We are going to run a quickstart in Jube using the [mvn fabric8:run goal](mavenPlugin.html#running). Type the following:
 
     git clone https://github.com/fabric8io/quickstarts.git

@@ -2,9 +2,10 @@
 
 The following example shows you how to build a docker image and run it on Kubernetes.
 
-Make sure you have followed the [Get Started Guide](http://fabric8.io/guide/getStarted.html) so you should have things running and you have [setup your local machine](setupLocalHost.html).
+Make sure you have followed the [Get Started Guide](index.html) so you should 
+have things running and you have [setup your local machine](local.html).
 
-Also check out [how to develop applications locally](developLocally.html).
+Also check out [how to develop applications locally](develop.html).
 
 #### Build the camel-servlet web application
 

@@ -4,7 +4,7 @@ The Fabric8 Console provides a rich HTML5 web application for working with [Kube
 
 ### Installing 
 
-Here is [how to install the Console on Kubernetes / OpenShift](fabric8OnOpenShift.html#console)
+Here is [how to install the Console on Kubernetes / OpenShift](getStarted/apps.html#console)
 
 ### Getting Started
 
@@ -37,7 +37,7 @@ You can also drag folder from the Library to your desktop and local file system 
 
 If you are using Kubernetes or OpenShift you need to find the URL for the console service. From there you should be able to navigate to the tabs for [pods](pods.html), [replication controllers] and [services](services.html).
 
-If you use the [Fabric8 Vagrant](getStartedVagrant.html) approach then the URL is `http://fabric8.vagrant.f8/`.
+If you use the [Fabric8 Vagrant](getStarted/vagrant.html) approach then the URL is `http://fabric8.vagrant.f8/`.
 
 Otherwise you need to find the host name to use. 
 

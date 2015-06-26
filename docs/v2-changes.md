@@ -2,7 +2,7 @@
 
 In fabric8 1.x we assumed only a JVM was available and then we built lots of abstractions that are very similar to [Kubernetes](http://kubernetes.io).
 
-In fabric8 2.x we have decided to assume a base of [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the Kubernetes REST API to orchestrate containers. For non-linux platforms which don't support Docker we have [Jube](jube.html) which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.
+In fabric8 2.x we have decided to assume a base of [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the Kubernetes REST API to orchestrate containers. For non-linux platforms which don't support Docker we have [Jube](jube/index.html) which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.
 
 Because of this approach we do quite a few things a little differently under the covers. In fabric8 1.x we had to do a lot of work to replicate the kinds of things Kubernetes gives us; things like discovery of services, wiring, auto   scaling etc.
 

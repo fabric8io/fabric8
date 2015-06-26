@@ -16,6 +16,6 @@ If you are running Fabric8 with the [Fabric8 Console](console.html) then go to t
 * click the **Run...** button and select the **InfluxDB** app to and run it.
 * click the **Run...** button and select the **Grafana** app to and run it.
 
-You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you [use the bash script to install fabric8](openShiftDocker.html) with the **-k** command line option enabled. Hopefully one day we'll be able to turn cadvisor and jadvisor into [apps](apps.html) you can easily run in the same way.
+You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you [use the bash script to install fabric8](getStarted/openshift.html) with the **-k** command line option enabled. Hopefully one day we'll be able to turn cadvisor and jadvisor into [apps](apps.html) you can easily run in the same way.
 
 Once the above is running, the [Fabric8 Console](console.html) should have a **Metrics** tab letting you view and search the metrics via [Grafana](http://grafana.org/).

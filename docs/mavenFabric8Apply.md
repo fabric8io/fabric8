@@ -1,6 +1,6 @@
 ## fabric8:apply
 
-The maven `fabric8:apply` goal takes the JSON file generated via [mvn fabric8:json](mavenFarbic8Json.html) located at `target/classes/kubernetes.json` and applies it to the current Kubernetes environment and namespace. 
+The maven `fabric8:apply` goal takes the JSON file generated via [mvn fabric8:json](mavenFabric8Json.html) located at `target/classes/kubernetes.json` and applies it to the current Kubernetes environment and namespace. 
 
 For a summary of the options see the [Maven Property Reference](#maven-properties)
 

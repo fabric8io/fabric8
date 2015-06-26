@@ -10,7 +10,7 @@ Fabric8 comes with a hubot [app](apps.html) and a notification engine to post [b
 
 ### Installation
  
-To install the Chat app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html). Chat is included as a stand alone app or included in the [Continuous Delivery](cdelivery.html), [iPaaS](ipaas.html) and [Kitchen Sink](fabric8OnOpenShift.html#kitchen-sink) apps.    
+To install the Chat app please see the [Install Fabric8 on OpenShift Guide](getStarted/openshift.html). Chat is included as a stand alone app or included in the [Continuous Delivery](cdelivery.html), [iPaaS](ipaas.html) and [Kitchen Sink](getStarted/openshift.html#kitchen-sink) apps.    
 
 Once you have completed the above you should see the **Chat** item on the navigation bar of the [Console](console.html)
 

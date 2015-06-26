@@ -104,7 +104,7 @@ This goal will then POST the [App Zip](appzip.html) into the wiki so you should 
 
 ### Example
 
-To see these plugins in action check out how to [run and example quickstart](example.html)
+To see these plugins in action check out how to [run and example quickstart](getStarted/example.html)
 
 
 

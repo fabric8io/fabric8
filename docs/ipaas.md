@@ -16,4 +16,4 @@ Then to help you and your team provision and manage your integration services:
 
 ### Installation
 
-To install this app please see the [Install Fabric8 on OpenShift Guide](fabric8OnOpenShift.html)
+To install this app please see the [Install Fabric8 on OpenShift Guide](getStarted/apps.html)

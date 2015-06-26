@@ -1,6 +1,6 @@
 ## Get Started with Fabric8 and Jube
 
- **Important: Jube 2.x does not work currently**. We are aware of issues with Jube 2.x due recent Kubernetes schema updates and ongoing migration of using the same hawtio web console for Jube and OpenShift/Docker. 
+> **Note** currently Jube got broken as fabric8 followed OpenShift 1.0 and Kubernetes 1.0. We will be fixing this soon ;)
 
 First you need to get the latest [Jube](jube.html) by [downloading jube-2.2.3-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.3/jube-2.2.3-image.zip) and unzipping it:
 

@@ -56,7 +56,7 @@ We recommend using a linux based system for production; preferably if you want a
 
 Windows is currently only partially supported. Windows users may consider using [Docker](http://docker.io/) so that all the fabric8 technologies run inside a linux VM in lightweight containers.
 
-If you need to run Java on real Windows processes then we recommend using [Jube](http://fabric8.io/guide/jube.html) which will run your Java containers as real windows processes.
+If you need to run Java on real Windows processes then we recommend using [Jube](jube/index.html) which will run your Java containers as real windows processes.
 
 #### Does Fabric8 use ZooKeeper runtime registry?
 
@@ -66,7 +66,7 @@ However certain services will still require master slave election and partitioni
 
 #### Does Fabric8 still use profiles to configure application deployment?
 
-No, not anymore. Starting from v2 Fabric8 uses [app](http://fabric8.io/guide/apps.html) JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
+No, not anymore. Starting from v2 Fabric8 uses [app](apps.html) JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
 to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
 added to the file system of the application's Docker image.
 
@@ -74,21 +74,22 @@ added to the file system of the application's Docker image.
 
 Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use 
 profiles (but app templates instead), the Git repository is not needed anymore. You can just store application's configuration (app file)
-in the Maven project and use the [Fabric8 Maven plugin to start](http://fabric8.io/guide/mavenPlugin.html#running) the application in Kubernetes
+in the Maven project and use the [Fabric8 Maven plugin to start](mavenPlugin.html#running) the application in Kubernetes
 without keeping the configuration in any central repository (like Git).
 
 However keeping app files in Git for easier configuration management can be useful. That's why Hawt.io provides this
 functionality for you. You can push your configuration to the Hawt.io Git repository via 
-[fabric8:deploy](http://fabric8.io/guide/mavenPlugin.html#deploying) Maven goal. Fabric8 uses [App Zip](http://fabric8.io/guide/appzip.html)
+[fabric8:deploy](mavenPlugin.html#deploying) Maven goal. Fabric8 uses [App Zip](appzip.html)
 packaging format to distribute the configuration between the various environments.
 
 #### Is Fabric8 server required to provision applications?
 
 No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
-managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like [Fabric8 Maven plugin](http://fabric8.io/guide/mavenPlugin.html)
+managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like 
+[Fabric8 Maven plugin](mavenPlugin.html)
 or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/manage it.
 
-If you are using [Jube as the Kubernetes implementation](http://fabric8.io/jube/getStarted.html) and to emulate Docker then you will need to run a Jube server.
+If you are using [Jube as the Kubernetes implementation](jube/getStarted.html) and to emulate Docker then you will need to run a Jube server.
 
 #### If there is no Fabric8 server, how can I use Fabric8 shell?
 
