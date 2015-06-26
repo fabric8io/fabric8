@@ -15,6 +15,10 @@
  */
 package io.fabric8.maven.support;
 
+import io.fabric8.kubernetes.api.model.VolumeMount;
+
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class DockerCommandPlainPrint {
@@ -40,12 +44,27 @@ public class DockerCommandPlainPrint {
 	public void appendParameters(Map<String, String> data, String flag) {
 		for (Map.Entry<String, String> entry : data.entrySet())
 		{
-			dockerPlainTextCommand.append(flag);
+		    dockerPlainTextCommand.append(flag);
 		    dockerPlainTextCommand.append(" ");
 		    dockerPlainTextCommand.append(entry.getKey());
 		    dockerPlainTextCommand.append("=");
 		    dockerPlainTextCommand.append(entry.getValue());
 		    dockerPlainTextCommand.append(" ");
+		}
+	}
+	
+	public void appendVolumeMounts(List<VolumeMount> volumesMount, String flag) {
+		Iterator<VolumeMount> it = volumesMount.iterator();
+		while (it.hasNext()){
+			VolumeMount vol = it.next();			
+			dockerPlainTextCommand.append(flag);
+			dockerPlainTextCommand.append(" ");
+			dockerPlainTextCommand.append(vol.getMountPath().toString());
+			if (vol.getReadOnly()) {
+				dockerPlainTextCommand.append(":");
+				dockerPlainTextCommand.append("ro");
+			}
+			dockerPlainTextCommand.append(" ");
 		}
 	}
 	
