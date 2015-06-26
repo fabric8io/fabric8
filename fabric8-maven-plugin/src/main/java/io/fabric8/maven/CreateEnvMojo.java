@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.maven.support.DockerCommandPlainPrint;
 import io.fabric8.maven.support.IDockerCommandPlainPrintCostants;
 import io.fabric8.maven.support.OrderedProperties;
@@ -75,6 +77,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 
     @Parameter(property = "fabric8.envScript", defaultValue = "env.sh")
     private String envScriptFileName;
+    
+    @Parameter(property = "fabric8.dockerRunScript", defaultValue = "docker-run.sh")
+    private String dockerRunScriptFileName;
 
     @Parameter(property = "docker.image")
     private String name;
@@ -85,6 +90,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             String basedir = System.getProperty("basedir", ".");
             File propertiesFile = new File(basedir + "/target/" + envPropertiesFileName).getCanonicalFile();
             File scriptFile = new File(basedir + "/target/" + envScriptFileName).getCanonicalFile();
+            File dockerRunFile = new File(basedir + "/target/" + dockerRunScriptFileName).getCanonicalFile();
             
             Object config = loadKubernetesJson();
             List<HasMetadata> list = KubernetesHelper.toItemList(config);
@@ -96,9 +102,12 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             if (name == null) {
                 name = findFirstImageName(list);
             }
+            
             StringBuilder sb = new StringBuilder();
+            List<VolumeMount> volumeMount = getVolumeMountsFromConfig(list);
             DockerCommandPlainPrint dockerCommandPlainPrint = new DockerCommandPlainPrint(sb);
             dockerCommandPlainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
+            dockerCommandPlainPrint.appendVolumeMounts(volumeMount, IDockerCommandPlainPrintCostants.VOLUME_FLAG);
             dockerCommandPlainPrint.appendImageName(name);
             displayDockerRunCommand(dockerCommandPlainPrint);
 
@@ -137,7 +146,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
                     envProperties.put(key ,value);
                 }
             }
-            saveScript(env, scriptFile);
+            saveEnvScript(env, scriptFile);
+            saveDockerRunScript(dockerCommandPlainPrint, dockerRunFile);
             saveProperties(envProperties, propertiesFile);
 
         } catch (IOException e) {
@@ -242,6 +252,31 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
         return result;
     }
+    
+    /**
+     * Return VolumeMounts found in the kubernetes config.
+     *
+     * @param entities The config instance.
+     * @return A list of VolumeMount objects.
+     * @throws IOException
+     */
+    private List<VolumeMount> getVolumeMountsFromConfig(List<HasMetadata> entities) throws IOException {
+        List<VolumeMount> volumeList = new ArrayList<VolumeMount>();
+
+        for (HasMetadata entity : entities) {
+            if (entity instanceof ReplicationController) {
+                ReplicationController replicationController = (ReplicationController) entity;                
+                for (Container container : replicationController.getSpec().getTemplate().getSpec().getContainers()) {
+                    if (container.getImage().equals(name)) {
+                        if (!container.getVolumeMounts().isEmpty()) {
+                        	return container.getVolumeMounts();
+                        }
+                    }
+                }
+            }
+        }
+        return volumeList;
+    }
 
     private void displayEnv(Map<String, String> map) {
         TablePrinter table = new TablePrinter();
@@ -269,6 +304,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         getLog().info("Docker Run Command:");
         getLog().info("-------------------------------");
         getLog().info(dockerCommandPlainPrint.getDockerPlainTextCommand().toString());
+        getLog().info("");
     }
     
     /**
@@ -302,12 +338,20 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private static void saveScript(Map<String, String> map, File scroptFile) throws IOException {
+    private static void saveEnvScript(Map<String, String> map, File scroptFile) throws IOException {
         try (FileWriter writer = new FileWriter(scroptFile)) {
             writer.append("#!/bin/bash").append("\n");
             for (Map.Entry<String, String> entry: map.entrySet()) {
                 writer.append("export ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
             }
+            writer.flush();
+        }
+    }
+    
+    private static void saveDockerRunScript(DockerCommandPlainPrint printer, File scriptFile) throws IOException {
+        try (FileWriter writer = new FileWriter(scriptFile)) {
+            writer.append("#!/bin/bash").append("\n");
+            writer.append(printer.getDockerPlainTextCommand().toString()).append("\n");
             writer.flush();
         }
     }
