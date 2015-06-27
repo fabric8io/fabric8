@@ -35,9 +35,15 @@ public class LetsChatKubernetes {
         String token = Systems.getEnvVarOrSystemProperty("LETSCHAT_TOKEN");
 
         String namespace = kubernetes.getNamespace();
-        String address = kubernetes.getServiceURL(ServiceNames.LETSCHAT, namespace, "http", true);
-        if (Strings.isNullOrBlank(address)) {
-            LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+        String address;
+        try {
+            address = kubernetes.getServiceURL(ServiceNames.LETSCHAT, namespace, "http", true);
+            if (Strings.isNullOrBlank(address)) {
+                LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
+            LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
             return null;
         }
         LOG.info("Logging into LetsChat at " + address + " as user " + userName);

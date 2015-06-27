@@ -34,8 +34,14 @@ public class TaigaKubernetes {
         String password = Systems.getEnvVarOrSystemProperty("TAIGA_PASSWORD", "123123");
 
         String namespace = kubernetes.getNamespace();
-        String address = kubernetes.getServiceURL(ServiceNames.TAIGA, namespace, "http", true);
-        if (Strings.isNullOrBlank(address)) {
+        String address = null;
+        try {
+            address = kubernetes.getServiceURL(ServiceNames.TAIGA, namespace, "http", true);
+            if (Strings.isNullOrBlank(address)) {
+                LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
             LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
             return null;
         }
