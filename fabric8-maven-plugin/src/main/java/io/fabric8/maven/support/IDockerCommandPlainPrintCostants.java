@@ -19,4 +19,5 @@ public interface IDockerCommandPlainPrintCostants {
 
 	public final static String EXPRESSION_FLAG = "-e";
 	public final static String VOLUME_FLAG = "-v";
+	public final static String PORT_FLAG = "-p";
 }
