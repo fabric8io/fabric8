@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectReference;
@@ -104,8 +105,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
             StringBuilder sb = new StringBuilder();
             List<VolumeMount> volumeMount = getVolumeMountsFromConfig(list);
+            List<ContainerPort> containerPort = getContainerPortsFromConfig(list);
             DockerCommandPlainPrint dockerCommandPlainPrint = new DockerCommandPlainPrint(sb);
             dockerCommandPlainPrint.appendParameters(env, IDockerCommandPlainPrintCostants.EXPRESSION_FLAG);
+            dockerCommandPlainPrint.appendContainerPorts(containerPort, IDockerCommandPlainPrintCostants.PORT_FLAG);
             dockerCommandPlainPrint.appendVolumeMounts(volumeMount, IDockerCommandPlainPrintCostants.VOLUME_FLAG);
             dockerCommandPlainPrint.appendImageName(name);
             displayDockerRunCommand(dockerCommandPlainPrint);
@@ -275,6 +278,41 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 			}
 		}
 		return volumeList;
+	}
+		
+	/**
+	 * Return container Ports found in the kubernetes config.
+	 *
+	 * @param entities The config instance.
+	 * @return A list of ContainerPort objects.
+	 * @throws IOException
+	 */
+	private List<ContainerPort> getContainerPortsFromConfig(List<HasMetadata> entities) throws IOException {
+		List<ContainerPort> containerPortList = new ArrayList<ContainerPort>();
+
+		for (HasMetadata entity : entities) {
+            if (entity instanceof Pod) {
+                Pod pod = (Pod) entity;
+                for (Container container : pod.getSpec().getContainers()) {
+                    if (container.getImage().equals(name)) {
+                    	if (!container.getPorts().isEmpty()) {
+                    	    containerPortList.addAll(container.getPorts());
+                    	}
+                    }
+                }
+            }
+            else if (entity instanceof ReplicationController) {
+					ReplicationController replicationController = (ReplicationController) entity;
+					for (Container container : replicationController.getSpec().getTemplate().getSpec().getContainers()) {
+						if (container.getImage().equals(name)) {
+							if (!container.getPorts().isEmpty()) {
+								containerPortList.addAll(container.getPorts());
+							}
+						}
+					}
+			    }
+		    } 
+		    return containerPortList;
 	}
 
     private void displayEnv(Map<String, String> map) {

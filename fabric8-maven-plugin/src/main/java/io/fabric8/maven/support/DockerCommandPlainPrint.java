@@ -15,6 +15,7 @@
  */
 package io.fabric8.maven.support;
 
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 
 import java.util.Iterator;
@@ -64,6 +65,28 @@ public class DockerCommandPlainPrint {
 				dockerPlainTextCommand.append(":");
 				dockerPlainTextCommand.append("ro");
 			}
+			dockerPlainTextCommand.append(" ");
+		}
+	}
+	
+	public void appendContainerPorts(List<ContainerPort> containerPorts, String flag) {
+		Iterator<ContainerPort> it = containerPorts.iterator();
+		while (it.hasNext()){
+			ContainerPort port = it.next();			
+			dockerPlainTextCommand.append(flag);
+			dockerPlainTextCommand.append(" ");
+            if (port.getHostIP() != null && !port.getHostIP().isEmpty()) {
+            	dockerPlainTextCommand.append(port.getHostIP());
+            	dockerPlainTextCommand.append(":");
+            }
+            if (port.getHostPort() != null) {
+            	dockerPlainTextCommand.append(port.getHostPort());
+            	dockerPlainTextCommand.append(":");
+            }
+            if (port.getHostIP() != null && !port.getHostIP().isEmpty() && port.getHostPort() == null) {
+            	dockerPlainTextCommand.append(":");
+            }                       
+        	dockerPlainTextCommand.append(port.getContainerPort());
 			dockerPlainTextCommand.append(" ");
 		}
 	}
