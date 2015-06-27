@@ -62,12 +62,10 @@
       <groupId>io.fabric8</groupId>
       <artifactId>gitrepo-api</artifactId>
     </dependency>
-<!--
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>rest-utils</artifactId>
+      <artifactId>fabric8-devops</artifactId>
     </dependency>
--->
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
@@ -81,19 +79,6 @@
       <groupId>org.jboss.forge.furnace</groupId>
       <artifactId>furnace-se</artifactId>
     </dependency>
-
-    <!-- possible hack... -->
-<!--
-    <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-manager-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-manager-spi</artifactId>
-    </dependency>
--->
-
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>environment-api</artifactId>
@@ -127,14 +112,6 @@
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>projects-api</artifactId>
     </dependency>
-
-<!--
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>7.0</version>
-    </dependency>
--->
 
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>

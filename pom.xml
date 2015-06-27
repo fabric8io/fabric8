@@ -339,6 +339,11 @@
               <version>${project.version}</version>
             </dependency>
             <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-devops</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
               <groupId>io.fabric8.forge</groupId>
               <artifactId>fabric8-forge-core</artifactId>
               <version>${project.version}</version>
