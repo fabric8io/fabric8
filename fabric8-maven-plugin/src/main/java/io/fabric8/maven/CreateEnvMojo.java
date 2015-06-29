@@ -378,7 +378,11 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         try (FileWriter writer = new FileWriter(scroptFile)) {
             writer.append("#!/bin/bash").append("\n");
             for (Map.Entry<String, String> entry: map.entrySet()) {
-                writer.append("export ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+            	if (entry.getValue() != null && !entry.getValue().contains(" ")) {
+                    writer.append("export ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");	
+            	} else {
+                    writer.append("export ").append(entry.getKey()).append("=").append("\"").append(entry.getValue()).append("\"").append("\n");
+            	}
             }
             writer.flush();
         }
