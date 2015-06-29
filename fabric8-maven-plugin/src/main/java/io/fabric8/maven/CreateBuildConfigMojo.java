@@ -15,6 +15,8 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.YamlHelper;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -23,11 +25,13 @@ import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.BuildConfigFluent;
 import io.fabric8.taiga.ModuleDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
 import io.fabric8.taiga.TaigaModule;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -35,6 +39,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +49,18 @@ import java.util.Map;
  */
 @Mojo(name = "create-build-config", requiresProject = false)
 public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
+
+    /**
+     * the current folder
+     */
+    @Parameter(defaultValue = "${basedir}")
+    protected File basedir;
+
+    /**
+     * the optional fabric8.yaml file to override configuration
+     */
+    @Parameter(property = "fabric8.configFile", defaultValue = "${basedir}/fabric8.yml")
+    protected File projectConfigFile;
 
     /**
      * the gogs user name to use
@@ -59,7 +77,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     /**
      *
      */
-    @Parameter(property = "fabric8.repoName")
+    @Parameter(property = "fabric8.repoName", defaultValue = "${project.artifactId}")
     protected String repoName;
 
     /**
@@ -181,6 +199,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        loadConfigFile();
         KubernetesClient kubernetes = getKubernetes();
 
         String name = repoName;
@@ -248,15 +267,22 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             annotations.put("fabric8.link.letschat.room/label", letschatRoomLinkLabel);
         }
 
-        BuildConfig buildConfig = new BuildConfigBuilder().
+        BuildConfigFluent<BuildConfigBuilder>.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
                 withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
-                withNewSpec().
-                withNewSource().
-                withType("Git").withNewGit().withUri(gitUrl).endGit().
-                endSource().
-                withNewStrategy().
-                withType("Docker").withNewDockerStrategy().withNewFrom().withName(buildImageStream + ":" + buildImageTag).endFrom().endDockerStrategy().
-                endStrategy().
+                withNewSpec();
+
+        if (Strings.isNotBlank(gitUrl)) {
+            specBuilder = specBuilder.withNewSource().
+                    withType("Git").withNewGit().withUri(gitUrl).endGit().
+                    endSource();
+        }
+        if (Strings.isNotBlank(buildImageStream) && Strings.isNotBlank(buildImageTag)) {
+            specBuilder = specBuilder.
+                    withNewStrategy().
+                    withType("Docker").withNewDockerStrategy().withNewFrom().withName(buildImageStream + ":" + buildImageTag).endFrom().endDockerStrategy().
+                    endStrategy();
+        }
+        BuildConfig buildConfig = specBuilder.
                 addNewTrigger().
                 withType("github").withNewGithub().withSecret(secret).endGithub().
                 endTrigger().
@@ -272,6 +298,45 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
         createJenkinsWebhook(jenkinsJobUrl);
         createTaigaWebhook(taiga, taigaProject);
+    }
+
+    protected void loadConfigFile() {
+        if (projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile()) {
+            getLog().info("Parsing fabric8 devops project configuration from: " + projectConfigFile.getName());
+            ProjectConfig projectConfig = null;
+            try {
+                projectConfig = YamlHelper.parseProjectConfig(projectConfigFile);
+            } catch (IOException e) {
+                getLog().warn("Failed to parse " + projectConfigFile);
+            }
+            if (projectConfig != null) {
+                String chatRoom = projectConfig.getChatRoom();
+                if (Strings.isNotBlank(chatRoom)) {
+                    getLog().info("Found chat room: " + chatRoom);
+                    letschatRoomExpression = chatRoom;
+                }
+                String issueProjectName = projectConfig.getIssueProjectName();
+                if (Strings.isNotBlank(issueProjectName)) {
+                    taigaProjectName = issueProjectName;
+                }
+            }
+        } else {
+            getLog().info("No fabric8.yml file found for " + basedir);
+        }
+        if (Strings.isNullOrBlank(gitUrl)) {
+            try {
+                gitUrl = GitHelpers.extractGitUrl(basedir);
+            } catch (IOException e) {
+                getLog().warn("Could not load git URL from directory: " + e, e);
+            }
+        }
+        if (Strings.isNullOrBlank(taigaProjectName)) {
+            taigaProjectName = repoName;
+        }
+        if (Strings.isNullOrBlank(taigaProjectSlug)) {
+            // TODO should we upper case it or anything?
+            taigaProjectSlug = taigaProjectName;
+        }
     }
 
     protected String getChatRoomLink(LetsChatClient letschat) {
@@ -327,7 +392,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             return null;
         }
         if (!letsChat.isValid()) {
-            getLog().warn("No $LETSCHAT_TOKEN environment variable defined so LetsChat support is disabled");
+            getLog().warn("No $" + LetsChatKubernetes.LETSCHAT_HUBOT_TOKEN + " environment variable defined so LetsChat support is disabled");
             return null;
         }
         return letsChat;
@@ -338,7 +403,9 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             return null;
         }
         TaigaClient taiga = TaigaKubernetes.createTaiga(getKubernetes());
-        taiga.setAutoCreateProjects(taigaAutoCreate);
+        if (taiga != null) {
+            taiga.setAutoCreateProjects(taigaAutoCreate);
+        }
         return taiga;
     }
 
@@ -369,6 +436,15 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
     protected ProjectDTO createTaigaProject(TaigaClient taiga) {
         if (taiga != null) {
+            if (Strings.isNullOrBlank(taigaProjectName)) {
+                getLog().info("Not creating Taiga project as no `fabric8.tagiaProjectName` property specified");
+                return null;
+            }
+            if (Strings.isNullOrBlank(taigaProjectSlug)) {
+                getLog().info("Not creating Taiga project as no `fabric8.taigaProjectSlug` property specified");
+                return null;
+            }
+            getLog().info("About to create Taiga project " + taigaProjectName + " with slug: " + taigaProjectSlug);
             return taiga.getOrCreateProject(taigaProjectName, taigaProjectSlug);
         }
         return null;

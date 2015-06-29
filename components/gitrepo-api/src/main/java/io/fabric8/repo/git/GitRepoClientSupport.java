@@ -16,8 +16,13 @@
  */
 package io.fabric8.repo.git;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import static io.fabric8.utils.cxf.WebClients.handle404ByReturningNull;
 
 /**
  */
@@ -43,6 +48,24 @@ public abstract class GitRepoClientSupport {
 
     public List<OrganisationDTO> listUserOrganisations() {
         return getApi().listUserOrganisations();
+    }
+
+    public RepositoryDTO getRepository(final String owner, final String repo) {
+        return handle404ByReturningNull(new Callable<RepositoryDTO>() {
+            @Override
+            public RepositoryDTO call() throws Exception {
+                return getApi().getRepository(owner, repo);
+            }
+        });
+    }
+
+    public RepositoryDTO getOrganisationRepository(final String organisation, final String repo) {
+        return handle404ByReturningNull(new Callable<RepositoryDTO>() {
+            @Override
+            public RepositoryDTO call() throws Exception {
+                return getApi().getOrganisationRepository(organisation, repo);
+            }
+        });
     }
 
     public WebHookDTO createWebhook(String owner, String repo, CreateWebhookDTO dto) {

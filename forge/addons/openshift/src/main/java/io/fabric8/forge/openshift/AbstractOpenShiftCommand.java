@@ -16,6 +16,7 @@
 package io.fabric8.forge.openshift;
 
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -31,7 +32,6 @@ import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
-import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIContextProvider;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;

@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
+import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Objects;
@@ -113,6 +114,11 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
         log.info("Querying webhooks in gogs for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
 
         GitRepoClient repoClient = new GitRepoClient(gogsAddress, gogsUser, gogsPwd);
+        RepositoryDTO repository = repoClient.getRepository(gogsUser, repoName);
+        if (repository == null) {
+            log.info("No repository found for user: " + gogsUser + " repo: " + repoName + " so cannot create any web hooks");
+            return false;
+        }
         List<WebHookDTO> webhooks = repoClient.getWebhooks(gogsUser, repoName);
         for (WebHookDTO webhook : webhooks) {
             String url = null;

@@ -29,10 +29,14 @@ import org.slf4j.LoggerFactory;
 public class LetsChatKubernetes {
     private static final transient Logger LOG = LoggerFactory.getLogger(LetsChatKubernetes.class);
 
+    public static final String LETSCHAT_HUBOT_USERNAME = "LETSCHAT_HUBOT_USERNAME";
+    public static final String LETSCHAT_HUBOT_PASSWORD = "LETSCHAT_HUBOT_PASSWORD";
+    public static final String LETSCHAT_HUBOT_TOKEN = "LETSCHAT_HUBOT_TOKEN";
+
     public static LetsChatClient createLetsChat(KubernetesClient kubernetes) {
-        String userName = Systems.getEnvVarOrSystemProperty("LETSCHAT_USERNAME", "admin");
-        String password = Systems.getEnvVarOrSystemProperty("LETSCHAT_PASSWORD", "123123");
-        String token = Systems.getEnvVarOrSystemProperty("LETSCHAT_TOKEN");
+        String userName = Systems.getEnvVarOrSystemProperty(LETSCHAT_HUBOT_USERNAME, "fabric8");
+        String password = Systems.getEnvVarOrSystemProperty(LETSCHAT_HUBOT_PASSWORD, "RedHat$1");
+        String token = Systems.getEnvVarOrSystemProperty(LETSCHAT_HUBOT_TOKEN);
 
         String namespace = kubernetes.getNamespace();
         String address;

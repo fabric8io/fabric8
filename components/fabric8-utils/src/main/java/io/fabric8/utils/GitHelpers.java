@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.forge.openshift;
+package io.fabric8.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -25,6 +26,31 @@ import java.util.Map;
 /**
  */
 public class GitHelpers {
+
+    /**
+     * Returns the remote git URL for the given folder; looking for the .git/config file in the current directory or a parent directory
+     */
+    public static String extractGitUrl(File basedir) throws IOException {
+        if (basedir.exists() && basedir.isDirectory()) {
+            File gitConfig = new File(basedir, ".git/config");
+            if (gitConfig.isFile() && gitConfig.exists()) {
+                String text = IOHelpers.readFully(gitConfig);
+                if (text != null) {
+                    return extractGitUrl(text);
+                }
+            }
+        }
+        File parentFile = basedir.getParentFile();
+        if (parentFile != null) {
+            return extractGitUrl(parentFile);
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns the remote git URL for the given git config file text lets extract the
+     */
     public static String extractGitUrl(String configText) {
         String remote = null;
         String lastUrl = null;

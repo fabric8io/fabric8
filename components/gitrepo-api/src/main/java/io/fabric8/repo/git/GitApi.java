@@ -46,10 +46,18 @@ public interface GitApi {
     @Path("orgs/{org}/repos")
     public List<RepositoryDTO> listOrganisationRepositories(@PathParam("org") String organisation);
 
+    @GET
+    @Path("orgs/{org}/repos/{repo}")
+    public RepositoryDTO getOrganisationRepository(@PathParam("org") String organisation, @PathParam("repo") String repo);
+
     @POST
     @Path("user/repos")
     public RepositoryDTO createRepository(CreateRepositoryDTO dto);
 
+
+    @GET
+    @Path("repos/{owner}/{repo}")
+    public RepositoryDTO getRepository(@PathParam("owner") String owner, @PathParam("repo") String repo);
 
     @GET
     @Path("repos/{owner}/{repo}/hooks")

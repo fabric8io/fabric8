@@ -16,12 +16,8 @@
  */
 package io.fabric8.forge.openshift;
 
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.utils.cxf.JsonHelper;
+import io.fabric8.utils.GitHelpers;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
