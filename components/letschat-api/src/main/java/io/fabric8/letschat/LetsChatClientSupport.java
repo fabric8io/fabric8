@@ -191,7 +191,7 @@ public abstract class LetsChatClientSupport {
                 }
             } else {
                 if (Strings.isNullOrBlank(authToken)) {
-                    throw new IllegalArgumentException("No token available for letschat so cannot login. Try setting the $LETSCHAT_TOKEN environment variable?");
+                    throw new IllegalArgumentException("No token available for letschat so cannot login. Try setting the $" + LetsChatKubernetes.LETSCHAT_HUBOT_TOKEN + " environment variable?");
                 }
             }
         }

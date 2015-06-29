@@ -177,7 +177,8 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     protected boolean taigaEnabled;
 
     /**
-     * Should we enable LetsChat integration if $LETSCHAT_TOKEN is enabled
+     * Should we enable LetsChat integration if the
+     * {@link LetsChatKubernetes#LETSCHAT_HUBOT_TOKEN} environment variable is enabled
      */
     @Parameter(property = "fabric8.letschatEnabled", defaultValue = "true")
     protected boolean letschatEnabled;
