@@ -85,7 +85,7 @@
           <!-- begin navbar -->
           <div id="main-nav-collapse" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-              <li title="Get started with fabric8 now!"><a href="/guide/getStarted.html">Get Started</a></li>
+              <li title="Get started with fabric8 now!"><a href="/guide/getStarted/index.html">Get Started</a></li>
               <li title="Check out the documentation"><a href="/docs/index.html">Documentation</a></li>
               <li title="Join the fabric8 community"><a href="/community/index.html">Community</a></li>
               <li title="View articles, demos and videos on using fabric8"><a href="/articles/index.html">Articles</a></li>
@@ -171,7 +171,7 @@
 
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
 
-<p>If you need to run Java on real Windows processes then we recommend using <a href="http://fabric8.io/guide/jube.html">Jube</a> which will run your Java containers as real windows processes.</p>
+<p>If you need to run Java on real Windows processes then we recommend using <a href="jube/index.html">Jube</a> which will run your Java containers as real windows processes.</p>
 
 <h4 id = "Does_Fabric8_use_ZooKeeper_runtime_registry_">Does Fabric8 use ZooKeeper runtime registry?</h4>
 
@@ -181,7 +181,7 @@
 
 <h4 id = "Does_Fabric8_still_use_profiles_to_configure_application_deployment_">Does Fabric8 still use profiles to configure application deployment?</h4>
 
-<p>No, not anymore. Starting from v2 Fabric8 uses <a href="http://fabric8.io/guide/apps.html">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
+<p>No, not anymore. Starting from v2 Fabric8 uses <a href="apps.html">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
 to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
 added to the file system of the application's Docker image.</p>
 
@@ -189,21 +189,22 @@ added to the file system of the application's Docker image.</p>
 
 <p>Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use 
 profiles (but app templates instead), the Git repository is not needed anymore. You can just store application's configuration (app file)
-in the Maven project and use the <a href="http://fabric8.io/guide/mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes
+in the Maven project and use the <a href="mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes
 without keeping the configuration in any central repository (like Git).</p>
 
 <p>However keeping app files in Git for easier configuration management can be useful. That's why Hawt.io provides this
 functionality for you. You can push your configuration to the Hawt.io Git repository via 
-<a href="http://fabric8.io/guide/mavenPlugin.html#deploying">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="http://fabric8.io/guide/appzip.html">App Zip</a>
+<a href="mavenPlugin.html#deploying">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="appzip.html">App Zip</a>
 packaging format to distribute the configuration between the various environments.</p>
 
 <h4 id = "Is_Fabric8_server_required_to_provision_applications_">Is Fabric8 server required to provision applications?</h4>
 
 <p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
-managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like <a href="http://fabric8.io/guide/mavenPlugin.html">Fabric8 Maven plugin</a>
+managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like 
+<a href="mavenPlugin.html">Fabric8 Maven plugin</a>
 or <a href="http://hawt.io">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
 
-<p>If you are using <a href="http://fabric8.io/jube/getStarted.html">Jube as the Kubernetes implementation</a> and to emulate Docker then you will need to run a Jube server.</p>
+<p>If you are using <a href="jube/getStarted.html">Jube as the Kubernetes implementation</a> and to emulate Docker then you will need to run a Jube server.</p>
 
 <h4 id = "If_there_is_no_Fabric8_server__how_can_I_use_Fabric8_shell_">If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
 

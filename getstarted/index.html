@@ -85,7 +85,7 @@
           <!-- begin navbar -->
           <div id="main-nav-collapse" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-              <li title="Get started with fabric8 now!"><a href="/guide/getStarted.html">Get Started</a></li>
+              <li title="Get started with fabric8 now!"><a href="/guide/getStarted/index.html">Get Started</a></li>
               <li title="Check out the documentation"><a href="/docs/index.html">Documentation</a></li>
               <li title="Join the fabric8 community"><a href="/community/index.html">Community</a></li>
               <li title="View articles, demos and videos on using fabric8"><a href="/articles/index.html">Articles</a></li>
@@ -108,48 +108,35 @@
       <h1>Getting Started</h1>
   ## Getting Started</p>
 
-<p>The easiest way to get started with Fabric8 on your laptop is via  <a href="getStartedVagrant.html">Vagrant</a> below:</p>
+<h4 id = "OpenShift___Kubernetes_setup">OpenShift / Kubernetes setup</h4>
 
-<h3 id = "Vagrant">Vagrant</h3>
-
-<p>We highly recommend using the Fabric8 Vagrant image as the fastest way to get started:</p>
+<p>First you need an OpenShift/Kubernetes environment, which can be setup in multiple ways. For a quick start choose one 
+of these two recipes:</p>
 
 <ul>
-<li><a href="getStartedVagrant.html">Fabric8 Vagrant</a></li>
+<li><p><a href="vagrant.html"><strong>Vagrant</strong></a></p>
+
+<p>This is the easiest and fastest way to get started with fabric8 locally. 
+All you need is <a href="https://www.vagrantup.com/">Vagrant</a> and <a href="https://www.virtualbox.org/">VirtualBox</a> installed locally. 
+The detailed steps are described in &ldquo;<a href="vagrant.html">Fabric8 Vagrant Image</a>&rdquo;</p></li>
+<li><p><a href="openshift.html"><strong>Native OpenShift</strong></a> </p>
+
+<p>If you have <a href="http://www.openshift.com">OpenShift V3</a> installed locally, 
+this <a href="openshift.html">guide</a> helps you step-by-step how to install fabric8 on it.</p></li>
 </ul>
 
-<h3 id = "Other_options">Other options</h3>
+<h4 id = "Local_client_setup">Local client setup</h4>
 
-<p>The ideal linux based platform for running Fabric8 is <a href="http://www.openshift.org/">OpenShift V3</a>:</p>
+<p>For a smooth developer experience and for using the fabric8 <a href="../tools.html">tools</a> a local OpenShift client needs to be setup.
+How this is done is described in this <a href="local.html">recipe</a>.</p>
 
-<p>If you already have OpenShift installed then try:</p>
-
-<ul>
-<li><a href="fabric8OnOpenShift.html">Install Fabric8 on OpenShift</a></li>
-</ul>
-
-<p>Otherwise checkout how to install OpenShift:</p>
+<h3 id = "What_s_next">What's next</h3>
 
 <ul>
-<li><a href="setupOpenShift.html">Setup OpenShift</a></li>
-</ul>
-
-<p>If you are Java developer then <a href="jube.html">Jube</a> is an option. </p>
-
-<p><strong>Note</strong> currently Jube got broken as fabric8 followed OpenShift 1.0 and Kubernetes 1.0. We will be fixing this soon ;)</p>
-
-<ul>
-<li><a href="getStartedJube.html">Get Started with Jube</a></li>
-<li><a href="http://fabric8.io/jube/troubleshooting.html">Troubleshooting with Jube</a></li>
-</ul>
-
-<h3 id = "Whats_next">Whats next</h3>
-
-<ul>
-<li><a href="fabric8Apps.html">Run a Fabric8 App</a></li>
-<li><a href="quickstarts.html">Check out the Quickstarts</a></li>
-<li><a href="developLocally.html">Learn how to develop applications locally</a></li>
-<li><a href="http://fabric8.io/guide/example.html">Running a quickstart on the iPaaS</a></li>
+<li><a href="apps.html">Run a fabric8 App</a></li>
+<li><a href="../quickstarts.html">Check out the Quickstarts</a></li>
+<li><a href="develop.html">Learn how to develop applications locally</a></li>
+<li><a href="example.html">Running a quickstart on the iPaaS</a></li>
 </ul>
 
 <h3 id = "Troubleshooting">Troubleshooting</h3>
