@@ -5,7 +5,7 @@ title: get your fabric8 running!
     <div class="row">
       <div class="col-md-12">
       <h1>Getting Started</h1>
-  ${unescape(loadText(new FileInputStream("../docs/getStarted.md")))}
+  ${unescape(loadText(new FileInputStream("../docs/getStarted/index.md")))}
   </div>
     </div>
       </div>

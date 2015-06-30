@@ -10,7 +10,7 @@ title: read up on fabric8!
       <h1>Documentation for version 2.2.3</h1>
       <dl>
         <dt>
-          <a href="http://fabric8.io/guide/getStarted.html">Getting Started</a>
+          <a href="http://fabric8.io/guide/getStarted/index.html">Getting Started</a>
         </dt>
         <dd>
           Read the getting started guide to find out how to download and install fabric8 in your own environment.
