@@ -32,6 +32,7 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.maven.support.DefaultExcludedEnvVariablesEnum;
 import io.fabric8.maven.support.DockerCommandPlainPrint;
 import io.fabric8.maven.support.IDockerCommandPlainPrintCostants;
 import io.fabric8.maven.support.OrderedProperties;
@@ -47,6 +48,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -98,6 +100,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             Map<String, String> env = getEnvFromConfig(list);
             String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
+            removeDefaultEnv(env);
             displayEnv(env);
 
             if (name == null) {
@@ -335,6 +338,15 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
         getLog().info("");
 
+    }
+    
+    private void removeDefaultEnv(Map<String, String> map) {
+        for(Iterator<Map.Entry<String, String>> it = map.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, String> entry = it.next();
+            if(DefaultExcludedEnvVariablesEnum.contains(entry.getKey())) {
+                it.remove();
+            }
+        }
     }
     
     private void displayDockerRunCommand(DockerCommandPlainPrint dockerCommandPlainPrint) {
