@@ -114,6 +114,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             dockerCommandPlainPrint.appendContainerPorts(containerPort, IDockerCommandPlainPrintCostants.PORT_FLAG);
             dockerCommandPlainPrint.appendVolumeMounts(volumeMount, IDockerCommandPlainPrintCostants.VOLUME_FLAG);
             dockerCommandPlainPrint.appendImageName(name);
+            
+            displayVolumes(volumeMount);
+            displayContainerPorts(containerPort);
             displayDockerRunCommand(dockerCommandPlainPrint);
 
             Properties properties = getProject().getProperties();
@@ -330,6 +333,65 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 
         getLog().info("");
         getLog().info("Generated Environment variables:");
+        getLog().info("-------------------------------");
+
+        List<String> lines = table.asTextLines();
+        for (String line : lines) {
+            getLog().info(line);
+        }
+        getLog().info("");
+
+    }
+    
+    private void displayVolumes(List<VolumeMount> volumeMount) {
+        TablePrinter table = new TablePrinter();
+        table.columns("Name", "Mount Path", "Read Only");
+
+		Iterator<VolumeMount> it = volumeMount.iterator();
+		while (it.hasNext()){
+			VolumeMount vol = it.next();
+            String name = vol.getName();
+            String mounthPath = vol.getMountPath();
+            String ro = String.valueOf(Boolean.FALSE);
+            if (vol.getReadOnly() == true) {
+            	ro = String.valueOf(Boolean.TRUE);
+            }
+			table.row(name, mounthPath, ro);
+		}
+
+        getLog().info("");
+        getLog().info("Volumes Summary:");
+        getLog().info("-------------------------------");
+
+        List<String> lines = table.asTextLines();
+        for (String line : lines) {
+            getLog().info(line);
+        }
+        getLog().info("");
+
+    }
+    
+    private void displayContainerPorts(List<ContainerPort> containerPort) {
+        TablePrinter table = new TablePrinter();
+        table.columns("Host IP", "Host Port", "Container Port");
+
+		Iterator<ContainerPort> it = containerPort.iterator();
+		while (it.hasNext()){
+			ContainerPort port = it.next();
+            String hostIp = port.getHostIP();
+            String hostPort = "";
+            String contPort = "";
+            if (port.getHostPort() != null) {
+            	hostPort = String.valueOf(port.getHostPort());
+            }
+            if (port.getContainerPort() != null) {
+            	contPort = String.valueOf(port.getContainerPort());
+            }
+			table.row(hostIp, hostPort, contPort);
+		}
+
+        getLog().info("");
+        getLog().info("Container Ports Summary:");
         getLog().info("-------------------------------");
 
         List<String> lines = table.asTextLines();
