@@ -17,19 +17,21 @@
  */
 package io.fabric8.devops;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
  */
-public class YamlHelper {
+public class ProjectConfigs {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ProjectConfigs.class);
 
+    public static final String FILE_NAME = "fabric8.yml";
 
     public static String toYaml(Object dto) throws JsonProcessingException {
         ObjectMapper mapper = createObjectMapper();
@@ -50,5 +52,20 @@ public class YamlHelper {
     private static <T> T parseYaml(File file, Class<T> clazz) throws IOException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.readValue(file, clazz);
+    }
+
+    /**
+     * Saves the fabric8.yml file to the given project directory
+     */
+    public static boolean saveToFolder(File basedir, ProjectConfig config, boolean overwriteIfExists) throws IOException {
+        File file = new File(basedir, ProjectConfigs.FILE_NAME);
+        if (file.exists()) {
+            if (!overwriteIfExists) {
+                LOG.warn("Not generating " + file + " as it already exists");
+                return false;
+            }
+        }
+        createObjectMapper().writeValue(file, config);
+        return true;
     }
 }

@@ -16,6 +16,9 @@
  */
 package io.fabric8.devops;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.fabric8.utils.Strings;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +26,10 @@ import java.util.List;
  * Represents the project configuration YAML file which allows a project to be configured
  * for <a href="http://fabric8.io/devops/">Fabric8 DevOps</a>
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProjectConfig {
-    private List<String> flows;
+
+    private List<String> flows = new ArrayList<>();
     private String chatRoom;
     private String issueProjectName;
     private Boolean codeReview;
@@ -43,6 +48,11 @@ public class ProjectConfig {
             flows = new ArrayList<>();
         }
         flows.add(flow);
+    }
+
+
+    public boolean isEmpty() {
+        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && (flows == null || flows.isEmpty());
     }
 
     // Properties
@@ -79,4 +89,5 @@ public class ProjectConfig {
     public void setIssueProjectName(String issueProjectName) {
         this.issueProjectName = issueProjectName;
     }
+
 }

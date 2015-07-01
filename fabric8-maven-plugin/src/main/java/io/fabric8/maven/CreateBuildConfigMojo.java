@@ -16,7 +16,7 @@
 package io.fabric8.maven;
 
 import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.YamlHelper;
+import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -306,7 +306,7 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
             getLog().info("Parsing fabric8 devops project configuration from: " + projectConfigFile.getName());
             ProjectConfig projectConfig = null;
             try {
-                projectConfig = YamlHelper.parseProjectConfig(projectConfigFile);
+                projectConfig = ProjectConfigs.parseProjectConfig(projectConfigFile);
             } catch (IOException e) {
                 getLog().warn("Failed to parse " + projectConfigFile);
             }

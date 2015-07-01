@@ -35,7 +35,7 @@ public class YamlTest {
         config.setCodeReview(true);
         config.setIssueProjectName("THING");
 
-        String yaml = YamlHelper.toYaml(config);
+        String yaml = ProjectConfigs.toYaml(config);
         System.out.println("Config: " + config + " is yaml: " + yaml);
     }
 
@@ -45,7 +45,7 @@ public class YamlTest {
         File file = new File(basedir, "src/test/resources/fabric8.yml");
         assertThat(file).exists();
 
-        ProjectConfig config = YamlHelper.parseProjectConfig(file);
+        ProjectConfig config = ProjectConfigs.parseProjectConfig(file);
         System.out.println("Parsed: " + config);
 
         assertThat(config.getChatRoom()).isEqualTo("myroom");

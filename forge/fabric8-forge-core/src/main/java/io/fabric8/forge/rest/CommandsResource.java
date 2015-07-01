@@ -385,7 +385,16 @@ public class CommandsResource {
     protected RestUIContext createUIContext(String resourcePath) {
         AddonRegistry addonRegistry = furnace.getAddonRegistry();
         Imported<ResourceFactory> resourceFactoryImport = addonRegistry.getServices(ResourceFactory.class);
-        ResourceFactory resourceFactory = resourceFactoryImport.get();
+        ResourceFactory resourceFactory = null;
+        try {
+            resourceFactory = resourceFactoryImport.get();
+        } catch (Exception e) {
+            LOG.warn("Failed to get ResourceFactory injected: " + e, e);
+        }
+        if (resourceFactory == null) {
+            // lets try one more time - might work this time?
+            resourceFactory = resourceFactoryImport.get();
+        }
         Resource<?> selection = null;
         if (Strings.isNotBlank(resourcePath) && resourceFactory != null) {
             // lets split out user repositories

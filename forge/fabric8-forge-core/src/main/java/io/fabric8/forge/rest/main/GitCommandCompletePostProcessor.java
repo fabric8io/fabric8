@@ -17,6 +17,8 @@
  */
 package io.fabric8.forge.rest.main;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
@@ -60,10 +62,14 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.WebApplicationException;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -144,6 +150,8 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 String targetLocation = null;
                 String named = null;
                 List<Map<String, String>> inputList = executionRequest.getInputList();
+                ProjectConfig config = new ProjectConfig();
+
                 for (Map<String, String> map : inputList) {
                     if (Strings.isNullOrEmpty(targetLocation)) {
                         targetLocation = map.get("targetLocation");
@@ -151,6 +159,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     if (Strings.isNullOrEmpty(named)) {
                         named = map.get("named");
                     }
+                    configureProperties(config, map);
                 }
                 if (Strings.isNullOrEmpty(targetLocation)) {
                     LOG.warn("No targetLocation could be found!");
@@ -194,6 +203,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Using remoteUrl: " + remoteUrl + " and remote name " + origin);
                         configureBranch(git, branch, origin, remoteUrl);
 
+                        createFabric8YmlFile(basedir, config);
                         createKubernetesResources(user, named, remoteUrl, branch, repoClient, address);
 
                         String message = createCommitMessage(name, executionRequest);
@@ -227,6 +237,53 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+
+    protected void createFabric8YmlFile(File basedir, ProjectConfig config) {
+        if (!config.isEmpty()) {
+            try {
+                if (ProjectConfigs.saveToFolder(basedir, config, false)) {
+                    LOG.info("Generated " + ProjectConfigs.FILE_NAME + " file");
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to generate " + ProjectConfigs.FILE_NAME  + " due to: " + e, e);
+            }
+        }
+    }
+
+    protected void configureProperties(ProjectConfig config, Map<String, String> map) {
+        System.out.println("====== Configuring project properties with: " + map);
+
+        Class<? extends ProjectConfig> clazz = config.getClass();
+        BeanInfo beanInfo = null;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException e) {
+            LOG.warn("Could not introspect " + clazz.getName() + ". " + e, e);
+        }
+        if (beanInfo != null) {
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : propertyDescriptors) {
+                Method writeMethod = descriptor.getWriteMethod();
+                if (writeMethod != null) {
+                    String name = descriptor.getName();
+                    String value = map.get(name);
+                    if (value != null) {
+                        try {
+                            writeMethod.invoke(config, value);
+                        } catch (Exception e) {
+                            LOG.warn("Failed to set property " + name
+                                    + " with value " + value
+                                    + " on " + clazz.getName() + " " + config + ". " + e, e);
+                        }
+                    }
+                }
+            }
+        }
+        String flow = map.get("flow");
+        if (!Strings.isNullOrEmpty(flow)) {
+            config.addFlow(flow);
         }
     }
 
