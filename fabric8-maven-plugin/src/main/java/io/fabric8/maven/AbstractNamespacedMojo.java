@@ -45,9 +45,12 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     @Parameter(property = "fabric8.recreate")
     protected boolean recreate;
 
-    private KubernetesClient kubernetes = new KubernetesClient();
+    private KubernetesClient kubernetes;
 
     public KubernetesClient getKubernetes() {
+        if (kubernetes == null) {
+            kubernetes = new KubernetesClient();
+        }
         if (Strings.isNotBlank(namespace)) {
             kubernetes.setNamespace(namespace);
         }
