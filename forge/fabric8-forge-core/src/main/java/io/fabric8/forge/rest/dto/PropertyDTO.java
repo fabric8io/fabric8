@@ -35,8 +35,9 @@ public class PropertyDTO {
     private final boolean required;
     @JsonProperty("enum")
     private final List<Object> valueChoices;
+    private final List<Object> typeaheadData;
 
-    public PropertyDTO(String name, String description, String title, String requiredMessage, Object value, String javaType, String type, boolean enabled, boolean required, List<Object> valueChoices) {
+    public PropertyDTO(String name, String description, String title, String requiredMessage, Object value, String javaType, String type, boolean enabled, boolean required, List<Object> valueChoices, List<Object> typeaheadData) {
         this.name = name;
         this.description = description;
         this.title = title;
@@ -47,6 +48,7 @@ public class PropertyDTO {
         this.enabled = enabled;
         this.required = required;
         this.valueChoices = valueChoices;
+        this.typeaheadData = typeaheadData;
     }
 
     @Override
@@ -96,5 +98,9 @@ public class PropertyDTO {
 
     public List<Object> getValueChoices() {
         return valueChoices;
+    }
+
+    public List<Object> getTypeaheadData() {
+        return typeaheadData;
     }
 }

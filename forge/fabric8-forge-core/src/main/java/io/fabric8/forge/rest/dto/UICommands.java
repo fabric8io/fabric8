@@ -101,39 +101,39 @@ public class UICommands {
         boolean enabled = input.isEnabled();
         boolean required = input.isRequired();
         List<Object> enumValues = new ArrayList<>();
-        Iterable valueChoices = null;
-        Converter converter = null;
+        List<Object> typeaheadData = new ArrayList<>();
         boolean isSelect = false;
         if (input instanceof SelectComponent) {
             SelectComponent selectComponent = (SelectComponent) input;
-            valueChoices = selectComponent.getValueChoices();
-            converter = selectComponent.getItemLabelConverter();
-            isSelect = true;
+            Iterable valueChoices = selectComponent.getValueChoices();
+            Converter converter = selectComponent.getItemLabelConverter();
+            for (Object valueChoice : valueChoices) {
+                Object jsonValue = convertValueToSafeJson(converter, valueChoice);
+                enumValues.add(jsonValue);
+            }
         }
-        if (valueChoices == null && input instanceof HasCompleter) {
+        if (input instanceof HasCompleter) {
             HasCompleter hasCompleter = (HasCompleter) input;
             UICompleter completer = hasCompleter.getCompleter();
             if (completer != null) {
                 Object currentValue = InputComponents.getValueFor(input);
                 String textValue = currentValue != null ? currentValue.toString() : "";
-                valueChoices = completer.getCompletionProposals(context, input, textValue);
+                Iterable valueChoices = completer.getCompletionProposals(context, input, textValue);
                 // TODO is there a way to find a converter?
-                converter = null;
-            }
-        }
-        if (valueChoices != null) {
-            for (Object valueChoice : valueChoices) {
-                Object jsonValue = convertValueToSafeJson(converter, valueChoice);
-                enumValues.add(jsonValue);
-            }
-            if (!isSelect) {
-                // lets set a flag on the DTO to indicate its not a mandatory enum
+                Converter converter = null;
+                for (Object valueChoice : valueChoices) {
+                    Object jsonValue = convertValueToSafeJson(converter, valueChoice);
+                    typeaheadData.add(jsonValue);
+                }
             }
         }
         if (enumValues.isEmpty()) {
             enumValues = null;
         }
-        return new PropertyDTO(name, description, label, requiredMessage, value, javaType, type, enabled, required, enumValues);
+        if (typeaheadData.isEmpty()) {
+            typeaheadData = null;
+        }
+        return new PropertyDTO(name, description, label, requiredMessage, value, javaType, type, enabled, required, enumValues, typeaheadData);
     }
 
     /**
