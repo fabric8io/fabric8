@@ -21,6 +21,9 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.context.UIValidationContext;
+import org.jboss.forge.addon.ui.input.InputComponent;
+import org.jboss.forge.addon.ui.input.UICompleter;
+import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
 import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
@@ -45,16 +48,20 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsStep.class);
 
     @Inject
-    @WithAttributes(label = "flow", required = true, description = "The URL of the Jenkins workflow groovy script to use for builds")
-    private UISelectOne<String> flow;
+    @WithAttributes(label = "flow", required = false, description = "The URL of the Jenkins workflow groovy script to use for builds")
+    private UIInput<String> flow;
 
     @Inject
     @WithAttributes(label = "chatRoom", required = false, description = "Name of chat room to use for this project")
-    private UISelectOne<String> chatRoom;
+    private UIInput<String> chatRoom;
 
     @Inject
     @WithAttributes(label = "issueProjectName", required = false, description = "Name of the issue tracker project")
-    private UISelectOne<String> issueProjectName;
+    private UIInput<String> issueProjectName;
+
+    @Inject
+    @WithAttributes(label = "codeReview", required = false, description = "Enable code review of all commits")
+    private UIInput<Boolean> codeReview;
 
 
     @Override
@@ -67,8 +74,12 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        flow.setValueChoices(getFlowURIs());
-        // show note about the chosen value
+        flow.setCompleter(new UICompleter<String>() {
+            @Override
+            public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
+                return getFlowURIs();
+            }
+        });
         flow.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
@@ -81,8 +92,12 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
                 }
             }
         });
-        chatRoom.setValueChoices(getChatRoomNames());
-        // show note about the chosen value
+        chatRoom.setCompleter(new UICompleter<String>() {
+            @Override
+            public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
+                return getChatRoomNames();
+            }
+        });
         chatRoom.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
@@ -95,8 +110,12 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
                 }
             }
         });
-        issueProjectName.setValueChoices(getIssueProjectNames());
-        // show note about the chosen value
+        issueProjectName.setCompleter(new UICompleter<String>() {
+            @Override
+            public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
+                return getIssueProjectNames();
+            }
+        });
         issueProjectName.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
@@ -109,18 +128,7 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
                 }
             }
         });
-        builder.add(flow).add(chatRoom).add(issueProjectName);
-    }
-
-    @Override
-    public void validate(UIValidationContext validator) {
-        super.validate(validator);
-
-        String value = flow.getValue();
-        if (Strings.isNullOrEmpty(value)) {
-            validator.addValidationError(flow, "You must enter a flow");
-        }
-
+        builder.add(flow).add(chatRoom).add(issueProjectName).add(codeReview);
     }
 
     protected String getDescriptionForFlow(String flow) {
