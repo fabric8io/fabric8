@@ -18,21 +18,24 @@
 package io.fabric8.forge.rest.dto;
 
 import io.fabric8.forge.rest.ui.RestUIContext;
+import io.fabric8.forge.rest.ui.RestUIProvider;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.projects.ProjectProvider;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.addon.ui.command.UICommand;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.controller.CommandController;
+import org.jboss.forge.addon.ui.input.HasCompleter;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.SelectComponent;
+import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.output.UIMessage;
 import org.jboss.forge.addon.ui.result.CompositeResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.util.InputComponents;
-import io.fabric8.forge.rest.ui.RestUIProvider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,9 +44,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static org.jboss.forge.furnace.util.Strings.capitalize;
-import static io.fabric8.forge.rest.dto.JsonSchemaTypes.getJsonSchemaTypeName;
 import static io.fabric8.forge.rest.dto.UIMessageDTO.toDtoList;
+import static org.jboss.forge.furnace.util.Strings.capitalize;
 
 /**
  */
@@ -71,7 +73,7 @@ public class UICommands {
             for (Map.Entry<String, InputComponent<?, ?>> entry : entries) {
                 String key = entry.getKey();
                 InputComponent<?, ?> input = entry.getValue();
-                PropertyDTO dto = UICommands.createInputDTO(input);
+                PropertyDTO dto = UICommands.createInputDTO(context, input);
                 inputInfo.addProperty(key, dto);
             }
         }
@@ -82,7 +84,7 @@ public class UICommands {
         return value != null ? value.toString() : null;
     }
 
-    public static PropertyDTO createInputDTO(InputComponent<?, ?> input) {
+    public static PropertyDTO createInputDTO(UIContext context, InputComponent<?, ?> input) {
         String name = input.getName();
         String description = input.getDescription();
         String label = input.getLabel();
@@ -99,15 +101,34 @@ public class UICommands {
         boolean enabled = input.isEnabled();
         boolean required = input.isRequired();
         List<Object> enumValues = new ArrayList<>();
+        Iterable valueChoices = null;
+        Converter converter = null;
+        boolean isSelect = false;
         if (input instanceof SelectComponent) {
             SelectComponent selectComponent = (SelectComponent) input;
-            Iterable valueChoices = selectComponent.getValueChoices();
-            Converter converter = selectComponent.getItemLabelConverter();
+            valueChoices = selectComponent.getValueChoices();
+            converter = selectComponent.getItemLabelConverter();
+            isSelect = true;
+        }
+        if (valueChoices == null && input instanceof HasCompleter) {
+            HasCompleter hasCompleter = (HasCompleter) input;
+            UICompleter completer = hasCompleter.getCompleter();
+            if (completer != null) {
+                Object currentValue = InputComponents.getValueFor(input);
+                String textValue = currentValue != null ? currentValue.toString() : "";
+                valueChoices = completer.getCompletionProposals(context, input, textValue);
+                // TODO is there a way to find a converter?
+                converter = null;
+            }
+        }
+        if (valueChoices != null) {
             for (Object valueChoice : valueChoices) {
                 Object jsonValue = convertValueToSafeJson(converter, valueChoice);
                 enumValues.add(jsonValue);
             }
-
+            if (!isSelect) {
+                // lets set a flag on the DTO to indicate its not a mandatory enum
+            }
         }
         if (enumValues.isEmpty()) {
             enumValues = null;
