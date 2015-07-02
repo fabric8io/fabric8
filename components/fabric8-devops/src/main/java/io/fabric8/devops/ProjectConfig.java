@@ -16,6 +16,7 @@
  */
 package io.fabric8.devops;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.fabric8.utils.Strings;
 
@@ -50,7 +51,7 @@ public class ProjectConfig {
         flows.add(flow);
     }
 
-
+    @JsonIgnore
     public boolean isEmpty() {
         return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && (flows == null || flows.isEmpty());
     }
