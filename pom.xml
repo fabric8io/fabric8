@@ -2231,6 +2231,7 @@
         </plugins>
       </pluginManagement>
       <plugins>
+<!--
 	  <plugin>
               <groupId>io.sundr</groupId>
 	      <artifactId>sundr-maven-plugin</artifactId>
@@ -2242,7 +2243,7 @@
 				      <goal>generate-bom</goal>
 			      </goals>
 		      </execution>
-		      <!--execution>
+		      &lt;!&ndash;execution>
 			      <id>install-bom</id>
 			      <phase>install</phase>
 			      <goals>
@@ -2255,9 +2256,10 @@
 			      <goals>
 				      <goal>deploy-bom</goal>
 			      </goals>
-		      </execution-->
+		      </execution&ndash;&gt;
 	      </executions>
 	  </plugin>
+-->
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
