@@ -190,7 +190,10 @@ public abstract class LetsChatClientSupport {
                     generateToken(api);
                 }
             } else {
-                if (Strings.isNullOrBlank(authToken)) {
+                if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
+                    // this is fine
+                } else if (Strings.isNullOrBlank(authToken)) {
+                    LOG.info("username: " + username + " password: " + password);
                     throw new IllegalArgumentException("No token available for letschat so cannot login. Try setting the $" + LetsChatKubernetes.LETSCHAT_HUBOT_TOKEN + " environment variable?");
                 }
             }

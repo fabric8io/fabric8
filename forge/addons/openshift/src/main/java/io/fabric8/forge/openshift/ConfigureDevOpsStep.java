@@ -1,30 +1,35 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Copyright 2005-2015 Red Hat, Inc.
+ * <p/>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.forge.openshift;
 
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.letschat.LetsChatClient;
+import io.fabric8.letschat.LetsChatKubernetes;
+import io.fabric8.letschat.RoomDTO;
+import io.fabric8.taiga.ProjectDTO;
+import io.fabric8.taiga.TaigaClient;
+import io.fabric8.taiga.TaigaKubernetes;
 import org.jboss.forge.addon.ui.command.AbstractUICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
-import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
 import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
@@ -35,13 +40,15 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
-import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardStep {
@@ -63,6 +70,9 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
     @WithAttributes(label = "codeReview", required = false, description = "Enable code review of all commits")
     private UIInput<Boolean> codeReview;
 
+    private KubernetesClient kubernetes;
+    private LetsChatClient letsChat;
+    private TaigaClient taiga;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -144,7 +154,26 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
     }
 
     protected Iterable<String> getIssueProjectNames() {
-        return Arrays.asList("dummy");
+        TaigaClient letschat = getTaiga();
+        Set<String> answer = new TreeSet<>();
+        if (letschat != null) {
+            List<ProjectDTO> projects = null;
+            try {
+                projects = letschat.getProjects();
+            } catch (Exception e) {
+                LOG.warn("Failed to load chat projects! " + e, e);
+            }
+            if (projects != null) {
+                for (ProjectDTO project : projects) {
+                    String name = project.getName();
+                    if (name != null) {
+                        answer.add(name);
+                    }
+                }
+            }
+        }
+        return answer;
+
     }
 
 
@@ -153,7 +182,25 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
     }
 
     protected Iterable<String> getChatRoomNames() {
-        return Arrays.asList("fabric8_default");
+        LetsChatClient letschat = getLetsChat();
+        Set<String> answer = new TreeSet<>();
+        if (letschat != null) {
+            List<RoomDTO> rooms = null;
+            try {
+                rooms = letschat.getRooms();
+            } catch (Exception e) {
+                LOG.warn("Failed to load chat rooms! " + e, e);
+            }
+            if (rooms != null) {
+                for (RoomDTO room : rooms) {
+                    String name = room.getSlug();
+                    if (name != null) {
+                        answer.add(name);
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
     @Override
@@ -172,19 +219,32 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
         }
     }
 
-    /**
-     * Returns the mandatory String value of the given name
-     *
-     * @throws IllegalArgumentException if the value is not available in the given attribute map
-     */
-    public static String mandatoryAttributeValue(Map<Object, Object> attributeMap, String name) {
-        Object value = attributeMap.get(name);
-        if (value != null) {
-            String text = value.toString();
-            if (!Strings.isNullOrEmpty(text)) {
-                return text;
-            }
+    public KubernetesClient getKubernetes() {
+        if (kubernetes == null) {
+            kubernetes = new KubernetesClient();
         }
-        throw new IllegalArgumentException("The attribute value '" + name + "' did not get passed on from the previous wizard page");
+        return kubernetes;
+    }
+
+    public LetsChatClient getLetsChat() {
+        if (letsChat == null) {
+            letsChat = LetsChatKubernetes.createLetsChat(getKubernetes());
+        }
+        return letsChat;
+    }
+
+    public void setLetsChat(LetsChatClient letsChat) {
+        this.letsChat = letsChat;
+    }
+
+    public TaigaClient getTaiga() {
+        if (taiga == null) {
+            taiga = TaigaKubernetes.createTaiga(getKubernetes());
+        }
+        return taiga;
+    }
+
+    public void setTaiga(TaigaClient taiga) {
+        this.taiga = taiga;
     }
 }

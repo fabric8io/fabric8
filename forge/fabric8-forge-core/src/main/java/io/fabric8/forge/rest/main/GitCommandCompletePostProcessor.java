@@ -84,6 +84,7 @@ import static io.fabric8.utils.cxf.JsonHelper.toJson;
 /**
  * For new projects; lets git add, git commit, git push otherwise lets git add/commit/push any new/udpated changes
  */
+// TODO we should try add this into the ConfigureDevOpsStep.execute() block instead!
 public class GitCommandCompletePostProcessor implements CommandCompletePostProcessor {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitCommandCompletePostProcessor.class);
     public static final String PROJECT_NEW_COMMAND = "project-new";
