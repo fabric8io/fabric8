@@ -17,29 +17,14 @@ package io.fabric8.forge.devops;
 
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
-import io.fabric8.forge.addon.utils.CommandHelpers;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.letschat.LetsChatClient;
-import io.fabric8.letschat.LetsChatKubernetes;
-import io.fabric8.letschat.RoomDTO;
-import io.fabric8.taiga.ProjectDTO;
-import io.fabric8.taiga.TaigaClient;
-import io.fabric8.taiga.TaigaKubernetes;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.resource.util.ResourceUtil;
-import org.jboss.forge.addon.ui.command.AbstractUICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.input.InputComponent;
-import org.jboss.forge.addon.ui.input.UICompleter;
-import org.jboss.forge.addon.ui.input.UIInput;
-import org.jboss.forge.addon.ui.input.ValueChangeListener;
-import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
-import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
@@ -49,23 +34,18 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 
-public class SaveDevOpsStep extends AbstractOpenShiftCommand implements UIWizardStep {
+public class SaveDevOpsStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(SaveDevOpsStep.class);
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(getClass())
-                .category(Categories.create(AbstractOpenShiftCommand.CATEGORY))
-                .name(AbstractOpenShiftCommand.CATEGORY + ": Save")
+                .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
+                .name(AbstractDevOpsCommand.CATEGORY + ": Save")
                 .description("Saves the DevOps options");
     }
 

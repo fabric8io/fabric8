@@ -38,8 +38,8 @@ public class NewDevopsProjectCommand extends AbstractUICommand implements UIWiza
 
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(getClass())
-                .category(Categories.create(AbstractOpenShiftCommand.CATEGORY))
-                .name(AbstractOpenShiftCommand.CATEGORY + ": Project New")
+                .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
+                .name(AbstractDevOpsCommand.CATEGORY + ": Project New")
                 .description("Create a new project with DevOps configuration");
     }
 

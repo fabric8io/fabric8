@@ -46,10 +46,10 @@ import javax.inject.Inject;
 import java.io.PrintStream;
 
 /**
- * An abstract base class for OpenShift related commands
+ * An abstract base class for DevOps related commands
  */
-public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand implements UICommand {
-    private static final transient Logger LOG = LoggerFactory.getLogger(AbstractOpenShiftCommand.class);
+public class AbstractDevOpsCommand extends AbstractProjectCommand implements UICommand {
+    private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDevOpsCommand.class);
 
     public static String CATEGORY = "DevOps";
 
@@ -119,6 +119,11 @@ public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand im
 
     @Override
     public void initializeUI(UIBuilder uiBuilder) throws Exception {
+    }
+
+    @Override
+    public Result execute(UIExecutionContext context) throws Exception {
+        return Results.success();
     }
 
     /**

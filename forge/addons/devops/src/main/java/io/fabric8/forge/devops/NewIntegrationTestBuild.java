@@ -44,7 +44,7 @@ import static io.fabric8.utils.cxf.JsonHelper.toJson;
 /**
  * Creates a new integration test build in OpenShift for the current project
  */
-public class NewIntegrationTestBuild extends AbstractOpenShiftCommand {
+public class NewIntegrationTestBuild extends AbstractDevOpsCommand {
     @Inject
     @WithAttributes(name = "buildName", label = "Build name",
             description = "The build configuration name to generate.",

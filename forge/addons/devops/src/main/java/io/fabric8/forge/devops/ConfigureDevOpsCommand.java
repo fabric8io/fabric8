@@ -15,13 +15,6 @@
  */
 package io.fabric8.forge.devops;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.facets.ResourcesFacet;
-import org.jboss.forge.addon.resource.FileResource;
-import org.jboss.forge.addon.resource.Resource;
-import org.jboss.forge.addon.resource.util.ResourceUtil;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
@@ -36,21 +29,15 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
-
-public class ConfigureDevOpsCommand extends AbstractOpenShiftCommand implements UIWizard {
+public class ConfigureDevOpsCommand extends AbstractDevOpsCommand implements UIWizard {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsCommand.class);
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(getClass())
-                .category(Categories.create(AbstractOpenShiftCommand.CATEGORY))
-                .name(AbstractOpenShiftCommand.CATEGORY + ": Edit")
+                .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
+                .name(AbstractDevOpsCommand.CATEGORY + ": Edit")
                 .description("Edit the DevOps options of a project");
     }
 

@@ -25,7 +25,6 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
-import org.jboss.forge.addon.ui.command.AbstractUICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -56,7 +55,7 @@ import java.util.TreeSet;
 import static io.fabric8.forge.devops.SaveDevOpsStep.getProjectConfigFile;
 
 
-public class ConfigureDevOpsStep extends AbstractOpenShiftCommand implements UIWizardStep {
+public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsStep.class);
 
     @Inject
@@ -83,8 +82,8 @@ public class ConfigureDevOpsStep extends AbstractOpenShiftCommand implements UIW
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(getClass())
-                .category(Categories.create(AbstractOpenShiftCommand.CATEGORY))
-                .name(AbstractOpenShiftCommand.CATEGORY + ": Configure")
+                .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
+                .name(AbstractDevOpsCommand.CATEGORY + ": Configure")
                 .description("Configure the DevOps options");
     }
 

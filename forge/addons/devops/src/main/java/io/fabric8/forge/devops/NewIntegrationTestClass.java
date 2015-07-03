@@ -56,7 +56,7 @@ import static io.fabric8.forge.addon.utils.MavenHelpers.createCoordinate;
 /**
  * Creates a new kubernetes integration test class for the current project
  */
-public class NewIntegrationTestClass extends AbstractOpenShiftCommand {
+public class NewIntegrationTestClass extends AbstractDevOpsCommand {
     private static final transient Logger LOG = LoggerFactory.getLogger(NewIntegrationTestClass.class);
 
     @Inject
