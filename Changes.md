@@ -1,4 +1,9 @@
 
+### 2.2.5
+
+* The new project wizard now lets you configure a [fabric8.yml file](https://github.com/fabric8io/fabric8/issues/4086) like this [example](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-devops/src/test/resources/fabric8.yml) for configuring the devops side of a project such as the chat room and issue tracker for a project and whether code review is enabled. Over time when we move to the [Jenkins Docker Workflow](https://github.com/fabric8io/fabric8/issues/4286) for builds; we'll be able to use configured the flow too.
+* Fixes [these 13 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.5)
+
 ### 2.2.3
 
 * The [Metrics](http://fabric8.io/guide/metrics.html) and [Logging](http://fabric8.io/guide/chat.html) now work out of the box if you run them by pressing the `Run...` button on the `Apps` tab in the [console](http://fabric8.io/guide/console.html) when using the [vagrant image](http://fabric8.io/guide/getStartedVagrant.html) 
