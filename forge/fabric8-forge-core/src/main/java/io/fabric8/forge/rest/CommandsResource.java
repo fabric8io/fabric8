@@ -412,9 +412,8 @@ public class CommandsResource {
                     UserDetails userDetails = gitUserHelper.createUserDetails(request);
 
                     File file = projectFileSystem.cloneOrPullProjetFolder(userId, repositoryName, userDetails);
-
-
                     selection = resourceFactory.create(file);
+                    LOG.info("Completed pulling source code");
                 }
             } else {
                 LOG.warn("Unknown path of the form user/{userId}/{repositoryName}");
