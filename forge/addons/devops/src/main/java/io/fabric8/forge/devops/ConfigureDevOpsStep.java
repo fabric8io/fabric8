@@ -15,6 +15,9 @@
  */
 package io.fabric8.forge.devops;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.forge.addon.utils.CommandHelpers;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
@@ -44,14 +47,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static io.fabric8.forge.devops.SaveDevOpsStep.getProjectConfigFile;
 
-public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardStep {
+
+public class ConfigureDevOpsStep extends AbstractOpenShiftCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsStep.class);
 
     @Inject
@@ -73,12 +78,13 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
     private KubernetesClient kubernetes;
     private LetsChatClient letsChat;
     private TaigaClient taiga;
+    private List<InputComponent> inputComponents;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(getClass())
                 .category(Categories.create(AbstractOpenShiftCommand.CATEGORY))
-                .name(AbstractOpenShiftCommand.CATEGORY + ": Configure DevOps")
+                .name(AbstractOpenShiftCommand.CATEGORY + ": Configure")
                 .description("Configure the DevOps options");
     }
 
@@ -138,7 +144,33 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
                 }
             }
         });
-        builder.add(flow).add(chatRoom).add(issueProjectName).add(codeReview);
+
+        // lets initialise the data from the current config if it exists
+        ProjectConfig config = null;
+        File configFile = getProjectConfigFile(getSelectedProject(builder.getUIContext()));
+        if (configFile != null && configFile.exists()) {
+            config = ProjectConfigs.parseProjectConfig(configFile);
+        }
+        if (config != null) {
+            CommandHelpers.setInitialComponentValue(flow, config.firstFlow());
+            CommandHelpers.setInitialComponentValue(chatRoom, config.getChatRoom());
+            CommandHelpers.setInitialComponentValue(issueProjectName, config.getIssueProjectName());
+            CommandHelpers.setInitialComponentValue(codeReview, config.getCodeReview());
+        }
+
+        inputComponents = CommandHelpers.addInputComponents(builder, flow, chatRoom, issueProjectName, codeReview);
+    }
+
+
+    @Override
+    public NavigationResult next(UINavigationContext context) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Result execute(UIExecutionContext context) throws Exception {
+        CommandHelpers.putComponentValuesInAttributeMap(context, inputComponents);
+        return Results.success();
     }
 
     protected String getDescriptionForFlow(String flow) {
@@ -176,7 +208,6 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
 
     }
 
-
     protected String getDescriptionForChatRoom(String chatRoom) {
         return null;
     }
@@ -201,22 +232,6 @@ public class ConfigureDevOpsStep extends AbstractUICommand implements UIWizardSt
             }
         }
         return answer;
-    }
-
-    @Override
-    public NavigationResult next(UINavigationContext context) throws Exception {
-        return null;
-    }
-
-    @Override
-    public Result execute(UIExecutionContext context) throws Exception {
-        Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-        LOG.info("devops tab has attributes:: " + attributeMap);
-        try {
-            return Results.success("");
-        } catch (IllegalArgumentException e) {
-            return Results.fail(e.getMessage());
-        }
     }
 
     public KubernetesClient getKubernetes() {

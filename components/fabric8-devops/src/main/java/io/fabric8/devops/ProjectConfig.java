@@ -51,6 +51,14 @@ public class ProjectConfig {
         flows.add(flow);
     }
 
+    public String firstFlow() {
+        if (flows != null && flows.size() > 0) {
+            return flows.get(0);
+        } else {
+            return null;
+        }
+    }
+
     @JsonIgnore
     public boolean isEmpty() {
         return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && (flows == null || flows.isEmpty());

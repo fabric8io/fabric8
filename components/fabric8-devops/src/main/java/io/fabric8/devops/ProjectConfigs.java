@@ -20,12 +20,20 @@ package io.fabric8.devops;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  */
@@ -54,6 +62,10 @@ public class ProjectConfigs {
         return parseYaml(input, ProjectConfig.class);
     }
 
+    public static ProjectConfig parseProjectConfig(String yaml) throws IOException {
+        return parseYaml(yaml, ProjectConfig.class);
+    }
+
     private static <T> T parseYaml(File file, Class<T> clazz) throws IOException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.readValue(file, clazz);
@@ -62,6 +74,11 @@ public class ProjectConfigs {
     private static <T> T parseYaml(InputStream inputStream, Class<T> clazz) throws IOException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.readValue(inputStream, clazz);
+    }
+
+    private static <T> T parseYaml(String yaml, Class<T> clazz) throws IOException {
+        ObjectMapper mapper = createObjectMapper();
+        return mapper.readValue(yaml, clazz);
     }
 
     /**
@@ -75,8 +92,78 @@ public class ProjectConfigs {
                 return false;
             }
         }
+        return saveConfig(config, file);
+    }
+
+    /**
+     * Saves the configuration as YAML in the given file
+     */
+    public static boolean saveConfig(ProjectConfig config, File file) throws IOException {
         createObjectMapper().writeValue(file, config);
         return true;
+    }
+
+    /**
+     * Configures the given {@link ProjectConfig} with a map of key value pairs from
+     * something like a JBoss Forge command
+     */
+    public static void configureProperties(ProjectConfig config, Map map) {
+        Class<? extends ProjectConfig> clazz = config.getClass();
+        BeanInfo beanInfo = null;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException e) {
+            LOG.warn("Could not introspect " + clazz.getName() + ". " + e, e);
+        }
+        if (beanInfo != null) {
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : propertyDescriptors) {
+                Method writeMethod = descriptor.getWriteMethod();
+                if (writeMethod != null) {
+                    String name = descriptor.getName();
+                    Object value = map.get(name);
+                    if (value != null) {
+                        Object safeValue = null;
+                        boolean updated = false;
+                        Class<?> propertyType = descriptor.getPropertyType();
+                        if (propertyType.isInstance(value)) {
+                            safeValue = value;
+                        } else {
+                            PropertyEditor editor = descriptor.createPropertyEditor(config);
+                            if (editor != null) {
+                                String text = value.toString();
+                                editor.setAsText(text);
+                                updated = true;
+                            } else {
+                                LOG.warn("Cannot update property " + name
+                                        + " with value " + value
+                                        + " of type " + propertyType.getName()
+                                        + " on " + clazz.getName());
+                            }
+                        }
+                        if (!updated && safeValue != null) {
+                            try {
+                                writeMethod.invoke(config, safeValue);
+                            } catch (Exception e) {
+                                LOG.warn("Failed to set property " + name
+                                        + " with value " + value
+                                        + " on " + clazz.getName() + " " + config + ". " + e, e);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        Object flowValue = map.get("flow");
+        if (flowValue != null) {
+            String flow = flowValue.toString();
+            if (Strings.isNotBlank(flow)) {
+                // TODO for now lets remove other flows!
+                config.setFlows(null);
+                config.addFlow(flow);
+            }
+        }
     }
 
 }

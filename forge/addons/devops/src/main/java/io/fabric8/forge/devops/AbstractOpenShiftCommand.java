@@ -51,7 +51,7 @@ import java.io.PrintStream;
 public abstract class AbstractOpenShiftCommand extends AbstractProjectCommand implements UICommand {
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractOpenShiftCommand.class);
 
-    public static String CATEGORY = "OpenShift";
+    public static String CATEGORY = "DevOps";
 
     private KubernetesClient kubernetes;
 
