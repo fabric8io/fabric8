@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.forge.openshift;
+package io.fabric8.forge.devops;
 
+import io.fabric8.forge.devops.BuildConfigs;
 import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.utils.cxf.JsonHelper;
 import org.junit.Test;

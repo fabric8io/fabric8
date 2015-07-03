@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.forge.openshift;
+package io.fabric8.forge.devops;
 
 import org.jboss.forge.addon.projects.ui.NewProjectWizard;
 import org.jboss.forge.addon.ui.command.UICommand;

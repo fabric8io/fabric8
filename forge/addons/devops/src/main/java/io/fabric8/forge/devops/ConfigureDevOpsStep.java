@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package io.fabric8.forge.openshift;
+package io.fabric8.forge.devops;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
