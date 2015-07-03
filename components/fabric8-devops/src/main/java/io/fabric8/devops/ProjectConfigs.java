@@ -29,6 +29,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -124,16 +125,18 @@ public class ProjectConfigs {
                     Object value = map.get(name);
                     if (value != null) {
                         Object safeValue = null;
-                        boolean updated = false;
                         Class<?> propertyType = descriptor.getPropertyType();
                         if (propertyType.isInstance(value)) {
                             safeValue = value;
                         } else {
                             PropertyEditor editor = descriptor.createPropertyEditor(config);
+                            if (editor == null) {
+                                editor = PropertyEditorManager.findEditor(propertyType);
+                            }
                             if (editor != null) {
                                 String text = value.toString();
                                 editor.setAsText(text);
-                                updated = true;
+                                safeValue = editor.getValue();
                             } else {
                                 LOG.warn("Cannot update property " + name
                                         + " with value " + value
@@ -141,7 +144,7 @@ public class ProjectConfigs {
                                         + " on " + clazz.getName());
                             }
                         }
-                        if (!updated && safeValue != null) {
+                        if (safeValue != null) {
                             try {
                                 writeMethod.invoke(config, safeValue);
                             } catch (Exception e) {
