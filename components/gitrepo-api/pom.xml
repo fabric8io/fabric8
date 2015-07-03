@@ -52,6 +52,11 @@
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-api</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- testing -->
     <dependency>

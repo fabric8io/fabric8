@@ -26,6 +26,8 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.openshift.api.model.BuildConfigFluent;
+import io.fabric8.repo.git.GitRepoClient;
+import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
@@ -41,6 +43,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,6 +76,12 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.gogsPassword")
     protected String password;
+
+    /**
+     * the gogs branch to find the fabric8.yml if this goal is run outside of the source code
+     */
+    @Parameter(property = "fabric8.gogsBranch", defaultValue = "master")
+    protected String branch;
 
     /**
      *
@@ -197,6 +206,8 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.letschatRoomLinkLabel", defaultValue = "fabric8_${namespace}")
     protected String letschatRoomExpression;
 
+    private GitRepoClient gitRepoClient;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -301,25 +312,57 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
         createTaigaWebhook(taiga, taigaProject);
     }
 
+    public GitRepoClient getGitRepoClient() {
+        if (gitRepoClient == null) {
+            gitRepoClient = GitRepoKubernetes.createGitRepoClient(getKubernetes(), username, password);
+            if (gitRepoClient != null) {
+                if (Strings.isNullOrBlank(username)) {
+                    username = gitRepoClient.getUsername();
+                }
+                if (Strings.isNullOrBlank(password)) {
+                    password = gitRepoClient.getPassword();
+                }
+            }
+        }
+        return gitRepoClient;
+    }
+
     protected void loadConfigFile() {
+        GitRepoClient gitRepo = getGitRepoClient();
+
+        ProjectConfig projectConfig = null;
         if (projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile()) {
             getLog().info("Parsing fabric8 devops project configuration from: " + projectConfigFile.getName());
-            ProjectConfig projectConfig = null;
             try {
                 projectConfig = ProjectConfigs.parseProjectConfig(projectConfigFile);
             } catch (IOException e) {
                 getLog().warn("Failed to parse " + projectConfigFile);
             }
-            if (projectConfig != null) {
-                String chatRoom = projectConfig.getChatRoom();
-                if (Strings.isNotBlank(chatRoom)) {
-                    getLog().info("Found chat room: " + chatRoom);
-                    letschatRoomExpression = chatRoom;
+        }
+        if (projectConfig == null && Strings.isNotBlank(repoName) && gitRepo != null) {
+            try {
+                InputStream input = gitRepo.getRawFile(username, repoName, branch, ProjectConfigs.FILE_NAME);
+                if (input != null) {
+                    try {
+                        getLog().info("Parsing " + ProjectConfigs.FILE_NAME + " from the git repo " + repoName + " user " + username + " in branch " + branch);
+                        projectConfig = ProjectConfigs.parseProjectConfig(input);
+                    } catch (IOException e) {
+                        getLog().warn("Failed to parse " + ProjectConfigs.FILE_NAME + " from the repo " + repoName + " for user " + username + " branch: " + branch + ". " + e, e);
+                    }
                 }
-                String issueProjectName = projectConfig.getIssueProjectName();
-                if (Strings.isNotBlank(issueProjectName)) {
-                    taigaProjectName = issueProjectName;
-                }
+            } catch (Exception e) {
+                getLog().warn("Failed to load " + ProjectConfigs.FILE_NAME + " from the repo " + repoName + " for user " + username + " branch: " + branch + ". " + e, e);
+            }
+        }
+        if (projectConfig != null) {
+            String chatRoom = projectConfig.getChatRoom();
+            if (Strings.isNotBlank(chatRoom)) {
+                getLog().info("Found chat room: " + chatRoom);
+                letschatRoomExpression = chatRoom;
+            }
+            String issueProjectName = projectConfig.getIssueProjectName();
+            if (Strings.isNotBlank(issueProjectName)) {
+                taigaProjectName = issueProjectName;
             }
         } else {
             getLog().info("No fabric8.yml file found for " + basedir);
@@ -471,7 +514,8 @@ public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
 
     protected void createWebhook(String url, String webhookSecret) {
         try {
-            CreateGogsWebhook.createGogsWebhook(getKubernetes(), getLog(), username, password, repoName, url, webhookSecret);
+            GitRepoClient gitRepoClient = getGitRepoClient();
+            CreateGogsWebhook.createGogsWebhook(gitRepoClient, getLog(), username, repoName, url, webhookSecret);
         } catch (Exception e) {
             getLog().error("Failed to create webhook " + url + " on repository " + repoName + ". Reason: " + e, e);
         }

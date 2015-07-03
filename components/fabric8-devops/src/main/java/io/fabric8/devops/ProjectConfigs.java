@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  */
@@ -49,9 +50,18 @@ public class ProjectConfigs {
         return parseYaml(file, ProjectConfig.class);
     }
 
+    public static ProjectConfig parseProjectConfig(InputStream input) throws IOException {
+        return parseYaml(input, ProjectConfig.class);
+    }
+
     private static <T> T parseYaml(File file, Class<T> clazz) throws IOException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.readValue(file, clazz);
+    }
+
+    private static <T> T parseYaml(InputStream inputStream, Class<T> clazz) throws IOException {
+        ObjectMapper mapper = createObjectMapper();
+        return mapper.readValue(inputStream, clazz);
     }
 
     /**
@@ -68,4 +78,5 @@ public class ProjectConfigs {
         createObjectMapper().writeValue(file, config);
         return true;
     }
+
 }

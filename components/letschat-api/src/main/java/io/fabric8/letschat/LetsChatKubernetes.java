@@ -47,7 +47,7 @@ public class LetsChatKubernetes {
                 return null;
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+            LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
             return null;
         }
         LOG.info("Logging into LetsChat at " + address + " as user " + userName);
