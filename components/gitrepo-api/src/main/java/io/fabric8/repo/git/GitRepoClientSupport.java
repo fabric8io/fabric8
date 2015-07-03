@@ -19,6 +19,8 @@ package io.fabric8.repo.git;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -66,6 +68,20 @@ public abstract class GitRepoClientSupport {
                 return getApi().getOrganisationRepository(organisation, repo);
             }
         });
+    }
+
+    public InputStream getRawFile(String username, String repo, String branch, String path) {
+        try {
+            return getApi().getRawFile(username, repo, branch, path);
+        } catch (WebApplicationException e) {
+            int status = e.getResponse().getStatus();
+            // for some reason gogs returns a 500 rather than 404
+            if (status == 500 || status == 404) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     public WebHookDTO createWebhook(String owner, String repo, CreateWebhookDTO dto) {

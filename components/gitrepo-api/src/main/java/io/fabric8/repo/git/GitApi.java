@@ -23,6 +23,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -50,6 +51,14 @@ public interface GitApi {
     @Path("orgs/{org}/repos/{repo}")
     public RepositoryDTO getOrganisationRepository(@PathParam("org") String organisation, @PathParam("repo") String repo);
 
+/*
+    TODO not implemented yet
+
+    @GET
+    @Path("orgs/{org}/repos/{repo}/raw/{path:.*}")
+    public InputStream getOrganisationRawFile(@PathParam("org") String organisation, @PathParam("repo") String repo, @PathParam("path") String path);
+*/
+
     @POST
     @Path("user/repos")
     public RepositoryDTO createRepository(CreateRepositoryDTO dto);
@@ -58,6 +67,14 @@ public interface GitApi {
     @GET
     @Path("repos/{owner}/{repo}")
     public RepositoryDTO getRepository(@PathParam("owner") String owner, @PathParam("repo") String repo);
+
+    /**
+     * Returns the raw file for the given username, repo, branch/ref and file path
+     */
+    @GET
+    @Path("repos/{username}/{repo}/raw/{branch}/{path:.*}")
+    public InputStream getRawFile(@PathParam("username") String username, @PathParam("repo") String repo, @PathParam("branch") String branch, @PathParam("path") String path);
+
 
     @GET
     @Path("repos/{owner}/{repo}/hooks")
