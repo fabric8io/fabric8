@@ -23,8 +23,8 @@
     <artifactId>forge-addons</artifactId>
     <version>2.3-SNAPSHOT</version>
   </parent>
-  <artifactId>openshift</artifactId>
-  <name>Fabric8 :: Forge Addons :: OpenShift</name>
+  <artifactId>devops</artifactId>
+  <name>Fabric8 :: Forge Addons :: DevOps</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -91,7 +91,7 @@
   </dependencies>
 
   <build>
-    <finalName>openshift</finalName>
+    <finalName>devops</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
