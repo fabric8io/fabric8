@@ -140,7 +140,7 @@
           <executable>java</executable>
           <arguments>
             <argument>
-              -javaagent:${basedir}/target/fabric8-apm-2.2-SNAPSHOT.jar=startJolokiaAgent=true
+              -javaagent:${basedir}/target/fabric8-apm-2.3-SNAPSHOT.jar=startJolokiaAgent=true
             </argument>
             <argument>-classpath</argument>
             <classpath />

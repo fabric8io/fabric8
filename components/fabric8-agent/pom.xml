@@ -144,7 +144,7 @@
                     <executable>java</executable>
                     <arguments>
                         <argument>
-                            -javaagent:${basedir}/target/fabric8-agent-2.2-SNAPSHOT.jar
+                            -javaagent:${basedir}/target/fabric8-agent-2.3-SNAPSHOT.jar
                         </argument>
                         <argument>-classpath</argument>
                         <classpath />

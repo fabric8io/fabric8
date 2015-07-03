@@ -94,29 +94,29 @@
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric8-etcd-api</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric8-etcd-core</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
                 <artifactId>fabric8-etcd-reader-gson</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
                 <artifactId>fabric8-etcd-reader-jackson</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.3-SNAPSHOT</version>
             </dependency>
 
             <!-- Internal testing modules -->
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
                 <artifactId>fabric8-etcd-core</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.3-SNAPSHOT</version>
                 <type>test-jar</type>
             </dependency>
         </dependencies>
