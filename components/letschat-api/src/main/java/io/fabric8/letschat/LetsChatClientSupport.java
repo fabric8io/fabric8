@@ -175,6 +175,9 @@ public abstract class LetsChatClientSupport {
      * Returns true if this client has an address and an auth token
      */
     public boolean isValid() {
+        if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
+            return true;
+        }
         return Strings.isNotBlank(authToken);
     }
 
