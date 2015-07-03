@@ -160,10 +160,12 @@ public class UICommands {
         if (value == null) {
             return null;
         } else {
+            if (value instanceof Boolean) {
+                return value;
+            }
             if (value instanceof Number) {
                 return value;
             }
-
             if (value instanceof ProjectProvider) {
                 ProjectProvider projectProvider = (ProjectProvider) value;
                 return projectProvider.getType();
