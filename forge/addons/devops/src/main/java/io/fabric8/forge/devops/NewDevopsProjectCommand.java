@@ -49,7 +49,7 @@ public class NewDevopsProjectCommand extends AbstractUICommand implements UIWiza
 
 	@Override
 	public Result execute(UIExecutionContext context) throws Exception {
-		return Results.success("Command 'fabric8-new-project' successfully executed!");
+		return Results.success("");
 	}
 
 	@Override

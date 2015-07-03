@@ -254,8 +254,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     protected void configureProperties(ProjectConfig config, Map<String, String> map) {
-        System.out.println("====== Configuring project properties with: " + map);
-
         Class<? extends ProjectConfig> clazz = config.getClass();
         BeanInfo beanInfo = null;
         try {
