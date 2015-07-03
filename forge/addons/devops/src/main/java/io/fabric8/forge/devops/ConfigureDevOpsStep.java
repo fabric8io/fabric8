@@ -84,7 +84,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         return Metadata.forCommand(getClass())
                 .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
                 .name(AbstractDevOpsCommand.CATEGORY + ": Configure")
-                .description("Configure the DevOps options");
+                .description("Configure the DevOps options for the new project");
     }
 
     @Override

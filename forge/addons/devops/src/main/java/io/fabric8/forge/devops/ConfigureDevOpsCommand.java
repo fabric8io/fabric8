@@ -38,7 +38,7 @@ public class ConfigureDevOpsCommand extends AbstractDevOpsCommand implements UIW
         return Metadata.forCommand(getClass())
                 .category(Categories.create(AbstractDevOpsCommand.CATEGORY))
                 .name(AbstractDevOpsCommand.CATEGORY + ": Edit")
-                .description("Edit the DevOps options of a project");
+                .description("Edit the DevOps configuration for this project");
     }
 
 
