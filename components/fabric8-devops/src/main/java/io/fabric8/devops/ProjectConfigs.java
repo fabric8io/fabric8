@@ -37,6 +37,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
+ * A helper class for loading and saving the {@link ProjectConfig}
  */
 public class ProjectConfigs {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectConfigs.class);
@@ -46,6 +47,22 @@ public class ProjectConfigs {
     public static String toYaml(Object dto) throws JsonProcessingException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.writeValueAsString(dto);
+    }
+
+    /**
+     * Returns the configuration from the {@link #FILE_NAME} in the given folder or returns the default configuration
+     */
+    public static ProjectConfig loadFromFolder(File folder) {
+        File projectConfigFile = new File(folder, FILE_NAME);
+        if (projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile()) {
+            LOG.debug("Parsing fabric8 devops project configuration from: " + projectConfigFile.getName());
+            try {
+                return ProjectConfigs.parseProjectConfig(projectConfigFile);
+            } catch (IOException e) {
+                LOG.warn("Failed to parse " + projectConfigFile);
+            }
+        }
+        return new ProjectConfig();
     }
 
     /**
