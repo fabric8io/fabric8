@@ -115,7 +115,7 @@
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
       <artifactId>cdi</artifactId>
-      <version>${jboss.forge.version}</version>
+      <version>${furnace.version}</version>
       <classifier>forge-addon</classifier>
       <scope>provided</scope>
     </dependency>
