@@ -22,17 +22,24 @@ public class ForgeRestApplication extends Application {
     RootResource rootResource;
 
     @Inject
-    CommandsResource forgeResource;
+    CommandsResource commandsResource;
 
     @Inject
     RepositoriesResource repositoriesResource;
 
+    private boolean preloaded = false;
+
     @Override
     public Set<Object> getSingletons() {
+        if (!preloaded) {
+            preloaded = true;
+            forgeInitialiser.preloadCommands(commandsResource);
+        }
+
         return new HashSet<Object>(
                 Arrays.asList(
                         rootResource,
-                        forgeResource,
+                        commandsResource,
                         repositoriesResource,
                         new JacksonJsonProvider(),
 /*

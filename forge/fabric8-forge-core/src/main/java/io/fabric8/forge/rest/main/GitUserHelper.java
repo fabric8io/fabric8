@@ -42,8 +42,8 @@ public class GitUserHelper {
     // so if folks configured it on https then we'd just work
     @Inject
     public GitUserHelper(@ServiceName("gogs") @Protocol("http") String gogsUrl,
-                         @ConfigProperty(name = "GIT_DEFAULT_USER") String gitUser,
-                         @ConfigProperty(name = "GIT_DEFAULT_PASSWORD") String gitPassword) {
+                         @ConfigProperty(name = "JENKINS_GOGS_USER") String gitUser,
+                         @ConfigProperty(name = "JENKINS_GOGS_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
         this.address = gogsUrl.toString();
@@ -55,17 +55,20 @@ public class GitUserHelper {
     public UserDetails createUserDetails(HttpServletRequest request) {
         String user = gitUser;
         String password = gitPassword;
+        String authorization = null;
+        String emailHeader = null;
 
         // lets try custom headers or request parameters
-        String authorization = request.getHeader("GogsAuthorization");
-        if (Strings.isNullOrEmpty(authorization)) {
-            authorization = request.getParameter("_gogsAuth");
+        if (request != null) {
+            authorization = request.getHeader("GogsAuthorization");
+            if (Strings.isNullOrEmpty(authorization)) {
+                authorization = request.getParameter("_gogsAuth");
+            }
+            emailHeader = request.getHeader("GogsEmail");
+            if (Strings.isNullOrEmpty(emailHeader)) {
+                emailHeader = request.getParameter("_gogsEmail");
+            }
         }
-        String emailHeader = request.getHeader("GogsEmail");
-        if (Strings.isNullOrEmpty(emailHeader)) {
-            emailHeader = request.getParameter("_gogsEmail");
-        }
-
         if (!Strings.isNullOrEmpty(authorization)) {
             String basicPrefix = "basic";
             String lower = authorization.toLowerCase();
