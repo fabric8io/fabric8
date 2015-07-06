@@ -29,6 +29,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <docker.assemblyDescriptorRef>artifact-with-dependencies</docker.assemblyDescriptorRef>
     <maven.compiler.source>1.7</maven.compiler.source>
+    <docker-maven-plugin-version>0.13.0</docker-maven-plugin-version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -140,7 +141,7 @@
       <plugin>
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.11.2</version>
+        <version>${docker-maven-plugin-version}</version>
         <configuration>
           <images>
             <image>
@@ -202,7 +203,7 @@
           <plugin>
             <groupId>org.jolokia</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.11.1</version>
+            <version>${docker-maven-plugin-version}</version>
             <executions>
               <execution>
                 <phase>package</phase>
@@ -222,7 +223,7 @@
           <plugin>
             <groupId>org.jolokia</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.11.1</version>
+            <version>${docker-maven-plugin-version}</version>
             <executions>
               <execution>
                 <phase>package</phase>
