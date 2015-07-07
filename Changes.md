@@ -1,4 +1,10 @@
 
+### 2.2.6
+
+* integrated support for the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) to connect various DevOps services like git hosting, chat, issue tracking and jenkins for a project reusing the optional `fabric8.yml` file via JBoss Forge, Maven or in a JVM.
+* The `fabric8:create-build-config` goal is now renamed to `fabric8:devops` to reflect the more generic nature of updating the DevOps configuration via the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) 
+* Fixes [these 12 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.6)
+
 ### 2.2.5
 
 * The new project wizard now lets you configure a [fabric8.yml file](https://github.com/fabric8io/fabric8/issues/4086) like this [example](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-devops/src/test/resources/fabric8.yml) for configuring the devops side of a project such as the chat room and issue tracker for a project and whether code review is enabled. Over time when we move to the [Jenkins Docker Workflow](https://github.com/fabric8io/fabric8/issues/4286) for builds; we'll be able to use configured the flow too.

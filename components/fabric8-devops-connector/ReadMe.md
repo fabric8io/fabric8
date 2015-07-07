@@ -14,7 +14,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
 
 ### API Overview
 
-The main connector API is the [DevOpsConnector](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-devops-connector/src/main/java/io/fabric8/devops/connector/DevOpsConnector.java#L31).
+The main connector API is the [DevOpsConnector](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-devops-connector/src/main/java/io/fabric8/devops/connector/DevOpsConnector.java#L52).
 
 Once configured you can then call the `execute()` method:
 
