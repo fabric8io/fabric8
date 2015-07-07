@@ -181,8 +181,10 @@ public class CommandsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response executeCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
+
+            UserDetails userDetails = null;
             if (commandCompletePostProcessor != null) {
-                commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
+                userDetails = commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
             }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {
@@ -192,6 +194,14 @@ public class CommandsResource {
                 }
                 List<Map<String, String>> inputList = executionRequest.getInputList();
                 CommandController controller = createController(context, command);
+                Map<Object, Object> attributeMap = controller.getContext().getAttributeMap();
+                if (userDetails != null) {
+                    attributeMap.put("gitUser", userDetails.getUser());
+                    attributeMap.put("gitPassword", userDetails.getPassword());
+                    attributeMap.put("gitAuthorEmail", userDetails.getEmail());
+                    attributeMap.put("gitAddress", userDetails.getAddress());
+                    attributeMap.put("gitBranch", userDetails.getBranch());
+                }
                 ExecutionResult answer = null;
                 if (controller instanceof WizardCommandController) {
                     WizardCommandController wizardCommandController = (WizardCommandController) controller;

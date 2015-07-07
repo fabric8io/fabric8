@@ -17,8 +17,6 @@
  */
 package io.fabric8.forge.rest.main;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
@@ -105,7 +103,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     }
 
     @Override
-    public void preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request) {
+    public UserDetails preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request) {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
         if (Strings.isNullOrEmpty(userDetails.getUser()) || Strings.isNullOrEmpty(userDetails.getUser())) {
             throw new NotAuthorizedException("You must authenticate to be able to perform this command");
@@ -122,6 +120,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 }
             }
         }
+        return userDetails;
     }
 
 
@@ -146,7 +145,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                 String targetLocation = null;
                 String named = null;
                 List<Map<String, String>> inputList = executionRequest.getInputList();
-                ProjectConfig config = new ProjectConfig();
 
                 for (Map<String, String> map : inputList) {
                     if (Strings.isNullOrEmpty(targetLocation)) {
@@ -155,7 +153,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     if (Strings.isNullOrEmpty(named)) {
                         named = map.get("named");
                     }
-                    ProjectConfigs.configureProperties(config, map);
                 }
                 if (Strings.isNullOrEmpty(targetLocation)) {
                     LOG.warn("No targetLocation could be found!");
@@ -199,7 +196,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Using remoteUrl: " + remoteUrl + " and remote name " + origin);
                         configureBranch(git, branch, origin, remoteUrl);
 
-                        createFabric8YmlFile(basedir, config);
                         createKubernetesResources(user, named, remoteUrl, branch, repoClient, address);
 
                         String message = createCommitMessage(name, executionRequest);
@@ -233,18 +229,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         } catch (Exception e) {
             handleException(e);
-        }
-    }
-
-    protected void createFabric8YmlFile(File basedir, ProjectConfig config) {
-        if (!config.isEmpty()) {
-            try {
-                if (ProjectConfigs.saveToFolder(basedir, config, false)) {
-                    LOG.info("Generated " + ProjectConfigs.FILE_NAME + " file");
-                }
-            } catch (IOException e) {
-                LOG.warn("Failed to generate " + ProjectConfigs.FILE_NAME  + " due to: " + e, e);
-            }
         }
     }
 

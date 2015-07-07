@@ -36,7 +36,6 @@
 
   <dependencyManagement>
     <dependencies>
-<!--
       <dependency>
         <groupId>org.jboss.forge</groupId>
         <artifactId>forge-bom</artifactId>
@@ -44,33 +43,28 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
--->
-<!--
-      <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-6.0</artifactId>
-        <version>3.0.2.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
--->
     </dependencies>
   </dependencyManagement>
 
-
   <dependencies>
-<!--
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
-
     <dependency>
       <groupId>io.fabric8.forge</groupId>
       <artifactId>fabric8-forge-core</artifactId>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-devops</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-devops-connector</artifactId>
+    </dependency>
+-->
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
     </dependency>
 
     <dependency>
@@ -100,6 +94,11 @@
       <artifactId>weld-servlet</artifactId>
     </dependency>
 
+    <!-- forge stuff -->
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>ui-api</artifactId>
+    </dependency>
 
     <!-- testing -->
     <dependency>

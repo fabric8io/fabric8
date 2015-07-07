@@ -66,6 +66,14 @@ public class ProjectConfigs {
     }
 
     /**
+     * Returns true if the given folder has a configuration file called {@link #FILE_NAME}
+     */
+    public static boolean hasConfigFile(File folder) {
+        File projectConfigFile = new File(folder, FILE_NAME);
+        return projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile();
+    }
+
+    /**
      * Creates a configured Jackson object mapper for parsing YAML
      */
     public static ObjectMapper createObjectMapper() {

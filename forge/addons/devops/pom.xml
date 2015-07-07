@@ -46,14 +46,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-devops</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-utils</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8.forge</groupId>
       <artifactId>utils</artifactId>
       <version>${project.version}</version>
@@ -91,6 +83,18 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>taiga-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-devops-connector</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-devops</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-utils</artifactId>
     </dependency>
   </dependencies>
 

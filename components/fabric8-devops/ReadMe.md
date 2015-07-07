@@ -1,4 +1,4 @@
-## Fabric8 DevOps Configuration
+## Fabric8 DevOps 
 
 A Java library for working with the Fabric8 DevOps configuration for a project
 
@@ -8,7 +8,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
 
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>devops</artifactId>
+                <artifactId>fabric8-devops</artifactId>
                 <version>2.2.5</version>
             </dependency>
 

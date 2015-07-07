@@ -17,6 +17,7 @@
  */
 package io.fabric8.forge.rest.main;
 
+import io.fabric8.annotations.External;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
@@ -41,7 +42,7 @@ public class GitUserHelper {
     // TODO it'd be nice to pick either http or https based on the port number of the gogs service
     // so if folks configured it on https then we'd just work
     @Inject
-    public GitUserHelper(@ServiceName("gogs") @Protocol("http") String gogsUrl,
+    public GitUserHelper(@ServiceName("gogs") @Protocol("http") @External String gogsUrl,
                          @ConfigProperty(name = "JENKINS_GOGS_USER") String gitUser,
                          @ConfigProperty(name = "JENKINS_GOGS_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;

@@ -18,6 +18,7 @@
 package io.fabric8.forge.rest.hooks;
 
 import io.fabric8.forge.rest.dto.ExecutionRequest;
+import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.forge.rest.ui.RestUIContext;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import io.fabric8.forge.rest.dto.ExecutionResult;
@@ -30,5 +31,5 @@ import javax.servlet.http.HttpServletRequest;
 public interface CommandCompletePostProcessor {
     void firePostCompleteActions(String name, ExecutionRequest executionRequest, RestUIContext context, CommandController controller, ExecutionResult results, HttpServletRequest request);
 
-    void preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request);
+    UserDetails preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request);
 }

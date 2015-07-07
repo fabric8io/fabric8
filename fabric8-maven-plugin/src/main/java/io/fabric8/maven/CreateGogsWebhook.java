@@ -16,24 +16,19 @@
  */
 package io.fabric8.maven;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import io.fabric8.devops.connector.DevOpsConnector;
+import io.fabric8.devops.connector.WebHooks;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
-import io.fabric8.repo.git.RepositoryDTO;
-import io.fabric8.repo.git.WebHookDTO;
-import io.fabric8.repo.git.WebhookConfig;
-import io.fabric8.utils.Objects;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.util.List;
-
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 
 /**
  * Creates a web hook in a gogs repository
@@ -75,7 +70,7 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             KubernetesClient kubernetes = getKubernetes();
-            Log log = getLog();
+            final Log log = getLog();
             String gogsUser = this.gogsUsername;
             String gogsPwd = this.gogsPassword;
             String repoName = this.repo;
@@ -86,54 +81,13 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
             if (gitRepoClient == null) {
                 getLog().error("No Gogs service found in kubernetes at address " + kubernetes.getAddress() + " namespace " + kubernetes.getNamespace());
             } else {
-                createGogsWebhook(gitRepoClient, log, gogsUser, repoName, webhookUrlValue, webhookSecret);
+                // TODO should ideally reuse the mojo Log
+                Logger logger = LoggerFactory.getLogger(CreateGogsWebhook.class);
+                WebHooks.createGogsWebhook(gitRepoClient, logger, gogsUser, repoName, webhookUrlValue, webhookSecret);
             }
-        } catch (MojoExecutionException e) {
-            throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to load environment schemas: " + e, e);
         }
     }
 
-    /**
-     * Creates a webook in the given gogs repo for the user and password if the webhook does not already exist
-     */
-    public static boolean createGogsWebhook(GitRepoClient repoClient, Log log, String gogsUser, String repoName, String webhookUrl, String webhookSecret) throws MojoExecutionException, JsonProcessingException {
-        if (repoClient == null) {
-            log.info("Cannot create Gogs webhooks as no Gogs service could be found or created");
-            return false;
-        }
-        String gogsAddress = repoClient.getAddress();
-        log.info("Querying webhooks in gogs at address: " + gogsAddress + " for user " + gogsUser + " repoName: " + repoName);
-
-        RepositoryDTO repository = repoClient.getRepository(gogsUser, repoName);
-        if (repository == null) {
-            log.info("No repository found for user: " + gogsUser + " repo: " + repoName + " so cannot create any web hooks");
-            return false;
-        }
-        List<WebHookDTO> webhooks = repoClient.getWebhooks(gogsUser, repoName);
-        for (WebHookDTO webhook : webhooks) {
-            String url = null;
-            WebhookConfig config = webhook.getConfig();
-            if (config != null) {
-                url = config.getUrl();
-                if (Objects.equal(webhookUrl, url)) {
-                    log.info("Already has webhook for: " + url + " so not creating again");
-                    return false;
-                }
-                log.info("Ignoring webhook " + url + " from: " + toJson(config));
-            }
-        }
-        CreateWebhookDTO createWebhook = new CreateWebhookDTO();
-        createWebhook.setType("gogs");
-        WebhookConfig config = createWebhook.getConfig();
-        config.setUrl(webhookUrl);
-        config.setSecret(webhookSecret);
-        WebHookDTO webhook = repoClient.createWebhook(gogsUser, repoName, createWebhook);
-        if (log.isDebugEnabled()) {
-            log.debug("Got created web hook: " + toJson(webhook));
-        }
-        log.info("Created webhook for " + webhookUrl + " for user: " + gogsUser + " repoName: " + repoName + " on gogs URL: " + gogsAddress);
-        return true;
-    }
 }
