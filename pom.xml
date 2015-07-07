@@ -125,7 +125,7 @@
         <jansi.version>1.11</jansi.version>
         <jar.plugin.version>2.5</jar.plugin.version>
         <jasypt.version>1.9.2</jasypt.version>
-        <javax.el-version>2.2.4</javax.el-version>
+        <javax.el-version>2.2.5</javax.el-version>
         <jboss.forge.version>2.16.2.Final</jboss.forge.version>
         <!-- TODO is this always the same as drools.version? -->
         <jersey.version>1.18.1</jersey.version>
