@@ -34,6 +34,8 @@ public class YamlTest {
         config.setChatRoom("myroom");
         config.setCodeReview(true);
         config.setIssueProjectName("THING");
+        config.addLink("Room", "http://letschat.vagrant.f8/rooms/foo");
+        config.addLink("Jenkins", "http://jenkins.vagrant.f8/builds/foo");
 
         String yaml = ProjectConfigs.toYaml(config);
         System.out.println("Config: " + config + " is yaml: " + yaml);

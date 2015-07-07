@@ -22,6 +22,8 @@ import io.fabric8.utils.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Represents the project configuration YAML file which allows a project to be configured
@@ -34,6 +36,7 @@ public class ProjectConfig {
     private String chatRoom;
     private String issueProjectName;
     private Boolean codeReview;
+    private Map<String, String> links;
 
     @Override
     public String toString() {
@@ -57,6 +60,13 @@ public class ProjectConfig {
         } else {
             return null;
         }
+    }
+
+    public void addLink(String name, String url) {
+        if (links == null) {
+            links = new TreeMap<>();
+        }
+        links.put(name, url);
     }
 
     @JsonIgnore
@@ -99,4 +109,11 @@ public class ProjectConfig {
         this.issueProjectName = issueProjectName;
     }
 
+    public Map<String, String> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Map<String, String> links) {
+        this.links = links;
+    }
 }

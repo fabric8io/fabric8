@@ -88,6 +88,7 @@ public class DevOpsConnector {
     private String namespace;
     private KubernetesClient kubernetes;
     private boolean tryLoadConfigFileFromRemoteGit = true;
+    private boolean modifiedConfig;
 
     @Override
     public String toString() {
@@ -139,17 +140,25 @@ public class DevOpsConnector {
 
             if (Strings.isNotBlank(jenkinsUrl)) {
                 if (Strings.isNotBlank(jenkinsMonitorView)) {
-                    annotations.put("fabric8.link.jenkins.monitor/url", URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsMonitorView));
-                    annotations.put("fabric8.link.jenkins.monitor/label", "Monitor");
+                    String url = URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsMonitorView);
+                    annotations.put("fabric8.link.jenkins.monitor/url", url);
+                    String label = "Monitor";
+                    annotations.put("fabric8.link.jenkins.monitor/label", label);
+                    addLink(label, url);
                 }
                 if (Strings.isNotBlank(jenkinsPipelineView)) {
-                    annotations.put("fabric8.link.jenkins.pipeline/url", URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsPipelineView));
-                    annotations.put("fabric8.link.jenkins.pipeline/label", "Pipeline");
+                    String url = URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsPipelineView);
+                    annotations.put("fabric8.link.jenkins.pipeline/url", url);
+                    String label = "Pipeline";
+                    annotations.put("fabric8.link.jenkins.pipeline/label", label);
+                    addLink(label, url);
                 }
                 if (Strings.isNotBlank(jenkinsJob)) {
                     jenkinsJobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", jenkinsJob);
                     annotations.put("fabric8.link.jenkins.job/url", jenkinsJobUrl);
-                    annotations.put("fabric8.link.jenkins.job/label", "Job");
+                    String label = "Job";
+                    annotations.put("fabric8.link.jenkins.job/label", label);
+                    addLink(label, jenkinsJobUrl);
                 }
             }
         } catch (Exception e) {
@@ -160,17 +169,20 @@ public class DevOpsConnector {
         if (Strings.isNotBlank(taigaLink)) {
             annotations.put("fabric8.link.taiga/url", taigaLink);
             annotations.put("fabric8.link.taiga/label", taigaProjectLinkLabel);
+            addLink(taigaProjectLinkLabel, taigaLink);
         }
         String taigaTeamLink = getProjectPageLink(taiga, taigaProject, this.taigaTeamLinkPage);
         if (Strings.isNotBlank(taigaTeamLink)) {
             annotations.put("fabric8.link.taiga.team/url", taigaTeamLink);
             annotations.put("fabric8.link.taiga.team/label", taigaTeamLinkLabel);
+            addLink(taigaTeamLinkLabel, taigaTeamLink);
         }
 
         String chatRoomLink = getChatRoomLink(letschat);
         if (Strings.isNotBlank(chatRoomLink)) {
             annotations.put("fabric8.link.letschat.room/url", chatRoomLink);
             annotations.put("fabric8.link.letschat.room/label", letschatRoomLinkLabel);
+            addLink(letschatRoomLinkLabel, chatRoomLink);
         }
 
         BuildConfigFluent<BuildConfigBuilder>.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
@@ -207,6 +219,26 @@ public class DevOpsConnector {
         }
         createJenkinsWebhook(jenkinsJobUrl);
         createTaigaWebhook(taiga, taigaProject);
+        if (modifiedConfig) {
+            if (basedir == null) {
+                getLog().error("Could not save updated " + ProjectConfigs.FILE_NAME + " due to missing basedir");
+            } else {
+                try {
+                    ProjectConfigs.saveToFolder(basedir, projectConfig, true);
+                    getLog().info("Updated " + ProjectConfigs.FILE_NAME);
+                } catch (IOException e) {
+                    getLog().error("Could not save updated " + ProjectConfigs.FILE_NAME + ": " + e, e);
+                }
+            }
+        }
+    }
+
+    public void addLink(String label, String url) {
+        if (projectConfig == null) {
+            projectConfig = new ProjectConfig();
+        }
+        projectConfig.addLink(label, url);
+        modifiedConfig = true;
     }
 
     public Logger getLog() {
