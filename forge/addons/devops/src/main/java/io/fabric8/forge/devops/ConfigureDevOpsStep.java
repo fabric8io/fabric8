@@ -26,6 +26,7 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
@@ -214,53 +215,60 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         // now lets update the devops stuff
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
+        String gitUrl = null;
         Object object = attributeMap.get(Project.class);
+        String user = getStringAttribute(attributeMap, "gitUser");
+        String named = null;
+
         if (object instanceof Project) {
             Project newProject = (Project) object;
             MetadataFacet facet = newProject.getFacet(MetadataFacet.class);
             if (facet != null) {
-                String named = facet.getProjectName();
+                named = facet.getProjectName();
 
-                String user = getStringAttribute(attributeMap, "gitUser");
                 String email = getStringAttribute(attributeMap, "gitAuthorEmail");
                 String address = getStringAttribute(attributeMap, "gitAddress");
-
                 String htmlUrl = address + user + "/" + named;
-                String remoteUrl = address + user + "/" + named + ".git";
                 String fullName = user + "/" + named;
-                String gitUrl = remoteUrl;
-
-                DevOpsConnector connector = new DevOpsConnector();
-                connector.setProjectConfig(config);
-                connector.setUsername(user);
-                connector.setPassword(getStringAttribute(attributeMap, "gitPassword"));
-                connector.setBranch(getStringAttribute(attributeMap, "gitBranch", "master"));
-                connector.setBasedir(getBaseDir(project));
-                connector.setGitUrl(gitUrl);
-                connector.setRepoName(named);
-                connector.setTryLoadConfigFileFromRemoteGit(false);
-
-                LOG.info("Using connector: " + connector);
-
-/*
-                TODO
-
-                results.setOutputProperty("fullName", fullName);
-                results.setOutputProperty("cloneUrl", remoteUrl);
-                results.setOutputProperty("htmlUrl", htmlUrl);
-*/
-
-                try {
-                    connector.execute();
-                } catch (Exception e) {
-                    LOG.error("Failed to update DevOps resources: " + e, e);
-                }
+                gitUrl = address + user + "/" + named + ".git";
             } else {
                 LOG.error("No MetadataFacet for newly created project " + newProject);
             }
         } else {
-            LOG.error("No New Project created!");
+            // updating an existing project - so lets try find the git url from the current source code
+            File basedir = CommandHelpers.getBaseDir(project);
+            gitUrl = GitHelpers.extractGitUrl(basedir);
+            if (basedir != null) {
+                named = basedir.getName();
+            }
         }
+
+        DevOpsConnector connector = new DevOpsConnector();
+        connector.setProjectConfig(config);
+        connector.setTryLoadConfigFileFromRemoteGit(false);
+        connector.setUsername(user);
+        connector.setPassword(getStringAttribute(attributeMap, "gitPassword"));
+        connector.setBranch(getStringAttribute(attributeMap, "gitBranch", "master"));
+        connector.setBasedir(CommandHelpers.getBaseDir(project));
+        connector.setGitUrl(gitUrl);
+        connector.setRepoName(named);
+
+        LOG.info("Using connector: " + connector);
+
+/*
+        TODO
+
+        results.setOutputProperty("fullName", fullName);
+        results.setOutputProperty("cloneUrl", remoteUrl);
+        results.setOutputProperty("htmlUrl", htmlUrl);
+*/
+
+        try {
+            connector.execute();
+        } catch (Exception e) {
+            LOG.error("Failed to update DevOps resources: " + e, e);
+        }
+
         return Results.success(message);
     }
 
@@ -389,18 +397,6 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             return null;
         }
         return ResourceUtil.getContextFile(configFileResource);
-    }
-
-
-    public static File getBaseDir(Project project) {
-        if (project == null) {
-            return null;
-        }
-        Resource<?> root = project.getRoot();
-        if (root == null) {
-            return null;
-        }
-        return ResourceUtil.getContextFile(root);
     }
 
 

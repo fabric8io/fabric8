@@ -547,16 +547,20 @@ public class DevOpsConnector {
 
     protected String getChatRoomLink(LetsChatClient letschat) {
         if (letschat != null) {
-            String url = letschat.getAddress();
-            String slug = evaluateRoomExpression(letschatRoomExpression);
-            if (Strings.isNotBlank(url) && Strings.isNotBlank(slug)) {
-                RoomDTO room = letschat.getOrCreateRoom(slug);
-                if (room != null) {
-                    String roomId = room.getId();
-                    if (Strings.isNotBlank(roomId)) {
-                        return URLUtils.pathJoin(url, "/#!/room/" + roomId);
+            try {
+                String url = letschat.getAddress();
+                String slug = evaluateRoomExpression(letschatRoomExpression);
+                if (Strings.isNotBlank(url) && Strings.isNotBlank(slug)) {
+                    RoomDTO room = letschat.getOrCreateRoom(slug);
+                    if (room != null) {
+                        String roomId = room.getId();
+                        if (Strings.isNotBlank(roomId)) {
+                            return URLUtils.pathJoin(url, "/#!/room/" + roomId);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                getLog().error("Failed to get the link to the chat room: " + e, e);
             }
         }
         return null;
@@ -617,17 +621,21 @@ public class DevOpsConnector {
 
     protected String getProjectPageLink(TaigaClient taiga, ProjectDTO taigaProject, String projectRelativePage) {
         if (taiga != null && taigaProject != null) {
-            String url = taiga.getAddress();
-            String slug = taigaProject.getSlug();
-            if (Strings.isNullOrBlank(slug)) {
-                slug = taigaProjectSlug;
-            }
-            String userName = taiga.getUsername();
-            if (Strings.isNullOrBlank(slug)) {
-                slug = userName + "-" + taigaProjectName;
-            }
-            if (Strings.isNotBlank(url) && Strings.isNotBlank(slug) && Strings.isNotBlank(projectRelativePage)) {
-                return URLUtils.pathJoin(url, "/project/", slug + "/", projectRelativePage);
+            try {
+                String url = taiga.getAddress();
+                String slug = taigaProject.getSlug();
+                if (Strings.isNullOrBlank(slug)) {
+                    slug = taigaProjectSlug;
+                }
+                String userName = taiga.getUsername();
+                if (Strings.isNullOrBlank(slug)) {
+                    slug = userName + "-" + taigaProjectName;
+                }
+                if (Strings.isNotBlank(url) && Strings.isNotBlank(slug) && Strings.isNotBlank(projectRelativePage)) {
+                    return URLUtils.pathJoin(url, "/project/", slug + "/", projectRelativePage);
+                }
+            } catch (Exception e) {
+                getLog().error("Failed to get project page link for " + projectRelativePage + " : " + e, e);
             }
         }
         return null;

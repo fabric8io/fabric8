@@ -17,11 +17,15 @@
 package io.fabric8.forge.addon.utils;
 
 import io.fabric8.utils.Strings;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.resource.Resource;
+import org.jboss.forge.addon.resource.util.ResourceUtil;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UIInput;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,5 +65,16 @@ public class CommandHelpers {
         if (value != null) {
             inputComponent.setValue(value);
         }
+    }
+
+    public static File getBaseDir(Project project) {
+        if (project == null) {
+            return null;
+        }
+        Resource<?> root = project.getRoot();
+        if (root == null) {
+            return null;
+        }
+        return ResourceUtil.getContextFile(root);
     }
 }
