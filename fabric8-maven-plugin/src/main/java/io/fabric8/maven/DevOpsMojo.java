@@ -52,10 +52,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Creates an OpenShift BuildConfig object for a
+ * Uses the <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector">DevOps Connector</a>
+ * and an optional `fabric8.yml` file in the project to update the DevOps resources
+ * like chat room, issue tracker, jenkins builds and Kubernetes/OpenShift resources.
  */
-@Mojo(name = "create-build-config", requiresProject = false)
-public class CreateBuildConfigMojo extends AbstractNamespacedMojo {
+@Mojo(name = "devops", requiresProject = false)
+public class DevOpsMojo extends AbstractNamespacedMojo {
 
     /**
      * the current folder
