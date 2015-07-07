@@ -205,7 +205,7 @@ public class Templates {
             for (int i = 0; i < 5; i++) {
                 for (Parameter parameter : parameters) {
                     String name = parameter.getName();
-                    String regex = "\\$\\{" + name + "\\}";
+                    String regex = "${" + name + "}";
                     String value = parameter.getValue();
 
                     // TODO generate random strings for passwords etc!

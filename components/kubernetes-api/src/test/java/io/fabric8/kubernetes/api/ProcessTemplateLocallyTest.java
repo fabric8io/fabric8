@@ -18,7 +18,9 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.openshift.api.model.template.Template;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.toJson;
 import static io.fabric8.kubernetes.api.ParseExamplesTest.assertNotEmpty;
 import static io.fabric8.kubernetes.api.ParseTest.assertParseExampleFile;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Parses the example JSON
@@ -47,6 +50,9 @@ public class ProcessTemplateLocallyTest {
         assertThat(list).describedAs("results").isNotNull();
         List<HasMetadata> items = list.getItems();
         assertThat(items).describedAs("items").isNotNull();
+
+        ReplicationController rc = (ReplicationController) items.get(1);
+        assertEquals("Template value not replaced: items[1].spec.template.spec.containers[0].env[0].value", "https://github.com/fabric8io/jenkins-pipeline-dsl.git", rc.getSpec().getTemplate().getSpec().getContainers().get(0).getEnv().get(0).getValue());
 
         System.out.println("Created JSON: " + toJson(list));
     }
