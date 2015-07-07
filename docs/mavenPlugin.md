@@ -16,6 +16,7 @@ For generating and applying Kubernetes JSON
 
 Helper goals for working with Kubernetes 
 
+* [fabric8:devops](mavenFabric8DevOps.html) uses the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) to connect various DevOps services like git hosting, [chat](chat.html), issue tracking and [CI / CD builds in jenkins](cdelivery.html) for a project reusing the optional project specific `fabric8.yml` configuration file
 * [fabric8:create-env](mavenFabric8CreateEnv.html) generates environment variable scripts for Kubernetes [services](services.html) so you can simulate running programs as if they were inside kubernetes
 * [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services 
 * [fabric8:delete-pods](mavenFabric8DeletePods.html) deletes pods for the current projects docker image so that they get recreated by the [replication controllers](replicationControllers.html) to use the latest image
