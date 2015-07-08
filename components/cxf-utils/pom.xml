@@ -22,10 +22,10 @@
     <version>2.3-SNAPSHOT</version>
     <artifactId>components</artifactId>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>cxf-utils</artifactId>
-
   <name>Fabric8 :: CXF Utils</name>
 
   <dependencies>
@@ -45,11 +45,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>net.oauth.core</groupId>
       <artifactId>oauth</artifactId>
     </dependency>
@@ -58,7 +53,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>junit</groupId>

@@ -16,24 +16,11 @@
  */
 package io.fabric8.utils.cxf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.cfg.Annotations;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import io.fabric8.utils.Strings;
-import net.oauth.signature.pem.PEMReader;
-import net.oauth.signature.pem.PKCS1EncodedKeySpec;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.cxf.attachment.Base64DecoderStream;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.*;
-import javax.ws.rs.WebApplicationException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -42,8 +29,30 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.ws.rs.WebApplicationException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.cfg.Annotations;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import io.fabric8.utils.Strings;
+import net.oauth.signature.pem.PEMReader;
+import net.oauth.signature.pem.PKCS1EncodedKeySpec;
+import org.apache.cxf.attachment.Base64DecoderStream;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.utils.cxf.JsonHelper.createObjectMapper;
 
@@ -97,8 +106,11 @@ public class WebClients {
 
             TrustManager[] existingTrustManagers = params.getTrustManagers();
 
-            if (!ArrayUtils.isEmpty(existingTrustManagers)) {
-                trustManagers = (TrustManager[]) ArrayUtils.addAll(existingTrustManagers, trustManagers);
+            if (existingTrustManagers != null && existingTrustManagers.length > 0) {
+                List<TrustManager> list = new ArrayList<>();
+                list.addAll(Arrays.asList(existingTrustManagers));
+                list.addAll(Arrays.asList(trustManagers));
+                trustManagers = list.toArray(new TrustManager[list.size()]);
             }
 
             params.setTrustManagers(trustManagers);
@@ -163,8 +175,11 @@ public class WebClients {
 
             KeyManager[] existingKeyManagers = params.getKeyManagers();
 
-            if (!ArrayUtils.isEmpty(existingKeyManagers)) {
-                keyManagers = (KeyManager[]) ArrayUtils.addAll(existingKeyManagers, keyManagers);
+            if (existingKeyManagers != null && existingKeyManagers.length > 0) {
+                List<KeyManager> list = new ArrayList<>();
+                list.addAll(Arrays.asList(existingKeyManagers));
+                list.addAll(Arrays.asList(keyManagers));
+                keyManagers = list.toArray(new KeyManager[list.size()]);
             }
 
             params.setKeyManagers(keyManagers);
