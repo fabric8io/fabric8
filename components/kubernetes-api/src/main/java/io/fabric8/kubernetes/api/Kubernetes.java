@@ -80,8 +80,6 @@ public interface Kubernetes {
 
     /**
      * Update a namespace
-     * @param namespaceId
-     * @param entity
      */
     @PUT
     @Path("namespaces/{name}")
@@ -95,7 +93,6 @@ public interface Kubernetes {
 
     /**
      * List all pods on this cluster
-     * @param namespace
      */
     @GET
     @Path("namespaces/{namespace}/pods")
@@ -108,9 +105,6 @@ public interface Kubernetes {
 
     /**
      * Get a specific pod
-     *
-     * @param podId
-     * @param namespace
      */
     @GET
     @Path("namespaces/{namespace}/pods/{podId}")
@@ -118,9 +112,6 @@ public interface Kubernetes {
 
     /**
      * Update a pod
-     * @param podId
-     * @param entity
-     * @param namespace
      */
     @PUT
     @Path("namespaces/{namespace}/pods/{podId}")
@@ -148,9 +139,6 @@ public interface Kubernetes {
 
     /**
      * Get a specific service
-     *
-     * @param serviceId
-     * @param namespace
      */
     @GET
     @Path("namespaces/{namespace}/services/{serviceId}")
@@ -173,7 +161,6 @@ public interface Kubernetes {
 
     /**
      * List all replicationControllers on this cluster
-     * @param namespace
      */
     @Path("namespaces/{namespace}/replicationcontrollers")
     @GET
@@ -192,9 +179,6 @@ public interface Kubernetes {
 
     /**
      * Get a specific controller
-     *
-     * @param controllerId
-     * @param namespace 
      */
     @GET
     @Path("namespaces/{namespace}/replicationcontrollers/{controllerId}")
@@ -203,8 +187,6 @@ public interface Kubernetes {
 
     /**
      * Delete a specific controller
-     *
-     * @param controllerId
      */
     @DELETE
     @Path("namespaces/{namespace}/replicationcontrollers/{controllerId}")
@@ -229,7 +211,6 @@ public interface Kubernetes {
 
     /**
      * List all secrets on this cluster
-     * @param namespace
      */
     @Path("namespaces/{namespace}/secrets")
     @GET
@@ -243,9 +224,6 @@ public interface Kubernetes {
 
     /**
      * Get a specific secret
-     *
-     * @param secretId
-     * @param namespace
      */
     @GET
     @Path("namespaces/{namespace}/secrets/{secretId}")
@@ -265,7 +243,6 @@ public interface Kubernetes {
     @Produces("application/json")
     @Consumes("text/plain")
     String deleteSecret(@PathParam("secretId") @NotNull String secretId, @PathParam("namespace") String namespace) throws Exception;
-
 
     @GET
     @Path("namespaces/{namespace}/serviceaccounts")
@@ -294,7 +271,6 @@ public interface Kubernetes {
     @Consumes("text/plain")
     String deleteServiceAccount(@PathParam("serviceAccountId") @NotNull String serviceAccountId, @PathParam
             ("namespace") String namespace) throws Exception;
-
 
     /**
      * List all the minions on this cluster
