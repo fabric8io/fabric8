@@ -68,18 +68,18 @@ The source code uses the license header from the file ```fabric-license-header.t
 
 You can check for missing licenses in the source code, by running the following goal from the root directory. Notice this will check all the source code:
 
-    > mvn license:check com.mycila:license-maven-plugin:2.6:check -Dlicense.header=fabric-license-header.txt
+    > mvn com.mycila:license-maven-plugin:2.6:check -Dlicense.header=fabric-license-header.txt
 
 And from any sub module, you need to refer to the license file using a relative path:
 
 ```
    > cd components
-   > mvn license:check com.mycila:license-maven-plugin:2.6:check -Dlicense.header=../fabric-license-header.txt 
+   > mvn com.mycila:license-maven-plugin:2.6:check -Dlicense.header=../fabric-license-header.txt 
 ```
 
 You can update the license headers in the source code using the ```format``` goal, for example:
 
-    > mvn license:format com.mycila:license-maven-plugin:2.6:check -Dlicense.header=../fabric-license-header.txt 
+    > mvn com.mycila:license-maven-plugin:2.6:format -Dlicense.header=../fabric-license-header.txt 
 
 
 GitBook
