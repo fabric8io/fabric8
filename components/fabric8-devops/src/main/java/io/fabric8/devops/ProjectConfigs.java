@@ -181,15 +181,12 @@ public class ProjectConfigs {
                 }
             }
         }
+        String flow = null;
         Object flowValue = map.get("flow");
         if (flowValue != null) {
-            String flow = flowValue.toString();
-            if (Strings.isNotBlank(flow)) {
-                // TODO for now lets remove other flows!
-                config.setFlows(null);
-                config.addFlow(flow);
-            }
+            flow = flowValue.toString();
         }
+        config.setFlow(flow);
     }
 
 }

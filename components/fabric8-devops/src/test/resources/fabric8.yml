@@ -1,5 +1,4 @@
-flows:
-  - "io.fabric8.flow.maven.CanaryReleaseThenStage.groovy"
+flow: "maven/CanaryReleaseThenStage.groovy"
 issueProjectName: "foo"
 codeReview: true
 chatRoom: "myroom"

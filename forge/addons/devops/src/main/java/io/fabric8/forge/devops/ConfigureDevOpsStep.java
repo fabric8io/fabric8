@@ -158,7 +158,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             config = ProjectConfigs.parseProjectConfig(configFile);
         }
         if (config != null) {
-            CommandHelpers.setInitialComponentValue(flow, config.firstFlow());
+            CommandHelpers.setInitialComponentValue(flow, config.getFlow());
             CommandHelpers.setInitialComponentValue(chatRoom, config.getChatRoom());
             CommandHelpers.setInitialComponentValue(issueProjectName, config.getIssueProjectName());
             CommandHelpers.setInitialComponentValue(codeReview, config.getCodeReview());

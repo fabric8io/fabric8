@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.fabric8.utils.Strings;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -30,35 +28,21 @@ import java.util.TreeMap;
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProjectConfig {
-
-    private List<String> flows = new ArrayList<>();
+    private String flow;
     private String chatRoom;
     private String issueProjectName;
+    private String buildName;
     private Boolean codeReview;
     private Map<String, String> links;
 
     @Override
     public String toString() {
         return "ProjectConfig{" +
-                "flows=" + flows +
+                "flow=" + flow +
                 ", chatRoom='" + chatRoom + '\'' +
+                ", buildName='" + buildName + '\'' +
                 ", issueProjectName='" + issueProjectName + '\'' +
                 '}';
-    }
-
-    public void addFlow(String flow) {
-        if (flows == null) {
-            flows = new ArrayList<>();
-        }
-        flows.add(flow);
-    }
-
-    public String firstFlow() {
-        if (flows != null && flows.size() > 0) {
-            return flows.get(0);
-        } else {
-            return null;
-        }
     }
 
     public void addLink(String name, String url) {
@@ -70,7 +54,7 @@ public class ProjectConfig {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && (flows == null || flows.isEmpty());
+        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow);
     }
 
     // Properties
@@ -92,12 +76,12 @@ public class ProjectConfig {
         this.codeReview = codeReview;
     }
 
-    public List<String> getFlows() {
-        return flows;
+    public String getFlow() {
+        return flow;
     }
 
-    public void setFlows(List<String> flows) {
-        this.flows = flows;
+    public void setFlow(String flow) {
+        this.flow = flow;
     }
 
     public String getIssueProjectName() {
@@ -114,5 +98,13 @@ public class ProjectConfig {
 
     public void setLinks(Map<String, String> links) {
         this.links = links;
+    }
+
+    public String getBuildName() {
+        return buildName;
+    }
+
+    public void setBuildName(String buildName) {
+        this.buildName = buildName;
     }
 }

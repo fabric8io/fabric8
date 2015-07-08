@@ -28,7 +28,7 @@ public class YamlTest {
     @Test
     public void testGenerateYaml() throws Exception {
         ProjectConfig config = new ProjectConfig();
-        config.addFlow("io.fabric8.flow.maven.Deploy.groovy");
+        config.setFlow("maven/Deploy.groovy");
         config.setChatRoom("myroom");
         config.setCodeReview(true);
         config.setIssueProjectName("THING");
@@ -50,7 +50,7 @@ public class YamlTest {
 
         assertThat(config.getChatRoom()).isEqualTo("myroom");
         assertThat(config.getIssueProjectName()).isEqualTo("foo");
-        assertThat(config.getFlows()).contains("io.fabric8.flow.maven.CanaryReleaseThenStage.groovy");
+        assertThat(config.getFlow()).isEqualTo("maven/CanaryReleaseThenStage.groovy");
     }
 
 }

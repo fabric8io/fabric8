@@ -35,6 +35,7 @@ import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
 import io.fabric8.taiga.TaigaModule;
 import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.slf4j.Logger;
@@ -43,6 +44,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,6 +87,8 @@ public class DevOpsConnector {
     private String letschatRoomLinkLabel = "Room";
     private String letschatRoomExpression = "fabric8_${namespace}";
 
+    private String flowGitUrl = System.getenv("JENKINS_WORKFLOW_GIT_REPOSITORY");
+
     private GitRepoClient gitRepoClient;
     private boolean recreateMode;
     private String namespace;
@@ -109,9 +115,21 @@ public class DevOpsConnector {
         loadConfigFile();
         KubernetesClient kubernetes = getKubernetes();
 
-        String name = repoName;
-        if (Strings.isNotBlank(username)) {
-            name = username + "-" + name;
+        String name = null;
+        if (projectConfig != null) {
+            name = projectConfig.getBuildName();
+        }
+        if (Strings.isNullOrBlank(name)) {
+            name = jenkinsJob;
+        }
+        if (Strings.isNullOrBlank(name)) {
+            name = repoName;
+            if (Strings.isNotBlank(username)) {
+                name = username + "-" + name;
+            }
+            if (projectConfig != null) {
+                projectConfig.setBuildName(name);
+            }
         }
         Map<String, String> labels = new HashMap<>();
         labels.put("user", username);
@@ -153,8 +171,8 @@ public class DevOpsConnector {
                     annotations.put("fabric8.link.jenkins.pipeline/label", label);
                     addLink(label, url);
                 }
-                if (Strings.isNotBlank(jenkinsJob)) {
-                    jenkinsJobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", jenkinsJob);
+                if (Strings.isNotBlank(name)) {
+                    jenkinsJobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
                     annotations.put("fabric8.link.jenkins.job/url", jenkinsJobUrl);
                     String label = "Job";
                     annotations.put("fabric8.link.jenkins.job/label", label);
@@ -216,6 +234,9 @@ public class DevOpsConnector {
             getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
         } catch (Exception e) {
             getLog().error("Failed to create BuildConfig for " + KubernetesHelper.toJson(buildConfig) + ". " + e, e);
+        }
+        if (Strings.isNotBlank(name)) {
+            createJenkinsJob(name, jenkinsJobUrl);
         }
         createJenkinsWebhook(jenkinsJobUrl);
         createTaigaWebhook(taiga, taigaProject);
@@ -671,6 +692,74 @@ public class DevOpsConnector {
             }
         }
         return null;
+    }
+
+
+    protected void createJenkinsJob(String buildName, String jenkinsJobUrl) {
+        if (projectConfig != null) {
+            String flow = projectConfig.getFlow();
+            if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrl)) {
+                String templateName = "jenkinsBuildConfig.xml";
+                URL url = getClass().getResource(templateName);
+                if (url == null) {
+                    getLog().error("Could not load " + templateName + " on the classpath!");
+                } else {
+                    String template = null;
+                    try {
+                        template = IOHelpers.loadFully(url);
+                    } catch (IOException e) {
+                        getLog().error("Failed to load template " + templateName + " from " + url + ". " + e, e);
+                    }
+                    if (Strings.isNotBlank(template)) {
+                        template = template.replace("${FLOW_PATH}", flow);
+                        template = template.replace("${FLOW_GIT_URL}", flowGitUrl);
+                        template = template.replace("${GIT_URL}", gitUrl);
+
+                        postJenkinsBuild(buildName, template);
+                    }
+                }
+            }
+        }
+    }
+
+    protected void postJenkinsBuild(String jobName, String xml) {
+        String address = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", false);
+        if (Strings.isNotBlank(address)) {
+            String jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
+
+            getLog().info("POSTING the jenkins job to: " + jobUrl);
+            getLog().debug("Jenkins XML: " + xml);
+
+            String json = "{}";
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(jobUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "text/xml");
+                connection.setDoOutput(true);
+
+                OutputStreamWriter out = new OutputStreamWriter(
+                        connection.getOutputStream());
+                out.write(xml);
+
+                out.close();
+                int status = connection.getResponseCode();
+                String message = connection.getResponseMessage();
+                getLog().info("Got response code from Jenkins: " + status + " message: " + message);
+                if (status != 200) {
+                    getLog().error("Failed to trigger job " + jobName + " on " + jobUrl + ". Status: " + status + " message: " + message);
+                }
+            } catch (Exception e) {
+                getLog().error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }
+
+
     }
 
     protected void createJenkinsWebhook(String jenkinsJobUrl) {
