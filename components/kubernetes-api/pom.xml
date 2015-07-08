@@ -25,13 +25,17 @@
     <version>2.3-SNAPSHOT</version>
   </parent>
 
-  <groupId>io.fabric8</groupId>
   <artifactId>kubernetes-api</artifactId>
   <packaging>bundle</packaging>
-
   <name>Fabric8 :: Kubernetes API</name>
 
   <dependencies>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>${validation-api.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>io.fabric8</groupId>
@@ -41,6 +45,24 @@
     <dependency>
       <groupId>io.fabric8.schemagenerator</groupId>
       <artifactId>kubernetes-model</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.sundr</groupId>
+          <artifactId>sundr-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.module</groupId>
+          <artifactId>jackson-module-jaxb-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+        <!--<exclusion>-->
+          <!--<groupId>commons-lang</groupId>-->
+          <!--<artifactId>commons-lang</artifactId>-->
+        <!--</exclusion>-->
+      </exclusions>
     </dependency>
 
     <dependency>
