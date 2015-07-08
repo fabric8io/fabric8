@@ -58,10 +58,6 @@
           <groupId>javax.validation</groupId>
           <artifactId>validation-api</artifactId>
         </exclusion>
-        <!--<exclusion>-->
-          <!--<groupId>commons-lang</groupId>-->
-          <!--<artifactId>commons-lang</artifactId>-->
-        <!--</exclusion>-->
       </exclusions>
     </dependency>
 
@@ -191,7 +187,7 @@
                 <argument>-classpath</argument>
                 <classpath />
                 <argument>io.fabric8.kubernetes.api.TriggerBuild</argument>
-                <argument>${build}</argument>
+                <argument>${project.build}</argument>
               </arguments>
             </configuration>
           </plugin>
