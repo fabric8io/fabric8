@@ -29,6 +29,7 @@ import io.fabric8.taiga.TaigaKubernetes;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.projects.Project;
@@ -59,9 +60,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +72,10 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
     @Inject
     @WithAttributes(label = "flow", required = false, description = "The URL of the Jenkins workflow groovy script to use for builds")
     private UIInput<String> flow;
+
+    @Inject
+    @WithAttributes(label = "copyFlowToProject", required = false, description = "Should we copy the Jenkins Workflow script into the project source code")
+    private UIInput<Boolean> copyFlowToProject;
 
     @Inject
     @WithAttributes(label = "chatRoom", required = false, description = "Name of chat room to use for this project")
@@ -119,6 +121,8 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
                 } else {
                     flow.setNote("");
                 }
+                boolean canCopy = Strings.isNotBlank(value);
+                copyFlowToProject.setEnabled(canCopy);
             }
         });
         chatRoom.setCompleter(new UICompleter<String>() {
@@ -172,7 +176,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             CommandHelpers.setInitialComponentValue(codeReview, config.getCodeReview());
         }
 
-        inputComponents = CommandHelpers.addInputComponents(builder, flow, chatRoom, issueProjectName, codeReview);
+        inputComponents = CommandHelpers.addInputComponents(builder, flow, copyFlowToProject, chatRoom, issueProjectName, codeReview);
     }
 
 
@@ -221,12 +225,14 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         }
 
         // now lets update the devops stuff
-        Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+        UIContext uiContext = context.getUIContext();
+        Map<Object, Object> attributeMap = uiContext.getAttributeMap();
 
         String gitUrl = null;
         Object object = attributeMap.get(Project.class);
         String user = getStringAttribute(attributeMap, "gitUser");
         String named = null;
+        File basedir = CommandHelpers.getBaseDir(project);
 
         if (object instanceof Project) {
             Project newProject = (Project) object;
@@ -244,10 +250,34 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             }
         } else {
             // updating an existing project - so lets try find the git url from the current source code
-            File basedir = CommandHelpers.getBaseDir(project);
             gitUrl = GitHelpers.extractGitUrl(basedir);
             if (basedir != null) {
                 named = basedir.getName();
+            }
+        }
+        Boolean copyFlowToProjectValue = copyFlowToProject.getValue();
+        if (copyFlowToProjectValue != null && copyFlowToProjectValue.booleanValue()) {
+            if (basedir == null && !basedir.isDirectory()) {
+                LOG.warn("Cannot copy the flow to the project as no basedir!");
+            } else {
+                String flow = this.flow.getValue();
+                if (Strings.isNullOrBlank(flow)) {
+                    LOG.warn("Cannot copy the flow to the project as no flow selected!");
+                } else {
+                    String flowText = getFlowContent(flow, uiContext);
+                    if (Strings.isNullOrBlank(flowText))  {
+                        LOG.warn("Cannot copy the flow to the project as no flow text could be loaded!");
+                    } else {
+                        flowText = Strings.replaceAllWithoutRegex(flowText, "GIT_URL", "'" + gitUrl + "'");
+                        File newFile = new File(basedir, ProjectConfigs.LOCAL_FLOW_FILE_NAME);
+                        Files.writeToFile(newFile, flowText.getBytes());
+                        LOG.info("Written flow to " + newFile);
+                        if (config != null) {
+                            config.setFlow(null);
+                            config.setUseLocalFlow(true);
+                        }
+                    }
+                }
             }
         }
 
@@ -257,7 +287,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         connector.setUsername(user);
         connector.setPassword(getStringAttribute(attributeMap, "gitPassword"));
         connector.setBranch(getStringAttribute(attributeMap, "gitBranch", "master"));
-        connector.setBasedir(CommandHelpers.getBaseDir(project));
+        connector.setBasedir(basedir);
         connector.setGitUrl(gitUrl);
         connector.setRepoName(named);
         connector.setRegisterWebHooks(false);
@@ -289,6 +319,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         return Results.success(message);
     }
 
+
     protected String getStringAttribute(Map<Object, Object> attributeMap, String name, String defaultValue) {
         String answer = getStringAttribute(attributeMap, name);
         return Strings.isNullOrBlank(answer) ? defaultValue : answer;
@@ -306,10 +337,25 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         return null;
     }
 
+    protected String getFlowContent(String flow, UIContext context) {
+        File dir = getJenkinsWorkflowFolder(context);
+        if (dir != null) {
+            File file = new File(dir, flow);
+            if (file.isFile() && file.exists()) {
+                try {
+                    return IOHelpers.readFully(file);
+                } catch (IOException e) {
+                    LOG.warn("Failed to load local flow " + file + ". " + e, e);
+                }
+            }
+        }
+        return null;
+    }
+
+
     protected Iterable<String> getFlowURIs(UIContext context) {
-        Object workflowFolder = context.getAttributeMap().get("jenkinsWorkflowFolder");
-        if (workflowFolder instanceof File) {
-            File dir = (File) workflowFolder;
+        File dir = getJenkinsWorkflowFolder(context);
+        if (dir != null) {
             Filter<File> filter = new Filter<File>() {
                 @Override
                 public boolean matches(File file) {
@@ -333,6 +379,15 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             LOG.warn("No jenkinsWorkflowFolder!");
             return new ArrayList<>();
         }
+    }
+
+    protected File getJenkinsWorkflowFolder(UIContext context) {
+        File dir = null;
+        Object workflowFolder = context.getAttributeMap().get("jenkinsWorkflowFolder");
+        if (workflowFolder instanceof File) {
+            dir = (File) workflowFolder;
+        }
+        return dir;
     }
 
     protected String getDescriptionForIssueProject(String value) {

@@ -34,17 +34,26 @@ import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
 import io.fabric8.taiga.TaigaModule;
+import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -724,28 +733,83 @@ public class DevOpsConnector {
     protected void createJenkinsJob(String buildName, String jenkinsJobUrl) {
         if (projectConfig != null) {
             String flow = projectConfig.getFlow();
-            if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrl)) {
-                String templateName = "jenkinsBuildConfig.xml";
-                URL url = getClass().getResource(templateName);
-                if (url == null) {
-                    getLog().error("Could not load " + templateName + " on the classpath!");
-                } else {
-                    String template = null;
-                    try {
-                        template = IOHelpers.loadFully(url);
-                    } catch (IOException e) {
-                        getLog().error("Failed to load template " + templateName + " from " + url + ". " + e, e);
+            String flowGitUrlValue = null;
+            boolean localFlow = false;
+            if (Strings.isNotBlank(flow)) {
+                flowGitUrlValue = this.flowGitUrl;
+            } else if (projectConfig.isUseLocalFlow()) {
+                flow = ProjectConfigs.LOCAL_FLOW_FILE_NAME;
+                flowGitUrlValue = this.gitUrl;
+                localFlow = true;
+            }
+            if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
+                String template = loadJenkinsBuildTemplate(getLog());
+                if (Strings.isNotBlank(template)) {
+                    template = template.replace("${FLOW_PATH}", flow);
+                    template = template.replace("${FLOW_GIT_URL}", flowGitUrlValue);
+                    template = template.replace("${GIT_URL}", gitUrl);
+                    if (localFlow) {
+                        // lets remove the GIT_URL parameter
+                        template = removeBuildParameter(getLog(), template, "GIT_URL");
                     }
-                    if (Strings.isNotBlank(template)) {
-                        template = template.replace("${FLOW_PATH}", flow);
-                        template = template.replace("${FLOW_GIT_URL}", flowGitUrl);
-                        template = template.replace("${GIT_URL}", gitUrl);
-
-                        postJenkinsBuild(buildName, template);
-                    }
+                    postJenkinsBuild(buildName, template);
                 }
             }
         }
+    }
+
+    public static String loadJenkinsBuildTemplate(Logger log) {
+        String template = null;
+        String templateName = "jenkinsBuildConfig.xml";
+        URL url = DevOpsConnector.class.getResource(templateName);
+        if (url == null) {
+            log.error("Could not load " + templateName + " on the classpath!");
+        } else {
+            try {
+                template = IOHelpers.loadFully(url);
+            } catch (IOException e) {
+                log.error("Failed to load template " + templateName + " from " + url + ". " + e, e);
+            }
+        }
+        return template;
+    }
+
+    public static String removeBuildParameter(Logger log, String template, String parameterName) {
+        try {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = documentBuilder.parse(new InputSource(new StringReader(template)));
+            Element rootElement = doc.getDocumentElement();
+            NodeList stringDefs = rootElement.getElementsByTagName("hudson.model.StringParameterDefinition");
+            if (stringDefs != null) {
+                for (int i = 0, size = stringDefs.getLength(); i < size; i++) {
+                    Node item = stringDefs.item(i);
+                    if (item instanceof Element) {
+                        Element element = (Element) item;
+                        Element name = DomHelper.firstChild(element, "name");
+                        if (name != null) {
+                            String textContent = name.getTextContent();
+                            if (textContent != null) {
+                                if (parameterName.equals(textContent.trim())) {
+                                    Node parameterDefinitions = item.getParentNode();
+                                    Node parametersDefinitionProperty = parameterDefinitions != null ? parameterDefinitions.getParentNode() : null;
+                                    DomHelper.detach(item);
+                                    if (DomHelper.firstChildElement(parameterDefinitions) == null) {
+                                        DomHelper.detach(parameterDefinitions);
+                                    }
+                                    if (DomHelper.firstChildElement(parametersDefinitionProperty) == null) {
+                                        DomHelper.detach(parametersDefinitionProperty);
+                                    }
+                                    return DomHelper.toXml(doc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to remove the build parameter from the Jenkins XML. " + e, e);
+        }
+        return template;
     }
 
     protected void postJenkinsBuild(String jobName, String xml) {

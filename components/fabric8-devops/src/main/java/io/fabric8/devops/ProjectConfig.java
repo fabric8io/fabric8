@@ -35,6 +35,7 @@ public class ProjectConfig {
     private Boolean codeReview;
     private Map<String, String> links;
     private Map<String, String> buildParameters;
+    private Boolean useLocalFlow;
 
     @Override
     public String toString() {
@@ -55,7 +56,8 @@ public class ProjectConfig {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow) && (buildParameters == null || buildParameters.isEmpty());
+        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow)
+                && (buildParameters == null || buildParameters.isEmpty()) && useLocalFlow != null;
     }
 
     // Properties
@@ -115,5 +117,17 @@ public class ProjectConfig {
 
     public void setBuildParameters(Map<String, String> buildParameters) {
         this.buildParameters = buildParameters;
+    }
+
+    public void setUseLocalFlow(Boolean useLocalFlow) {
+        this.useLocalFlow = useLocalFlow;
+    }
+
+    public Boolean getUseLocalFlow() {
+        return useLocalFlow;
+    }
+
+    public boolean isUseLocalFlow() {
+        return useLocalFlow != null && useLocalFlow.booleanValue();
     }
 }

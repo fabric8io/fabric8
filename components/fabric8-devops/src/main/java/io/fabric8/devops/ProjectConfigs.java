@@ -41,6 +41,7 @@ public class ProjectConfigs {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectConfigs.class);
 
     public static final String FILE_NAME = "fabric8.yml";
+    public static final String LOCAL_FLOW_FILE_NAME = "flow.groovy";
 
     public static String toYaml(Object dto) throws JsonProcessingException {
         ObjectMapper mapper = createObjectMapper();
