@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 @Component(name = "io.fabric8.tooling.archetype.ArchetypeService", label = "Fabric8 Archetype Service",
     description = "Generates projects from Maven Archetypes.",
-    policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
+    policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
 @Service(ArchetypeService.class)
 public class ArchetypeServiceImpl implements ArchetypeService {
 
