@@ -791,8 +791,70 @@ public class DevOpsConnector {
     protected void createJenkinsWebhook(String jenkinsJobUrl) {
         if (Strings.isNotBlank(jenkinsJobUrl)) {
             String jenkinsWebHook = URLUtils.pathJoin(jenkinsJobUrl, "/build");
+            Map<String,String> buildParameters = getBuildParameters();
+            if (!buildParameters.isEmpty()) {
+                String postfix = "";
+                for (Map.Entry<String, String> entry : buildParameters.entrySet()) {
+                    if (postfix.length() > 0) {
+                        postfix += "&";
+                    }
+                    postfix += entry.getKey() + "=" + entry.getValue();
+                }
+                jenkinsWebHook += "WithParameters?" + postfix;
+            }
             createWebhook(jenkinsWebHook, this.secret);
+            
+            triggerJenkinsWebHook(jenkinsWebHook, this.secret);
         }
+    }
+
+    protected void triggerJenkinsWebHook(String jobUrl, String secret) {
+        getLog().info("Triggering Jenkins webhook: " + jobUrl);
+        String json = "{}";
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(jobUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            OutputStreamWriter out = new OutputStreamWriter(
+                    connection.getOutputStream());
+            out.write(json);
+
+            out.close();
+            int status = connection.getResponseCode();
+            String message = connection.getResponseMessage();
+            getLog().info("Got response code from Jenkins: " + status + " message: " + message);
+            if (status != 200) {
+                getLog().error("Failed to trigger job " + jobUrl + ". Status: " + status + " message: " + message);
+            }
+        } catch (Exception e) {
+            getLog().error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * If the build is parameterised lets return the build parameters
+     */
+    protected Map<String,String> getBuildParameters() {
+        Map<String, String> answer = new HashMap<>();
+        if (projectConfig != null) {
+            String flow = projectConfig.getFlow();
+            if (flow != null && Strings.isNotBlank(gitUrl)) {
+                answer.put("GIT_URL", gitUrl);
+            }
+            Map<String, String> parameters = projectConfig.getBuildParameters();
+            if (parameters != null) {
+                answer.putAll(parameters);
+            }
+        }
+        return answer;
     }
 
     protected ProjectDTO createTaigaProject(TaigaClient taiga) {

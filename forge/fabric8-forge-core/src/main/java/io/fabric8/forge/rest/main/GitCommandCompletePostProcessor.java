@@ -203,7 +203,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         Object registerWebHooksValue = attributeMap.get("registerWebHooks");
                         if (registerWebHooksValue instanceof Runnable) {
                             Runnable runnable = (Runnable) registerWebHooksValue;
-                            projectFileSystem.invokeLater(runnable, 5000L);
+                            projectFileSystem.invokeLater(runnable, 1000L);
                         }
 
                         // TODO only need to do this if we have not created a jenkins build...

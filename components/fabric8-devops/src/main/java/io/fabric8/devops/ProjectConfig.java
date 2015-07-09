@@ -34,6 +34,7 @@ public class ProjectConfig {
     private String buildName;
     private Boolean codeReview;
     private Map<String, String> links;
+    private Map<String, String> buildParameters;
 
     @Override
     public String toString() {
@@ -54,7 +55,7 @@ public class ProjectConfig {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow);
+        return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow) && (buildParameters == null || buildParameters.isEmpty());
     }
 
     // Properties
@@ -106,5 +107,13 @@ public class ProjectConfig {
 
     public void setBuildName(String buildName) {
         this.buildName = buildName;
+    }
+
+    public Map<String, String> getBuildParameters() {
+        return buildParameters;
+    }
+
+    public void setBuildParameters(Map<String, String> buildParameters) {
+        this.buildParameters = buildParameters;
     }
 }
