@@ -156,6 +156,7 @@ cat <<EOF | oc create -f -
     name: metrics
 EOF
 oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
+oadm policy add-cluster-role-to-user cluster-admin system:serviceaccount:default:fabric8
 ```
 
 ```sh
