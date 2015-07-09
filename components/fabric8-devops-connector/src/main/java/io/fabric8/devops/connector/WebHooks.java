@@ -47,7 +47,7 @@ public class WebHooks {
         RepositoryDTO repository = repoClient.getRepository(gogsUser, repoName);
         if (repository == null) {
             log.info("No repository found for user: " + gogsUser + " repo: " + repoName + " so cannot create any web hooks");
-            return false;
+            //return false;
         }
         List<WebHookDTO> webhooks = repoClient.getWebhooks(gogsUser, repoName);
         for (WebHookDTO webhook : webhooks) {

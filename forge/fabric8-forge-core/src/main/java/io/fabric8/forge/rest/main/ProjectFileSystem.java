@@ -35,6 +35,8 @@ import javax.ws.rs.NotFoundException;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  */
@@ -45,7 +47,7 @@ public class ProjectFileSystem {
     private final String rootProjectFolder;
     private final String remote;
     private final String jenkinsWorkflowGitUrl;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
 
     @Inject
     public ProjectFileSystem(RepositoryCache repositoryCache,
@@ -181,4 +183,7 @@ public class ProjectFileSystem {
         }
     }
 
+    public void invokeLater(Runnable runnable, long millis) {
+        executorService.schedule(runnable, millis, TimeUnit.MILLISECONDS);
+    }
 }

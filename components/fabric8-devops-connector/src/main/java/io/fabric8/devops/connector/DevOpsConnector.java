@@ -89,12 +89,18 @@ public class DevOpsConnector {
 
     private String flowGitUrl = System.getenv("JENKINS_WORKFLOW_GIT_REPOSITORY");
 
-    private GitRepoClient gitRepoClient;
     private boolean recreateMode;
     private String namespace;
-    private KubernetesClient kubernetes;
     private boolean tryLoadConfigFileFromRemoteGit = true;
     private boolean modifiedConfig;
+    private boolean registerWebHooks;
+
+    private GitRepoClient gitRepoClient;
+    private KubernetesClient kubernetes;
+    private String jenkinsJobUrl;
+    private ProjectDTO taigaProject;
+    private TaigaClient taiga;
+
 
     @Override
     public String toString() {
@@ -106,6 +112,7 @@ public class DevOpsConnector {
                 ", repoName='" + repoName + '\'' +
                 '}';
     }
+
 
     /**
      * For a given project this operation will try to update the associated DevOps resources
@@ -135,8 +142,8 @@ public class DevOpsConnector {
         labels.put("user", username);
         labels.put("repo", repoName);
 
-        TaigaClient taiga = null;
-        ProjectDTO taigaProject = null;
+        taiga = null;
+        taigaProject = null;
         try {
             taiga = createTaiga();
             taigaProject = createTaigaProject(taiga);
@@ -152,7 +159,7 @@ public class DevOpsConnector {
         }
 
         Map<String, String> annotations = new HashMap<>();
-        String jenkinsJobUrl = null;
+        jenkinsJobUrl = null;
         try {
             String jenkinsUrl = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", true);
 
@@ -238,8 +245,9 @@ public class DevOpsConnector {
         if (Strings.isNotBlank(name)) {
             createJenkinsJob(name, jenkinsJobUrl);
         }
-        createJenkinsWebhook(jenkinsJobUrl);
-        createTaigaWebhook(taiga, taigaProject);
+        if (isRegisterWebHooks()) {
+            registerWebHooks();
+        }
         if (modifiedConfig) {
             if (basedir == null) {
                 getLog().error("Could not save updated " + ProjectConfigs.FILE_NAME + " due to missing basedir");
@@ -251,6 +259,15 @@ public class DevOpsConnector {
                     getLog().error("Could not save updated " + ProjectConfigs.FILE_NAME + ": " + e, e);
                 }
             }
+        }
+    }
+
+    public void registerWebHooks() {
+        if (Strings.isNotBlank(jenkinsJobUrl)) {
+            createJenkinsWebhook(jenkinsJobUrl);
+        }
+        if (taiga != null && taigaProject != null) {
+            createTaigaWebhook(taiga, taigaProject);
         }
     }
 
@@ -532,6 +549,15 @@ public class DevOpsConnector {
         this.projectConfig = projectConfig;
     }
 
+    public void setRegisterWebHooks(boolean registerWebHooks) {
+        this.registerWebHooks = registerWebHooks;
+    }
+
+    public boolean isRegisterWebHooks() {
+        return registerWebHooks;
+    }
+
+
     // Implementation methods
     //-------------------------------------------------------------------------
 
@@ -811,4 +837,5 @@ public class DevOpsConnector {
             getLog().error("Failed to create webhook " + url + " on repository " + repoName + ". Reason: " + e, e);
         }
     }
+
 }

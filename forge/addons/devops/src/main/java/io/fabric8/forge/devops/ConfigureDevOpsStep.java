@@ -251,7 +251,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
             }
         }
 
-        DevOpsConnector connector = new DevOpsConnector();
+        final DevOpsConnector connector = new DevOpsConnector();
         connector.setProjectConfig(config);
         connector.setTryLoadConfigFileFromRemoteGit(false);
         connector.setUsername(user);
@@ -260,8 +260,17 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         connector.setBasedir(CommandHelpers.getBaseDir(project));
         connector.setGitUrl(gitUrl);
         connector.setRepoName(named);
+        connector.setRegisterWebHooks(false);
 
         LOG.info("Using connector: " + connector);
+
+        attributeMap.put("registerWebHooks", new Runnable() {
+            @Override
+            public void run() {
+                LOG.info("Now registering webhooks!");
+                connector.registerWebHooks();
+            }
+        });
 
 /*
         TODO

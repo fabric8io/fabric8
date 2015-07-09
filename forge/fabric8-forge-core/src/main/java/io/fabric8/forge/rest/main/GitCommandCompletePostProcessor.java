@@ -199,7 +199,15 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         String message = createCommitMessage(name, executionRequest);
                         doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
 
-                        triggerJenkinsSeedBuild();
+                        Map<Object, Object> attributeMap = context.getAttributeMap();
+                        Object registerWebHooksValue = attributeMap.get("registerWebHooks");
+                        if (registerWebHooksValue instanceof Runnable) {
+                            Runnable runnable = (Runnable) registerWebHooksValue;
+                            projectFileSystem.invokeLater(runnable, 5000L);
+                        }
+
+                        // TODO only need to do this if we have not created a jenkins build...
+                        //triggerJenkinsSeedBuild();
                     }
                 }
             } else {
