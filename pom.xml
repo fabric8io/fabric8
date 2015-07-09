@@ -135,7 +135,7 @@
         <jetty9.version>9.2.10.v20150310</jetty9.version>
         <jgit.version>3.4.1.201406201815-r</jgit.version>
         <jolokia.version>1.3.1</jolokia.version>
-        <jgroups.version>3.6.3.Final</jgroups.version>
+        <jgroups.version>3.6.4.Final</jgroups.version>
         <json.version>20140107</json.version>
         <junit.version>4.11</junit.version>
         <kie.version>6.2.0.Final</kie.version>
