@@ -196,7 +196,6 @@ public class CommandsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response executeCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
-
             UserDetails userDetails = null;
             if (commandCompletePostProcessor != null) {
                 userDetails = commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
@@ -209,14 +208,7 @@ public class CommandsResource {
                 }
                 List<Map<String, String>> inputList = executionRequest.getInputList();
                 CommandController controller = createController(context, command);
-                Map<Object, Object> attributeMap = controller.getContext().getAttributeMap();
-                if (userDetails != null) {
-                    attributeMap.put("gitUser", userDetails.getUser());
-                    attributeMap.put("gitPassword", userDetails.getPassword());
-                    attributeMap.put("gitAuthorEmail", userDetails.getEmail());
-                    attributeMap.put("gitAddress", userDetails.getAddress());
-                    attributeMap.put("gitBranch", userDetails.getBranch());
-                }
+                configureAttributeMaps(userDetails, controller);
                 ExecutionResult answer = null;
                 if (controller instanceof WizardCommandController) {
                     WizardCommandController wizardCommandController = (WizardCommandController) controller;
@@ -296,6 +288,19 @@ public class CommandsResource {
         }
     }
 
+    protected void configureAttributeMaps(UserDetails userDetails, CommandController controller) {
+        Map<Object, Object> attributeMap = controller.getContext().getAttributeMap();
+        if (userDetails != null) {
+            attributeMap.put("gitUser", userDetails.getUser());
+            attributeMap.put("gitPassword", userDetails.getPassword());
+            attributeMap.put("gitAuthorEmail", userDetails.getEmail());
+            attributeMap.put("gitAddress", userDetails.getAddress());
+            attributeMap.put("gitBranch", userDetails.getBranch());
+            attributeMap.put("jenkinsWorkflowFolder", projectFileSystem.getJenkinsWorkflowFolder());
+            projectFileSystem.asyncCloneOrPullJenkinsWorkflows(userDetails);
+        }
+    }
+
 
     @POST
     @Path("/command/validate/{name}")
@@ -303,8 +308,9 @@ public class CommandsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
         try {
+            UserDetails userDetails = null;
             if (commandCompletePostProcessor != null) {
-                commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
+                userDetails = commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
             }
             String resourcePath = executionRequest.getResource();
             try (RestUIContext context = createUIContext(resourcePath)) {
@@ -314,6 +320,7 @@ public class CommandsResource {
                 }
                 List<Map<String, String>> inputList = executionRequest.getInputList();
                 CommandController controller = createController(context, command);
+                configureAttributeMaps(userDetails, controller);
                 ValidationResult answer = null;
                 if (controller instanceof WizardCommandController) {
                     WizardCommandController wizardCommandController = (WizardCommandController) controller;
@@ -436,7 +443,7 @@ public class CommandsResource {
 
                     UserDetails userDetails = gitUserHelper.createUserDetails(request);
 
-                    File file = projectFileSystem.cloneOrPullProjetFolder(userId, repositoryName, userDetails);
+                    File file = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
                     selection = resourceFactory.create(file);
                     LOG.info("Completed pulling source code");
                 }

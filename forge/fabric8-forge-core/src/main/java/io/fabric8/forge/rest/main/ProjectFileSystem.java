@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  */
@@ -42,14 +44,18 @@ public class ProjectFileSystem {
     private final RepositoryCache repositoryCache;
     private final String rootProjectFolder;
     private final String remote;
+    private final String jenkinsWorkflowGitUrl;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ProjectFileSystem(RepositoryCache repositoryCache,
                              @ConfigProperty(name = "PROJECT_FOLDER", defaultValue = "/tmp/fabric8-forge") String rootProjectFolder,
-                             @ConfigProperty(name = "GIT_REMOTE_BRANCH_NAME", defaultValue = "origin") String remote) {
+                             @ConfigProperty(name = "GIT_REMOTE_BRANCH_NAME", defaultValue = "origin") String remote,
+                             @ConfigProperty(name = "JENKINS_WORKFLOW_GIT_REPOSITORY") String jenkinsWorkflowGitUrl) {
         this.repositoryCache = repositoryCache;
         this.rootProjectFolder = rootProjectFolder;
         this.remote = remote;
+        this.jenkinsWorkflowGitUrl = jenkinsWorkflowGitUrl;
     }
 
     public String getRemote() {
@@ -74,28 +80,54 @@ public class ProjectFileSystem {
         return projectFolder;
     }
 
+    public File getJenkinsWorkflowFolder() {
+        File root = new File(rootProjectFolder);
+        File workflowFolder = new File(root, "jenkinsWorkflows");
+        workflowFolder.mkdirs();
+        return workflowFolder;
+    }
+
     public File getUserProjectFolder(String user, String project) {
         File userFolder = getUserProjectFolder(user);
         File projectFolder = new File(userFolder, project);
         return projectFolder;
     }
 
-    public File cloneOrPullProjetFolder(String user, String repositoryName, UserDetails userDetails) {
+    public void asyncCloneOrPullJenkinsWorkflows(final UserDetails userDetails) {
+        final File folder = getJenkinsWorkflowFolder();
+        if (Strings.isNotBlank(jenkinsWorkflowGitUrl)) {
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    LOG.debug("Cloning or pulling jenkins workflow repo from " + jenkinsWorkflowGitUrl + " to " + folder);
+                    cloneOrPullRepo(userDetails, folder, jenkinsWorkflowGitUrl);
+                }
+            });
+        } else {
+            LOG.warn("Cannot clone jenkins workflow repository as the environment variable JENKINS_WORKFLOW_GIT_REPOSITORY is not defined");
+        }
+    }
+
+    public File cloneOrPullProjectFolder(String user, String repositoryName, UserDetails userDetails) {
         File projectFolder = getUserProjectFolder(user, repositoryName);
+        GitRepoClient repoClient = userDetails.createRepoClient();
+        RepositoryDTO dto = repositoryCache.getOrFindUserRepository(user, repositoryName, repoClient);
+        if (dto == null) {
+            throw new NotFoundException("No repository defined for user: " + user + " and name: " + repositoryName);
+        }
+        String cloneUrl = dto.getCloneUrl();
+        if (Strings.isNullOrBlank(cloneUrl)) {
+            throw new NotFoundException("No cloneUrl defined for user repository: " + user + "/" + repositoryName);
+        }
+        return cloneOrPullRepo(userDetails, projectFolder, cloneUrl);
+    }
+
+    public File cloneOrPullRepo(UserDetails userDetails, File projectFolder, String cloneUrl) {
         File gitFolder = new File(projectFolder, ".git");
         CredentialsProvider credentialsProvider = userDetails.createCredentialsProvider();
         if (!Files.isDirectory(gitFolder) || !Files.isDirectory(projectFolder)) {
-            GitRepoClient repoClient = userDetails.createRepoClient();
 
             // lets clone the git repository!
-            RepositoryDTO dto = repositoryCache.getOrFindUserRepository(user, repositoryName, repoClient);
-            if (dto == null) {
-                throw new NotFoundException("No repository defined for user: " + user + " and name: " + repositoryName);
-            }
-            String cloneUrl = dto.getCloneUrl();
-            if (Strings.isNullOrBlank(cloneUrl)) {
-                throw new NotFoundException("No cloneUrl defined for user repository: " + user + "/" + repositoryName);
-            }
 
             // clone the repo!
             boolean cloneAll = true;

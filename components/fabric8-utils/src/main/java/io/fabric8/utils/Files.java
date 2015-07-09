@@ -32,9 +32,12 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -142,7 +145,17 @@ public final class Files {
     }
 
     public static String getFileExtension(File file) {
-        return getFileExtension(file.getName());
+        String fileName = file.getName();
+        if (fileName  != null) {
+            int idx = fileName.lastIndexOf('.');
+            if (idx > 1) {
+                String answer = fileName.substring(idx + 1);
+                if (answer.length() > 0) {
+                    return answer;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -417,6 +430,33 @@ public final class Files {
         }
         return answer;
     }
+
+    /**
+     * Recursively finds all files matching the given filter and adds them to the collection
+     */
+    public static void findRecursive(File file, Filter<File> filter, Collection<File> collection) {
+        if (filter.matches(file)) {
+            collection.add(file);
+        }
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    findRecursive(child, filter, collection);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the files found for the given file and directories which match the given filter
+     */
+    public static Set<File> findRecursive(File file, Filter<File> filter) {
+        Set<File> files = new HashSet<>();
+        findRecursive(file, filter, files);
+        return files;
+    }
+
 
     /**
      * Recursively deletes the file and any children files if its a directory

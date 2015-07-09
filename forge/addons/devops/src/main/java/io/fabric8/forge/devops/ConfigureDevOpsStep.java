@@ -26,7 +26,10 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
 import io.fabric8.taiga.TaigaKubernetes;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
 import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
@@ -54,7 +57,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,10 +102,11 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        final UIContext context = builder.getUIContext();
         flow.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                return getFlowURIs();
+                return getFlowURIs(context);
             }
         });
         flow.addValueChangeListener(new ValueChangeListener() {
@@ -152,7 +160,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
 
         // lets initialise the data from the current config if it exists
         ProjectConfig config = null;
-        Project project = getSelectedProject(builder.getUIContext());
+        Project project = getSelectedProject(context);
         File configFile = getProjectConfigFile(project);
         if (configFile != null && configFile.exists()) {
             config = ProjectConfigs.parseProjectConfig(configFile);
@@ -289,8 +297,33 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
         return null;
     }
 
-    protected Iterable<String> getFlowURIs() {
-        return Arrays.asList("maven/Deploy.groovy", "maven/DeployAndStage.groovy");
+    protected Iterable<String> getFlowURIs(UIContext context) {
+        Object workflowFolder = context.getAttributeMap().get("jenkinsWorkflowFolder");
+        if (workflowFolder instanceof File) {
+            File dir = (File) workflowFolder;
+            Filter<File> filter = new Filter<File>() {
+                @Override
+                public boolean matches(File file) {
+                    String extension = Files.getFileExtension(file);
+                    return file.isFile() && Objects.equal("groovy", extension);
+                }
+            };
+            Set<File> files =  Files.findRecursive(dir, filter);
+            Set<String> names = new TreeSet<>();
+            for (File file : files) {
+                try {
+                    String relativePath = Files.getRelativePath(dir, file);
+                    String name = Strings.stripPrefix(relativePath, "/");
+                    names.add(name);
+                } catch (IOException e) {
+                    LOG.warn("Failed to find relative path for folder " + dir + " and file " + file + ". " + e, e);
+                }
+            }
+            return new ArrayList<>(names);
+        } else {
+            LOG.warn("No jenkinsWorkflowFolder!");
+            return new ArrayList<>();
+        }
     }
 
     protected String getDescriptionForIssueProject(String value) {
