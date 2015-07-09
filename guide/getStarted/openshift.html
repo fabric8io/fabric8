@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2" data-basepath=".." data-revision="Thu Jul 09 2015 08:25:48 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2" data-basepath=".." data-revision="Thu Jul 09 2015 10:35:08 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1164,6 +1164,7 @@ cat &lt;&lt;EOF | oc create -f -
     name: metrics
 EOF
 oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
+oadm policy add-cluster-role-to-user cluster-admin system:serviceaccount:default:fabric8
 </code></pre><pre><code class="lang-sh">./osadm policy add-cluster-role-to-user cluster-admin admin
 </code></pre>
 <h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
