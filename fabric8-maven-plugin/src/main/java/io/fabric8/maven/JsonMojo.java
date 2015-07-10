@@ -140,6 +140,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String kubernetesNamespaceEnvVar;
 
     /**
+     * Whether we should include the namespace in the containers' env vars
+     */
+    @Parameter(property = "fabric8.includePodEnvVar", defaultValue = "false")
+    private boolean includePodEnvVar;
+
+    /**
+     * The name of the env var to add that will contain the namespace at container runtime
+     */
+    @Parameter(property = "fabric8.podEnvVar", defaultValue = "KUBERNETES_POD")
+    private String kubernetesPodEnvVar;
+
+    /**
      * The provider to include as a label. Set to empty to disable.
      */
     @Parameter(property = "fabric8.provider", defaultValue = "fabric8")
@@ -1239,6 +1251,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     new EnvVarBuilder().withName(kubernetesNamespaceEnvVar).
                             withNewValueFrom().withNewFieldRef().
                             withFieldPath("metadata.namespace").endFieldRef().
+                            endValueFrom().
+                            build());
+        }
+        if (includePodEnvVar) {
+            environmentVariables.add(
+                    new EnvVarBuilder().withName(kubernetesPodEnvVar).
+                            withNewValueFrom().withNewFieldRef().
+                            withFieldPath("metadata.name").endFieldRef().
                             endValueFrom().
                             build());
         }
