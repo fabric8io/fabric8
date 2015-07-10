@@ -117,7 +117,7 @@
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
-        <hawtio.version>1.4.51</hawtio.version>
+        <hawtio.version>1.4.52</hawtio.version>
         <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
         <httpclient.version>4.3.1</httpclient.version>
         <httpcomponents.version>4.0.2</httpcomponents.version>
