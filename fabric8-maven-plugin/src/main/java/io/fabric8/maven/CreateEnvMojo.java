@@ -39,6 +39,7 @@ import io.fabric8.maven.support.OrderedProperties;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.api.model.template.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
@@ -54,12 +55,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Generates a properties file that contains that env variables that are expected to be passed by kubernetes to the container.
@@ -101,6 +104,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
             removeDefaultEnv(env);
+            expandEnvironmentVariable(env);
             displayEnv(env);
 
             if (name == null) {
@@ -259,6 +263,32 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
         }
         return result;
+    }
+    
+    /**
+     * Lets expand environment variables by overriding it via via the command line.
+     */
+    protected void expandEnvironmentVariable(Map<String, String> env) {
+        MavenProject project = getProject();
+        if (project != null) {
+            Properties properties = project.getProperties();
+            properties.putAll(project.getProperties());
+            properties.putAll(System.getProperties());
+            for (Map.Entry<String, String> entry : env.entrySet()) {
+	                String envValue = entry.getValue();
+	                if (envValue != null && !envValue.isEmpty() && envValue.startsWith("${") && envValue.endsWith("}")) {
+	                String parameterName = envValue.substring(2, envValue.length() - 1);
+	                String name = "fabric8.create-env." + parameterName;
+	                String propertyValue = properties.getProperty(name);
+	                if (Strings.isNotBlank(propertyValue)) {
+	                    getLog().info("Overriding environment variable " + parameterName + " with value: " + propertyValue);
+	                    entry.setValue(propertyValue);
+	                } else {
+	                    getLog().info("No property defined for environment variable: " + parameterName);
+	                }
+                }
+            }
+        }
     }
     
 	/**
