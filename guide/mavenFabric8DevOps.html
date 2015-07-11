@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>General Questions | Fabric8 Documentation</title>
+        <title>fabric8:devops | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./faqKubernetes.html" />
+    <link rel="next" href="./mavenFabric8Json.html" />
     
     
-    <link rel="prev" href="./FAQ.html" />
+    <link rel="prev" href="./mavenFabric8DeletePods.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="8.1" data-basepath="." data-revision="Sat Jul 11 2015 12:53:38 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.7" data-basepath="." data-revision="Sat Jul 11 2015 12:53:38 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -541,7 +541,7 @@
             
         </li>
     
-        <li class="chapter " data-level="4.1.7" data-path="mavenFabric8DevOps.html">
+        <li class="chapter active" data-level="4.1.7" data-path="mavenFabric8DevOps.html">
             
                 
                     <a href="./mavenFabric8DevOps.html">
@@ -915,7 +915,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="8.1" data-path="faqGeneral.html">
+        <li class="chapter " data-level="8.1" data-path="faqGeneral.html">
             
                 
                     <a href="./faqGeneral.html">
@@ -1055,79 +1055,17 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="general-questions"><a name="general-questions" class="plugin-anchor" href="#general-questions"><span class="fa fa-link"></span></a>General Questions</h3>
-<h4 id="what-is-the-license"><a name="what-is-the-license" class="plugin-anchor" href="#what-is-the-license"><span class="fa fa-link"></span></a>What is the license?</h4>
-<p>fabric8 uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank">Apache 2.0 License</a>.</p>
-<h4 id="what-is-it"><a name="what-is-it" class="plugin-anchor" href="#what-is-it"><span class="fa fa-link"></span></a>What is it?</h4>
-<p>fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Hawtio and others.</p>
-<p>It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.</p>
-<p>Take a look <a href="http://www.christianposta.com/blog/?p=376" target="_blank">at this blog post</a> to see a more detailed treatment.</p>
-<h4 id="what-does-fabric8-do"><a name="what-does-fabric8-do" class="plugin-anchor" href="#what-does-fabric8-do"><span class="fa fa-link"></span></a>What does fabric8 do?</h4>
-<p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
-<p>Try reading the <a href="guide/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
-<h4 id="what-value-does-fabric8-add-over-openshift"><a name="what-value-does-fabric8-add-over-openshift" class="plugin-anchor" href="#what-value-does-fabric8-add-over-openshift"><span class="fa fa-link"></span></a>What value does fabric8 add over OpenShift?</h4>
+                        <h2 id="fabric8-devops"><a name="fabric8-devops" class="plugin-anchor" href="#fabric8-devops"><span class="fa fa-link"></span></a>fabric8:devops</h2>
+<p>The maven <code>fabric8:devops</code> goal uses the <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector" target="_blank">fabric8-devops-connector</a> to connect various DevOps services like git hosting, <a href="chat.html">chat</a>, issue tracking and <a href="cdelivery.html">CI / CD builds in jenkins</a> for a project reusing the optional project specific <code>fabric8.yml</code> configuration file</p>
+<h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
+<p>If you are inside a project and you have logged into your kubernetes environment (such as via the <a href="getStarted/vagrant.html">fabric8 vagrant image</a> then you can type:</p>
+<pre><code>mvn fabric8:devops
+</code></pre><p>Then the following happens:</p>
 <ul>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> based <em>Container As A Service</em> (orchestrates docker containers)</li>
-<li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full <em>Platform As A Service</em><ul>
-<li>hosting source code in git repositories</li>
-<li>performing builds and hosting private docker images</li>
-<li>supporting the git-push style model of kicking off new builds</li>
+<li>any <code>fabric8.yml</code> file in the project is parsed</li>
+<li>the project and build is added to the current kubernetes namespace with links to the available jenkins builds, chat room, issue tracker and team page</li>
 </ul>
-</li>
-<li>Fabric8 is focused on:<ul>
-<li>providing a great <a href="console.html">Kubernetes Console</a> based on <a href="http://hawt.io/" target="_blank">hawtio</a> so you can view all of the kubernetes resources, understand whats going on and see the big picture or zoom inside inside individual containers and link to logs and metrics</li>
-<li>being an <strong>Integration Platform As A Service</strong> and a <strong>Java Application Platform As A Service</strong></li>
-<li>adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:<ul>
-<li><a href="fabric8Apps.html">Fabric8 Apps</a> to provide reusable <a href="logging.html">logging</a>, <a href="metrics.html">metrics</a> and make it easier to consume integration and messaging services</li>
-<li>deep and rich <a href="http://fabric8.io/guide/tools.html" target="_blank">tooling</a> to make it easy to develop Java applications on Kubernetes/OpenShift such as the <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">Maven Plugin</a> and <a href="http://fabric8.io/guide/forge.html" target="_blank">Forge Addons</a></li>
-<li><a href="javaLibraries.html">Java libraries</a> for working with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/docker-api" target="_blank">docker</a> along with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes and jolokia</a> so its easier to develop Java based tools and services which work well with Kubernetes</li>
-<li><a href="testing.html">Testing with Arquillian</a> helps you perform integration tests of your <a href="apps.html">apps</a></li>
-<li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
-<li>to support non-Linux platforms which do not yet have native Go Lang or Docker support there&apos;s also <a href="jube.html">Jube</a> which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="what-maven-plugin-goals-are-available"><a name="what-maven-plugin-goals-are-available" class="plugin-anchor" href="#what-maven-plugin-goals-are-available"><span class="fa fa-link"></span></a>What maven plugin goals are available?</h4>
-<p>See the <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">list of maven plugin goals</a> </p>
-<h4 id="what-java-versions-are-supported"><a name="what-java-versions-are-supported" class="plugin-anchor" href="#what-java-versions-are-supported"><span class="fa fa-link"></span></a>What Java versions are supported?</h4>
-<p>fabric8 runs on Java 7 and 8.</p>
-<h4 id="are-docker-and-kubernetes-required-to-run-fabric8"><a name="are-docker-and-kubernetes-required-to-run-fabric8" class="plugin-anchor" href="#are-docker-and-kubernetes-required-to-run-fabric8"><span class="fa fa-link"></span></a>Are Docker and Kubernetes required to run Fabric8?</h4>
-<p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
-<p>However we need to be able to work on platforms which don&apos;t support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers. For those platforms we have <a href="http://fabric8.io/jube/goals.html" target="_blank">Jube</a> which is a pure Java implementation of Kubernetes which emulates Docker.</p>
-<h4 id="is-windows-supported"><a name="is-windows-supported" class="plugin-anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
-<p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
-<p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
-<p>If you need to run Java on real Windows processes then we recommend using <a href="jube/index.html">Jube</a> which will run your Java containers as real windows processes.</p>
-<h4 id="does-fabric8-use-zookeeper-runtime-registry"><a name="does-fabric8-use-zookeeper-runtime-registry" class="plugin-anchor" href="#does-fabric8-use-zookeeper-runtime-registry"><span class="fa fa-link"></span></a>Does Fabric8 use ZooKeeper runtime registry?</h4>
-<p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn&apos;t need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
-<p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> or <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
-<h4 id="does-fabric8-still-use-profiles-to-configure-application-deployment"><a name="does-fabric8-still-use-profiles-to-configure-application-deployment" class="plugin-anchor" href="#does-fabric8-still-use-profiles-to-configure-application-deployment"><span class="fa fa-link"></span></a>Does Fabric8 still use profiles to configure application deployment?</h4>
-<p>No, not anymore. Starting from v2 Fabric8 uses <a href="apps.html">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
-to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
-added to the file system of the application&apos;s Docker image.</p>
-<h4 id="is-git-repository-still-used-to-store-the-applications-configuration"><a name="is-git-repository-still-used-to-store-the-applications-configuration" class="plugin-anchor" href="#is-git-repository-still-used-to-store-the-applications-configuration"><span class="fa fa-link"></span></a>Is Git repository still used to store the applications&apos; configuration?</h4>
-<p>Applications&apos; configuration isn&apos;t stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn&apos;t use 
-profiles (but app templates instead), the Git repository is not needed anymore. You can just store application&apos;s configuration (app file)
-in the Maven project and use the <a href="mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes
-without keeping the configuration in any central repository (like Git).</p>
-<p>However keeping app files in Git for easier configuration management can be useful. That&apos;s why Hawt.io provides this
-functionality for you. You can push your configuration to the Hawt.io Git repository via 
-<a href="mavenPlugin.html#deploying">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="appzip.html">App Zip</a>
-packaging format to distribute the configuration between the various environments.</p>
-<h4 id="is-fabric8-server-required-to-provision-applications"><a name="is-fabric8-server-required-to-provision-applications" class="plugin-anchor" href="#is-fabric8-server-required-to-provision-applications"><span class="fa fa-link"></span></a>Is Fabric8 server required to provision applications?</h4>
-<p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
-managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like 
-<a href="mavenPlugin.html">Fabric8 Maven plugin</a>
-or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
-<p>If you are using <a href="jube/getStarted.html">Jube as the Kubernetes implementation</a> and to emulate Docker then you will need to run a Jube server.</p>
-<h4 id="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><a name="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell" class="plugin-anchor" href="#if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><span class="fa fa-link"></span></a>If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
-<p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> with the <a href="forge.html">Fabric8 add-on</a>.</p>
-<p>For provisioning purposes (like creating containers/services or changing the replica sizes) you can use the <a href="forge.html">Fabric8 add-on</a> or use the shell from OpenShift/Kubernetes.</p>
-<p>Kubernetes will be included in <a href="http://www.redhat.com/en/technologies/linux-platforms/enterprise-linux" target="_blank">Red Hat Enterprise Linux</a> and OpenShift V3 and is the standard shell for provisioning any kind of the container.</p>
-<h4 id="deprecations"><a name="deprecations" class="plugin-anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.</p>
+<p>This maven goal could be fired by a Jenkins seed build whenever the source or the <code>fabric8.yml</code> file is edited.</p>
 
                     
                     </section>
@@ -1138,10 +1076,10 @@ or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to 
         </div>
 
         
-        <a href="./FAQ.html" class="navigation navigation-prev " aria-label="Previous page: FAQ"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenFabric8DeletePods.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:delete-pods"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqKubernetes.html" class="navigation navigation-next " aria-label="Next page: Kubernetes Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./mavenFabric8Json.html" class="navigation navigation-next " aria-label="Next page: fabric8:json"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
