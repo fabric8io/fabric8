@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1.4" data-basepath="." data-revision="Sat Jul 11 2015 14:30:20 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1.4" data-basepath="." data-revision="Sun Jul 12 2015 08:22:17 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1062,6 +1062,7 @@
 <h3 id="generated-files"><a name="generated-files" class="plugin-anchor" href="#generated-files"><span class="fa fa-link"></span></a>Generated files</h3>
 <p>The goal generates  the following files:</p>
 <ul>
+<li><code>target/docker-run.sh</code> to start a docker container with specific environment variables, volumes and container ports (obtained from <code>kubernetes.json</code>)</li>
 <li><code>target/env.sh</code> you can <code>source</code> in a shell to setup your environment together </li>
 <li><code>target/env.properties</code> file you can process easily with Java code or ideally your IDE can accept in its UI for running applications or test cases</li>
 </ul>
@@ -1085,14 +1086,17 @@
 <pre><code>oc login
 oc project cheese
 mvn fabric8:create-env
-</code></pre><p>In the above, if there is no <code>KUBERNETES_NAMESPACE</code> environment variable or maven property called <code>fabric8.namespace</code> then the <code>fabric8:create-env</code> goal will look at the Kubernetes resources to the <code>cheese</code> namespace.</p>
+</code></pre><p>In the above, if there is no <code>KUBERNETES_NAMESPACE</code> environment variable or maven property called the <code>fabric8:create-env</code> goal then the <code>fabric8:create-env</code> goal will look at the Kubernetes resources to the <code>cheese</code> namespace.</p>
 <h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
 <p>To setup your shell as if its running inside a Kubernetes environment container:</p>
 <pre><code>mvn fabric8:create-env
 source target/env.sh
 </code></pre><p>To specify an explicit namespace:</p>
-<pre><code>mvn fabric8:create-env -Dfabric8.namespace=cheese   
-</code></pre><h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
+<pre><code>mvn fabric8:create-env -Dfabric8.namespace=cheese
+</code></pre><p>It is also possible to specify an environment variable value. Suppose you want to set the value of environment variable FOO:</p>
+<pre><code>mvn fabric8:create-env -Dfabric8.create-env.FOO=bar
+</code></pre><p>Every time the <code>fabric8:create-env</code> goal will find the <code>${FOO}</code> variable, it will expand it with value <code>bar</code>.</p>
+<h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>The following maven property values are used to configure the behaviour of the apply goal:</p>
 <table class="table table-striped">
 <tr>
