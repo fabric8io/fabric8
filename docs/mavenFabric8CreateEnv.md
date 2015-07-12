@@ -9,7 +9,8 @@ For a summary of the options see the [Maven Property Reference](#maven-propertie
 ### Generated files
 
 The goal generates  the following files:
- 
+
+ * `target/docker-run.sh` to start a docker container with specific environment variables, volumes and container ports (obtained from `kubernetes.json`)
  * `target/env.sh` you can `source` in a shell to setup your environment together 
  * `target/env.properties` file you can process easily with Java code or ideally your IDE can accept in its UI for running applications or test cases
 
@@ -42,7 +43,7 @@ oc login
 oc project cheese
 mvn fabric8:create-env
 ```
-In the above, if there is no `KUBERNETES_NAMESPACE` environment variable or maven property called `fabric8.namespace` then the `fabric8:create-env` goal will look at the Kubernetes resources to the `cheese` namespace.
+In the above, if there is no `KUBERNETES_NAMESPACE` environment variable or maven property called the `fabric8:create-env` goal then the `fabric8:create-env` goal will look at the Kubernetes resources to the `cheese` namespace.
 
 ## Example
 
@@ -53,7 +54,13 @@ To setup your shell as if its running inside a Kubernetes environment container:
 
 To specify an explicit namespace:
 
-    mvn fabric8:create-env -Dfabric8.namespace=cheese   
+    mvn fabric8:create-env -Dfabric8.namespace=cheese
+
+It is also possible to specify an environment variable value. Suppose you want to set the value of environment variable FOO:
+
+    mvn fabric8:create-env -Dfabric8.create-env.FOO=bar
+
+Every time the `fabric8:create-env` goal will find the `${FOO}` variable, it will expand it with value `bar`.
 
 ### Maven Properties
 
