@@ -43,22 +43,8 @@
     </dependency>
 
     <dependency>
-      <groupId>io.fabric8.schemagenerator</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-model</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>io.sundr</groupId>
-          <artifactId>sundr-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.module</groupId>
-          <artifactId>jackson-module-jaxb-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.validation</groupId>
-          <artifactId>validation-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

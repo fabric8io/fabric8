@@ -15,9 +15,9 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.config.Config;
+import io.fabric8.kubernetes.api.model.Config;
 import io.fabric8.kubernetes.api.extensions.Configs;
-import io.fabric8.kubernetes.api.model.config.Context;
+import io.fabric8.kubernetes.api.model.Context;
 import org.junit.Test;
 
 import java.io.File;

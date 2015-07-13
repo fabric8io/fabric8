@@ -32,7 +32,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
 

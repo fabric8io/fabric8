@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -29,9 +28,9 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamBuilder;
-import io.fabric8.openshift.api.model.template.ParameterBuilder;
-import io.fabric8.openshift.api.model.template.Template;
-import io.fabric8.openshift.api.model.template.TemplateBuilder;
+import io.fabric8.openshift.api.model.ParameterBuilder;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.api.model.TemplateBuilder;
 import io.fabric8.utils.*;
 import io.fabric8.utils.Objects;
 import org.apache.maven.artifact.Artifact;
@@ -1340,7 +1339,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     public Template getTemplate() throws MojoExecutionException {
-        List<io.fabric8.openshift.api.model.template.Parameter> parameters = new ArrayList<>();
+        List<io.fabric8.openshift.api.model.Parameter> parameters = new ArrayList<>();
         MavenProject project = getProject();
         Properties projectProperties = project.getProperties();
         Set<String> paramNames = new HashSet<>();
@@ -1372,7 +1371,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return new TemplateBuilder().withNewMetadata().withName(templateName).endMetadata().withParameters(parameters).build();
     }
 
-    protected void loadParametersFromProperties(Properties properties, List<io.fabric8.openshift.api.model.template.Parameter> parameters, Set<String> paramNames) {
+    protected void loadParametersFromProperties(Properties properties, List<io.fabric8.openshift.api.model.Parameter> parameters, Set<String> paramNames) {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {

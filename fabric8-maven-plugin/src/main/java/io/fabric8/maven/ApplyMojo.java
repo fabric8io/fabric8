@@ -28,7 +28,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -240,14 +240,14 @@ public class ApplyMojo extends AbstractFabric8Mojo {
      * properties - or optionally - via the command line if in interactive mode.
      */
     protected void overrideTemplateParameters(Template template) {
-        List<io.fabric8.openshift.api.model.template.Parameter> parameters = template.getParameters();
+        List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
         MavenProject project = getProject();
         if (parameters != null && project != null) {
             Properties properties = project.getProperties();
             properties.putAll(project.getProperties());
             properties.putAll(System.getProperties());
             boolean missingProperty = false;
-            for (io.fabric8.openshift.api.model.template.Parameter parameter : parameters) {
+            for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
                 String parameterName = parameter.getName();
                 String name = "fabric8.apply." + parameterName;
                 String propertyValue = properties.getProperty(name);

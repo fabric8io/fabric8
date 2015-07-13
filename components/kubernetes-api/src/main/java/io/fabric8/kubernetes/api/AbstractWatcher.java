@@ -17,7 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.watch.WatchEvent;
+import io.fabric8.kubernetes.api.model.WatchEvent;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.UpgradeException;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;

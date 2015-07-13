@@ -35,7 +35,7 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;

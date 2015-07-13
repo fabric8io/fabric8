@@ -17,16 +17,11 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.util.IntOrString;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class ConfigCompareServiceTest {
-
-    private static final transient Logger LOG = LoggerFactory.getLogger(ConfigCompareServiceTest.class);
 
     @Test
     public void testServicesEqual() throws Exception {
@@ -39,7 +34,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -53,7 +48,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -62,7 +57,7 @@ public class ConfigCompareServiceTest {
     }
     @Test
 
-    public void testServicesEqualWithStatusdifferences() throws Exception {
+    public void testServicesEqualWithStatusDifferences() throws Exception {
         Service entity1 = new ServiceBuilder().withNewMetadata().withName("foo").
                 addToLabels("label1", "value1").
                 addToLabels("label2", "value2").
@@ -73,7 +68,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -88,7 +83,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -107,7 +102,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -121,7 +116,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(456).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -140,7 +135,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                         endPort().
                         endSpec().
                         build();
@@ -154,7 +149,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(555)).
+                withNewTargetPort(555).
                 endPort().
                 endSpec().
                 build();
@@ -173,7 +168,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -187,7 +182,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("label2", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -206,7 +201,7 @@ public class ConfigCompareServiceTest {
                     addToSelector("label2", "value2").
                     addNewPort().
                         withPort(123).
-                        withTargetPort(new IntOrString(456)).
+                        withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();
@@ -220,7 +215,7 @@ public class ConfigCompareServiceTest {
                 addToSelector("notSame", "value2").
                 addNewPort().
                 withPort(123).
-                withTargetPort(new IntOrString(456)).
+                withNewTargetPort(456).
                 endPort().
                 endSpec().
                 build();

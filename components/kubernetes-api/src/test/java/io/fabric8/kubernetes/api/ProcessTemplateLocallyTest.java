@@ -19,7 +19,7 @@ import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Template;
 
 import org.junit.Test;
 import org.slf4j.Logger;

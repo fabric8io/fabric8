@@ -18,8 +18,8 @@ package io.fabric8.kubernetes.api.extensions;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.openshift.api.model.template.Parameter;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Parameter;
+import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,10 +158,10 @@ public class Templates {
      * Lets allow template parameters to be overridden with a Properties object
      */
     public static void overrideTemplateParameters(Template template,  Map<String, String> properties, String propertyNamePrefix) {
-        List<io.fabric8.openshift.api.model.template.Parameter> parameters = template.getParameters();
+        List<Parameter> parameters = template.getParameters();
         if (parameters != null && properties != null) {
             boolean missingProperty = false;
-            for (io.fabric8.openshift.api.model.template.Parameter parameter : parameters) {
+            for (Parameter parameter : parameters) {
                 String parameterName = parameter.getName();
                 String name = propertyNamePrefix + parameterName;
                 String propertyValue = properties.get(name);

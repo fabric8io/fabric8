@@ -16,7 +16,7 @@
 package io.fabric8.kubernetes.api.extensions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.config.*;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

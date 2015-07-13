@@ -28,12 +28,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Helper methods to compare the user configuration on entities
@@ -41,7 +36,7 @@ import java.util.Set;
 public class UserConfigurationCompare {
     private static final transient Logger LOG = LoggerFactory.getLogger(UserConfigurationCompare.class);
 
-    protected static final Set<String> ignoredProperties = new HashSet<>(Arrays.asList("status"));
+    protected static final Set<String> ignoredProperties = new HashSet<>(Collections.singletonList("status"));
 
 
     /**
@@ -65,8 +60,8 @@ public class UserConfigurationCompare {
             return configEqualObjectMeta((ObjectMeta) entity1, castTo(ObjectMeta.class, entity2));
         } else {
             Set<Class<?>> classes = new HashSet<>(KindToClassMapping.getKindToClassMap().values());
-            Class<?> aClass = entity1.getClass();
-            if (classes.contains(aClass)) {
+            Class<?> aClass = getMappedClass(entity1.getClass(), classes);
+            if (aClass != null) {
                 Object castEntity2 = castTo(aClass, entity2);
                 if (castEntity2 == null) {
                     return false;
@@ -77,6 +72,18 @@ public class UserConfigurationCompare {
                 return Objects.equal(entity1, entity2);
             }
         }
+    }
+
+    // Needed for "editable" classes...
+    private static Class<?> getMappedClass(Class<?> entityClass, Set<Class<?>> classMapping) {
+        if (classMapping.contains(entityClass)) {
+            return entityClass;
+        }
+        Class<?> superClass = entityClass.getSuperclass();
+        if (classMapping.contains(superClass)) {
+            return superClass;
+        }
+        return null;
     }
 
 

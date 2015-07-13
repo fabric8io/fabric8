@@ -39,7 +39,7 @@ import io.fabric8.maven.support.OrderedProperties;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
-import io.fabric8.openshift.api.model.template.Template;
+import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;

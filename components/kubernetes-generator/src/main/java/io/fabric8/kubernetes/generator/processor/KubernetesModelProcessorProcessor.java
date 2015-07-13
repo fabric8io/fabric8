@@ -15,16 +15,16 @@
  */
 package io.fabric8.kubernetes.generator.processor;
 
-import io.fabric8.common.Builder;
-import io.fabric8.common.Visitable;
-import io.fabric8.common.Visitor;
+import io.fabric8.kubernetes.api.builder.Builder;
+import io.fabric8.kubernetes.api.builder.Visitable;
+import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.generator.annotation.KubernetesModelProcessor;
-import io.fabric8.openshift.api.model.template.Template;
-import io.fabric8.openshift.api.model.template.TemplateBuilder;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.api.model.TemplateBuilder;
 import io.fabric8.utils.Maps;
 import io.fabric8.utils.Strings;
 
