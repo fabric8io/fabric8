@@ -83,6 +83,7 @@ public class Controller {
     private boolean processTemplatesLocally;
     private File logJsonDir;
     private File basedir;
+    private boolean failOnMissingParameterValue;
 
     public Controller() {
         this(new KubernetesClient());
@@ -441,7 +442,7 @@ public class Controller {
     public Object processTemplate(Template entity, String sourceName) {
         if (isProcessTemplatesLocally()) {
             try {
-                return Templates.processTemplatesLocally(entity);
+                return Templates.processTemplatesLocally(entity, failOnMissingParameterValue);
             } catch (IOException e) {
                 onApplyError("Failed to process template " + sourceName + ". " + e + ". " + entity, e);
                 return null;
@@ -897,5 +898,13 @@ public class Controller {
 
     public void setIgnoreRunningOAuthClients(boolean ignoreRunningOAuthClients) {
         this.ignoreRunningOAuthClients = ignoreRunningOAuthClients;
+    }
+
+    public boolean isFailOnMissingParameterValue() {
+        return failOnMissingParameterValue;
+    }
+
+    public void setFailOnMissingParameterValue(boolean failOnMissingParameterValue) {
+        this.failOnMissingParameterValue = failOnMissingParameterValue;
     }
 }

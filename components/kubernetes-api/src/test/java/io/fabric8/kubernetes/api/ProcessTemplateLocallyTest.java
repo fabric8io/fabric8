@@ -46,7 +46,7 @@ public class ProcessTemplateLocallyTest {
         assertNotEmpty("objects", objects);
 
 
-        KubernetesList list = Templates.processTemplatesLocally(template);
+        KubernetesList list = Templates.processTemplatesLocally(template, true);
         assertThat(list).describedAs("results").isNotNull();
         List<HasMetadata> items = list.getItems();
         assertThat(items).describedAs("items").isNotNull();

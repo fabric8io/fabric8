@@ -182,7 +182,7 @@ public class Templates {
     /**
      * Lets locally process the templates so that we can process templates on any kubernetes environment
      */
-    public static KubernetesList processTemplatesLocally(Template entity) throws IOException {
+    public static KubernetesList processTemplatesLocally(Template entity, boolean failOnMissingParameterValue) throws IOException {
         List<HasMetadata> objects = null;
         if (entity != null) {
             objects = entity.getObjects();
@@ -206,7 +206,7 @@ public class Templates {
                     String value = parameter.getValue();
 
                     // TODO generate random strings for passwords etc!
-                    if (Strings.isNullOrBlank(value)) {
+                    if (failOnMissingParameterValue && Strings.isNullOrBlank(value)) {
                         throw new IllegalArgumentException("No value available for parameter name: " + name);
                     }
                     json = Strings.replaceAllWithoutRegex(json, regex, value);
