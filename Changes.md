@@ -4,7 +4,7 @@
 * first release of the new [Jenkins Docker Workflow based](http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html) [Continuus Integration / Continuous Delivery system](http://fabric8.io/guide/cdelivery.html)
 * integrated support for the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) to connect various DevOps services like git hosting, chat, issue tracking and jenkins for a project reusing the optional `fabric8.yml` file via JBoss Forge, Maven or in a JVM.
 * The `fabric8:create-build-config` goal is now renamed to `fabric8:devops` to reflect the more generic nature of updating the DevOps configuration via the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) 
-* Fixes [these 12 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.7)
+* Fixes [these 16 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.7)
 
 ### 2.2.5
 
