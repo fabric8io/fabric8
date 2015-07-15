@@ -159,10 +159,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setAllowCreate(createNewResources);
             controller.setServicesOnlyMode(servicesOnly);
             controller.setIgnoreServiceMode(ignoreServices);
-            controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
-            controller.setProcessTemplatesLocally(processTemplatesLocally);
             controller.setLogJsonDir(jsonLogDir);
             controller.setBasedir(getRootProjectFolder());
+            controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
+            controller.setProcessTemplatesLocally(processTemplatesLocally);
 
             boolean openShift = kubernetes.isOpenShift();
             getLog().info("Is OpenShift: " + openShift);
@@ -250,6 +250,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         this.processTemplatesLocally = true;
         this.createRoutes = false;
         controller.setSupportOAuthClients(false);
+        controller.setProcessTemplatesLocally(true);
     }
 
     /**
