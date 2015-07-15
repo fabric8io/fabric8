@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.root.RootPaths;
 import io.fabric8.openshift.api.model.OAuthClient;
 
 import javax.validation.constraints.NotNull;
@@ -30,27 +31,31 @@ import javax.ws.rs.Produces;
 /**
  * Various Kubernetes extensions defined in the OpenShift project which are namespace agnostic
  */
-@Path("oapi/v1")
+@Path("/")
 @Produces("application/json")
 @Consumes("application/json")
 public interface KubernetesGlobalExtensions {
 
+    @GET
+    @Path("/")
+    RootPaths getRootPaths();
+
     @POST
-    @Path("oauthclients")
+    @Path("oapi/v1/oauthclients")
     @Consumes("application/json")
     String createOAuthClient(OAuthClient entity) throws Exception;
 
     @GET
-    @Path("oauthclients/{name}")
+    @Path("oapi/v1/oauthclients/{name}")
     OAuthClient getOAuthClient(@PathParam("name") @NotNull String name);
 
     @PUT
-    @Path("oauthclients/{name}")
+    @Path("oapi/v1/oauthclients/{name}")
     @Consumes("application/json")
     String updateOAuthClient(@PathParam("name") @NotNull String name, OAuthClient entity) throws Exception;
 
     @DELETE
-    @Path("oauthclients/{name}")
+    @Path("oapi/v1/oauthclients/{name}")
     String deleteOAuthClient(@PathParam("name") @NotNull String name);
 
 }

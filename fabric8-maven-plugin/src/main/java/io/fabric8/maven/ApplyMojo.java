@@ -151,6 +151,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
         KubernetesClient kubernetes = getKubernetes();
         getLog().info("Using kubernetes at: " + kubernetes.getAddress() + " in namespace " + kubernetes.getNamespace());
+
         getLog().info("Kubernetes JSON: " + json);
 
         try {
@@ -162,6 +163,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setProcessTemplatesLocally(processTemplatesLocally);
             controller.setLogJsonDir(jsonLogDir);
             controller.setBasedir(getRootProjectFolder());
+
+            boolean openShift = kubernetes.isOpenShift();
+            getLog().info("Is OpenShift: " + openShift);
+            if (!openShift) {
+                disableOpenShiftFeatures(controller);
+            }
 
 
             String fileName = json.getName();
@@ -233,6 +240,16 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Lets disable OpenShift-only features if we are not running on OpenShift
+     */
+    protected void disableOpenShiftFeatures(Controller controller) {
+        // TODO we could check if the Templates service is running and if so we could still support templates?
+        this.processTemplatesLocally = true;
+        this.createRoutes = false;
+        controller.setSupportOAuthClients(false);
     }
 
     /**

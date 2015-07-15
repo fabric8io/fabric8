@@ -84,6 +84,7 @@ public class Controller {
     private File logJsonDir;
     private File basedir;
     private boolean failOnMissingParameterValue;
+    private boolean supportOAuthClients;
 
     public Controller() {
         this(new KubernetesClient());
@@ -232,38 +233,40 @@ public class Controller {
     }
 
     public void applyOAuthClient(OAuthClient entity, String sourceName) {
-        String id = getName(entity);
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        if (isServicesOnlyMode()) {
-            LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
-            return;
-        }
-        OAuthClient old = kubernetes.getOAuthClient(id);
-        if (isRunning(old)) {
-            if (isIgnoreRunningOAuthClients()) {
-                LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
+        if (supportOAuthClients) {
+            String id = getName(entity);
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            if (isServicesOnlyMode()) {
+                LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
                 return;
             }
-            if (UserConfigurationCompare.configEqual(entity, old)) {
-                LOG.info("OAuthClient hasn't changed so not doing anything");
-            } else {
-                if (isRecreateMode()) {
-                    kubernetes.deleteOAuthClient(id);
-                    doCreateOAuthClient(entity, sourceName);
+            OAuthClient old = kubernetes.getOAuthClient(id);
+            if (isRunning(old)) {
+                if (isIgnoreRunningOAuthClients()) {
+                    LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
+                    return;
+                }
+                if (UserConfigurationCompare.configEqual(entity, old)) {
+                    LOG.info("OAuthClient hasn't changed so not doing anything");
                 } else {
-                    try {
-                        Object answer = kubernetes.updateOAuthClient(id, entity);
-                        LOG.info("Updated pod result: " + answer);
-                    } catch (Exception e) {
-                        onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
+                    if (isRecreateMode()) {
+                        kubernetes.deleteOAuthClient(id);
+                        doCreateOAuthClient(entity, sourceName);
+                    } else {
+                        try {
+                            Object answer = kubernetes.updateOAuthClient(id, entity);
+                            LOG.info("Updated pod result: " + answer);
+                        } catch (Exception e) {
+                            onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
+                        }
                     }
                 }
-            }
-        } else {
-            if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating an OAuthClient from " + sourceName + " name " + getName(entity));
             } else {
-                doCreateOAuthClient(entity, sourceName);
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating an OAuthClient from " + sourceName + " name " + getName(entity));
+                } else {
+                    doCreateOAuthClient(entity, sourceName);
+                }
             }
         }
     }
@@ -906,5 +909,13 @@ public class Controller {
 
     public void setFailOnMissingParameterValue(boolean failOnMissingParameterValue) {
         this.failOnMissingParameterValue = failOnMissingParameterValue;
+    }
+
+    public boolean isSupportOAuthClients() {
+        return supportOAuthClients;
+    }
+
+    public void setSupportOAuthClients(boolean supportOAuthClients) {
+        this.supportOAuthClients = supportOAuthClients;
     }
 }

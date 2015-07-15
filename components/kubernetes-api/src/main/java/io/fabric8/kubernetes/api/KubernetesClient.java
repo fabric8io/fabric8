@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.root.RootPaths;
 import io.fabric8.openshift.api.model.*;
 import io.fabric8.utils.*;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -647,6 +648,12 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
     // Delegated KubernetesExtensions API
     //-------------------------------------------------------------------------
 
+    @Override
+    @GET
+    @Path("/")
+    public RootPaths getRootPaths() {
+        return getKubernetesGlobalExtensions().getRootPaths();
+    }
 
     @Override
     @POST
@@ -1091,6 +1098,26 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
 
     // Helper methods
     //-------------------------------------------------------------------------
+
+    /**
+     * Returns true if this client is connected to an OpenShift REST service and so natively
+     * supports things like Templates and BuildConfigs
+     */
+    public boolean isOpenShift() {
+        RootPaths rootPaths = getKubernetesGlobalExtensions().getRootPaths();
+        if (rootPaths != null) {
+            List<String> paths  = rootPaths.getPaths();
+            if (paths != null) {
+                for (String path : paths) {
+                    if (Objects.equals("/oapi", path) || Objects.equals("oapi", path)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public void deletePod(Pod entity, String namespace) throws Exception {
         if (Strings.isNotBlank(namespace)) {
             entity.getMetadata().setNamespace(namespace);
