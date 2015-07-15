@@ -42,7 +42,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     /**
      * Should we update resources by deleting them first and then creating them again?
      */
-    @Parameter(property = "fabric8.recreate")
+    @Parameter(property = "fabric8.recreate", defaultValue = "false")
     protected boolean recreate;
 
     private KubernetesClient kubernetes;
@@ -61,6 +61,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         Controller controller = new Controller(getKubernetes());
         controller.setThrowExceptionOnError(failOnError);
         controller.setRecreateMode(recreate);
+        getLog().debug("Using recreate mode: " + recreate);
         return controller;
     }
 

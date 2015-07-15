@@ -221,7 +221,6 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 createRoutes(kubernetes, entities);
             }
 
-            controller.setRecreateMode(true);
             //Apply all items
             for (HasMetadata entity : entities) {
                 if (entity instanceof Pod) {
