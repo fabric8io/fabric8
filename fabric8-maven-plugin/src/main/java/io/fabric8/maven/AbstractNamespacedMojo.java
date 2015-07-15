@@ -67,4 +67,32 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     protected String getNamespace() {
         return getKubernetes().getNamespace();
     }
+
+    public String getRouteDomain() {
+        return routeDomain;
+    }
+
+    public void setRouteDomain(String routeDomain) {
+        this.routeDomain = routeDomain;
+    }
+
+    public boolean isRecreate() {
+        return recreate;
+    }
+
+    public void setRecreate(boolean recreate) {
+        this.recreate = recreate;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
+    }
 }
