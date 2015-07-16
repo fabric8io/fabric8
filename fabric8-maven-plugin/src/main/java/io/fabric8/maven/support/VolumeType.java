@@ -123,7 +123,7 @@ public enum VolumeType {
     private static final String VOLUME_NAME_PREFIX = VOLUME_PREFIX + ".%s";
     private static final String VOLUME_PROPERTY = VOLUME_NAME_PREFIX + ".%s";
     
-    private static final String VOLUME_GIT_REV = "gitRevision";
+    private static final String VOLUME_GIT_REV = "revision";
     private static final String VOLUME_SECRET_NAME = "secret";
 
     private static final String VOLUME_NFS_SERVER = "nfsServer";
