@@ -431,6 +431,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 Template template = (Template) combinedJson;
                 setName(template, getKubernetesName());
                 configureTemplateDescriptionAndIcon(template, getIconUrl());
+
+                if (pureKubernetes) {
+                    combinedJson = applyTemplates(template);
+                }
+            }
+            if (pureKubernetes) {
+                combinedJson = filterPureKubernetes(combinedJson);
             }
             json.getParentFile().mkdirs();
             KubernetesHelper.saveJson(json, combinedJson);
@@ -439,6 +446,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
     }
+
+    protected Object applyTemplates(Template template) throws IOException {
+        overrideTemplateParameters(template);
+        return Templates.processTemplatesLocally(template, false);
+    }
+
+    protected Object filterPureKubernetes(Object dto) throws IOException {
+        List<HasMetadata> items = KubernetesHelper.toItemList(dto);
+        List<HasMetadata> filtered = new ArrayList<>();
+        for (HasMetadata item : items) {
+            if (KubernetesHelper.isPureKubernetes(item)) {
+                filtered.add(item);
+            }
+        }
+        KubernetesList answer = new KubernetesList();
+        answer.setItems(filtered);
+        return answer;
+    }
+
 
     private void addKubernetesJsonFileToList(List<Object> list, File file) {
         if (file.exists() && file.isFile()) {
@@ -689,14 +715,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (result instanceof Template) {
             Template resultTemplate = (Template) result;
             configureTemplateDescriptionAndIcon(resultTemplate, iconUrl);
-        }
 
+            if (pureKubernetes) {
+                try {
+                    result = applyTemplates(template);
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Failed to process template locally " + e, e);
+                }
+            }
+        }
         try {
+            if (pureKubernetes) {
+                result = filterPureKubernetes(result);
+            }
+
             ObjectMapper mapper = new ObjectMapper()
                     .enable(SerializationFeature.INDENT_OUTPUT);
             String generated = mapper.writeValueAsString(result);
             Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
         }
     }

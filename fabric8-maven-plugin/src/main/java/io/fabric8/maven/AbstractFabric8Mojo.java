@@ -15,6 +15,8 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.maven.support.JsonSchema;
@@ -99,6 +101,13 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "fabric8.combineDependencies", defaultValue = "false")
     protected boolean combineDependencies;
+
+
+    /**
+     * Should we exclude OpenShift templates and any extensions like OAuthConfigs in the generated or combined JSON?
+     */
+    @Parameter(property = "fabric8.pureKubernetes", defaultValue = "false")
+    protected boolean pureKubernetes;
 
     /**
      * The number of replicas of this container if we are auto generating the kubernetes JSON file (creating
@@ -474,5 +483,35 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             }
         }
         return false;
+    }
+
+    /**
+     * Before applying the given template lets allow template parameters to be overridden via the maven
+     * properties - or optionally - via the command line if in interactive mode.
+     */
+    protected void overrideTemplateParameters(Template template) {
+        List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
+        MavenProject project = getProject();
+        if (parameters != null && project != null) {
+            Properties properties = project.getProperties();
+            properties.putAll(project.getProperties());
+            properties.putAll(System.getProperties());
+            boolean missingProperty = false;
+            for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
+                String parameterName = parameter.getName();
+                String name = "fabric8.apply." + parameterName;
+                String propertyValue = properties.getProperty(name);
+                if (propertyValue != null) {
+                    getLog().info("Overriding template parameter " + name + " with value: " + propertyValue);
+                    parameter.setValue(propertyValue);
+                } else {
+                    missingProperty = true;
+                    getLog().info("No property defined for template parameter: " + name);
+                }
+            }
+            if (missingProperty) {
+                getLog().debug("current properties " + new TreeSet<>(properties.keySet()));
+            }
+        }
     }
 }

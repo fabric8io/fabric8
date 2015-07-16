@@ -179,9 +179,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
             if (dto instanceof Template) {
                 Template template = (Template) dto;
-                KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
-                overrideTemplateParameters(template);
-                dto = controller.applyTemplate(template, fileName);
+                dto = applyTemplates(template, kubernetes, controller, fileName);
             }
 
             Set<KubernetesList> kubeConfigs = new LinkedHashSet<>();
@@ -252,34 +250,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         controller.setProcessTemplatesLocally(true);
     }
 
-    /**
-     * Before applying the given template lets allow template parameters to be overridden via the maven
-     * properties - or optionally - via the command line if in interactive mode.
-     */
-    protected void overrideTemplateParameters(Template template) {
-        List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
-        MavenProject project = getProject();
-        if (parameters != null && project != null) {
-            Properties properties = project.getProperties();
-            properties.putAll(project.getProperties());
-            properties.putAll(System.getProperties());
-            boolean missingProperty = false;
-            for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
-                String parameterName = parameter.getName();
-                String name = "fabric8.apply." + parameterName;
-                String propertyValue = properties.getProperty(name);
-                if (Strings.isNotBlank(propertyValue)) {
-                    getLog().info("Overriding template parameter " + name + " with value: " + propertyValue);
-                    parameter.setValue(propertyValue);
-                } else {
-                    missingProperty = true;
-                    getLog().info("No property defined for template parameter: " + name);
-                }
-            }
-            if (missingProperty) {
-                getLog().debug("current properties " + new TreeSet<>(properties.keySet()));
-            }
-        }
+    protected Object applyTemplates(Template template, KubernetesClient kubernetes, Controller controller, String fileName) throws Exception {
+        KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
+        overrideTemplateParameters(template);
+        return controller.applyTemplate(template, fileName);
     }
 
     protected void createRoutes(KubernetesClient kubernetes, Collection<HasMetadata> collection) {

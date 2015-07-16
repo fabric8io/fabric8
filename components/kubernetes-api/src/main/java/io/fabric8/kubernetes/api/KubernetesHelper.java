@@ -1681,4 +1681,14 @@ public final class KubernetesHelper {
         }
     }
 
+    /**
+     * Returns true if this object is a pure kubernetes DTO
+     */
+    public static boolean isPureKubernetes(HasMetadata item) {
+        if (item != null) {
+            String name = item.getClass().getName();
+            return name.startsWith("io.fabric8.kubernetes");
+        }
+        return false;
+    }
 }

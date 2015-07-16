@@ -206,8 +206,12 @@ public class Templates {
                     String value = parameter.getValue();
 
                     // TODO generate random strings for passwords etc!
-                    if (failOnMissingParameterValue && Strings.isNullOrBlank(value)) {
-                        throw new IllegalArgumentException("No value available for parameter name: " + name);
+                    if (Strings.isNullOrBlank(value)) {
+                        if (failOnMissingParameterValue) {
+                            throw new IllegalArgumentException("No value available for parameter name: " + name);
+                        } else {
+                            value = "";
+                        }
                     }
                     json = Strings.replaceAllWithoutRegex(json, regex, value);
                 }
