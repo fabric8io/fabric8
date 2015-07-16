@@ -27,6 +27,7 @@ public class RestUIProvider implements UIProvider {
 	private final UIOutput output;
 	private ByteArrayOutputStream out = new ByteArrayOutputStream();
 	private ByteArrayOutputStream err = new ByteArrayOutputStream();
+	private final String uiName = "UiProvider";
 
 	public RestUIProvider() {
 		super();
@@ -55,4 +56,14 @@ public class RestUIProvider implements UIProvider {
 	public String getErr() {
 		return err.toString();
 	}
+
+        @Override
+        public String getName() {
+                return uiName;
+        }
+
+        @Override
+        public boolean isEmbedded() {
+                return false;
+        }
 }
