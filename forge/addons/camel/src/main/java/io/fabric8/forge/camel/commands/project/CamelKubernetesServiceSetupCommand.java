@@ -62,8 +62,14 @@ public class CamelKubernetesServiceSetupCommand extends AbstractCamelProjectComm
 
     @Override
     public boolean isEnabled(UIContext context) {
-        // we dont want this in GUI as it dont add value there
-        return super.isEnabled(context) && !context.getProvider().isGUI();
+        Project project = getSelectedProjectOrNull(context);
+        // only enable if we do not have Camel yet
+        if (project == null) {
+            // must have a project
+            return false;
+        } else {
+            return true;
+        }
     }
     
     @Override
@@ -127,7 +133,6 @@ public class CamelKubernetesServiceSetupCommand extends AbstractCamelProjectComm
 
     @Override
     public NavigationResult next(UINavigationContext arg0) throws Exception {
-        // TODO Auto-generated method stub
         return null;
     }
 }
