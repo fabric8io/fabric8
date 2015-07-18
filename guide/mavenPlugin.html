@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1" data-basepath="." data-revision="Sat Jul 18 2015 05:54:15 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1" data-basepath="." data-revision="Sat Jul 18 2015 06:12:04 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -607,6 +607,21 @@
             
         </li>
     
+        <li class="chapter " data-level="4.1.9" data-path="mavenFabric8Recreate.html">
+            
+                
+                    <a href="./mavenFabric8Recreate.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.9.</b>
+                        
+                        fabric8:recreate
+                    </a>
+                
+            
+            
+        </li>
+    
 
             </ul>
             
@@ -1089,6 +1104,7 @@
 <li><a href="mavenFabric8CreateEnv.html">fabric8:create-env</a> generates environment variable scripts for Kubernetes <a href="services.html">services</a> so you can simulate running programs as if they were inside kubernetes</li>
 <li><a href="mavenFabric8CreateRoutes.html">fabric8:create-routes</a> generates any missing <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for the current services </li>
 <li><a href="mavenFabric8DeletePods.html">fabric8:delete-pods</a> deletes pods for the current projects docker image so that they get recreated by the <a href="replicationControllers.html">replication controllers</a> to use the latest image</li>
+<li><a href="mavenFabric8DRecreate.html">fabric8:recreate</a> works like <a href="mavenFabric8Apply.html">fabric8:apply</a> but forces all resources which exist to be recreated</li>
 </ul>
 <h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="plugin-anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
 <p>To enable this maven plugin and to automatically generate/copy and release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
