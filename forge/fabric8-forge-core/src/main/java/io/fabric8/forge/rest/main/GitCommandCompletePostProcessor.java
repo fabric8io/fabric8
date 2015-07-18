@@ -606,7 +606,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
         String serviceAddress = null;
         if (service != null) {
-            String portalIP = service.getSpec().getPortalIP();
+            String portalIP = service.getSpec().getClusterIP();
             if (!Strings.isNullOrEmpty(portalIP)) {
                 List<ServicePort> servicePorts = service.getSpec().getPorts();
                 if (servicePorts != null && !servicePorts.isEmpty()) {

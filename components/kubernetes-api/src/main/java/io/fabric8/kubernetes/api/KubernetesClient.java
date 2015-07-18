@@ -325,8 +325,8 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
             ServiceSpec oldSpec = service.getSpec();
             ServiceSpec newSpec = entity.getSpec();
             if (oldSpec != null && newSpec != null) {
-                if (Strings.isNullOrBlank(newSpec.getPortalIP())) {
-                    newSpec.setPortalIP(oldSpec.getPortalIP());
+                if (Strings.isNullOrBlank(newSpec.getClusterIP())) {
+                    newSpec.setClusterIP(oldSpec.getClusterIP());
                 }
             }
 
@@ -1502,7 +1502,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
                 return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
             }
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
+        return (serviceProto + "://" + srv.getSpec().getClusterIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
     }
 
 

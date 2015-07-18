@@ -230,7 +230,7 @@ public final class KubernetesHelper {
         String answer = null;
         if (entity != null) {
             ServiceSpec spec = getOrCreateSpec(entity);
-            return spec.getPortalIP();
+            return spec.getClusterIP();
         }
         return answer;
     }
@@ -1132,14 +1132,14 @@ public final class KubernetesHelper {
         if (service != null) {
             ServiceSpec spec = service.getSpec();
             if (spec != null) {
-                String portalIP = spec.getPortalIP();
+                String portalIP = spec.getClusterIP();
                 if (portalIP != null) {
                     Integer port = spec.getPorts().iterator().next().getPort();
                     if (port != null && port > 0) {
                         portalIP += ":" + port;
                     }
                     String protocol = "http://";
-                    if (KubernetesHelper.isServiceSsl(spec.getPortalIP(), port, Boolean.valueOf(System.getenv(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES)))) {
+                    if (KubernetesHelper.isServiceSsl(spec.getClusterIP(), port, Boolean.valueOf(System.getenv(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES)))) {
                         protocol = "https://";
                     }
                     return protocol + portalIP;
@@ -1471,7 +1471,7 @@ public final class KubernetesHelper {
         if (waiting != null) {
             return "Waiting";
         }
-        ContainerStateTerminated termination = entity.getTermination();
+        ContainerStateTerminated termination = entity.getTerminated();
         if (termination != null) {
             return "Terminated";
         }

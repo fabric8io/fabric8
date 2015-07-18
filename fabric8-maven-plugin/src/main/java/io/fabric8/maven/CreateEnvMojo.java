@@ -220,7 +220,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             if (spec != null) {
                 result.put(id + HOST_SUFFIX, spec.getHost());
             } else if (serviceSpec != null) {
-                result.put(id + HOST_SUFFIX, serviceSpec.getPortalIP());
+                result.put(id + HOST_SUFFIX, serviceSpec.getClusterIP());
             }
             if (serviceSpec != null) {
                 List<ServicePort> ports = serviceSpec.getPorts();

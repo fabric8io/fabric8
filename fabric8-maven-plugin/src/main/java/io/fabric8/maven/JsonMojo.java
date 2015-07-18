@@ -657,7 +657,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withLabels(labelMap)
                 .endMetadata()
                 .withNewSpec()
-                .withServiceAccount(serviceAccount)
+                .withServiceAccountName(serviceAccount)
                 .addNewContainer()
                 .withName(getKubernetesContainerName())
                 .withImage(getDockerImage())
@@ -693,7 +693,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             if (hasPorts) {
                 serviceSpecBuilder.withPorts(servicePorts);
             } else {
-                serviceSpecBuilder.withPortalIP("None");
+                serviceSpecBuilder.withClusterIP("None");
             }
             serviceSpecBuilder.endSpec();
 
