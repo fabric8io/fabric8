@@ -3,6 +3,7 @@
 
 * This release now means that the [fabric8 console](http://fabric8.io/guide/console.html) works [great on vanilla kubernetes and GKE](http://fabric8.io/guide/getStarted/gke.html) as well as OpenShift! Check out this [demo video](https://vimeo.com/133765913) to see it on GKE
 * The [mvn fabric8:apply](http://fabric8.io/guide/mavenFabric8Apply.html) goal now works out of the box on both vanilla Kubernetes and OpenShift without you having to configure any properties
+* A new [mvn fabric8:recreate](http://fabric8.io/guide/mavenFabric8Recreate.html) goal for less typing if you want to ensure all resources are created or recreated
 * Fixes [these 18 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.11)
 
 ### 2.2.7
