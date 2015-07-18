@@ -1,4 +1,10 @@
 
+### 2.2.11
+
+* This release now means that the [fabric8 console](http://fabric8.io/guide/console.html) works [great on vanilla kubernetes and GKE](http://fabric8.io/guide/getStarted/gke.html) as well as OpenShift! Check out this [demo video](https://vimeo.com/133765913) to see it on GKE
+* The [mvn fabric8:apply](http://fabric8.io/guide/mavenFabric8Apply.html) goal now works out of the box on both vanilla Kubernetes and OpenShift without you having to configure any properties
+* Fixes [these 18 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.11)
+
 ### 2.2.7
 
 * first release of the new [Jenkins Docker Workflow based](http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html) [Continuus Integration / Continuous Delivery system](http://fabric8.io/guide/cdelivery.html)
@@ -44,7 +50,7 @@
 
 ### 2.1.1 
 
-* Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide//fabric8OnOpenShift.html) 
+* Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide/fabric8OnOpenShift.html) 
 * migrates to the v1beta3 version of the Kubernetes schema by default including much better validation
 * [Fabric8 Apps](http://fabric8.io/guide/fabric8Apps.html) are now easier to [install on an existing Kubernetes or OpenShift environment](http://fabric8.io/guide/fabric8OnOpenShift.html) via a [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html) JSON file.
 * Maven [fabric8:json](http://fabric8.io/guide/mavenFabric8Json.html) goal now supports the generation of [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html)
