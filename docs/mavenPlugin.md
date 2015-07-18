@@ -13,6 +13,7 @@ For generating and applying Kubernetes JSON
 
 * [fabric8:json](mavenFabric8Json.html) generates kubernetes json for your maven project
 * [fabric8:apply](mavenFabric8Apply.html) applies the kubernetes json into a namespace in a kubernetes cluster
+* [fabric8:recreate](mavenFabric8DRecreate.html) works like [fabric8:apply](mavenFabric8Apply.html) but forces all resources which exist to be recreated
 
 Helper goals for working with Kubernetes 
 
@@ -20,7 +21,6 @@ Helper goals for working with Kubernetes
 * [fabric8:create-env](mavenFabric8CreateEnv.html) generates environment variable scripts for Kubernetes [services](services.html) so you can simulate running programs as if they were inside kubernetes
 * [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services 
 * [fabric8:delete-pods](mavenFabric8DeletePods.html) deletes pods for the current projects docker image so that they get recreated by the [replication controllers](replicationControllers.html) to use the latest image
-* [fabric8:recreate](mavenFabric8DRecreate.html) works like [fabric8:apply](mavenFabric8Apply.html) but forces all resources which exist to be recreated
 
 ### Adding the plugin to your project
 

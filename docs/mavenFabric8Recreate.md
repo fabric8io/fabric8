@@ -7,3 +7,5 @@ This goal is short hand for
 ```
 mvn fabric8:apply -Dfabric8.recreate=true
 ```
+
+See the  [fabric8:apply](mavenFabric8Apply.html) goal for more details on the available [properties](mavenFabric8Apply.html#maven-properties)
