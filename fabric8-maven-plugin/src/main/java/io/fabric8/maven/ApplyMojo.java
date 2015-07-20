@@ -177,6 +177,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 throw new MojoFailureException("Could not load kubernetes json: " + json);
             }
 
+            // lets check we have created the namespace
+            String namespace = kubernetes.getNamespace();
+            controller.applyNamespace(namespace);
+
             if (dto instanceof Template) {
                 Template template = (Template) dto;
                 dto = applyTemplates(template, kubernetes, controller, fileName);
@@ -214,6 +218,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
 
             entities.addAll(KubernetesHelper.toItemList(dto));
+
 
             if (createRoutes) {
                 createRoutes(kubernetes, entities);

@@ -648,14 +648,25 @@ public class Controller {
         }
     }
 
+    public void applyNamespace(String namespaceName) {
+        Namespace entity = new Namespace();
+        getOrCreateMetadata(entity).setName(namespaceName);
+        applyNamespace(entity);
+    }
+
     public void applyNamespace(Namespace entity) {
         String namespace = getOrCreateMetadata(entity).getName();
         LOG.info("Creating a namespace " + namespace);
-        try {
-            Object answer = kubernetes.createNamespace(entity);
-            logGeneratedEntity("Created namespace: ", namespace, entity, answer);
-        } catch (Exception e) {
-            onApplyError("Failed to create namespace. " + e + ". " + entity, e);
+        String name = getName(entity);
+        Objects.notNull(name, "No name for " + entity );
+        Namespace old = kubernetes.getNamespace(name);
+        if (!isRunning(old)) {
+            try {
+                Object answer = kubernetes.createNamespace(entity);
+                logGeneratedEntity("Created namespace: ", namespace, entity, answer);
+            } catch (Exception e) {
+                onApplyError("Failed to create namespace. " + e + ". " + entity, e);
+            }
         }
     }
 
