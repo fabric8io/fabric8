@@ -85,6 +85,7 @@ public class Controller {
     private File basedir;
     private boolean failOnMissingParameterValue;
     private boolean supportOAuthClients;
+    private boolean deletePodsOnReplicationControllerUpdate = true;
 
     public Controller() {
         this(new KubernetesClient());
@@ -691,6 +692,10 @@ public class Controller {
                     try {
                         Object answer = kubernetes.updateReplicationController(id, replicationController);
                         logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
+
+                        if (deletePodsOnReplicationControllerUpdate) {
+                            kubernetes.deleteReplicationControllerPods(replicationController);
+                        }
                     } catch (Exception e) {
                         onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
                     }
@@ -823,6 +828,14 @@ public class Controller {
 
     public void setProcessTemplatesLocally(boolean processTemplatesLocally) {
         this.processTemplatesLocally = processTemplatesLocally;
+    }
+
+    public boolean isDeletePodsOnReplicationControllerUpdate() {
+        return deletePodsOnReplicationControllerUpdate;
+    }
+
+    public void setDeletePodsOnReplicationControllerUpdate(boolean deletePodsOnReplicationControllerUpdate) {
+        this.deletePodsOnReplicationControllerUpdate = deletePodsOnReplicationControllerUpdate;
     }
 
     public File getLogJsonDir() {

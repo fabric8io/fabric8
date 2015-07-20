@@ -116,6 +116,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean processTemplatesLocally;
 
     /**
+     * Should we delete all the pods if we update a Replication Controller
+     */
+    @Parameter(property = "fabric8.apply.deletePods", defaultValue = "trye")
+    private boolean deletePodsOnReplicationControllerUpdate;
+
+    /**
      * Do we want to ignore OAuthClients which are already running?. OAuthClients are shared across namespaces
      * so we should not try to update or create/delete global oauth clients
      */
@@ -163,6 +169,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setBasedir(getRootProjectFolder());
             controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
             controller.setProcessTemplatesLocally(processTemplatesLocally);
+            controller.setDeletePodsOnReplicationControllerUpdate(deletePodsOnReplicationControllerUpdate);
 
             boolean openShift = kubernetes.isOpenShift();
             getLog().info("Is OpenShift: " + openShift);

@@ -1169,6 +1169,17 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions, Kuber
         validateNamespace(namespace, replicationController);
         LOG.info("Deleting ReplicationController: " + id + " namespace: " + namespace);
         deleteReplicationController(replicationController);
+        deleteReplicationControllerPods(replicationController);
+    }
+
+    public void deleteReplicationControllerPods(String name, String namespace)  throws Exception {
+        ReplicationController rc = getReplicationController(name, namespace);
+        if (rc != null) {
+            deleteReplicationControllerPods(rc);
+        }
+    }
+
+    public void deleteReplicationControllerPods(ReplicationController replicationController) throws Exception {
         List<Pod> podsToDelete = getPodsForReplicationController(replicationController);
         for (Pod pod : podsToDelete) {
             deletePod(pod);
