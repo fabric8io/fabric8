@@ -22,7 +22,7 @@ cp -rv ../docs/_book/* target/sitegen/guide && \
 cd target/sitegen && \
 git add * guide/* && \
 git commit -m "generated website" && \
-git push
+git push origin gh-pages
 
 #gitbook install ../docs --output=target/sitegen/guide && \
 
