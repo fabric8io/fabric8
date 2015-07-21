@@ -1,4 +1,10 @@
 
+### 2.2.14
+
+* This release fixes some regressions found in OpenShift 1.0.2 or later when using [Continuous Deliver with Fabric8 DevOps](http://fabric8.io/guide/cdelivery.html) 
+* Adds nicer links to [Continuous Deployment environments](http://fabric8.io/guide/cdelivery.html) in the [console](http://fabric8.io/guide/console.html) 
+* Fixes [these 2 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.14)
+
 ### 2.2.12
 
 * Upgraded to the latest kubernetes 1.0 schema. This version now works on OpenShift Origin 1.0.2 or later
@@ -7,7 +13,7 @@
 
 ### 2.2.11
 
-* This release now means that the [fabric8 console](http://fabric8.io/guide/console.html) works [great on vanilla kubernetes and GKE](http://fabric8.io/guide/getStarted/gke.html) as well as OpenShift! Check out this [demo video](https://vimeo.com/133765913) to see it on GKE
+* This release now means that the [fabric8 console](http://fabric8.io/guide/console.html) works [great on vanilla kubernetes and GKE](http://fabric8.io/guide/getStarted/gke.html) as well as OpenShift. Check out this [demo video](https://vimeo.com/133765913) to see it on GKE
 * The [mvn fabric8:apply](http://fabric8.io/guide/mavenFabric8Apply.html) goal now works out of the box on both vanilla Kubernetes and OpenShift without you having to configure any properties
 * A new [mvn fabric8:recreate](http://fabric8.io/guide/mavenFabric8Recreate.html) goal for less typing if you want to ensure all resources are created or recreated
 * Fixes [these 18 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.11)
