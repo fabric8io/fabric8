@@ -2,12 +2,12 @@
 
 > **Note** currently Jube got broken as fabric8 followed OpenShift 1.0 and Kubernetes 1.0. We will be fixing this soon ;)
 
-First you need to get the latest [Jube](jube.html) by [downloading jube-2.2.12-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.12/jube-2.2.12-image.zip) and unzipping it:
+First you need to get the latest [Jube](jube.html) by [downloading jube-2.2.14-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.14/jube-2.2.14-image.zip) and unzipping it:
 
-    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.12/jube-2.2.12-image.zip
-    mkdir jube-2.2.12-image
-    cd jube-2.2.12-image
-    unzip ../jube-2.2.12-image.zip
+    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.2.14/jube-2.2.14-image.zip
+    mkdir jube-2.2.14-image
+    cd jube-2.2.14-image
+    unzip ../jube-2.2.14-image.zip
 
 You can then startup Jube via:
 
