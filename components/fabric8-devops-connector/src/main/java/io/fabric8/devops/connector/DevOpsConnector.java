@@ -58,6 +58,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
@@ -219,6 +220,24 @@ public class DevOpsConnector {
             addLink(letschatRoomLinkLabel, chatRoomLink);
         }
 
+        ProjectConfigs.defaultEnvironments(projectConfig);
+
+        String consoleUrl = kubernetes.getServiceURL(ServiceNames.FABRIC8_CONSOLE, kubernetes.getNamespace(), "http", true);
+        if (Strings.isNotBlank(consoleUrl) && projectConfig != null) {
+            Map<String, String> environments = projectConfig.getEnvironments();
+            if (environments != null) {
+                for (Map.Entry<String, String> entry : environments.entrySet()) {
+                    String label = entry.getKey();
+                    String value = entry.getValue();
+                    String key = value;
+                    String environmentLink = URLUtils.pathJoin(consoleUrl, "/kubernetes/pods?namespace=" + value);
+                    annotations.put("fabric8.link.environment." + key + "/url", environmentLink);
+                    annotations.put("fabric8.link.environment." + key + "/label", label);
+                    addLink(label, environmentLink);
+                }
+            }
+        }
+
         BuildConfigFluent<BuildConfigBuilder>.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
                 withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
                 withNewSpec();
@@ -236,10 +255,10 @@ public class DevOpsConnector {
         }
         BuildConfig buildConfig = specBuilder.
                 addNewTrigger().
-                withType("github").withNewGithub().withSecret(secret).endGithub().
+                withType("GitHub").withNewGithub().withSecret(secret).endGithub().
                 endTrigger().
                 addNewTrigger().
-                withType("generic").withNewGeneric().withSecret(secret).endGeneric().
+                withType("Generic").withNewGeneric().withSecret(secret).endGeneric().
                 endTrigger().
                 endSpec().
                 build();
@@ -916,6 +935,19 @@ public class DevOpsConnector {
             Map<String, String> parameters = projectConfig.getBuildParameters();
             if (parameters != null) {
                 answer.putAll(parameters);
+            }
+            Map<String, String> environments = projectConfig.getEnvironments();
+            if (environments != null) {
+                Set<Map.Entry<String, String>> entries = environments.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    String paramName = key.toUpperCase() + "_NAMESPACE";
+                    answer.put(paramName, value);
+                }
+            }
+            if (!answer.containsKey("VERSION_PREFIX")) {
+                answer.put("VERSION_PREFIX", "1.0");
             }
         }
         return answer;

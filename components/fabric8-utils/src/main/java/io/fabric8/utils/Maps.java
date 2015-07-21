@@ -16,6 +16,7 @@
 package io.fabric8.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,10 @@ import java.util.Map;
  * Some helper methods for working with maps
  */
 public class Maps {
+
+    public static boolean isNullOrEmpty(Map map) {
+        return map == null || map.isEmpty();
+    }
 
     /**
      * Copies the entries for the given keys form the input map to the output map
@@ -226,5 +231,24 @@ public class Maps {
             map = (Map<String, Object>) value(map, names[i], null);
         }
         return valueAsString(map, names[lastIdx]);
+    }
+
+    /**
+     * Parses text from an environment variable of the form "key=value,key2=value2" into a Map
+     */
+    public static Map<String, String> parseMap(String text) {
+        Map<String, String> answer = new HashMap<>();
+        if (Strings.isNotBlank(text)) {
+            String[] entries = text.split(",");
+            if (entries != null) {
+                for (String entry : entries) {
+                    String[] values = entry.split("=", 2);
+                    if (values != null && values.length == 2) {
+                        answer.put(values[0], values[1]);
+                    }
+                }
+            }
+        }
+        return answer;
     }
 }

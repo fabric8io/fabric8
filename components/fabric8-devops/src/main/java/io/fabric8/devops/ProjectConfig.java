@@ -17,6 +17,7 @@ package io.fabric8.devops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.fabric8.utils.Maps;
 import io.fabric8.utils.Strings;
 
 import java.util.Map;
@@ -35,6 +36,7 @@ public class ProjectConfig {
     private Boolean codeReview;
     private Map<String, String> links;
     private Map<String, String> buildParameters;
+    private Map<String, String> environments;
     private Boolean useLocalFlow;
 
     @Override
@@ -57,7 +59,7 @@ public class ProjectConfig {
     @JsonIgnore
     public boolean isEmpty() {
         return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow)
-                && (buildParameters == null || buildParameters.isEmpty()) && useLocalFlow != null;
+                && Maps.isNullOrEmpty(buildParameters) && Maps.isNullOrEmpty(environments) && useLocalFlow != null;
     }
 
     // Properties
@@ -117,6 +119,14 @@ public class ProjectConfig {
 
     public void setBuildParameters(Map<String, String> buildParameters) {
         this.buildParameters = buildParameters;
+    }
+
+    public Map<String, String> getEnvironments() {
+        return environments;
+    }
+
+    public void setEnvironments(Map<String, String> environments) {
+        this.environments = environments;
     }
 
     public void setUseLocalFlow(Boolean useLocalFlow) {

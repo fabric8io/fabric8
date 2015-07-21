@@ -30,8 +30,10 @@ import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.resource.Resource;
@@ -255,6 +257,9 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
                 named = basedir.getName();
             }
         }
+        ProjectConfigs.defaultEnvironments(config);
+
+
         Boolean copyFlowToProjectValue = copyFlowToProject.getValue();
         if (copyFlowToProjectValue != null && copyFlowToProjectValue.booleanValue()) {
             if (basedir == null && !basedir.isDirectory()) {

@@ -18,7 +18,9 @@ package io.fabric8.devops;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.fabric8.utils.Maps;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,4 +192,19 @@ public class ProjectConfigs {
         config.setFlow(flow);
     }
 
+    /**
+     * If no environments have been configured lets default them from the `FABRIC8_DEFAULT_ENVIRONMENTS` environment variable
+     */
+    public static void defaultEnvironments(ProjectConfig config) {
+        if (config != null) {
+            String buildName = config.getBuildName();
+            if (Strings.isNotBlank(buildName) && Maps.isNullOrEmpty(config.getEnvironments())) {
+                // lets default the environments from env var
+                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Staging=${buildName}-staging,Production=${buildName}-prod");
+                String text = Strings.replaceAllWithoutRegex(defaultEnvironmentsText, "${buildName}", buildName);
+                Map<String,String> environments = Maps.parseMap(text);
+                config.setEnvironments(environments);
+            }
+        }
+    }
 }
