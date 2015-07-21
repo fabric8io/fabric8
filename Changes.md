@@ -1,4 +1,10 @@
 
+### 2.2.12
+
+* Upgraded to the latest kubernetes 1.0 schema. This version now works on OpenShift Origin 1.0.2 or later
+* Fully working Canary release, stage, approve and promote builds in the Jenkins Workflow when using [Continuous Deliver with Fabric8 DevOps](http://fabric8.io/guide/cdelivery.html)
+* Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.12)
+
 ### 2.2.11
 
 * This release now means that the [fabric8 console](http://fabric8.io/guide/console.html) works [great on vanilla kubernetes and GKE](http://fabric8.io/guide/getStarted/gke.html) as well as OpenShift! Check out this [demo video](https://vimeo.com/133765913) to see it on GKE
