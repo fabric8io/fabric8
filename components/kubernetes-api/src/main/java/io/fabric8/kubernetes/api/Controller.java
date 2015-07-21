@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
@@ -228,6 +229,8 @@ public class Controller {
             applyTemplate((Template) dto, sourceName);
         } else if (dto instanceof ServiceAccount) {
             applyServiceAccount((ServiceAccount) dto, sourceName);
+        } else if (dto instanceof Secret) {
+            applySecret((Secret) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -382,6 +385,60 @@ public class Controller {
             logGeneratedEntity("Created service account: ", namespace, serviceAccount, answer);
         } catch (Exception e) {
             onApplyError("Failed to create service account from " + sourceName + ". " + e + ". " + serviceAccount, e);
+        }
+    }
+
+    public void applySecret(Secret secret, String sourceName) throws Exception {
+        String namespace = getNamespace();
+        String id = getName(secret);
+        Objects.notNull(id, "No name for " + secret + " " + sourceName);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring Secrets: " + id);
+            return;
+        }
+
+        Secret old = kubernetes.getSecret(id, namespace);
+        // check if the secret already exists or not
+        if (isRunning(old)) {
+            // if the secret already exists and is the same, then do nothing
+            if (UserConfigurationCompare.configEqual(secret, old)) {
+                LOG.info("Secret hasn't changed so not doing anything");
+                return;
+            } else {
+                if (isRecreateMode()) {
+                    kubernetes.deleteSecret(id, namespace);
+                    doCreateSecret(secret, namespace, sourceName);
+                } else {
+                    LOG.info("Updateing a secret from " + sourceName);
+                    try {
+                        Object answer = kubernetes.updateSecret(id, secret, namespace);
+                        logGeneratedEntity("Updated secret:", namespace, secret, answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update secret from " + sourceName + ". " + e + ". " + secret, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a secret from " + sourceName + " namespace " + namespace + " name " + getName(secret));
+            } else {
+                doCreateSecret(secret, namespace, sourceName);
+            }
+        }
+    }
+
+    protected void doCreateSecret(Secret secret, String namespace, String sourceName) {
+        LOG.info("Creating a secret from " + sourceName + " namespace " + namespace + " name " + getName(secret));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetes.createSecret(secret, namespace);
+            } else {
+                answer = kubernetes.createSecret(secret, getNamespace());
+            }
+            logGeneratedEntity("Created secret: ", namespace, secret, answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create secret from " + sourceName + ". " + e + ". " + secret, e);
         }
     }
 
