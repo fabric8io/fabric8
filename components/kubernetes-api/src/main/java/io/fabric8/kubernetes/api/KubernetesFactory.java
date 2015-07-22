@@ -271,31 +271,35 @@ public class KubernetesFactory {
         AuthorizationHeaderFilter authorizationHeaderFilter = new AuthorizationHeaderFilter();
         providers.add(authorizationHeaderFilter);
 
-        WebClient webClient = WebClient.create(serviceAddress, providers);
-        WebClients.configureUserAndPassword(webClient, this.username, this.password);
-        boolean registeredCert = false;
-        if (trustAllCerts) {
-            WebClients.disableSslChecks(webClient);
-        } else if (caCertFile != null || caCertData != null) {
-            WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
+        try {
+            WebClient webClient = WebClient.create(serviceAddress, providers);
+            WebClients.configureUserAndPassword(webClient, this.username, this.password);
+            boolean registeredCert = false;
+            if (trustAllCerts) {
+                WebClients.disableSslChecks(webClient);
+            } else if (caCertFile != null || caCertData != null) {
+                WebClients.configureCaCert(webClient, this.caCertData, this.caCertFile);
 
-            // had host verification errors - this should avoid it
-            if (disableHostNameChecks) {
-                WebClients.disableHostNameChecks(webClient);
+                // had host verification errors - this should avoid it
+                if (disableHostNameChecks) {
+                    WebClients.disableHostNameChecks(webClient);
+                }
             }
-        }
-        if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
-            WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
-            registeredCert = true;
-        }
-        if (!registeredCert) {
-            String token = findToken();
-            if (Strings.isNotBlank(token)) {
-                String authHeader = "Bearer " + token;
-                authorizationHeaderFilter.setAuthorizationHeader(authHeader);
+            if ((clientCertFile != null || clientCertData != null) && (clientKeyFile != null || clientKeyData != null)) {
+                WebClients.configureClientCert(webClient, this.clientCertData, this.clientCertFile, this.clientKeyData, this.clientKeyFile, this.clientKeyAlgo, this.clientKeyPassword);
+                registeredCert = true;
             }
+            if (!registeredCert) {
+                String token = findToken();
+                if (Strings.isNotBlank(token)) {
+                    String authHeader = "Bearer " + token;
+                    authorizationHeaderFilter.setAuthorizationHeader(authHeader);
+                }
+            }
+            return webClient;
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to create Kubernetes client at " + serviceAddress + ". " + e, e);
         }
-        return webClient;
     }
 
     public WebSocketClient createWebSocketClient() throws Exception {
