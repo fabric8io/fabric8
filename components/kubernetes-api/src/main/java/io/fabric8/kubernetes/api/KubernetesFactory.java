@@ -417,10 +417,11 @@ public class KubernetesFactory {
         if (verifyAddress) {
             try {
                 URL url = new URL(this.address);
-                if (KubernetesHelper.isServiceSsl(url.getHost(), url.getPort(), true)) {
-                    this.address = "https://" + url.getHost() + ":" + url.getPort();
+                int port = url.getPort();
+                if (port > 0 && KubernetesHelper.isServiceSsl(url.getHost(), port, true)) {
+                    this.address = "https://" + url.getHost() + ":" + port;
                 } else {
-                    this.address = "http://" + url.getHost() + ":" + url.getPort();
+                    this.address = "http://" + url.getHost() + (port > 0 && port != 80 ? ":" + port: "");
                 }
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException("Invalid kubernetes master address", e);
