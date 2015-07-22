@@ -2,9 +2,9 @@
 
 This is the fastest way to get going with Fabric8 and OpenShift on your laptop.
 
-* Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) 
+* Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
-  
+
 First clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository and type these commands:
 
 ```sh
@@ -17,26 +17,26 @@ Depending on your host operating system you need to install an additional vagran
 * `vagrant plugin install landrush` for Linux and OS X
 * `vagrant plugin install vagrant-hostmanager-fabric8` for Windows
 
-The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes: 
+The next steps are needed for proper routing from the host to OpenShift services which are exposed via routes:
 
-* **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed procedure depend on the Linux distribution used. 
+* **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed procedure depend on the Linux distribution used.
   Here is the example for Ubuntu:
-   
+
         sudo apt-get install -y resolvconf dnsmasq
         sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
         sudo service dnsmasq restart
 
-* **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes 
-  manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications 
-  has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to 
+* **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes
+  manually to `%WINDIR%\System32\drivers\etc\hosts`. For your convenience, a set of routes for default Fabric8 applications
+  has been pre-added. For new services look for the following line and add your new routes (`<service-name>.vagrant.f8`) to
   this file on a new line like this:
-  
+
         ## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
         172.28.128.4  vagrant.f8 fabric8.vagrant.f8 jenkins.vagrant.f8 .....
         172.28.128.4  myservice.vagrant.f8
         ## vagrant-hostmanager-end
 
-* **OS X**: Nothing has to be done. OS X will automatically resolve all routes to `*.vagrant.f8` to 
+* **OS X**: Nothing has to be done. OS X will automatically resolve all routes to `*.vagrant.f8` to
   your Vagrant VM. This is done vial OS X's resolver feature (see `man 5 resolver` for details)
 
 Now startup the Vagrant VM
@@ -53,20 +53,17 @@ v.cpus = 2
 ```
 
 Then follow the on screen instructions.
- 
+
 * You should now have a running vagrant image running at IP address `172.28.128.4` or at `vagrant.f8`
-* Downloading the docker images may take a few minutes so you might want to jump ahead 
-  to the [Local Setup](local.html) recipe then coming back here when you're done. 
-* After the vagrant box is created and docker images are downloaded, the [fabric8 console](../console.html) should 
+* Downloading the docker images may take a few minutes so you might want to jump ahead
+  to the [Local Setup](local.html) recipe then coming back here when you're done.
+* After the vagrant box is created and docker images are downloaded, the [fabric8 console](../console.html) should
   appear at [http://fabric8.vagrant.f8/](http://fabric8.vagrant.f8/)
 * When you first open your browser Chrome will say:
 
         Your connection is not private
 
-* Don't panic! This is to be expected.
-* Click on the small `Advanced` link on the bottom left
-* Now click on the link that says `Proceed to fabric8.vagrant.f8 (unsafe)` bottom left
-* Now the browser should redirect to the login page 
+* You will want to accept the self signed cert, follow [these steps](./browserCertificates.html) and return here
 * Enter `admin` and `admin`
 * You should now be in the main fabric8 console! That was easy eh! :)
 * Make sure you start off in the `default` namespace.
@@ -74,10 +71,10 @@ Then follow the on screen instructions.
 
 ### Installing other applications
 
-When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on 
-the `Run...` button. 
+When you are on the `Apps` tab in the [fabric8 console](http://fabric8.io/guide/console.html) click on
+the `Run...` button.
 
-This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) 
+This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html)
 on your installation.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
@@ -89,10 +86,10 @@ on your installation.
 
 ### Setting up your local machine
 
-In order to communicate with the Vagrant VM from you localhost it is recommended to install the OpenShift client 
-tools. This is explained in an extra [document](local.html). 
+In order to communicate with the Vagrant VM from you localhost it is recommended to install the OpenShift client
+tools. This is explained in an extra [document](local.html).
 
-This is also useful using the [fabric8 maven tooling](../mavenPlugin.html) or reusing the docker daemon 
+This is also useful using the [fabric8 maven tooling](../mavenPlugin.html) or reusing the docker daemon
 inside vagrant; so that all images built are accessible inside the OpenShift environment.
 
 Alternatively you can log into the Vagrant VM also via `vagrant ssh`. The OpenShift tools (`oc`, `oadmn`) are installed in the VM, too.
@@ -110,7 +107,7 @@ vagrant up
 
 ### Troubleshooting
 
-The `oc` command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so 
+The `oc` command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so
 they get recreated, looking at logs etc.
 
 If you add the `fabric8-installer/bin` folder to your `$PATH` then there are a few handy shell scripts
@@ -148,7 +145,7 @@ vagrant ssh
 sudo journalctl -u openshift
 ```
 
-Or you can tail the logs via 
+Or you can tail the logs via
 
 ```sh
 vagrant ssh
@@ -161,4 +158,3 @@ You can watch the docker daemon too via
 vagrant ssh
 sudo journalctl -fu docker
 ```
-
