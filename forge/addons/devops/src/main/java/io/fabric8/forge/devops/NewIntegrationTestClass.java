@@ -78,7 +78,7 @@ public class NewIntegrationTestClass extends AbstractDevOpsCommand {
     @Inject
     @WithAttributes(label = "integrationTestWildcard", required = true,
             description = "The wildcard used to find the integration test classes in the generated integration test profile",
-            defaultValue = "**/*IT.*")
+            defaultValue = "**/*KT.*")
     private UIInput<String> integrationTestWildcard;
 
     @Inject
@@ -118,7 +118,7 @@ public class NewIntegrationTestClass extends AbstractDevOpsCommand {
         className.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return "KubernetesIT";
+                return "IntegrationTestKT";
             }
         });
 
@@ -130,7 +130,7 @@ public class NewIntegrationTestClass extends AbstractDevOpsCommand {
         Project project = getSelectedProject(context);
 
         // lets ensure the dependencies are added...
-        MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "io.fabric8", "arquillian-fabric8", "test");
+        MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "io.fabric8", "fabric8-arquillian", "test");
         MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.arquillian.junit", "arquillian-junit-container", "test");
         MavenHelpers.ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-impl-maven", "test");
 
