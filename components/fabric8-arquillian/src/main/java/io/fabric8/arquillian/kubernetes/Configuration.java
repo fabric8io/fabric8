@@ -141,12 +141,6 @@ public class Configuration {
     private static void applyMasterUrl(Configuration configuration, Map<String, String> map) {
         if (map.containsKey(MASTER_URL)) {
             configuration.masterUrl = map.get(MASTER_URL);
-        } else {
-            configuration.masterUrl = Systems.getEnvVarOrSystemProperty(KUBERNETES_MASTER, "");
-        }
-
-        if (Strings.isNullOrBlank(configuration.getMasterUrl())) {
-            throw new IllegalStateException("Could not find a valid kubernetes URL.");
         }
     }
 
