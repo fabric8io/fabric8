@@ -694,7 +694,10 @@ public class Controller {
                         logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
 
                         if (deletePodsOnReplicationControllerUpdate) {
+                            LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
                             kubernetes.deleteReplicationControllerPods(replicationController);
+                        } else {
+                            LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
                         }
                     } catch (Exception e) {
                         onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);

@@ -118,7 +118,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     /**
      * Should we delete all the pods if we update a Replication Controller
      */
-    @Parameter(property = "fabric8.apply.deletePods", defaultValue = "trye")
+    @Parameter(property = "fabric8.apply.deletePods", defaultValue = "true")
     private boolean deletePodsOnReplicationControllerUpdate;
 
     /**
