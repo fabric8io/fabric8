@@ -262,6 +262,14 @@ public class KubernetesFactory {
     }
 
     public WebClient createWebClient() {
+        if (Strings.isNullOrBlank(address)) {
+            init(address);
+        }
+        if (Strings.isNullOrBlank(address)) {
+            throw new IllegalArgumentException("No kubernetes master address could be discovered using " +
+                    "either the kubernetes config file ~/.kube/config or $" +
+                    KUBERNETES_SERVICE_HOST_ENV_VAR + " and $" + KUBERNETES_SERVICE_PORT_ENV_VAR + " enviroment variables");
+        }
         return createWebClient(address);
     }
 
