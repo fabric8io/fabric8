@@ -73,6 +73,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_PORT_SERVICE = "fabric8.service.port";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE = "fabric8.service.containerPort";
     public static final String FABRIC8_PROTOCOL_SERVICE = "fabric8.service.protocol";
+    public static final String FABRIC8_METRICS_PREFIX = "fabric8.metrics.";
+    public static final String FABRIC8_METRICS_SCRAPE = FABRIC8_METRICS_PREFIX + "scrape";
+    public static final String FABRIC8_METRICS_SCRAPE_ANNOTATION = FABRIC8_METRICS_SCRAPE + ".annotation";
+    public static final String FABRIC8_METRICS_PORT = FABRIC8_METRICS_PREFIX + "port" ;
+    public static final String FABRIC8_METRICS_PORT_ANNOTATION = FABRIC8_METRICS_PORT + ".annotation" ;
     public static final String FABRIC8_PORT_SERVICE_PREFIX = FABRIC8_PORT_SERVICE + ".";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
@@ -145,7 +150,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean includePodEnvVar;
 
     /**
-     * The name of the env var to add that will contain the namespace at container runtime
+     * The name of the env var to add that will contain the pod name at container runtime
      */
     @Parameter(property = "fabric8.podEnvVar", defaultValue = "KUBERNETES_POD")
     private String kubernetesPodEnvVar;
@@ -278,6 +283,30 @@ public class JsonMojo extends AbstractFabric8Mojo {
     //@Parameter(property = "fabric8.service.headless", defaultValue = "true")
     @Parameter(property = "fabric8.service.headless", defaultValue = "false")
     private boolean headlessServices;
+
+    /**
+     * Annotation value to add for metrics scraping.
+     */
+    @Parameter(property = FABRIC8_METRICS_SCRAPE, defaultValue = "false")
+    private boolean metricsScrape;
+
+    /**
+     * Annotation to add for metrics scraping.
+     */
+    @Parameter(property = FABRIC8_METRICS_SCRAPE_ANNOTATION, defaultValue = "prometheus.io/scrape")
+    private String metricsScrapeAnnotation;
+
+    /**
+     * Annotation value to add for metrics port.
+     */
+    @Parameter(property = FABRIC8_METRICS_PORT)
+    private Integer metricsPort;
+
+    /**
+     * Annotation value to add for metrics port.
+     */
+    @Parameter(property = FABRIC8_METRICS_PORT_ANNOTATION, defaultValue = "prometheus.io/port")
+    private String metricsPortAnnotation;
 
     /**
      * The service port
@@ -679,10 +708,20 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
+            Map<String, String> metricsAnnotations = new HashMap<>();
+
+            if (metricsScrape) {
+                metricsAnnotations.put(metricsScrapeAnnotation, Boolean.toString(metricsScrape));
+                if (metricsPort != null) {
+                    metricsAnnotations.put(metricsPortAnnotation, metricsPort.toString());
+                }
+            }
+
             ServiceBuilder serviceBuilder = new ServiceBuilder()
                     .withNewMetadata()
                     .withName(serviceName)
                     .withLabels(labelMap)
+                    .withAnnotations(metricsAnnotations)
                     .endMetadata();
 
             ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
