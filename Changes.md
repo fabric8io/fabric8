@@ -1,4 +1,11 @@
 
+### 2.2.16
+
+* Note we highly recommend all fabric8 users to upgrade to this release ASAP. This release fixes [a bug](https://github.com/fabric8io/fabric8/issues/4520) which showed up in recent versions of Chrome where we used the wrong URL during OpenShift OAuth login causing folks not to be able to login with the [console](http://fabric8.io/guide/console.html)  unless explicitly trusting the certificate. 
+* New [chat based](http://fabric8.io/guide/console.html) [workflow steps](https://github.com/fabric8io/fabric8-jenkins-workflow-steps) for notification and approval of Jenkins Workflow based [Continuous Deployment pipelines](http://fabric8.io/guide/cdelivery.html) inside the chat application like Lets Chat or Slack. Here's [an example so you can see how it looks](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove) using the [Fabric8 DevOps library of reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library)
+* All generated [Kuberentes integration tests](http://fabric8.io/guide/testing.html) are now invoked by default in the [Fabric8 DevOps reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library) 
+* Fixes [these 10 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.16)
+
 ### 2.2.14
 
 * This release fixes some regressions found in OpenShift 1.0.2 or later when using [Continuous Deliver with Fabric8 DevOps](http://fabric8.io/guide/cdelivery.html) 
