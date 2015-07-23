@@ -45,7 +45,7 @@
     <bundle>mvn:javax.validation/validation-api/${validation-api.version}</bundle>
     <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2.version}</bundle>
     <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2.version}</bundle>
-    <bundle>mvn:io.fabric8/fabric-utils/${project.version}</bundle>
+    <bundle>mvn:io.fabric8/fabric8-utils/${project.version}</bundle>
     <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
     <bundle>wrap:mvn:org.yaml/snakeyaml/${snakeyaml.version}</bundle>
     <bundle>wrap:mvn:org.json/json/${json.version}</bundle>
