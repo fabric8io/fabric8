@@ -42,7 +42,7 @@ e.g. if you are using the fabric8 Vagrant image then use
 export KUBERNETES_DOMAIN=vagrant.f8
 ```
 
-#### Downloading the templates
+#### Downloading all templates
 
 Download and unzip the [fabric8 templates 2.2.14 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.14/distro-2.2.14-templates.zip).
 
@@ -62,9 +62,11 @@ For example to install the [fabric8 console](console.html) then type:
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f base-2.2.14.json | oc create -f -
 
+#### Download templates individually 
+
 Or to install from the central repository then choose the commands below to suit the application you wish to install:
 
-#### Console
+##### Console
 
 Provides the base [fabric8 console](../console.html) at the `vagrant.f8` domain:
 
@@ -75,7 +77,7 @@ Provides the base [fabric8 console](../console.html) at the `vagrant.f8` domain:
 
 Then [setup the OpenShift Routes](#creating-routes)
 
-#### Management
+##### Management
 
 Provides centralised [Logging](logging.html) and [Metrics](metrics.html)
 
@@ -85,7 +87,7 @@ Provides centralised [Logging](logging.html) and [Metrics](metrics.html)
 
 Then [setup the OpenShift Routes](#creating-routes)
 
-##### Logging
+###### Logging
 
 Provides just the centralised [Logging](../logging.html)
 
@@ -95,7 +97,7 @@ Provides just the centralised [Logging](../logging.html)
 
 Then [setup the OpenShift Routes](#creating-routes)
 
-##### Metrics
+###### Metrics
 
 Provides just the centralised [Metrics](../metrics.html)
 
@@ -105,7 +107,7 @@ Provides just the centralised [Metrics](../metrics.html)
 
 Then [setup the OpenShift Routes](#creating-routes)
 
-#### iPaaS
+##### iPaaS
 
 Provides the [fabric8 console](../console.html) and the [Integration Platform As A Service](../ipaas.html)
 
@@ -115,11 +117,11 @@ Provides the [fabric8 console](../console.html) and the [Integration Platform As
 
 Then [setup the OpenShift Routes](#creating-routes)
 
-#### Continuous Delivery
+##### Continuous Delivery
 
 Provides a Continuous Integration and [Continuous Delivery](../cdelivery.html) system.
 
-##### CD Core
+###### CD Core
 
 The core[Continuous Delivery](cdelivery.html) installation for building including Gogs for git hosting, Jenkins for building and Nexus as a repository manager.
 
@@ -129,7 +131,7 @@ The core[Continuous Delivery](cdelivery.html) installation for building includin
  
 Then [setup the OpenShift Routes](#creating-routes)
 
-##### CD Full
+###### CD Full
 
 The complete [Continuous Delivery](../cdelivery.html) installation including **CD Core** plus the social apps like [chat such as Hubot](../chat.html).
 
@@ -139,7 +141,7 @@ The complete [Continuous Delivery](../cdelivery.html) installation including **C
  
 Then [setup the OpenShift Routes](#creating-routes)
 
-#### Kitchen Sink
+##### Kitchen Sink
 
 Provides all of the above!
 
