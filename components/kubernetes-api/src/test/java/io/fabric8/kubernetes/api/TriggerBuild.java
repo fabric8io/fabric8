@@ -15,6 +15,9 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+
 /**
  * Triggers a build using the Java API
  */
@@ -30,13 +33,12 @@ public class TriggerBuild {
             namespace = args[1];
         }
 
-        KubernetesClient client = new KubernetesClient();
-
-        System.out.println("Connecting to kubernetes on: " + client.getAddress());
+        KubernetesClient client = new DefaultKubernetesClient();
 
         try {
-            String uuid = client.triggerBuildAndGetUuid(name, namespace);
-            System.out.println("Build triggered: got UUID: " + uuid);
+            //TODO: This is currently broken
+            //String uuid = client.triggerBuildAndGetUuid(name, namespace);
+            //System.out.println("Build triggered: got UUID: " + uuid);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();

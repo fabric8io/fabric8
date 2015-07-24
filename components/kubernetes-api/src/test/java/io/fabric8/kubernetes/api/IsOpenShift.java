@@ -15,21 +15,40 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.root.RootPaths;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Tests if the current kubernetes is openshift or not
  */
 public class IsOpenShift {
     public static void main(String... args) {
-        KubernetesClient client = new KubernetesClient();
-
-        System.out.println("Connecting to kubernetes on: " + client.getAddress());
-
+        KubernetesClient client = new DefaultKubernetesClient();
         try {
-            boolean openShift = client.isOpenShift();
+            boolean openShift = isOpenShift(client);
             System.out.println("OpenShift: " + openShift);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
         }
+    }
+
+    private static boolean isOpenShift(KubernetesClient client) {
+        RootPaths rootPaths = client.rootPaths();
+        if (rootPaths != null) {
+            List<String> paths  = rootPaths.getPaths();
+            if (paths != null) {
+                for (String path : paths) {
+                    if (Objects.equals("/oapi", path) || Objects.equals("oapi", path)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

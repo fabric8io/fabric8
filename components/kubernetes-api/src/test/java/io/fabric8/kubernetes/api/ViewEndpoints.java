@@ -16,6 +16,8 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,7 @@ import static io.fabric8.utils.Lists.notNullList;
 public class ViewEndpoints {
     public static void main(String... args) {
         System.out.println("Usage: [serviceId] [namespace]");
-        KubernetesClient client = new KubernetesClient();
-
-        System.out.println("Connecting to kubernetes on: " + client.getAddress());
+        KubernetesClient client = new DefaultKubernetesClient();
 
         try {
             String service = null;
@@ -50,11 +50,11 @@ public class ViewEndpoints {
 
     protected static void listEndpoints(KubernetesClient client, String service, String namespace)  throws Exception {
         if (service != null) {
-            Endpoints endpoints = client.endpointsForService(service, namespace);
+            Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(service).get();
             display(endpoints);
 
         } else {
-            EndpointsList endpointsList = client.getEndpoints();
+            EndpointsList endpointsList = client.endpoints().list();
             if (endpointsList != null) {
                 List<Endpoints> items = notNullList(endpointsList.getItems());
                 for (Endpoints item : items) {

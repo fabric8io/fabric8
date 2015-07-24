@@ -39,66 +39,32 @@
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>cxf-utils</artifactId>
+      <artifactId>kubernetes-client</artifactId>
     </dependency>
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-model</artifactId>
+      <artifactId>fabric8-utils</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-json-provider</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-client</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>net.oauth.core</groupId>
-      <artifactId>oauth</artifactId>
-    </dependency>
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-io</artifactId>
-      <version>${jetty9.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-util</artifactId>
-      <version>${jetty9.version}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
 
       <!-- testing -->

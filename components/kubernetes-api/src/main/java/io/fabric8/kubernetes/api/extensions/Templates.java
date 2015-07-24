@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api.extensions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -32,13 +33,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
 
 /**
  * Helper class for working with OpenShift Templates
  */
 public class Templates {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final transient Logger LOG = LoggerFactory.getLogger(Templates.class);
 
     /**
@@ -216,7 +217,7 @@ public class Templates {
                     json = Strings.replaceAllWithoutRegex(json, regex, value);
                 }
             }
-            return createObjectMapper().reader(KubernetesList.class).readValue(json);
+            return  OBJECT_MAPPER.reader(KubernetesList.class).readValue(json);
         } else {
             KubernetesList answer = new KubernetesList();
             answer.setItems(objects);

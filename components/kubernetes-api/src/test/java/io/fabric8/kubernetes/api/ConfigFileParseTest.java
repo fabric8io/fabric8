@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigFileParseTest {
     @Test
     public void testParseConfig() throws Exception {
-        FindOpenShiftNamespaceTest.setKubernetesConfigFileProperty();
+        setKubernetesConfigFileProperty();
 
         File file = getKubernetesConfigFile();
         assertThat(file).isFile().exists();
@@ -54,4 +54,10 @@ public class ConfigFileParseTest {
 
     }
 
+    public static void setKubernetesConfigFileProperty() {
+        String basedir = System.getProperty("basedir", ".");
+        String configFile = basedir + "/src/test/resources/config.yml";
+
+        System.setProperty(Configs.KUBERNETES_CONFIG_FILE_PROPERTY, configFile);
+    }
 }

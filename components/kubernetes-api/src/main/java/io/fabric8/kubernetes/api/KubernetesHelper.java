@@ -19,17 +19,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
+import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.openshift.api.model.*;
 import io.fabric8.utils.*;
 import io.fabric8.utils.Objects;
-import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
+import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.*;
 
 import javax.net.ssl.*;
-import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,13 +53,16 @@ import static io.fabric8.utils.Strings.isNullOrBlank;
  * Kubernetes utility methods.
  */
 public final class KubernetesHelper {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public static final int INTORSTRING_KIND_INT = 0;
     public static final int INTORSTRING_KIND_STRING = 1;
-    private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
+
 
     public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
     protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-    private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
     public static final String defaultApiVersion = "v1";
     public static final String defaultOsApiVersion = "v1";
@@ -64,6 +71,29 @@ public final class KubernetesHelper {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     public static final String DEFAULT_PROTO = "tcp";
+
+    public static String defaultNamespace() {
+        String namespace = System.getenv("KUBERNETES_NAMESPACE");
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = findDefaultKubernetesNamespace();
+        }
+        if (Strings.isNotBlank(namespace)) {
+            return namespace;
+        }
+        return "default";
+    }
+
+    public static String findDefaultKubernetesNamespace() {
+
+        Config config = Configs.parseConfigs();
+        if (config != null) {
+            Context context = Configs.getCurrentContext(config);
+            if (context != null) {
+                return context.getNamespace();
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns the ID of the given object
@@ -320,7 +350,7 @@ public final class KubernetesHelper {
 
     public static String toJson(Object dto) throws JsonProcessingException {
         Class<?> clazz = dto.getClass();
-        return objectMapper.writerWithType(clazz).writeValueAsString(dto);
+        return OBJECT_MAPPER.writerWithType(clazz).writeValueAsString(dto);
     }
 
     /**
@@ -358,7 +388,7 @@ public final class KubernetesHelper {
      */
     public static Object loadJson(byte[] json) throws IOException {
         if (json != null && json.length > 0) {
-            return objectMapper.reader(KubernetesResource.class).readValue(json);
+            return OBJECT_MAPPER.reader(KubernetesResource.class).readValue(json);
         }
         return null;
     }
@@ -416,7 +446,7 @@ public final class KubernetesHelper {
      * Saves the json object to the given file
      */
     public static void saveJson(File json, Object object) throws IOException {
-        objectMapper.writer().writeValue(json, object);
+        OBJECT_MAPPER.writer().writeValue(json, object);
     }
 
     /**
@@ -504,16 +534,16 @@ public final class KubernetesHelper {
         return answer;
     }
 
-    public static Map<String, Pod> getPodMap(Kubernetes kubernetes) {
-        return getPodMap(kubernetes, Kubernetes.NAMESPACE_ALL);
+    public static Map<String, Pod> getPodMap(KubernetesClient kubernetes) {
+        return getPodMap(kubernetes, null);
     }
 
-    public static Map<String, Pod> getPodMap(Kubernetes kubernetes, String namespace) {
+    public static Map<String, Pod> getPodMap(KubernetesClient kubernetes, String namespace) {
         PodList pods = null;
         try {
-            pods = kubernetes.getPods(namespace);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404) {
+            pods = kubernetes.pods().inNamespace(namespace).list();
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 404) {
                 // ignore not found
             } else {
                 throw e;
@@ -522,47 +552,44 @@ public final class KubernetesHelper {
         return toPodMap(pods);
     }
 
-    public static Map<String, Pod> getSelectedPodMap(Kubernetes kubernetes, String selector) {
-        return getSelectedPodMap(kubernetes, Kubernetes.NAMESPACE_ALL, selector);
+    public static Map<String, Pod> getSelectedPodMap(KubernetesClient kubernetes, String selector) {
+        return getSelectedPodMap(kubernetes, null, selector);
     }
 
-    public static Map<String, Pod> getSelectedPodMap(Kubernetes kubernetes, String namespace, String selector) {
-        Filter<Pod> filter = createPodFilter(selector);
-        return getFilteredPodMap(kubernetes, namespace, filter);
+    public static Map<String, Pod> getSelectedPodMap(KubernetesClient kubernetes, String namespace, String selector) {
+        return getFilteredPodMap(kubernetes, namespace, createPodFilter(selector));
     }
 
-    public static Map<String, Pod> getFilteredPodMap(Kubernetes kubernetes, Filter<Pod> filter) {
-        return getFilteredPodMap(kubernetes, Kubernetes.NAMESPACE_ALL, filter);
+    public static Map<String, Pod> getFilteredPodMap(KubernetesClient kubernetes, Filter<Pod> filter) {
+        return getFilteredPodMap(kubernetes, null, filter);
     }
 
-    public static Map<String, Pod> getFilteredPodMap(Kubernetes kubernetes, String namespace, Filter<Pod> filter) {
-        PodList podSchema = kubernetes.getPods(namespace);
-        return toFilteredPodMap(podSchema, filter);
+    public static Map<String, Pod> getFilteredPodMap(KubernetesClient kubernetes, String namespace, Filter<Pod> filter) {
+        return toFilteredPodMap(kubernetes.pods().inNamespace(namespace).list(), filter);
     }
 
-    public static Map<String, Service> getServiceMap(Kubernetes kubernetes) {
-        return getServiceMap(kubernetes, Kubernetes.NAMESPACE_ALL);
+    public static Map<String, Service> getServiceMap(KubernetesClient kubernetes) {
+        return getServiceMap(kubernetes, null);
     }
 
-    public static Map<String, Service> getServiceMap(Kubernetes kubernetes, String namespace) {
-        return toServiceMap(kubernetes.getServices(namespace));
+    public static Map<String, Service> getServiceMap(KubernetesClient kubernetes, String namespace) {
+        return toServiceMap(kubernetes.services().inNamespace(namespace).list());
     }
 
-    public static Map<String, ReplicationController> getReplicationControllerMap(Kubernetes kubernetes) {
-        return getReplicationControllerMap(kubernetes, Kubernetes.NAMESPACE_ALL);
+    public static Map<String, ReplicationController> getReplicationControllerMap(KubernetesClient kubernetes) {
+        return getReplicationControllerMap(kubernetes, null);
     }
 
-    public static Map<String, ReplicationController> getReplicationControllerMap(Kubernetes kubernetes, String namespace) {
-        return toReplicationControllerMap(kubernetes.getReplicationControllers(namespace));
+    public static Map<String, ReplicationController> getReplicationControllerMap(KubernetesClient kubernetes, String namespace) {
+        return toReplicationControllerMap(kubernetes.replicationControllers().inNamespace(namespace).list());
     }
 
-    public static Map<String, ReplicationController> getSelectedReplicationControllerMap(Kubernetes kubernetes, String selector) {
-        return getSelectedReplicationControllerMap(kubernetes, Kubernetes.NAMESPACE_ALL, selector);
+    public static Map<String, ReplicationController> getSelectedReplicationControllerMap(KubernetesClient kubernetes, String selector) {
+        return getSelectedReplicationControllerMap(kubernetes, null, selector);
     }
 
-    public static Map<String, ReplicationController> getSelectedReplicationControllerMap(Kubernetes kubernetes, String namespace, String selector) {
-        Filter<ReplicationController> filter = createReplicationControllerFilter(selector);
-        return toFilteredReplicationControllerMap(kubernetes.getReplicationControllers(namespace), filter);
+    public static Map<String, ReplicationController> getSelectedReplicationControllerMap(KubernetesClient kubernetes, String namespace, String selector) {
+        return toReplicationControllerMap(kubernetes.replicationControllers().inNamespace(namespace).withLabels(toLabelsMap(selector)).list());
     }
 
     /**
@@ -1139,7 +1166,7 @@ public final class KubernetesHelper {
                         portalIP += ":" + port;
                     }
                     String protocol = "http://";
-                    if (KubernetesHelper.isServiceSsl(spec.getClusterIP(), port, Boolean.valueOf(System.getenv(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES)))) {
+                    if (KubernetesHelper.isServiceSsl(spec.getClusterIP(), port, Utils.getSystemPropertyOrEnvVar(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, false))) {
                         protocol = "https://";
                     }
                     return protocol + portalIP;
@@ -1383,7 +1410,7 @@ public final class KubernetesHelper {
                 socket.close();
             }
         } catch (SSLHandshakeException e) {
-            LOG.error("SSL handshake failed - this probably means that you need to trust the kubernetes root SSL certificate or set the environment variable " + KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, e);
+            LOG.error("SSL handshake failed - this probably means that you need to trust the kubernetes root SSL certificate or set the environment variable " + Utils.convertSystemPropertyNameToEnvVar(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY), e);
         } catch (SSLProtocolException e) {
             LOG.error("SSL protocol error", e);
         } catch (SSLKeyException e) {
@@ -1650,9 +1677,9 @@ public final class KubernetesHelper {
     public static Secret validateSecretExists(KubernetesClient kubernetes, String namespace, String secretName) {
         Secret secret = null;
         try {
-            secret = kubernetes.getSecret(secretName, namespace);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404) {
+            secret = kubernetes.secrets().inNamespace(namespace).withName(secretName).get();
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 404) {
                 // does not exist
             } else {
                 throw e;
@@ -1660,7 +1687,7 @@ public final class KubernetesHelper {
         }
         if (secret == null) {
             throw new IllegalArgumentException("No secret named: " + secretName +
-                    " for namespace " + namespace + " is available on Kubernetes at address " + kubernetes.getAddress() +
+                    " for namespace " + namespace + " is available on Kubernetes" +
                     ". For how to create secrets see: http://fabric8.io/guide/fabric8OnOpenShift.html#requirements ");
         } else {
             return secret;

@@ -36,6 +36,7 @@ import static org.junit.Assert.*;
 public class ParseExamplesTest {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ParseExamplesTest.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final String SYSTEM_PROPERTY_KUBE_DIR = "kube.dir";
 
@@ -82,10 +83,7 @@ public class ParseExamplesTest {
 
         Integer expectedPort = 9090;
         assertEquals(expectedPort, getContainerPorts(service).iterator().next());
-
-        ObjectMapper mapper = KubernetesFactory.createObjectMapper();
-
-        //mapper.writer().writeValue(System.out, service);
+        //OBJECT_MAPPER.writer().writeValue(System.out, service);
     }
 
     @Test
@@ -99,10 +97,9 @@ public class ParseExamplesTest {
     }
 
     public static <T> T assertParseExampleFile(String fileName, Class<T> clazz) throws Exception {
-        ObjectMapper mapper = KubernetesFactory.createObjectMapper();
         File exampleFile = new File(getKubernetesExamplesDir(), fileName);
         assertFileExists(exampleFile);
-        T answer = mapper.reader(clazz).readValue(exampleFile);
+        T answer = OBJECT_MAPPER.reader(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
         LOG.info("Parsed: " + fileName + " as: " + answer);
         return answer;

@@ -17,6 +17,8 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeList;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.util.List;
 
@@ -27,10 +29,7 @@ import static io.fabric8.utils.Lists.notNullList;
  */
 public class ViewNodes {
     public static void main(String... args) {
-        KubernetesClient client = new KubernetesClient();
-
-        System.out.println("Connecting to kubernetes on: " + client.getAddress());
-
+        KubernetesClient client = new DefaultKubernetesClient();
         try {
             listMinions(client);
         } catch (Exception e) {
@@ -40,7 +39,7 @@ public class ViewNodes {
     }
 
     protected static void listMinions(KubernetesClient client)  throws Exception {
-        NodeList nodeList = client.getNodes();
+        NodeList nodeList = client.nodes().list();
             if (nodeList != null) {
                 List<Node> items = notNullList(nodeList.getItems());
                 for (Node item : items) {

@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -31,6 +32,10 @@ import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -46,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -71,7 +75,8 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
 public class Controller {
     private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
 
-    private final KubernetesClient kubernetes;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final OpenShiftClient kubernetes;
     private Map<String, Pod> podMap;
     private Map<String, ReplicationController> replicationControllerMap;
     private Map<String, Service> serviceMap;
@@ -87,12 +92,13 @@ public class Controller {
     private boolean failOnMissingParameterValue;
     private boolean supportOAuthClients;
     private boolean deletePodsOnReplicationControllerUpdate = true;
+    private String namesapce = KubernetesHelper.defaultNamespace();
 
     public Controller() {
-        this(new KubernetesClient());
+        this(new DefaultKubernetesClient());
     }
 
-    public Controller(KubernetesClient kubernetes) {
+    public Controller(OpenShiftClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 
@@ -244,7 +250,7 @@ public class Controller {
                 LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
                 return;
             }
-            OAuthClient old = kubernetes.getOAuthClient(id);
+            OAuthClient old = kubernetes.oAuthClients().withName(id).get();
             if (isRunning(old)) {
                 if (isIgnoreRunningOAuthClients()) {
                     LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
@@ -254,11 +260,11 @@ public class Controller {
                     LOG.info("OAuthClient hasn't changed so not doing anything");
                 } else {
                     if (isRecreateMode()) {
-                        kubernetes.deleteOAuthClient(id);
+                        kubernetes.oAuthClients().withName(id).delete();
                         doCreateOAuthClient(entity, sourceName);
                     } else {
                         try {
-                            Object answer = kubernetes.updateOAuthClient(id, entity);
+                            Object answer = kubernetes.oAuthClients().withName(id).update(entity);
                             LOG.info("Updated pod result: " + answer);
                         } catch (Exception e) {
                             onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
@@ -278,7 +284,7 @@ public class Controller {
     protected void doCreateOAuthClient(OAuthClient entity, String sourceName) {
         Object result = null;
         try {
-            result = kubernetes.createOAuthClient(entity);
+            result = kubernetes.oAuthClients().create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
         }
@@ -292,7 +298,7 @@ public class Controller {
             String namespace = getNamespace();
             String id = getName(entity);
             Objects.notNull(id, "No name for " + entity + " " + sourceName);
-            Template old = kubernetes.getTemplate(id, namespace);
+            Template old = kubernetes.templates().inNamespace(namespace).withName(id).get();
             if (isRunning(old)) {
                 if (UserConfigurationCompare.configEqual(entity, old)) {
                     LOG.info("Template hasn't changed so not doing anything");
@@ -301,12 +307,12 @@ public class Controller {
                     // TODO seems you can't update templates right now
                     recreateMode = true;
                     if (recreateMode) {
-                        kubernetes.deleteTemplate(id, namespace);
+                        kubernetes.templates().inNamespace(namespace).withName(id).delete();
                         doCreateTemplate(entity, namespace, sourceName);
                     } else {
                         LOG.info("Updating a entity from " + sourceName);
                         try {
-                            Object answer = kubernetes.updateTemplate(id, entity, namespace);
+                            Object answer = kubernetes.templates().inNamespace(namespace).withName(id).update(entity);
                             LOG.info("Updated entity: " + answer);
                         } catch (Exception e) {
                             onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + entity, e);
@@ -327,7 +333,7 @@ public class Controller {
     protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
         LOG.info("Creating a template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
         try {
-            Object answer = kubernetes.createTemplate(entity, namespace);
+            Object answer = kubernetes.templates().inNamespace(namespace).create(entity);
             logGeneratedEntity("Created template: ", namespace, entity, answer);
         } catch (Exception e) {
             onApplyError("Failed to template entity from " + sourceName + ". " + e + ". " + entity, e);
@@ -345,18 +351,18 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ServiceAccount: " + id);
             return;
         }
-        ServiceAccount old = kubernetes.getServiceAccount(id, namespace);
+        ServiceAccount old = kubernetes.serviceAccounts().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(serviceAccount, old)) {
                 LOG.info("ServiceAccount hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deleteServiceAccount(serviceAccount, namespace);
+                    kubernetes.serviceAccounts().inNamespace(namespace).withName(id).delete();
                     doCreateServiceAccount(serviceAccount, namespace, sourceName);
                 } else {
                     LOG.info("Updating a service account from " + sourceName);
                     try {
-                        Object answer = kubernetes.updateServiceAccount(id, serviceAccount, namespace);
+                        Object answer = kubernetes.serviceAccounts().inNamespace(namespace).withName(id).update(serviceAccount);
                         logGeneratedEntity("Updated service account: ", namespace, serviceAccount, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update service account from " + sourceName + ". " + e + ". " + serviceAccount, e);
@@ -378,9 +384,9 @@ public class Controller {
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
-                answer = kubernetes.createServiceAccount(serviceAccount, namespace);
+                answer = kubernetes.serviceAccounts().inNamespace(namespace).create(serviceAccount);
             } else {
-                answer = kubernetes.createServiceAccount(serviceAccount);
+                answer = kubernetes.serviceAccounts().inNamespace(getNamespace()).create(serviceAccount);
             }
             logGeneratedEntity("Created service account: ", namespace, serviceAccount, answer);
         } catch (Exception e) {
@@ -397,7 +403,7 @@ public class Controller {
             return;
         }
 
-        Secret old = kubernetes.getSecret(id, namespace);
+        Secret old = kubernetes.secrets().inNamespace(namespace).withName(id).get();
         // check if the secret already exists or not
         if (isRunning(old)) {
             // if the secret already exists and is the same, then do nothing
@@ -406,12 +412,12 @@ public class Controller {
                 return;
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deleteSecret(id, namespace);
+                    kubernetes.secrets().inNamespace(namespace).withName(id).delete();
                     doCreateSecret(secret, namespace, sourceName);
                 } else {
                     LOG.info("Updateing a secret from " + sourceName);
                     try {
-                        Object answer = kubernetes.updateSecret(id, secret, namespace);
+                        Object answer = kubernetes.secrets().inNamespace(namespace).withName(id).update(secret);
                         logGeneratedEntity("Updated secret:", namespace, secret, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update secret from " + sourceName + ". " + e + ". " + secret, e);
@@ -432,9 +438,9 @@ public class Controller {
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
-                answer = kubernetes.createSecret(secret, namespace);
+                answer = kubernetes.secrets().inNamespace(namespace).create(secret);
             } else {
-                answer = kubernetes.createSecret(secret, getNamespace());
+                answer = kubernetes.secrets().inNamespace(getNamespace()).create(secret);
             }
             logGeneratedEntity("Created secret: ", namespace, secret, answer);
         } catch (Exception e) {
@@ -501,21 +507,24 @@ public class Controller {
     }
 
     public Object processTemplate(Template entity, String sourceName) {
-        if (isProcessTemplatesLocally()) {
+
             try {
                 return Templates.processTemplatesLocally(entity, failOnMissingParameterValue);
             } catch (IOException e) {
                 onApplyError("Failed to process template " + sourceName + ". " + e + ". " + entity, e);
                 return null;
             }
-        } else {
+
+        /* Let's do it in the client side.
+
             String id = getName(entity);
             Objects.notNull(id, "No name for " + entity + " " + sourceName);
             String namespace = KubernetesHelper.getNamespace(entity);
             LOG.info("Creating Template " + namespace + ":" + id + " " + summaryText(entity));
             Object result = null;
             try {
-                String json = kubernetes.processTemplate(entity, namespace);
+                Template response = kubernetes.templates().inNamespace(namespace).create(entity);
+                String json = OBJECT_MAPPER.writeValueAsString(response);
                 logGeneratedEntity("Template processed into: ", namespace, entity, json);
                 result = loadJson(json);
                 printSummary(result);
@@ -523,7 +532,8 @@ public class Controller {
                 onApplyError("Failed to create controller from " + sourceName + ". " + e + ". " + entity, e);
             }
             return result;
-        }
+        */
+
     }
 
 
@@ -560,25 +570,13 @@ public class Controller {
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         if (Strings.isNullOrBlank(namespace)) {
-            namespace = kubernetes.getNamespace();
+            namespace = getNamespace();
         }
-        Route route = kubernetes.findRoute(id, namespace);
+        Route route = kubernetes.routes().inNamespace(namespace).withName(id).get();
         if (route == null) {
             try {
                 LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
-                kubernetes.createRoute(entity, namespace);
-            } catch (WebApplicationException e) {
-                if (e.getResponse().getStatus() == 404) {
-                    // could be OpenShift 0.4.x which has the old style REST API - lets try that...
-                    LOG.warn("Got a 404 - could be an old Kubernetes/OpenShift environment - lets try the old style REST API...");
-                    try {
-                        kubernetes.createRouteOldAPi(entity, namespace);
-                    } catch (Exception e1) {
-                        onApplyError("Failed to create Route from " + sourceName + ". " + e1 + ". " + entity, e1);
-                    }
-                } else {
-                    onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
-                }
+                kubernetes.routes().inNamespace(namespace).create(entity);
             } catch (Exception e) {
                 onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
             }
@@ -590,15 +588,15 @@ public class Controller {
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         if (Strings.isNullOrBlank(namespace)) {
-            namespace = kubernetes.getNamespace();
+            namespace = getNamespace();
         }
-        BuildConfig old = kubernetes.getBuildConfig(id, namespace);
+        BuildConfig old = kubernetes.buildConfigs().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(entity, old)) {
                 LOG.info("BuildConfig hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deleteBuildConfig(id, namespace);
+                    kubernetes.buildConfigs().inNamespace(namespace).withName(id).delete();
                     doCreateBuildConfig(entity, namespace, sourceName);
                 } else {
                     LOG.info("Updating BuildConfig from " + sourceName);
@@ -607,7 +605,7 @@ public class Controller {
                         ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
                         metadata.setNamespace(namespace);
                         metadata.setResourceVersion(resourceVersion);
-                        Object answer = kubernetes.updateBuildConfig(id, entity, namespace);
+                        Object answer = kubernetes.buildConfigs().inNamespace(namespace).withName(id).update(entity);
                         logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
@@ -625,7 +623,7 @@ public class Controller {
 
     public void doCreateBuildConfig(BuildConfig entity, String namespace ,String sourceName) {
         try {
-            kubernetes.createBuildConfig(entity, namespace);
+            kubernetes.buildConfigs().inNamespace(namespace).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
@@ -633,7 +631,7 @@ public class Controller {
 
     public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
         try {
-            kubernetes.createDeploymentConfig(entity, getNamespace());
+            kubernetes.deploymentConfigs().inNamespace(getNamespace()).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
         }
@@ -641,7 +639,7 @@ public class Controller {
 
     public void applyImageStream(ImageStream entity, String sourceName) {
         try {
-            kubernetes.createImageStream(entity, getNamespace());
+            kubernetes.imageStreams().inNamespace(getNamespace()).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
@@ -664,18 +662,18 @@ public class Controller {
             LOG.debug("Ignoring Service: " + namespace + ":" + id);
             return;
         }
-        Service old = kubernetes.getService(id, namespace);
+        Service old = kubernetes.services().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deleteService(service, namespace);
+                    kubernetes.services().inNamespace(namespace).withName(id).delete();
                     doCreateService(service, namespace, sourceName);
                 } else {
                     LOG.info("Updating a service from " + sourceName);
                     try {
-                        Object answer = kubernetes.updateService(id, service, namespace);
+                        Object answer = kubernetes.services().inNamespace(namespace).withName(id).update(service);
                         logGeneratedEntity("Updated service: ", namespace, service, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
@@ -696,9 +694,9 @@ public class Controller {
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
-                answer = kubernetes.createService(service, namespace);
+                answer = kubernetes.services().inNamespace(namespace).create(service);
             } else {
-                answer = kubernetes.createService(service);
+                answer = kubernetes.services().inNamespace(getNamespace()).create(service);
             }
             logGeneratedEntity("Created service: ", namespace, service, answer);
         } catch (Exception e) {
@@ -717,10 +715,10 @@ public class Controller {
         LOG.info("Creating a namespace " + namespace);
         String name = getName(entity);
         Objects.notNull(name, "No name for " + entity );
-        Namespace old = kubernetes.getNamespace(name);
+        Namespace old = kubernetes.namespaces().withName(name).get();
         if (!isRunning(old)) {
             try {
-                Object answer = kubernetes.createNamespace(entity);
+                Object answer = kubernetes.namespaces().create(entity);
                 logGeneratedEntity("Created namespace: ", namespace, entity, answer);
             } catch (Exception e) {
                 onApplyError("Failed to create namespace. " + e + ". " + entity, e);
@@ -736,23 +734,23 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
         }
-        ReplicationController old = kubernetes.getReplicationController(id, namespace);
+        ReplicationController old = kubernetes.replicationControllers().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deleteReplicationControllerAndPods(replicationController, namespace);
+                    kubernetes.replicationControllers().inNamespace(namespace).withName(id).delete();
                     doCreateReplicationController(replicationController, namespace, sourceName);
                 } else {
                     LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
                     try {
-                        Object answer = kubernetes.updateReplicationController(id, replicationController);
+                        Object answer = kubernetes.replicationControllers().inNamespace(namespace).withName(id).update(replicationController);
                         logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
 
                         if (deletePodsOnReplicationControllerUpdate) {
+                            kubernetes.replicationControllers().inNamespace(namespace).withName(KubernetesHelper.getName(replicationController)).delete();
                             LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
-                            kubernetes.deleteReplicationControllerPods(replicationController);
                         } else {
                             LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
                         }
@@ -784,9 +782,9 @@ public class Controller {
             }
             Object answer;
             if (Strings.isNotBlank(namespace)) {
-                answer = kubernetes.createReplicationController(replicationController, namespace);
+                answer = kubernetes.replicationControllers().inNamespace(namespace).create(replicationController);
             } else {
-                answer = kubernetes.createReplicationController(replicationController);
+                answer =  kubernetes.replicationControllers().inNamespace(getNamespace()).create(replicationController);
             }
             logGeneratedEntity("Created replicationController: ", namespace, replicationController, answer);
         } catch (Exception e) {
@@ -820,18 +818,18 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
             return;
         }
-        Pod old = kubernetes.getPod(id, namespace);
+        Pod old = kubernetes.pods().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.deletePod(pod, namespace);
+                    kubernetes.pods().inNamespace(namespace).withName(id).delete();
                     doCreatePod(pod, namespace, sourceName);
                 } else {
                     LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
                     try {
-                        Object answer = kubernetes.updatePod(id, pod);
+                        Object answer = kubernetes.pods().inNamespace(namespace).withName(id).update(pod);
                         LOG.info("Updated pod result: " + answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
@@ -856,9 +854,9 @@ public class Controller {
             }
             Object answer;
             if (Strings.isNotBlank(namespace)) {
-                answer = kubernetes.createPod(pod, namespace);
+                answer = kubernetes.pods().inNamespace(namespace).create(pod);
             } else {
-                answer = kubernetes.createPod(pod);
+                answer = kubernetes.pods().inNamespace(getNamespace()).create(pod);
             }
             LOG.info("Created pod result: " + answer);
         } catch (Exception e) {
@@ -867,11 +865,11 @@ public class Controller {
     }
 
     public String getNamespace() {
-        return kubernetes.getNamespace();
+        return namesapce;
     }
 
     public void setNamespace(String namespace) {
-        kubernetes.setNamespace(namespace);
+        this.namesapce = namespace;
     }
 
     public boolean isThrowExceptionOnError() {

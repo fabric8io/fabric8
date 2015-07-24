@@ -15,7 +15,7 @@
  */
 package io.fabric8.kubernetes.api.builds;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.utils.Strings;
@@ -32,14 +32,14 @@ import java.util.TimerTask;
 public class BuildWatcher {
     private static final transient Logger LOG = LoggerFactory.getLogger(BuildWatcher.class);
 
-    private final KubernetesClient kubernetes;
+    private final OpenShiftClient kubernetes;
     private final BuildListener buildListener;
     private final String namespace;
     private final String fabric8ConsoleLink;
     private boolean loading = true;
     private Set<String> seenBuildIds = Collections.<String>synchronizedSet(new HashSet<String>());
 
-    public BuildWatcher(KubernetesClient kubernetes, BuildListener buildListener, String namespace, String fabric8ConsoleLink) {
+    public BuildWatcher(OpenShiftClient kubernetes, BuildListener buildListener, String namespace, String fabric8ConsoleLink) {
         this.kubernetes = kubernetes;
         this.buildListener = buildListener;
         this.namespace = namespace;
@@ -65,7 +65,7 @@ public class BuildWatcher {
 
     public void poll() {
         boolean foundBuild = false;
-        BuildList buildList = kubernetes.getBuilds(namespace);
+        BuildList buildList = kubernetes.builds().inNamespace(namespace).list();
         if (buildList != null) {
             List<Build> items = buildList.getItems();
             if (items != null) {
