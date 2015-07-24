@@ -15,7 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes.enricher;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -24,7 +24,7 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 import java.lang.annotation.Annotation;
 
 /**
- * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.KubernetesClient}.
+ * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.client.KubernetesClient}.
  */
 public class ClientResourceProvider implements ResourceProvider {
 

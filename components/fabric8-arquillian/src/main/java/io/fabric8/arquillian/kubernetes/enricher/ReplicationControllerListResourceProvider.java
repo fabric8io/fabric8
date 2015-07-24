@@ -16,18 +16,14 @@
 package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.utils.Filter;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
@@ -50,6 +46,6 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-        return client.getReplicationControllers(session.getNamespace());
+        return client.replicationControllers().inNamespace(session.getNamespace()).list();
     }
 }

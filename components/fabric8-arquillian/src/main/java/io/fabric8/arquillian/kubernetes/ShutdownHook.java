@@ -15,7 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.MultiException;
 
 import static io.fabric8.arquillian.utils.Util.cleanupSession;

@@ -17,10 +17,8 @@ package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
-import io.fabric8.arquillian.kubernetes.log.AnsiLogger;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import org.jboss.arquillian.core.api.Event;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;

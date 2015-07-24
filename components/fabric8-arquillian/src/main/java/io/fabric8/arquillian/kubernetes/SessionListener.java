@@ -24,7 +24,6 @@ import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -32,6 +31,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -59,7 +59,7 @@ public class SessionListener {
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     osc namespace " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
-        client.setNamespace(namespace);
+
         controller.setNamespace(namespace);
         controller.setThrowExceptionOnError(true);
         controller.setRecreateMode(true);

@@ -17,13 +17,13 @@ package io.fabric8.arquillian.kubernetes.await;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -48,7 +48,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        List<Service> services = kubernetesClient.getServices(session.getNamespace()).getItems();
+        List<Service> services = kubernetesClient.services().inNamespace(session.getNamespace()).list().getItems();
 
         if (services.isEmpty()) {
             result = false;
@@ -74,8 +74,8 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         boolean result = false;
         String sid = getName(s);
         //String namespace = s.getMetadata().getNamespace();
-        String namespace = kubernetesClient.getNamespace();
-        Endpoints endpoints = kubernetesClient.endpointsForService(sid, namespace);
+        String namespace = session.getNamespace();
+        Endpoints endpoints = kubernetesClient.endpoints().inNamespace(namespace).withName(sid).get();
         ServiceSpec spec = s.getSpec();
         if (endpoints != null && spec != null) {
             List<EndpointSubset> subsets = endpoints.getSubsets();

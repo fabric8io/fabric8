@@ -16,7 +16,7 @@
 package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.jolokia.JolokiaClients;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;

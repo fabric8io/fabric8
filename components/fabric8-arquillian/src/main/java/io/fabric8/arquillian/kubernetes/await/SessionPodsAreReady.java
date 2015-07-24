@@ -16,7 +16,6 @@
 package io.fabric8.arquillian.kubernetes.await;
 
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatusType;
 import io.fabric8.kubernetes.api.model.ContainerState;
@@ -24,10 +23,10 @@ import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Objects;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class SessionPodsAreReady implements Callable<Boolean> {
@@ -43,7 +42,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        List<Pod> pods = kubernetesClient.getPods(session.getNamespace()).getItems();
+        List<Pod> pods = kubernetesClient.pods().inNamespace(session.getNamespace()).list().getItems();
 
         if (pods.isEmpty()) {
             result = false;

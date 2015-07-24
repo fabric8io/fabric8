@@ -18,11 +18,12 @@ package io.fabric8.arquillian.utils;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -39,13 +40,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 
@@ -65,14 +64,14 @@ public class Util {
     }
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
-        for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
+        for (ReplicationController replicationController : client.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
             session.getLogger().info("Replication controller:" + KubernetesHelper.getName(replicationController));
         }
 
-        for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
+        for (Pod pod : client.pods().inNamespace(session.getNamespace()).list().getItems()) {
             session.getLogger().info("Pod:" + KubernetesHelper.getName(pod) + " Status:" + pod.getStatus());
         }
-        for (Service service : client.getServices(session.getNamespace()).getItems()) {
+        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
             session.getLogger().info("Service:" + KubernetesHelper.getName(service) + " IP:" + getPortalIP(service) + " Port:" + getPorts(service));
         }
 
@@ -83,7 +82,7 @@ public class Util {
         List<Throwable> errors = new ArrayList<>();
         cleanupAllMatching(client, session, errors);
         try {
-            client.deleteNamespace(session.getNamespace());
+            client.namespaces().withName(session.getNamespace()).delete();
         } catch (Exception e) {
             errors.add(e);
         }
@@ -149,25 +148,25 @@ public class Util {
          */
         for (int i = 0; i < 10; i++) {
             try {
-                deleteReplicationControllers(client, session);
-            } catch (MultiException e) {
-                errors.addAll(Arrays.asList(e.getCauses()));
+                client.replicationControllers().inNamespace(session.getNamespace()).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
             }
 
             try {
-                deletePods(client, session);
-            } catch (MultiException e) {
-                errors.addAll(Arrays.asList(e.getCauses()));
+                client.pods().inNamespace(session.getNamespace()).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
             }
 
             try {
-                deleteServices(client, session);
-            } catch (MultiException e) {
-                errors.addAll(Arrays.asList(e.getCauses()));
+                client.services().inNamespace(session.getNamespace()).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
             }
 
             // lets see if there are any matching podList left
-            List<Pod> filteredPods = client.getPods(session.getNamespace()).getItems();
+            List<Pod> filteredPods = client.pods().inNamespace(session.getNamespace()).list().getItems();
             if (filteredPods.isEmpty()) {
                 return;
             } else {
@@ -182,50 +181,7 @@ public class Util {
     }
 
 
-    public static void deletePods(KubernetesClient client, Session session) throws MultiException {
-        List<Throwable> errors = new ArrayList<>();
-        for (Pod pod : client.getPods(session.getNamespace()).getItems()) {
-            try {
-                session.getLogger().info("Deleting pod:" + KubernetesHelper.getName(pod));
-                client.deletePod(getName(pod), session.getNamespace());
-            } catch (Exception e) {
-                errors.add(e);
-            }
-        }
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while deleting pods", errors);
-        }
-    }
 
-    public static void deleteServices(KubernetesClient client, Session session) throws MultiException {
-        List<Throwable> errors = new ArrayList<>();
-        for (Service service : client.getServices(session.getNamespace()).getItems()) {
-            try {
-                session.getLogger().info("Deleting service:" + KubernetesHelper.getName(service));
-                client.deleteService(getName(service), session.getNamespace());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while deleting services", errors);
-        }
-    }
-
-    public static void deleteReplicationControllers(KubernetesClient client, Session session) throws MultiException {
-        List<Throwable> errors = new ArrayList<>();
-        for (ReplicationController replicationController : client.getReplicationControllers(session.getNamespace()).getItems()) {
-            try {
-                session.getLogger().info("Deleting replication controller:" + KubernetesHelper.getName(replicationController));
-                client.deleteReplicationController(getName(replicationController), session.getNamespace());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while deleting replication controllers", errors);
-        }
-    }
 
     public static List<String> getMavenDependencies(Session session) throws IOException {
         List<String> dependencies = new ArrayList<>();

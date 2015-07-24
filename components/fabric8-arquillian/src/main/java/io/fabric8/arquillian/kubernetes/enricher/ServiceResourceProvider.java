@@ -17,8 +17,8 @@ package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -49,7 +49,7 @@ public class ServiceResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-        for (Service service : client.getServices(session.getNamespace()).getItems()) {
+        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
             if ( qualifies(service, qualifiers) ) {
                 return service;
             }

@@ -15,7 +15,8 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -29,13 +30,10 @@ public class ClientCreator {
     private InstanceProducer<KubernetesClient> kubernetesProducer;
 
     public void createClient(@Observes Configuration config) {
-        KubernetesClient client;
-        String masterUrl = config.getMasterUrl();
-        if (Strings.isNotBlank(masterUrl)) {
-            client = new KubernetesClient(masterUrl);
+        if (!Strings.isNullOrBlank(config.getMasterUrl())) {
+            kubernetesProducer.set(new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(config.getMasterUrl()).build()));
         } else {
-            client = new KubernetesClient();
+            kubernetesProducer.set(new DefaultKubernetesClient());
         }
-        kubernetesProducer.set(client);
     }
 }
