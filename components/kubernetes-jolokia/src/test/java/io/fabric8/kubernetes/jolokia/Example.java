@@ -15,11 +15,11 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
@@ -37,7 +37,7 @@ public class Example {
     private static final transient Logger LOG = LoggerFactory.getLogger(Example.class);
 
     JolokiaClients clients = new JolokiaClients();
-    Kubernetes kubernetes = clients.getKubernetes();
+    KubernetesClient kubernetes = clients.getKubernetes();
 
     public static void main(String[] args) {
         String selector = null;

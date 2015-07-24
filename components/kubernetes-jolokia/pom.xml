@@ -34,6 +34,15 @@
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-api</artifactId>
     </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>kubernetes-client</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-utils</artifactId>
+      </dependency>
+
     <dependency>
         <groupId>org.jolokia</groupId>
         <artifactId>jolokia-client-java</artifactId>
