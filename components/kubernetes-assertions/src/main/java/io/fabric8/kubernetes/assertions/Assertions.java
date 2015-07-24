@@ -15,8 +15,8 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.util.List;
 

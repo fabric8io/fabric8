@@ -15,7 +15,9 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.utils.Block;
 
 import java.util.HashMap;
@@ -29,45 +31,51 @@ import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
 public class Example {
     public static void main(String[] args) {
         try {
-            final KubernetesClient client = new KubernetesClient();
+            final KubernetesClient client = new DefaultKubernetesClient();
 
-            System.out.println("About to run test on: " + client.getAddress());
 
-            assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").hasSize(1);
-            assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").assertSize().isGreaterThan(0);
+            assertThat(client).pods().runningStatus().hasSize(6);
+            assertThat(client).pods().runningStatus().filterLabel("provider", "fabric8").assertSize().isGreaterThan(0);
 
-            assertAssertionError(new Block() {
-                @Override
-                public void invoke() throws Exception {
-                    assertThat(client).pods().runningStatus().filterLabel("component", "doesNotExist").hasSize(1);
-                }
-            });
-
-            assertAssertionError(new Block() {
-                @Override
-                public void invoke() throws Exception {
-                    Map<String, String> badLabels = new HashMap<>();
-                    badLabels.put("component", "doesNotExist");
-
-                    assertThat(client).pods().extracting("labels").contains(badLabels);
-                }
-            });
-
-            assertThat(client.getReplicationController("fabric8-console-controller").getMetadata()).hasName("fabric8-console-controller");
+            assertThat(client.services().inNamespace("default").withName("fabric8").get().getMetadata()).hasName("fabric8");
 
             Map<String, String> consoleLabels = new HashMap<>();
-            consoleLabels.put("component", "fabric8Console");
+            consoleLabels.put("component", "console");
+            consoleLabels.put("provider", "fabric8");
 
-            assertThat(client).podsForReplicationController("fabric8-console-controller").runningStatus().extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForService("fabric8", "default").runningStatus().extracting("metadata").extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForService("fabric8", "default").runningStatus().hasSize(1).extracting("metadata").extracting("labels").contains(consoleLabels);
 
             assertAssertionError(new Block() {
                 @Override
                 public void invoke() throws Exception {
-                    assertThat(client.getReplicationController("doesNotExist").getMetadata()).hasName("fabric8-console-controller");
+                    try {
+                        assertThat(client.services().inNamespace("default").withName("doesNotExist").get().getMetadata()).hasName("fabric8-console-controller");
+                    } catch (KubernetesClientException e) {
+                        if (e.getCode() != 404) {
+                            throw e;
+                        } else {
+                            throw new AssertionError(e);
+                        }
+                    }
                 }
             });
 
-            assertThat(client).podsForService("fabric8").runningStatus().hasSize(1).extracting("labels").contains(consoleLabels);
+            assertAssertionError(new Block() {
+                @Override
+                public void invoke() throws Exception {
+                    try {
+                        assertThat(client).pods().runningStatus().filterLabel("component", "doesNotExist").hasSize(1);
+                    } catch (KubernetesClientException e) {
+                        if (e.getCode() != 404) {
+                            throw e;
+                        } else {
+                            throw new AssertionError(e);
+                        }
+                    }
+                }
+            });
+
 
             System.out.println("Done!");
         } catch (Throwable e) {

@@ -40,6 +40,20 @@
       <artifactId>kubernetes-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
     </dependency>
@@ -62,9 +76,7 @@
         <configuration>
           <packages>
             <param>io.fabric8.kubernetes.api.model</param>
-            <!--
-                              <param>your.second.package</param>
-            -->
+            <param>io.fabric8.openshift.api.model</param>
           </packages>
           <!--
                         <classes>
