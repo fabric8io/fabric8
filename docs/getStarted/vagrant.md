@@ -9,7 +9,7 @@ First clone the [fabric8 installer git repository](https://github.com/fabric8io/
 
 ```sh
 $ git clone https://github.com/fabric8io/fabric8-installer.git
-$ cd fabric8-installer/vagrant/openshift-latest
+$ cd fabric8-installer/vagrant/openshift/latest
 ```
 
 Depending on your host operating system you need to install an additional vagrant plugin:
