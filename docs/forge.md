@@ -9,8 +9,8 @@ First [install Forge](http://forge.jboss.org/download) and run it:
 you can install the Forge add ons via:
 
     addon-install --coordinate io.fabric8.forge:camel,2.2.16
+    addon-install --coordinate io.fabric8.forge:devops,2.2.16
     addon-install --coordinate io.fabric8.forge:kubernetes,2.2.16
-    addon-install --coordinate io.fabric8.forge:openshift,2.2.16
 
 You should be able to see the new commands that are installed via:
 
@@ -25,11 +25,9 @@ You have to be a little patient; first time you try tab complete it can take a f
 
 The [Apache Camel](http://camel.apache.org/) commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.
 
-### OpenShift
+### DevOps
 
-The [OpenShift](http://openshift.org) commands allow you to generate an OpenShift Build or Integration Test Build for an existing Maven project.
-
-Rather like the Kubernetes commands below, this addon requires the  **KUBERNETES_MASTER** environment variable to point to where the OpenShift V3 master is running.
+The **DevOps** commands help you 
 
 ### Kubernetes
 
