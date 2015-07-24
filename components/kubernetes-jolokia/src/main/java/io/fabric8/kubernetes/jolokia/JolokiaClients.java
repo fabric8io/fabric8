@@ -15,9 +15,10 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -45,7 +46,7 @@ public class JolokiaClients {
     private Filter<Pod> podFilter = null;
 
     public JolokiaClients() {
-        this(new KubernetesClient());
+        this(new DefaultKubernetesClient());
     }
 
     public JolokiaClients(KubernetesClient kubernetes) {
@@ -59,8 +60,8 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given replication controller or throws an assertion error if one could not be found
      */
-    public J4pClient assertClientForReplicationController(String replicationControllerId) {
-        J4pClient client = clientForReplicationController(replicationControllerId);
+    public J4pClient assertClientForReplicationController(String replicationControllerId, String namespace) {
+        J4pClient client = clientForReplicationController(replicationControllerId, namespace);
         assertNotNull(client, "No client for replicationController: " + replicationControllerId);
         return client;
     }
@@ -69,8 +70,8 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given service  or throws an assertion error if one could not be found
      */
-    public J4pClient assertClientForService(String serviceId) {
-        J4pClient client = clientForService(serviceId);
+    public J4pClient assertClientForService(String serviceId, String namespace) {
+        J4pClient client = clientForService(serviceId, namespace);
         assertNotNull(client, "No client for service: " + serviceId);
         return client;
     }
@@ -79,7 +80,7 @@ public class JolokiaClients {
      * Returns a client for the first working pod for the given replication controller
      */
     public J4pClient clientForReplicationController(ReplicationController replicationController) {
-        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationController);
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().list().getItems());
         return clientForPod(pods);
     }
 
@@ -87,9 +88,8 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given replication controller
      */
-    public J4pClient clientForReplicationController(String replicationControllerId) {
-        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationControllerId);
-        return clientForPod(pods);
+    public J4pClient clientForReplicationController(String replicationControllerId, String namespace) {
+        return clientForReplicationController(kubernetes.replicationControllers().inNamespace(namespace).withName(replicationControllerId).get());
     }
 
 
@@ -97,15 +97,16 @@ public class JolokiaClients {
      * Returns all the clients for the first working pod for the given replication controller
      */
     public List<J4pClient> clientsForReplicationController(ReplicationController replicationController) {
-        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationController);
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().list().getItems());
         return clientsForPod(pods);
     }
 
     /**
      * Returns all the clients for the first working pod for the given replication controller
      */
-    public List<J4pClient> clientsForReplicationController(String replicationControllerId) {
-        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationControllerId);
+    public List<J4pClient> clientsForReplicationController(String replicationControllerId, String namespace) {
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(kubernetes.replicationControllers().inNamespace(namespace).withName(replicationControllerId).get(),
+                kubernetes.pods().inNamespace(namespace).list().getItems());
         return clientsForPod(pods);
     }
 
@@ -114,8 +115,9 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given service
      */
-    public J4pClient clientForService(String serviceId) {
-        List<Pod> pods = kubernetes.getPodsForService(serviceId);
+    public J4pClient clientForService(String serviceId, String namespace) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(kubernetes.services().inNamespace(namespace).withName(serviceId).get(),
+                kubernetes.pods().inNamespace(namespace).list().getItems());
         return clientForPod(pods);
     }
 
@@ -123,15 +125,16 @@ public class JolokiaClients {
      * Returns a client for the first working pod for the given service
      */
     public J4pClient clientForService(Service service) {
-        List<Pod> pods = kubernetes.getPodsForService(service);
+        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().list().getItems());
         return clientForPod(pods);
     }
 
     /**
      * Returns all the clients for the first working pod for the given service
      */
-    public List<J4pClient> clientsForService(String serviceId) {
-        List<Pod> pods = kubernetes.getPodsForService(serviceId);
+    public List<J4pClient> clientsForService(String serviceId, String namespace) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(kubernetes.services().inNamespace(namespace).withName(serviceId).get(),
+                kubernetes.pods().inNamespace(namespace).list().getItems());
         return clientsForPod(pods);
     }
 
@@ -139,7 +142,7 @@ public class JolokiaClients {
      * Returns all the clients the first working pod for the given service
      */
     public List<J4pClient> clientsForService(Service service) {
-        List<Pod> pods = kubernetes.getPodsForService(service);
+        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().list().getItems());
         return clientsForPod(pods);
     }
 
@@ -173,7 +176,6 @@ public class JolokiaClients {
         }
         return answer;
     }
-
     /**
      * Strategy method to filter pods before creating clients for them.
      */
