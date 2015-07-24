@@ -733,6 +733,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 serviceSpecBuilder.withPorts(servicePorts);
             } else {
                 serviceSpecBuilder.withClusterIP("None");
+                serviceSpecBuilder.withPorts(new ServicePort(null, null, 1, null, null));
             }
             serviceSpecBuilder.endSpec();
 
