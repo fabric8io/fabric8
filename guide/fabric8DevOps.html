@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>App Library | Fabric8 Documentation</title>
+        <title>Fabric8 DevOps | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./ipaas.html" />
+    <link rel="next" href="./cdelivery.html" />
     
     
-    <link rel="prev" href="./metrics.html" />
+    <link rel="prev" href="./overview.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.4" data-basepath="." data-revision="Fri Jul 24 2015 15:07:34 GMT+0000 (UTC)">
+    <div class="book" data-level="2" data-basepath="." data-revision="Fri Jul 24 2015 15:07:34 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -85,7 +85,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2" data-path="fabric8DevOps.html">
+        <li class="chapter active" data-level="2" data-path="fabric8DevOps.html">
             
                 
                     <a href="./fabric8DevOps.html">
@@ -228,7 +228,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.2.4" data-path="appLibrary.html">
+        <li class="chapter " data-level="2.2.4" data-path="appLibrary.html">
             
                 
                     <a href="./appLibrary.html">
@@ -1126,35 +1126,37 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="app-library"><a name="app-library" class="plugin-anchor" href="#app-library"><span class="fa fa-link"></span></a>App Library</h2>
-<p>The App Library implements a RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a wiki of <a href="apps.html">apps</a> that can be run.</p>
-<p>You can think of this as being a little like your library for Apps for your mobile device; its a way of populating your default set of Apps that are available so that you can easily run them.</p>
-<p>The library is stored in a git based wiki and can be edited via git or via the <a href="console.html">console</a>.</p>
-<h3 id="features"><a name="features" class="plugin-anchor" href="#features"><span class="fa fa-link"></span></a>Features</h3>
-<p>When the App Library is running the <a href="console.html">console</a>:</p>
+                        <h2 id="fabric8-devops"><a name="fabric8-devops" class="plugin-anchor" href="#fabric8-devops"><span class="fa fa-link"></span></a>Fabric8 DevOps</h2>
+<p><strong>Fabric8 DevOps</strong> provides a completely integrated open source platform for DevOps which works out of the box on any <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="http://www.openshift.org/" target="_blank">OpenShift</a> environment.</p>
+<p>The entire platform is modular and based on <em>microservices</em> so you can use as much or as little of Fabric8 DevOps as you wish!</p>
+<p>The available services in <strong>Fabric8 DevOps</strong> are:</p>
 <ul>
-<li>has a <strong>Run...</strong> button on the Apps tab which lets you easily pick which Apps you want to run in a few clicks</li>
-<li>associates any resource (<a href="services.html">service</a>, <a href="replicationControllers.html">replication controller</a>, <a href="pod.html">pod</a>) with the icon stored in the App Library wiki so that things look much nicer ;)</li>
-<li>the Library tab allows you to explore all your installed Apps, browse the documentation and drag and drop apps from the internet or file system to or from the App Library to install or share Apps between environments or people.</li>
+<li><a href="cdelivery.html">Continuous Integration and Continuous Delivery</a> to help teams deliver software in a faster and more reliable way via: <ul>
+<li>the following open source projects:<ul>
+<li><a href="https://jenkins-ci.org/" target="_blank">Jenkins</a> for Building, Continuous Integration and creating Continuous Delivery pipelines</li>
+<li><a href="http://www.sonatype.org/nexus/" target="_blank">Nexus</a> as the artifact repository for caching public artifacts and hosting canary and real release artifacts</li>
+<li><a href="http://gogs.io/" target="_blank">Gogs</a> for on premise git repository hosting and <a href="https://github.com/" target="_blank">GitHub</a> for public hosting</li>
+<li><a href="http://www.sonarqube.org/" target="_blank">SonarQube</a> provides a platform to maintain code quality</li>
 </ul>
-<h3 id="running-on-kubernetes-openshift"><a name="running-on-kubernetes-openshift" class="plugin-anchor" href="#running-on-kubernetes-openshift"><span class="fa fa-link"></span></a>Running on Kubernetes/OpenShift</h3>
-<p>If you start <a href="openShiftDocker.html">fabric8 using these instructions</a> then it should be started by default.</p>
-<p>If not you can run the App Library on any kubernetes environment as follows:</p>
-<pre><code>kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.2.16/app-library-2.2.16-kubernetes.json
-</code></pre><p>Then make sure you have <a href="console.html">run the console</a></p>
-<p>You can find specific URLs for REST/Git etc. by visiting the App Library service endpoint in a browser.</p>
-<h3 id="pre-populating-applications"><a name="pre-populating-applications" class="plugin-anchor" href="#pre-populating-applications"><span class="fa fa-link"></span></a>Pre-Populating Applications</h3>
-<p>The App Library can be configured to pre-populate itself using content downloaded via maven co-ordinates.</p>
-<p>For example, the default App Library config file contains the following IMPORT_APP_URLS environment variable:</p>
-<pre><code>  &quot;env&quot;: [
-     {
-         &quot;name&quot;: &quot;IMPORT_APP_URLS&quot;,
-         &quot;value&quot;: &quot;mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${FABRIC8_VERSION}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${FABRIC8_VERSION}/zip/app&quot;
-     }
-   ]
-</code></pre><p>Download one of the above zips to see the structure used:</p>
-<pre><code>  http://central.maven.org/maven2/io/fabric8//quickstarts/fabric8-quickstarts-parent/2.2.16/fabric8-quickstarts-parent-2.2.16-app.zip
-</code></pre>
+</li>
+<li><a href="jenkinsWorkflowLibrary.html">Jenkins Workflow Library</a> to help reuse a <a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">library</a> of reusable <a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">Jenkins Workflow scripts</a> across projects</li>
+<li><a href="fabric8YmlFile.html">fabric8.yml file</a> as a per project configuration file to tie together the various projects, repositories, chat rooms, workflow script and issue tracker</li>
+<li><a href="chat.html">Chat integration</a> via <a href="https://hubot.github.com/" target="_blank">hubot</a> lets your team embrace devops, have chat notifications of changes to the system and use chat for <a href="https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove" target="_blank">approval of release promotion</a></li>
+</ul>
+</li>
+<li><a href="management.html">Management</a><ul>
+<li><a href="console.html">Console</a> provides a nice web application based on <a href="http://hawt.io/" target="_blank">hawtio</a> for working with your <a href="apps.html">apps</a>, <a href="pods.html">pods</a>, [replication controllers]</li>
+<li><a href="logging.html">Logging</a> provides consolidated logging and visualisation of log statements and events across your environment</li>
+<li><a href="metrics.html">Metrics</a> provides consolidated historical metric collection and visualisation across your environment
+(replicationControllers.html) and <a href="services.html">services</a></li>
+<li><a href="appLibrary.html">App Library</a> provides a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.
+APIs in your cluster.</li>
+</ul>
+</li>
+</ul>
+<h3 id="installation"><a name="installation" class="plugin-anchor" href="#installation"><span class="fa fa-link"></span></a>Installation</h3>
+<p>To install any of the above apps see the <a href="getStarted/apps.html">Install Fabric8 on Kubernetes or OpenShift Guide</a>    </p>
+
                     
                     </section>
                 
@@ -1164,10 +1166,10 @@
         </div>
 
         
-        <a href="./metrics.html" class="navigation navigation-prev " aria-label="Previous page: Metrics"><i class="fa fa-angle-left"></i></a>
+        <a href="./overview.html" class="navigation navigation-prev " aria-label="Previous page: Overview"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./ipaas.html" class="navigation navigation-next " aria-label="Next page: Fabric8 iPaaS"><i class="fa fa-angle-right"></i></a>
+        <a href="./cdelivery.html" class="navigation navigation-next " aria-label="Next page: CI and CD"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>App Library | Fabric8 Documentation</title>
+        <title>Jenkins Workflow Library | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./ipaas.html" />
+    <link rel="next" href="./fabric8YmlFile.html" />
     
     
-    <link rel="prev" href="./metrics.html" />
+    <link rel="prev" href="./cdelivery.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.4" data-basepath="." data-revision="Fri Jul 24 2015 15:07:34 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1.1" data-basepath="." data-revision="Fri Jul 24 2015 15:07:34 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -117,7 +117,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.1.1" data-path="jenkinsWorkflowLibrary.html">
+        <li class="chapter active" data-level="2.1.1" data-path="jenkinsWorkflowLibrary.html">
             
                 
                     <a href="./jenkinsWorkflowLibrary.html">
@@ -228,7 +228,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.2.4" data-path="appLibrary.html">
+        <li class="chapter " data-level="2.2.4" data-path="appLibrary.html">
             
                 
                     <a href="./appLibrary.html">
@@ -1126,35 +1126,29 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="app-library"><a name="app-library" class="plugin-anchor" href="#app-library"><span class="fa fa-link"></span></a>App Library</h2>
-<p>The App Library implements a RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a wiki of <a href="apps.html">apps</a> that can be run.</p>
-<p>You can think of this as being a little like your library for Apps for your mobile device; its a way of populating your default set of Apps that are available so that you can easily run them.</p>
-<p>The library is stored in a git based wiki and can be edited via git or via the <a href="console.html">console</a>.</p>
-<h3 id="features"><a name="features" class="plugin-anchor" href="#features"><span class="fa fa-link"></span></a>Features</h3>
-<p>When the App Library is running the <a href="console.html">console</a>:</p>
+                        <h2 id="jenkins-workflow-library"><a name="jenkins-workflow-library" class="plugin-anchor" href="#jenkins-workflow-library"><span class="fa fa-link"></span></a>Jenkins Workflow Library</h2>
+<p>Continuous Delivery pipelines can be complex; with things like:</p>
 <ul>
-<li>has a <strong>Run...</strong> button on the Apps tab which lets you easily pick which Apps you want to run in a few clicks</li>
-<li>associates any resource (<a href="services.html">service</a>, <a href="replicationControllers.html">replication controller</a>, <a href="pod.html">pod</a>) with the icon stored in the App Library wiki so that things look much nicer ;)</li>
-<li>the Library tab allows you to explore all your installed Apps, browse the documentation and drag and drop apps from the internet or file system to or from the App Library to install or share Apps between environments or people.</li>
+<li>asynchronous human or integration test approval which can take days to be achieved</li>
+<li>parallel builds</li>
+<li>fan-in and fan-out of builds</li>
 </ul>
-<h3 id="running-on-kubernetes-openshift"><a name="running-on-kubernetes-openshift" class="plugin-anchor" href="#running-on-kubernetes-openshift"><span class="fa fa-link"></span></a>Running on Kubernetes/OpenShift</h3>
-<p>If you start <a href="openShiftDocker.html">fabric8 using these instructions</a> then it should be started by default.</p>
-<p>If not you can run the App Library on any kubernetes environment as follows:</p>
-<pre><code>kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.2.16/app-library-2.2.16-kubernetes.json
-</code></pre><p>Then make sure you have <a href="console.html">run the console</a></p>
-<p>You can find specific URLs for REST/Git etc. by visiting the App Library service endpoint in a browser.</p>
-<h3 id="pre-populating-applications"><a name="pre-populating-applications" class="plugin-anchor" href="#pre-populating-applications"><span class="fa fa-link"></span></a>Pre-Populating Applications</h3>
-<p>The App Library can be configured to pre-populate itself using content downloaded via maven co-ordinates.</p>
-<p>For example, the default App Library config file contains the following IMPORT_APP_URLS environment variable:</p>
-<pre><code>  &quot;env&quot;: [
-     {
-         &quot;name&quot;: &quot;IMPORT_APP_URLS&quot;,
-         &quot;value&quot;: &quot;mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${FABRIC8_VERSION}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${FABRIC8_VERSION}/zip/app&quot;
-     }
-   ]
-</code></pre><p>Download one of the above zips to see the structure used:</p>
-<pre><code>  http://central.maven.org/maven2/io/fabric8//quickstarts/fabric8-quickstarts-parent/2.2.16/fabric8-quickstarts-parent-2.2.16-app.zip
-</code></pre>
+<p>So to allow flexible Continuous Delivery Pipelines to be defined in a simple script (or DSL) there is an excellent Jenkins plugin called <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow Plugin</a>.</p>
+<p>The Jenkins Workflow Plugin lets you to define delivery pipelines using concise <a href="http://www.groovy-lang.org/" target="_blank">Groovy</a> scripts which deal elegantly with the persistence and asynchrony involved.</p>
+<h3 id="reusing-workflow-scripts"><a name="reusing-workflow-scripts" class="plugin-anchor" href="#reusing-workflow-scripts"><span class="fa fa-link"></span></a>Reusing Workflow Scripts</h3>
+<p>You can add a Jenkins workflow script into your project&apos;s source code to maintain the delivery pipeline and source code together in the same repository.</p>
+<p>However teams often have lots of projects which are very similar in nature and copying a groovy script into each project; or into each jenkins workflow job configuration page can soon become maintenance burden.</p>
+<p>So with Fabric8 DevOps you can configure a reusable <em>library of workflow scripts</em> such as the <a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">default Fabric8 workflow library</a>. </p>
+<p>Then you can link each project to the reusable pipeline script that most suits the project. The pipeline scripts are configurable with build parameters. If you find that none of the workflow scripts are quite right for a project, just copy the closest one into the project and customise it.</p>
+<h3 id="configuring-the-workflow-script-for-a-project"><a name="configuring-the-workflow-script-for-a-project" class="plugin-anchor" href="#configuring-the-workflow-script-for-a-project"><span class="fa fa-link"></span></a>Configuring the Workflow Script for a project</h3>
+<p>To configure the reuseable workflow script for a project you can use the <a href="fabric8YmlFile.html">fabric8.yml file</a>.</p>
+<p>You can edit the <code>fabric8.yml</code> file via:</p>
+<ul>
+<li>the <code>project settings</code> button in the <a href="console.html">console</a></li>
+<li>the <code>fabric8.yml</code> file directly using a text editor in source control</li>
+<li>using the <a href="forge.html">Fabric8 DevOps Forge commands from the CLI or in your IDE</a></li>
+</ul>
+
                     
                     </section>
                 
@@ -1164,10 +1158,10 @@
         </div>
 
         
-        <a href="./metrics.html" class="navigation navigation-prev " aria-label="Previous page: Metrics"><i class="fa fa-angle-left"></i></a>
+        <a href="./cdelivery.html" class="navigation navigation-prev " aria-label="Previous page: CI and CD"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./ipaas.html" class="navigation navigation-next " aria-label="Next page: Fabric8 iPaaS"><i class="fa fa-angle-right"></i></a>
+        <a href="./fabric8YmlFile.html" class="navigation navigation-next " aria-label="Next page: fabric8.yml file"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
