@@ -22,8 +22,8 @@ import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -52,6 +52,7 @@ public class ExtensionTest {
     private static String KUBERNETES_SERVICE_JSON;
     private static String FABRIC8_CONSOLE_SERVICE_JSON;
     private static String APP_LIBRARY_SERVICE_JSON;
+    private static String EMPTY_ROUTES_JSON;
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -77,6 +78,7 @@ public class ExtensionTest {
         KUBERNETES_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
         FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
         APP_LIBRARY_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
+        EMPTY_ROUTES_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/empty-routes.json"), Charsets.UTF_8);
 
         server.setDispatcher(new Dispatcher() {
             @Override
@@ -91,17 +93,17 @@ public class ExtensionTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library[/]*")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(APP_LIBRARY_SERVICE_JSON);
-                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes")) {
+                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes[/]*")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
-                            .setBody("{}");
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints")) {
+                            .setBody(EMPTY_ROUTES_JSON);
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints[/]*")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
@@ -113,9 +115,8 @@ public class ExtensionTest {
         });
 
         server.play();
-        System.setProperty(KubernetesFactory.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
-        System.setProperty(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, "true");
-        System.setProperty(KubernetesFactory.KUBERNETES_VERIFY_SYSTEM_PROPERTY, "false");
+        System.setProperty(DefaultKubernetesClient.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
+        System.setProperty(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
 
     }
 

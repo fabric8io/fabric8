@@ -24,7 +24,6 @@ import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.KubernetesClientBean;
-import io.fabric8.cdi.bean.KubernetesFactoryBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
@@ -55,7 +54,6 @@ public class Fabric8Extension implements Extension {
     private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event) {
-        event.addBean(new KubernetesFactoryBean());
         event.addBean(new KubernetesClientBean());
 
         //We need to process factories in reverse order so that we make feasible forwarding for service id etc.

@@ -15,9 +15,8 @@
  */
 package io.fabric8.cdi.bean;
 
-
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import javax.enterprise.context.spi.CreationalContext;
 
@@ -29,7 +28,7 @@ public class KubernetesClientBean extends BaseBean<KubernetesClient> {
 
     @Override
     public KubernetesClient create(CreationalContext<KubernetesClient> creationalContext) {
-        return new KubernetesClient(new KubernetesFactory());
+        return new DefaultKubernetesClient();
     }
 
     @Override

@@ -18,22 +18,70 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.extensions.Configs;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.extensions.Templates;
+import io.fabric8.kubernetes.api.model.Config;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.ContainerState;
+import io.fabric8.kubernetes.api.model.ContainerStateRunning;
+import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
+import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Context;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.kubernetes.client.internal.Utils;
-import io.fabric8.openshift.api.model.*;
-import io.fabric8.utils.*;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigSpec;
+import io.fabric8.openshift.api.model.OAuthClient;
+import io.fabric8.openshift.api.model.Parameter;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xbill.DNS.*;
+import org.xbill.DNS.ARecord;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.SRVRecord;
+import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.Type;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLKeyException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLProtocolException;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,8 +91,19 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -1174,6 +1233,45 @@ public final class KubernetesHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the URL to access the service; using the environment variables, routes
+     * or service portalIP address
+     *
+     * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
+     */
+    public static String getServiceURL(OpenShiftClient client, String serviceName, String namespace, String serviceProtocol, boolean serviceExternal) {
+        Service srv = null;
+        String serviceHost = serviceToHost(serviceName);
+        String servicePort = serviceToPort(serviceName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+
+        //1. Inside Kubernetes: Services as ENV vars
+        if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
+            return serviceProtocol + "://" + serviceHost + ":" + servicePort;
+            //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
+        } else if (Strings.isNotBlank(namespace)) {
+            srv = client.services().inNamespace(namespace).withName(serviceName).get();
+        } else {
+            for (Service s : client.services().list().getItems()) {
+                String sid = getName(s);
+                if (serviceName.equals(sid)) {
+                    srv = s;
+                    break;
+                }
+            }
+        }
+        if (srv == null) {
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + namespace);
+        }
+        RouteList routeList = client.routes().inNamespace(namespace).list();
+        for (Route route : routeList.getItems()) {
+            if (route.getSpec().getTo().getName().equals(serviceName)) {
+                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+            }
+        }
+        return (serviceProto + "://" + srv.getSpec().getClusterIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
     }
 
     public static String serviceToHost(String id) {
