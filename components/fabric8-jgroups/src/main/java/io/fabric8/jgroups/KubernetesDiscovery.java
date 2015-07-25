@@ -15,13 +15,15 @@
  */
 package io.fabric8.jgroups;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Filter;
+import io.fabric8.utils.Strings;
 import org.jgroups.Address;
 import org.jgroups.Event;
 import org.jgroups.Message;
@@ -37,6 +39,7 @@ import org.jgroups.util.Responses;
 import org.jgroups.util.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import java.util.*;
 
@@ -55,7 +58,11 @@ public class KubernetesDiscovery extends Discovery {
     @Override
     public void init() throws Exception {
         super.init();
-        client = new KubernetesClient(new KubernetesFactory(address));
+        if (!Strings.isNullOrBlank(address)) {
+            client = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(address).build());
+        } else {
+            client = new DefaultKubernetesClient();
+        }
     }
 
     public Object down(Event evt) {
@@ -123,24 +130,20 @@ public class KubernetesDiscovery extends Discovery {
     public List<PhysicalAddress> findKubernetesHosts() {
         List<PhysicalAddress> addresses = new ArrayList<>();
         Map<String, String> labels = Collections.singletonMap(Constants.JGROUPS_CLUSTER_NAME, cluster_name);
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
-        List<Pod> podList = filterPods(client.getPods().getItems(), podFilter);
 
-        for (Pod pod : podList) {
-            if (podFilter.matches(pod)) {
-                List<Container> containers = KubernetesHelper.getContainers(pod);
-                for (Container container : containers) {
+        for (Pod pod : client.pods().withLabels(labels).list().getItems()) {
+            List<Container> containers = KubernetesHelper.getContainers(pod);
+            for (Container container : containers) {
 
-                    for (ContainerPort port : container.getPorts()) {
-                        if (Constants.JGROUPS_TCP_PORT.equals(port.getName())) {
-                            try {
-                                String ip = pod.getStatus().getPodIP();
-                                if (ip != null) {
-                                    addresses.add(new IpAddress(ip, port.getContainerPort()));
-                                }
-                            } catch (Exception ex) {
-                                LOGGER.warn("Failed to create Address {}.", pod.getStatus().getPodIP());
+                for (ContainerPort port : container.getPorts()) {
+                    if (Constants.JGROUPS_TCP_PORT.equals(port.getName())) {
+                        try {
+                            String ip = pod.getStatus().getPodIP();
+                            if (ip != null) {
+                                addresses.add(new IpAddress(ip, port.getContainerPort()));
                             }
+                        } catch (Exception ex) {
+                            LOGGER.warn("Failed to create Address {}.", pod.getStatus().getPodIP());
                         }
                     }
                 }
