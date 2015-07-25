@@ -49,6 +49,7 @@ public class ExtensionTest {
 
     private static final MockWebServer server = new MockWebServer();
 
+    private static String ROOT_PATHS;
     private static String KUBERNETES_SERVICE_JSON;
     private static String FABRIC8_CONSOLE_SERVICE_JSON;
     private static String APP_LIBRARY_SERVICE_JSON;
@@ -75,6 +76,7 @@ public class ExtensionTest {
         System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
         System.setProperty("KUBERNETES_PROTOCOL", "https");
 
+        ROOT_PATHS = Resources.toString(ExtensionTest.class.getResource("/mock/root-paths.json"), Charsets.UTF_8);
         KUBERNETES_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
         FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
         APP_LIBRARY_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
@@ -83,7 +85,12 @@ public class ExtensionTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/api/v1/namespaces/default/services/kubernetes")) {
+                if (request.getPath().equals("/")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(ROOT_PATHS);
+                } else if (request.getPath().equals("/api/v1/namespaces/default/services/kubernetes")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")

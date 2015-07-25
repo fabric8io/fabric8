@@ -1,0 +1,18 @@
+{
+  "paths": [
+    "/api",
+    "/api/v1beta3",
+    "/api/v1",
+    "/controllers",
+    "/healthz",
+    "/healthz/ping",
+    "/logs/",
+    "/metrics",
+    "/ready",
+    "/osapi",
+    "/osapi/v1beta3",
+    "/oapi",
+    "/oapi/v1",
+    "/swaggerapi/"
+  ]
+}

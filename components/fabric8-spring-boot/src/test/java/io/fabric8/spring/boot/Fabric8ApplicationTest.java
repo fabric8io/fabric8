@@ -44,6 +44,7 @@ public class Fabric8ApplicationTest {
     private static final String DEFAULT_NAMESPACE = "default";
 
 
+    private static String ROOT_PATHS;
     private static String SERVICES_JSON;
     private static String FABRIC8_CONSOLE_SERVICE_JSON;
     private static String KUBERNETES_SERVICE_JSON;
@@ -57,6 +58,7 @@ public class Fabric8ApplicationTest {
         System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
         System.setProperty("KUBERNETES_PROTOCOL", "https");
 
+        ROOT_PATHS = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/root-paths.json"), Charsets.UTF_8);
         FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/fabric8-console-service.json"), Charsets.UTF_8);
         KUBERNETES_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
         APP_LIBRARY_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
@@ -65,7 +67,12 @@ public class Fabric8ApplicationTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().matches("/api/[^/]/services[/]?") || request.getPath().matches("/api/[^/]/namespaces/default/services[/]?")) {
+                if (request.getPath().equals("/")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setHeader("Content-Type", "application/json")
+                            .setBody(ROOT_PATHS);
+                } else if (request.getPath().matches("/api/[^/]/services[/]?") || request.getPath().matches("/api/[^/]/namespaces/default/services[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
