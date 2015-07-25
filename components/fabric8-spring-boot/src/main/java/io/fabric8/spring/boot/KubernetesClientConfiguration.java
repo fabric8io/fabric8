@@ -15,13 +15,11 @@
  */
 package io.fabric8.spring.boot;
 
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.spring.boot.converters.KubernetesConverterServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ConversionServiceFactoryBean;
@@ -31,14 +29,10 @@ public class KubernetesClientConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesClientConfiguration.class);
 
-    @Value("${kubernetes.master}")
-    private String kubernetesMasterUrl;
-
     @Bean
     public KubernetesClient kubernetesClient() {
-        LOGGER.debug("Trying to init {} by auto-configuration.", Kubernetes.class.getSimpleName());
-        KubernetesFactory factory = new KubernetesFactory(kubernetesMasterUrl);
-        return new KubernetesClient(factory);
+        LOGGER.debug("Trying to init {} by auto-configuration.", KubernetesClient.class.getSimpleName());
+        return new DefaultKubernetesClient();
     }
 
     @Bean

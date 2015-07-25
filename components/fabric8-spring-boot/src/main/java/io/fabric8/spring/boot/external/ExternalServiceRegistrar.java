@@ -15,15 +15,21 @@
  */
 package io.fabric8.spring.boot.external;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.spring.boot.AbstractServiceRegistar;
+import io.fabric8.utils.Systems;
 
 public class ExternalServiceRegistrar extends AbstractServiceRegistar {
 
+    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
+    public static final String DEFAULT_NAMESPACE = "default";
+
     @Override
     public Service getService(String name) {
-        KubernetesClient kubernetes = new KubernetesClient();
-        return kubernetes.getService(name);
+        KubernetesClient kubernetes = new DefaultKubernetesClient();
+        String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        return kubernetes.services().inNamespace(serviceNamespace).withName(name).get();
     }
 }

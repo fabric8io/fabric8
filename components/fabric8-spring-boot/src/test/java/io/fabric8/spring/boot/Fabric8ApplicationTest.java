@@ -23,9 +23,9 @@ import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,6 +40,9 @@ public class Fabric8ApplicationTest {
 
 
     private static final MockWebServer server = new MockWebServer();
+    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
+    private static final String DEFAULT_NAMESPACE = "default";
+
 
     private static String SERVICES_JSON;
     private static String FABRIC8_CONSOLE_SERVICE_JSON;
@@ -62,7 +65,7 @@ public class Fabric8ApplicationTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/api/v1/services") || request.getPath().equals("/api/v1/namespaces/default/services")) {
+                if (request.getPath().matches("/api/[^/]/services[/]?") || request.getPath().matches("/api/[^/]/namespaces/default/services[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
@@ -82,12 +85,12 @@ public class Fabric8ApplicationTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes")) {
+                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody("{}");
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
@@ -99,10 +102,9 @@ public class Fabric8ApplicationTest {
         });
 
         server.play();
-        System.setProperty(KubernetesFactory.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
-        System.setProperty(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, "true");
-        System.setProperty(KubernetesFactory.KUBERNETES_VERIFY_SYSTEM_PROPERTY, "false");
-
+        System.setProperty(DefaultKubernetesClient.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
+        System.setProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        System.setProperty(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }
 
 

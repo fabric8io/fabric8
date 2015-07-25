@@ -16,12 +16,8 @@
 package io.fabric8.spring.boot;
 
 import io.fabric8.annotations.Configuration;
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.ApplicationContext;
 
 @Configuration
 @EnableAutoConfiguration()

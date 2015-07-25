@@ -15,9 +15,10 @@
  */
 package io.fabric8.spring.boot.converters;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,7 @@ public class ServiceToString implements Converter<Service, String> {
         String serviceNamespace = KubernetesHelper.getNamespace(source);
         String serviceProtocol = getProtocolOfService(source);
         Boolean serviceExternal = isServiceExternal(source);
-        return kubernetesClient.getServiceURL(serviceName, serviceNamespace, serviceProtocol, serviceExternal);
+        return KubernetesHelper.getServiceURL((OpenShiftClient) kubernetesClient, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     private String getProtocolOfService(Service service) {
