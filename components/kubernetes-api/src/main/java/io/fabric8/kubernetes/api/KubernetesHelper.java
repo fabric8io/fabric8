@@ -47,6 +47,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.root.RootPaths;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -88,6 +89,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -104,6 +106,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
@@ -130,6 +134,8 @@ public final class KubernetesHelper {
     private static final String PORT_SUFFIX = "_SERVICE_PORT";
     private static final String PROTO_SUFFIX = "_TCP_PROTO";
     public static final String DEFAULT_PROTO = "tcp";
+
+    private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
 
     public static String defaultNamespace() {
         String namespace = System.getenv("KUBERNETES_NAMESPACE");
@@ -1241,7 +1247,7 @@ public final class KubernetesHelper {
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
-    public static String getServiceURL(OpenShiftClient client, String serviceName, String namespace, String serviceProtocol, boolean serviceExternal) {
+    public static String getServiceURL(KubernetesClient client, String serviceName, String namespace, String serviceProtocol, boolean serviceExternal) {
         Service srv = null;
         String serviceHost = serviceToHost(serviceName);
         String servicePort = serviceToPort(serviceName);
@@ -1265,10 +1271,13 @@ public final class KubernetesHelper {
         if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + namespace);
         }
-        RouteList routeList = client.routes().inNamespace(namespace).list();
-        for (Route route : routeList.getItems()) {
-            if (route.getSpec().getTo().getName().equals(serviceName)) {
-                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+        if (isOpenShift(client)) {
+            OpenShiftClient openShiftClient = (OpenShiftClient) client;
+            RouteList routeList = openShiftClient.routes().inNamespace(namespace).list();
+            for (Route route : routeList.getItems()) {
+                if (route.getSpec().getTo().getName().equals(serviceName)) {
+                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+                }
             }
         }
         return (serviceProto + "://" + srv.getSpec().getClusterIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
@@ -1408,11 +1417,11 @@ public final class KubernetesHelper {
 
     /**
      * Looks up the service endpoints in DNS.
-     *
+     * <p/>
      * Endpoints are registered as SRV records in DNS so this method returns
      * endpoints in the format "host:port". This is a list as SRV records are ordered
      * by priority & weight before being returned to the client.
-     *
+     * <p/>
      * See https://github.com/GoogleCloudPlatform/kubernetes/blob/master/cluster/addons/dns/README.md
      */
     public static List<String> lookupServiceEndpointsInDns(String serviceName) throws IllegalArgumentException, UnknownHostException {
@@ -1815,5 +1824,37 @@ public final class KubernetesHelper {
             return name.startsWith("io.fabric8.kubernetes");
         }
         return false;
+    }
+
+
+    static boolean isOpenShift(KubernetesClient client) {
+        if (client instanceof OpenShiftClient) {
+            URL masterUrl = client.getMasterUrl();
+            if (IS_OPENSHIFT.containsKey(masterUrl)) {
+                return IS_OPENSHIFT.get(masterUrl);
+            } else {
+                RootPaths rootPaths = client.rootPaths();
+                if (rootPaths != null) {
+                    List<String> paths = rootPaths.getPaths();
+                    if (paths != null) {
+                        for (String path : paths) {
+                            if (java.util.Objects.equals("/oapi", path) || java.util.Objects.equals("oapi", path)) {
+                                IS_OPENSHIFT.putIfAbsent(masterUrl, true);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            IS_OPENSHIFT.putIfAbsent(masterUrl, false);
+        }
+        return false;
+    }
+
+    static OpenShiftClient toOpenshift(KubernetesClient client) {
+        if (isOpenShift(client)) {
+            return (OpenShiftClient) client;
+        }
+        throw new IllegalArgumentException("Client can be used as openshfit client");
     }
 }

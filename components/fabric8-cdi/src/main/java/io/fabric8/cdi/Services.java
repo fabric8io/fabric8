@@ -19,7 +19,6 @@ package io.fabric8.cdi;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
-import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.utils.Systems;
 
 import java.net.UnknownHostException;
@@ -36,7 +35,7 @@ public class Services {
 
     public static String toServiceUrl(String serviceName, String serviceProtocol, boolean serviceExternal) {
         String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
-        return KubernetesHelper.getServiceURL((OpenShiftClient) KUBERNETES, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
+        return KubernetesHelper.getServiceURL(KUBERNETES, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {

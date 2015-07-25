@@ -68,6 +68,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
+import static io.fabric8.kubernetes.api.KubernetesHelper.toOpenshift;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -76,7 +77,7 @@ public class Controller {
     private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final OpenShiftClient kubernetes;
+    private final KubernetesClient kubernetes;
     private Map<String, Pod> podMap;
     private Map<String, ReplicationController> replicationControllerMap;
     private Map<String, Service> serviceMap;
@@ -98,7 +99,7 @@ public class Controller {
         this(new DefaultKubernetesClient());
     }
 
-    public Controller(OpenShiftClient kubernetes) {
+    public Controller(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 
@@ -221,18 +222,6 @@ public class Controller {
             applyService((Service) dto, sourceName);
         } else if (dto instanceof Namespace) {
             applyNamespace((Namespace) dto);
-        } else if (dto instanceof Route) {
-            applyRoute((Route) dto, sourceName);
-        } else if (dto instanceof BuildConfig) {
-            applyBuildConfig((BuildConfig) dto, sourceName);
-        } else if (dto instanceof DeploymentConfig) {
-            applyDeploymentConfig((DeploymentConfig) dto, sourceName);
-        } else if (dto instanceof ImageStream) {
-            applyImageStream((ImageStream) dto, sourceName);
-        } else if (dto instanceof OAuthClient) {
-            applyOAuthClient((OAuthClient) dto, sourceName);
-        } else if (dto instanceof Template) {
-            applyTemplate((Template) dto, sourceName);
         } else if (dto instanceof ServiceAccount) {
             applyServiceAccount((ServiceAccount) dto, sourceName);
         } else if (dto instanceof Secret) {
@@ -243,6 +232,7 @@ public class Controller {
     }
 
     public void applyOAuthClient(OAuthClient entity, String sourceName) {
+        OpenShiftClient openShiftClient = toOpenshift(kubernetes);
         if (supportOAuthClients) {
             String id = getName(entity);
             Objects.notNull(id, "No name for " + entity + " " + sourceName);
@@ -250,7 +240,7 @@ public class Controller {
                 LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
                 return;
             }
-            OAuthClient old = kubernetes.oAuthClients().withName(id).get();
+            OAuthClient old = openShiftClient.oAuthClients().withName(id).get();
             if (isRunning(old)) {
                 if (isIgnoreRunningOAuthClients()) {
                     LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
@@ -260,11 +250,11 @@ public class Controller {
                     LOG.info("OAuthClient hasn't changed so not doing anything");
                 } else {
                     if (isRecreateMode()) {
-                        kubernetes.oAuthClients().withName(id).delete();
+                        openShiftClient.oAuthClients().withName(id).delete();
                         doCreateOAuthClient(entity, sourceName);
                     } else {
                         try {
-                            Object answer = kubernetes.oAuthClients().withName(id).update(entity);
+                            Object answer = openShiftClient.oAuthClients().withName(id).update(entity);
                             LOG.info("Updated pod result: " + answer);
                         } catch (Exception e) {
                             onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
@@ -284,7 +274,7 @@ public class Controller {
     protected void doCreateOAuthClient(OAuthClient entity, String sourceName) {
         Object result = null;
         try {
-            result = kubernetes.oAuthClients().create(entity);
+            result = toOpenshift(kubernetes).oAuthClients().create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
         }
@@ -566,17 +556,18 @@ public class Controller {
     }
 
     public void applyRoute(Route entity, String sourceName) {
+        OpenShiftClient openShiftClient = toOpenshift(kubernetes);
         String id = getName(entity);
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         if (Strings.isNullOrBlank(namespace)) {
             namespace = getNamespace();
         }
-        Route route = kubernetes.routes().inNamespace(namespace).withName(id).get();
+        Route route = openShiftClient.routes().inNamespace(namespace).withName(id).get();
         if (route == null) {
             try {
                 LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
-                kubernetes.routes().inNamespace(namespace).create(entity);
+                openShiftClient.routes().inNamespace(namespace).create(entity);
             } catch (Exception e) {
                 onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
             }
@@ -585,18 +576,20 @@ public class Controller {
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
         String id = getName(entity);
+        OpenShiftClient openShiftClient = toOpenshift(kubernetes);
+
         Objects.notNull(id, "No name for " + entity + " " + sourceName);
         String namespace = KubernetesHelper.getNamespace(entity);
         if (Strings.isNullOrBlank(namespace)) {
             namespace = getNamespace();
         }
-        BuildConfig old = kubernetes.buildConfigs().inNamespace(namespace).withName(id).get();
+        BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(entity, old)) {
                 LOG.info("BuildConfig hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
-                    kubernetes.buildConfigs().inNamespace(namespace).withName(id).delete();
+                    openShiftClient.buildConfigs().inNamespace(namespace).withName(id).delete();
                     doCreateBuildConfig(entity, namespace, sourceName);
                 } else {
                     LOG.info("Updating BuildConfig from " + sourceName);
@@ -605,7 +598,7 @@ public class Controller {
                         ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
                         metadata.setNamespace(namespace);
                         metadata.setResourceVersion(resourceVersion);
-                        Object answer = kubernetes.buildConfigs().inNamespace(namespace).withName(id).update(entity);
+                        Object answer = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).update(entity);
                         logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
@@ -623,7 +616,7 @@ public class Controller {
 
     public void doCreateBuildConfig(BuildConfig entity, String namespace ,String sourceName) {
         try {
-            kubernetes.buildConfigs().inNamespace(namespace).create(entity);
+            toOpenshift(kubernetes).buildConfigs().inNamespace(namespace).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
@@ -631,7 +624,7 @@ public class Controller {
 
     public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
         try {
-            kubernetes.deploymentConfigs().inNamespace(getNamespace()).create(entity);
+            toOpenshift(kubernetes).deploymentConfigs().inNamespace(getNamespace()).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
         }
@@ -639,7 +632,7 @@ public class Controller {
 
     public void applyImageStream(ImageStream entity, String sourceName) {
         try {
-            kubernetes.imageStreams().inNamespace(getNamespace()).create(entity);
+            toOpenshift(kubernetes).imageStreams().inNamespace(getNamespace()).create(entity);
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }

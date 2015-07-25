@@ -18,7 +18,6 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.kubernetes.api.Controller;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.OpenShiftClient;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -32,6 +31,6 @@ public class ControllerCreator {
 
     public void createController(@Observes KubernetesClient client) {
         //TODO: do something for this cast.
-        kubernetesControllerProducer.set(new Controller((OpenShiftClient) client));
+        kubernetesControllerProducer.set(new Controller(client));
     }
 }
