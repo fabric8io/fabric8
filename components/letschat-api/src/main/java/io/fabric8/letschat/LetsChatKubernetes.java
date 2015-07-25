@@ -15,8 +15,9 @@
  */
 package io.fabric8.letschat;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.slf4j.Logger;
@@ -37,16 +38,16 @@ public class LetsChatKubernetes {
         String password = Systems.getEnvVarOrSystemProperty(LETSCHAT_HUBOT_PASSWORD, "RedHat$1");
         String token = Systems.getEnvVarOrSystemProperty(LETSCHAT_HUBOT_TOKEN);
 
-        String namespace = kubernetes.getNamespace();
+        String namespace = KubernetesHelper.defaultNamespace();
         String address;
         try {
-            address = kubernetes.getServiceURL(ServiceNames.LETSCHAT, namespace, "http", true);
+            address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.LETSCHAT, namespace, "http", true);
             if (Strings.isNullOrBlank(address)) {
-                LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+                LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
                 return null;
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+            LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
             return null;
         }
         LOG.info("Logging into LetsChat at " + address + " as user " + userName);

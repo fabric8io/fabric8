@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
 import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
 
 /**

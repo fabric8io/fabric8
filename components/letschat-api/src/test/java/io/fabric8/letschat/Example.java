@@ -15,10 +15,10 @@
  */
 package io.fabric8.letschat;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  */
@@ -30,7 +30,7 @@ public class Example {
         }
 
         try {
-            KubernetesClient kubernetes = new KubernetesClient();
+            OpenShiftClient kubernetes = new DefaultKubernetesClient();
             LetsChatClient letschat = LetsChatKubernetes.createLetsChat(kubernetes);
 
             System.out.println("Connecting to letschat on: " + letschat.getAddress());
