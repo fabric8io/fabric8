@@ -2,11 +2,12 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.gerrit.ProjectInfoDTO;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.gerrit.GitApi;
 import io.fabric8.gerrit.CreateRepositoryDTO;
 import io.fabric8.gerrit.RepositoryDTO;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -79,7 +80,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
             String description = this.description;
             String empty_commit = this.empty_commit;
 
-            createGerritRepo(kubernetes, log, gerritUser, gerritPwd, repoName, description, empty_commit);
+            createGerritRepo(kubernetes, getNamespace(), log, gerritUser, gerritPwd, repoName, description, empty_commit);
 
         } catch (MojoExecutionException e) {
             throw e;
@@ -88,7 +89,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
     }
 
-    private static boolean createGerritRepo(KubernetesClient kubernetes, Log log, String gerritUser, String gerritPwd, String repoName, String description, String empty_commit) throws MojoExecutionException, JsonProcessingException {
+    private static boolean createGerritRepo(KubernetesClient kubernetes, String namespace, Log log, String gerritUser, String gerritPwd, String repoName, String description, String empty_commit) throws MojoExecutionException, JsonProcessingException {
 
         // lets add defaults if not env vars
         if (Strings.isNullOrBlank(gerritUser)) {
@@ -98,14 +99,13 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
             gerritPwd = "secret";
         }
 
-        String namespace = kubernetes.getNamespace();
-        String gerritAddress = kubernetes.getServiceURL(ServiceNames.GERRIT, namespace, "http", true);
-        log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
+        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
+        log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         if (Strings.isNullOrBlank(gerritAddress)) {
             throw new MojoExecutionException("No address for service " + ServiceNames.GERRIT + " in namespace: "
-                    + namespace + " on Kubernetes address: " + kubernetes.getAddress());
+                    + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         }
-        log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
+        log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
 
         List<Object> providers = WebClients.createProviders();
         providers.add(new RemovePrefix());

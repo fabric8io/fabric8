@@ -18,9 +18,9 @@ package io.fabric8.maven;
 import java.util.List;
 
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Route;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,10 +41,10 @@ public class CreateRoutesMojo extends AbstractNamespacedMojo {
         try {
             KubernetesClient kubernetes = getKubernetes();
             Controller controller = createController();
-            String namespace = kubernetes.getNamespace();
+            String namespace = getNamespace();
             Log log = getLog();
-            log.info("Querying services in namespace: " + namespace + " on Kubernetes address: " + kubernetes.getAddress());
-            ServiceList services = kubernetes.getServices(namespace);
+            log.info("Querying services in namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
+            ServiceList services = kubernetes.services().inNamespace(namespace).list();
             if (services != null) {
                 List<Service> items = services.getItems();
                 if (items != null) {

@@ -17,7 +17,6 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -25,6 +24,7 @@ import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -41,7 +41,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +49,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -156,7 +154,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
         }
         KubernetesClient kubernetes = getKubernetes();
-        getLog().info("Using kubernetes at: " + kubernetes.getAddress() + " in namespace " + kubernetes.getNamespace());
+        getLog().info("Using kubernetes at: " + kubernetes.getMasterUrl() + " in namespace " + getNamespace());
 
         getLog().info("Kubernetes JSON: " + json);
 
@@ -171,7 +169,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setProcessTemplatesLocally(processTemplatesLocally);
             controller.setDeletePodsOnReplicationControllerUpdate(deletePodsOnReplicationControllerUpdate);
 
-            boolean openShift = kubernetes.isOpenShift();
+            boolean openShift = KubernetesHelper.isOpenShift(kubernetes);
             getLog().info("Is OpenShift: " + openShift);
             if (!openShift) {
                 disableOpenShiftFeatures(controller);
@@ -185,7 +183,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
 
             // lets check we have created the namespace
-            String namespace = kubernetes.getNamespace();
+            String namespace = getNamespace();
             controller.applyNamespace(namespace);
 
             if (dto instanceof Template) {
@@ -263,7 +261,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     }
 
     protected Object applyTemplates(Template template, KubernetesClient kubernetes, Controller controller, String fileName) throws Exception {
-        KubernetesHelper.setNamespace(template, kubernetes.getNamespace());
+        KubernetesHelper.setNamespace(template, getNamespace());
         overrideTemplateParameters(template);
         return controller.applyTemplate(template, fileName);
     }
@@ -275,10 +273,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             log.warn("No fabric8.domain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
             return;
         }
-        String namespace = kubernetes.getNamespace();
+        String namespace = getNamespace();
         // lets get the routes first to see if we should bother
         try {
-            RouteList routes = kubernetes.getRoutes(namespace);
+            RouteList routes = KubernetesHelper.toOpenshift(kubernetes).routes().inNamespace(namespace).list();
             if (routes != null) {
                 List<Route> items = routes.getItems();
             }

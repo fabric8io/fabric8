@@ -15,41 +15,15 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.connector.DevOpsConnector;
-import io.fabric8.devops.connector.WebHooks;
-import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.letschat.LetsChatClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatKubernetes;
-import io.fabric8.letschat.RoomDTO;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildConfigFluent;
-import io.fabric8.repo.git.GitRepoClient;
-import io.fabric8.repo.git.GitRepoKubernetes;
-import io.fabric8.taiga.ModuleDTO;
-import io.fabric8.taiga.ProjectDTO;
-import io.fabric8.taiga.TaigaClient;
-import io.fabric8.taiga.TaigaKubernetes;
-import io.fabric8.taiga.TaigaModule;
-import io.fabric8.utils.GitHelpers;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.URLUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Uses the <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector">DevOps Connector</a>

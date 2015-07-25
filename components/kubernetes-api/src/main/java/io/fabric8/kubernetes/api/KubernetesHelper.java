@@ -1827,7 +1827,7 @@ public final class KubernetesHelper {
     }
 
 
-    static boolean isOpenShift(KubernetesClient client) {
+    public static boolean isOpenShift(KubernetesClient client) {
         if (client instanceof OpenShiftClient) {
             URL masterUrl = client.getMasterUrl();
             if (IS_OPENSHIFT.containsKey(masterUrl)) {
@@ -1851,7 +1851,7 @@ public final class KubernetesHelper {
         return false;
     }
 
-    static OpenShiftClient toOpenshift(KubernetesClient client) {
+    public static OpenShiftClient toOpenshift(KubernetesClient client) {
         if (isOpenShift(client)) {
             return (OpenShiftClient) client;
         }

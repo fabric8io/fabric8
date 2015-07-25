@@ -15,7 +15,6 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
@@ -32,14 +31,15 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.maven.support.DefaultExcludedEnvVariablesEnum;
 import io.fabric8.maven.support.DockerCommandPlainPrint;
 import io.fabric8.maven.support.IDockerCommandPlainPrintCostants;
 import io.fabric8.maven.support.OrderedProperties;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.api.model.RouteSpec;
-import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
@@ -47,6 +47,7 @@ import io.fabric8.utils.TablePrinter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,7 +56,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -206,8 +206,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     Map<String, String> getNamespaceServiceEnv(String namespace) {
         Map<String, String> result = new HashMap<>();
         KubernetesClient kubernetes = getKubernetes();
-        ServiceList serviceList = kubernetes.getServices(namespace);
-        RouteList routeList = kubernetes.getRoutes(namespace);
+        ServiceList serviceList = kubernetes.services().inNamespace(namespace).list();
+        RouteList routeList = listRoutes(kubernetes, namespace);
         for (Service service : serviceList.getItems()) {
             String serviceName = KubernetesHelper.getName(service);
             String id = serviceName.toUpperCase().replace("-", "_");
@@ -233,6 +233,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         }
         return result;
     }
+
+
 
 
     /**
@@ -497,6 +499,14 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             writer.append("#!/bin/bash").append("\n");
             writer.append(printer.getDockerPlainTextCommand().toString()).append("\n");
             writer.flush();
+        }
+    }
+
+    private static RouteList listRoutes(KubernetesClient client, String namespace) {
+        if (KubernetesHelper.isOpenShift(client)) {
+            return KubernetesHelper.toOpenshift(client).routes().inNamespace(namespace).list();
+        } else {
+            return new RouteListBuilder().build();
         }
     }
 

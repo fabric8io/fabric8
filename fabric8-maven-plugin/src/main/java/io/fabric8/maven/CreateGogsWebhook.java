@@ -16,9 +16,8 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.devops.connector.WebHooks;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,7 +27,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 
 /**
  * Creates a web hook in a gogs repository
@@ -79,7 +77,7 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
 
             GitRepoClient gitRepoClient = GitRepoKubernetes.createGitRepoClient(getKubernetes(), gogsUser, gogsPassword);
             if (gitRepoClient == null) {
-                getLog().error("No Gogs service found in kubernetes at address " + kubernetes.getAddress() + " namespace " + kubernetes.getNamespace());
+                getLog().error("No Gogs service found in kubernetes at address " + kubernetes.getMasterUrl() + " namespace " + getNamespace());
             } else {
                 // TODO should ideally reuse the mojo Log
                 Logger logger = LoggerFactory.getLogger(CreateGogsWebhook.class);

@@ -15,8 +15,6 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.maven.support.JsonSchema;

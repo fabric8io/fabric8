@@ -17,14 +17,16 @@
 package io.fabric8.maven;
 
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
-    @Parameter(property = "fabric8.namespace")
+    @Parameter(property = "fabric8.namespace", defaultValue = "${env.KUBERNETES_NAMESPACE}")
     private String namespace;
 
     /**
@@ -48,13 +50,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     private KubernetesClient kubernetes;
 
     public KubernetesClient getKubernetes() {
-        if (kubernetes == null) {
-            kubernetes = new KubernetesClient();
-        }
-        if (Strings.isNotBlank(namespace)) {
-            kubernetes.setNamespace(namespace);
-        }
-        return kubernetes;
+        return new DefaultKubernetesClient();
     }
 
     protected Controller createController() {
@@ -65,8 +61,11 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         return controller;
     }
 
-    protected String getNamespace() {
-        return getKubernetes().getNamespace();
+    protected synchronized String getNamespace() {
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = KubernetesHelper.defaultNamespace();
+        }
+        return namespace;
     }
 
     public String getRouteDomain() {

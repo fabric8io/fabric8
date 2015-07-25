@@ -15,11 +15,11 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -47,7 +47,7 @@ public class DeletePodsMojo extends AbstractFabric8Mojo {
             return;
         }
         KubernetesClient kubernetes = getKubernetes();
-        PodList podList = kubernetes.getPods();
+        PodList podList = kubernetes.pods().inNamespace(getNamespace()).list();
         int count = 0;
         if (podList != null) {
             List<Pod> items = podList.getItems();
@@ -55,7 +55,7 @@ public class DeletePodsMojo extends AbstractFabric8Mojo {
                 for (Pod pod : items) {
                     if (podUsesDockerImage(pod, dockerImage)) {
                         try {
-                            kubernetes.deletePod(pod);
+                            kubernetes.pods().inNamespace(getNamespace()).withName(KubernetesHelper.getName(pod)).delete();
                             count++;
                         } catch (Exception e) {
                             getLog().error("Failed to delete pod " + getName(pod) + " namespace: " + KubernetesHelper.getNamespace(pod));
@@ -65,9 +65,9 @@ public class DeletePodsMojo extends AbstractFabric8Mojo {
             }
         }
         if (count == 0) {
-            getLog().info("No pods found using image " + dockerImage + " in namespace: " + kubernetes.getNamespace() + " on address: " + kubernetes.getAddress());
+            getLog().info("No pods found using image " + dockerImage + " in namespace: " + getNamespace() + " on address: " + kubernetes.getMasterUrl());
         } else {
-            getLog().info("Deleted " + count + " pod(s) using image " + dockerImage + " in namespace: " + kubernetes.getNamespace() + " on address: " + kubernetes.getAddress());
+            getLog().info("Deleted " + count + " pod(s) using image " + dockerImage + " in namespace: " + getNamespace() + " on address: " + kubernetes.getMasterUrl());
         }
     }
 
