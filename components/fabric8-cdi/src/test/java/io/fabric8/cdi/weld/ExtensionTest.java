@@ -93,17 +93,17 @@ public class ExtensionTest {
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library[/]*")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(APP_LIBRARY_SERVICE_JSON);
-                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes[/]*")) {
+                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
                             .setBody(EMPTY_ROUTES_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints[/]*")) {
+                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints[/]?")) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
