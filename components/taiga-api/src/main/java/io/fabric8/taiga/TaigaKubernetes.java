@@ -15,8 +15,9 @@
  */
 package io.fabric8.taiga;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.slf4j.Logger;
@@ -28,20 +29,19 @@ import org.slf4j.LoggerFactory;
 public class TaigaKubernetes {
     private static final transient Logger LOG = LoggerFactory.getLogger(TaigaKubernetes.class);
 
-    public static TaigaClient createTaiga(KubernetesClient kubernetes) {
+    public static TaigaClient createTaiga(KubernetesClient kubernetes, String namespace) {
         String userName = Systems.getEnvVarOrSystemProperty("TAIGA_USERNAME", "admin");
         String password = Systems.getEnvVarOrSystemProperty("TAIGA_PASSWORD", "123123");
 
-        String namespace = kubernetes.getNamespace();
         String address = null;
         try {
-            address = kubernetes.getServiceURL(ServiceNames.TAIGA, namespace, "http", true);
+            address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.TAIGA, namespace, "http", true);
             if (Strings.isNullOrBlank(address)) {
-                LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+                LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
                 return null;
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getAddress());
+            LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
             return null;
         }
         LOG.info("Logging into Taiga at " + address + " as user " + userName);

@@ -15,7 +15,10 @@
  */
 package io.fabric8.taiga;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +33,8 @@ public class Example {
         }
 
         try {
-            KubernetesClient kubernetes = new KubernetesClient();
-            TaigaClient taiga = TaigaKubernetes.createTaiga(kubernetes);
+            KubernetesClient kubernetes = new DefaultKubernetesClient();
+            TaigaClient taiga = TaigaKubernetes.createTaiga(kubernetes, KubernetesHelper.defaultNamespace());
 
             System.out.println("Connecting to taiga on: " + taiga.getAddress());
 
