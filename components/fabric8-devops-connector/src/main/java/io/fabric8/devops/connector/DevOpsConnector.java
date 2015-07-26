@@ -18,9 +18,11 @@ package io.fabric8.devops.connector;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
@@ -100,7 +102,7 @@ public class DevOpsConnector {
     private String flowGitUrl = System.getenv("JENKINS_WORKFLOW_GIT_REPOSITORY");
 
     private boolean recreateMode;
-    private String namespace;
+    private String namespace = KubernetesHelper.defaultNamespace();
     private boolean tryLoadConfigFileFromRemoteGit = true;
     private boolean modifiedConfig;
     private boolean registerWebHooks;
@@ -171,7 +173,7 @@ public class DevOpsConnector {
         Map<String, String> annotations = new HashMap<>();
         jenkinsJobUrl = null;
         try {
-            String jenkinsUrl = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", true);
+            String jenkinsUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", true);
 
             if (Strings.isNotBlank(jenkinsUrl)) {
                 if (Strings.isNotBlank(jenkinsMonitorView)) {
@@ -222,7 +224,7 @@ public class DevOpsConnector {
 
         ProjectConfigs.defaultEnvironments(projectConfig);
 
-        String consoleUrl = kubernetes.getServiceURL(ServiceNames.FABRIC8_CONSOLE, kubernetes.getNamespace(), "http", true);
+        String consoleUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.FABRIC8_CONSOLE, namespace, "http", true);
         if (Strings.isNotBlank(consoleUrl) && projectConfig != null) {
             Map<String, String> environments = projectConfig.getEnvironments();
             if (environments != null) {
@@ -266,7 +268,7 @@ public class DevOpsConnector {
         Controller controller = createController();
         try {
             controller.applyBuildConfig(buildConfig, "maven");
-            getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getAddress());
+            getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getMasterUrl());
         } catch (Exception e) {
             getLog().error("Failed to create BuildConfig for " + KubernetesHelper.toJson(buildConfig) + ". " + e, e);
         }
@@ -316,13 +318,7 @@ public class DevOpsConnector {
     }
 
     public KubernetesClient getKubernetes() {
-        if (kubernetes == null) {
-            kubernetes = new KubernetesClient();
-        }
-        if (Strings.isNotBlank(namespace)) {
-            kubernetes.setNamespace(namespace);
-        }
-        return kubernetes;
+            return new DefaultKubernetesClient();
     }
 
     public GitRepoClient getGitRepoClient() {
@@ -675,10 +671,7 @@ public class DevOpsConnector {
 
     protected String evaluateRoomExpression(String roomExpresion) {
         if (Strings.isNotBlank(roomExpresion)) {
-            String namespace = getKubernetes().getNamespace();
-            if (namespace == null) {
-                namespace = KubernetesClient.defaultNamespace();
-            }
+            String namespace = KubernetesHelper.defaultNamespace();
             String answer = roomExpresion;
             answer = replaceExpression(answer, "namespace", namespace);
             answer = replaceExpression(answer, "repoName", repoName);
@@ -705,7 +698,7 @@ public class DevOpsConnector {
         KubernetesClient kubernetes = getKubernetes();
         LetsChatClient letsChat = LetsChatKubernetes.createLetsChat(kubernetes);
         if (letsChat == null) {
-            getLog().warn("No letschat service availble n kubernetes " + kubernetes.getNamespace() + " on address: " + kubernetes.getAddress());
+            getLog().warn("No letschat service availble n kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
             return null;
         }
         if (!letsChat.isValid()) {
@@ -719,7 +712,7 @@ public class DevOpsConnector {
         if (!taigaEnabled) {
             return null;
         }
-        TaigaClient taiga = TaigaKubernetes.createTaiga(getKubernetes());
+        TaigaClient taiga = TaigaKubernetes.createTaiga(getKubernetes(), namespace);
         if (taiga != null) {
             taiga.setAutoCreateProjects(taigaAutoCreate);
         }
@@ -832,7 +825,7 @@ public class DevOpsConnector {
     }
 
     protected void postJenkinsBuild(String jobName, String xml) {
-        String address = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", false);
+        String address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, namespace, "http", false);
         if (Strings.isNotBlank(address)) {
             String jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
 
