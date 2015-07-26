@@ -63,7 +63,7 @@ public class PodsList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        PodList pods = getKubernetes().getPods();
+        PodList pods = getKubernetes().pods().inNamespace(getNamespace()).list();
         KubernetesHelper.removeEmptyPods(pods);
         TablePrinter table = podsAsTable(pods);
         return tableResults(table);

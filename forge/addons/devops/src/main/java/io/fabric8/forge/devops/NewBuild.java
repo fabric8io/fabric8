@@ -129,7 +129,7 @@ public class NewBuild extends AbstractDevOpsCommand {
         Controller controller = createController();
         controller.applyImageStream(imageRepository, "generated ImageStream: " + toJson(imageRepository));
         controller.applyBuildConfig(buildConfig, "generated BuildConfig: " + toJson(buildConfig));
-        return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getAddress());
+        return Results.success("Added BuildConfig: " + Builds.getName(buildConfig) + " to OpenShift at master: " + getKubernetes().getMasterUrl());
     }
 
 }

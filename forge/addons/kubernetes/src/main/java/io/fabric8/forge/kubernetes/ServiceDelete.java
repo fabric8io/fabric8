@@ -63,7 +63,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                ServiceList services = getKubernetes().getServices();
+                ServiceList services = getKubernetes().services().inNamespace(getNamespace()).list();
                 if (services != null) {
                     List<Service> items = services.getItems();
                     if (items != null) {
@@ -84,7 +84,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String idText = serviceId.getValue();
-        Service service = getKubernetes().getService(idText);
+        Service service = getKubernetes().services().inNamespace(getNamespace()).withName(idText).get();
         if (service == null) {
             System.out.println("No service for id: " + idText);
         } else {
@@ -94,7 +94,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
     }
 
     protected void executeService(Service service) throws Exception {
-        getKubernetes().deleteService(KubernetesHelper.getName(service));
+        getKubernetes().services().inNamespace(getNamespace()).withName(KubernetesHelper.getName(service)).delete();
     }
 }
 

@@ -20,10 +20,10 @@ import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
@@ -32,7 +32,7 @@ import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.URLUtils;
-import io.fabric8.utils.cxf.TrustEverythingSSLTrustManager;
+import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -243,7 +243,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
      */
     protected void triggerJenkinsSeedBuild() {
         if (!Strings.isNullOrEmpty(jenkinsSeedJob)) {
-            String address = kubernetes.getServiceURL(ServiceNames.JENKINS, kubernetes.getNamespace(), "http", false);
+            String address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", false);
             if (!Strings.isNullOrEmpty(address)) {
                 String jobUrl = URLUtils.pathJoin(address, "/job/", jenkinsSeedJob, "/build");
 
@@ -330,11 +330,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String secret = "secret101";
         String builderImage = "fabric8/java-main";
         String osapiVersion = "v1";
-        String namespace = kubernetes.getNamespace();
-        if (Strings.isNullOrEmpty(namespace)) {
-            namespace = KubernetesClient.defaultNamespace();
-            kubernetes.setNamespace(namespace);
-        }
+        String namespace = KubernetesHelper.defaultNamespace();
         String gitServiceName = "gogs";
 
 
@@ -486,7 +482,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             // lets try the cdelivery first
             if (kubeAddress == null) {
                 try {
-                    kubeAddress = kubernetes.getServiceURL(ServiceNames.CDELIVERY_API, namespace, "http", false);
+                    kubeAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.CDELIVERY_API, namespace, "http", false);
                     webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
                     appendNamespaceQuery = false;
                 } catch (Exception e) {
@@ -504,7 +500,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
 */
             if (kubeAddress == null) {
-                kubeAddress = kubernetes.getAddress();
+                kubeAddress = kubernetes.getMasterUrl().toString();
             }
             String namespacePath = "";
             if (appendNamespaceQuery && !Strings.isNullOrEmpty(namespace)) {
@@ -602,7 +598,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
     protected String getServiceAddress(String serviceName, String namespace) {
         LOG.info("Looking up service " + serviceName + " for namespace: " + namespace);
-        io.fabric8.kubernetes.api.model.Service service = kubernetes.getService(serviceName, namespace);
+        io.fabric8.kubernetes.api.model.Service service = kubernetes.services().inNamespace(namespace).withName(serviceName).get();
 
         String serviceAddress = null;
         if (service != null) {

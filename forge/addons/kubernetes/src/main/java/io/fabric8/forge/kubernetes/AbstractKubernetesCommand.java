@@ -15,8 +15,9 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
@@ -39,8 +40,8 @@ import java.io.PrintStream;
  */
 public abstract class AbstractKubernetesCommand extends AbstractProjectCommand implements UICommand {
     public static String CATEGORY = "Kubernetes";
-    private static String namespace;
 
+    private static String namespace = KubernetesHelper.defaultNamespace();
     private KubernetesClient kubernetes;
 
     @Inject
@@ -69,12 +70,9 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
         if (kubernetes == null) {
             String kubernetesAddress = kubernetesUrl.getValue();
             if (Strings.isNotBlank(kubernetesAddress)) {
-                kubernetes = new KubernetesClient(new KubernetesFactory(kubernetesAddress));
+                kubernetes = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesAddress).build());
             } else {
-                kubernetes = new KubernetesClient();
-            }
-            if (namespace != null) {
-                kubernetes.setNamespace(namespace);
+                kubernetes = new DefaultKubernetesClient();
             }
         }
         Objects.notNull(kubernetes, "kubernetes");
@@ -124,13 +122,10 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
     }
 
     public String getNamespace() {
-        return getKubernetes().getNamespace();
+        return namespace;
     }
 
     public void setNamespace(String namespace) {
         AbstractKubernetesCommand.namespace = namespace;
-        if (kubernetes != null) {
-            kubernetes.setNamespace(namespace);
-        }
     }
 }

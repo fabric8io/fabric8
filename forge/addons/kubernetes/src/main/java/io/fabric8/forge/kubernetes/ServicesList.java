@@ -66,7 +66,7 @@ public class ServicesList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        ServiceList services = getKubernetes().getServices();
+        ServiceList services = getKubernetes().services().list();
         printServices(services, System.out);
         return null;
     }

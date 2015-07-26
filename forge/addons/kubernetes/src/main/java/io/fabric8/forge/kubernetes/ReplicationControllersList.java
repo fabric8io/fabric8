@@ -64,7 +64,7 @@ public class ReplicationControllersList extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        ReplicationControllerList replicationControllers = getKubernetes().getReplicationControllers();
+        ReplicationControllerList replicationControllers = getKubernetes().replicationControllers().inNamespace(getNamespace()).list();
         printReplicationControllers(replicationControllers, System.out);
         return null;
     }

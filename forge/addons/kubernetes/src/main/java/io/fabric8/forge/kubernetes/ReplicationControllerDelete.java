@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-
 /**
  * Deletes a replication controller from kubernetes
  */
@@ -63,7 +61,7 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                ReplicationControllerList replicationControllers = getKubernetes().getReplicationControllers();
+                ReplicationControllerList replicationControllers = getKubernetes().replicationControllers().inNamespace(getNamespace()).list();
                 if (replicationControllers != null) {
                     List<ReplicationController> items = replicationControllers.getItems();
                     if (items != null) {
@@ -84,7 +82,7 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String idText = replicationControllerId.getValue();
-        ReplicationController replicationController = getKubernetes().getReplicationController(idText);
+        ReplicationController replicationController = getKubernetes().replicationControllers().inNamespace(getNamespace()).withName(idText).get();
         if (replicationController == null) {
             System.out.println("No replicationController for id: " + idText);
         } else {
@@ -94,7 +92,7 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
     }
 
     protected void executeReplicationController(ReplicationController replicationController) throws Exception {
-        getKubernetes().deleteReplicationController(KubernetesHelper.getName(replicationController));
+        getKubernetes().replicationControllers().inNamespace(getNamespace()).withName(KubernetesHelper.getName(replicationController)).delete();
     }
 }
 

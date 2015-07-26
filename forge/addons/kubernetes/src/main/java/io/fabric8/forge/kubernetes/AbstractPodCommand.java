@@ -15,10 +15,10 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -32,8 +32,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 
 /**
  * Base class for working with a pod
@@ -52,7 +50,7 @@ public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                PodList pods = getKubernetes().getPods();
+                PodList pods = getKubernetes().pods().list();
                 if (pods != null) {
                     List<Pod> items = pods.getItems();
                     if (items != null) {
@@ -73,10 +71,10 @@ public abstract class AbstractPodCommand extends AbstractKubernetesCommand {
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        Kubernetes kubernetes = getKubernetes();
+        KubernetesClient kubernetes = getKubernetes();
 
         String podIdText = podId.getValue();
-        Pod podInfo = getKubernetes().getPod(podIdText);
+        Pod podInfo = getKubernetes().pods().inNamespace(getNamespace()).withName(podIdText).get();
         if (podInfo == null) {
             System.out.println("No pod for id: " + podIdText);
         } else {

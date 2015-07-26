@@ -16,11 +16,11 @@
 package io.fabric8.forge.devops;
 
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.utils.TablePrinter;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Scm;
@@ -81,9 +81,9 @@ public class AbstractDevOpsCommand extends AbstractProjectCommand implements UIC
         if (kubernetes == null) {
             String kubernetesAddress = kubernetesUrl.getValue();
             if (Strings.isNotBlank(kubernetesAddress)) {
-                kubernetes = new KubernetesClient(new KubernetesFactory(kubernetesAddress));
+                kubernetes = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesAddress).build());
             } else {
-                kubernetes = new KubernetesClient();
+                kubernetes = new DefaultKubernetesClient();
             }
         }
         Objects.notNull(kubernetes, "kubernetes");

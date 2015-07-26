@@ -38,7 +38,7 @@ public class PodDelete extends AbstractPodCommand {
     @Override
     protected void executePod(Pod pod, String podId) throws Exception {
         System.out.println("Deleting pod " + podId);
-        getKubernetes().deletePod(podId);
+        getKubernetes().pods().inNamespace(getNamespace()).withName(podId).delete();
     }
 }
 

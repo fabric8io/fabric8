@@ -19,7 +19,9 @@ import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.forge.addon.utils.CommandHelpers;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
@@ -30,10 +32,8 @@ import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
-import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.resource.Resource;
@@ -92,6 +92,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
     private UIInput<Boolean> codeReview;
 
     private KubernetesClient kubernetes;
+    private String namespace = KubernetesHelper.defaultNamespace();
     private LetsChatClient letsChat;
     private TaigaClient taiga;
     private List<InputComponent> inputComponents;
@@ -457,10 +458,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
     }
 
     public KubernetesClient getKubernetes() {
-        if (kubernetes == null) {
-            kubernetes = new KubernetesClient();
-        }
-        return kubernetes;
+        return new DefaultKubernetesClient();
     }
 
     public LetsChatClient getLetsChat() {
@@ -476,7 +474,7 @@ public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWiza
 
     public TaigaClient getTaiga() {
         if (taiga == null) {
-            taiga = TaigaKubernetes.createTaiga(getKubernetes());
+            taiga = TaigaKubernetes.createTaiga(getKubernetes(),namespace);
         }
         return taiga;
     }
