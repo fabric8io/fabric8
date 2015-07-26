@@ -22,8 +22,6 @@ import io.fabric8.gateway.api.apimanager.ApiManager;
 import io.fabric8.gateway.api.apimanager.ServiceMapping;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
@@ -36,6 +34,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +58,8 @@ public class HttpMappingKubeCache implements Runnable {
 
     public void init(HTTPGatewayConfig configuation) {
         String kubernetesMaster = configuation.getKubernetesMaster();
-        KubernetesFactory factory = new KubernetesFactory(kubernetesMaster);
         contextPathsCache = new ArrayList<String>();
-        client = new KubernetesClient(factory);
+        client = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesMaster).build());
         //for now simply check in with kubernetes every 5 seconds
         //it'd be nice if kubernetes can callback into our cache.
         serviceCacheExecutor.scheduleWithFixedDelay(this, 0, 5, SECONDS);
@@ -103,7 +102,7 @@ public class HttpMappingKubeCache implements Runnable {
         List<String> currentCache = new ArrayList<String>();
         currentCache.addAll(contextPathsCache);
         try {
-            ServiceList serviceList = client.getServices();
+            ServiceList serviceList = client.services().list();
             
             for (Service service1 : serviceList.getItems()) {
                 Map<String, String> selector = getSelector(service1);
