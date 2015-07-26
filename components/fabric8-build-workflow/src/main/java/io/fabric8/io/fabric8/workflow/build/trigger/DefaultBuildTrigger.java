@@ -15,15 +15,27 @@
  */
 package io.fabric8.io.fabric8.workflow.build.trigger;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
+import com.ning.http.client.ws.WebSocket;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.builds.Builds;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.openshift.api.model.Build;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  */
 public class DefaultBuildTrigger implements BuildTrigger {
+
     private final KubernetesClient kubernetes;
 
     public DefaultBuildTrigger() {
-        this(new KubernetesClient());
+        this(new DefaultKubernetesClient());
     }
 
     public DefaultBuildTrigger(KubernetesClient kubernetes) {
@@ -31,7 +43,19 @@ public class DefaultBuildTrigger implements BuildTrigger {
     }
 
     @Override
-    public String trigger(String namespace, String buildName) {
-        return kubernetes.triggerBuildAndGetUuid(buildName, namespace);
+    public String trigger(String namespace, final String buildName) {
+        final BlockingQueue<String> uuid = new ArrayBlockingQueue<>(1);
+        try (WebSocket webSocket = KubernetesHelper.toOpenshift(kubernetes).builds().inNamespace(namespace).watch(new Watcher<Build>() {
+            @Override
+            public void eventReceived(Action action, Build build) {
+                if (action == Action.ADDED && KubernetesHelper.getName(build).equals(buildName)) {
+                    uuid.add(Builds.getUid(build));
+                }
+            }
+        })) {
+            return uuid.poll(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw KubernetesClientException.launderThrowable(e);
+        }
     }
 }
