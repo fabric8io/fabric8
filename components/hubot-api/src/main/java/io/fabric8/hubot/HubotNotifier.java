@@ -15,25 +15,17 @@
  */
 package io.fabric8.hubot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.cfg.Annotations;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.ExceptionResponseMapper;
-import io.fabric8.utils.Strings;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesFactory.createObjectMapper;
 import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
 import static io.fabric8.utils.cxf.WebClients.createProviders;
 import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
