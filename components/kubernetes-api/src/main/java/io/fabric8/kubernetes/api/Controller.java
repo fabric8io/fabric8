@@ -240,7 +240,7 @@ public class Controller {
                 LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
                 return;
             }
-            OAuthClient old = openShiftClient.oAuthClients().withName(id).get();
+            OAuthClient old = openShiftClient.oAuthClients().withName(id).getIfExists();
             if (isRunning(old)) {
                 if (isIgnoreRunningOAuthClients()) {
                     LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
@@ -288,7 +288,7 @@ public class Controller {
             String namespace = getNamespace();
             String id = getName(entity);
             Objects.notNull(id, "No name for " + entity + " " + sourceName);
-            Template old = kubernetes.templates().inNamespace(namespace).withName(id).get();
+            Template old = kubernetes.templates().inNamespace(namespace).withName(id).getIfExists();
             if (isRunning(old)) {
                 if (UserConfigurationCompare.configEqual(entity, old)) {
                     LOG.info("Template hasn't changed so not doing anything");
@@ -341,7 +341,7 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ServiceAccount: " + id);
             return;
         }
-        ServiceAccount old = kubernetes.serviceAccounts().inNamespace(namespace).withName(id).get();
+        ServiceAccount old = kubernetes.serviceAccounts().inNamespace(namespace).withName(id).getIfExists();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(serviceAccount, old)) {
                 LOG.info("ServiceAccount hasn't changed so not doing anything");
@@ -393,7 +393,7 @@ public class Controller {
             return;
         }
 
-        Secret old = kubernetes.secrets().inNamespace(namespace).withName(id).get();
+        Secret old = kubernetes.secrets().inNamespace(namespace).withName(id).getIfExists();
         // check if the secret already exists or not
         if (isRunning(old)) {
             // if the secret already exists and is the same, then do nothing
@@ -563,7 +563,7 @@ public class Controller {
         if (Strings.isNullOrBlank(namespace)) {
             namespace = getNamespace();
         }
-        Route route = openShiftClient.routes().inNamespace(namespace).withName(id).get();
+        Route route = openShiftClient.routes().inNamespace(namespace).withName(id).getIfExists();
         if (route == null) {
             try {
                 LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
@@ -583,7 +583,7 @@ public class Controller {
         if (Strings.isNullOrBlank(namespace)) {
             namespace = getNamespace();
         }
-        BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).get();
+        BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).getIfExists();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(entity, old)) {
                 LOG.info("BuildConfig hasn't changed so not doing anything");
@@ -655,7 +655,7 @@ public class Controller {
             LOG.debug("Ignoring Service: " + namespace + ":" + id);
             return;
         }
-        Service old = kubernetes.services().inNamespace(namespace).withName(id).get();
+        Service old = kubernetes.services().inNamespace(namespace).withName(id).getIfExists();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(service, old)) {
                 LOG.info("Service hasn't changed so not doing anything");
@@ -708,7 +708,7 @@ public class Controller {
         LOG.info("Creating a namespace " + namespace);
         String name = getName(entity);
         Objects.notNull(name, "No name for " + entity );
-        Namespace old = kubernetes.namespaces().withName(name).get();
+        Namespace old = kubernetes.namespaces().withName(name).getIfExists();
         if (!isRunning(old)) {
             try {
                 Object answer = kubernetes.namespaces().create(entity);
@@ -727,7 +727,7 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
         }
-        ReplicationController old = kubernetes.replicationControllers().inNamespace(namespace).withName(id).get();
+        ReplicationController old = kubernetes.replicationControllers().inNamespace(namespace).withName(id).getIfExists();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(replicationController, old)) {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
@@ -811,7 +811,7 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring Pod: " + namespace + ":" + id);
             return;
         }
-        Pod old = kubernetes.pods().inNamespace(namespace).withName(id).get();
+        Pod old = kubernetes.pods().inNamespace(namespace).withName(id).getIfExists();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(pod, old)) {
                 LOG.info("Pod hasn't changed so not doing anything");

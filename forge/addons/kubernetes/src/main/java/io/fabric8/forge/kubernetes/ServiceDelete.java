@@ -84,7 +84,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String idText = serviceId.getValue();
-        Service service = getKubernetes().services().inNamespace(getNamespace()).withName(idText).get();
+        Service service = getKubernetes().services().inNamespace(getNamespace()).withName(idText).getIfExists();
         if (service == null) {
             System.out.println("No service for id: " + idText);
         } else {

@@ -50,7 +50,7 @@ public class ViewEndpoints {
 
     protected static void listEndpoints(KubernetesClient client, String service, String namespace)  throws Exception {
         if (service != null) {
-            Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(service).get();
+            Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(service).getIfExists();
             display(endpoints);
 
         } else {

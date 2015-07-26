@@ -1258,7 +1258,7 @@ public final class KubernetesHelper {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(namespace)) {
-            srv = client.services().inNamespace(namespace).withName(serviceName).get();
+            srv = client.services().inNamespace(namespace).withName(serviceName).getIfExists();
         } else {
             for (Service s : client.services().list().getItems()) {
                 String sid = getName(s);
@@ -1784,10 +1784,10 @@ public final class KubernetesHelper {
     public static Secret validateSecretExists(KubernetesClient kubernetes, String namespace, String secretName) {
         Secret secret = null;
         try {
-            secret = kubernetes.secrets().inNamespace(namespace).withName(secretName).get();
+            secret = kubernetes.secrets().inNamespace(namespace).withName(secretName).getIfExists();
         } catch (KubernetesClientException e) {
-            if (e.getCode() == 404) {
-                // does not exist
+            if (e.getCode() == 404 || e.getCode() == 403) {
+                // does not exist or namespace does not exists
             } else {
                 throw e;
             }
