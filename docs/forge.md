@@ -27,7 +27,11 @@ The [Apache Camel](http://camel.apache.org/) commands allow you to do all kinds 
 
 ### DevOps
 
-The **DevOps** commands help you 
+The **DevOps** commands help you to 
+
+* create new projects
+* configure the DevOps configuration of a project via the [fabric8.yml file](fabric8YmlFile.html)
+* generate new integration or system tests for a project
 
 ### Kubernetes
 
