@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="1" data-basepath="." data-revision="Mon Jul 27 2015 08:25:05 GMT+0000 (UTC)">
+    <div class="book" data-level="1" data-basepath="." data-revision="Mon Jul 27 2015 09:40:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -483,7 +483,7 @@
                         
                             <b>5.</b>
                         
-                        Tools
+                        Fabric8 Tools
                     </a>
                 
             
@@ -668,13 +668,28 @@
             
         </li>
     
-        <li class="chapter " data-level="5.2" data-path="javaLibraries.html">
+        <li class="chapter " data-level="5.2" data-path="testing.html">
+            
+                
+                    <a href="./testing.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.2.</b>
+                        
+                        Integration and System Testing
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3" data-path="javaLibraries.html">
             
                 
                     <a href="./javaLibraries.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>5.2.</b>
+                            <b>5.3.</b>
                         
                         Java Libraries
                     </a>
@@ -683,30 +698,15 @@
             
         </li>
     
-        <li class="chapter " data-level="5.3" data-path="cdi.html">
+        <li class="chapter " data-level="5.4" data-path="cdi.html">
             
                 
                     <a href="./cdi.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>5.3.</b>
-                        
-                        CDI
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.4" data-path="testing.html">
-            
-                
-                    <a href="./testing.html">
-                        <i class="fa fa-check"></i>
-                        
                             <b>5.4.</b>
                         
-                        Testing
+                        CDI
                     </a>
                 
             
@@ -1127,23 +1127,31 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="overview"><a name="overview" class="plugin-anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
-<p>Fabric8 provides a number of <a href="fabric8Apps.html">applications</a> on top of <a href="http://kubernetes.io" target="_blank">Kubernetes</a> and <a href="http://www.openshift.org/" target="_blank">OpenShift</a> for :</p>
+<p><strong>fabric8</strong> is an open source <a href="http://fabric8.io/guide/fabric8DevOps.html" target="_blank">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html" target="_blank">Integration Platform</a> which is built as a reusable set of microservices that run on top of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> and <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a></p>
+<h3 id="-fabric8-devops-fabric8devops-html"><a name="-fabric8-devops-fabric8devops-html" class="plugin-anchor" href="#-fabric8-devops-fabric8devops-html"><span class="fa fa-link"></span></a><a href="fabric8DevOps.html">Fabric8 DevOps</a></h3>
+<p><a href="fabric8DevOps.html">Fabric8 DevOps</a> provides:</p>
 <ul>
-<li><a href="management.html">Management</a> to help you visualise, understand and manage your software</li>
-<li><a href="cdelivery.html">Continuous Delivery</a> to help teams deliver software in a faster and more reliable way </li>
-<li><a href="ipaas.html">iPaaS</a> provides an <em>Integration Platform As A Service</em>  </li>
+<li><a href="http://fabric8.io/guide/cdelivery.html" target="_blank">Continuous Integration and Continous Delivery</a> to help you deliver software faster and more reliably using <a href="https://jenkins-ci.org/" target="_blank">Jenkins</a> with a <a href="jenkinsWorkflowLibrary.html">Jenkins Workflow Library</a> for reusable CD pipelines with integrated <a href="http://fabric8.io/guide/chat.html" target="_blank">Chat</a></li>
+<li><a href="http://fabric8.io/guide/management.html" target="_blank">Management</a> of your applications with a powerful <a href="http://fabric8.io/guide/console.html" target="_blank">Console</a> with centralised <a href="http://fabric8.io/guide/logging.html" target="_blank">Logging</a> and <a href="http://fabric8.io/guide/metrics.html" target="_blank">Metrics</a> along with deep management of Java Containers using <a href="http://hawt.io/" target="_blank">Hawtio</a> and <a href="http://jolokia.org/" target="_blank">Jolokia</a></li>
 </ul>
-<p>In addition Fabric8 provides a number of <a href="tools.html">tools</a> to help the Java community take full advantage of Kubernetes:</p>
+<h3 id="-fabric8-ipaas-ipaas-html"><a name="-fabric8-ipaas-ipaas-html" class="plugin-anchor" href="#-fabric8-ipaas-ipaas-html"><span class="fa fa-link"></span></a><a href="ipaas.html">Fabric8 iPaaS</a></h3>
+<p><a href="ipaas.html">Fabric8 iPaaS</a> is an <i>Integration Platform As A Service</i> with <a href="http://fabric8.io/guide/console.html" target="_blank">deep visualisation</a> of your <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> integration services, an <a href="http://fabric8.io/guide/apiRegistry.html" target="_blank">API Registry</a> to view of all your RESTful &amp; SOAP APIs and <a href="http://fabric8.io/guide/fabric8MQ.html" target="_blank">Fabric8 MQ</a> provides <i>Messaging As A Service</i> based on <a href="http://activemq.apache.org/" target="_blank">Apache ActiveMQ</a></p>
+<h3 id="-fabric8-tools-tools-html"><a name="-fabric8-tools-tools-html" class="plugin-anchor" href="#-fabric8-tools-tools-html"><span class="fa fa-link"></span></a><a href="tools.html">Fabric8 Tools</a></h3>
+<p><a href="http://fabric8.io/guide/tools.html" target="_blank">Fabric8 Tools</a> helps the Java community take full advantage of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>:</p>
 <ul>
-<li><a href="mavenPlugin.html">Maven Plugin</a> to help generate, apply  and work with Kubernetes resources</li>
-<li><a href="annotationProcessors.html">Annotation Processors</a> to generate modify kubernetes configuration using Java annotations</li>
-<li><a href="testing.html">Testing</a> of Kubernetes resources easily with <a href="http://junit.org/" target="_blank">JUnit</a> and <a href="http://arquillian.org/" target="_blank">Arquillian</a></li>
-<li><a href="javaLibraries.html">Java Libraries</a> and support for <a href="cdi.html">CDI</a> extensions for working with Kubernetes</li>
+  <li>
+    <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">Maven Plugin</a> for working with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>
+  </li>
+  <li>
+    <a href="http://fabric8.io/guide/testing.html" target="_blank">Integration and System Testing</a> of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> resources easily inside <a href="http://junit.org/" target="_blank">JUnit</a> with <a href="http://arquillian.org/" target="_blank">Arquillian</a>
+  </li>
+  <li>
+    <a href="http://fabric8.io/guide/javaLibraries.html" target="_blank">Java Libraries</a> and support for <a href="http://fabric8.io/guide/cdi.html" target="_blank">CDI</a> extensions for working with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>
+  </li>
 </ul>
-<p>The easies way to start is using the <a href="getStarted/vagrant.html">fabric8 Vagrant image</a>.
-If you have an installation of OpenShift V3 1.0 or later then <a href="getStarted/openshift.html">install fabric8 on OpenShift</a></p>
+
 <h3 id="supported-platforms"><a name="supported-platforms" class="plugin-anchor" href="#supported-platforms"><span class="fa fa-link"></span></a>Supported Platforms</h3>
-<p>Fabric8 works great with <a href="http://www.docker.com/" target="_blank">Docker</a> and implementations of Kubernetes such as <a href="http://openshift.github.io/" target="_blank">OpenShift V3</a>, <a href="http://www.projectatomic.io/" target="_blank">Project Atomic</a> and <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine</a>.</p>
+<p>Fabric8 works great with <a href="http://www.docker.com/" target="_blank">Docker</a> and implementations of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> such as <a href="http://kubernetes.io/" target="_blank">Kubernetes itself</a>, <a href="http://openshift.github.io/" target="_blank">OpenShift V3</a>, <a href="http://www.projectatomic.io/" target="_blank">Project Atomic</a> and <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine</a>.</p>
 <p>For non-linux platforms which don&apos;t yet support native Docker we have <a href="jube/index.html">Jube</a> which is an open source pure Java implementation of Kubernetes.</p>
 <p>Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and <em>Container As A Service</em> on the open hybrid clouds. <a href="jube.html">Jube</a> then helps extend Kubernetes to run Java based middleware on any operating system which supports Java 7.</p>
 
