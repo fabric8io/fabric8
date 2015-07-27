@@ -19,6 +19,7 @@ In addition it adds the following optional capabilities:
 * [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) to help reuse a [library](https://github.com/fabric8io/jenkins-workflow-library) of reusable [Jenkins Workflow scripts](https://github.com/fabric8io/jenkins-workflow-library) across projects
 * [fabric8.yml file](fabric8YmlFile.html) as a per project configuration file to tie together the various projects, repositories, chat rooms, workflow script and issue tracker
 * [Chat integration](chat.html) via [hubot](https://hubot.github.com/) lets your team embrace devops, have chat notifications of changes to the system and use chat for [approval of release promotion](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove)
+* [Chaos Monkey](chaosMonkey.html) to test the resilience of your system by killing [pods](pods.html)!
 
 You can choose to opt in or out of any of the micro services within Fabric8 DevOps; for example use any git repository hosting or Nexus installation. The [Chat](chat.html) integration works with [hubot](https://hubot.github.com/) so that it can work with any back end chat service such as IRC, Slack, HipChat, Campfire etc.
  

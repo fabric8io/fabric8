@@ -7,7 +7,8 @@
 
 [Fabric8 DevOps](fabric8DevOps.html) provides:
 
-* <a href="http://fabric8.io/guide/cdelivery.html">Continuous Integration and Continous Delivery</a> to help you deliver software faster and more reliably using <a href="https://jenkins-ci.org/">Jenkins</a> with a [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable CD pipelines with integrated <a href="http://fabric8.io/guide/chat.html">Chat</a>
+* <a href="http://fabric8.io/guide/cdelivery.html">Continuous Integration and Continous Delivery</a> to help you deliver software faster and more reliably using <a href="https://jenkins-ci.org/">Jenkins</a> with a [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable CD pipelines with integrated <a href="http://fabric8.io/guide/chat.html">Chat</a> and <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>
+
 * <a href="http://fabric8.io/guide/management.html">Management</a> of your applications with a powerful <a href="http://fabric8.io/guide/console.html">Console</a> with centralised <a href="http://fabric8.io/guide/logging.html">Logging</a> and <a href="http://fabric8.io/guide/metrics.html">Metrics</a> along with deep management of Java Containers using <a href="http://hawt.io/">Hawtio</a> and <a href="http://jolokia.org/">Jolokia</a>
 
 ### [Fabric8 iPaaS](ipaas.html)
