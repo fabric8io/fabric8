@@ -1,4 +1,4 @@
-## Testing
+## Integration and System Testing
 
 Fabric8 supports integration testing of [Apps](apps.html) using Kubernetes via [fabric8-arquillian](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian) which provides an extension for [Arquillian](http://arquillian.org/).
 
