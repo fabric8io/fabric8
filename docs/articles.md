@@ -1,14 +1,16 @@
+For the lastest and greatest articles on fabric8 check out the [fabric8 blog](https://medium.com/fabric8-io) and the [fabric8 video stream](https://vimeo.com/tag:fabric8)
+
 ## Videos
 
+* [One Stop multi stage CI / CD with fabric8 and Chat](https://medium.com/fabric8-io/continuous-delivery-with-fabric8-d3c7cad76954) by [James Rawlings](https://medium.com/@jdrawlings)
+* [Using the Fabric8 Console on GKE](https://vimeo.com/134408470) by [James Rawlings](https://medium.com/@jdrawlings)
 * [demo using the Fabric8 console to work with Kubernetes and OpenShift V3 apps](https://medium.com/@jstrachan/demo-using-the-fabric8-console-to-work-with-kubernetes-and-openshift-v3-apps-42feb965c479) a presentation by [James Strachan](http://twitter.com/jstrachan) at the [Kubernetes meetup London](http://www.meetup.com/Kubernetes-London/events/221521966/)
 * [demo using fabric8 to create a new Java project, git repo and automatically build & deploy it on OpenShift V3 &amp; Kubernetes using Docker](https://medium.com/@jstrachan/demo-using-fabric8-to-create-a-new-java-project-git-repo-and-automatically-build-deploy-it-on-d34d776098a9)
 * [Easy micro services with fabric8, docker and kubernetes!](https://skillsmatter.com/skillscasts/5476-easy-microservices-on-premise-on-docker-or-in-the-clouds-with-fabric8) or you can [view the slides](http://fabric8.io/presentations/fabric8-mucon/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan) at [muCon](https://skillsmatter.com/conferences/6312-mucon)
-* [fabric8 demo video album](https://vimeo.com/album/3351330) has various demos of fabric8
+* [fabric8 video stream](https://vimeo.com/tag:fabric8) has various demos of fabric8
 * [JBoss Fuse demo video album](https://vimeo.com/album/2635012) has various demos of fabric8
 
-## Articles and presentations
-
-### Fabric8
+## Articles and presentations on fabric8
 
 * [Kubernetes for Java developers](http://fabric8.io/presentations/kubernetes-for-java-developers/) slides by [James Strachan](http://twitter.com/jstrachan) from Red Hat's [MSA day in London](http://www.redhatonline.com/uk/seminar/microservices-architecture-developer-day/)
 * [Kubernetes for developers](https://medium.com/fabric8-io/kubernetes-for-developers-2a9c7202fcd3) by [James Strachan](http://twitter.com/jstrachan)

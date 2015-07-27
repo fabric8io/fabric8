@@ -1,6 +1,6 @@
 ## Overview
 
-Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kubernetes](http://kubernetes.io) for :
+Fabric8 provides a number of [applications](fabric8Apps.html) on top of [Kubernetes](http://kubernetes.io) and [OpenShift](http://www.openshift.org/) for :
 
 * [Management](management.html) to help you visualise, understand and manage your software
 * [Continuous Delivery](cdelivery.html) to help teams deliver software in a faster and more reliable way 

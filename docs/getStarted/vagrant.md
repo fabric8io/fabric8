@@ -2,10 +2,21 @@
 
 This is the fastest way to get going with Fabric8 and OpenShift on your laptop.
 
+Here is a [video walking you through these steps](https://vimeo.com/134408216)
+
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://player.vimeo.com/video/134408216" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+</div>
+
+
+### How to vagrant up
+
 * Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
 
-First clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository and type these commands:
+Now clone the [fabric8 installer git repository](https://github.com/fabric8io/fabric8-installer) repository and type these commands:
 
 ```sh
 $ git clone https://github.com/fabric8io/fabric8-installer.git

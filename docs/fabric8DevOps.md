@@ -22,6 +22,19 @@ The available services in **Fabric8 DevOps** are:
     * [App Library](appLibrary.html) provides a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.
 APIs in your cluster.
 
+### Demo
+
+Here is a [video demonstrating Fabric8 DevOps: Continuous Integration, Continuous Deployment with automatic integration testing, staging and approval for production releases](https://vimeo.com/134408622)
+
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://player.vimeo.com/video/134408622" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+  <p class="text-center">
+    <a href="https://medium.com/fabric8-io/continuous-delivery-with-fabric8-d3c7cad76954">more details</a>
+  </p>
+</div>
+
 ### Installation
     
 To install any of the above apps see the [Install Fabric8 on Kubernetes or OpenShift Guide](getStarted/apps.html)    

@@ -31,6 +31,18 @@ Now there wont be anything running yet so lets install the fabric8 console, run 
 
 To explain what just happened a little, we downloaded a kubernetes.json configuration file which describes a [replication controller](https://cloud.google.com/container-engine/docs/replicationcontrollers/) for the fabric8-console docker image.  This file is generated as part of the fabric8 release process.  The kubernetes CLI created this replication controller called fabric8 which then instructed the API server to schedule a pod on a node in our cluster.  The image may take a little while to download from docker hub.  If you want to build and push the image to your Google registry then see the relevant section below.
 
+### Using the console
+
+Here is a [video showing you what you can do with the console on GKE](https://vimeo.com/134408470)
+
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://player.vimeo.com/video/134408470" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+</div>
+
+For more details check the [console documentation](console.html)
+
 ### Accessing the API server from your local machine
 
 In the short term (we're working on an improved way to access the console) we can view the console using the Kubernetes API server, service proxy.
