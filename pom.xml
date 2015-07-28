@@ -171,7 +171,7 @@
         <validation-api.version>1.1.0.Final</validation-api.version>
         <vertx.version>2.1.6</vertx.version>
         <weld.version>2.2.14.Final</weld.version>
-        <wildfly.version>8.2.0.Final</wildfly.version>
+        <wildfly.version>8.2.1.Final</wildfly.version>
         <zookeeper.version>3.4.6</zookeeper.version>
 
         <!-- OSGi bundles properties -->
