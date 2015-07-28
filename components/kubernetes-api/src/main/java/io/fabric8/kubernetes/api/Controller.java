@@ -34,7 +34,6 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -62,9 +61,6 @@ import java.util.Map;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
@@ -222,6 +218,18 @@ public class Controller {
             applyService((Service) dto, sourceName);
         } else if (dto instanceof Namespace) {
             applyNamespace((Namespace) dto);
+        } else if (dto instanceof Route) {
+            applyRoute((Route) dto, sourceName);
+        } else if (dto instanceof BuildConfig) {
+            applyBuildConfig((BuildConfig) dto, sourceName);
+        } else if (dto instanceof DeploymentConfig) {
+            applyDeploymentConfig((DeploymentConfig) dto, sourceName);
+        } else if (dto instanceof ImageStream) {
+            applyImageStream((ImageStream) dto, sourceName);
+        } else if (dto instanceof OAuthClient) {
+            applyOAuthClient((OAuthClient) dto, sourceName);
+        } else if (dto instanceof Template) {
+            applyTemplate((Template) dto, sourceName);
         } else if (dto instanceof ServiceAccount) {
             applyServiceAccount((ServiceAccount) dto, sourceName);
         } else if (dto instanceof Secret) {
