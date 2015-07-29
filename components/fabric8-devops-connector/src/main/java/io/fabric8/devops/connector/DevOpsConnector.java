@@ -20,15 +20,14 @@ import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildConfigFluent;
+import io.fabric8.openshift.api.model.*;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
@@ -41,6 +40,7 @@ import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -58,9 +58,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
@@ -81,6 +79,7 @@ public class DevOpsConnector {
     private String secret = "secret101";
     private String buildImageStream = "triggerJenkins";
     private String buildImageTag = "latest";
+    private String s2iCustomBuilderImage = "fabric8/openshift-s2i-jenkins-trigger";
     private String jenkinsJob;
 
     private String jenkinsMonitorView;
@@ -250,10 +249,19 @@ public class DevOpsConnector {
                     endSource();
         }
         if (Strings.isNotBlank(buildImageStream) && Strings.isNotBlank(buildImageTag)) {
+
+            List<EnvVar> buildEnvVars = new ArrayList<EnvVar>();
+            EnvVar jobName = new EnvVar();
+            jobName.setName("JENKINS_JOB_URL");
+            jobName.setValue(jenkinsJobUrl);
+            buildEnvVars.add(jobName);
+
             specBuilder = specBuilder.
                     withNewStrategy().
-                    withType("Docker").withNewDockerStrategy().withNewFrom().withName(buildImageStream + ":" + buildImageTag).endFrom().endDockerStrategy().
+                    withType("Custom").withNewCustomStrategy().withNewFrom().withKind("DockerImage").withName(s2iCustomBuilderImage).endFrom()
+                    .withEnv(buildEnvVars).endCustomStrategy().
                     endStrategy();
+
         }
         BuildConfig buildConfig = specBuilder.
                 addNewTrigger().
@@ -267,7 +275,9 @@ public class DevOpsConnector {
 
         Controller controller = createController();
         try {
+            getLog().info("About to apply build config: " + new JSONObject(KubernetesHelper.toJson(buildConfig)).toString(4));
             controller.applyBuildConfig(buildConfig, "maven");
+
             getLog().info("Created build configuration for " + name + " in namespace: " + controller.getNamespace() + " at " + kubernetes.getMasterUrl());
         } catch (Exception e) {
             getLog().error("Failed to create BuildConfig for " + KubernetesHelper.toJson(buildConfig) + ". " + e, e);
