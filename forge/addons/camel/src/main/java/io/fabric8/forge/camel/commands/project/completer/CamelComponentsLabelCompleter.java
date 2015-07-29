@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.Dependency;

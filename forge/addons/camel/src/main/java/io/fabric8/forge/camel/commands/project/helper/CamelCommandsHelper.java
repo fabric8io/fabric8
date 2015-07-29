@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.JavaHelper;
 import io.fabric8.forge.camel.commands.project.CamelComponentDetails;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;

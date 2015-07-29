@@ -4,7 +4,7 @@
     * [Native OpenShift](getStarted/openshift.md)
     * [Native Kubernetes on GKE](getStarted/gke.md)
     * [Local OpenShift Client](getStarted/local.md)
-    * [Fabric8 applications](getStarted/apps.md)
+    * [Install on OpenShift](getStarted/apps.md)
     * [Deploy an example](getStarted/example.md)
     * [Develop locally](getStarted/develop.md)
     * [Accept self-signed certs](getStarted/browserCertificates.md)

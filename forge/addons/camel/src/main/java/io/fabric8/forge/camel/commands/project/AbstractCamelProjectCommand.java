@@ -19,7 +19,7 @@ import java.io.PrintStream;
 import java.util.Set;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;

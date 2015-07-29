@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.helper;
+package io.fabric8.forge.addon.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,9 +32,9 @@ public final class VersionHelper {
         InputStream is = null;
         try {
             // try to load from maven properties first as they have the version
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.properties");
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/utils/pom.properties");
             if (is == null) {
-                is = VersionHelper.class.getClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.properties");
+                is = VersionHelper.class.getClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/utils/pom.properties");
             }
             if (is != null) {
                 Properties prop = new Properties();
@@ -65,7 +65,7 @@ public final class VersionHelper {
         InputStream is = null;
         try {
             // try to load from maven properties first as they have the version
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.xml");
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/utils/pom.xml");
             if (is != null) {
                 String text = loadText(is);
                 version = between(text, "<hawtio.version>", "</hawtio.version>");
@@ -94,7 +94,7 @@ public final class VersionHelper {
         InputStream is = null;
         try {
             // try to load from maven properties first as they have the version
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.xml");
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/utils/pom.xml");
             if (is != null) {
                 String text = loadText(is);
                 version = between(text, "<docker.version>", "</docker.version>");
@@ -123,7 +123,7 @@ public final class VersionHelper {
         InputStream is = null;
         try {
             // try to load from maven properties first as they have the version
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/camel/pom.xml");
+            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/META-INF/maven/io.fabric8.forge/utils/pom.xml");
             if (is != null) {
                 String text = loadText(is);
                 version = between(text, "<jube.version>", "</jube.version>");

@@ -25,8 +25,8 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.helper.LineNumberHelper;
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.LineNumberHelper;
 import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
@@ -57,7 +57,7 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.isDefaultValue;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
-import static io.fabric8.forge.camel.commands.project.helper.UIHelper.createUIInput;
+import static io.fabric8.forge.addon.utils.UIHelper.createUIInput;
 
 public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 

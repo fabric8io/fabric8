@@ -15,6 +15,7 @@
  */
 package io.fabric8.forge.devops;
 
+import io.fabric8.forge.devops.setup.Fabric8SetupCommand;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
@@ -30,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ConfigureDevOpsCommand extends AbstractDevOpsCommand implements UIWizard {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsCommand.class);
+public class DevOpsEditCommand extends AbstractDevOpsCommand implements UIWizard {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditCommand.class);
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -45,7 +46,8 @@ public class ConfigureDevOpsCommand extends AbstractDevOpsCommand implements UIW
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         NavigationResultBuilder builder = NavigationResultBuilder.create();
-        builder.add(ConfigureDevOpsStep.class);
+        builder.add(Fabric8SetupCommand.class);
+        builder.add(DevOpsEditStep.class);
         builder.add(SaveDevOpsStep.class);
         return builder.build();
     }

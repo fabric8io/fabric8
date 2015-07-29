@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -32,7 +32,7 @@ import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
-import static io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
 
 public class CamelComponentsCompleter implements UICompleter<String> {
 

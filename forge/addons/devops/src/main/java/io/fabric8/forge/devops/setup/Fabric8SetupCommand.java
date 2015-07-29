@@ -13,13 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.devops.setup;
 
 import java.util.Arrays;
 import java.util.Locale;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
@@ -39,7 +38,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
-public class FabricSetupCommand extends AbstractFabricProjectCommand implements UIWizard {
+public class Fabric8SetupCommand extends AbstractFabricProjectCommand implements UIWizard {
 
     // TODO: Jube does not currently work so disable jube until working again
     // private String[] platforms = new String[]{"Docker", "Jube", "Docker-and-Jube"};
@@ -51,22 +50,15 @@ public class FabricSetupCommand extends AbstractFabricProjectCommand implements 
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConnectCommand.class).name(
-                "Fabric: Setup").category(Categories.create(CATEGORY))
-                .description("Setup Fabric8 in your project");
+        return Metadata.forCommand(Fabric8SetupCommand.class).name(
+                "Fabric8: Setup").category(Categories.create(CATEGORY))
+                .description("Setup Fabric8 and Docker in your project");
     }
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         context.getUIContext().getAttributeMap().put("platform", platform.getValue());
-
-        if ("Docker-and-Jube".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class);
-        } else if ("Docker".equals(platform.getValue())) {
-            return Results.navigateTo(DockerStepCommand.class);
-        } else {
-            return Results.navigateTo(JubeStepCommand.class);
-        }
+        return Results.navigateTo(Fabric8SetupStep.class);
     }
 
     @Override

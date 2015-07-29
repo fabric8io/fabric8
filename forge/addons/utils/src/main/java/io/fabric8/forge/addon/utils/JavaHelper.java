@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.helper;
+package io.fabric8.forge.addon.utils;
 
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;

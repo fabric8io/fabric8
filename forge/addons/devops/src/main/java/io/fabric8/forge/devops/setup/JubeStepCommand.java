@@ -13,14 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.devops.setup;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.helper.DockerSetupHelper;
-import io.fabric8.forge.camel.commands.project.helper.JubeSetupHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -65,7 +63,7 @@ public class JubeStepCommand extends AbstractDockerProjectCommand implements UIW
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         context.getUIContext().getAttributeMap().put("prev", JubeStepCommand.class);
-        return Results.navigateTo(FabricStepCommand.class);
+        return Results.navigateTo(Fabric8SetupStep.class);
     }
 
     @Override

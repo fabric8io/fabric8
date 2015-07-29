@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.devops.setup;
 
 import java.io.PrintStream;
 import javax.inject.Inject;
@@ -27,9 +27,9 @@ import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 
-public abstract class AbstractFabricProjectCommand extends AbstractProjectCommand {
+public abstract class AbstractDockerProjectCommand extends AbstractProjectCommand {
 
-    public static String CATEGORY = "Fabric";
+    public static String CATEGORY = "Docker";
 
     @Inject
     protected ProjectFactory projectFactory;
@@ -50,24 +50,6 @@ public abstract class AbstractFabricProjectCommand extends AbstractProjectComman
 
     protected PrintStream getOutput(UIExecutionContext context) {
         return context.getUIContext().getProvider().getOutput().out();
-    }
-
-    protected Coordinate createCoordinate(String groupId, String artifactId, String version) {
-        return createCoordinate(groupId, artifactId, version, null);
-    }
-
-    protected Coordinate createCoordinate(String groupId, String artifactId, String version, String packaging) {
-        CoordinateBuilder builder = CoordinateBuilder.create()
-                .setGroupId(groupId)
-                .setArtifactId(artifactId);
-        if (version != null) {
-            builder = builder.setVersion(version);
-        }
-        if (packaging != null) {
-            builder = builder.setPackaging(packaging);
-        }
-
-        return builder;
     }
 
 }

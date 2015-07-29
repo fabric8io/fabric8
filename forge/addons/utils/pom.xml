@@ -30,6 +30,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+
+    <!-- to include hawtio version in pom.xml which is needed by fabric8:setup command -->
+    <hawtio.version>1.4.51</hawtio.version>
+    <!-- docker maven plugin -->
+    <docker.version>0.12.0</docker.version>
+    <!-- jube version -->
+    <jube.version>2.1.5</jube.version>
   </properties>
 
   <dependencyManagement>

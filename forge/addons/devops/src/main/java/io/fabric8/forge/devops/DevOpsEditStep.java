@@ -68,8 +68,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 
-public class ConfigureDevOpsStep extends AbstractDevOpsCommand implements UIWizardStep {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ConfigureDevOpsStep.class);
+public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardStep {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditStep.class);
 
     @Inject
     @WithAttributes(label = "flow", required = false, description = "The URL of the Jenkins workflow groovy script to use for builds")

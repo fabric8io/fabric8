@@ -13,12 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.helper;
+package io.fabric8.forge.devops.setup;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.VersionHelper;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;

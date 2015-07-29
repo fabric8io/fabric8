@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.devops.setup;
 
-import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -26,7 +26,8 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.MavenHelpers;
-import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
+import io.fabric8.forge.addon.utils.VersionHelper;
+import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
@@ -40,27 +41,39 @@ import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
-import org.jboss.forge.addon.resource.FileResource;
-import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.resource.ResourceFactory;
-import org.jboss.forge.addon.resource.URLResource;
-import org.jboss.forge.addon.templates.Template;
 import org.jboss.forge.addon.templates.TemplateFactory;
-import org.jboss.forge.addon.templates.freemarker.FreemarkerTemplate;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
+import org.jboss.forge.addon.ui.input.ValueChangeListener;
+import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
-import org.jboss.forge.addon.ui.wizard.UIWizard;
+import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+
+import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
-public class FabricStepCommand extends AbstractDockerProjectCommand implements UIWizard {
+public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UIWizardStep {
+
+    private String[] jarImages = new String[]{"fabric8/java"};
+    private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
+    private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+
+    @Inject
+    @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
+    private UISelectOne<String> from;
+
+    @Inject
+    @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
+    private UIInput<String> main;
 
     @Inject
     @WithAttributes(label = "container", required = false, description = "Container label to use for the app")
@@ -98,12 +111,82 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
+        Project project = getCurrentProject(context.getUIContext());
+        System.out.println("====== initializeUI() and we have a project: " + project);
         // no more steps
         return null;
     }
 
     @Override
+    public void validate(UIValidationContext validator) {
+        super.validate(validator);
+
+        Project project = getCurrentProject(validator.getUIContext());
+        System.out.println("====== validate() and we have a project: " + project);
+    }
+
+    @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
+        Project project = getCurrentProject(builder.getUIContext());
+        System.out.println("====== initializeUI() and we have a project: " + project);
+
+        String packaging = getProjectPackaging(project);
+
+        boolean springBoot = hasSpringBootMavenPlugin(project);
+
+        // limit the choices depending on the project packaging
+        List<String> choices = new ArrayList<String>();
+        if (packaging == null || springBoot || "jar".equals(packaging)) {
+            choices.add(jarImages[0]);
+        }
+        if (packaging == null || "bundle".equals(packaging)) {
+            choices.add(bundleImages[0]);
+        }
+        if (!springBoot && (packaging == null || "war".equals(packaging))) {
+            choices.add(warImages[0]);
+            choices.add(warImages[1]);
+        }
+        from.setValueChoices(choices);
+
+        // is it possible to pre select a choice?
+        String defaultChoice = DockerSetupHelper.defaultDockerImage(project);
+        if (defaultChoice != null && choices.contains(defaultChoice)) {
+            from.setDefaultValue(defaultChoice);
+        }
+
+        from.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                // use a listener so the jube step knows what we selected as it want to reuse
+                builder.getUIContext().getAttributeMap().put("docker.from", event.getNewValue());
+            }
+        });
+        builder.add(from);
+
+        if (packaging == null || (!packaging.equals("war") && packaging.equals("ear"))) {
+            main.setRequired(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return DockerSetupHelper.isJarImage(from.getValue());
+                }
+            });
+            // only enable main if its required
+            main.setEnabled(main.isRequired());
+            if (project != null) {
+                main.setDefaultValue(DockerSetupHelper.defaultMainClass(project));
+            }
+            main.addValidator(new ClassNameValidator(true));
+            main.addValueChangeListener(new ValueChangeListener() {
+                @Override
+                public void valueChanged(ValueChangeEvent event) {
+                    // use a listener so the jube step knows what we selected as it want to reuse
+                    builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
+                }
+            });
+        }
+        builder.add(main);
+
+
         container.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -160,7 +243,12 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
-        Project project = getSelectedProject(context);
+        Project project = getCurrentProject(context.getUIContext());
+
+
+        System.out.println("====== execute() and we have a project: " + project);
+
+        DockerSetupHelper.setupDocker(project, from.getValue(), main.getValue());
 
         // make sure we have resources as we need it later
         facetFactory.install(project, ResourcesFacet.class);
@@ -214,8 +302,23 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
         if (updated) {
             maven.setModel(pom);
         }
+        return Results.success("Adding Fabric8 maven support with base Docker image: " + from.getValue());
+    }
 
-        return Results.success("Adding Fabric");
+    /**
+     * Returns the current project either from the context or added to the attribute map
+     * if the project got created during a new-project wizard
+     */
+    public Project getCurrentProject(UIContext context) {
+        Project project = getSelectedProject(context);
+        if (project == null) {
+            Map<Object, Object> attributeMap = context.getAttributeMap();
+            Object object = attributeMap.get(Project.class);
+            if (object instanceof Project) {
+                project = (Project) object;
+            }
+        }
+        return project;
     }
 
     private static String asContainer(String fromImage) {
@@ -228,5 +331,13 @@ public class FabricStepCommand extends AbstractDockerProjectCommand implements U
             fromImage = fromImage.substring(0, idx);
         }
         return fromImage;
+    }
+
+    private static String getProjectPackaging(Project project) {
+        if (project != null) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            return maven.getModel().getPackaging();
+        }
+        return null;
     }
 }

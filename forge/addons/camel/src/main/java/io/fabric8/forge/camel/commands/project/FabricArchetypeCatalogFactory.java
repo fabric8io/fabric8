@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
+import io.fabric8.forge.addon.utils.VersionHelper;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
 import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.dependencies.Coordinate;

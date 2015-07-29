@@ -15,7 +15,7 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import io.fabric8.forge.camel.commands.project.helper.JavaHelper;
+import io.fabric8.forge.addon.utils.JavaHelper;
 
 public class CamelComponentDetails {
     private String componentClassQName;

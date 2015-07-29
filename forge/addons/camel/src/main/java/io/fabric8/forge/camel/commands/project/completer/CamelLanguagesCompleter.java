@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper;
+import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -31,7 +31,7 @@ import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.languagesFromArtifact;
-import static io.fabric8.forge.camel.commands.project.helper.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
 
 public class CamelLanguagesCompleter implements UICompleter<String> {
 

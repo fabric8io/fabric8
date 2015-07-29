@@ -13,9 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project.helper;
+package io.fabric8.forge.devops.setup;
 
-import io.fabric8.forge.camel.commands.project.helper.VersionHelper;
+import io.fabric8.forge.addon.utils.VersionHelper;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;

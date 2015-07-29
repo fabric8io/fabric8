@@ -42,7 +42,7 @@ import static io.fabric8.utils.cxf.JsonHelper.toJson;
 /**
  * Creates a new build in OpenShift for the current project
  */
-public class NewBuild extends AbstractDevOpsCommand {
+public class NewBuildCommand extends AbstractDevOpsCommand {
     @Inject
     @WithAttributes(name = "buildName", label = "Build name",
             description = "The build configuration name to generate.",
