@@ -1,6 +1,6 @@
 ## Fabric8 DevOps
 
-**Fabric8 DevOps** provides a completely integrated open source platform for DevOps which works out of the box on any [Kubernetes](http://kubernetes.io) or [OpenShift](http://www.openshift.org/) environment.
+**Fabric8 DevOps** provides a completely integrated open source DevOps platform which works out of the box on any [Kubernetes](http://kubernetes.io) or [OpenShift](http://www.openshift.org/) environment.
 
 The entire platform is modular and based on _microservices_ so you can use as much or as little of Fabric8 DevOps as you wish!
 
