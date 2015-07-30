@@ -285,6 +285,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean headlessServices;
 
     /**
+     * The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">Type of the service</a>. Set to
+     * <code>"LoadBalancer"</code>  if you wish an
+     * <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created
+     */
+    @Parameter(property = "fabric8.service.type")
+    private String serviceType;
+
+    /**
      * Annotation value to add for metrics scraping.
      */
     @Parameter(property = FABRIC8_METRICS_SCRAPE, defaultValue = "false")
@@ -734,6 +742,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
             } else {
                 serviceSpecBuilder.withClusterIP("None");
                 serviceSpecBuilder.withPorts(new ServicePort(null, null, 1, null, null));
+            }
+            if (Strings.isNotBlank(serviceType)) {
+                serviceSpecBuilder.withType(serviceType);
             }
             serviceSpecBuilder.endSpec();
 

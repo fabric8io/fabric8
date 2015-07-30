@@ -243,6 +243,11 @@ You can use maven properties to customize the generation of the JSON:
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
 </tr>
 <tr>
+<td>fabric8.service.type</td>
+<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
+  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created.</td>
+</tr>
+<tr>
 <td>fabric8.service.containerPort</td>
 <td>The container port of the Service to generate (if a kubernetes service is required).</td>
 </tr>
