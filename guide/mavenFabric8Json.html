@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="5.1.8" data-basepath="." data-revision="Thu Jul 30 2015 07:33:41 GMT+0000 (UTC)">
+    <div class="book" data-level="5.1.8" data-basepath="." data-revision="Thu Jul 30 2015 09:36:34 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1330,6 +1330,11 @@ ANOTHER = some ${CHEESE}
 <tr>
 <td>fabric8.service.port</td>
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.type</td>
+<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
+  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
 </tr>
 <tr>
 <td>fabric8.service.containerPort</td>
