@@ -20,8 +20,6 @@ The available services in **Fabric8 DevOps** are:
     * [Console](console.html) provides a nice web application based on [hawtio](http://hawt.io/) for working with your [apps](apps.html), [pods](pods.html), [replication controllers](replicationControllers.html)
     * [Logging](logging.html) provides consolidated logging and visualisation of log statements and events across your environment
     * [Metrics](metrics.html) provides consolidated historical metric collection and visualisation across your environment
-    * [App Library](appLibrary.html) provides a configurable library of Apps you can easily run and install or uninstall; rather like your library of Apps on a mobile device.
-APIs in your cluster.
 
 ### Demo
 

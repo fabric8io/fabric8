@@ -18,7 +18,6 @@
     * [Console](console.md)
     * [Logging](logging.md)
     * [Metrics](metrics.md)
-    * [App Library](appLibrary.md)
 * [Fabric8 iPaaS](ipaas.md)
   * [API Registry](apiRegistry.md)
   * [MQ](fabric8MQ.md)
