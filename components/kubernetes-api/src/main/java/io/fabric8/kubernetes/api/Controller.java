@@ -597,6 +597,7 @@ public class Controller {
                 LOG.info("BuildConfig hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
+                    LOG.info("Deleting BuildConfig: " + id);
                     openShiftClient.buildConfigs().inNamespace(namespace).withName(id).delete();
                     doCreateBuildConfig(entity, namespace, sourceName);
                 } else {
@@ -669,6 +670,7 @@ public class Controller {
                 LOG.info("Service hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
+                    LOG.info("Deleting Service: " + id);
                     kubernetes.services().inNamespace(namespace).withName(id).delete();
                     doCreateService(service, namespace, sourceName);
                 } else {
@@ -741,6 +743,7 @@ public class Controller {
                 LOG.info("ReplicationController hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
+                    LOG.info("Deleting ReplicationController: " + id);
                     kubernetes.replicationControllers().inNamespace(namespace).withName(id).delete();
                     doCreateReplicationController(replicationController, namespace, sourceName);
                 } else {
@@ -825,6 +828,7 @@ public class Controller {
                 LOG.info("Pod hasn't changed so not doing anything");
             } else {
                 if (isRecreateMode()) {
+                    LOG.info("Deleting Pod: " + id);
                     kubernetes.pods().inNamespace(namespace).withName(id).delete();
                     doCreatePod(pod, namespace, sourceName);
                 } else {
