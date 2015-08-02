@@ -118,7 +118,7 @@
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
         <hawtio.version>1.4.52</hawtio.version>
-        <hibernate-validator.version>5.2.0.Final</hibernate-validator.version>
+        <hibernate-validator.version>5.2.1.Final</hibernate-validator.version>
         <httpclient.version>4.3.1</httpclient.version>
         <httpcomponents.version>4.1</httpcomponents.version>
         <jackson2.version>2.6.0</jackson2.version>
