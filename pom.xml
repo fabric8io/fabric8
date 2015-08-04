@@ -173,7 +173,7 @@
         <weld.version>2.2.14.Final</weld.version>
         <wildfly.version>8.2.1.Final</wildfly.version>
         <zookeeper.version>3.4.6</zookeeper.version>
-        <ning.http-client.version>1.9.29</ning.http-client.version>
+        <ning.http-client.version>1.9.30</ning.http-client.version>
 
         <!-- OSGi bundles properties -->
         <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
