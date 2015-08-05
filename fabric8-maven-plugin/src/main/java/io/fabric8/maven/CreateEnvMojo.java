@@ -278,13 +278,14 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             properties.putAll(System.getProperties());
             for (Map.Entry<String, String> entry : env.entrySet()) {
 	                String envValue = entry.getValue();
-	                if (envValue != null && !envValue.isEmpty() && envValue.startsWith("${") && envValue.endsWith("}")) {
-	                String parameterName = envValue.substring(2, envValue.length() - 1);
+	                if (envValue != null && !envValue.isEmpty() && envValue.contains("${") && envValue.contains("}")) {
+	                String parameterName = envValue.substring(envValue.indexOf("${") + 2, envValue.indexOf("}"));
 	                String name = "fabric8.create-env." + parameterName;
 	                String propertyValue = properties.getProperty(name);
 	                if (Strings.isNotBlank(propertyValue)) {
 	                    getLog().info("Overriding environment variable " + parameterName + " with value: " + propertyValue);
-	                    entry.setValue(propertyValue);
+	                    String replaced = checkAndReplaceValue(envValue, propertyValue, parameterName);
+	                    entry.setValue(replaced);
 	                } else {
 	                    getLog().info("No property defined for environment variable: " + parameterName);
 	                }
@@ -524,5 +525,11 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             }
         }
         return null;
+    }
+    
+    private static String checkAndReplaceValue(String envValue, String value, String parameterName) {
+    	String escapedParameterName = "\\$\\{" + parameterName + "\\}";
+    	String stringReplaced = envValue.replaceAll(escapedParameterName, value);
+    	return stringReplaced;
     }
 }
