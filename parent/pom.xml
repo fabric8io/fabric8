@@ -41,7 +41,7 @@
         <maven-bundle-summary-plugin.version>1.34</maven-bundle-summary-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
         <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
-        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+        <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
     </properties>
 
     <dependencyManagement>
