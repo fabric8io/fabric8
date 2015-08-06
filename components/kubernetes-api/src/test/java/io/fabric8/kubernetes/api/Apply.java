@@ -15,8 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.OpenShiftClient;
+import io.fabric8.openshift.client.DefaultOpenshiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ public class Apply {
             return;
         }
         try {
-            OpenShiftClient kube = new DefaultKubernetesClient();
+            OpenShiftClient kube = new DefaultOpenshiftClient();
 
             File file = new File(args[0]);
             System.out.println("Applying file: " + file);

@@ -82,7 +82,7 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String idText = replicationControllerId.getValue();
-        ReplicationController replicationController = getKubernetes().replicationControllers().inNamespace(getNamespace()).withName(idText).getIfExists();
+        ReplicationController replicationController = getKubernetes().replicationControllers().inNamespace(getNamespace()).withName(idText).get();
         if (replicationController == null) {
             System.out.println("No replicationController for id: " + idText);
         } else {

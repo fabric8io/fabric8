@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
@@ -34,7 +35,7 @@ public class PodIdToReplicationControllerIDExample {
         String namespace = args[1];
         String podID = args[2];
         System.out.println("Looking up ReplicationController for pod ID: " + podID);
-        KubernetesClient client = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kuberneteMasterUrl).build());
+        KubernetesClient client = new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(kuberneteMasterUrl).build());
         Pod pod = (Pod) client.pods().inNamespace(namespace).withName(podID);
         pod.getMetadata().getLabels();
         List<ReplicationController> replicationControllers = client.replicationControllers().inNamespace(namespace).withLabels(pod.getMetadata().getLabels()).list().getItems();

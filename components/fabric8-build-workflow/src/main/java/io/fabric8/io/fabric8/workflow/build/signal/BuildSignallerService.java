@@ -20,9 +20,9 @@ import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
 import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.OpenShiftClient;
+import io.fabric8.openshift.client.DefaultOpenshiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.kie.api.runtime.KieSession;
 
 import java.util.Timer;
@@ -39,7 +39,7 @@ import java.util.Timer;
 public class BuildSignallerService {
     private final KieSession ksession;
     private final String namespace;
-    private OpenShiftClient client = new DefaultKubernetesClient();
+    private OpenShiftClient client = new DefaultOpenshiftClient();
     private Timer timer = new Timer();
     private BuildProcessCorrelator buildProcessCorrelator = BuildProcessCorrelators.getSingleton();
     private BuildWatcher watcher;

@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -45,7 +46,7 @@ public class DefaultBuildTrigger implements BuildTrigger {
     @Override
     public String trigger(String namespace, final String buildName) {
         final BlockingQueue<String> uuid = new ArrayBlockingQueue<>(1);
-        try (WebSocket webSocket = KubernetesHelper.toOpenshift(kubernetes).builds().inNamespace(namespace).watch(new Watcher<Build>() {
+        try (WebSocket webSocket = kubernetes.adapt(OpenShiftClient.class).builds().inNamespace(namespace).watch(new Watcher<Build>() {
             @Override
             public void eventReceived(Action action, Build build) {
                 if (action == Action.ADDED && KubernetesHelper.getName(build).equals(buildName)) {

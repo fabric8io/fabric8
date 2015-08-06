@@ -59,7 +59,7 @@ public class HttpMappingKubeCache implements Runnable {
     public void init(HTTPGatewayConfig configuation) {
         String kubernetesMaster = configuation.getKubernetesMaster();
         contextPathsCache = new ArrayList<String>();
-        client = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesMaster).build());
+        client = new DefaultKubernetesClient(kubernetesMaster);
         //for now simply check in with kubernetes every 5 seconds
         //it'd be nice if kubernetes can callback into our cache.
         serviceCacheExecutor.scheduleWithFixedDelay(this, 0, 5, SECONDS);

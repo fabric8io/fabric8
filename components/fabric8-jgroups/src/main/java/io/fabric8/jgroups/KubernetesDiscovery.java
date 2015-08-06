@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Filter;
@@ -59,7 +60,7 @@ public class KubernetesDiscovery extends Discovery {
     public void init() throws Exception {
         super.init();
         if (!Strings.isNullOrBlank(address)) {
-            client = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(address).build());
+            client = new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(address).build());
         } else {
             client = new DefaultKubernetesClient();
         }

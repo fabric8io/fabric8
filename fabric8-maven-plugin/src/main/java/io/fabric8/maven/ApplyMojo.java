@@ -29,6 +29,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -276,7 +277,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         String namespace = getNamespace();
         // lets get the routes first to see if we should bother
         try {
-            RouteList routes = KubernetesHelper.toOpenshift(kubernetes).routes().inNamespace(namespace).list();
+            RouteList routes = kubernetes.adapt(OpenShiftClient.class).routes().inNamespace(namespace).list();
             if (routes != null) {
                 List<Route> items = routes.getItems();
             }

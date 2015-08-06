@@ -15,15 +15,16 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.client.*;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.client.DefaultOpenshiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 public class WatchBuildsExample {
 
     public static void main(String... args) throws Exception {
 
-        OpenShiftClient client = new DefaultKubernetesClient();
+        OpenShiftClient client = new DefaultOpenshiftClient();
         client.builds().watch(new Watcher<Build>() {
             @Override
             public void eventReceived(Action action, Build build) {

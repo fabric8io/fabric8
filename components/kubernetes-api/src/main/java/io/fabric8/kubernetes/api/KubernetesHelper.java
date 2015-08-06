@@ -42,16 +42,14 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.RootPaths;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
-import io.fabric8.kubernetes.api.model.RootPaths;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.OpenShiftClient;
 import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigSpec;
@@ -61,6 +59,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -1231,7 +1230,7 @@ public final class KubernetesHelper {
                         portalIP += ":" + port;
                     }
                     String protocol = "http://";
-                    if (KubernetesHelper.isServiceSsl(spec.getClusterIP(), port, Utils.getSystemPropertyOrEnvVar(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, false))) {
+                    if (KubernetesHelper.isServiceSsl(spec.getClusterIP(), port, Utils.getSystemPropertyOrEnvVar(io.fabric8.kubernetes.client.Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, false))) {
                         protocol = "https://";
                     }
                     return protocol + portalIP;
@@ -1258,7 +1257,7 @@ public final class KubernetesHelper {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(namespace)) {
-            srv = client.services().inNamespace(namespace).withName(serviceName).getIfExists();
+            srv = client.services().inNamespace(namespace).withName(serviceName).get();
         } else {
             for (Service s : client.services().list().getItems()) {
                 String sid = getName(s);
@@ -1272,7 +1271,7 @@ public final class KubernetesHelper {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + namespace);
         }
         if (isOpenShift(client)) {
-            OpenShiftClient openShiftClient = (OpenShiftClient) client;
+            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
             RouteList routeList = openShiftClient.routes().inNamespace(namespace).list();
             for (Route route : routeList.getItems()) {
                 if (route.getSpec().getTo().getName().equals(serviceName)) {
@@ -1517,7 +1516,7 @@ public final class KubernetesHelper {
                 socket.close();
             }
         } catch (SSLHandshakeException e) {
-            LOG.error("SSL handshake failed - this probably means that you need to trust the kubernetes root SSL certificate or set the environment variable " + Utils.convertSystemPropertyNameToEnvVar(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY), e);
+            LOG.error("SSL handshake failed - this probably means that you need to trust the kubernetes root SSL certificate or set the environment variable " + Utils.convertSystemPropertyNameToEnvVar(io.fabric8.kubernetes.client.Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY), e);
         } catch (SSLProtocolException e) {
             LOG.error("SSL protocol error", e);
         } catch (SSLKeyException e) {
@@ -1784,7 +1783,7 @@ public final class KubernetesHelper {
     public static Secret validateSecretExists(KubernetesClient kubernetes, String namespace, String secretName) {
         Secret secret = null;
         try {
-            secret = kubernetes.secrets().inNamespace(namespace).withName(secretName).getIfExists();
+            secret = kubernetes.secrets().inNamespace(namespace).withName(secretName).get();
         } catch (KubernetesClientException e) {
             if (e.getCode() == 404 || e.getCode() == 403) {
                 // does not exist or namespace does not exists
@@ -1828,33 +1827,24 @@ public final class KubernetesHelper {
 
 
     public static boolean isOpenShift(KubernetesClient client) {
-        if (client instanceof OpenShiftClient) {
-            URL masterUrl = client.getMasterUrl();
-            if (IS_OPENSHIFT.containsKey(masterUrl)) {
-                return IS_OPENSHIFT.get(masterUrl);
-            } else {
-                RootPaths rootPaths = client.rootPaths();
-                if (rootPaths != null) {
-                    List<String> paths = rootPaths.getPaths();
-                    if (paths != null) {
-                        for (String path : paths) {
-                            if (java.util.Objects.equals("/oapi", path) || java.util.Objects.equals("oapi", path)) {
-                                IS_OPENSHIFT.putIfAbsent(masterUrl, true);
-                                return true;
-                            }
+        URL masterUrl = client.getMasterUrl();
+        if (IS_OPENSHIFT.containsKey(masterUrl)) {
+            return IS_OPENSHIFT.get(masterUrl);
+        } else {
+            RootPaths rootPaths = client.rootPaths();
+            if (rootPaths != null) {
+                List<String> paths = rootPaths.getPaths();
+                if (paths != null) {
+                    for (String path : paths) {
+                        if (java.util.Objects.equals("/oapi", path) || java.util.Objects.equals("oapi", path)) {
+                            IS_OPENSHIFT.putIfAbsent(masterUrl, true);
+                            return true;
                         }
                     }
                 }
             }
-            IS_OPENSHIFT.putIfAbsent(masterUrl, false);
         }
+        IS_OPENSHIFT.putIfAbsent(masterUrl, false);
         return false;
-    }
-
-    public static OpenShiftClient toOpenshift(KubernetesClient client) {
-        if (isOpenShift(client)) {
-            return (OpenShiftClient) client;
-        }
-        throw new IllegalArgumentException("Client can be used as openshfit client");
     }
 }

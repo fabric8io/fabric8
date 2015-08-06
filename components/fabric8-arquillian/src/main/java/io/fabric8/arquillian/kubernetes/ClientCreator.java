@@ -15,6 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
@@ -31,7 +32,7 @@ public class ClientCreator {
 
     public void createClient(@Observes Configuration config) {
         if (!Strings.isNullOrBlank(config.getMasterUrl())) {
-            kubernetesProducer.set(new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(config.getMasterUrl()).build()));
+            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(config.getMasterUrl()).build()));
         } else {
             kubernetesProducer.set(new DefaultKubernetesClient());
         }

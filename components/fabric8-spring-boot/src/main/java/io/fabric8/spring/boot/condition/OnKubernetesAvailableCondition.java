@@ -15,7 +15,7 @@
  */
 package io.fabric8.spring.boot.condition;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.utils.Strings;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
@@ -27,7 +27,7 @@ public class OnKubernetesAvailableCondition extends SpringBootCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String masterUrl = Utils.getSystemPropertyOrEnvVar(DefaultKubernetesClient.KUBERNETES_MASTER_SYSTEM_PROPERTY);
+        String masterUrl = Utils.getSystemPropertyOrEnvVar(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY);
         if (!Strings.isNullOrBlank(masterUrl)) {
            return ConditionOutcome.match();
         }

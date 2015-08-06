@@ -23,7 +23,7 @@ import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.OpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;

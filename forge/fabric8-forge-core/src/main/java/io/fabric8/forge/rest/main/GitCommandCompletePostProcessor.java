@@ -598,7 +598,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
     protected String getServiceAddress(String serviceName, String namespace) {
         LOG.info("Looking up service " + serviceName + " for namespace: " + namespace);
-        io.fabric8.kubernetes.api.model.Service service = kubernetes.services().inNamespace(namespace).withName(serviceName).getIfExists();
+        io.fabric8.kubernetes.api.model.Service service = kubernetes.services().inNamespace(namespace).withName(serviceName).get();
 
         String serviceAddress = null;
         if (service != null) {

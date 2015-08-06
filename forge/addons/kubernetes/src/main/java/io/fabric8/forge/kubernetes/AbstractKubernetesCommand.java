@@ -18,6 +18,7 @@ package io.fabric8.forge.kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
@@ -70,7 +71,7 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
         if (kubernetes == null) {
             String kubernetesAddress = kubernetesUrl.getValue();
             if (Strings.isNotBlank(kubernetesAddress)) {
-                kubernetes = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesAddress).build());
+                kubernetes = new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(kubernetesAddress).build());
             } else {
                 kubernetes = new DefaultKubernetesClient();
             }

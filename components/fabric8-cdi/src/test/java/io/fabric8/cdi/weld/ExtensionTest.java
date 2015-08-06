@@ -22,6 +22,7 @@ import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -82,6 +83,8 @@ public class ExtensionTest {
         APP_LIBRARY_SERVICE_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
         EMPTY_ROUTES_JSON = Resources.toString(ExtensionTest.class.getResource("/mock/empty-routes.json"), Charsets.UTF_8);
 
+        http://Ioanniss-MacBook-Pro-2.local:63105/api/v1/oapi/v1/namespaces/default/routes/
+
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -122,8 +125,8 @@ public class ExtensionTest {
         });
 
         server.play();
-        System.setProperty(DefaultKubernetesClient.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
-        System.setProperty(DefaultKubernetesClient.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
+        System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
+        System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
 
     }
 

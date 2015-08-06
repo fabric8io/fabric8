@@ -18,6 +18,7 @@ package io.fabric8.forge.devops;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -81,7 +82,7 @@ public class AbstractDevOpsCommand extends AbstractProjectCommand implements UIC
         if (kubernetes == null) {
             String kubernetesAddress = kubernetesUrl.getValue();
             if (Strings.isNotBlank(kubernetesAddress)) {
-                kubernetes = new DefaultKubernetesClient(new DefaultKubernetesClient.ConfigBuilder().masterUrl(kubernetesAddress).build());
+                kubernetes = new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(kubernetesAddress).build());
             } else {
                 kubernetes = new DefaultKubernetesClient();
             }

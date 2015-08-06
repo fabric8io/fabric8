@@ -40,6 +40,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
@@ -504,9 +505,9 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     }
 
     private static RouteList listRoutes(KubernetesClient client, String namespace) {
-        if (KubernetesHelper.isOpenShift(client)) {
-            return KubernetesHelper.toOpenshift(client).routes().inNamespace(namespace).list();
-        } else {
+        try {
+            return client.adapt(OpenShiftClient.class).routes().inNamespace(namespace).list();
+        } catch (Throwable t) {
             return new RouteListBuilder().build();
         }
     }
