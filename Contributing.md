@@ -88,8 +88,8 @@ license your work under the terms of the [Apache License](license.txt)
 
 # Additional Resources
 
-* [fabric8 FAQ](/faq/index.html)
+* [fabric8 FAQ](http://fabric8.io/faq/index.html)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub create pull request documentation](https://help.github.com/articles/creating-a-pull-request)
-* [join the fabric8 community](/community/index.html)
+* [join the fabric8 community](http://fabric8.io/community/index.html)
 
