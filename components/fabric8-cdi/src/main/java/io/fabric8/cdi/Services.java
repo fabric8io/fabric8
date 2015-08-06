@@ -25,7 +25,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.fabric8.cdi.KubernetesHolder.KUBERNETES;
 
 public class Services {
 
@@ -35,7 +34,7 @@ public class Services {
 
     public static String toServiceUrl(String serviceName, String serviceProtocol, boolean serviceExternal) {
         String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
-        return KubernetesHelper.getServiceURL(KUBERNETES, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
+        return KubernetesHelper.getServiceURL(KubernetesHolder.getClient(), serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
@@ -55,7 +54,7 @@ public class Services {
             return endpoints;
         }
         
-        for (io.fabric8.kubernetes.api.model.Endpoints item : KUBERNETES.endpoints().inNamespace(namespace).list().getItems()) {
+        for (io.fabric8.kubernetes.api.model.Endpoints item : KubernetesHolder.getClient().endpoints().inNamespace(namespace).list().getItems()) {
             if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
                 for (EndpointSubset subset : item.getSubsets()) {
                     for (EndpointAddress address : subset.getAddresses()) {

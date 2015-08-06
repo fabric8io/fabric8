@@ -109,8 +109,12 @@
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
             <scope>test</scope>
         </dependency>
-        
 
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>openshift-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
         
         <dependency>
             <groupId>junit</groupId>
@@ -123,21 +127,6 @@
             <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
         </dependency>
-
-
-        <!-- mockserver -->
-        <dependency>
-            <groupId>com.google.mockwebserver</groupId>
-            <artifactId>mockwebserver</artifactId>
-            <version>${mockwebserver.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

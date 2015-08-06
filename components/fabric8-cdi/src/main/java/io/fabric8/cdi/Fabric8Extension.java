@@ -36,8 +36,11 @@ import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.AnnotatedMethod;
 import javax.enterprise.inject.spi.AnnotatedParameter;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import javax.enterprise.inject.spi.ProcessManagedBean;
 import java.lang.annotation.Annotation;
@@ -53,7 +56,7 @@ public class Fabric8Extension implements Extension {
 
     private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
 
-    public void afterDiscovery(final @Observes AfterBeanDiscovery event) {
+    public void afterDiscovery(final @Observes AfterBeanDiscovery event, BeanManager beanManager) {
         event.addBean(new KubernetesClientBean());
 
         //We need to process factories in reverse order so that we make feasible forwarding for service id etc.
@@ -95,8 +98,13 @@ public class Fabric8Extension implements Extension {
         }
     }
 
+    public <R> void processAnnotatedType(@Observes ProcessAnnotatedType<R> pat,
+                              BeanManager beanManager) {
+     AnnotatedType type = pat.getAnnotatedType();
+    }
 
-    public <T, X> void onInjectionPoint(@Observes ProcessInjectionPoint<T, X> event) {
+
+    public <T, X> void onInjectionPoint(@Observes ProcessInjectionPoint<T, X> event, BeanManager beanManager) {
         final InjectionPoint injectionPoint = event.getInjectionPoint();
         if (isServiceInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();

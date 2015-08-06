@@ -16,10 +16,33 @@
 package io.fabric8.cdi;
 
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
+import java.util.Set;
+
 public class KubernetesHolder {
-    
-    public static final KubernetesClient KUBERNETES = new DefaultKubernetesClient();
+
+    private static KubernetesClient client;
+
+    public synchronized static KubernetesClient getClient() {
+        if (client != null) {
+            return client;
+        }
+        BeanManager beanManager = CDI.current().getBeanManager();
+
+        Set<Bean<?>> beans = beanManager.getBeans(KubernetesClient.class);
+        if (beans.isEmpty()) {
+            throw new IllegalStateException("Could not find client beans!");
+        } else {
+            CreationalContext ctx = beanManager.createCreationalContext(null);
+            client = (KubernetesClient) beanManager.getReference(beans.iterator().next(), KubernetesClient.class, ctx);
+        }
+        return client;
+    }
+
 }
