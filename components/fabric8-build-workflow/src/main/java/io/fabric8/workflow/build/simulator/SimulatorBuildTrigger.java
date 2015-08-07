@@ -13,15 +13,17 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.trigger;
+package io.fabric8.workflow.build.simulator;
+
+import io.fabric8.workflow.build.trigger.BuildTrigger;
 
 /**
+ * Triggers a build in the simulator
  */
-public interface BuildTrigger {
-    /**
-     * Triggers the given build if possible
-     *
-     * @return the UUID of the build or null if the build could not be triggered
-     */
-    String trigger(String namespace, String buildName);
+public class SimulatorBuildTrigger implements BuildTrigger {
+
+    @Override
+    public String trigger(String namespace, String buildName) {
+        return BuildSimulator.getSingleton().triggerBuild(namespace, buildName);
+    }
 }

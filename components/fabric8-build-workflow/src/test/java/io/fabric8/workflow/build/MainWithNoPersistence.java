@@ -16,7 +16,7 @@
 package io.fabric8.workflow.build;
 
 
-import io.fabric8.io.fabric8.workflow.build.signal.BuildSignallerService;
+import io.fabric8.workflow.build.signal.BuildSignallerService;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;

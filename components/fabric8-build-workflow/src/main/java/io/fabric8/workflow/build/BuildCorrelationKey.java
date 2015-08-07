@@ -13,45 +13,57 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.dto;
+package io.fabric8.workflow.build;
 
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 
 /**
- * Represents a DTO for a build which is finished with a status and link to the build.
+ * Represents a build correlation key to uniquely identify a build job
  */
-public class BuildFinishedDTO {
+public class BuildCorrelationKey {
     private final String namespace;
     private final String buildName;
     private final String buildUuid;
-    private final String status;
-    private final String buildLink;
 
-    public BuildFinishedDTO(BuildFinishedEvent event) {
-        this(event.getNamespace(), event.getConfigName(), event.getUid(), event.getStatus(), event.getBuildLink());
+    public static BuildCorrelationKey create(BuildFinishedEvent event) {
+        return new BuildCorrelationKey(event.getNamespace(), event.getConfigName(), event.getUid());
     }
 
-    public BuildFinishedDTO(String namespace, String buildName, String buildUuid, String status, String buildLink) {
+    public BuildCorrelationKey(String namespace, String buildName, String buildUuid) {
         this.namespace = namespace;
         this.buildName = buildName;
         this.buildUuid = buildUuid;
-        this.status = status;
-        this.buildLink = buildLink;
     }
 
     @Override
     public String toString() {
-        return "BuildFinishedDTO{" +
-                "buildLink='" + buildLink + '\'' +
-                ", namespace='" + namespace + '\'' +
+        return "BuildCorrelationKey{" +
+                "namespace='" + namespace + '\'' +
                 ", buildName='" + buildName + '\'' +
                 ", buildUuid='" + buildUuid + '\'' +
-                ", status='" + status + '\'' +
                 '}';
     }
 
-    public String getBuildLink() {
-        return buildLink;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BuildCorrelationKey that = (BuildCorrelationKey) o;
+
+        if (!buildName.equals(that.buildName)) return false;
+        if (!buildUuid.equals(that.buildUuid)) return false;
+        if (!namespace.equals(that.namespace)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = namespace.hashCode();
+        result = 31 * result + buildName.hashCode();
+        result = 31 * result + buildUuid.hashCode();
+        return result;
     }
 
     public String getBuildName() {
@@ -64,9 +76,5 @@ public class BuildFinishedDTO {
 
     public String getNamespace() {
         return namespace;
-    }
-
-    public String getStatus() {
-        return status;
     }
 }

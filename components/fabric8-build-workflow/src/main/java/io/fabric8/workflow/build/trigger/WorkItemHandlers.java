@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.trigger;
+package io.fabric8.workflow.build.trigger;
 
 import io.fabric8.utils.Strings;
 import org.kie.api.runtime.process.WorkItem;

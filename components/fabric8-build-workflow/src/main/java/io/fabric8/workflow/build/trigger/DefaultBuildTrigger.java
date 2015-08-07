@@ -13,9 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.trigger;
+package io.fabric8.workflow.build.trigger;
 
-import com.ning.http.client.ws.WebSocket;
+import io.fabric8.kubernetes.client.internal.com.ning.http.client.ws.WebSocket;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;

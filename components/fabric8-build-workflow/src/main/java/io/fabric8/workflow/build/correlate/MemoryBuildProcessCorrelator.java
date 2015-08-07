@@ -13,9 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.correlate;
+package io.fabric8.workflow.build.correlate;
 
-import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
+import io.fabric8.workflow.build.BuildCorrelationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

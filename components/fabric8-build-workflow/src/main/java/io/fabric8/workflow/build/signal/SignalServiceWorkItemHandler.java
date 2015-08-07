@@ -13,9 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.signal;
+package io.fabric8.workflow.build.signal;
 
-import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
+import io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Starts up the {@link io.fabric8.io.fabric8.workflow.build.signal.BuildSignallerService} to ensure its running
+ * Starts up the {@link BuildSignallerService} to ensure its running
  */
 public class SignalServiceWorkItemHandler implements WorkItemHandler {
     private static final transient Logger LOG = LoggerFactory.getLogger(BuildWorkItemHandler.class);

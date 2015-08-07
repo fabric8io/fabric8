@@ -13,17 +13,22 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.simulator;
-
-import io.fabric8.io.fabric8.workflow.build.trigger.BuildTrigger;
+package io.fabric8.workflow.build.correlate;
 
 /**
- * Triggers a build in the simulator
+ * Helper functions for working with BuildProcessCorrelator objects
  */
-public class SimulatorBuildTrigger implements BuildTrigger {
+public class BuildProcessCorrelators {
+    private static BuildProcessCorrelator singleton;
 
-    @Override
-    public String trigger(String namespace, String buildName) {
-        return BuildSimulator.getSingleton().triggerBuild(namespace, buildName);
+    public static BuildProcessCorrelator getSingleton() {
+        if (singleton == null) {
+            singleton = new MemoryBuildProcessCorrelator();
+        }
+        return singleton;
+    }
+
+    public static void setSingleton(BuildProcessCorrelator singleton) {
+        BuildProcessCorrelators.singleton = singleton;
     }
 }

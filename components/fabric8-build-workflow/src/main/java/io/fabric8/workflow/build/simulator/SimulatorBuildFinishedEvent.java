@@ -13,9 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.simulator;
+package io.fabric8.workflow.build.simulator;
 
-import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
+import io.fabric8.workflow.build.BuildCorrelationKey;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.openshift.api.model.Build;

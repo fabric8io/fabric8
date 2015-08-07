@@ -13,11 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.signal;
+package io.fabric8.workflow.build.signal;
 
-import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
-import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
-import io.fabric8.io.fabric8.workflow.build.simulator.BuildSimulator;
+import io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
+import io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
+import io.fabric8.workflow.build.simulator.BuildSimulator;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -33,7 +33,7 @@ import java.util.Timer;
  * signals new processes to start.
  * <p/>
  * This service is a helper class to create a configured instance of a
- * {@link io.fabric8.io.fabric8.workflow.build.signal.BuildSignaller} using the
+ * {@link BuildSignaller} using the
  * {@link io.fabric8.kubernetes.api.builds.BuildWatcher} helper class.
  */
 public class BuildSignallerService {

@@ -13,10 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build;
+package io.fabric8.workflow.build;
 
-import io.fabric8.io.fabric8.workflow.build.signal.SignalServiceWorkItemHandler;
-import io.fabric8.io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
+import io.fabric8.workflow.build.signal.SignalServiceWorkItemHandler;
+import io.fabric8.workflow.build.trigger.BuildWorkItemHandler;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItemManager;
 

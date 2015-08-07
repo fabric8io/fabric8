@@ -13,11 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.signal;
+package io.fabric8.workflow.build.signal;
 
-import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
-import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
-import io.fabric8.io.fabric8.workflow.build.dto.BuildFinishedDTO;
+import io.fabric8.workflow.build.BuildCorrelationKey;
+import io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
+import io.fabric8.workflow.build.dto.BuildFinishedDTO;
 import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
 import org.kie.api.runtime.KieSession;

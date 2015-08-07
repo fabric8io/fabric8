@@ -13,11 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.io.fabric8.workflow.build.trigger;
+package io.fabric8.workflow.build.trigger;
 
-import io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey;
-import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
-import io.fabric8.io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
+import io.fabric8.workflow.build.BuildCorrelationKey;
+import io.fabric8.workflow.build.correlate.BuildProcessCorrelator;
+import io.fabric8.workflow.build.correlate.BuildProcessCorrelators;
 import io.fabric8.utils.Strings;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Invoked from inside a jBPM process to trigger a new build in OpenShift and register
- * the {@link io.fabric8.io.fabric8.workflow.build.BuildCorrelationKey}
+ * the {@link BuildCorrelationKey}
  * of the new build into the {@link BuildProcessCorrelator}
  */
 public class BuildWorkItemHandler implements WorkItemHandler {

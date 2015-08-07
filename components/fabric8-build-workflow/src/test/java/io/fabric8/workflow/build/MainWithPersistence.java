@@ -15,7 +15,7 @@
  */
 package io.fabric8.workflow.build;
 
-import io.fabric8.io.fabric8.workflow.build.signal.BuildSignallerService;
+import io.fabric8.workflow.build.signal.BuildSignallerService;
 import org.jbpm.test.JBPMHelper;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
