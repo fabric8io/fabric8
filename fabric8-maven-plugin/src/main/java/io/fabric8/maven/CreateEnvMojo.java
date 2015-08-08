@@ -57,6 +57,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -268,32 +270,38 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         return result;
     }
     
-    /**
-     * Lets expand environment variables by overriding it via via the command line.
-     */
-    protected void expandEnvironmentVariable(Map<String, String> env) {
-        MavenProject project = getProject();
-        if (project != null) {
-            Properties properties = project.getProperties();
-            properties.putAll(project.getProperties());
-            properties.putAll(System.getProperties());
-            for (Map.Entry<String, String> entry : env.entrySet()) {
-	                String envValue = entry.getValue();
-	                if (envValue != null && !envValue.isEmpty() && envValue.contains("${") && envValue.contains("}")) {
-	                String parameterName = envValue.substring(envValue.indexOf("${") + 2, envValue.indexOf("}"));
-	                String name = "fabric8.create-env." + parameterName;
-	                String propertyValue = properties.getProperty(name);
-	                if (Strings.isNotBlank(propertyValue)) {
-	                    getLog().info("Overriding environment variable " + parameterName + " with value: " + propertyValue);
-	                    String replaced = checkAndReplaceValue(envValue, propertyValue, parameterName);
-	                    entry.setValue(replaced);
-	                } else {
-	                    getLog().info("No property defined for environment variable: " + parameterName);
-	                }
-                }
-            }
-        }
-    }
+	/**
+	 * Lets expand environment variables by overriding it via via the command
+	 * line.
+	 */
+	protected void expandEnvironmentVariable(Map<String, String> env) {
+		String regex = "\\$\\{(.*?)\\}";
+		MavenProject project = getProject();
+		if (project != null) {
+			Properties properties = project.getProperties();
+			properties.putAll(project.getProperties());
+			properties.putAll(System.getProperties());
+			for (Map.Entry<String, String> entry : env.entrySet()) {
+				String envValue = entry.getValue();
+				if (envValue != null && !envValue.isEmpty() && envValue.contains("${") && envValue.contains("}")) {
+					Pattern p = Pattern.compile(regex);
+					Matcher m = p.matcher(entry.getValue());
+					while (m.find()) {
+						String parameterName = m.group(1);
+						String name = "fabric8.create-env." + parameterName;
+						String propertyValue = properties.getProperty(name);
+						if (Strings.isNotBlank(propertyValue)) {
+							getLog().info("Overriding environment variable " + parameterName + " with value: " + propertyValue);
+							String replaced = checkAndReplaceValue(entry.getValue(), propertyValue, parameterName);
+							entry.setValue(replaced);
+						} else {
+							getLog().info("No property defined for environment variable: " + parameterName);
+						}
+					}
+				}
+			}
+		}
+	}
     
 	/**
 	 * Return VolumeMounts found in the kubernetes config.
