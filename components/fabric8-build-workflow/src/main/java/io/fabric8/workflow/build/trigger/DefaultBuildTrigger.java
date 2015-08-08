@@ -15,12 +15,12 @@
  */
 package io.fabric8.workflow.build.trigger;
 
-import io.fabric8.kubernetes.client.internal.com.ning.http.client.ws.WebSocket;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.client.OpenShiftClient;
@@ -46,7 +46,7 @@ public class DefaultBuildTrigger implements BuildTrigger {
     @Override
     public String trigger(String namespace, final String buildName) {
         final BlockingQueue<String> uuid = new ArrayBlockingQueue<>(1);
-        try (WebSocket webSocket = kubernetes.adapt(OpenShiftClient.class).builds().inNamespace(namespace).watch(new Watcher<Build>() {
+        try (Watch watch = kubernetes.adapt(OpenShiftClient.class).builds().inNamespace(namespace).watch(new Watcher<Build>() {
             @Override
             public void eventReceived(Action action, Build build) {
                 if (action == Action.ADDED && KubernetesHelper.getName(build).equals(buildName)) {
