@@ -155,6 +155,11 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             }
         }
         KubernetesClient kubernetes = getKubernetes();
+        
+        if (kubernetes.getMasterUrl() == null) {
+        	throw new MojoFailureException("Can't find Kubernetes master URL");
+        }
+        
         getLog().info("Using kubernetes at: " + kubernetes.getMasterUrl() + " in namespace " + getNamespace());
 
         getLog().info("Kubernetes JSON: " + json);
