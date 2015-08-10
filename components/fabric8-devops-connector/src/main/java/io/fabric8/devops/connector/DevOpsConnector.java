@@ -20,6 +20,7 @@ import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -171,8 +172,9 @@ public class DevOpsConnector {
 
         Map<String, String> annotations = new HashMap<>();
         jenkinsJobUrl = null;
+        String jenkinsUrl = null;
         try {
-            String jenkinsUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", true);
+            jenkinsUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", true);
 
             if (Strings.isNotBlank(jenkinsUrl)) {
                 if (Strings.isNotBlank(jenkinsMonitorView)) {
@@ -250,16 +252,14 @@ public class DevOpsConnector {
         }
         if (Strings.isNotBlank(buildImageStream) && Strings.isNotBlank(buildImageTag)) {
 
-            List<EnvVar> buildEnvVars = new ArrayList<EnvVar>();
-            EnvVar jobName = new EnvVar();
-            jobName.setName("JENKINS_JOB_URL");
-            jobName.setValue(jenkinsJobUrl);
-            buildEnvVars.add(jobName);
+            ListEnvVarBuilder envBuilder = new ListEnvVarBuilder();
+            envBuilder.withEnvVar("BASE_URI", jenkinsUrl);
+            envBuilder.withEnvVar("JOB_NAME", name);
 
             specBuilder = specBuilder.
                     withNewStrategy().
                     withType("Custom").withNewCustomStrategy().withNewFrom().withKind("DockerImage").withName(s2iCustomBuilderImage).endFrom()
-                    .withEnv(buildEnvVars).endCustomStrategy().
+                    .withEnv(envBuilder.build()).endCustomStrategy().
                     endStrategy();
 
         }
