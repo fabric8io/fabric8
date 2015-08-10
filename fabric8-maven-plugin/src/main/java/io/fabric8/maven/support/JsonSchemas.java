@@ -75,19 +75,19 @@ public class JsonSchemas {
     }
 
     public static JsonSchema loadSchema(URL url) throws IOException {
-        return objectMapper.reader(JsonSchema.class).readValue(url);
+        return objectMapper.readerFor(JsonSchema.class).readValue(url);
     }
 
     public static JsonSchema loadSchema(File file) throws IOException {
-        return objectMapper.reader(JsonSchema.class).readValue(file);
+        return objectMapper.readerFor(JsonSchema.class).readValue(file);
     }
 
     public static JsonSchema loadSchema(InputStream inputStream) throws IOException {
-        return objectMapper.reader(JsonSchema.class).readValue(inputStream);
+        return objectMapper.readerFor(JsonSchema.class).readValue(inputStream);
     }
 
     public static JsonSchema loadSchema(byte[] data) throws IOException {
-        return objectMapper.reader(JsonSchema.class).readValue(data);
+        return objectMapper.readerFor(JsonSchema.class).readValue(data);
     }
 
     /**
