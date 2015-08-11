@@ -452,7 +452,7 @@ public final class KubernetesHelper {
      */
     public static Object loadJson(byte[] json) throws IOException {
         if (json != null && json.length > 0) {
-            return OBJECT_MAPPER.reader(KubernetesResource.class).readValue(json);
+            return OBJECT_MAPPER.readerFor(KubernetesResource.class).readValue(json);
         }
         return null;
     }
