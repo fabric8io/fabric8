@@ -263,7 +263,7 @@ public class Controller {
                         doCreateOAuthClient(entity, sourceName);
                     } else {
                         try {
-                            Object answer = openShiftClient.oAuthClients().withName(id).update(entity);
+                            Object answer = openShiftClient.oAuthClients().withName(id).replace(entity);
                             LOG.info("Updated pod result: " + answer);
                         } catch (Exception e) {
                             onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + entity, e);
@@ -312,7 +312,7 @@ public class Controller {
                     } else {
                         LOG.info("Updating a entity from " + sourceName);
                         try {
-                            Object answer = openShiftClient.templates().inNamespace(namespace).withName(id).update(entity);
+                            Object answer = openShiftClient.templates().inNamespace(namespace).withName(id).replace(entity);
                             LOG.info("Updated entity: " + answer);
                         } catch (Exception e) {
                             onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + entity, e);
@@ -362,7 +362,7 @@ public class Controller {
                 } else {
                     LOG.info("Updating a service account from " + sourceName);
                     try {
-                        Object answer = kubernetesClient.serviceAccounts().inNamespace(namespace).withName(id).update(serviceAccount);
+                        Object answer = kubernetesClient.serviceAccounts().inNamespace(namespace).withName(id).replace(serviceAccount);
                         logGeneratedEntity("Updated service account: ", namespace, serviceAccount, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update service account from " + sourceName + ". " + e + ". " + serviceAccount, e);
@@ -417,7 +417,7 @@ public class Controller {
                 } else {
                     LOG.info("Updateing a secret from " + sourceName);
                     try {
-                        Object answer = kubernetesClient.secrets().inNamespace(namespace).withName(id).update(secret);
+                        Object answer = kubernetesClient.secrets().inNamespace(namespace).withName(id).replace(secret);
                         logGeneratedEntity("Updated secret:", namespace, secret, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update secret from " + sourceName + ". " + e + ". " + secret, e);
@@ -609,7 +609,7 @@ public class Controller {
                         ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
                         metadata.setNamespace(namespace);
                         metadata.setResourceVersion(resourceVersion);
-                        Object answer = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).update(entity);
+                        Object answer = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).replace(entity);
                         logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
@@ -678,7 +678,7 @@ public class Controller {
                 } else {
                     LOG.info("Updating a service from " + sourceName);
                     try {
-                        Object answer = kubernetesClient.services().inNamespace(namespace).withName(id).update(service);
+                        Object answer = kubernetesClient.services().inNamespace(namespace).withName(id).replace(service);
                         logGeneratedEntity("Updated service: ", namespace, service, answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update controller from " + sourceName + ". " + e + ". " + service, e);
@@ -751,7 +751,7 @@ public class Controller {
                 } else {
                     LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
                     try {
-                        Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).update(replicationController);
+                        Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).replace(replicationController);
                         logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
 
                         if (deletePodsOnReplicationControllerUpdate) {
@@ -836,7 +836,7 @@ public class Controller {
                 } else {
                     LOG.info("Updating a pod from " + sourceName + " namespace " + namespace + " name " + getName(pod));
                     try {
-                        Object answer = kubernetesClient.pods().inNamespace(namespace).withName(id).update(pod);
+                        Object answer = kubernetesClient.pods().inNamespace(namespace).withName(id).replace(pod);
                         LOG.info("Updated pod result: " + answer);
                     } catch (Exception e) {
                         onApplyError("Failed to update pod from " + sourceName + ". " + e + ". " + pod, e);
