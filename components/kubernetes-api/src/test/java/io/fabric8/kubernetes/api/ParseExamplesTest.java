@@ -99,7 +99,7 @@ public class ParseExamplesTest {
     public static <T> T assertParseExampleFile(String fileName, Class<T> clazz) throws Exception {
         File exampleFile = new File(getKubernetesExamplesDir(), fileName);
         assertFileExists(exampleFile);
-        T answer = OBJECT_MAPPER.reader(clazz).readValue(exampleFile);
+        T answer = OBJECT_MAPPER.readerFor(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
         LOG.info("Parsed: " + fileName + " as: " + answer);
         return answer;

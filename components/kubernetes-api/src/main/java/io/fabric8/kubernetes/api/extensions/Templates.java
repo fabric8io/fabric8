@@ -217,7 +217,7 @@ public class Templates {
                     json = Strings.replaceAllWithoutRegex(json, regex, value);
                 }
             }
-            return  OBJECT_MAPPER.reader(KubernetesList.class).readValue(json);
+            return  OBJECT_MAPPER.readerFor(KubernetesList.class).readValue(json);
         } else {
             KubernetesList answer = new KubernetesList();
             answer.setItems(objects);

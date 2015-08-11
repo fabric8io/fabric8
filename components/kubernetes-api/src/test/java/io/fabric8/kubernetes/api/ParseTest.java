@@ -128,7 +128,7 @@ public class ParseTest {
     public static <T> T assertParseExampleFile(String fileName, Class<T> clazz) throws Exception {
         File exampleFile = new File(getKubernetesExamplesDir(), fileName);
         assertFileExists(exampleFile);
-        Object answer = OBJECT_MAPPER.reader(clazz).readValue(exampleFile);
+        Object answer = OBJECT_MAPPER.readerFor(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
         LOG.info("Parsed: " + fileName + " as: " + answer);
         assertTrue("Is not an instance of " + clazz.getSimpleName() + " was: "+ answer.getClass().getName(), clazz.isInstance(answer));
