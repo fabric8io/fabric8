@@ -191,10 +191,7 @@ profiles (but app templates instead), the Git repository is not needed anymore. 
 in the Maven project and use the <a href="mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes
 without keeping the configuration in any central repository (like Git).</p>
 
-<p>However keeping app files in Git for easier configuration management can be useful. That's why Hawt.io provides this
-functionality for you. You can push your configuration to the Hawt.io Git repository via 
-<a href="mavenPlugin.html#deploying">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="appzip.html">App Zip</a>
-packaging format to distribute the configuration between the various environments.</p>
+<p>However keeping app files in Git for easier configuration management is recommended. That's why fabric8 has integrated with <a href="http://gogs.io/">Gogs</a> for on premise git repository hosting.  This comes from the <a href="fabric8DevOps.md">fabric8 DevOps</a> features.</p>
 
 <h4 id = "Is_Fabric8_server_required_to_provision_applications_">Is Fabric8 server required to provision applications?</h4>
 
