@@ -52,6 +52,7 @@
     <bundle>wrap:mvn:dnsjava/dnsjava/${dnsjava.version}$overwrite=merge&amp;Import-Package=android.os;resolution:=optional,sun.net.spi.nameservice;resolution:=optional,*</bundle>
     <bundle>wrap:mvn:org.yaml/snakeyaml/${snakeyaml.version}</bundle>
     <bundle>wrap:mvn:org.json/json/${json.version}</bundle>
+    <bundle>wrap:mvn:io.fabric8/openshift-client/${kubernetes-client.version}</bundle>
     <bundle>wrap:mvn:io.fabric8/kubernetes-client/${kubernetes-client.version}</bundle>
     <bundle>mvn:io.fabric8/kubernetes-model/${kubernetes-model.version}</bundle>
     <bundle>mvn:io.fabric8/kubernetes-api/${project.version}</bundle>
