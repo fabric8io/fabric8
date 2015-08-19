@@ -169,7 +169,7 @@
         <validation-api.version>1.1.0.Final</validation-api.version>
         <vertx.version>2.1.6</vertx.version>
         <weld.version>2.2.15.Final</weld.version>
-        <wildfly.version>8.2.1.Final</wildfly.version>
+        <wildfly.version>8.2.2.Final</wildfly.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <ning.http-client.version>1.9.30</ning.http-client.version>
 
