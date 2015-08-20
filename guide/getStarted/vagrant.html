@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Wed Aug 19 2015 14:08:21 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Aug 20 2015 06:05:09 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1254,6 +1254,28 @@ sudo journalctl -fu openshift
 <pre><code class="lang-sh">vagrant ssh
 sudo journalctl -fu docker
 </code></pre>
+<h4 id="tracing-the-openshift-binaries-download"><a name="tracing-the-openshift-binaries-download" class="plugin-anchor" href="#tracing-the-openshift-binaries-download"><span class="fa fa-link"></span></a>Tracing the openshift binaries download</h4>
+<p>The provision script in the VagrantFile includes a curl command to download the openshift binaries. To observe that the download is functioning correctly, remove the silent options from the curl command. Replace:</p>
+<pre><code class="lang-sh">curl --retry <span class="hljs-number">999</span> --retry-max-time <span class="hljs-number">0</span>  <span class="hljs-operator">-s</span>SL https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">0.4</span>/openshift-origin-v1.<span class="hljs-number">0.4</span>-<span class="hljs-number">757</span>efd9-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+</code></pre>
+<p>with</p>
+<pre><code class="lang-sh">curl --retry <span class="hljs-number">999</span> --retry-max-time <span class="hljs-number">0</span>  -L https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">0.4</span>/openshift-origin-v1.<span class="hljs-number">0.4</span>-<span class="hljs-number">757</span>efd9-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+</code></pre>
+<h4 id="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><a name="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin" class="plugin-anchor" href="#ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><span class="fa fa-link"></span></a>Ensuring celluloid gem version not incompatible with landrush vagrant plugin</h4>
+<p>If you experience DNS issues during vagrant provisioning of the VM then ensure that you do not have landrush vagrant plugin version 0.18.0 installed with celluloid gem version 0.16.1.</p>
+<p>Display the landrush version:</p>
+<pre><code class="lang-sh">vagrant plugin list
+</code></pre>
+<p>Display the celluloid version:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
+gem list
+</code></pre>
+<p>If the landrush version is 0.18.0 and the celluloid version is 0.16.1 then downgrade celluloid to version 0.16.0:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
+gem uninstall celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">1</span>
+gem install celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">0</span>
+</code></pre>
+<p>For further information see: <a href="https://github.com/fabric8io/fabric8/issues/4294" target="_blank">fabric8io/fabric8#4294</a>, <a href="https://github.com/phinze/landrush/issues/120" target="_blank">phinze/landrush#120</a> and <a href="https://github.com/ioquatix/rubydns/issues/55" target="_blank">ioquatix/rubydns#55</a>.</p>
 
                     
                     </section>
