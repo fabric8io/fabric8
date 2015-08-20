@@ -169,3 +169,44 @@ You can watch the docker daemon too via
 vagrant ssh
 sudo journalctl -fu docker
 ```
+
+#### Tracing the openshift binaries download
+
+The provision script in the VagrantFile includes a curl command to download the openshift binaries. To observe that the download is functioning correctly, remove the silent options from the curl command. Replace:
+
+```sh
+curl --retry 999 --retry-max-time 0  -sSL https://github.com/openshift/origin/releases/download/v1.0.4/openshift-origin-v1.0.4-757efd9-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+```
+
+with
+
+```sh
+curl --retry 999 --retry-max-time 0  -L https://github.com/openshift/origin/releases/download/v1.0.4/openshift-origin-v1.0.4-757efd9-linux-amd64.tar.gz | tar xzv -C /tmp/openshift
+```
+
+#### Ensuring celluloid gem version not incompatible with landrush vagrant plugin
+
+If you experience DNS issues during vagrant provisioning of the VM then ensure that you do not have landrush vagrant plugin version 0.18.0 installed with celluloid gem version 0.16.1.
+
+Display the landrush version:
+
+```sh
+vagrant plugin list
+```
+
+Display the celluloid version:
+
+```sh
+export GEM_HOME=~/.vagrant.d/gems
+gem list
+```
+
+If the landrush version is 0.18.0 and the celluloid version is 0.16.1 then downgrade celluloid to version 0.16.0:
+
+```sh
+export GEM_HOME=~/.vagrant.d/gems
+gem uninstall celluloid -v 0.16.1
+gem install celluloid -v 0.16.0
+```
+
+For further information see: [fabric8io/fabric8#4294](https://github.com/fabric8io/fabric8/issues/4294), [phinze/landrush#120](https://github.com/phinze/landrush/issues/120) and [ioquatix/rubydns#55](https://github.com/ioquatix/rubydns/issues/55).
