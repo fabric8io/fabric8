@@ -39,6 +39,17 @@ In most of the cases the user will create a client so that it can consume the se
         return new MyClient(url);
     }
 
+### The @Protocol annotation
+Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that its really smelly.
+
+The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.
+
+        @Inject
+        @ServiceName("my-ftp-service")
+        @Protocol("ftp")
+        private String service.
+
 ### Using Factories
 The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
 To simplify the code Fabric8 provides the @Factory annotation.
@@ -140,3 +151,16 @@ The you can directly inject the client:
         private MyClient cl2;        
         
 In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.
+
+#### Injection of Optional Services
+
+A common approach for treating with Optional services in CDI is to use Instance injection. For example:
+
+    @Inject
+    Instance<MyClient> instance;
+
+    ...
+
+    MyClient client = instance.get();
+
+The Fabric8 CDI extension supports instance injection for all kinds of injection including @Factory.
