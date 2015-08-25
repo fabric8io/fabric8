@@ -17,12 +17,14 @@ package io.fabric8.hubot;
 
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
+import io.fabric8.utils.Strings;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -39,22 +41,47 @@ public class HubotNotifier {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(HubotNotifier.class);
 
+    @Inject
+    @Protocol("http")
+    @ServiceName(HUBOT_WEB_HOOK_SERVICE_NAME)
+    private Instance<String> hubotUrlHolder;
+
     private final String hubotUrl;
     private final String username;
     private final String password;
     private final String roomExpression;
     private HubotRestApi api;
+    private LoggingHubotRestApi logMessages = new LoggingHubotRestApi();
 
     @Inject
-    public HubotNotifier(@Protocol("http") @ServiceName(HUBOT_WEB_HOOK_SERVICE_NAME) String hubotUrl,
-                         @ConfigProperty(name = "HUBOT_USERNAME", defaultValue = "") String username,
+    public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME", defaultValue = "") String username,
                          @ConfigProperty(name = "HUBOT_PASSWORD", defaultValue = "") String password,
                          @ConfigProperty(name = "HUBOT_BUILD_ROOM", defaultValue = DEFAULT_ROOM_EXPRESSION) String roomExpression) {
+        this.username = username;
+        this.password = password;
+        this.roomExpression = roomExpression;
+        if (hubotUrlHolder != null) {
+            this.hubotUrl = hubotUrlHolder.get();
+        } else {
+            this.hubotUrl = null;
+        }
+        init();
+    }
+
+    public HubotNotifier(String hubotUrl, String username, String password, String roomExpression) {
         this.hubotUrl = hubotUrl;
         this.username = username;
         this.password = password;
         this.roomExpression = roomExpression;
-        LOG.info("Starting HubotNotifier using address: " + hubotUrl);
+        init();
+    }
+
+    private void init() {
+        if (Strings.isNotBlank(hubotUrl)) {
+            LOG.info("Starting HubotNotifier using address: " + hubotUrl);
+        } else {
+            LOG.warn("No kubernetes service found for " + HUBOT_WEB_HOOK_SERVICE_NAME + " so chat messages just going to logs instead");
+        }
     }
 
     String getHubotUrl() {
@@ -68,7 +95,7 @@ public class HubotNotifier {
      * @param message the notification message to send which can include links or refer to people via @somenick
      */
     public void notifyRoom(String room, String message) {
-        LOG.info("About to notify room: " + room + " message: " + message);
+        logMessages.notify(room, message);
         try {
             getHubotRestApi().notify(room, message);
         } catch (Exception e) {
@@ -94,7 +121,11 @@ public class HubotNotifier {
 
     protected HubotRestApi getHubotRestApi() {
         if (api == null) {
-            api = createWebClient(HubotRestApi.class);
+            if (Strings.isNotBlank(hubotUrl)) {
+                api = createWebClient(HubotRestApi.class, hubotUrl);
+            } else {
+                api = new NoopHubotRestApi();
+            }
         }
         return api;
     }
@@ -102,7 +133,7 @@ public class HubotNotifier {
     /**
      * Creates a JAXRS web client for the given JAXRS client
      */
-    protected <T> T createWebClient(Class<T> clientType) {
+    protected <T> T createWebClient(Class<T> clientType, String hubotUrl) {
         List<Object> providers = createProviders();
         WebClient webClient = WebClient.create(hubotUrl, providers);
         disableSslChecks(webClient);
