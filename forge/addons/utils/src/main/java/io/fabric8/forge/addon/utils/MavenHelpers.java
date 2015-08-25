@@ -17,6 +17,8 @@ package io.fabric8.forge.addon.utils;
 
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import org.apache.maven.model.Build;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
@@ -167,4 +169,80 @@ public class MavenHelpers {
 
         return builder;
     }
+
+    /**
+     * Returns true if the pom has the given plugin
+     */
+    public static boolean hasMavenPlugin(Model pom, String groupId, String artifactId) {
+        if (pom != null) {
+            Build build = pom.getBuild();
+            if (build != null) {
+                List<Plugin> plugins = build.getPlugins();
+                if (plugins != null) {
+                    for (Plugin plugin : plugins) {
+                        if (Objects.equal(groupId, plugin.getGroupId()) && Objects.equal(artifactId, plugin.getArtifactId())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the pom has the given dependency
+     */
+    public static boolean hasDependency(Model pom, String groupId, String artifactId) {
+        if (pom != null) {
+            List<org.apache.maven.model.Dependency> dependencies = pom.getDependencies();
+            return hasDependency(dependencies, groupId, artifactId);
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the lilst has the given dependency
+     */
+    public static boolean hasDependency(List<org.apache.maven.model.Dependency> dependencies, String groupId, String artifactId) {
+        if (dependencies != null) {
+            for (org.apache.maven.model.Dependency dependency : dependencies) {
+                if (Objects.equal(groupId, dependency.getGroupId()) && Objects.equal(artifactId, dependency.getArtifactId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the pom has the given managed dependency
+     */
+    public static boolean hasManagedDependency(Model pom, String groupId, String artifactId) {
+        if (pom != null) {
+            DependencyManagement dependencyManagement = pom.getDependencyManagement();
+            if (dependencyManagement != null) {
+                return hasDependency(dependencyManagement.getDependencies(), groupId, artifactId);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Updates the given maven property value if value is not null and returns true if the pom has been changed
+     *
+     * @returns true if the value changed and was non null or updated was true
+     */
+    public static boolean updatePomProperty(Properties properties, String name, Object value, boolean updated) {
+        if (value != null) {
+            Object oldValue = properties.get(name);
+            if (value != null && !Objects.equal(oldValue, value)) {
+                LOG.info("Updating pom.xml property: " + name + " to " + value);
+                properties.put(name, value);
+                return true;
+            }
+        }
+        return updated;
+    }
+
 }
