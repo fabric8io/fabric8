@@ -5,34 +5,34 @@ Fabric8 provides a CDI extension which is meant to make developing CDI apps for 
 Using CDI it is possible to:
 
 * Inject a fabric8 managed kubernetes client.
-* Inject URL to kubernetes service using the @Service.
-* Inject a client for a kubernetes service using the @Service and @Factory.
+* Inject URL to kubernetes service using the @ServiceName.
+* Inject a client for a kubernetes service using the @ServiceName and @Factory.
 * Inject configuration provided as Environamnt Variables.
 * Create scopes of configuration using the @Configuration.
 
 The CDI extension works for application that live both inside and outside of kubernetes. So it can be used safely in kubernetes and hybrid deployments for easier consumption of kubernetes managed services.
 
-### The @Service annotation
+### The @ServiceName annotation
 In kubernetes, each service has a host and a port and they are passed to container as environment variable. Containers that live inside Kubernetes
 can lookup for services using their environment variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.
 
-The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @Service qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.
+The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @ServiceName qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.
 
     @Inject
-    @Service("my-service")
+    @ServiceName("my-service")
     private String service.
 
 ### Running inside and outside of Kubernetes
 
 Under the covers the code will default to using the **MY_SERVICE_SERVICE_HOST** and **MY_SERVICE_SERVICE_PORT** environment variables exposed by [kubernetes services](services.html) to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.
 
-If your Java code is running outside of Kubernetes then @Service will use the environment variable **KUBERNETES_MASTER** to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.
+If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable **KUBERNETES_MASTER** to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.
 
 ### Creating custom objects
 In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.
    
     @Produces
-    @Service
+    @ServiceName
     public MyClient create(InjectionPoint ip) {
         Service service = ip.getAnnotated().getAnnotation(Service.class);
         String url = Services.toServiceUrl(service.getId(), service.getProtocol());
@@ -44,8 +44,8 @@ The example above is something that works but it does require boilerplate (and o
 To simplify the code Fabric8 provides the @Factory annotation.
    
        @Factory
-       @Service
-       public MyClient create(@Service String url) {
+       @ServiceName
+       public MyClient create(@ServiceName String url) {
            return new MyClient(url);
        }
 
@@ -64,7 +64,6 @@ Using the @ConfigProperty annotation the user can inject configuration from the 
 It's use is pretty straight-forward:
 
 
-
 #### Putting it all together
 In most case, when we need to consume a service we need both the coordinates of the service and static configuration data, like thread pool configuration, maximum number of connections etc.
 So it makes sense when we create the "factory" for our client, to also inject configuration. For example:
@@ -75,8 +74,8 @@ So it makes sense when we create the "factory" for our client, to also inject co
     private Long timeout; 
    
     @Produces
-    @Service
-    public MyClient create(@Service url) {
+    @ServiceName
+    public MyClient create(@ServiceName url) {
         return new MyClient(url, timeout);
     }
 
@@ -119,13 +118,13 @@ The discriminator only needs to be specified at the point where configuration is
         private MyConfig cfg2;
                 
                 
-#### Combining @Factory, @Service and @Configuration annotations
+#### Combining @Factory, @ServiceName and @Configuration annotations
 To further reduce the amount of boilerplate one could use all of the annotations to create generic factories that accepts as parameters service urls and configuration.
               
     public class MyFactory {
         @Factory
-        @Service
-        MyClient create(@Service String url, @Configuration MyConfig cfg) {
+        @ServiceName
+        MyClient create(@ServiceName String url, @Configuration MyConfig cfg) {
             return MyClient(url, cfg);  
         }
     }
@@ -133,11 +132,11 @@ To further reduce the amount of boilerplate one could use all of the annotations
 The you can directly inject the client:
     
         @Inject
-        @Service("SERVICE_1")
+        @ServiceName("SERVICE_1")
         private MyClient cl1;
         
         @Inject
-        @Service("SERVICE_2")
+        @ServiceName("SERVICE_2")
         private MyClient cl2;        
         
 In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.
