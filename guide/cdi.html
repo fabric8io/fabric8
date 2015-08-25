@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="5.4" data-basepath="." data-revision="Tue Aug 25 2015 11:31:14 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4" data-basepath="." data-revision="Tue Aug 25 2015 12:20:46 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1131,37 +1131,45 @@
 <p>Using CDI it is possible to:</p>
 <ul>
 <li>Inject a fabric8 managed kubernetes client.</li>
-<li>Inject URL to kubernetes service using the @Service.</li>
-<li>Inject a client for a kubernetes service using the @Service and @Factory.</li>
+<li>Inject URL to kubernetes service using the @ServiceName.</li>
+<li>Inject a client for a kubernetes service using the @ServiceName and @Factory.</li>
 <li>Inject configuration provided as Environamnt Variables.</li>
 <li>Create scopes of configuration using the @Configuration.</li>
 </ul>
 <p>The CDI extension works for application that live both inside and outside of kubernetes. So it can be used safely in kubernetes and hybrid deployments for easier consumption of kubernetes managed services.</p>
-<h3 id="the-service-annotation"><a name="the-service-annotation" class="plugin-anchor" href="#the-service-annotation"><span class="fa fa-link"></span></a>The @Service annotation</h3>
+<h3 id="the-servicename-annotation"><a name="the-servicename-annotation" class="plugin-anchor" href="#the-servicename-annotation"><span class="fa fa-link"></span></a>The @ServiceName annotation</h3>
 <p>In kubernetes, each service has a host and a port and they are passed to container as environment variable. Containers that live inside Kubernetes
 can lookup for services using their environment variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.</p>
-<p>The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @Service qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.</p>
+<p>The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @ServiceName qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.</p>
 <pre><code>@Inject
-@Service(&quot;my-service&quot;)
+@ServiceName(&quot;my-service&quot;)
 private String service.
 </code></pre><h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
 <p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
-<p>If your Java code is running outside of Kubernetes then @Service will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
+<p>If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
 <h3 id="creating-custom-objects"><a name="creating-custom-objects" class="plugin-anchor" href="#creating-custom-objects"><span class="fa fa-link"></span></a>Creating custom objects</h3>
 <p>In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.</p>
 <pre><code>@Produces
-@Service
+@ServiceName
 public MyClient create(InjectionPoint ip) {
     Service service = ip.getAnnotated().getAnnotation(Service.class);
     String url = Services.toServiceUrl(service.getId(), service.getProtocol());
     return new MyClient(url);
 }
+</code></pre><h3 id="the-protocol-annotation"><a name="the-protocol-annotation" class="plugin-anchor" href="#the-protocol-annotation"><span class="fa fa-link"></span></a>The @Protocol annotation</h3>
+<p>Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that its really smelly.</p>
+<p>The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;my-ftp-service&quot;)
+    @Protocol(&quot;ftp&quot;)
+    private String service.
 </code></pre><h3 id="using-factories"><a name="using-factories" class="plugin-anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
 <p>The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
 To simplify the code Fabric8 provides the @Factory annotation.</p>
 <pre><code>   @Factory
-   @Service
-   public MyClient create(@Service String url) {
+   @ServiceName
+   public MyClient create(@ServiceName String url) {
        return new MyClient(url);
    }
 </code></pre><h3 id="integration-with-apache-deltaspike"><a name="integration-with-apache-deltaspike" class="plugin-anchor" href="#integration-with-apache-deltaspike"><span class="fa fa-link"></span></a>Integration with Apache Deltaspike</h3>
@@ -1184,8 +1192,8 @@ So it makes sense when we create the &quot;factory&quot; for our client, to also
 private Long timeout; 
 
 @Produces
-@Service
-public MyClient create(@Service url) {
+@ServiceName
+public MyClient create(@ServiceName url) {
     return new MyClient(url, timeout);
 }
 </code></pre><p>But what happens if we need  to create multiple instances of MyClient each configured differently?</p>
@@ -1216,24 +1224,33 @@ The configuration of MyClient can be encapsulated like this:</p>
     @Inject
     @Configuration(&quot;SERVICE_2&quot;)
     private MyConfig cfg2;
-</code></pre><h4 id="combining-factory-service-and-configuration-annotations"><a name="combining-factory-service-and-configuration-annotations" class="plugin-anchor" href="#combining-factory-service-and-configuration-annotations"><span class="fa fa-link"></span></a>Combining @Factory, @Service and @Configuration annotations</h4>
+</code></pre><h4 id="combining-factory-servicename-and-configuration-annotations"><a name="combining-factory-servicename-and-configuration-annotations" class="plugin-anchor" href="#combining-factory-servicename-and-configuration-annotations"><span class="fa fa-link"></span></a>Combining @Factory, @ServiceName and @Configuration annotations</h4>
 <p>To further reduce the amount of boilerplate one could use all of the annotations to create generic factories that accepts as parameters service urls and configuration.</p>
 <pre><code>public class MyFactory {
     @Factory
-    @Service
-    MyClient create(@Service String url, @Configuration MyConfig cfg) {
+    @ServiceName
+    MyClient create(@ServiceName String url, @Configuration MyConfig cfg) {
         return MyClient(url, cfg);  
     }
 }
 </code></pre><p>The you can directly inject the client:</p>
 <pre><code>    @Inject
-    @Service(&quot;SERVICE_1&quot;)
+    @ServiceName(&quot;SERVICE_1&quot;)
     private MyClient cl1;
 
     @Inject
-    @Service(&quot;SERVICE_2&quot;)
+    @ServiceName(&quot;SERVICE_2&quot;)
     private MyClient cl2;        
 </code></pre><p>In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.</p>
+<h4 id="injection-of-optional-services"><a name="injection-of-optional-services" class="plugin-anchor" href="#injection-of-optional-services"><span class="fa fa-link"></span></a>Injection of Optional Services</h4>
+<p>A common approach for treating with Optional services in CDI is to use Instance injection. For example:</p>
+<pre><code>@Inject
+Instance&lt;MyClient&gt; instance;
+
+...
+
+MyClient client = instance.get();
+</code></pre><p>The Fabric8 CDI extension supports instance injection for all kinds of injection including @Factory.</p>
 
                     
                     </section>
