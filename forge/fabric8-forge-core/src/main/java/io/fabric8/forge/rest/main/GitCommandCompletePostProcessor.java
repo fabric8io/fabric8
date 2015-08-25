@@ -31,6 +31,7 @@ import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.repo.git.WebHookDTO;
 import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
@@ -200,6 +201,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         createKubernetesResources(user, named, remoteUrl, branch, repoClient, address);
 
+                        addDummyFileToEmptyFolders(basedir);
                         String message = createCommitMessage(name, executionRequest);
                         doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
 
@@ -235,6 +237,29 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+
+    /**
+     * Git tends to ignore empty directories so lets add a dummy file to empty folders to keep them in git
+     */
+    protected void addDummyFileToEmptyFolders(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            File[] children = dir.listFiles();
+            if (children == null || children.length == 0) {
+                File dummyFile = new File(dir, ".gitkeep");
+                try {
+                    IOHelpers.writeFully(dummyFile, "This file is only here to avoid git removing empty folders\nOnce there are files in this folder feel free to delete this file!");
+                } catch (IOException e) {
+                    LOG.warn("Failed to write file " + dummyFile + ". " + e, e);
+                }
+            } else {
+                for (File child : children) {
+                    if (child.isDirectory()) {
+                        addDummyFileToEmptyFolders(child);
+                    }
+                }
+            }
         }
     }
 
