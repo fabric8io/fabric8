@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.devops;
 
-import io.fabric8.forge.devops.setup.Fabric8SetupNewProjectStep;
 import org.jboss.forge.addon.projects.ui.NewProjectWizard;
 import org.jboss.forge.addon.ui.command.AbstractUICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -56,8 +55,6 @@ public class NewDevopsProjectCommand extends AbstractUICommand implements UIWiza
 	public NavigationResult next(UINavigationContext context) throws Exception {
 		NavigationResultBuilder builder = NavigationResultBuilder.create();
 		builder.add(NewProjectWizard.class);
-		builder.add(Fabric8SetupNewProjectStep.class);
-		builder.add(DevOpsEditStep.class);
 		return builder.build();
 	}
 }

@@ -15,7 +15,7 @@
  */
 package io.fabric8.forge.devops;
 
-import io.fabric8.forge.devops.setup.Fabric8SetupCommand;
+import io.fabric8.forge.devops.setup.Fabric8SetupStep;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
@@ -46,7 +46,7 @@ public class DevOpsEditCommand extends AbstractDevOpsCommand implements UIWizard
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         NavigationResultBuilder builder = NavigationResultBuilder.create();
-        builder.add(Fabric8SetupCommand.class);
+        builder.add(Fabric8SetupStep.class);
         builder.add(DevOpsEditStep.class);
         builder.add(SaveDevOpsStep.class);
         return builder.build();

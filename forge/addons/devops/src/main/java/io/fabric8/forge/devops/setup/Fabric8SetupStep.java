@@ -112,7 +112,6 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Project project = getCurrentProject(context.getUIContext());
-        System.out.println("====== initializeUI() and we have a project: " + project);
         // no more steps
         return null;
     }
@@ -120,15 +119,12 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
     @Override
     public void validate(UIValidationContext validator) {
         super.validate(validator);
-
         Project project = getCurrentProject(validator.getUIContext());
-        System.out.println("====== validate() and we have a project: " + project);
     }
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         Project project = getCurrentProject(builder.getUIContext());
-        System.out.println("====== initializeUI() and we have a project: " + project);
 
         String packaging = getProjectPackaging(project);
 
@@ -149,9 +145,11 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         from.setValueChoices(choices);
 
         // is it possible to pre select a choice?
-        String defaultChoice = DockerSetupHelper.defaultDockerImage(project);
-        if (defaultChoice != null && choices.contains(defaultChoice)) {
-            from.setDefaultValue(defaultChoice);
+        if (choices.size() > 0) {
+            String defaultChoice = choices.get(0);
+            if (defaultChoice != null) {
+                from.setDefaultValue(defaultChoice);
+            }
         }
 
         from.addValueChangeListener(new ValueChangeListener() {
@@ -163,7 +161,7 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         });
         builder.add(from);
 
-        if (packaging == null || (!packaging.equals("war") && packaging.equals("ear"))) {
+        if (packaging == null || (!packaging.equals("war") && !packaging.equals("ear"))) {
             main.setRequired(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
@@ -183,8 +181,8 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
                     builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
                 }
             });
+            builder.add(main);
         }
-        builder.add(main);
 
 
         container.setDefaultValue(new Callable<String>() {
@@ -254,13 +252,17 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         facetFactory.install(project, ResourcesFacet.class);
 
         // install fabric8 bom
-        Dependency bom = DependencyBuilder.create()
-                .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
-                .setScopeType("import");
-        dependencyInstaller.installManaged(project, bom);
 
         // include test dependencies?
         if (test.getValue() != null && test.getValue()) {
+            // I guess we only need to add this import if we add a test case?
+            // unless the app is using fabric8-cdi or something?
+            Dependency bom = DependencyBuilder.create()
+                    .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
+                    .setScopeType("import");
+            dependencyInstaller.installManaged(project, bom);
+
+
             Dependency dependency = DependencyBuilder.create()
                     .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "arquillian-fabric8", null))
                     .setScopeType("test");

@@ -82,6 +82,7 @@ public class DevOpsConnector {
     private String buildImageTag = "latest";
     private String s2iCustomBuilderImage = "fabric8/openshift-s2i-jenkins-trigger";
     private String jenkinsJob;
+    private boolean triggerJenkinsJob = true;
 
     private String jenkinsMonitorView;
     private String jenkinsPipelineView;
@@ -429,6 +430,14 @@ public class DevOpsConnector {
 
     public void setKubernetes(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
+    }
+
+    public boolean isTriggerJenkinsJob() {
+        return triggerJenkinsJob;
+    }
+
+    public void setTriggerJenkinsJob(boolean triggerJenkinsJob) {
+        this.triggerJenkinsJob = triggerJenkinsJob;
     }
 
     public boolean isLetschatEnabled() {
@@ -890,7 +899,9 @@ public class DevOpsConnector {
             }
             createWebhook(jenkinsWebHook, this.secret);
             
-            triggerJenkinsWebHook(jenkinsWebHook, this.secret);
+            if (triggerJenkinsJob) {
+                triggerJenkinsWebHook(jenkinsWebHook, this.secret);
+            }
         }
     }
 

@@ -111,7 +111,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         flow.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                return getFlowURIs(context);
+                return filterCompletions(getFlowURIs(context), value);
             }
         });
         flow.addValueChangeListener(new ValueChangeListener() {
@@ -131,7 +131,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         chatRoom.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                return getChatRoomNames();
+                return filterCompletions(getChatRoomNames(), value);
             }
         });
         chatRoom.addValueChangeListener(new ValueChangeListener() {
@@ -149,7 +149,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         issueProjectName.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                return getIssueProjectNames();
+                return filterCompletions(getIssueProjectNames(), value);
             }
         });
         issueProjectName.addValueChangeListener(new ValueChangeListener() {
@@ -180,6 +180,19 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         }
 
         inputComponents = CommandHelpers.addInputComponents(builder, flow, copyFlowToProject, chatRoom, issueProjectName, codeReview);
+    }
+
+    public static Iterable<String> filterCompletions(Iterable<String> values, String inputValue) {
+        List<String> answer = new ArrayList<>();
+        String lowerInputValue = inputValue.toLowerCase();
+        for (String value : values) {
+            if (value != null) {
+                if (value.toLowerCase().indexOf(lowerInputValue) >= 0) {
+                    answer.add(value);
+                }
+            }
+        }
+        return answer;
     }
 
 
@@ -296,10 +309,17 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         connector.setBasedir(basedir);
         connector.setGitUrl(gitUrl);
         connector.setRepoName(named);
-        connector.setRegisterWebHooks(false);
+
+        // lets not register webhooks yet - lets trigger the build immediately
+        // then later on lets register a webhook for any further commits
+        // otherwise we can get a timing issue where the push happens before the
+        // webhook handling kicks in
+        connector.setRegisterWebHooks(true);
+        connector.setTriggerJenkinsJob(true);
 
         LOG.info("Using connector: " + connector);
 
+/*
         attributeMap.put("registerWebHooks", new Runnable() {
             @Override
             public void run() {
@@ -307,6 +327,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 connector.registerWebHooks();
             }
         });
+*/
 
 /*
         TODO

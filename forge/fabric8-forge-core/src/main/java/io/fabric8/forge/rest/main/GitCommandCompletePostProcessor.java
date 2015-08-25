@@ -115,6 +115,10 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     if (page1.containsKey(TARGET_LOCATION_PROPERTY)) {
                         page1.put(TARGET_LOCATION_PROPERTY, projectFileSystem.getUserProjectFolderLocation(userDetails));
                     }
+/*
+
+                    page1.put(TARGET_LOCATION_PROPERTY, projectFileSystem.getUserProjectFolderLocation(userDetails));
+*/
                 }
             }
         }
@@ -199,12 +203,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         String message = createCommitMessage(name, executionRequest);
                         doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
 
-                        Map<Object, Object> attributeMap = context.getAttributeMap();
-                        Object registerWebHooksValue = attributeMap.get("registerWebHooks");
-                        if (registerWebHooksValue instanceof Runnable) {
-                            Runnable runnable = (Runnable) registerWebHooksValue;
-                            projectFileSystem.invokeLater(runnable, 1000L);
-                        }
+                        registerWebHooks(context);
 
                         // TODO only need to do this if we have not created a jenkins build...
                         //triggerJenkinsSeedBuild();
@@ -232,9 +231,19 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         }
                     }
                 }
+                registerWebHooks(context);
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+
+    protected void registerWebHooks(RestUIContext context) {
+        Map<Object, Object> attributeMap = context.getAttributeMap();
+        Object registerWebHooksValue = attributeMap.get("registerWebHooks");
+        if (registerWebHooksValue instanceof Runnable) {
+            Runnable runnable = (Runnable) registerWebHooksValue;
+            projectFileSystem.invokeLater(runnable, 1000L);
         }
     }
 
