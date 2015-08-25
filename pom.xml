@@ -156,7 +156,7 @@
         <pax.url.version>2.4.1</pax.url.version>
         <qpid-jms.version>0.32</qpid-jms.version>
         <reflections.version>0.9.10</reflections.version>
-        <resteasy.version>3.0.11.Final</resteasy.version>
+        <resteasy.version>3.0.12.Final</resteasy.version>
         <servlet-api.version>2.5</servlet-api.version>
         <servlet30-api.version>3.0.1</servlet30-api.version>
         <shrinkwrap-resolver.version>2.1.1</shrinkwrap-resolver.version>
