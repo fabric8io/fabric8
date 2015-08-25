@@ -15,4 +15,9 @@
      permissions and limitations under the License.
 
 -->
-<beans/>
+
+<beans>
+     <alternatives>
+          <class>io.fabric8.cdi.weld.ClientProducer</class>
+     </alternatives>
+</beans>

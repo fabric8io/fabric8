@@ -19,7 +19,6 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.Alternative;
 
 public class KubernetesClientBean extends BaseBean<KubernetesClient> {
 
@@ -35,9 +34,5 @@ public class KubernetesClientBean extends BaseBean<KubernetesClient> {
     @Override
     public void destroy(KubernetesClient instance, CreationalContext<KubernetesClient> creationalContext) {
         instance.close();
-    }
-
-    public boolean isAlternative() {
-        return true;
     }
 }

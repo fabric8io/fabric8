@@ -16,17 +16,14 @@
 
 package io.fabric8.cdi.weld;
 
-import io.fabric8.kubernetes.api.model.EndpointsList;
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
-import io.fabric8.kubernetes.api.model.RootPaths;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.mock.OpenshiftMockClient;
 
+import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import java.net.MalformedURLException;
@@ -36,6 +33,7 @@ import java.net.URL;
 public class ClientProducer {
 
     @Produces
+    @Alternative
     public KubernetesClient getKubernetesClient() throws MalformedURLException {
         OpenshiftMockClient mock = new OpenshiftMockClient();
 

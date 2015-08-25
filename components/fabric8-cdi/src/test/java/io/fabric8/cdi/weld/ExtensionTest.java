@@ -45,7 +45,7 @@ public class ExtensionTest {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, ServiceStringBean.class, ServiceUrlBean.class, ClientProducer.class)
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
-                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
+                .addAsWebInfResource("META-INF/beans.xml")
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")
                         .resolve(
                                 "org.apache.deltaspike.core:deltaspike-core-impl",

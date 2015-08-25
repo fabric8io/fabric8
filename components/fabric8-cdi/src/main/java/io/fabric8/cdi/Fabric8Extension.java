@@ -30,6 +30,7 @@ import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
 import io.fabric8.cdi.qualifiers.ExternalQualifier;
 import io.fabric8.cdi.qualifiers.ProtocolQualifier;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
@@ -57,7 +58,11 @@ public class Fabric8Extension implements Extension {
     private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event, BeanManager beanManager) {
-        event.addBean(new KubernetesClientBean());
+
+        //Only add the bean if no other bean is found.
+        if (beanManager.getBeans(KubernetesClient.class).isEmpty()) {
+            event.addBean(new KubernetesClientBean());
+        }
 
         //We need to process factories in reverse order so that we make feasible forwarding for service id etc.
         List<FactoryMethodContext> reverseFactories = new ArrayList<>(FactoryMethodContext.sort(factories));
