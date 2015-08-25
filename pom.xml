@@ -2753,6 +2753,41 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>tattletale</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.tattletale</groupId>
+                        <artifactId>tattletale-maven</artifactId>
+                        <!-- The version of the plugin you want to use -->
+                        <version>1.1.0.Final</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- This is the location which will be scanned for generating tattletale reports
+                              -->
+                            <source>${project.basedir}</source>
+                            <excludes>
+                                <exclude>${project.basedir}/sandbox/**</exclude>
+                                <exclude>${project.basedir}/website/**</exclude>
+                                <exclude>${project.basedir}/wiki/**</exclude>
+                            </excludes>
+                            <!-- This is where the reports will be generated -->
+                            <destination>${project.build.directory}/reports</destination>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
