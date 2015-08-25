@@ -33,6 +33,7 @@ import io.fabric8.cdi.qualifiers.ProtocolQualifier;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.AnnotatedMethod;
@@ -126,6 +127,9 @@ public class Fabric8Extension implements Extension {
             Boolean serviceExternal = external != null && external.value();
             
             Type type = annotated.getBaseType();
+            if (type instanceof ParameterizedType && Instance.class.equals(((ParameterizedType)type).getRawType())) {
+                type =  ((ParameterizedType) type).getActualTypeArguments()[0];
+            }
 
             if (type.equals(String.class)) {
                 ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceExternal);

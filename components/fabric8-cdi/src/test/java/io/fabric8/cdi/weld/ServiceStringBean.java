@@ -21,6 +21,7 @@ import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ServiceStringBean {
 
     @Inject
     @ServiceName("kubernetes")
-    String kubernetesUrl;
+    Instance<String> kubernetesUrl;
 
     @Inject
     @Endpoint
@@ -62,7 +63,7 @@ public class ServiceStringBean {
     }
 
     public String getKubernetesUrl() {
-        return kubernetesUrl;
+        return kubernetesUrl.get();
     }
 
     public String getConsoleUrl() {
