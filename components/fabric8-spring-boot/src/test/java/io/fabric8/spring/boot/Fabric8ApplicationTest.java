@@ -28,8 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.net.URLConnection;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ClientFactory.class, Fabric8Application.class})
+@SpringApplicationConfiguration(classes = {ClientFactory.class, URLToConnection.class, Fabric8Application.class})
 public class Fabric8ApplicationTest {
 
     private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
@@ -52,7 +54,7 @@ public class Fabric8ApplicationTest {
 
     @Autowired
     @ServiceName("fabric8-console-service")
-    private Service consoleService;
+    private URLConnection consoleService;
 
     @Autowired
     @ServiceName("app-library")

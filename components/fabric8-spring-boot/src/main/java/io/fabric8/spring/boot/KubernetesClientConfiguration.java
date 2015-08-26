@@ -17,17 +17,11 @@ package io.fabric8.spring.boot;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.spring.boot.converters.KubernetesConverterServiceFactory;
-import io.fabric8.spring.boot.converters.ServiceToString;
-import io.fabric8.spring.boot.converters.ServiceToUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ConversionServiceFactoryBean;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 @Configuration
 @ConditionalOnMissingBean(KubernetesClient.class)

@@ -13,18 +13,32 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package io.fabric8.spring.boot;
+package io.fabric8.spring.boot.converters;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.spring.boot.converters.KubernetesConverterServiceFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ConversionServiceFactoryBean;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.converter.GenericConverter;
+
+import java.util.Set;
 
 @Configuration
-public class KubernetesCoverterServiceConfiguration {
+public class CoverterServiceConfiguration {
+
     @Bean
-    public ConversionServiceFactoryBean conversionService(KubernetesClient client) {
-        return new KubernetesConverterServiceFactory(client);
+    ServiceConverter serviceConverter(KubernetesClient client) {
+        ServiceConverter converter =  new ServiceConverter();
+        converter.setKubernetesClient(client);
+        return converter;
+    }
+
+    @Bean
+    public ConversionService conversionService(Set<GenericConverter> genericConverters) {
+        ConversionServiceFactoryBean bean = new ConversionServiceFactoryBean();
+        bean.setConverters(genericConverters);
+        bean.afterPropertiesSet();
+        return bean.getObject();
     }
 }

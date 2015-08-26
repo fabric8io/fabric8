@@ -15,11 +15,12 @@
  */
 package io.fabric8.spring.boot;
 
+import io.fabric8.spring.boot.converters.CoverterServiceConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({KubernetesClientConfiguration.class, KubernetesCoverterServiceConfiguration.class})
+@Import({KubernetesClientConfiguration.class, CoverterServiceConfiguration.class})
 public class KubernetesAutoconfiguration {
 
 }
