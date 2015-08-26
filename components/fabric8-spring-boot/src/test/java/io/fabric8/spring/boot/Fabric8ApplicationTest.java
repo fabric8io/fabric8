@@ -15,12 +15,6 @@
  */
 package io.fabric8.spring.boot;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.mockwebserver.Dispatcher;
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
-import com.google.mockwebserver.RecordedRequest;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.model.Service;
@@ -35,21 +29,11 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Fabric8Application.class)
+@SpringApplicationConfiguration(classes = {ClientFactory.class, Fabric8Application.class})
 public class Fabric8ApplicationTest {
 
-
-    private static final MockWebServer server = new MockWebServer();
     private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
     private static final String DEFAULT_NAMESPACE = "default";
-
-
-    private static String ROOT_PATHS;
-    private static String SERVICES_JSON;
-    private static String FABRIC8_CONSOLE_SERVICE_JSON;
-    private static String KUBERNETES_SERVICE_JSON;
-    private static String APP_LIBRARY_SERVICE_JSON;
-
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -58,58 +42,6 @@ public class Fabric8ApplicationTest {
         System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
         System.setProperty("KUBERNETES_PROTOCOL", "https");
 
-        ROOT_PATHS = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/root-paths.json"), Charsets.UTF_8);
-        FABRIC8_CONSOLE_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/fabric8-console-service.json"), Charsets.UTF_8);
-        KUBERNETES_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/kubernetes-service.json"), Charsets.UTF_8);
-        APP_LIBRARY_SERVICE_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/app-library-service.json"), Charsets.UTF_8);
-        SERVICES_JSON = Resources.toString(Fabric8ApplicationTest.class.getResource("/mock/services.json"), Charsets.UTF_8);
-
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody(ROOT_PATHS);
-                } else if (request.getPath().matches("/api/[^/]/services[/]?") || request.getPath().matches("/api/[^/]/namespaces/default/services[/]?")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody(SERVICES_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/kubernetes")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody(KUBERNETES_SERVICE_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/app-library")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody(APP_LIBRARY_SERVICE_JSON);
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/services/fabric8")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody(FABRIC8_CONSOLE_SERVICE_JSON);
-                } else if (request.getPath().matches("/oapi/[^/]+/namespaces/[^/]+/routes[/]?")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody("{}");
-                } else if (request.getPath().matches("/api/[^/]+/namespaces/[^/]+/endpoints[/]?")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setHeader("Content-Type", "application/json")
-                            .setBody("{}");
-                } else {
-                    return new MockResponse().setResponseCode(401);
-                }
-            }
-        });
-
-        server.play();
-        System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, "http://" + server.getHostName() + ":" + server.getPort());
         System.setProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
         System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }
@@ -119,7 +51,7 @@ public class Fabric8ApplicationTest {
     private KubernetesClient kubernetes;
 
     @Autowired
-    @ServiceName("fabric8")
+    @ServiceName("fabric8-console-service")
     private Service consoleService;
 
     @Autowired
