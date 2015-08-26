@@ -57,6 +57,10 @@ public class HubotNotifier {
         LOG.info("Starting HubotNotifier using address: " + hubotUrl);
     }
 
+    String getHubotUrl() {
+        return hubotUrl;
+    }
+
     /**
      * Sends a message to a given room in the chat bot
      *
