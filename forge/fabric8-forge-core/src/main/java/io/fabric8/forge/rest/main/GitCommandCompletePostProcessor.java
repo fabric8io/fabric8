@@ -19,17 +19,13 @@ import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
-import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.CreateRepositoryDTO;
-import io.fabric8.repo.git.CreateWebhookDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
-import io.fabric8.repo.git.WebHookDTO;
-import io.fabric8.repo.git.WebhookConfig;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.URLUtils;
@@ -199,13 +195,15 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Using remoteUrl: " + remoteUrl + " and remote name " + origin);
                         configureBranch(git, branch, origin, remoteUrl);
 
-                        createKubernetesResources(user, named, remoteUrl, branch, repoClient, address);
-
                         addDummyFileToEmptyFolders(basedir);
                         String message = createCommitMessage(name, executionRequest);
+                        LOG.info("Commiting and pushing to: " + remoteUrl + " and remote name " + origin);
                         doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
 
+                        LOG.info("Creating any pending webhooks");
                         registerWebHooks(context);
+
+                        LOG.info("Done creating webhooks!");
 
                         // TODO only need to do this if we have not created a jenkins build...
                         //triggerJenkinsSeedBuild();
@@ -354,280 +352,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         }
         return builder.toString();
-    }
-
-    /**
-     * Lets create an ImageRegistry, BuildConfig and DeploymentConfig for the new project
-     */
-    protected void createKubernetesResources(String user, String buildName, String remote, String branch, GitRepoClient repoClient, String address) throws Exception {
-        String imageTag = "test";
-        String secret = "secret101";
-        String builderImage = "fabric8/java-main";
-        String osapiVersion = "v1";
-        String namespace = KubernetesHelper.defaultNamespace();
-        String gitServiceName = "gogs";
-
-
-        // TODO we should replace the remote with the actual service IP address???
-
-        String gitAddress = getServiceAddress(gitServiceName, namespace);
-        if (gitAddress == null) {
-            LOG.warn("Could not find service " + gitServiceName + " for namespace " + namespace);
-            gitAddress = address;
-        }
-
-        String json = "\n" +
-                "{\n" +
-                "   \"annotations\":{\n" +
-                "      \"description\":\"This is an end to end example of a Continuous Delivery pipeline running on OpenShift v3\"\n" +
-                "   },\n" +
-                "   \"apiVersion\":\"" + osapiVersion + "\",\n" +
-                "   \"kind\":\"List\",\n" +
-                "   \"items\":[\n" +
-                "      {\n" +
-                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
-                "         \"kind\":\"ImageStream\",\n" +
-                "         \"metadata\":{\n" +
-                "            \"labels\":{\n" +
-                "               \"name\":\"" + buildName + "\",\n" +
-                "               \"user\":\"" + user + "\"\n" +
-                "            },\n" +
-                "            \"name\":\"" + buildName + "\"\n" +
-                "         }\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
-                "         \"kind\":\"BuildConfig\",\n" +
-                "         \"metadata\":{\n" +
-                "            \"labels\":{\n" +
-                "               \"name\":\"" + buildName + "\",\n" +
-                "               \"user\":\"" + user + "\"\n" +
-                "            },\n" +
-                "            \"name\":\"" + buildName + "\"\n" +
-                "         },\n" +
-                "         \"parameters\":{\n" +
-                "            \"output\":{\n" +
-                "               \"to\":{\n" +
-                "                  \"name\":\"" + buildName + "\"\n" +
-                "               },\n" +
-                "               \"tag\":\"test\"\n" +
-                "            },\n" +
-                "            \"source\":{\n" +
-                "               \"git\":{\n" +
-                "                  \"uri\":\"" + gitAddress + "/" + user + "/" + buildName + ".git\"\n" +
-                "               },\n" +
-                "               \"type\":\"Git\"\n" +
-                "            },\n" +
-                "            \"strategy\":{\n" +
-                "               \"stiStrategy\":{\n" +
-                "                  \"builderImage\":\"" + builderImage + "\",\n" +
-                "                  \"image\":\"" + builderImage + "\"\n" +
-                "               },\n" +
-                "               \"type\":\"STI\"\n" +
-                "            }\n" +
-                "         },\n" +
-                "         \"triggers\":[\n" +
-                "            {\n" +
-                "               \"github\":{\n" +
-                "                  \"secret\":\"" + secret + "\"\n" +
-                "               },\n" +
-                "               \"type\":\"github\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "               \"generic\":{\n" +
-                "                  \"secret\":\"" + secret + "\"\n" +
-                "               },\n" +
-                "               \"type\":\"generic\"\n" +
-                "            }\n" +
-                "         ]\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"apiVersion\":\"" + osapiVersion + "\",\n" +
-                "         \"kind\":\"DeploymentConfig\",\n" +
-                "         \"metadata\":{\n" +
-                "            \"name\":\"" + buildName + "-deploy\"\n" +
-                "         },\n" +
-                "         \"template\":{\n" +
-                "            \"controllerTemplate\":{\n" +
-                "               \"podTemplate\":{\n" +
-                "                  \"desiredState\":{\n" +
-                "                     \"manifest\":{\n" +
-                "                        \"containers\":[\n" +
-                "                           {\n" +
-                "                              \"image\":\"" + buildName + "\",\n" +
-                "                              \"name\":\"" + buildName + "\",\n" +
-                "                              \"ports\":[\n" +
-                "                                 {\n" +
-                "                                    \"containerPort\":8778\n" +
-                "                                 }\n" +
-                "                              ]\n" +
-                "                           }\n" +
-                "                        ],\n" +
-                "                        \"version\":\"" + imageTag + "\"\n" +
-                "                     }\n" +
-                "                  },\n" +
-                "                  \"labels\":{\n" +
-                "                     \"name\":\"" + buildName + "\",\n" +
-                "                     \"user\":\"" + user + "\"\n" +
-                "                  }\n" +
-                "               },\n" +
-                "               \"replicaSelector\":{\n" +
-                "                  \"name\":\"" + buildName + "\",\n" +
-                "                  \"user\":\"" + user + "\"\n" +
-                "               },\n" +
-                "               \"replicas\":1\n" +
-                "            },\n" +
-                "            \"strategy\":{\n" +
-                "               \"type\":\"Recreate\"\n" +
-                "            }\n" +
-                "         },\n" +
-                "         \"triggers\":[\n" +
-                "            {\n" +
-                "               \"type\":\"ImageChange\",\n" +
-                "               \"imageChangeParams\":{\n" +
-                "                  \"automatic\":true,\n" +
-                "                  \"containerNames\":[\n" +
-                "                     \"" + buildName + "\"\n" +
-                "                  ],\n" +
-                "                  \"from\":{\n" +
-                "                     \"name\":\"" + buildName + "\"\n" +
-                "                  },\n" +
-                "                  \"tag\":\"" + imageTag + "\"\n" +
-                "               }\n" +
-                "            }\n" +
-                "         ]\n" +
-                "      }" +
-                "   ]\n" +
-                "}";
-
-        if (createOpenShiftBuildResources) {
-            Controller controller = new Controller(kubernetes);
-            controller.applyJson(json);
-
-
-            String type = "generic";
-
-            // TODO due to https://github.com/openshift/origin/issues/1317 we can't use the direct kube REST API
-            // so we need to use a workaround using the fabric8 console service's proxy which hides the payload for us
-            String webhookUrl = null;
-            String kubeAddress = null;
-            boolean appendNamespaceQuery = true;
-
-            // lets try the cdelivery first
-            if (kubeAddress == null) {
-                try {
-                    kubeAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.CDELIVERY_API, namespace, "http", false);
-                    webhookUrl = URLUtils.pathJoin(kubeAddress, "buildConfigHooks", namespace, buildName);
-                    appendNamespaceQuery = false;
-                } catch (Exception e) {
-                    LOG.warn("failed to find cdelivery service URL: " + e, e);
-                }
-            }
-/*
-        if (kubeAddress == null) {
-            try {
-                kubeAddress = kubernetes.getServiceURL("fabric8", namespace, "http", false);
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "oapi", KubernetesHelper.defaultOsApiVersion, "buildConfigHooks", buildName, secret, type);
-            } catch (Exception e) {
-                LOG.warn("failed to find fabric8 console service URL: " + e, e);
-            }
-        }
-*/
-            if (kubeAddress == null) {
-                kubeAddress = kubernetes.getMasterUrl().toString();
-            }
-            String namespacePath = "";
-            if (appendNamespaceQuery && !Strings.isNullOrEmpty(namespace)) {
-                namespacePath = "/namespace=" + namespace;
-            }
-
-            if (webhookUrl == null) {
-                webhookUrl = URLUtils.pathJoin(kubeAddress, "oapi", KubernetesHelper.defaultOsApiVersion + namespacePath, "buildConfigHooks", buildName, secret, type);
-            }
-
-            LOG.info("creating a web hook at: " + webhookUrl);
-            try {
-                CreateWebhookDTO createWebhook = new CreateWebhookDTO();
-                createWebhook.setType("gogs");
-                WebhookConfig config = createWebhook.getConfig();
-                config.setUrl(webhookUrl);
-                config.setSecret(secret);
-                WebHookDTO webhook = repoClient.createWebhook(user, buildName, createWebhook);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Got web hook: " + toJson(webhook));
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to create web hook in git repo: " + e, e);
-            }
-        }
-
-
-
-/*        Map<String,String> labels = new LinkedHashMap<>();
-        labels.put("name", buildName);
-        labels.put("user", user);
-
-        Map<String,String> to = new LinkedHashMap<>();
-        to.put("name", buildName);
-
-        ImageStream imageRepository = new ImageStream();
-        imageRepository.setKind("ImageStream");
-        imageRepository.setApiVersion(osapiVersion);
-        imageRepository.setName(buildName);
-        imageRepository.setLabels(labels);
-        handleKubernetesResourceCreation(imageRepository.getKind(), imageRepository, kubernetes.createImageStream(imageRepository));
-
-        BuildConfig buildConfig = new BuildConfig();
-        buildConfig.setKind("BuildConfig");
-        buildConfig.setApiVersion(osapiVersion);
-        buildConfig.setName(buildName);
-        buildConfig.setLabels(labels);
-
-        BuildOutput output = new BuildOutput();
-        // TODO should be to: { labels }
-        //output.setRegistry(buildName);
-        output.getAdditionalProperties().put("to", to);
-        output.setImageTag(imageTag);
-
-        BuildSource source = new BuildSource();
-        source.setType("Git");
-        GitBuildSource git = new GitBuildSource();
-        git.setUri(remote);
-        source.setGit(git);
-
-        BuildStrategy strategy = new BuildStrategy();
-        strategy.setType("STI");
-        STIBuildStrategy stiStrategy = new STIBuildStrategy();
-        stiStrategy.setImage(builderImage);
-        // TODO
-        //stiStrategy.setBuilderImage(builderImage);
-        stiStrategy.getAdditionalProperties().put("builderImage", builderImage);
-        strategy.setStiStrategy(stiStrategy);
-
-        BuildParameters parameters = new BuildParameters();
-        parameters.setOutput(output);
-        parameters.setSource(source);
-        parameters.setStrategy(strategy);
-        buildConfig.setParameters(parameters);
-
-        BuildTriggerPolicy github = new BuildTriggerPolicy();
-        github.setType("github");
-        WebHookTrigger githubTrigger = new WebHookTrigger();
-        githubTrigger.setSecret(secret);
-        github.setGithub(githubTrigger);
-
-        BuildTriggerPolicy generic = new BuildTriggerPolicy();
-        generic.setType("generic");
-        WebHookTrigger genericTrigger = new WebHookTrigger();
-        genericTrigger.setSecret(secret);
-        generic.setGeneric(genericTrigger);
-
-        List<BuildTriggerPolicy> triggers = new ArrayList<>();
-        triggers.add(github);
-        triggers.add(generic);
-        buildConfig.setTriggers(triggers);
-        
-        handleKubernetesResourceCreation(buildConfig.getKind(), buildConfig, kubernetes.createBuildConfig(buildConfig));*/
     }
 
     protected String getServiceAddress(String serviceName, String namespace) {
