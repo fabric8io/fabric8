@@ -46,12 +46,13 @@ public class HubotNotifier {
     @ServiceName(HUBOT_WEB_HOOK_SERVICE_NAME)
     private Instance<String> hubotUrlHolder;
 
-    private final String hubotUrl;
     private final String username;
     private final String password;
     private final String roomExpression;
     private HubotRestApi api;
     private LoggingHubotRestApi logMessages = new LoggingHubotRestApi();
+    private String hubotUrl;
+    private boolean initalised;
 
     @Inject
     public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME", defaultValue = "") String username,
@@ -60,12 +61,6 @@ public class HubotNotifier {
         this.username = username;
         this.password = password;
         this.roomExpression = roomExpression;
-        if (hubotUrlHolder != null) {
-            this.hubotUrl = hubotUrlHolder.get();
-        } else {
-            this.hubotUrl = null;
-        }
-        init();
     }
 
     public HubotNotifier(String hubotUrl, String username, String password, String roomExpression) {
@@ -73,18 +68,20 @@ public class HubotNotifier {
         this.username = username;
         this.password = password;
         this.roomExpression = roomExpression;
-        init();
     }
 
-    private void init() {
-        if (Strings.isNotBlank(hubotUrl)) {
-            LOG.info("Starting HubotNotifier using address: " + hubotUrl);
-        } else {
-            LOG.warn("No kubernetes service found for " + HUBOT_WEB_HOOK_SERVICE_NAME + " so chat messages just going to logs instead");
+    public String getHubotUrl() {
+        if (!initalised) {
+            initalised = true;
+            if (hubotUrl == null && hubotUrlHolder != null) {
+                hubotUrl = hubotUrlHolder.get();
+            }
+            if (Strings.isNotBlank(hubotUrl)) {
+                LOG.info("Starting HubotNotifier using address: " + hubotUrl);
+            } else {
+                LOG.warn("No kubernetes service found for " + HUBOT_WEB_HOOK_SERVICE_NAME + " so chat messages just going to logs instead");
+            }
         }
-    }
-
-    String getHubotUrl() {
         return hubotUrl;
     }
 
@@ -121,8 +118,9 @@ public class HubotNotifier {
 
     protected HubotRestApi getHubotRestApi() {
         if (api == null) {
-            if (Strings.isNotBlank(hubotUrl)) {
-                api = createWebClient(HubotRestApi.class, hubotUrl);
+            String url = getHubotUrl();
+            if (Strings.isNotBlank(url)) {
+                api = createWebClient(HubotRestApi.class, url);
             } else {
                 api = new NoopHubotRestApi();
             }
