@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -82,6 +83,7 @@ public abstract class AbstractServiceRegistar implements ImportBeanDefinitionReg
         builder.addPropertyValue("name", alias);
         builder.addPropertyValue("service", service);
         builder.addPropertyValue("type", type.getCanonicalName());
+        builder.setAutowireMode(Autowire.BY_TYPE.value());
         //Add protocol qualifier
         builder.getBeanDefinition().addQualifier(new AutowireCandidateQualifier(Protocol.class, protocol));
         return new BeanDefinitionHolder(builder.getBeanDefinition(), alias);

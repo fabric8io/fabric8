@@ -15,9 +15,6 @@
  */
 package io.fabric8.spring.boot.condition;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.internal.Utils;
-import io.fabric8.utils.Strings;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
@@ -25,12 +22,15 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 public class OnKubernetesAvailableCondition extends SpringBootCondition {
 
+    private OnInsideKubernetesCondition inside = new OnInsideKubernetesCondition();
+
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String masterUrl = Utils.getSystemPropertyOrEnvVar(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY);
-        if (!Strings.isNullOrBlank(masterUrl)) {
-           return ConditionOutcome.match();
+        ConditionOutcome outcome = inside.getMatchOutcome(context, metadata);
+        if (outcome.isMatch()) {
+            return ConditionOutcome.noMatch("Inside condition match.");
+        } else {
+            return ConditionOutcome.match("Inside not matches, assuming external!");
         }
-        return ConditionOutcome.noMatch("Url to kubernetes master, not found in environment variables or system properties.");
     }
 }
