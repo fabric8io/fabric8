@@ -17,18 +17,19 @@ package io.fabric8.devops.connector;
 
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectRepositories;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
-import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
-import io.fabric8.openshift.api.model.*;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.BuildConfigFluent;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
@@ -40,6 +41,7 @@ import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -59,7 +61,12 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
@@ -91,6 +98,18 @@ public class DevOpsConnector {
     private String taigaProjectLinkPage = "backlog";
     private String taigaProjectLinkLabel = "Backlog";
 
+    private String issueTrackerUrl;
+    private String issueTrackerLabel = "Issues";
+
+    private String teamUrl;
+    private String teamLabel = "Team";
+
+    private String releasesUrl;
+    private String releasesLabel = "Releases";
+
+    private String repositoryBrowseLink;
+    private String repositoryBrowseLabel = "Repository";
+
     private String taigaTeamLinkPage = "team";
     private String taigaTeamLinkLabel = "Team";
     private boolean taigaAutoCreate = true;
@@ -100,10 +119,13 @@ public class DevOpsConnector {
     private String letschatRoomLinkLabel = "Room";
     private String letschatRoomExpression = "fabric8_${namespace}";
 
-    private String flowGitUrl = System.getenv("JENKINS_WORKFLOW_GIT_REPOSITORY");
+    private String flowGitUrl = Systems.getEnvVar("JENKINS_WORKFLOW_GIT_REPOSITORY", "https://github.com/fabric8io/jenkins-workflow-library.git");
 
     private boolean recreateMode;
     private String namespace = KubernetesHelper.defaultNamespace();
+    private String fabric8ConsoleNamespace = KubernetesHelper.defaultNamespace();
+    private String jenkinsNamespace = KubernetesHelper.defaultNamespace();
+
     private boolean tryLoadConfigFileFromRemoteGit = true;
     private boolean modifiedConfig;
     private boolean registerWebHooks;
@@ -143,10 +165,7 @@ public class DevOpsConnector {
             name = jenkinsJob;
         }
         if (Strings.isNullOrBlank(name)) {
-            name = repoName;
-            if (Strings.isNotBlank(username)) {
-                name = username + "-" + name;
-            }
+            name = ProjectRepositories.createBuildName(username, repoName);
             if (projectConfig != null) {
                 projectConfig.setBuildName(name);
             }
@@ -175,58 +194,45 @@ public class DevOpsConnector {
         jenkinsJobUrl = null;
         String jenkinsUrl = null;
         try {
-            jenkinsUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", true);
+            jenkinsUrl = getJenkinsServiceUrl();
 
             if (Strings.isNotBlank(jenkinsUrl)) {
                 if (Strings.isNotBlank(jenkinsMonitorView)) {
                     String url = URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsMonitorView);
-                    annotations.put("fabric8.link.jenkins.monitor/url", url);
-                    String label = "Monitor";
-                    annotations.put("fabric8.link.jenkins.monitor/label", label);
-                    addLink(label, url);
+                    annotationLink(annotations, "fabric8.link.jenkins.monitor/", url, "Monitor");
                 }
                 if (Strings.isNotBlank(jenkinsPipelineView)) {
                     String url = URLUtils.pathJoin(jenkinsUrl, "/view", jenkinsPipelineView);
-                    annotations.put("fabric8.link.jenkins.pipeline/url", url);
-                    String label = "Pipeline";
-                    annotations.put("fabric8.link.jenkins.pipeline/label", label);
-                    addLink(label, url);
+                    annotationLink(annotations, "fabric8.link.jenkins.pipeline/", url, "Pipeline");
                 }
                 if (Strings.isNotBlank(name)) {
                     jenkinsJobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
-                    annotations.put("fabric8.link.jenkins.job/url", jenkinsJobUrl);
-                    String label = "Job";
-                    annotations.put("fabric8.link.jenkins.job/label", label);
-                    addLink(label, jenkinsJobUrl);
+                    annotationLink(annotations, "fabric8.link.jenkins.job/", jenkinsJobUrl, "Job");
                 }
             }
         } catch (Exception e) {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
 
-        String taigaLink = getProjectPageLink(taiga, taigaProject, this.taigaProjectLinkPage);
-        if (Strings.isNotBlank(taigaLink)) {
-            annotations.put("fabric8.link.taiga/url", taigaLink);
-            annotations.put("fabric8.link.taiga/label", taigaProjectLinkLabel);
-            addLink(taigaProjectLinkLabel, taigaLink);
+
+        if (!annotationLink(annotations, "fabric8.link.issues/", issueTrackerUrl, issueTrackerLabel)) {
+            String taigaLink = getProjectPageLink(taiga, taigaProject, this.taigaProjectLinkPage);
+            annotationLink(annotations, "fabric8.link.taiga/", taigaLink, taigaProjectLinkLabel);
         }
-        String taigaTeamLink = getProjectPageLink(taiga, taigaProject, this.taigaTeamLinkPage);
-        if (Strings.isNotBlank(taigaTeamLink)) {
-            annotations.put("fabric8.link.taiga.team/url", taigaTeamLink);
-            annotations.put("fabric8.link.taiga.team/label", taigaTeamLinkLabel);
-            addLink(taigaTeamLinkLabel, taigaTeamLink);
+        if (!annotationLink(annotations, "fabric8.link.team/", teamUrl, teamLabel)) {
+            String taigaTeamLink = getProjectPageLink(taiga, taigaProject, this.taigaTeamLinkPage);
+            annotationLink(annotations, "fabric8.link.taiga.team/", taigaTeamLink, taigaTeamLinkLabel);
         }
+        annotationLink(annotations, "fabric8.link.releases/", releasesUrl, releasesLabel);
 
         String chatRoomLink = getChatRoomLink(letschat);
-        if (Strings.isNotBlank(chatRoomLink)) {
-            annotations.put("fabric8.link.letschat.room/url", chatRoomLink);
-            annotations.put("fabric8.link.letschat.room/label", letschatRoomLinkLabel);
-            addLink(letschatRoomLinkLabel, chatRoomLink);
-        }
+        annotationLink(annotations, "fabric8.link.letschat.room/", chatRoomLink, letschatRoomLinkLabel);
+
+        annotationLink(annotations, "fabric8.link.repository.browse/", repositoryBrowseLink, repositoryBrowseLabel);
 
         ProjectConfigs.defaultEnvironments(projectConfig);
 
-        String consoleUrl = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.FABRIC8_CONSOLE, namespace, "http", true);
+        String consoleUrl = getServiceUrl(ServiceNames.FABRIC8_CONSOLE, namespace, fabric8ConsoleNamespace);
         if (Strings.isNotBlank(consoleUrl) && projectConfig != null) {
             Map<String, String> environments = projectConfig.getEnvironments();
             if (environments != null) {
@@ -261,7 +267,7 @@ public class DevOpsConnector {
                     withNewStrategy().
                     withType("Custom").withNewCustomStrategy().withNewFrom().withKind("DockerImage").withName(s2iCustomBuilderImage).endFrom()
                     .withEnv(envBuilder.build()).endCustomStrategy().
-                    endStrategy();
+                            endStrategy();
 
         }
         BuildConfig buildConfig = specBuilder.
@@ -303,6 +309,47 @@ public class DevOpsConnector {
         }
     }
 
+    protected String getJenkinsServiceUrl() {
+        return getServiceUrl(ServiceNames.JENKINS, namespace, jenkinsNamespace);
+    }
+
+
+    /**
+     * Looks in the given namespaces for the given service or returns null if it could not be found
+     */
+    protected String getServiceUrl(String serviceName, String... namespaces) {
+        return getServiceUrl(serviceName, true, namespaces);
+    }
+
+    private String getServiceUrl(String serviceName, boolean serviceExternal, String... namespaces) {
+        List<String> namespaceList = new ArrayList<>(Arrays.asList(namespaces));
+        String[] defaults = { KubernetesHelper.defaultNamespace(), "default" };
+        for (String defaultNamespace : defaults) {
+            if (namespaceList.contains(defaultNamespace)) {
+                namespaceList.add(defaultNamespace);
+            }
+        }
+        for (String namespace : namespaceList) {
+            try {
+                return KubernetesHelper.getServiceURL(getKubernetes(), serviceName, namespace, "http", serviceExternal);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return null;
+    }
+
+    protected boolean annotationLink(Map<String, String> annotations, String annotationPrefix, String issueTrackerUrl, String issueTrackerLabel) {
+        if (Strings.isNotBlank(issueTrackerUrl)) {
+            annotations.put(annotationPrefix + "url", issueTrackerUrl);
+            annotations.put(annotationPrefix + "label", issueTrackerLabel);
+            addLink(issueTrackerLabel, issueTrackerUrl);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void registerWebHooks() {
         if (Strings.isNotBlank(jenkinsJobUrl)) {
             createJenkinsWebhook(jenkinsJobUrl);
@@ -329,7 +376,10 @@ public class DevOpsConnector {
     }
 
     public KubernetesClient getKubernetes() {
-            return new DefaultKubernetesClient();
+        if (kubernetes == null) {
+            kubernetes = new DefaultKubernetesClient();
+        }
+        return kubernetes;
     }
 
     public GitRepoClient getGitRepoClient() {
@@ -472,6 +522,22 @@ public class DevOpsConnector {
         this.namespace = namespace;
     }
 
+    public String getFabric8ConsoleNamespace() {
+        return fabric8ConsoleNamespace;
+    }
+
+    public void setFabric8ConsoleNamespace(String fabric8ConsoleNamespace) {
+        this.fabric8ConsoleNamespace = fabric8ConsoleNamespace;
+    }
+
+    public String getJenkinsNamespace() {
+        return jenkinsNamespace;
+    }
+
+    public void setJenkinsNamespace(String jenkinsNamespace) {
+        this.jenkinsNamespace = jenkinsNamespace;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -600,12 +666,77 @@ public class DevOpsConnector {
         return registerWebHooks;
     }
 
+    public String getIssueTrackerLabel() {
+        return issueTrackerLabel;
+    }
+
+    public void setIssueTrackerLabel(String issueTrackerLabel) {
+        this.issueTrackerLabel = issueTrackerLabel;
+    }
+
+    public String getIssueTrackerUrl() {
+        return issueTrackerUrl;
+    }
+
+    public void setIssueTrackerUrl(String issueTrackerUrl) {
+        this.issueTrackerUrl = issueTrackerUrl;
+    }
+
+    public String getTeamUrl() {
+        return teamUrl;
+    }
+
+    public void setTeamUrl(String teamUrl) {
+        this.teamUrl = teamUrl;
+    }
+
+    public String getTeamLabel() {
+        return teamLabel;
+    }
+
+    public void setTeamLabel(String teamLabel) {
+        this.teamLabel = teamLabel;
+    }
+
+    public String getReleasesUrl() {
+        return releasesUrl;
+    }
+
+    public void setReleasesUrl(String releasesUrl) {
+        this.releasesUrl = releasesUrl;
+    }
+
+    public String getReleasesLabel() {
+        return releasesLabel;
+    }
+
+    public void setReleasesLabel(String releasesLabel) {
+        this.releasesLabel = releasesLabel;
+    }
+
+    public String getRepositoryBrowseLabel() {
+        return repositoryBrowseLabel;
+    }
+
+    public void setRepositoryBrowseLabel(String repositoryBrowseLabel) {
+        this.repositoryBrowseLabel = repositoryBrowseLabel;
+    }
+
+    public String getRepositoryBrowseLink() {
+        return repositoryBrowseLink;
+    }
+
+    public void setRepositoryBrowseLink(String repositoryBrowseLink) {
+        this.repositoryBrowseLink = repositoryBrowseLink;
+    }
+
 
     // Implementation methods
     //-------------------------------------------------------------------------
 
     protected Controller createController() {
         Controller controller = new Controller(getKubernetes());
+        controller.setNamespace(namespace);
         controller.setThrowExceptionOnError(true);
         controller.setRecreateMode(recreateMode);
         return controller;
@@ -844,7 +975,7 @@ public class DevOpsConnector {
     }
 
     protected void postJenkinsBuild(String jobName, String xml) {
-        String address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, namespace, "http", false);
+        String address = getServiceUrl(ServiceNames.JENKINS, false, namespace, jenkinsNamespace);
         if (Strings.isNotBlank(address)) {
             String jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
 

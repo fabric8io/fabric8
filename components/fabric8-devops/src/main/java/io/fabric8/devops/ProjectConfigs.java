@@ -16,6 +16,7 @@
 package io.fabric8.devops;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.utils.Maps;
@@ -31,9 +32,14 @@ import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,6 +72,44 @@ public class ProjectConfigs {
         return new ProjectConfig();
     }
 
+
+    /**
+     * Returns the project config from the given url if it exists or null
+     */
+    public static ProjectConfig loadFromUrl(String url) {
+        if (Strings.isNotBlank(url)) {
+            try {
+                return loadFromUrl(new URL(url));
+            } catch (MalformedURLException e) {
+                LOG.warn("Failed to create URL from: " + url + ". " + e, e);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the project config from the given url if it exists or null
+     */
+    public static ProjectConfig loadFromUrl(URL url) {
+        InputStream input = null;
+        try {
+            input = url.openStream();
+        } catch (FileNotFoundException e) {
+            LOG.info("No fabric8.yml at URL: " + url);
+        } catch (IOException e) {
+            LOG.warn("Failed to open fabric8.yml file at URL: " + url + ". " + e, e);
+        }
+        if (input != null) {
+            try {
+                LOG.info("Parsing " + ProjectConfigs.FILE_NAME + " from " + url);
+                return ProjectConfigs.parseProjectConfig(input);
+            } catch (IOException e) {
+                LOG.warn("Failed to parse " + ProjectConfigs.FILE_NAME + " from " + url + ". " + e, e);
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns true if the given folder has a configuration file called {@link #FILE_NAME}
      */
@@ -96,6 +140,16 @@ public class ProjectConfigs {
     private static <T> T parseYaml(File file, Class<T> clazz) throws IOException {
         ObjectMapper mapper = createObjectMapper();
         return mapper.readValue(file, clazz);
+    }
+
+    static <T> List<T> parseYamlValues(File file, Class<T> clazz) throws IOException {
+        ObjectMapper mapper = createObjectMapper();
+        MappingIterator<T> iter = mapper.readerFor(clazz).readValues(file);
+        List<T> answer = new ArrayList<>();
+        while (iter.hasNext()) {
+            answer.add(iter.next());
+        }
+        return answer;
     }
 
     private static <T> T parseYaml(InputStream inputStream, Class<T> clazz) throws IOException {

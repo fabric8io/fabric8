@@ -593,6 +593,7 @@ public class Controller {
         if (Strings.isNullOrBlank(namespace)) {
             namespace = getNamespace();
         }
+        applyNamespace(namespace);
         BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).get();
         if (isRunning(old)) {
             if (UserConfigurationCompare.configEqual(entity, old)) {
