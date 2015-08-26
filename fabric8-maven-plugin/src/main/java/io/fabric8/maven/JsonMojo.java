@@ -19,7 +19,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVarBuilder;
+import io.fabric8.kubernetes.api.model.ExecAction;
+import io.fabric8.kubernetes.api.model.HTTPGetAction;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.Probe;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceFluent;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.TCPSocketAction;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -31,8 +52,12 @@ import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.openshift.api.model.ParameterBuilder;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.api.model.TemplateBuilder;
-import io.fabric8.utils.*;
+import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.PropertiesHelper;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -52,7 +77,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -168,6 +201,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter()
     private Map<String, String> labels;
+
+    /**
+     * The annotations for the PodSpec
+     */
+    @Parameter()
+    private Map<String, String> podSpecAnnotations;
+
+    /**
+     * The annotations for the ReplicationController
+     */
+    @Parameter()
+    private Map<String, String> rcAnnotations;
+
+
+    /**
+     * The annotations for the Template
+     */
+    @Parameter()
+    private Map<String, String> templateAnnotations;
 
     /**
      * The environment variables passed into the generated Kubernetes JSON template.
@@ -369,6 +421,39 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.templateParametersFile", defaultValue = "${basedir}/src/main/fabric8/templateParameters.properties")
     protected File templateParametersPropertiesFile;
+
+    /**
+     * The properties file used to specify the annotations to be added to the generated PodSpec
+     * <code>
+     *     <pre>
+     *         acme.com/cheese = SOMETHING
+     *     </pre>
+     * </code>
+     */
+    @Parameter(property = "fabric8.podSpecAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/podSpecAnnotations.properties")
+    protected File podSpecAnnotationsFile;
+
+    /**
+     * The properties file used to specify the annotations to be added to the generated ReplicationController
+     * <code>
+     *     <pre>
+     *         acme.com/cheese = SOMETHING
+     *     </pre>
+     * </code>
+     */
+    @Parameter(property = "fabric8.rcAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/rcAnnotations.properties")
+    protected File rcAnnotationsFile;
+
+    /**
+     * The properties file used to specify the annotations to be added to the generated Template
+     * <code>
+     *     <pre>
+     *         acme.com/cheese = SOMETHING
+     *     </pre>
+     * </code>
+     */
+    @Parameter(property = "fabric8.templateAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/templateAnnotations.properties")
+    protected File templateAnnotationsFile;
 
     /**
      * Defines the maximum size in kilobytes that the data encoded URL of the icon should be before we defer
@@ -680,11 +765,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labelMap.put("provider", provider);
         }
 
+        Map<String,String> podSpecAnnotations = getPodSpecAnnotations();
+        Map<String,String> rcAnnotations = getRCAnnotations();
+
         KubernetesListBuilder builder = new KubernetesListBuilder()
                 .addNewReplicationControllerItem()
                 .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
                 .withLabels(labelMap)
+                .withAnnotations(rcAnnotations)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(replicaCount)
@@ -692,6 +781,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withNewTemplate()
                 .withNewMetadata()
                 .withLabels(labelMap)
+                .withAnnotations(podSpecAnnotations)
                 .endMetadata()
                 .withNewSpec()
                 .withServiceAccountName(serviceAccount)
@@ -1307,6 +1397,42 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return labels;
     }
 
+    public Map<String, String> getPodSpecAnnotations() throws MojoExecutionException {
+        if (podSpecAnnotations == null) {
+            podSpecAnnotations = loadAnnotations(podSpecAnnotationsFile, "fabric8.annotations.podSpec.", "PodSpec");
+        }
+        return podSpecAnnotations;
+    }
+
+    public Map<String, String> getRCAnnotations() throws MojoExecutionException {
+        if (rcAnnotations == null) {
+            rcAnnotations = loadAnnotations(rcAnnotationsFile, "fabric8.annotations.rc.", "RC");
+        }
+        return rcAnnotations;
+    }
+
+    public Map<String, String> getTemplateAnnotations() throws MojoExecutionException {
+        if (templateAnnotations == null) {
+            templateAnnotations = loadAnnotations(templateAnnotationsFile, "fabric8.annotations.template.", "Template");
+        }
+        return templateAnnotations;
+    }
+
+    protected Map<String, String> loadAnnotations(File annotationsFile, String propertiesPrefix, String annotationsName) throws MojoExecutionException {
+        Map<String, String> answer = findPropertiesWithPrefix(getProject().getProperties(), propertiesPrefix, Strings.toLowerCaseFunction());
+        if (annotationsFile != null && annotationsFile.exists() && annotationsFile.isFile()) {
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(annotationsFile));
+                Map<String, String> fileAnnotations = PropertiesHelper.toMap(properties);
+                answer.putAll(fileAnnotations);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Failed to load podSpecAnnotationsFile properties file " + podSpecAnnotationsFile + ". " + e, e);
+            }
+        }
+        return answer;
+    }
+
     public List<EnvVar> getEnvironmentVariables() throws MojoExecutionException {
         if (environmentVariables == null) {
             environmentVariables = new ArrayList<EnvVar>();
@@ -1456,7 +1582,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String templateName = projectProperties.containsKey(TEMPLATE_NAME) ?
                 String.valueOf(projectProperties.getProperty(TEMPLATE_NAME)) :
                 project.getArtifactId();
-        return new TemplateBuilder().withNewMetadata().withName(templateName).endMetadata().withParameters(parameters).build();
+        return new TemplateBuilder().withNewMetadata().withName(templateName).withAnnotations(getTemplateAnnotations()).endMetadata().withParameters(parameters).build();
     }
 
     protected void loadParametersFromProperties(Properties properties, List<io.fabric8.openshift.api.model.Parameter> parameters, Set<String> paramNames) {
