@@ -40,6 +40,7 @@ public class ServiceToString implements Converter<Service, String> {
         String serviceNamespace = KubernetesHelper.getNamespace(source);
         String serviceProtocol = getProtocolOfService(source);
         Boolean serviceExternal = isServiceExternal(source);
+        serviceNamespace = serviceNamespace != null ? serviceNamespace : KubernetesHelper.defaultNamespace();
         return KubernetesHelper.getServiceURL(kubernetesClient, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
