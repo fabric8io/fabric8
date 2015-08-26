@@ -6,6 +6,10 @@ Secret Annotations provide a way to annotate a PodTemplate with the kind of secr
 
 e.g. so that run a secret install step after you create Templates or ReplicationControllers to install/create any required secrets automatically.
 
+This means that Kubernetes `List` or OpenShift `Template` resources can refer to secrets and be installed; but then pods which need secrets won't activate until a user or tool creates the associated secrets. It also means any mechanism can be used to install/create the secrets. Hopefully over time more tools cna support these annotation too.
+
+Longer term this metadata should really be encoded concretely in the SecretVolume directly in the PodTemplate.
+
 ### Annotations
 
 We use different annotations for different kinds of secrets
