@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 public class WatchServicesExample {
 
@@ -27,6 +28,11 @@ public class WatchServicesExample {
             @Override
             public void eventReceived(Action action, Service service) {
                 System.out.println(action + ": " + service);
+            }
+
+            @Override
+            public void onClose(KubernetesClientException e) {
+                System.out.println("Closed: " + e);
             }
         });
         client.close();

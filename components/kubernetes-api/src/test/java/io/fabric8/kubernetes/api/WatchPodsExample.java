@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 public class WatchPodsExample {
 
@@ -27,6 +28,11 @@ public class WatchPodsExample {
             @Override
             public void eventReceived(Action action, Pod pod) {
                 System.out.println(action + ": " + pod);
+            }
+
+            @Override
+            public void onClose(KubernetesClientException e) {
+                System.out.println("Closed: " + e);
             }
         });
         client.close();

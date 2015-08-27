@@ -53,6 +53,11 @@ public class DefaultBuildTrigger implements BuildTrigger {
                     uuid.add(Builds.getUid(build));
                 }
             }
+
+            @Override
+            public void onClose(KubernetesClientException e) {
+                // ignore
+            }
         })) {
             return uuid.poll(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {

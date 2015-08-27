@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.client.DefaultOpenshiftClient;
@@ -29,6 +30,11 @@ public class WatchBuildsExample {
             @Override
             public void eventReceived(Action action, Build build) {
                 System.out.println(action + ": " + build);
+            }
+
+            @Override
+            public void onClose(KubernetesClientException e) {
+                System.out.println("Closed: " + e);
             }
         });
         client.close();
