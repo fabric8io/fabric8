@@ -16,7 +16,7 @@ We use different annotations for different kinds of secrets
 
 ### SSH keys
 
-Use an annotation of the form
+Use an annotation with the key `fabric8.io/secret-ssh-key`
 
     fabric8.io/secret-ssh-key = mysecretname
 
@@ -30,11 +30,13 @@ This will generate/import 3 secrets which all contain public/private keys.
 
 #### SSH public keys
 
+Use an annotation with the key `fabric8.io/secret-ssh-public-key`
+
 Often you need to create secrets that only contain the public key; so that the private key is not visible in a pod.
 
 To do this name your secret with `.pub` on the end.
 
-    fabric8.io/secret-ssh-key = mysecretname.pub
+    fabric8.io/secret-ssh-public-key = mysecretname.pub
 
 This will indicate that the secret called `mysecretname.pub` needs to be created as secret which only contains the SSH public key from the secret `mysecretname` which has the private and public key.
 
@@ -44,13 +46,13 @@ i.e. there will be 2 secrets created
 * mysecretname.pub contains _just_ the public ssh key
 
 
-#### SSH public key folders
+##### folders of public keys
 
-Its common to want to create a single secret that contains a number of public keys inside.
+Its common to want to create a single secret that contains a number of public keys inside the same secret that is then mounted to single volume.
 
-To do this name your secret appending `[secret1.pub,secret2,secret3]` on the end.
+To do this name your secret appending `[secret1.pub,secret2,secret3]` on the end of the secret name.
 
-    fabric8.io/secret-ssh-key = mybagofsecrets[cheese.pub,beer.pub]
+    fabric8.io/secret-ssh-public-key = mybagofsecrets[cheese.pub,beer.pub]
     
 This will create a secret called `mybagofsecrets` which contains files `cheese.pub` and `beer.pub` for the public keys of the SSH key secrets `cheese` and `beer`
  
@@ -71,4 +73,8 @@ Use an annotation of the form
 
 Mounting all secretes end up being a volume with a file for each data entry inside the secret.
 
-    
+| Annotation | Files in the secret volume folder |
+|------------|-----------------------------------|
+| fabric8.io/secret-ssh-key | id_rsa.pub id_rsa  |    
+| fabric8.io/secret-ssh-public-key | id_rsa.pub  |    
+
