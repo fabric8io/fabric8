@@ -91,6 +91,7 @@ public class Controller {
     private boolean supportOAuthClients;
     private boolean deletePodsOnReplicationControllerUpdate = true;
     private String namesapce = KubernetesHelper.defaultNamespace();
+    private boolean requireSecretsCreatedBeforeReplicationControllers;
 
     public Controller() {
         this(new DefaultKubernetesClient());
@@ -803,14 +804,16 @@ public class Controller {
      * Lets verify that any dependencies are available; such as volumes or secrets
      */
     protected void validatePodSpec(PodSpec podSpec, String namespace) {
-        List<Volume> volumes = podSpec.getVolumes();
-        if (volumes != null) {
-            for (Volume volume : volumes) {
-                SecretVolumeSource secret = volume.getSecret();
-                if (secret != null) {
-                    String secretName = secret.getSecretName();
-                    if (Strings.isNotBlank(secretName)) {
-                        KubernetesHelper.validateSecretExists(kubernetesClient, namespace, secretName);
+        if (requireSecretsCreatedBeforeReplicationControllers) {
+            List<Volume> volumes = podSpec.getVolumes();
+            if (volumes != null) {
+                for (Volume volume : volumes) {
+                    SecretVolumeSource secret = volume.getSecret();
+                    if (secret != null) {
+                        String secretName = secret.getSecretName();
+                        if (Strings.isNotBlank(secretName)) {
+                            KubernetesHelper.validateSecretExists(kubernetesClient, namespace, secretName);
+                        }
                     }
                 }
             }
@@ -1007,5 +1010,13 @@ public class Controller {
 
     public void setSupportOAuthClients(boolean supportOAuthClients) {
         this.supportOAuthClients = supportOAuthClients;
+    }
+
+    public boolean isRequireSecretsCreatedBeforeReplicationControllers() {
+        return requireSecretsCreatedBeforeReplicationControllers;
+    }
+
+    public void setRequireSecretsCreatedBeforeReplicationControllers(boolean requireSecretsCreatedBeforeReplicationControllers) {
+        this.requireSecretsCreatedBeforeReplicationControllers = requireSecretsCreatedBeforeReplicationControllers;
     }
 }
