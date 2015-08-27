@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.internal.HasMetadataComparator;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
@@ -47,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -206,30 +208,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 }
             }
 
-            Comparator<HasMetadata> metadataComparator = new Comparator<HasMetadata>() {
-                @Override
-                public int compare(HasMetadata left, HasMetadata right) {
-                    if (left instanceof Service) {
-                        return -1;
-                    } else if (right instanceof Service) {
-                        return 1;
-                    } else if (left instanceof ReplicationController) {
-                        return -1;
-                    } else if (right instanceof ReplicationController) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
-
-            Set<HasMetadata> entities = new TreeSet<>(metadataComparator);
+            Set<HasMetadata> entities = new TreeSet<>(new HasMetadataComparator());
             for (KubernetesList c : kubeConfigs) {
                 entities.addAll(c.getItems());
             }
 
             entities.addAll(KubernetesHelper.toItemList(dto));
-
 
             if (createRoutes) {
                 createRoutes(kubernetes, entities);
