@@ -17,10 +17,12 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.EditableObjectReference;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.ExecAction;
@@ -29,6 +31,8 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.Probe;
@@ -78,6 +82,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -85,7 +90,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -767,8 +774,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         Map<String,String> podSpecAnnotations = getPodSpecAnnotations();
         Map<String,String> rcAnnotations = getRCAnnotations();
+        KubernetesListBuilder builder = new KubernetesListBuilder();
 
-        KubernetesListBuilder builder = new KubernetesListBuilder()
+        // lets add a ServiceAccount object if we add any new secret annotations
+        addServiceAccountIfIUsingSecretAnnotations(builder, podSpecAnnotations);
+
+        builder
                 .addNewReplicationControllerItem()
                 .withNewMetadata()
                 .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
@@ -876,6 +887,71 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Files.writeToFile(kubernetesJson, generated, Charset.defaultCharset());
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to generate Kubernetes JSON.", e);
+        }
+    }
+
+    protected void addServiceAccountIfIUsingSecretAnnotations(KubernetesListBuilder builder, Map<String, String> annotations) {
+        Set<String> secretAnnotations = new HashSet<>(Arrays.asList(
+                Annotations.Secrets.SSH_KEY,
+                Annotations.Secrets.SSH_PUBLIC_KEY,
+                Annotations.Secrets.GPG_KEY
+        ));
+        Set<Map.Entry<String, String>> entries = annotations.entrySet();
+        Set<String> secretNameSet = new TreeSet<>();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (secretAnnotations.contains(key))  {
+                List<String> secretNames = parseSecretNames(value);
+                secretNameSet.addAll(secretNames);
+            }
+        }
+
+        List<ObjectReference> secrets = new ArrayList<>();
+        for (String secretName : secretNameSet) {
+            ObjectReference secretRef = new ObjectReferenceBuilder().withName(secretName).build();
+            secrets.add(secretRef);
+        }
+
+        if (!secrets.isEmpty()) {
+            if (Strings.isNullOrBlank(serviceAccount)) {
+                serviceAccount = getProject().getArtifactId();
+            }
+
+            builder.addNewServiceAccountItem()
+                    .withNewMetadata().withName(serviceAccount).endMetadata()
+                    .withSecrets(secrets)
+                    .endServiceAccountItem();
+        }
+    }
+
+    public static List<String> parseSecretNames(String value) {
+        // lets split by [...] first removing those out
+        List<String> answer = new ArrayList<>();
+        String[] split = value.split("\\[|\\]");
+        if (split != null && split.length > 0) {
+            int i = 0;
+            while (i < split.length) {
+                String name = split[i];
+                if (name.startsWith(",")) {
+                    name = name.substring(1);
+                }
+                splitCommas(name, answer);
+                // ignore next which is the conetnts of the array
+                i += 2;
+            }
+        } else {
+            splitCommas(value, answer);
+        }
+        return answer;
+    }
+
+    private static void splitCommas(String value, List<String> answer) {
+        String[] split = value.split(",");
+        if (split != null && split.length > 0) {
+            answer.addAll(Arrays.asList(split));
+        } else {
+            answer.add(value);
         }
     }
 
