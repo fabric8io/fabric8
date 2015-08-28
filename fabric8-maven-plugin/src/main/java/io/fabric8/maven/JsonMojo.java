@@ -22,12 +22,14 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.EditableKubernetesList;
 import io.fabric8.kubernetes.api.model.EditableObjectReference;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.ExecAction;
 import io.fabric8.kubernetes.api.model.HTTPGetAction;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
@@ -38,6 +40,7 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.RunAsUserStrategyOptions;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceFluent;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -777,8 +780,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
         KubernetesListBuilder builder = new KubernetesListBuilder();
 
         // lets add a ServiceAccount object if we add any new secret annotations
-        addServiceAccountIfIUsingSecretAnnotations(builder, podSpecAnnotations);
+        boolean addedServiceAcount = addServiceAccountIfIUsingSecretAnnotations(builder, podSpecAnnotations);
 
+        List<Volume> volumes = getVolumes();
+        List<VolumeMount> volumeMounts = getVolumeMounts();
+        Boolean containerPrivileged = getContainerPrivileged();
+
+        if (addedServiceAcount) {
+            addServiceConstraints(builder, volumes, containerPrivileged);
+        }
         builder
                 .addNewReplicationControllerItem()
                 .withNewMetadata()
@@ -802,14 +812,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .withImagePullPolicy(getImagePullPolicy())
                 .withEnv(getEnvironmentVariables())
                 .withNewSecurityContext()
-                .withPrivileged(getContainerPrivileged())
+                .withPrivileged(containerPrivileged)
                 .endSecurityContext()
                 .withPorts(getContainerPorts())
-                .withVolumeMounts(getVolumeMounts())
+                .withVolumeMounts(volumeMounts)
                 .withLivenessProbe(getLivenessProbe())
                 .withReadinessProbe(getReadinessProbe())
                 .endContainer()
-                .withVolumes(getVolumes())
+                .withVolumes(volumes)
                 .endSpec()
                 .endTemplate()
                 .endSpec()
@@ -890,7 +900,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void addServiceAccountIfIUsingSecretAnnotations(KubernetesListBuilder builder, Map<String, String> annotations) {
+    protected boolean addServiceAccountIfIUsingSecretAnnotations(KubernetesListBuilder builder, Map<String, String> annotations) {
         Set<String> secretAnnotations = new HashSet<>(Arrays.asList(
                 Annotations.Secrets.SSH_KEY,
                 Annotations.Secrets.SSH_PUBLIC_KEY,
@@ -922,7 +932,36 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     .withNewMetadata().withName(serviceAccount).endMetadata()
                     .withSecrets(secrets)
                     .endServiceAccountItem();
+            return true;
+
         }
+        return false;
+    }
+
+    protected void addServiceConstraints(KubernetesListBuilder builder, List<Volume> volumes, boolean containerPrivileged) {
+        boolean hostVolume = hasHostVolume(volumes);
+        if (hostVolume || containerPrivileged) {
+            RunAsUserStrategyOptions runAsUser;
+            builder.addNewSecurityContextConstraintsItem().
+                    withNewMetadata().withName(serviceAccount).endMetadata().
+                    withAllowHostDirVolumePlugin(hostVolume).withAllowPrivilegedContainer(containerPrivileged).
+                    withNewRunAsUser().withType("RunAsAny").endRunAsUser().
+                    withNewSeLinuxContext().withType("RunAsAny").endSeLinuxContext().
+                    withUsers("system:serviceaccount:" + getNamespace() + ":" + serviceAccount).
+            endSecurityContextConstraintsItem();
+        }
+    }
+
+    protected boolean hasHostVolume(List<Volume> volumes) {
+        if (volumes != null) {
+            for (Volume volume : volumes) {
+                HostPathVolumeSource hostPath = volume.getHostPath();
+                if (hostPath != null && Strings.isNotBlank(hostPath.getPath())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static List<String> parseSecretNames(String value) {
