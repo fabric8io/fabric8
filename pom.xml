@@ -125,12 +125,7 @@
         <jar.plugin.version>2.6</jar.plugin.version>
         <jasypt.version>1.9.2</jasypt.version>
         <javax.el-version>2.2.5</javax.el-version>
-<!--
-        TODO note that 2.18.0.Final is broken - don't use it!
-
-        <jboss.forge.version>2.18.1.Final</jboss.forge.version>
--->
-        <jboss.forge.version>2.17.0.Final</jboss.forge.version>
+        <jboss.forge.version>2.19.0.Final</jboss.forge.version>
         <!-- TODO is this always the same as drools.version? -->
         <jersey.version>1.18.1</jersey.version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
