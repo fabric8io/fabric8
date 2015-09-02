@@ -28,12 +28,14 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
+import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
@@ -65,9 +67,7 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        Namespace namespaceDetails = session.getNamespaceDetails();
-        controller.applyNamespace(namespaceDetails);
-
+        createNamespace(client, session);
         shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
@@ -165,6 +165,17 @@ public class SessionListener {
         }
     }
 
+    private void createNamespace(KubernetesClient client, Session session) {
+        client.namespaces().createNew()
+                .withNewMetadata()
+                .withName(session.getNamespace())
+                .addToLabels("provider", "fabric8")
+                .addToLabels("component", "integrationTest")
+                .addToLabels("framework", "arquillian")
+                .withAnnotations(Util.createNamespaceAnnotations(session))
+                .endMetadata()
+                .done();
+    }
 
     private boolean applyConfiguration(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<KubernetesList> kubeConfigs) throws Exception {
         Logger log = session.getLogger();

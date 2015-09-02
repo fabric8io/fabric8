@@ -24,8 +24,10 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.Zips;
@@ -40,7 +42,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -180,8 +185,48 @@ public class Util {
 
     }
 
+    public static String findGitUrl(Session session, File dir) {
+        try {
+            return GitHelpers.extractGitUrl(dir);
+        } catch (IOException e) {
+            session.getLogger().warn("Could not detect git url from directory: " + dir + ". " + e);
+            return null;
+        }
+    }
 
+    public static File getProjectBaseDir(Session session) {
+        String basedir = System.getProperty("basedir", ".");
+        return new File(basedir);
+    }
 
+    public static Map<String, String> createNamespaceAnnotations(Session session) {
+        Map<String, String> annotations = new HashMap<>();
+        File dir = getProjectBaseDir(session);
+        String gitUrl = findGitUrl(session, dir);
+
+        if (Strings.isNotBlank(gitUrl)) {
+            annotations.put("fabric8.devops/gitUrl", gitUrl);
+        }
+        // lets see if there's a maven generated set of pom properties
+        File pomProperties = new File(dir, "target/maven-archiver/pom.properties");
+        if (pomProperties.isFile()) {
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(pomProperties));
+                Map<String, String> map = PropertiesHelper.toMap(properties);
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (Strings.isNotBlank(key) && Strings.isNotBlank(value)) {
+                        annotations.put("fabric8.devops/" + key, value);
+                    }
+                }
+            } catch (IOException e) {
+                session.getLogger().warn("Failed to load " + pomProperties + " file to annotate the namespace: " + e);
+            }
+        }
+        return annotations;
+    }
 
     public static List<String> getMavenDependencies(Session session) throws IOException {
         List<String> dependencies = new ArrayList<>();
