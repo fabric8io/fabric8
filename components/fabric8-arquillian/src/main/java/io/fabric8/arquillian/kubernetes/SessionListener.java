@@ -22,29 +22,38 @@ import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.arquillian.utils.SecretKeys;
+import io.fabric8.arquillian.utils.Secrets;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
-import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.arquillian.utils.Util.*;
+import static io.fabric8.arquillian.utils.Util.cleanupSession;
+import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
+import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
@@ -57,7 +66,7 @@ public class SessionListener {
         final Logger log = session.getLogger();
         String namespace = session.getNamespace();
         System.setProperty(Constants.KUBERNETES_NAMESPACE, namespace);
-        
+
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     osc namespace " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
@@ -206,6 +215,7 @@ public class SessionListener {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 log.status("Applying pod:" + getName(pod));
+                generateSecrets(client, session, pod.getMetadata());
                 controller.applyPod(pod, session.getId());
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
@@ -217,11 +227,11 @@ public class SessionListener {
                 ReplicationController replicationController = (ReplicationController) entity;
                 log.status("Applying replication controller:" + getName(replicationController));
                 controller.applyReplicationController(replicationController, session.getId());
+                generateSecrets(client, session, replicationController.getSpec().getTemplate().getMetadata());
                 conditions.put(1, sessionPodsReady);
             } else if (entity != null) {
                 log.status("Applying " + entity.getClass().getSimpleName() + ":");
                 controller.apply(entity, session.getId());
-                //conditions.put(3, sessionPodsReady);
             }
         }
 
@@ -243,4 +253,29 @@ public class SessionListener {
         return true;
     }
 
+
+    private void generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
+        Map<String, String> annotations = meta.getAnnotations();
+        for (Map.Entry<String, String> entry : annotations.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (SecretKeys.isSecretKey(key)) {
+                SecretKeys keyType = SecretKeys.fromValue(key);
+
+                String name = Secrets.getName(value);
+
+                Map<String, String> data = new HashMap<>();
+                for (String c : Secrets.getContents(value)) {
+                    data.put(c, keyType.generate());
+                }
+                client.secrets().inNamespace(session.getNamespace()).createNew()
+                        .withNewMetadata()
+                        .withName(name)
+                        .endMetadata()
+                        .withData(data)
+                        .done();
+
+            }
+        }
+    }
 }
