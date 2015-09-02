@@ -102,6 +102,17 @@ public enum VolumeType {
                     .build();
         }
 
+    }, PERSISTENT_VOLUME_CLAIM("persistentVolumeClaim") {
+        public  Volume fromProperties(String name, Properties properties) {
+            String claimRef = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
+            Boolean readOnly = toBool(properties.getProperty(String.format(VOLUME_PROPERTY, name, READONLY)));
+
+            return new VolumeBuilder()
+                    .withName(name)
+                    .withNewPersistentVolumeClaim(claimRef, readOnly)
+                    .build();
+        }
+
     };
 
     private final String type;
@@ -121,7 +132,7 @@ public enum VolumeType {
     
     private static final String VOLUME_PREFIX = "fabric8.volume";
     private static final String VOLUME_NAME_PREFIX = VOLUME_PREFIX + ".%s";
-    private static final String VOLUME_PROPERTY = VOLUME_NAME_PREFIX + ".%s";
+    public static final String VOLUME_PROPERTY = VOLUME_NAME_PREFIX + ".%s";
     
     private static final String VOLUME_GIT_REV = "revision";
     private static final String VOLUME_SECRET_NAME = "secret";
@@ -129,6 +140,7 @@ public enum VolumeType {
     private static final String VOLUME_NFS_SERVER = "nfsServer";
     private static final String VOLUME_GCE_FS_TYPE = "gceFsType";
     private static final String VOLUME_GLUSTERFS_ENDPOINTS = "endpoints";
+    public static final String VOLUME_PVC_REQUEST_STORAGE = "requestStorage";
 
     private static final String READONLY = "readOnly";
     

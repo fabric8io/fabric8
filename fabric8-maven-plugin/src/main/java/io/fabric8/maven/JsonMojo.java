@@ -20,34 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.EditableKubernetesList;
-import io.fabric8.kubernetes.api.model.EditableObjectReference;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.EnvVarBuilder;
-import io.fabric8.kubernetes.api.model.ExecAction;
-import io.fabric8.kubernetes.api.model.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.Probe;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.RunAsUserStrategyOptions;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceFluent;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.TCPSocketAction;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -93,7 +66,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -173,6 +145,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.failOnMissingJsonFiles", defaultValue = "true")
     private boolean failOnMissingJsonFiles;
+
+    /**
+     * Should we generate any required SecurityContextConstraints DTOs in the generated json
+     */
+    @Parameter(property = "fabric8.generateSecurityContextConstraints", defaultValue = "false")
+    private boolean generateSecurityContextConstraints;
 
     /**
      * Whether we should include the namespace in the containers' env vars
@@ -481,6 +459,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "project.remoteArtifactRepositories")
     protected List remoteRepositories;
 
+    /**
+     * The default requests storage size for a PersistenceVolumeClaim if its created for a persistent volume via a claim
+     */
+    @Parameter(property = "fabric8.defaultPersistentVolumeClaimRequestsStorage", defaultValue = "20")
+    private String defaultPersistentVolumeClaimRequestsStorage;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
@@ -787,7 +771,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         Boolean containerPrivileged = getContainerPrivileged();
 
         if (addedServiceAcount) {
-            addServiceConstraints(builder, volumes, containerPrivileged);
+            addServiceConstraints(builder, volumes, containerPrivileged != null && containerPrivileged.booleanValue());
         }
         builder
                 .addNewReplicationControllerItem()
@@ -824,6 +808,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 .endTemplate()
                 .endSpec()
                 .endReplicationControllerItem();
+
+        addPersistentVolumeClaims(builder, volumes);
 
         // Do we actually want to generate a service manifest?
         if (serviceName != null) {
@@ -900,6 +886,46 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
+    protected void addPersistentVolumeClaims(KubernetesListBuilder builder, List<Volume> volumes) {
+        for (Volume volume : volumes) {
+            PersistentVolumeClaimVolumeSource persistentVolumeClaim = volume.getPersistentVolumeClaim();
+            if (persistentVolumeClaim != null) {
+                String name = volume.getName();
+                String claimName = persistentVolumeClaim.getClaimName();
+                Boolean readOnly = persistentVolumeClaim.getReadOnly();
+
+                if (Strings.isNotBlank(claimName)) {
+                    String accessModes;
+                    if (readOnly != null && readOnly.booleanValue()) {
+                        accessModes = "ReadOnly";
+                    } else {
+                        accessModes = "ReadWrite";
+                    }
+                    Properties properties = getProject().getProperties();
+                    String requestStorageProperty = String.format(VolumeType.VOLUME_PROPERTY, name, VolumeType.VOLUME_PVC_REQUEST_STORAGE);
+                    String amount = properties.getProperty(requestStorageProperty);
+                    if (Strings.isNullOrBlank(amount)) {
+                        amount = defaultPersistentVolumeClaimRequestsStorage;
+                        getLog().info("No maven property defined for `" + requestStorageProperty + "` so defaulting the requestStorage to " + amount);
+                    } else {
+                        getLog().debug("Maven property `" + requestStorageProperty + "` = " + amount);
+                    }
+
+                    Map<String, Quantity> requests = new HashMap<>();
+                    Quantity requestLimit = new QuantityBuilder().withAmount(amount).build();
+                    requests.put("storage", requestLimit);
+
+                    builder.addNewPersistentVolumeClaimItem().
+                            withNewMetadata().withName(claimName).endMetadata().
+                            withNewSpec().withAccessModes(accessModes).withVolumeName(claimName).withNewResources().withRequests(requests).endResources().endSpec().
+                            endPersistentVolumeClaimItem();
+                } else {
+                    getLog().warn("No claimName for persistent volume " + volume);
+                }
+            }
+        }
+    }
+
     protected boolean addServiceAccountIfIUsingSecretAnnotations(KubernetesListBuilder builder, Map<String, String> annotations) {
         Set<String> secretAnnotations = new HashSet<>(Arrays.asList(
                 Annotations.Secrets.SSH_KEY,
@@ -939,16 +965,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected void addServiceConstraints(KubernetesListBuilder builder, List<Volume> volumes, boolean containerPrivileged) {
-        boolean hostVolume = hasHostVolume(volumes);
-        if (hostVolume || containerPrivileged) {
-            RunAsUserStrategyOptions runAsUser;
-            builder.addNewSecurityContextConstraintsItem().
-                    withNewMetadata().withName(serviceAccount).endMetadata().
-                    withAllowHostDirVolumePlugin(hostVolume).withAllowPrivilegedContainer(containerPrivileged).
-                    withNewRunAsUser().withType("RunAsAny").endRunAsUser().
-                    withNewSeLinuxContext().withType("RunAsAny").endSeLinuxContext().
-                    withUsers("system:serviceaccount:" + getNamespace() + ":" + serviceAccount).
-            endSecurityContextConstraintsItem();
+        if (generateSecurityContextConstraints) {
+            boolean hostVolume = hasHostVolume(volumes);
+            if (hostVolume || containerPrivileged) {
+                RunAsUserStrategyOptions runAsUser;
+                builder.addNewSecurityContextConstraintsItem().
+                        withNewMetadata().withName(serviceAccount).endMetadata().
+                        withAllowHostDirVolumePlugin(hostVolume).withAllowPrivilegedContainer(containerPrivileged).
+                        withNewRunAsUser().withType("RunAsAny").endRunAsUser().
+                        withNewSeLinuxContext().withType("RunAsAny").endSeLinuxContext().
+                        withUsers("system:serviceaccount:" + getNamespace() + ":" + serviceAccount).
+                        endSecurityContextConstraintsItem();
+            }
         }
     }
 

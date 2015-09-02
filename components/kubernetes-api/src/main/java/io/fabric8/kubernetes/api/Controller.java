@@ -18,10 +18,15 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
+import io.fabric8.kubernetes.api.model.Doneable;
+import io.fabric8.kubernetes.api.model.DoneablePersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
@@ -29,11 +34,14 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretVolumeSource;
+import io.fabric8.kubernetes.api.model.SecurityContextConstraints;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.ClientOperation;
+import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -58,6 +66,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getKind;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
@@ -230,6 +239,8 @@ public class Controller {
             applyImageStream((ImageStream) dto, sourceName);
         } else if (dto instanceof OAuthClient) {
             applyOAuthClient((OAuthClient) dto, sourceName);
+        } else if (dto instanceof PersistentVolumeClaim) {
+            applyResource((PersistentVolumeClaim) dto, sourceName, kubernetesClient.persistentVolumeClaims());
         } else if (dto instanceof Template) {
             applyTemplate((Template) dto, sourceName);
         } else if (dto instanceof ServiceAccount) {
@@ -453,7 +464,7 @@ public class Controller {
         if (logJsonDir != null) {
             File namespaceDir = new File(logJsonDir, namespace);
             namespaceDir.mkdirs();
-            String kind = KubernetesHelper.getKind(entity);
+            String kind = getKind(entity);
             String name = KubernetesHelper.getName(entity);
             if (Strings.isNotBlank(kind)) {
                 name = kind.toLowerCase() + "-" + name;
@@ -693,6 +704,59 @@ public class Controller {
             } else {
                 doCreateService(service, namespace, sourceName);
             }
+        }
+    }
+
+    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientOperation<KubernetesClient, T, L, D, ClientResource<T, D>> resources) throws Exception {
+        String namespace = getNamespace();
+        String id = getName(resource);
+        String kind = getKind(resource);
+        Objects.notNull(id, "No name for " + resource + " " + sourceName);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Ignoring " + kind + ": " + namespace + ":" + id);
+            return;
+        }
+        T old = resources.inNamespace(namespace).withName(id).get();
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(resource, old)) {
+                LOG.info(kind + " hasn't changed so not doing anything");
+            } else {
+                if (isRecreateMode()) {
+                    LOG.info("Deleting " + kind + ": " + id);
+                    resources.inNamespace(namespace).withName(id).delete();
+                    doCreateResource(resource, namespace, sourceName, resources);
+                } else {
+                    LOG.info("Updating " + kind + " from " + sourceName);
+                    try {
+                        Object answer = resources.inNamespace(namespace).withName(id).replace(resource);
+                        logGeneratedEntity("Updated " + kind + ": ", namespace, resource, answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update " + kind + " from " + sourceName + ". " + e + ". " + resource, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a " + kind + " from " + sourceName + " namespace " + namespace + " name " + getName(resource));
+            } else {
+                doCreateResource(resource, namespace, sourceName, resources);
+            }
+        }
+    }
+
+    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientOperation<KubernetesClient, T, L, D, ClientResource<T, D>> resources) throws Exception {
+        String kind = getKind(resource);
+        LOG.info("Creating a " + kind + " from " + sourceName + " namespace " + namespace + " name " + getName(resource));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = resources.inNamespace(namespace).create(resource);
+            } else {
+                answer = resources.inNamespace(getNamespace()).create(resource);
+            }
+            logGeneratedEntity("Created " + kind + ": ", namespace, resource, answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create " + kind + " from " + sourceName + ". " + e + ". " + resource, e);
         }
     }
 
