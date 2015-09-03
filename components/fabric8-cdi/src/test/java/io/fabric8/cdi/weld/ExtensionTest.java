@@ -27,6 +27,7 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import javax.enterprise.inject.New;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Set;
 
+@Ignore
 @RunWith(Arquillian.class)
 public class ExtensionTest {
 
