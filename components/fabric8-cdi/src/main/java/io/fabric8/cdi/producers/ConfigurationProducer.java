@@ -46,7 +46,7 @@ public class ConfigurationProducer<T> implements Producer<T> {
                 ConfigProperty configProperty = f.getAnnotation(ConfigProperty.class);
                 if (configProperty != null) {
                     String name = configProperty.name();
-                    String defaultValue = configProperty.defaultValue();
+                    String defaultValue = ConfigProperty.NULL.equals(configProperty.defaultValue()) ? null : configProperty.defaultValue();
 
                     String value = ConfigResolver.getPropertyValue((configurationId + "_" + name)
                             .replaceAll("-", "_")
