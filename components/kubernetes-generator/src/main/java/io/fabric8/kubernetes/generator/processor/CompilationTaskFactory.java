@@ -28,6 +28,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -75,7 +76,7 @@ public class CompilationTaskFactory {
      * @return                  The compilation task.
      * @throws java.io.IOException
      */
-    public JavaCompiler.CompilationTask create(Iterable<TypeElement> elements) throws IOException {
+    public JavaCompiler.CompilationTask create(Iterable<TypeElement> elements, Writer writer) throws IOException {
         Set<String> options = new LinkedHashSet<>();
         Set<JavaFileObject> javaFileObjects = new LinkedHashSet<>();
 
@@ -90,7 +91,7 @@ public class CompilationTaskFactory {
         for (TypeElement element : elements) {
             javaFileObjects.add(fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, element.getQualifiedName().toString(), JavaFileObject.Kind.SOURCE));
         }
-        return compiler.getTask(null, fileManager, diagnosticListener, options, new ArrayList<String>(), javaFileObjects);
+        return compiler.getTask(writer, fileManager, diagnosticListener, options, new ArrayList<String>(), javaFileObjects);
     }
     
     private static String createClassPath(URL[] urls) {

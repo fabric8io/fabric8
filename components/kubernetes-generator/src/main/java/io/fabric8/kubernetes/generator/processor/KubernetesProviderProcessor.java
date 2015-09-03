@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
+import io.fabric8.utils.Strings;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -31,6 +32,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -57,16 +59,22 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         if (providers.isEmpty()) {
             return true;
         }
-
+        StringWriter writer = new StringWriter();
         try {
-            Callable<Boolean> compileTask = compilationTaskFactory.create(providers);
+            Callable<Boolean> compileTask = compilationTaskFactory.create(providers, writer);
             if (!compileTask.call()) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to compile provider classes");
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to compile provider classes. See output below.");
                 return false;
             }
         } catch (Exception e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to compile provider classes");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error to compile provider classes, due to: " + e.getMessage() + ". See output below.");
             return false;
+        } finally {
+            String output = writer.toString();
+            if (Strings.isNullOrBlank(output)) {
+                output = "success";
+            }
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Fabric8 model generator compiler output:" + output);
         }
 
         //2nd pass generate json.
