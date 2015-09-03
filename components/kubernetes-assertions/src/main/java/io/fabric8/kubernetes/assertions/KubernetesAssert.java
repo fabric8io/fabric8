@@ -61,8 +61,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public PodsAssert pods() {
-        List<Pod> pods = client.pods().list().getItems();
-        return Assertions.assertThat(pods);
+        return pods(null);
     }
 
     public PodsAssert pods(String namespace) {
@@ -89,7 +88,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public ListAssert<ReplicationController> replicationControllers() {
-        return replicationControllers();
+        return replicationControllers(null);
     }
 
     public ListAssert<ReplicationController> replicationControllers(String namespace) {
@@ -110,7 +109,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public ListAssert<Service> services() {
-       return services();
+       return services(null);
     }
 
     public ListAssert<Service> services(String namespace) {
