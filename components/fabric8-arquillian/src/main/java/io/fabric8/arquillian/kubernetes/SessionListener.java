@@ -328,26 +328,28 @@ public class SessionListener {
     private Set<Secret> generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
         Set<Secret> secrets = new HashSet<>();
         Map<String, String> annotations = meta.getAnnotations();
-        for (Map.Entry<String, String> entry : annotations.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (SecretKeys.isSecretKey(key)) {
-                SecretKeys keyType = SecretKeys.fromValue(key);
-                for (String name : Secrets.getNames(value)) {
-                    Map<String, String> data = new HashMap<>();
+        if ( annotations != null && !annotations.isEmpty()) {
+            for (Map.Entry<String, String> entry : annotations.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (SecretKeys.isSecretKey(key)) {
+                    SecretKeys keyType = SecretKeys.fromValue(key);
+                    for (String name : Secrets.getNames(value)) {
+                        Map<String, String> data = new HashMap<>();
 
-                    for (String c : Secrets.getContents(value, name)) {
-                        data.put(c, keyType.generate());
+                        for (String c : Secrets.getContents(value, name)) {
+                            data.put(c, keyType.generate());
+                        }
+
+                        secrets.add(
+                                client.secrets().inNamespace(session.getNamespace()).createNew()
+                                        .withNewMetadata()
+                                        .withName(name)
+                                        .endMetadata()
+                                        .withData(data)
+                                        .done()
+                        );
                     }
-
-                    secrets.add(
-                            client.secrets().inNamespace(session.getNamespace()).createNew()
-                                    .withNewMetadata()
-                                    .withName(name)
-                                    .endMetadata()
-                                    .withData(data)
-                                    .done()
-                    );
                 }
             }
         }
