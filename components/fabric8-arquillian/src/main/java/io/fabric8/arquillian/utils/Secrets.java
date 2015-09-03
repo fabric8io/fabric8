@@ -19,9 +19,7 @@ package io.fabric8.arquillian.utils;
 import io.fabric8.utils.Strings;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,24 +31,27 @@ public class Secrets {
     public static final String FOLDER_REGEX = "(?<" + FOLDER_GROUP + ">" + NAME_REGEX + ")" + "(\\[(?<" + CONTENT_GROUP + ">(" + NAME_REGEX + "[ ,]*)*)\\]){0,1}";
     public static final Pattern FOLDER_PATTERN = Pattern.compile(FOLDER_REGEX);
 
-    public static String getName(String str) {
+    public static List<String> getNames(String str) {
         Matcher matcher = FOLDER_PATTERN.matcher(str);
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("Value:" + str + " doesn't match Pattern:" + FOLDER_REGEX);
+        List<String> result = new ArrayList<>();
+        while (matcher.find()) {
+            result.add(matcher.group(FOLDER_GROUP));
         }
-        return matcher.group(FOLDER_GROUP);
+        return result;
     }
 
-    public static List<String> getContents(String str) {
-        Matcher matcher = FOLDER_PATTERN.matcher(str);
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("Value:" + str + " doesn't match Pattern:" + FOLDER_REGEX);
-        }
-        String content = matcher.group(CONTENT_GROUP);
+    public static List<String> getContents(String str, String name) {
         List<String> result = new ArrayList<>();
-        if (Strings.isNotBlank(content)) {
-            for (String s : content.split("[ ,]+")) {
-                result.add(s);
+        Matcher matcher = FOLDER_PATTERN.matcher(str);
+        while (matcher.find()) {
+            String candidate = matcher.group(FOLDER_GROUP);
+            if (name.equals(candidate)) {
+                String content = matcher.group(CONTENT_GROUP);
+                if (Strings.isNotBlank(content)) {
+                    for (String s : content.split("[ ,]+")) {
+                        result.add(s);
+                    }
+                }
             }
         }
         return result;

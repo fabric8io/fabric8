@@ -18,38 +18,38 @@ package io.fabric8.arquillian.utils;
 
 import org.junit.Test;
 
+import java.util.List;
 import java.util.regex.Matcher;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class SecretsTest {
 
     @Test
-    public void testRegexParsing() {
-        String str = "testname";
-        Matcher matcher = Secrets.FOLDER_PATTERN.matcher(str);
-        assertTrue(matcher.matches());
-        String folder = matcher.group(Secrets.FOLDER_GROUP);
-        assertEquals(folder, "testname");
+    public void testGetNames() {
+        List<String> result = Secrets.getNames("one,two");
+        assertTrue(result.contains("one"));
+        assertTrue(result.contains("two"));
 
-        str = "testfolder[one]";
-        matcher = Secrets.FOLDER_PATTERN.matcher(str);
-        assertTrue(matcher.matches());
-        folder = matcher.group(Secrets.FOLDER_GROUP);
-        assertEquals("testfolder", folder);
+        result = Secrets.getNames("one, two");
+        assertTrue(result.contains("one"));
+        assertTrue(result.contains("two"));
 
-        String secrets = matcher.group(3);
-        assertEquals("one", secrets);
+        result = Secrets.getNames("one[in1,in2]");
+        assertTrue(result.contains("one"));
 
-        str = "testfolder[one,two]";
-        matcher = Secrets.FOLDER_PATTERN.matcher(str);
-        assertTrue(matcher.matches());
-        folder = matcher.group(Secrets.FOLDER_GROUP);
-        assertEquals("testfolder", folder);
+        List<String> contents = Secrets.getContents("one[in1,in2]", "one");
+        assertTrue(contents.contains("in1"));
+        assertTrue(contents.contains("in2"));
 
-        secrets = matcher.group(Secrets.CONTENT_GROUP);
-        assertEquals("one,two", secrets);
+        contents = Secrets.getContents("one[in11,in12], two[in21,in22]", "one");
+        assertTrue(contents.contains("in11"));
+        assertTrue(contents.contains("in12"));
+
+        contents = Secrets.getContents("one[in11,in12], two[in21,in22]", "two");
+        assertTrue(contents.contains("in21"));
+        assertTrue(contents.contains("in22"));
     }
+
 }

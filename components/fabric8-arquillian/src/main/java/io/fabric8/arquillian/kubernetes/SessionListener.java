@@ -30,12 +30,18 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
+import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
@@ -45,9 +51,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
@@ -215,7 +223,11 @@ public class SessionListener {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 log.status("Applying pod:" + getName(pod));
-                generateSecrets(client, session, pod.getMetadata());
+                Set<Secret> secrets = generateSecrets(client, session, pod.getMetadata());
+                String serviceAccountName = pod.getSpec().getServiceAccountName();
+                if (Strings.isNotBlank(serviceAccountName)) {
+                    generateServiceAccount(client, session, secrets, serviceAccountName);
+                }
                 controller.applyPod(pod, session.getId());
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
@@ -226,14 +238,19 @@ public class SessionListener {
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
                 log.status("Applying replication controller:" + getName(replicationController));
+
+                Set<Secret> secrets = generateSecrets(client, session, replicationController.getSpec().getTemplate().getMetadata());
+                String serviceAccountName = replicationController.getSpec().getTemplate().getSpec().getServiceAccountName();
+
+                if (Strings.isNotBlank(serviceAccountName)) {
+                    generateServiceAccount(client, session, secrets, serviceAccountName);
+                }
                 controller.applyReplicationController(replicationController, session.getId());
-                generateSecrets(client, session, replicationController.getSpec().getTemplate().getMetadata());
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof HasMetadata) {
-                log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((ObjectMeta) entity));
+                log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((HasMetadata) entity));
                 controller.apply(entity, session.getId());
-            }
-            else if (entity != null) {
+            } else if (entity != null) {
                 log.status("Applying " + entity.getClass().getSimpleName() + ".");
                 controller.apply(entity, session.getId());
             }
@@ -258,28 +275,82 @@ public class SessionListener {
     }
 
 
-    private void generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
+    private void generateServiceAccount(KubernetesClient client, Session session, Set<Secret> secrets, String serviceAccountName) {
+        List<ObjectReference> secretRefs = new ArrayList<>();
+        for (Secret secret : secrets) {
+            secretRefs.add(
+                    new ObjectReferenceBuilder()
+                            .withNamespace(session.getNamespace())
+                            .withName(KubernetesHelper.getName(secret))
+                            .build()
+            );
+        }
+
+        client.securityContextConstraints().createNew()
+                .withNewMetadata()
+                    .withName(session.getNamespace())
+                .endMetadata()
+                .withAllowHostDirVolumePlugin(true)
+                .withAllowPrivilegedContainer(true)
+                .withNewRunAsUser()
+                    .withType("RunAsAny")
+                .endRunAsUser()
+                .withNewSeLinuxContext()
+                    .withType("RunAsAny")
+                .endSeLinuxContext()
+                .withUsers("system:serviceaccount:" + session.getNamespace() + ":" + serviceAccountName)
+        .done();
+
+        ServiceAccount serviceAccount = client.serviceAccounts()
+                .inNamespace(session.getNamespace())
+                .withName(serviceAccountName)
+                .get();
+
+        if (serviceAccount == null) {
+            client.serviceAccounts().inNamespace(session.getNamespace()).createNew()
+                    .withNewMetadata()
+                    .withName(serviceAccountName)
+                    .endMetadata()
+                    .withSecrets(secretRefs)
+                    .done();
+        } else {
+            client.serviceAccounts().inNamespace(session.getNamespace())
+                    .withName(serviceAccountName)
+                    .replace(new ServiceAccountBuilder(serviceAccount)
+                            .withNewMetadata()
+                            .withName(serviceAccountName)
+                            .endMetadata()
+                            .addToSecrets(secretRefs.toArray(new ObjectReference[secretRefs.size()]))
+                            .build());
+        }
+    }
+
+    private Set<Secret> generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
+        Set<Secret> secrets = new HashSet<>();
         Map<String, String> annotations = meta.getAnnotations();
         for (Map.Entry<String, String> entry : annotations.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             if (SecretKeys.isSecretKey(key)) {
                 SecretKeys keyType = SecretKeys.fromValue(key);
+                for (String name : Secrets.getNames(value)) {
+                    Map<String, String> data = new HashMap<>();
 
-                String name = Secrets.getName(value);
+                    for (String c : Secrets.getContents(value, name)) {
+                        data.put(c, keyType.generate());
+                    }
 
-                Map<String, String> data = new HashMap<>();
-                for (String c : Secrets.getContents(value)) {
-                    data.put(c, keyType.generate());
+                    secrets.add(
+                            client.secrets().inNamespace(session.getNamespace()).createNew()
+                                    .withNewMetadata()
+                                    .withName(name)
+                                    .endMetadata()
+                                    .withData(data)
+                                    .done()
+                    );
                 }
-                client.secrets().inNamespace(session.getNamespace()).createNew()
-                        .withNewMetadata()
-                        .withName(name)
-                        .endMetadata()
-                        .withData(data)
-                        .done();
-
             }
         }
+        return secrets;
     }
 }
