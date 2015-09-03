@@ -170,6 +170,12 @@ public class Util {
                 errors.add(e);
             }
 
+            try {
+                client.securityContextConstraints().withName(session.getNamespace()).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
+            }
+
             // lets see if there are any matching podList left
             List<Pod> filteredPods = client.pods().inNamespace(session.getNamespace()).list().getItems();
             if (filteredPods.isEmpty()) {
