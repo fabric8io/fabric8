@@ -35,6 +35,7 @@ import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.SecurityContextConstraints;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
@@ -238,10 +239,8 @@ public class SessionListener {
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
                 log.status("Applying replication controller:" + getName(replicationController));
-
                 Set<Secret> secrets = generateSecrets(client, session, replicationController.getSpec().getTemplate().getMetadata());
                 String serviceAccountName = replicationController.getSpec().getTemplate().getSpec().getServiceAccountName();
-
                 if (Strings.isNotBlank(serviceAccountName)) {
                     generateServiceAccount(client, session, secrets, serviceAccountName);
                 }
@@ -286,20 +285,24 @@ public class SessionListener {
             );
         }
 
-        client.securityContextConstraints().createNew()
-                .withNewMetadata()
+
+        SecurityContextConstraints securityContextConstraints = client.securityContextConstraints().withName(session.getNamespace()).get();
+        if (securityContextConstraints == null) {
+            client.securityContextConstraints().createNew()
+                    .withNewMetadata()
                     .withName(session.getNamespace())
-                .endMetadata()
-                .withAllowHostDirVolumePlugin(true)
-                .withAllowPrivilegedContainer(true)
-                .withNewRunAsUser()
+                    .endMetadata()
+                    .withAllowHostDirVolumePlugin(true)
+                    .withAllowPrivilegedContainer(true)
+                    .withNewRunAsUser()
                     .withType("RunAsAny")
-                .endRunAsUser()
-                .withNewSeLinuxContext()
+                    .endRunAsUser()
+                    .withNewSeLinuxContext()
                     .withType("RunAsAny")
-                .endSeLinuxContext()
-                .withUsers("system:serviceaccount:" + session.getNamespace() + ":" + serviceAccountName)
-        .done();
+                    .endSeLinuxContext()
+                    .withUsers("system:serviceaccount:" + session.getNamespace() + ":" + serviceAccountName)
+                    .done();
+        }
 
         ServiceAccount serviceAccount = client.serviceAccounts()
                 .inNamespace(session.getNamespace())
