@@ -229,8 +229,12 @@ public class SessionListener {
                 controller.applyReplicationController(replicationController, session.getId());
                 generateSecrets(client, session, replicationController.getSpec().getTemplate().getMetadata());
                 conditions.put(1, sessionPodsReady);
-            } else if (entity != null) {
-                log.status("Applying " + entity.getClass().getSimpleName() + ":");
+            } else if (entity instanceof HasMetadata) {
+                log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((ObjectMeta) entity));
+                controller.apply(entity, session.getId());
+            }
+            else if (entity != null) {
+                log.status("Applying " + entity.getClass().getSimpleName() + ".");
                 controller.apply(entity, session.getId());
             }
         }
