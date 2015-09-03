@@ -68,7 +68,7 @@ public class SessionListener {
         System.setProperty(Constants.KUBERNETES_NAMESPACE, namespace);
 
         log.status("Creating kubernetes resources inside namespace: " + namespace);
-        log.info("if you use OpenShift then type this switch namespaces:     osc namespace " + namespace);
+        log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
 
         controller.setNamespace(namespace);
