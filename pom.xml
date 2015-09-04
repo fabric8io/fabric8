@@ -2502,6 +2502,14 @@
               <artifactId>websocket-client</artifactId>
               <version>${jetty9.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.sun</groupId>
+                <artifactId>tools</artifactId>
+                <version>${sun.tools.version}</version>
+                <scope>system</scope>
+                <systemPath>${java.home}/../lib/tools.jar</systemPath>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -2787,7 +2795,24 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>sun-tools-1.7</id>
+            <activation>
+                <jdk>1.7</jdk>
+            </activation>
+            <properties>
+                <sun.tools.version>1.8</sun.tools.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>sun-tools-1.8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <sun.tools.version>1.8</sun.tools.version>
+            </properties>
+        </profile>
     </profiles>
 
 </project>
