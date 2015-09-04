@@ -50,8 +50,7 @@ public class ExtensionTest {
                 .addAsWebInfResource("META-INF/beans.xml")
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")
                         .resolve(
-                                "org.apache.deltaspike.core:deltaspike-core-impl",
-                                "com.google.mockwebserver:mockwebserver"
+                                "org.apache.deltaspike.core:deltaspike-core-impl"
                         )
                         .withTransitivity().as(File.class));
     }
