@@ -33,9 +33,7 @@
   <modules>
     <!-- code generation jobs go first -->
     <module>kubernetes-codegen</module>
-
     <module>fabric8-arquillian</module>
-    <module>console</module>
     <module>cxf-utils</module>
     <module>docker-api</module>
     <module>fabric8-annotations</module>
