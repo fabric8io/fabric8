@@ -75,32 +75,21 @@
   <profiles>
     <!-- enables the APT dependency so that it can be disabled in IDE builds -->
     <profile>
-      <id>no-apt</id>
+      <id>apt</id>
       <activation>
         <property>
-            <name>disable.annotation.processing</name>
+            <name>!dummy.prop.to.keep.this.profile.active.even.when.other.profiles.are.active</name>
         </property>
       </activation>
 
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>${compiler.plugin.version}</version>
-            <inherited>true</inherited>
-            <configuration>
-              <showDeprecation>true</showDeprecation>
-              <showWarnings>true</showWarnings>
-              <compilerArguments>
-                <source>${maven.compiler.argument.source}</source>
-                <target>${maven.compiler.argument.target}</target>
-                <proc:none/>
-              </compilerArguments>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
+      <dependencies>
+        <!-- enable the APT processor -->
+        <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-apt</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>
