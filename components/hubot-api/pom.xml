@@ -41,10 +41,6 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-apt</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
       <artifactId>cxf-utils</artifactId>
     </dependency>
 
