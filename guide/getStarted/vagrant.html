@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Mon Sep 07 2015 22:21:49 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Tue Sep 08 2015 04:36:50 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1155,7 +1155,7 @@ $ <span class="hljs-built_in">cd</span> fabric8-installer/vagrant/openshift
 <li><p><strong>Linux</strong>: Setup up once a <code>dnsmasq</code> DNS proxy locally. The detailed procedure depend on the Linux distribution used.
 Here is the example for Ubuntu:</p>
 <pre><code>  sudo apt-get install -y resolvconf dnsmasq
-  sudo sh -c &apos;echo &quot;server=/vagrant.dev/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;
+  sudo sh -c &apos;echo &quot;server=/vagrant.f8/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;
   sudo service dnsmasq restart
 </code></pre></li>
 <li><p><strong>Windows</strong>: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes
