@@ -55,13 +55,6 @@
     <module>fabric8-jgroups</module>
     <module>fabric8-utils</module>
     <module>fabric8-vertx</module>
-    <module>gateway-api</module>
-    <module>gateway-apiman</module>
-    <module>gateway-core</module>
-    <module>gateway-fabric</module>
-    <module>gateway-model</module>
-    <module>gateway-servlet</module>
-    <module>gateway-servlet-example</module>
     <module>gitrepo-api</module>
     <module>gitrepo-resteasy</module>
     <module>hubot-api</module>
