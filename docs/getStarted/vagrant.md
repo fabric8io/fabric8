@@ -34,7 +34,7 @@ The next steps are needed for proper routing from the host to OpenShift services
   Here is the example for Ubuntu:
 
         sudo apt-get install -y resolvconf dnsmasq
-        sudo sh -c 'echo "server=/vagrant.dev/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
+        sudo sh -c 'echo "server=/vagrant.f8/127.0.0.1#10053" > /etc/dnsmasq.d/vagrant-landrush'
         sudo service dnsmasq restart
 
 * **Windows**: Unfortunately for Windows no automatic routing for new services is possible. You have to add new routes
