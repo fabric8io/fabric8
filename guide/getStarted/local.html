@@ -8,7 +8,7 @@
         <title>Local OpenShift Client | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.3.0">
+        <meta name="generator" content="GitBook 2.3.2">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Tue Sep 08 2015 04:36:50 GMT+0000 (UTC)">
+    <div class="book" data-level="2.4" data-basepath=".." data-revision="Wed Sep 09 2015 07:49:08 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1144,11 +1144,13 @@ to work with Kubernetes and OpenShift resources:</p>
 <p>Set the following environment variables.</p>
 <ul>
 <li><p>Unix flavored OSs:</p>
-<pre><code>   export KUBERNETES_DOMAIN=vagrant.f8
+<pre><code>   export KUBERNETES_MASTER=https://172.28.128.4:8443
+   export KUBERNETES_DOMAIN=vagrant.f8
    export DOCKER_HOST=tcp://vagrant.f8:2375
 </code></pre><ul>
 <li><p>Windows:</p>
-<pre><code> set KUBERNETES_DOMAIN=vagrant.f8
+<pre><code> set KUBERNETES_MASTER=https://172.28.128.4:8443
+ set KUBERNETES_DOMAIN=vagrant.f8
  set DOCKER_HOST=tcp://vagrant.f8:2375
 </code></pre></li>
 </ul>
@@ -1160,15 +1162,16 @@ to work with Kubernetes and OpenShift resources:</p>
 <em>System</em> -&gt; <em>Advanced System Settings</em> -&gt; <em>Environment Variables</em> (Windows)</p>
 <h4 id="adding-entries-in-etc-hosts"><a name="adding-entries-in-etc-hosts" class="plugin-anchor" href="#adding-entries-in-etc-hosts"><span class="fa fa-link"></span></a>Adding entries in /etc/hosts</h4>
 <p>For each fabric8 application to access from externally you need a route setup in <code>/etc/hosts</code>. If you are 
-using the fabric8 <a href="vagrant.html">vagrant image</a> this can be automated. If you are using <a href="openshift.html">OpenShift natively</a> then 
-you need to update you </p>
-<p>This step is optional but if you are running the  and 
-don&apos;t have a wildcard DNS entry setup for <code>*.vagrant.f8</code> then you might want to add an 
-entry in your <code>/etc/hosts</code> file so that you can access services via their routes.</p>
+using the fabric8 <a href="vagrant.html">vagrant image</a> this can be automated. 
+If you are using <a href="openshift.html">OpenShift natively</a> then 
+you need to update your <code>/etc/hosts</code> (for Windows: <code>%WINDIR%\System32\drivers\etc\hosts</code>) 
+so that you can access services via their routes: </p>
 <pre><code>    10.0.2.2 vagrant.f8 fabric8.vagrant.f8 docker-registry.vagrant.f8 gogs.vagrant.f8 
     10.0.2.2 nexus.vagrant.f8 jenkins.vagrant.f8
-</code></pre><p>Where <code>10.0.2.2</code> is the IP address of your OpenShift master. If you get an error when accessing an fabriv8 service, please
-check that your service is added in <code>/etc/hosts</code>.</p>
+</code></pre><p>Where <code>10.0.2.2</code> is the IP address of your OpenShift master. If you get an error when accessing an fabric8 service, please
+check that your service is added in the hosts file.</p>
+<p>Alternatively you can setup a <code>*.vagrant.f8</code> wildcard DNS entry. How to do this is depends on your OS and is beyond the 
+scope of this document.</p>
 <h3 id="reuse-docker-from-vagrant"><a name="reuse-docker-from-vagrant" class="plugin-anchor" href="#reuse-docker-from-vagrant"><span class="fa fa-link"></span></a>Reuse Docker from Vagrant</h3>
 <p>If you are using a vagrant image such as the <a href="vagrant.html">Fabric8 vagrant image</a> then you should setup 
 your host to reuse the same docker daemon that is inside the vagrant image; 
