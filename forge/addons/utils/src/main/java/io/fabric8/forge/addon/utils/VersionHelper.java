@@ -15,6 +15,8 @@
  */
 package io.fabric8.forge.addon.utils;
 
+import io.fabric8.utils.Strings;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +56,17 @@ public final class VersionHelper {
         }
 
         return version;
+    }
+
+    /**
+     * Returns the version to use for the fabric8 archetypes
+     */
+    public static String fabric8ArchetypesVersion() {
+        String version = System.getenv("FABRIC8_ARCHETYPES_VERSION");
+        if (Strings.isNotBlank(version)) {
+            return version;
+        }
+        return fabric8Version();
     }
 
     /**
@@ -201,5 +214,4 @@ public final class VersionHelper {
             }
         }
     }
-
 }
