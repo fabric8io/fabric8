@@ -25,10 +25,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 
 public class ExternalServiceRegistrar extends AbstractServiceRegistar implements BeanFactoryAware {
 
-    public ExternalServiceRegistrar() {
-        System.out.print("");
-    }
-
     private BeanFactory beanFactory;
     private KubernetesClient kubernetesClient;
 
