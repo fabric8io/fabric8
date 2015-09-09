@@ -27,11 +27,13 @@ Set the following environment variables.
 
  - Unix flavored OSs:
   
+          export KUBERNETES_MASTER=https://172.28.128.4:8443
           export KUBERNETES_DOMAIN=vagrant.f8
           export DOCKER_HOST=tcp://vagrant.f8:2375
 
   - Windows:
 
+          set KUBERNETES_MASTER=https://172.28.128.4:8443
           set KUBERNETES_DOMAIN=vagrant.f8
           set DOCKER_HOST=tcp://vagrant.f8:2375
 
@@ -44,18 +46,19 @@ It is probably a good idea to add this into your `~/.profile` (Linux, OS X) or
 #### Adding entries in /etc/hosts
 
 For each fabric8 application to access from externally you need a route setup in `/etc/hosts`. If you are 
-using the fabric8 [vagrant image](vagrant.html) this can be automated. If you are using [OpenShift natively](openshift.html) then 
-you need to update you 
-
-This step is optional but if you are running the  and 
-don't have a wildcard DNS entry setup for `*.vagrant.f8` then you might want to add an 
-entry in your `/etc/hosts` file so that you can access services via their routes.
+using the fabric8 [vagrant image](vagrant.html) this can be automated. 
+If you are using [OpenShift natively](openshift.html) then 
+you need to update your `/etc/hosts` (for Windows: `%WINDIR%\System32\drivers\etc\hosts`) 
+so that you can access services via their routes: 
 
 		10.0.2.2 vagrant.f8 fabric8.vagrant.f8 docker-registry.vagrant.f8 gogs.vagrant.f8 
 		10.0.2.2 nexus.vagrant.f8 jenkins.vagrant.f8
 
-Where `10.0.2.2` is the IP address of your OpenShift master. If you get an error when accessing an fabriv8 service, please
-check that your service is added in `/etc/hosts`.
+Where `10.0.2.2` is the IP address of your OpenShift master. If you get an error when accessing an fabric8 service, please
+check that your service is added in the hosts file.
+
+Alternatively you can setup a `*.vagrant.f8` wildcard DNS entry. How to do this is depends on your OS and is beyond the 
+scope of this document.
 
 ### Reuse Docker from Vagrant
 
