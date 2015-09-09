@@ -116,6 +116,10 @@ import static io.fabric8.utils.Strings.isNullOrBlank;
  */
 public final class KubernetesHelper {
 
+    public static final String KUBERNETES_NAMESPACE_SYSTEM_PROPERTY = "kubernetes.namespace";
+    public static final String KUBERNETES_NAMESPACE_ENV = "KUBERNETES_NAMESPACE";
+    public static final String DEFAULT_NAMESPACE = "default";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -137,14 +141,15 @@ public final class KubernetesHelper {
     private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
 
     public static String defaultNamespace() {
-        String namespace = System.getenv("KUBERNETES_NAMESPACE");
+        String namespace =  Systems.getSystemPropertyOrEnvVar(KUBERNETES_NAMESPACE_SYSTEM_PROPERTY,
+                KUBERNETES_NAMESPACE_ENV, null);
         if (Strings.isNullOrBlank(namespace)) {
             namespace = findDefaultKubernetesNamespace();
         }
         if (Strings.isNotBlank(namespace)) {
             return namespace;
         }
-        return "default";
+        return DEFAULT_NAMESPACE;
     }
 
     public static String findDefaultKubernetesNamespace() {

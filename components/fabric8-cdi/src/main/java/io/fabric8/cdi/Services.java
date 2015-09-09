@@ -28,18 +28,16 @@ import java.util.List;
 
 public class Services {
 
-    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
     public static final String DEFAULT_PROTO = "tcp";
-    public static final String DEFAULT_NAMESPACE = "default";
 
     public static String toServiceUrl(String serviceName, String serviceProtocol, boolean serviceExternal) {
-        String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        String serviceNamespace = KubernetesHelper.defaultNamespace();
         return KubernetesHelper.getServiceURL(KubernetesHolder.getClient(), serviceName, serviceNamespace, serviceProtocol, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
         List<String> endpoints = new ArrayList<>();
-        String namespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        String namespace = KubernetesHelper.defaultNamespace();
         String serviceProto = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
 
         try {
