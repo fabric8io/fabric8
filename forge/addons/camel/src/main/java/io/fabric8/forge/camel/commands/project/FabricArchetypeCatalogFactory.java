@@ -58,7 +58,7 @@ public class FabricArchetypeCatalogFactory implements ArchetypeCatalogFactory {
     @Override
     public ArchetypeCatalog getArchetypeCatalog() {
         if (cachedArchetypes == null) {
-            String version = VersionHelper.fabric8Version();
+            String version = VersionHelper.fabric8ArchetypesVersion();
 
             Coordinate coordinate = CoordinateBuilder.create()
                     .setGroupId("io.fabric8.archetypes")
