@@ -17,7 +17,7 @@ package io.fabric8.spring.boot;
 
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.junit.Assert;
@@ -34,9 +34,6 @@ import java.net.URLConnection;
 @SpringApplicationConfiguration(classes = {ClientFactory.class, URLToConnection.class, Fabric8Application.class})
 public class Fabric8ApplicationTest {
 
-    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
-    private static final String DEFAULT_NAMESPACE = "default";
-
     @BeforeClass
     public static void setUpClass() throws Exception {
         System.setProperty("MY_CONFIG_TEST", "value1");
@@ -44,7 +41,7 @@ public class Fabric8ApplicationTest {
         System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
         System.setProperty("KUBERNETES_PROTOCOL", "https");
 
-        System.setProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
         System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }
 

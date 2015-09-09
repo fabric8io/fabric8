@@ -16,6 +16,8 @@
 package io.fabric8.cdi.weld;
 
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -61,6 +63,7 @@ public class ExtensionTest {
         System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
         System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
         System.setProperty("KUBERNETES_PROTOCOL", "https");
+        System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
     }
 
     @Inject

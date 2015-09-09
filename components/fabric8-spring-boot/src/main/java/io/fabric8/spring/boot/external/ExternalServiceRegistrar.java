@@ -15,20 +15,15 @@
  */
 package io.fabric8.spring.boot.external;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.spring.boot.AbstractServiceRegistar;
-import io.fabric8.utils.Systems;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExternalServiceRegistrar extends AbstractServiceRegistar implements BeanFactoryAware {
-
-    private static final String KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
-    public static final String DEFAULT_NAMESPACE = "default";
 
     public ExternalServiceRegistrar() {
         System.out.print("");
@@ -39,7 +34,7 @@ public class ExternalServiceRegistrar extends AbstractServiceRegistar implements
 
     @Override
     public Service getService(String name) {
-        String serviceNamespace = Systems.getEnvVarOrSystemProperty(KUBERNETES_NAMESPACE, DEFAULT_NAMESPACE);
+        String serviceNamespace = KubernetesHelper.defaultNamespace();
         if (kubernetesClient == null) {
             kubernetesClient = beanFactory.getBean(KubernetesClient.class);
         }
