@@ -48,8 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -158,7 +156,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
         KubernetesClient kubernetes = getKubernetes();
         
-        if (kubernetes.getMasterUrl() == null) {
+        if (kubernetes.getMasterUrl() == null || Strings.isNullOrBlank(kubernetes.getMasterUrl().toString())) {
         	throw new MojoFailureException("Can't find Kubernetes master URL");
         }
         
