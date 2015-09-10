@@ -97,7 +97,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
-
     private static final String NAME = "name";
     private static final String ATTRIBUTE_TYPE = "attributeType";
 
@@ -209,6 +208,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter()
     private Map<String, String> templateAnnotations;
 
+    /**
+     * The annotations for the Service
+     */
+    @Parameter()
+    private Map<String, String> serviceAnnotations;
     /**
      * The environment variables passed into the generated Kubernetes JSON template.
      * <p/>
@@ -442,6 +446,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.templateAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/templateAnnotations.properties")
     protected File templateAnnotationsFile;
+    
+    /**
+     * The properties file used to specify the annotations to be added to the generated Service
+     * <code>
+     *     <pre>
+     *         acme.com/cheese = SOMETHING
+     *     </pre>
+     * </code>
+     */
+    @Parameter(property = "fabric8.serviceAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/serviceAnnotations.properties")
+    protected File serviceAnnotationsFile;
 
     /**
      * Defines the maximum size in kilobytes that the data encoded URL of the icon should be before we defer
@@ -821,12 +836,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     metricsAnnotations.put(metricsPortAnnotation, metricsPort.toString());
                 }
             }
+            Map<String,String> serviceAnnotations = getServiceAnnotations();
+            serviceAnnotations.putAll(metricsAnnotations);
 
             ServiceBuilder serviceBuilder = new ServiceBuilder()
                     .withNewMetadata()
                     .withName(serviceName)
                     .withLabels(labelMap)
-                    .withAnnotations(metricsAnnotations)
+                    .withAnnotations(serviceAnnotations)
                     .endMetadata();
 
             ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
@@ -1559,6 +1576,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
             templateAnnotations = loadAnnotations(templateAnnotationsFile, "fabric8.annotations.template.", "Template");
         }
         return templateAnnotations;
+    }
+    
+    public Map<String, String> getServiceAnnotations() throws MojoExecutionException {
+    	if (serviceAnnotations == null) {
+            serviceAnnotations = loadAnnotations(serviceAnnotationsFile, "fabric8.annotations.service.", "Service");
+        }
+        return serviceAnnotations;
     }
 
     protected Map<String, String> loadAnnotations(File annotationsFile, String propertiesPrefix, String annotationsName) throws MojoExecutionException {
