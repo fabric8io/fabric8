@@ -91,7 +91,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
     @WithAttributes(label = "codeReview", required = false, description = "Enable code review of all commits")
     private UIInput<Boolean> codeReview;
 
-    private KubernetesClient kubernetes;
     private String namespace = KubernetesHelper.defaultNamespace();
     private LetsChatClient letsChat;
     private TaigaClient taiga;
@@ -476,10 +475,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             LOG.warn("Failed to find chat room names: " + e, e);
         }
         return answer;
-    }
-
-    public KubernetesClient getKubernetes() {
-        return new DefaultKubernetesClient();
     }
 
     public LetsChatClient getLetsChat() {
