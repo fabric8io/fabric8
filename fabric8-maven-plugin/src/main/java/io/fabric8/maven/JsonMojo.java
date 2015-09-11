@@ -916,7 +916,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     if (readOnly != null && readOnly.booleanValue()) {
                         accessModes = "ReadOnly";
                     } else {
-                        accessModes = "ReadWrite";
+                        accessModes = "ReadWriteMany";
                     }
                     Properties properties = getProject().getProperties();
                     String requestStorageProperty = String.format(VolumeType.VOLUME_PROPERTY, name, VolumeType.VOLUME_PVC_REQUEST_STORAGE);
