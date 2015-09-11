@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Sep 10 2015 14:24:54 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Fri Sep 11 2015 07:41:38 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1241,6 +1241,12 @@ docker <span class="hljs-built_in">log</span> nameOfContainer
 <pre><code class="lang-sh">vagrant ssh
 </code></pre>
 <p>Then you can look around.</p>
+<h4 id="errors-like-tcp-lookup-index-docker-io-no-such-host"><a name="errors-like-tcp-lookup-index-docker-io-no-such-host" class="plugin-anchor" href="#errors-like-tcp-lookup-index-docker-io-no-such-host"><span class="fa fa-link"></span></a>Errors like &quot;tcp: lookup index.docker.io: no such host&quot;</h4>
+<p>If you shut your laptop and open it later or switch WiFi networks then the docker daemon can struggle to connect to the upstream docker registry to download images. There must be some issue with Vagrant/VirtualBox DNS or something.</p>
+<p>If this ever happens the simplest thing to do is just type this:</p>
+<pre><code class="lang-sh">vagrant reload
+</code></pre>
+<p>This will then reload the box; you should have OpenShift running with all your images and the DNS issue should hopefully go away!</p>
 <h4 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h4>
 <p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
 <pre><code class="lang-sh">vagrant ssh
