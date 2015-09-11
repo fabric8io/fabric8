@@ -147,20 +147,6 @@ vagrant ssh
 
 Then you can look around.
 
-#### Docker pull issues
-    
-If you have issues with docker pull; you can pre-download the docker images you need before you try running the app from the OpenShift Template or via the `Run...` button in the [console](console.html).
-
-To pull the images for one or more templates use the following [gofabric8](https://github.com/fabric8io/gofabric8) command:
- 
-```sh
-vagrant ssh
-sudo bash
-gofabric8 pull logging
-```
-where `logging` is the name of the template to download (you can list as many template names as you like).
-
-
 #### Errors like "tcp: lookup index.docker.io: no such host"
 
 If you shut your laptop and open it later or switch WiFi networks then the docker daemon can struggle to connect to the upstream docker registry to download images. There must be some issue with Vagrant/VirtualBox DNS or something.
