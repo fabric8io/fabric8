@@ -137,8 +137,8 @@
         <json.version>20141113</json.version>
         <junit.version>4.12</junit.version>
         <kie.version>6.2.0.Final</kie.version>
-        <kubernetes-client.version>1.3.31</kubernetes-client.version>
-        <kubernetes-model.version>1.0.23</kubernetes-model.version>
+        <kubernetes-client.version>1.3.27</kubernetes-client.version>
+        <kubernetes-model.version>1.0.22</kubernetes-model.version>
         <log4j.version>1.2.17</log4j.version>
         <logback.version>1.1.3</logback.version>
         <lombok.version>1.16.6</lombok.version>
