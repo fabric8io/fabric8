@@ -147,6 +147,19 @@ vagrant ssh
 
 Then you can look around.
 
+#### Errors like "tcp: lookup index.docker.io: no such host"
+
+If you shut your laptop and open it later or switch WiFi networks then the docker daemon can struggle to connect to the upstream docker registry to download images. There must be some issue with Vagrant/VirtualBox DNS or something.
+ 
+If this ever happens the simplest thing to do is just type this:
+   
+```sh
+vagrant reload
+```
+
+This will then reload the box; you should have OpenShift running with all your images and the DNS issue should hopefully go away!
+
+
 #### Looking at the OpenShift logs
 
 If you hit any issues then try look at the logs for the `openshift` master:
