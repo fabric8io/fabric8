@@ -69,9 +69,7 @@ oadm policy add-cluster-role-to-user cluster-admin admin
 
 #### Run the gofabric8 installer
 
-[gofabric8](https://github.com/fabric8io/gofabric8) is a useful installer for fabric8. 
-
-[Download a gofabric8 binary](https://github.com/fabric8io/gofabric8/releases) and add it to your `$PATH` 
+[gofabric8](https://github.com/fabric8io/gofabric8) is a useful installer for fabric8. [Download a gofabric8 binary]() and add it to your `$PATH` 
 
 Now type the following:
 
