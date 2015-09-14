@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Mon Sep 14 2015 13:49:42 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Mon Sep 14 2015 14:03:54 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1241,6 +1241,14 @@ docker <span class="hljs-built_in">log</span> nameOfContainer
 <pre><code class="lang-sh">vagrant ssh
 </code></pre>
 <p>Then you can look around.</p>
+<h4 id="docker-pull-issues"><a name="docker-pull-issues" class="plugin-anchor" href="#docker-pull-issues"><span class="fa fa-link"></span></a>Docker pull issues</h4>
+<p>If you have issues with docker pull; you can pre-download the docker images you need before you try running the app from the OpenShift Template or via the <code>Run...</code> button in the <a href="console.html">console</a>.</p>
+<p>To pull the images for one or more templates use the following <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> command:</p>
+<pre><code class="lang-sh">vagrant ssh
+sudo bash
+gofabric8 pull logging
+</code></pre>
+<p>where <code>logging</code> is the name of the template to download (you can list as many template names as you like).</p>
 <h4 id="errors-like-tcp-lookup-index-docker-io-no-such-host"><a name="errors-like-tcp-lookup-index-docker-io-no-such-host" class="plugin-anchor" href="#errors-like-tcp-lookup-index-docker-io-no-such-host"><span class="fa fa-link"></span></a>Errors like &quot;tcp: lookup index.docker.io: no such host&quot;</h4>
 <p>If you shut your laptop and open it later or switch WiFi networks then the docker daemon can struggle to connect to the upstream docker registry to download images. There must be some issue with Vagrant/VirtualBox DNS or something.</p>
 <p>If this ever happens the simplest thing to do is just type this:</p>

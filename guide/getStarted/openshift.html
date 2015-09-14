@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2" data-basepath=".." data-revision="Mon Sep 14 2015 13:49:42 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2" data-basepath=".." data-revision="Mon Sep 14 2015 14:03:54 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1171,7 +1171,19 @@ Various apps (like <a href="../cdelivery.html">Continuous Delivery</a> and <a hr
 <li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
 </ul>
 <pre><code>oadm policy add-cluster-role-to-user cluster-admin admin
-</code></pre><h4 id="enable-the-openshift-router-and-registry"><a name="enable-the-openshift-router-and-registry" class="plugin-anchor" href="#enable-the-openshift-router-and-registry"><span class="fa fa-link"></span></a>Enable the OpenShift router and registry</h4>
+</code></pre><h4 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h4>
+<p><a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> is a useful installer for fabric8. <a href="">Download a gofabric8 binary</a> and add it to your <code>$PATH</code> </p>
+<p>Now type the following:</p>
+<pre><code class="lang-sh">gofabric8 deploy -y
+gofabric8 secrets -y
+</code></pre>
+<p>At any point you can validate your installation via:</p>
+<pre><code class="lang-sh">gofabric8 validate
+</code></pre>
+<p>You can also eagerly pull docker images for a Fabric8 template via the <code>pull</code> command</p>
+<pre><code class="lang-sh">gofabric8 pull <span class="hljs-built_in">cd</span>-pipeline
+</code></pre>
+<h4 id="enable-the-openshift-router-and-registry"><a name="enable-the-openshift-router-and-registry" class="plugin-anchor" href="#enable-the-openshift-router-and-registry"><span class="fa fa-link"></span></a>Enable the OpenShift router and registry</h4>
 <p>The <a href="https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router" target="_blank">OpenShift Router</a> enables 
 external access to services inside a Kubernetes cluster using <a href="http://www.haproxy.org/" target="_blank">HAProxy</a>; e.g. so you can access web apps 
 from your browser for apps running inside Kubernetes.</p>
@@ -1183,77 +1195,7 @@ the <a href="https://docs.openshift.org/latest/admin_guide/install/docker_regist
 boils down to these two commands:</p>
 <pre><code>oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
 oadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
-</code></pre><h4 id="add-secrets-and-service-accounts"><a name="add-secrets-and-service-accounts" class="plugin-anchor" href="#add-secrets-and-service-accounts"><span class="fa fa-link"></span></a>Add secrets and service accounts</h4>
-<p>Run the following on the master node; assuming <code>/var/lib/openshift/openshift.local.config/</code> is where the local 
-configuration is installed for OpenShift:</p>
-<pre><code>oc delete scc restricted
-cat &lt;&lt;EOF | oc create -f -
----
-  apiVersion: v1
-  groups:
-  - system:authenticated
-  kind: SecurityContextConstraints
-  metadata:
-    name: restricted
-  runAsUser:
-    type: RunAsAny
-  seLinuxContext:
-    type: MustRunAs
-EOF
-oc delete scc privileged
-cat &lt;&lt;EOF | oc create -f -
----
-  allowHostDirVolumePlugin: true
-  allowPrivilegedContainer: true
-  apiVersion: v1
-  groups:
-  - system:cluster-admins
-  - system:nodes
-  kind: SecurityContextConstraints
-  metadata:
-    name: privileged
-  runAsUser:
-    type: RunAsAny
-  seLinuxContext:
-    type: RunAsAny
-  users:
-  - system:serviceaccount:openshift-infra:build-controller
-  - system:serviceaccount:default:default
-  - system:serviceaccount:default:fabric8
-EOF
-cat &lt;&lt;EOF | oc create -f -
----
-  apiVersion: &quot;v1&quot;
-  kind: &quot;Secret&quot;
-  metadata:
-    name: &quot;openshift-cert-secrets&quot;
-  data:
-    root-cert: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/ca.crt)&quot;
-    admin-cert: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)&quot;
-    admin-key: &quot;$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)&quot;
-EOF
-cat &lt;&lt;EOF | oc create -f -
----
-  apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: fabric8
-  secrets:
-    -
-      name: openshift-cert-secrets
-EOF
-cat &lt;&lt;EOF | oc create -f -
----
-  apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: metrics
-EOF
-oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
-oadm policy add-cluster-role-to-user cluster-admin system:serviceaccount:default:fabric8
-</code></pre><pre><code class="lang-sh">./osadm policy add-cluster-role-to-user cluster-admin admin
-</code></pre>
-<h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
+</code></pre><h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
 <p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install 
 the <a href="apps.html">fabric8 applications</a></p>
 
