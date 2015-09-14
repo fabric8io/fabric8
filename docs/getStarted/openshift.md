@@ -67,6 +67,30 @@ The following commands assume you are on the OpenShift master machine :
 oadm policy add-cluster-role-to-user cluster-admin admin
 ```
 
+#### Run the gofabric8 installer
+
+[gofabric8](https://github.com/fabric8io/gofabric8) is a useful installer for fabric8. [Download a gofabric8 binary]() and add it to your `$PATH` 
+
+Now type the following:
+
+```sh
+gofabric8 deploy -y
+gofabric8 secrets -y
+```
+
+At any point you can validate your installation via:
+
+```sh
+gofabric8 validate
+```
+
+You can also eagerly pull docker images for a Fabric8 template via the `pull` command
+
+```sh
+gofabric8 pull cd-pipeline
+```
+
+
 #### Enable the OpenShift router and registry
 
 The [OpenShift Router](https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router) enables 
@@ -84,83 +108,6 @@ boils down to these two commands:
 ```
 oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
 oadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
-```
-
-#### Add secrets and service accounts
-
-Run the following on the master node; assuming `/var/lib/openshift/openshift.local.config/` is where the local 
-configuration is installed for OpenShift:
-
-```
-oc delete scc restricted
-cat <<EOF | oc create -f -
----
-  apiVersion: v1
-  groups:
-  - system:authenticated
-  kind: SecurityContextConstraints
-  metadata:
-    name: restricted
-  runAsUser:
-    type: RunAsAny
-  seLinuxContext:
-    type: MustRunAs
-EOF
-oc delete scc privileged
-cat <<EOF | oc create -f -
----
-  allowHostDirVolumePlugin: true
-  allowPrivilegedContainer: true
-  apiVersion: v1
-  groups:
-  - system:cluster-admins
-  - system:nodes
-  kind: SecurityContextConstraints
-  metadata:
-    name: privileged
-  runAsUser:
-    type: RunAsAny
-  seLinuxContext:
-    type: RunAsAny
-  users:
-  - system:serviceaccount:openshift-infra:build-controller
-  - system:serviceaccount:default:default
-  - system:serviceaccount:default:fabric8
-EOF
-cat <<EOF | oc create -f -
----
-  apiVersion: "v1"
-  kind: "Secret"
-  metadata:
-    name: "openshift-cert-secrets"
-  data:
-    root-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/ca.crt)"
-    admin-cert: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.crt)"
-    admin-key: "$(base64 -w 0 /var/lib/openshift/openshift.local.config/master/admin.key)"
-EOF
-cat <<EOF | oc create -f -
----
-  apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: fabric8
-  secrets:
-    -
-      name: openshift-cert-secrets
-EOF
-cat <<EOF | oc create -f -
----
-  apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: metrics
-EOF
-oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:metrics
-oadm policy add-cluster-role-to-user cluster-admin system:serviceaccount:default:fabric8
-```
-
-```sh
-./osadm policy add-cluster-role-to-user cluster-admin admin
 ```
 
 ### Next steps
