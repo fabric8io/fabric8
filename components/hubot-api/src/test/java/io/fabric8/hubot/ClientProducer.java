@@ -55,13 +55,13 @@ public class ClientProducer {
                         "/swaggerapi/")
                 .build()).anyTimes();
 
-        mock.services().inNamespace("default").withName("hubot-web-hook").get().andReturn(
+        mock.services().inNamespace("default").withName("hubot").get().andReturn(
                 new ServiceBuilder()
-                        .withNewMetadata().withName("hubot-web-hook").endMetadata()
+                        .withNewMetadata().withName("hubot").endMetadata()
                         .withNewSpec()
                             .addNewPort()
                                 .withProtocol("TCP")
-                                .withPort(8080)
+                                .withPort(80)
                                 .withNewTargetPort(8080)
                             .endPort()
                         .withClusterIP("172.30.17.2")
