@@ -51,15 +51,12 @@
             <module>fabric8-cxf-registry</module>
     -->
     <module>fabric8-cxf-plugins</module>
-    <module>fabric8-groups</module>
-    <module>fabric8-jgroups</module>
     <module>fabric8-utils</module>
-    <module>fabric8-vertx</module>
     <module>gitrepo-api</module>
     <module>gitrepo-resteasy</module>
     <module>hubot-api</module>
     <module>jolokia-assertions</module>
-    <module>karaf-features</module>
+
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
@@ -70,6 +67,11 @@
     <module>swagger-model</module>
     <module>taiga-api</module>
     <module>gerrit-api</module>
+
+    <!--module>fabric8-groups</module>
+    <module>fabric8-jgroups</module>
+    <module>fabric8-vertx</module>
+    <module>karaf-features</module-->
   </modules>
 
   <profiles>
