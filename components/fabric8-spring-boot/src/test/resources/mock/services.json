@@ -325,9 +325,9 @@
     },
     {
       "metadata": {
-        "name": "hubot-web-hook",
+        "name": "hubot",
         "namespace": "default",
-        "selfLink": "/api/v1/namespaces/default/services/hubot-web-hook",
+        "selfLink": "/api/v1/namespaces/default/services/hubot",
         "uid": "7cf2f5ab-0915-11e5-b21e-0800275503ae",
         "resourceVersion": "131",
         "creationTimestamp": "2015-06-02T10:52:39Z"
@@ -337,7 +337,7 @@
           {
             "name": "",
             "protocol": "TCP",
-            "port": 8080,
+            "port": 80,
             "targetPort": 8080
           }
         ],
