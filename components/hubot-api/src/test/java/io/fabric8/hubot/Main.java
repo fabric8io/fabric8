@@ -38,7 +38,7 @@ public class Main {
         String message = buffer.toString();
 
         try {
-            String hubotUrl = Systems.getServiceHostAndPort(HubotNotifier.HUBOT_WEB_HOOK_SERVICE_NAME, "hubot-webhook.fabric8.local", "80");
+            String hubotUrl = Systems.getServiceHostAndPort(HubotNotifier.HUBOT_SERVICE_NAME, "hubot-webhook.fabric8.local", "80");
             String username = Systems.getEnvVarOrSystemProperty("HUBOT_USERNAME", "");
             String password = Systems.getEnvVarOrSystemProperty("HUBOT_PASSWORD", "");
             String roomExpression = Systems.getEnvVarOrSystemProperty("HUBOT_BUILD_ROOM", HubotNotifier.DEFAULT_ROOM_EXPRESSION);

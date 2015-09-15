@@ -36,14 +36,14 @@ import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
  * A service for notifying a message to the <a href="http://hubot.github.com/">Hubot chat bot</a>
  */
 public class HubotNotifier {
-    public static final String HUBOT_WEB_HOOK_SERVICE_NAME = "hubot-web-hook";
+    public static final String HUBOT_SERVICE_NAME = "hubot";
     public static final String DEFAULT_ROOM_EXPRESSION = "#fabric8_${namespace}";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(HubotNotifier.class);
 
     @Inject
     @Protocol("http")
-    @ServiceName(HUBOT_WEB_HOOK_SERVICE_NAME)
+    @ServiceName(HUBOT_SERVICE_NAME)
     private Instance<String> hubotUrlHolder;
 
     private final String username;
@@ -79,7 +79,7 @@ public class HubotNotifier {
             if (Strings.isNotBlank(hubotUrl)) {
                 LOG.info("Starting HubotNotifier using address: " + hubotUrl);
             } else {
-                LOG.warn("No kubernetes service found for " + HUBOT_WEB_HOOK_SERVICE_NAME + " so chat messages just going to logs instead");
+                LOG.warn("No kubernetes service found for " + HUBOT_SERVICE_NAME + " so chat messages just going to logs instead");
             }
         }
         return hubotUrl;
