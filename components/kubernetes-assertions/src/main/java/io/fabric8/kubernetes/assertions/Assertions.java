@@ -15,10 +15,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
-
-import java.util.List;
 
 /**
  * assertThat(kubernetesResource) entry points for testing Kubernetes
@@ -29,7 +26,7 @@ public class Assertions extends io.fabric8.kubernetes.assertions.internal.Assert
         return new KubernetesAssert(kubernetesClient);
     }
 
-    public static PodsAssert assertThat(List<Pod> pods) {
-        return new PodsAssert(pods);
+    public static KubernetesNamespaceAssert assertThat(KubernetesClient kubernetesClient, String namespace) {
+        return assertThat(kubernetesClient).namespace(namespace);
     }
 }

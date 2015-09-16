@@ -17,7 +17,7 @@ package io.fabric8.itests;
 
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
-import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.model.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.jolokia.JolokiaClients;
 import io.fabric8.utils.Asserts;
