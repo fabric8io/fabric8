@@ -73,7 +73,6 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         String serviceStatus = null;
         boolean result = false;
         String sid = getName(s);
-        //String namespace = s.getMetadata().getNamespace();
         String namespace = session.getNamespace();
         Endpoints endpoints = kubernetesClient.endpoints().inNamespace(namespace).withName(sid).get();
         ServiceSpec spec = s.getSpec();
@@ -117,6 +116,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
                 }
             }
         }
+        session.getLogger().warn("Service: " + sid + " has no valid endpoints");
         return result;
     }
 
