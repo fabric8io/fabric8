@@ -16,18 +16,17 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodListAssert;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodAssert;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListAssert;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerAssert;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServiceListAssert;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListAssert;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAssert;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServiceListAssert;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.ServiceSpecAssert;
@@ -55,9 +54,23 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         this.client = client;
     }
 
-    public PodListAssert podList() {
+    public KubernetesNamespaceAssert namespace(String namespace) {
+        return new KubernetesNamespaceAssert(client, namespace);
+    }
+
+    public PodsAssert podList() {
         PodList pods = client.pods().list();
-        return assertThat(pods).isNotNull();
+        return podList(pods);
+    }
+
+    public PodsAssert podList(PodList pods) {
+        assertThat(pods).isNotNull();
+        return podList(pods.getItems());
+    }
+
+    public PodsAssert podList(List<Pod> pods) {
+        assertThat(pods).isNotNull();
+        return new PodsAssert(pods, client);
     }
 
     public PodsAssert pods() {
@@ -66,14 +79,14 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
 
     public PodsAssert pods(String namespace) {
         List<Pod> pods = getPods(namespace);
-        return Assertions.assertThat(pods);
+        return podList(pods);
     }
 
     protected List<Pod> getPods(String namespace) {
         PodList podList = client.pods().inNamespace(namespace).list();
         assertThat(podList).isNotNull();
         List<Pod> pods = podList.getItems();
-        assertThat(pods).isNotNull();
+        podList(pods).isNotNull();
         return pods;
     }
 
@@ -133,7 +146,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     public PodsAssert podsForReplicationController(ReplicationController replicationController) {
         List<Pod> allPods = getPods(replicationController.getMetadata().getNamespace());
         List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, allPods);
-        return Assertions.assertThat(pods);
+        return podList(pods);
     }
 
 
@@ -151,7 +164,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     public PodsAssert podsForService(Service service) {
         List<Pod> allPods = getPods(service.getMetadata().getNamespace());
         List<Pod> pods = KubernetesHelper.getPodsForService(service, allPods);
-        return Assertions.assertThat(pods);
+        return podList(pods);
     }
 
     /**
