@@ -18,12 +18,6 @@ package io.fabric8.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  */
 public class Asserts {
@@ -99,6 +93,37 @@ public class Asserts {
                 failure.printStackTrace();
             }
             Thread.sleep(1000);
+        }
+    }
+
+    /**
+     * Asserts that the given block does not fail with any assertions for the given period of time
+     */
+    public static void assertForPeriod(long timeoutMs, Block block) throws Exception {
+        long end = System.currentTimeMillis() + timeoutMs;
+
+        while (true) {
+            if (System.currentTimeMillis() > end) {
+                break;
+            }
+            try {
+                block.invoke();
+            } catch (AssertionError e) {
+                if (isVerboseWaitMessage()) {
+                    e.printStackTrace();
+                }
+                throw e;
+            } catch (Exception e) {
+                if (isVerboseWaitMessage()) {
+                    e.printStackTrace();
+                }
+                throw new AssertionError(e);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
