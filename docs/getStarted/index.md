@@ -2,8 +2,7 @@
 
 #### OpenShift / Kubernetes setup
 
-First you need an OpenShift or Kubernetes environment, which can be setup in multiple ways. For a quick start choose one
-of these two recipes:
+First you need an OpenShift or Kubernetes environment, which can be setup in multiple ways. For a quick start choose one of these recipes:
 
 * [**Vagrant**](vagrant.html) - OpenShift Origin
 
@@ -13,12 +12,11 @@ of these two recipes:
 
 * [**Native OpenShift**](openshift.html) - OpenShift Origin
 
-  If you have [OpenShift V3](http://www.openshift.com) installed locally,
-  this [guide](openshift.html) helps you step-by-step how to install fabric8 on it.
+  If you have [OpenShift V3](http://www.openshift.com) installed locally, this [guide](openshift.html) helps you step-by-step how to install fabric8 on it.
 
 * [**Google Container Engine**](gke.html) - Kubernetes
 
-  [Google Container Engine](https://cloud.google.com/container-engine/) (GKE) is a Google hosted Kubernetes platform.  There are many other ways to install Kubernetes as listed on the Kubernetes [Getting Started](http://kubernetes.io/gettingstarted/) page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This [guide](gke.html) will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.
+  [Google Container Engine](https://cloud.google.com/container-engine/) (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes [Getting Started](http://kubernetes.io/gettingstarted/) page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This [guide](gke.html) will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.
 
 
 #### Local client setup
