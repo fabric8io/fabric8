@@ -36,7 +36,7 @@ public class SwaggerHelper {
 
     public static String toJson(Object dto) throws JsonProcessingException {
         Class<?> clazz = dto.getClass();
-        return objectMapper.writerWithType(clazz).writeValueAsString(dto);
+        return objectMapper.writerFor(clazz).writeValueAsString(dto);
     }
 
 }
