@@ -25,16 +25,19 @@ import io.fabric8.utils.Systems;
 public class Session {
     private final String id;
     private final Logger logger;
-    private final String namespacePrefix;
     private final String namespace;
 
+    private static final String NAMESPACE_PREFIX = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
+
     public Session(String id, Logger logger) {
-        this.id = id;
-        this.logger = logger;
-        namespacePrefix = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
-        namespace = namespacePrefix + id;
+        this(id, NAMESPACE_PREFIX + id, logger);
     }
 
+    public Session(String id, String namesapce, Logger logger) {
+        this.id = id;
+        this.logger = logger;
+        namespace = namesapce;
+    }
     void init() {
         logger.status("Initializing Session:" + id);
     }
