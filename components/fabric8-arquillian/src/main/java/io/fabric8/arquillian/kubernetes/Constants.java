@@ -35,6 +35,9 @@ public class Constants {
     public static final String WAIT_FOR_SERVICE_CONNECTION = "waitForServiceConnection";
     public static final String SERVICE_CONNECTION_TIMEOUT = "serviceConnectionTimeout";
 
+    public static final String USE_EXISTING_NAMESPACE = "useExistingNamespace";
+    public static final String NAMESPACE_CLEANUP_ENABLED = "namespaceCleanup";
+
     public static final String TIMEOUT = "timeout";
     public static final String POLL_INTERVAL = "pollInterval";
 

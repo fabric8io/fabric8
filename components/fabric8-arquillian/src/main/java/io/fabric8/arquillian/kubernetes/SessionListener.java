@@ -85,7 +85,12 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        createNamespace(client, session);
+        if (Strings.isNullOrBlank(configuration.getExistingNamespace())) {
+            createNamespace(client, session);
+        } else {
+            assertNamespaceExists(client, session);
+        }
+
         shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
@@ -173,9 +178,11 @@ public class SessionListener {
     }
 
 
-    public void stop(@Observes Stop event, KubernetesClient client) throws Exception {
+    public void stop(@Observes Stop event, KubernetesClient client, Configuration configuration) throws Exception {
         try {
-            cleanupSession(client, event.getSession());
+            if (configuration.isNamespaceCleanupEnabled()) {
+                cleanupSession(client, event.getSession());
+            }
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -193,6 +200,12 @@ public class SessionListener {
                 .withAnnotations(Util.createNamespaceAnnotations(session))
                 .endMetadata()
                 .done();
+    }
+
+    private void assertNamespaceExists(KubernetesClient client, Session session) {
+        if (client.namespaces().withName(session.getNamespace()).get() == null) {
+            throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
+        }
     }
 
     private boolean applyConfiguration(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<KubernetesList> kubeConfigs) throws Exception {

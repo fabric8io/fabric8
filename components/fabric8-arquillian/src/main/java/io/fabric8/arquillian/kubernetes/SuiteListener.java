@@ -18,6 +18,7 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -39,11 +40,16 @@ public class SuiteListener {
 
     private Session session;
 
-    public void start(@Observes(precedence = 100) BeforeSuite event, Logger logger) {
+    public void start(@Observes(precedence = 100) BeforeSuite event, Configuration configuration, Logger logger) {
         // TODO should the test ID include the test class, method, user?
         // Or do we associate those things later on with the namespace object metadata?
         UUID uuid = UUID.randomUUID();
-        session = new Session(uuid.toString(), logger);
+        if (Strings.isNotBlank(configuration.getExistingNamespace())) {
+            session = new Session(uuid.toString(), configuration.getExistingNamespace(), logger);
+        } else {
+            session = new Session(uuid.toString(), logger);
+        }
+
         session.init();
         sessionProducer.set(session);
         controlEvent.fire(new Start(session));
