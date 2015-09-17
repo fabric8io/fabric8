@@ -55,7 +55,7 @@ public class ParseTest {
         ObjectMapper mapper = SwaggerHelper.createObjectMapper();
         File exampleFile = new File(getExamplesDir(), fileName);
         assertFileExists(exampleFile);
-        T answer = mapper.reader(clazz).readValue(exampleFile);
+        T answer = mapper.readerFor(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
         LOG.info("Parsed: " + fileName + " as: " + answer);
         return answer;
