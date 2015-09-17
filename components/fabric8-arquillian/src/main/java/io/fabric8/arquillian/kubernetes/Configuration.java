@@ -23,7 +23,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_FILE_NAME;
@@ -31,11 +30,12 @@ import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.CONNECT_TO_SERVICES;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
 import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
+import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
 import static io.fabric8.arquillian.kubernetes.Constants.SERVICE_CONNECTION_TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.TIMEOUT;
+import static io.fabric8.arquillian.kubernetes.Constants.USE_EXISTING_NAMESPACE;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICES;
 
@@ -44,6 +44,8 @@ public class Configuration {
     private static final Long DEFAULT_TIMEOUT = 5 * 60 * 1000L;
     private static final Long DEFAULT_POLL_INTERVAL = 5 * 1000L;
     private static final Long DEFAULT_SERVICE_CONNECTION_TIMEOUT = 10 * 1000L;
+
+    private static final Boolean DEFAULT_NAMESPACE_CLEANUP_ENABLED = true;
 
     /**
      * We often won't be able to connect to the services from the JUnit test case
@@ -57,10 +59,12 @@ public class Configuration {
     private long timeout = DEFAULT_TIMEOUT;
     private long pollInterval = DEFAULT_POLL_INTERVAL;
     private boolean ansiLoggerEnabled = true;
-    private boolean connectToServices = DEFAULT_CONNECT_TO_SERVICES;
+    private boolean connectToServicesEnabled = DEFAULT_CONNECT_TO_SERVICES;
+    private boolean namespaceCleanupEnabled = DEFAULT_NAMESPACE_CLEANUP_ENABLED;
+    private String existingNamespace;
 
     private List<String> waitForServices = new ArrayList<>();
-    private boolean waitForServiceConnection = false;
+    private boolean waitForServiceConnectionEnabled = false;
     private Long serviceConnectionTimeout = DEFAULT_SERVICE_CONNECTION_TIMEOUT;
     private Map<String, String> properties;
 
@@ -92,8 +96,8 @@ public class Configuration {
         return dependencies;
     }
 
-    public boolean isWaitForServiceConnection() {
-        return waitForServiceConnection;
+    public boolean isWaitForServiceConnectionEnabled() {
+        return waitForServiceConnectionEnabled;
     }
 
     public List<String> getWaitForServices() {
@@ -104,12 +108,16 @@ public class Configuration {
         return serviceConnectionTimeout.intValue();
     }
 
-    public boolean isConnectToServices() {
-        return connectToServices;
+    public boolean isConnectToServicesEnabled() {
+        return connectToServicesEnabled;
     }
 
-    public void setConnectToServices(boolean connectToServices) {
-        this.connectToServices = connectToServices;
+    public boolean isNamespaceCleanupEnabled() {
+        return namespaceCleanupEnabled;
+    }
+
+    public String getExistingNamespace() {
+        return existingNamespace;
     }
 
     public static Configuration fromMap(Map<String, String> map) {
@@ -122,10 +130,14 @@ public class Configuration {
             configuration.timeout = getLongProperty(TIMEOUT, map, DEFAULT_TIMEOUT);
             configuration.pollInterval = getLongProperty(POLL_INTERVAL, map, DEFAULT_POLL_INTERVAL);
             configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
-            configuration.waitForServiceConnection = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, true);
+            configuration.waitForServiceConnectionEnabled = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, true);
             configuration.waitForServices = Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICES, map, ""), " ");
-            configuration.connectToServices = getBooleanProperty(CONNECT_TO_SERVICES, map, DEFAULT_CONNECT_TO_SERVICES);
+            configuration.connectToServicesEnabled = getBooleanProperty(CONNECT_TO_SERVICES, map, DEFAULT_CONNECT_TO_SERVICES);
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
+            configuration.existingNamespace = getStringProperty(USE_EXISTING_NAMESPACE, map, null);
+
+            //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
+            configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.existingNamespace));
             configuration.properties = map;
         } catch (Throwable t) {
             throw new RuntimeException(t);
