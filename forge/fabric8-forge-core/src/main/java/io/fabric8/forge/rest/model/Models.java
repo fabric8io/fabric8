@@ -52,7 +52,7 @@ public class Models {
     public static <T> List<T> loadJsonValues(File json, Class<T> clazz) throws IOException {
         List<T> answer = new ArrayList<>();
         if (json.exists() && json.isFile()) {
-            MappingIterator<T> iter = objectMapper.reader(clazz).readValues(json);
+            MappingIterator<T> iter = objectMapper.readerFor(clazz).readValues(json);
             while (iter.hasNext()) {
                 answer.add(iter.next());
             }
@@ -62,7 +62,7 @@ public class Models {
 
     public static String toJson(Object dto) throws JsonProcessingException {
         Class<?> clazz = dto.getClass();
-        return objectMapper.writerWithType(clazz).writeValueAsString(dto);
+        return objectMapper.writerFor(clazz).writeValueAsString(dto);
     }
 
 }
