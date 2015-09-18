@@ -101,23 +101,13 @@ public class SessionListener {
 
             for (String dependency : dependencies) {
                 log.info("Found dependency: " + dependency);
-                loadDependency(log, kubeConfigs, dependency);
+                loadDependency(log, kubeConfigs, dependency, controller, configuration, namespace);
             }
 
             if (configUrl != null) {
                 log.status("Applying kubernetes configuration from: " + configUrl);
                 Object dto = loadJson(readAsString(configUrl));
-                if (dto instanceof Template) {
-                    Template template = (Template) dto;
-                    KubernetesHelper.setNamespace(template, namespace);
-                    String parameterNamePrefix = "";
-                    overrideTemplateParameters(template, configuration.getProperties(), parameterNamePrefix);
-                    log.status("Applying template in namespace " + namespace);
-                    dto = controller.processTemplate(template, configUrl.toString());
-                    if (dto == null) {
-                        throw new IllegalArgumentException("Failed to process Template!");
-                    }
-                }
+                dto = expandTemplate(controller, configuration, log, namespace, configUrl.toString(), dto);
                 KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
                 List<HasMetadata> items = kubeList.getItems();
                 kubeConfigs.add(kubeList);
@@ -141,36 +131,52 @@ public class SessionListener {
         }
     }
 
+    protected Object expandTemplate(Controller controller, Configuration configuration, Logger log, String namespace, String sourceName, Object dto) {
+        if (dto instanceof Template) {
+            Template template = (Template) dto;
+            KubernetesHelper.setNamespace(template, namespace);
+            String parameterNamePrefix = "";
+            overrideTemplateParameters(template, configuration.getProperties(), parameterNamePrefix);
+            log.status("Applying template in namespace " + namespace);
+            dto = controller.processTemplate(template, sourceName);
+            if (dto == null) {
+                throw new IllegalArgumentException("Failed to process Template!");
+            }
+        }
+        return dto;
+    }
 
-    protected static void addConfig(List<KubernetesList> kubeConfigs, Object kubeCfg) {
-        if (kubeCfg instanceof KubernetesList) {
-            kubeConfigs.add((KubernetesList) kubeCfg);
+
+    protected void addConfig(List<KubernetesList> kubeConfigs, Object dto, Controller controller, Configuration configuration, Logger log, String namespace, String sourceName) {
+        dto = expandTemplate(controller, configuration, log, namespace, sourceName, dto);
+        if (dto instanceof KubernetesList) {
+            kubeConfigs.add((KubernetesList) dto);
         }
     }
 
-    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency) throws IOException {
+    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws IOException {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
         File file = new File(path);
         if (file.exists()) {
-            loadDependency(log, kubeConfigs, file);
+            loadDependency(log, kubeConfigs, file, controller, configuration, log, namespace);
         } else {
-            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))));
+            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))), controller, configuration, log, namespace, dependency);
         }
     }
 
-    protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file) throws IOException {
+    protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file, Controller controller, Configuration configuration, Logger logger, String namespace) throws IOException {
         if (file.isFile()) {
             log.info("Loading file " + file);
-            addConfig(kubeConfigs, loadJson(file));
+            addConfig(kubeConfigs, loadJson(file), controller, configuration, log, namespace, file.getPath());
         } else {
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
                     String name = child.getName().toLowerCase();
                     if (name.endsWith(".json") || name.endsWith(".yaml")) {
-                        loadDependency(log, kubeConfigs, child);
+                        loadDependency(log, kubeConfigs, child, controller, configuration, log, namespace);
                     }
                 }
             }
