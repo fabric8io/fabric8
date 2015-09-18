@@ -22,6 +22,7 @@ import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
 import io.fabric8.arquillian.utils.Util;
@@ -40,6 +41,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
@@ -245,6 +247,10 @@ public class SessionListener {
             }
         });
 
+        String namespace = session.getNamespace();
+        String routePrefix = namespace + "." + configuration.getRouteDomainPostfix();
+
+        List<Object> routes = new ArrayList<>();
         for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
@@ -258,9 +264,17 @@ public class SessionListener {
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
                 Service service = (Service) entity;
-                log.status("Applying service:" + getName(service));
+                String serviceName = getName(service);
+                log.status("Applying service:" + serviceName);
                 controller.applyService(service, session.getId());
                 conditions.put(2, servicesReady);
+
+                Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
+                if (route != null) {
+                    log.status("Applying route for:" + serviceName);
+                    controller.applyRoute(route, "route for " + serviceName);
+                    routes.add(route);
+                }
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
                 log.status("Applying replication controller:" + getName(replicationController));
@@ -279,6 +293,7 @@ public class SessionListener {
                 controller.apply(entity, session.getId());
             }
         }
+        entities.addAll(routes);
 
 
         //Wait until conditions are meet.
