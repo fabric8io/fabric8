@@ -30,6 +30,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.CONNECT_TO_SERVICES;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
+import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
 import static io.fabric8.arquillian.kubernetes.Constants.LAZY_CREATE_NAMESPACE;
 import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
@@ -69,6 +70,7 @@ public class Configuration {
     private Long serviceConnectionTimeout = DEFAULT_SERVICE_CONNECTION_TIMEOUT;
     private Map<String, String> properties;
     private Boolean lazyCreateNamespace;
+    private String routeDomainPostfix;
 
     public Map<String, String> getProperties() {
         return properties;
@@ -130,6 +132,10 @@ public class Configuration {
         return lazyCreateNamespace != null && lazyCreateNamespace.booleanValue();
     }
 
+    public String getRouteDomainPostfix() {
+        return routeDomainPostfix;
+    }
+
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
@@ -146,6 +152,7 @@ public class Configuration {
             configuration.lazyCreateNamespace = getBooleanProperty(LAZY_CREATE_NAMESPACE, map, true);
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
             configuration.existingNamespace = getStringProperty(USE_EXISTING_NAMESPACE, map, null);
+            configuration.routeDomainPostfix = getStringProperty(KUBERNETES_DOMAIN, map, "vagrant.f8");
 
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.existingNamespace));
