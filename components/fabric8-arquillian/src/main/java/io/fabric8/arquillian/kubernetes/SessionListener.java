@@ -88,7 +88,7 @@ public class SessionListener {
         if (Strings.isNullOrBlank(configuration.getExistingNamespace())) {
             createNamespace(client, session);
         } else {
-            assertNamespaceExists(client, session);
+            assertNamespaceExists(client, session, configuration);
         }
 
         shutdownHook = new ShutdownHook(client, session);
@@ -202,9 +202,15 @@ public class SessionListener {
                 .done();
     }
 
-    private void assertNamespaceExists(KubernetesClient client, Session session) {
-        if (client.namespaces().withName(session.getNamespace()).get() == null) {
-            throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
+    private void assertNamespaceExists(KubernetesClient client, Session session, Configuration configuration) {
+        String namespace = session.getNamespace();
+        if (client.namespaces().withName(namespace).get() == null) {
+            if (configuration.isLazyCreateNamespace()) {
+                Controller controller = new Controller(client);
+                controller.applyNamespace(namespace);
+            } else {
+                throw new IllegalStateException("Namespace " + namespace + "doesn't exists");
+            }
         }
     }
 

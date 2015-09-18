@@ -30,6 +30,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.CONNECT_TO_SERVICES;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
+import static io.fabric8.arquillian.kubernetes.Constants.LAZY_CREATE_NAMESPACE;
 import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
@@ -67,6 +68,7 @@ public class Configuration {
     private boolean waitForServiceConnectionEnabled = false;
     private Long serviceConnectionTimeout = DEFAULT_SERVICE_CONNECTION_TIMEOUT;
     private Map<String, String> properties;
+    private Boolean lazyCreateNamespace;
 
     public Map<String, String> getProperties() {
         return properties;
@@ -120,6 +122,14 @@ public class Configuration {
         return existingNamespace;
     }
 
+    public Boolean getLazyCreateNamespace() {
+        return lazyCreateNamespace;
+    }
+
+    public boolean isLazyCreateNamespace() {
+        return lazyCreateNamespace != null && lazyCreateNamespace.booleanValue();
+    }
+
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
@@ -133,6 +143,7 @@ public class Configuration {
             configuration.waitForServiceConnectionEnabled = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, true);
             configuration.waitForServices = Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICES, map, ""), " ");
             configuration.connectToServicesEnabled = getBooleanProperty(CONNECT_TO_SERVICES, map, DEFAULT_CONNECT_TO_SERVICES);
+            configuration.lazyCreateNamespace = getBooleanProperty(LAZY_CREATE_NAMESPACE, map, true);
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
             configuration.existingNamespace = getStringProperty(USE_EXISTING_NAMESPACE, map, null);
 
