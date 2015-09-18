@@ -365,18 +365,26 @@ public class SessionListener {
                     for (String name : Secrets.getNames(value)) {
                         Map<String, String> data = new HashMap<>();
 
-                        for (String c : Secrets.getContents(value, name)) {
-                            data.put(c, keyType.generate());
+                        Secret secret = null;
+                        try {
+                            secret = client.secrets().inNamespace(session.getNamespace()).withName(name).get();
+                        } catch (Exception e) {
+                            // ignore - probably doesn't exist
                         }
 
-                        secrets.add(
-                                client.secrets().inNamespace(session.getNamespace()).createNew()
-                                        .withNewMetadata()
-                                        .withName(name)
-                                        .endMetadata()
-                                        .withData(data)
-                                        .done()
-                        );
+                        if (secret == null) {
+                            for (String c : Secrets.getContents(value, name)) {
+                                data.put(c, keyType.generate());
+                            }
+
+                            secret = client.secrets().inNamespace(session.getNamespace()).createNew()
+                                    .withNewMetadata()
+                                    .withName(name)
+                                    .endMetadata()
+                                    .withData(data)
+                                    .done();
+                            secrets.add(secret);
+                        }
                     }
                 }
             }
