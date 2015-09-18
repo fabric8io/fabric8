@@ -87,7 +87,7 @@ public class PodsAssert extends ListAssert<Pod> {
                 if (Strings.isNotBlank(namespace)) {
                     key = namespace + "/" + name;
                 }
-                String log = client.getPodLog(namespace, name, containerName, true);
+                String log = client.pods().inNamespace(namespace).withName(name).getLog(containerName, true);
                 if (log != null) {
                     logs.put(key, log);
                 }
