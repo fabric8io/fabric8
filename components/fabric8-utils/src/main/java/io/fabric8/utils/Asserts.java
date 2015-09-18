@@ -84,11 +84,11 @@ public class Asserts {
                 return;
             } catch (AssertionError e) {
                 failure = e;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 failure = new AssertionError(e);
             }
-            LOG.debug("Waiting for " + failure, failure);
-            System.out.println("Waiting for: " + failure);
+            LOG.debug("Ignoring exception in assertWaitFor() loop: " + failure, failure);
+            System.out.println("Ignoring exception in assertWaitFor() loop:: " + failure);
             if (isVerboseWaitMessage()) {
                 failure.printStackTrace();
             }
@@ -113,7 +113,7 @@ public class Asserts {
                     e.printStackTrace();
                 }
                 throw e;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 if (isVerboseWaitMessage()) {
                     e.printStackTrace();
                 }
