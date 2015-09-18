@@ -36,7 +36,7 @@
     </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>
-          <artifactId>kubernetes-client</artifactId>
+        <artifactId>kubernetes-client-with-deps</artifactId>
       </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>
