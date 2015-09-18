@@ -78,7 +78,7 @@ public class PodLogsAssert extends MapAssert<String, String> {
                 int idx = value.indexOf(text);
                 if (idx < 0) {
                     Fail.fail("Log of pod " + podName + " in file: " + file + " does not contains text `" + text
-                            + "` at " + logFileCoords(podName, value.substring(0, idx)));
+                            + "` at " + logFileCoords(podName, value, idx));
                 }
             }
         }
@@ -94,7 +94,7 @@ public class PodLogsAssert extends MapAssert<String, String> {
                 int idx = value.indexOf(text);
                 if (idx >= 0) {
                     Fail.fail("Log of pod " + podName + " in file: " + file + " contains text `" + text
-                            + "` at " + logFileCoords(podName, value.substring(0, idx)));
+                            + "` at " + logFileCoords(podName, value, idx));
                 } else {
                     LOG.debug("does not contain '" + text + "' in  Log of pod " + podName + " in file: " + file);
                 }
@@ -122,8 +122,9 @@ public class PodLogsAssert extends MapAssert<String, String> {
                     }
                 }
                 if (idx >= 0) {
+                    String logText = fullLogText(podName, value.substring(0, idx - 1));
                     Fail.fail("Log of pod " + podName + " in file: " + file + " contains text `" + text
-                            + "` " + count + " times with the last at at " + logFileCoords(podName, value.substring(0, idx - 1)));
+                            + "` " + count + " times with the last at at " + textCoords(logText));
                 } else {
                     LOG.debug("does not contain '" + text + "' in Log of pod " + podName + " in file: " + file + " " + count + " times");
                 }
@@ -131,16 +132,26 @@ public class PodLogsAssert extends MapAssert<String, String> {
         }
     }
 
+
     /**
      * Returns the coordinates in the log file of the end of the bit of text
      */
-    public String logFileCoords(String podName, String text) {
+    protected String logFileCoords(String podName, String value, int idx) {
+        String prefix = "";
+        if (value != null && value.length() > 0 && idx > 0) {
+            prefix = value.substring(0, idx);
+        }
+        String logText = fullLogText(podName, prefix);
+        return textCoords(logText);
+    }
+
+    protected String fullLogText(String podName, String text) {
         String logText = text;
         String logPrefix = logPrefixes.get(podName);
         if (logPrefix != null) {
             logText = logPrefix + logText;
         }
-        return textCoords(logText);
+        return logText;
     }
 
 
@@ -181,9 +192,10 @@ public class PodLogsAssert extends MapAssert<String, String> {
         for (Map.Entry<String, String> entry : entries) {
             String podName = entry.getKey();
             String value = entry.getValue();
+            String logText = fullLogText(podName, value);
             File file = podLogFileName(podName);
             try {
-                IOHelpers.writeFully(file, value);
+                IOHelpers.writeFully(file, logText);
             } catch (IOException e) {
                 LOG.error("Failed to write log of pod " + podName + " container:" + containerName + " to file: "+ file + ". " + e, e);
             }
