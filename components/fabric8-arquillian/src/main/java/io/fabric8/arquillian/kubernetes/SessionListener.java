@@ -41,6 +41,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.MultiException;
@@ -250,7 +251,7 @@ public class SessionListener {
         String namespace = session.getNamespace();
         String routePrefix = namespace + "." + configuration.getRouteDomainPostfix();
 
-        List<Object> routes = new ArrayList<>();
+        List<Object> extraEntities = new ArrayList<>();
         for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
@@ -273,7 +274,7 @@ public class SessionListener {
                 if (route != null) {
                     log.status("Applying route for:" + serviceName);
                     controller.applyRoute(route, "route for " + serviceName);
-                    routes.add(route);
+                    extraEntities.add(route);
                 }
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
@@ -285,6 +286,20 @@ public class SessionListener {
                 }
                 controller.applyReplicationController(replicationController, session.getId());
                 conditions.put(1, sessionPodsReady);
+            } else if (entity instanceof OAuthClient) {
+                OAuthClient oc = (OAuthClient) entity;
+                // these are global so lets create a custom one for the new namespace
+                ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(oc);
+                String name = metadata.getName();
+                metadata.setName(name + "-" + namespace);
+
+                // lets add a new redirect entry
+                List<String> redirectURIs = oc.getRedirectURIs();
+                redirectURIs.add("http://" + name + "." + routePrefix);
+                oc.setRedirectURIs(redirectURIs);
+                log.status("Applying OAuthClient:" + metadata.getName());
+                controller.setSupportOAuthClients(true);
+                controller.applyOAuthClient(oc, session.getId());
             } else if (entity instanceof HasMetadata) {
                 log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((HasMetadata) entity));
                 controller.apply(entity, session.getId());
@@ -293,7 +308,7 @@ public class SessionListener {
                 controller.apply(entity, session.getId());
             }
         }
-        entities.addAll(routes);
+        entities.addAll(extraEntities);
 
 
         //Wait until conditions are meet.
