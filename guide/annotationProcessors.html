@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.1.8.1" data-basepath="." data-revision="Mon Sep 21 2015 14:16:56 GMT+0000 (UTC)">
+    <div class="book" data-level="5.1.8.1" data-basepath="." data-revision="Mon Sep 21 2015 14:23:04 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1141,10 +1141,10 @@ The processors are meant to be used as a supplement or an alternative to the <a 
 <li>Use Java to modify existing Kubernetes resources</li>
 </ul>
 <p>Both features are provided by the <em>kubernetes-generator</em> module.</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-    &lt;artifactId&gt;kubernetes-generator&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><code><dependency>
+    <groupid>io.fabric8</groupid>
+    <artifactid>kubernetes-generator</artifactid>
+</dependency>
 </code></pre><h3 id="generating-kubernetes-resources"><a name="generating-kubernetes-resources" class="plugin-anchor" href="#generating-kubernetes-resources"><span class="fa fa-link"></span></a>Generating Kubernetes Resources</h3>
 <p>To generate a kubernetes json file all you need to do is to add the <em>@KubernetesProvider</em> on a method that returns a KubernetesList or Template.
 For example:</p>

@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.4" data-basepath="." data-revision="Mon Sep 21 2015 14:16:56 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4" data-basepath="." data-revision="Mon Sep 21 2015 14:23:04 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1251,12 +1251,12 @@ The configuration of MyClient can be encapsulated like this:</p>
 <h4 id="injection-of-optional-services"><a name="injection-of-optional-services" class="plugin-anchor" href="#injection-of-optional-services"><span class="fa fa-link"></span></a>Injection of Optional Services</h4>
 <p>A common approach for treating with Optional services in CDI is to use Instance injection. For example:</p>
 <pre><code>@Inject
-Instance&lt;MyClient&gt; instance;
+Instance<myclient> instance;
 
 ...
 
 MyClient client = instance.get();
-</code></pre><p>The Fabric8 CDI extension supports instance injection for all kinds of injection including @Factory.</p>
+</myclient></code></pre><p>The Fabric8 CDI extension supports instance injection for all kinds of injection including @Factory.</p>
 
                     
                     </section>

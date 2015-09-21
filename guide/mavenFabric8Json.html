@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.1.8" data-basepath="." data-revision="Mon Sep 21 2015 14:16:56 GMT+0000 (UTC)">
+    <div class="book" data-level="5.1.8" data-basepath="." data-revision="Mon Sep 21 2015 14:23:04 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1154,19 +1154,19 @@ open target/classes/kubernetes.json
 <p>To generate an OpenShift Template for your Maven project you just need to define one or more <em>parameters</em> for your project using the maven properties <code>fabric8.parameter.FOO.description</code> and <code>fabric8.parameter.FOO.value</code>. Refer to the <a href="#maven-properties">Maven Property Reference</a> for more details. </p>
 <h3 id="specifying-environment-variables"><a name="specifying-environment-variables" class="plugin-anchor" href="#specifying-environment-variables"><span class="fa fa-link"></span></a>Specifying environment variables</h3>
 <p>You can use maven properties to specify environment variables to pass into the generated PodSpec in the ReplicationController as follows...</p>
-<pre><code>&lt;project&gt;
+<pre><code><project>
 ...
-  &lt;properties&gt;
-    &lt;fabric8.env.FOO&gt;bar&lt;/fabric8.env.FOO&gt;
+  <properties>
+    <fabric8.env.foo>bar</fabric8.env.foo>
     ...
-  &lt;/properties&gt;
+  </properties>
 ...
-&lt;/project&gt;
+</project>
 </code></pre><p>The above will then be the equivalent in docker terms of running...</p>
 <pre><code>docker run -d -e FOO=bar ${DOCKER_IMAGE}
 </code></pre><h4 id="templates-and-parameters"><a name="templates-and-parameters" class="plugin-anchor" href="#templates-and-parameters"><span class="fa fa-link"></span></a>Templates and parameters</h4>
 <p>When using <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> you want to parameterize things so users can more easily configure things. This means using expressions like <code>${FOO}</code> inside environment variable names or values.</p>
-<p>One issue with this is that maven properties tend to expand expressions of the form <code>${FOO}</code> if there is a maven property or environment variable of that name. There is currently no way to escape those expressions inside maven property elements in the pom.xml <code>&lt;properties/&gt;</code> element.</p>
+<p>One issue with this is that maven properties tend to expand expressions of the form <code>${FOO}</code> if there is a maven property or environment variable of that name. There is currently no way to escape those expressions inside maven property elements in the pom.xml <code><properties></properties></code> element.</p>
 <p>So to make it easier to configure environment variables while bypassing maven&apos;s property expansion, you can use a file specified via <code>fabric8.envProperties</code> property which defaults to the file <code>src/main/fabric8/env.properties</code>. </p>
 <p>i.e. if you create a file called <code>src/main/fabric8/env.properties</code> in your project that looks like this</p>
 <pre><code>FOO = bar
@@ -1179,7 +1179,7 @@ ANOTHER = some ${CHEESE}
 <p>By default a <code>List</code> of items is created; unless the pom.xml defines any <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameters (see <a href="##creating-openshift-templates">Creating OpenShift Templates</a> for more detail) or any of the dependent JSON files are <code>Template</code>. The <code>fabric8:json</code> goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined <code>Template</code>.</p>
 <h4 id="examples"><a name="examples" class="plugin-anchor" href="#examples"><span class="fa fa-link"></span></a>Examples</h4>
 <p>The fabric8 project defines a number of different <a href="https://github.com/fabric8io/quickstarts/tree/master/app-groups" target="_blank">application modules</a> for all the various parts of fabric8.</p>
-<p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> and combine them into the resulting JSON. </p>
+<p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code><classifier>kubernetes</classifier></code> and <code><type>json</type></code> and combine them into the resulting JSON. </p>
 <p>See <a href="https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35" target="_blank">this example</a> to see how we can configure this in a pom.xml.</p>
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>You can use maven properties to customize the generation of the JSON:</p>
@@ -1194,7 +1194,7 @@ ANOTHER = some ${CHEESE}
 </tr>
 <tr>
 <td>fabric8.combineDependencies</td>
-<td>If enabled then the maven dependencies will be scanned for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> which are then combined into the resulting generated JSON file. See <a href="#combining-json-files">Combining JSON files</a></td>
+<td>If enabled then the maven dependencies will be scanned for any dependency of <code><classifier>kubernetes</classifier></code> and <code><type>json</type></code> which are then combined into the resulting generated JSON file. See <a href="#combining-json-files">Combining JSON files</a></td>
 </tr>
 <tr>
 <td>fabric8.container.name</td>
