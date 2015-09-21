@@ -44,6 +44,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -291,15 +292,28 @@ public class SessionListener {
                 // these are global so lets create a custom one for the new namespace
                 ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(oc);
                 String name = metadata.getName();
-                metadata.setName(name + "-" + namespace);
-
+                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                OAuthClient current = openShiftClient.oAuthClients().withName(name).get();
+                boolean create = false;
+                if (current == null) {
+                    current = oc;
+                    create = true;
+                }
                 // lets add a new redirect entry
-                List<String> redirectURIs = oc.getRedirectURIs();
+                List<String> redirectURIs = current.getRedirectURIs();
                 redirectURIs.add("http://" + name + "." + routePrefix);
-                oc.setRedirectURIs(redirectURIs);
-                log.status("Applying OAuthClient:" + metadata.getName());
+                current.setRedirectURIs(redirectURIs);
+                log.status("Applying OAuthClient:" + name);
                 controller.setSupportOAuthClients(true);
-                controller.applyOAuthClient(oc, session.getId());
+                if (create) {
+                    openShiftClient.oAuthClients().create(current);
+                } else {
+                    // TODO this should work!
+                    // openShiftClient.oAuthClients().withName(name).replace(current);
+                    openShiftClient.oAuthClients().withName(name).delete();
+                    current.getMetadata().setResourceVersion(null);
+                    openShiftClient.oAuthClients().create(current);
+                }
             } else if (entity instanceof HasMetadata) {
                 log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((HasMetadata) entity));
                 controller.apply(entity, session.getId());
