@@ -299,20 +299,27 @@ public class SessionListener {
                     current = oc;
                     create = true;
                 }
+                boolean updated = false;
                 // lets add a new redirect entry
                 List<String> redirectURIs = current.getRedirectURIs();
-                redirectURIs.add("http://" + name + "." + routePrefix);
+                String redirectUri = "http://" + name + "." + routePrefix;
+                if (!redirectURIs.contains(redirectUri)) {
+                    redirectURIs.add(redirectUri);
+                    updated = true;
+                }
                 current.setRedirectURIs(redirectURIs);
                 log.status("Applying OAuthClient:" + name);
                 controller.setSupportOAuthClients(true);
                 if (create) {
                     openShiftClient.oAuthClients().create(current);
                 } else {
-                    // TODO this should work!
-                    // openShiftClient.oAuthClients().withName(name).replace(current);
-                    openShiftClient.oAuthClients().withName(name).delete();
-                    current.getMetadata().setResourceVersion(null);
-                    openShiftClient.oAuthClients().create(current);
+                    if (updated) {
+                        // TODO this should work!
+                        // openShiftClient.oAuthClients().withName(name).replace(current);
+                        openShiftClient.oAuthClients().withName(name).delete();
+                        current.getMetadata().setResourceVersion(null);
+                        openShiftClient.oAuthClients().create(current);
+                    }
                 }
             } else if (entity instanceof HasMetadata) {
                 log.status("Applying " + entity.getClass().getSimpleName() + ":" + KubernetesHelper.getName((HasMetadata) entity));
