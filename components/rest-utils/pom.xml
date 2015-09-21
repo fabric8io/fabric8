@@ -147,15 +147,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jaxrs_2.10</artifactId>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.ws.rs</groupId>
-          <artifactId>jsr311-api</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jaxrs</artifactId>
     </dependency>
 
     <dependency>
