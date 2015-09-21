@@ -47,4 +47,6 @@ public class Constants {
     public static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
 
     public static final String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
+
+    public static final String USE_GO_FABRIC8 = "useGoFabric8";
 }
