@@ -29,7 +29,7 @@ import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.FactoryBeanListener;
 import org.apache.cxf.service.factory.FactoryBeanListenerManager;
 
-public class SwaggerFeature extends org.apache.cxf.jaxrs.swagger.SwaggerFeature {
+public class SwaggerFeature extends org.apache.cxf.jaxrs.swagger.Swagger2Feature {
     
     @Override
     protected void initializeProvider(InterceptorProvider provider, final Bus bus) {
