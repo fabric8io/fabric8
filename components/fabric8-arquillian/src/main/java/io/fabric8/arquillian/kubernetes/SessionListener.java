@@ -22,6 +22,7 @@ import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
@@ -142,6 +143,7 @@ public class SessionListener {
             String parameterNamePrefix = "";
             overrideTemplateParameters(template, configuration.getProperties(), parameterNamePrefix);
             log.status("Applying template in namespace " + namespace);
+            controller.installTemplate(template, sourceName);
             dto = controller.processTemplate(template, sourceName);
             if (dto == null) {
                 throw new IllegalArgumentException("Failed to process Template!");
@@ -252,6 +254,8 @@ public class SessionListener {
         String namespace = session.getNamespace();
         String routePrefix = namespace + "." + configuration.getRouteDomainPostfix();
 
+        preprocessEnvironment(client, controller, configuration, session);
+        
         List<Object> extraEntities = new ArrayList<>();
         for (Object entity : entities) {
             if (entity instanceof Pod) {
@@ -347,6 +351,15 @@ public class SessionListener {
         }
 
         return true;
+    }
+
+    protected void preprocessEnvironment(KubernetesClient client, Controller controller, Configuration configuration, Session session) {
+        if (configuration.isUseGoFabric8()) {
+            // lets invoke gofabric8 to configure the security and secrets
+            Logger logger = session.getLogger();
+            Commands.assertCommand(logger, "gofabric8", "deploy", "-y", "--console=false", "--templates=false");
+            Commands.assertCommand(logger, "gofabric8", "secrets", "-y");
+        }
     }
 
 

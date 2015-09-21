@@ -305,6 +305,14 @@ public class Controller {
      * Creates/updates the template and processes it returning the processed DTOs
      */
     public Object applyTemplate(Template entity, String sourceName) throws Exception {
+        installTemplate(entity, sourceName);
+        return processTemplate(entity, sourceName);
+    }
+
+    /**
+     * Installs the template into the namespace without processing it
+     */
+    public void installTemplate(Template entity, String sourceName) {
         OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
         if (!isProcessTemplatesLocally()) {
             String namespace = getNamespace();
@@ -339,7 +347,6 @@ public class Controller {
                 }
             }
         }
-        return processTemplate(entity, sourceName);
     }
 
     protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
@@ -781,7 +788,10 @@ public class Controller {
         applyNamespace(entity);
     }
 
-    public void applyNamespace(Namespace entity) {
+    /**
+     * Returns true if the namespace is created
+     */
+    public boolean applyNamespace(Namespace entity) {
         String namespace = getOrCreateMetadata(entity).getName();
         LOG.info("Creating a namespace " + namespace);
         String name = getName(entity);
@@ -791,10 +801,12 @@ public class Controller {
             try {
                 Object answer = kubernetesClient.namespaces().create(entity);
                 logGeneratedEntity("Created namespace: ", namespace, entity, answer);
+                return true;
             } catch (Exception e) {
                 onApplyError("Failed to create namespace. " + e + ". " + entity, e);
             }
         }
+        return false;
     }
 
     public void applyReplicationController(ReplicationController replicationController, String sourceName) throws Exception {

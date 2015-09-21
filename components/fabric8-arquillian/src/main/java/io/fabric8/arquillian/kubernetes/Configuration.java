@@ -38,6 +38,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
 import static io.fabric8.arquillian.kubernetes.Constants.SERVICE_CONNECTION_TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.USE_EXISTING_NAMESPACE;
+import static io.fabric8.arquillian.kubernetes.Constants.USE_GO_FABRIC8;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICES;
 
@@ -71,6 +72,7 @@ public class Configuration {
     private Map<String, String> properties;
     private Boolean lazyCreateNamespace;
     private String routeDomainPostfix;
+    private Boolean useGoFabric8;
 
     public Map<String, String> getProperties() {
         return properties;
@@ -153,6 +155,7 @@ public class Configuration {
             configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
             configuration.existingNamespace = getStringProperty(USE_EXISTING_NAMESPACE, map, null);
             configuration.routeDomainPostfix = getStringProperty(KUBERNETES_DOMAIN, map, "vagrant.f8");
+            configuration.useGoFabric8 = getBooleanProperty(USE_GO_FABRIC8, map, false);
 
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.existingNamespace));
@@ -222,6 +225,10 @@ public class Configuration {
         } else {
             return  Systems.getEnvVarOrSystemProperty(name, defaultValue).longValue();
         }
+    }
+
+    public boolean isUseGoFabric8() {
+        return useGoFabric8 != null && useGoFabric8.booleanValue();
     }
 }
 
