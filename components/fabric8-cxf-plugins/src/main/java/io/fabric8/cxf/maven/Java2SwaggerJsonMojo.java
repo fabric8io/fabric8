@@ -136,7 +136,7 @@ public class Java2SwaggerJsonMojo extends AbstractMojo {
         try {
             String res = "";
             for (Class<?> resourceClass : resourceClasses) {
-                com.wordnik.swagger.annotations.Api api = resourceClass.getAnnotation(com.wordnik.swagger.annotations.Api.class);
+                io.swagger.annotations.Api api = resourceClass.getAnnotation(io.swagger.annotations.Api.class);
                 if (api != null) {
                     String apiPath = api.value();
                     String serverAddress = server.getEndpoint().getEndpointInfo().getAddress();
