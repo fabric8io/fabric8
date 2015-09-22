@@ -161,7 +161,7 @@
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
         <snakeyaml.version>1.16</snakeyaml.version>
-        <spring.version>4.2.0.RELEASE</spring.version>
+        <spring.version>4.2.1.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
         <sundrio.version>0.1.10</sundrio.version>
         <swagger.jaxrs.version>1.5.3</swagger.jaxrs.version>
