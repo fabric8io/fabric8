@@ -20,8 +20,7 @@ import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.api.model.RouteListBuilder;
-import io.fabric8.openshift.client.mock.OpenshiftMockClient;
+import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
@@ -35,7 +34,7 @@ public class ClientProducer {
     @Produces
     @Alternative
     public KubernetesClient getKubernetesClient() throws MalformedURLException {
-        OpenshiftMockClient mock = new OpenshiftMockClient();
+        KubernetesMockClient mock = new KubernetesMockClient();
 
         mock.getMasterUrl().andReturn(new URL("https://kubernetes.default.svc")).anyTimes();
         mock.rootPaths().andReturn(new RootPathsBuilder()
@@ -94,8 +93,6 @@ public class ClientProducer {
                         .endSpec()
                         .build()
         ).anyTimes();
-
-        mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
         mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().build()).anyTimes();
 
         return mock.replay();

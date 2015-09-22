@@ -22,7 +22,9 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 import io.fabric8.openshift.api.model.RouteListBuilder;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenshiftMockClient;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +38,8 @@ import java.net.URL;
 public class ClientFactory {
 
     @Bean
-    public KubernetesClient getKubernetesClient() throws MalformedURLException {
-        OpenshiftMockClient mock = new OpenshiftMockClient();
+    public KubernetesClient getKubernetesClient(OpenShiftClient openShiftClient) throws MalformedURLException {
+        KubernetesMockClient mock = new KubernetesMockClient();
 
         mock.getMasterUrl().andReturn(new URL("https://kubernetes.default.svc")).anyTimes();
         mock.rootPaths().andReturn(new RootPathsBuilder()
@@ -97,9 +99,15 @@ public class ClientFactory {
 
         mock.services().list().andReturn(new ServiceListBuilder().addToItems(kubernetesService, consoleService, appLibService).build()).anyTimes();
 
-        mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
         mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().build()).anyTimes();
+        mock.adapt(OpenShiftClient.class).andReturn(getOpenshiftClient()).anyTimes();
+        return mock.replay();
+    }
 
+    @Bean
+    public OpenShiftClient getOpenshiftClient() {
+        OpenshiftMockClient mock = new OpenshiftMockClient();
+        mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
         return mock.replay();
     }
 }

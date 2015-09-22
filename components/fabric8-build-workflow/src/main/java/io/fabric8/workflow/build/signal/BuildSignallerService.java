@@ -91,7 +91,7 @@ public class BuildSignallerService {
         this.buildProcessCorrelator = buildProcessCorrelator;
     }
 
-    public KubernetesClient getClient() {
+    public OpenShiftClient getClient() {
         return client;
     }
 
