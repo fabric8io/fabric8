@@ -138,7 +138,7 @@
         <junit.version>4.12</junit.version>
         <kie.version>6.2.0.Final</kie.version>
         <kubernetes-client.version>1.3.38</kubernetes-client.version>
-        <kubernetes-model.version>1.0.26</kubernetes-model.version>
+        <kubernetes-model.version>1.0.27</kubernetes-model.version>
         <log4j.version>1.2.17</log4j.version>
         <logback.version>1.1.3</logback.version>
         <lombok.version>1.16.6</lombok.version>
