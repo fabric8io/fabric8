@@ -357,6 +357,7 @@ public class SessionListener {
         if (configuration.isUseGoFabric8()) {
             // lets invoke gofabric8 to configure the security and secrets
             Logger logger = session.getLogger();
+            Commands.assertCommand(logger, "oc", "project", session.getNamespace());
             Commands.assertCommand(logger, "gofabric8", "deploy", "-y", "--console=false", "--templates=false");
             Commands.assertCommand(logger, "gofabric8", "secrets", "-y");
         }
