@@ -134,11 +134,18 @@ public class Java2SwaggerJsonMojo extends AbstractMojo {
 
         InputStream in = null;
         try {
-            String serverAddress = server.getEndpoint().getEndpointInfo().getAddress();
-            String apiDocs = serverAddress + "/swagger.json";
-            URL url = new URL(apiDocs);
-            in = url.openStream();
-            String res = getStringFromInputStream(in);
+            String res = "";
+            for (Class<?> resourceClass : resourceClasses) {
+                com.wordnik.swagger.annotations.Api api = resourceClass.getAnnotation(com.wordnik.swagger.annotations.Api.class);
+                if (api != null) {
+                    String apiPath = api.value();
+                    String serverAddress = server.getEndpoint().getEndpointInfo().getAddress();
+                    String apiDocs = serverAddress + "/api-docs";
+                    URL url = new URL(apiDocs + apiPath);
+                    in = url.openStream();
+                    res = res + getStringFromInputStream(in);
+                }
+            }
             generateJson(resourceClasses, res);
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
