@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,11 +78,23 @@ public class PodLogsAssert extends MapAssert<String, String> {
                 File file = podLogFileName(podName);
                 int idx = value.indexOf(text);
                 if (idx < 0) {
-                    Fail.fail("Log of pod " + podName + " in file: " + file + " does not contains text `" + text
-                            + "` at " + logFileCoords(podName, value, idx));
+                    Fail.fail("Log of pod " + podName + " in file: " + file + " does not contains text `" + text + "` last log: " + lastLineOf(file));
                 }
             }
         }
+    }
+
+    protected String lastLineOf(File file) {
+        try {
+            List<String> lines = IOHelpers.readLines(file);
+            int size = lines.size();
+            if (size > 0) {
+                return lines.get(size - 1);
+            }
+        } catch (IOException e) {
+            LOG.debug("Failed to load: " + file + ". " + e, e );
+        }
+        return "";
     }
 
     public void doesNotContainText(String... texts) {
