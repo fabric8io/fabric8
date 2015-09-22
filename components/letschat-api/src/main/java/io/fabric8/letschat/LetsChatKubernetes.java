@@ -46,7 +46,7 @@ public class LetsChatKubernetes {
                 LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
                 return null;
             }
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             LOG.warn("No LetsChat service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
             return null;
         }

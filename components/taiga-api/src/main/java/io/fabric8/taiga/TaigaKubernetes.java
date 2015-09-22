@@ -40,7 +40,7 @@ public class TaigaKubernetes {
                 LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
                 return null;
             }
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             LOG.warn("No Taiga service could be found in kubernetes " + namespace + " on address: " + kubernetes.getMasterUrl());
             return null;
         }
