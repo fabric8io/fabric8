@@ -119,7 +119,7 @@
         <hawtio.version>1.4.53</hawtio.version>
         <hibernate-validator.version>5.2.1.Final</hibernate-validator.version>
         <httpcomponents.version>4.1</httpcomponents.version>
-        <jackson2.version>2.6.1</jackson2.version>
+        <jackson2.version>2.6.2</jackson2.version>
         <jansi.version>1.11</jansi.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <jasypt.version>1.9.2</jasypt.version>
