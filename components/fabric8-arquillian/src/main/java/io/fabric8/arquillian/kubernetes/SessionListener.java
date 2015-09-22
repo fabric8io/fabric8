@@ -48,6 +48,7 @@ import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
@@ -96,6 +97,8 @@ public class SessionListener {
             assertNamespaceExists(client, session, configuration);
         }
 
+        boolean disableEnvironmentInit = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_DISABLE_ENVIRONMENT_INIT, Boolean.FALSE);
+
         shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
@@ -104,20 +107,22 @@ public class SessionListener {
             List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(session);
             List<KubernetesList> kubeConfigs = new LinkedList<>();
 
-            for (String dependency : dependencies) {
-                log.info("Found dependency: " + dependency);
-                loadDependency(log, kubeConfigs, dependency, controller, configuration, namespace);
-            }
+            if (!disableEnvironmentInit) {
+                for (String dependency : dependencies) {
+                    log.info("Found dependency: " + dependency);
+                    loadDependency(log, kubeConfigs, dependency, controller, configuration, namespace);
+                }
 
-            if (configUrl != null) {
-                log.status("Applying kubernetes configuration from: " + configUrl);
-                Object dto = loadJson(readAsString(configUrl));
-                dto = expandTemplate(controller, configuration, log, namespace, configUrl.toString(), dto);
-                KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
-                List<HasMetadata> items = kubeList.getItems();
-                kubeConfigs.add(kubeList);
+                if (configUrl != null) {
+                    log.status("Applying kubernetes configuration from: " + configUrl);
+                    Object dto = loadJson(readAsString(configUrl));
+                    dto = expandTemplate(controller, configuration, log, namespace, configUrl.toString(), dto);
+                    KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
+                    List<HasMetadata> items = kubeList.getItems();
+                    kubeConfigs.add(kubeList);
+                }
             }
-            if (applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
+            if (disableEnvironmentInit || applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
                 displaySessionStatus(client, session);
             } else {
                 throw new IllegalStateException("Failed to apply kubernetes configuration.");
