@@ -49,13 +49,14 @@ public class ClassNameValidator extends AbstractJLSUIValidator {
         if (allowPackageName && s.lastIndexOf('.') != -1) {
             idx = s.lastIndexOf('.') + 1;
         }
-        char ch = s.charAt(idx);
+        if (idx >= 0 && idx < s.length()) {
+            char ch = s.charAt(idx);
 
-        // first must be upper case alpha
-        if (!Character.isUpperCase(ch)) {
-            return new ValidationResult(ResultType.ERROR, "The class name [" + s + "] must start with an upper case alphabetic character at index " + idx);
+            // first must be upper case alpha
+            if (!Character.isUpperCase(ch)) {
+                return new ValidationResult(ResultType.ERROR, "The class name [" + s + "] must start with an upper case alphabetic character at index " + idx);
+            }
         }
-
         return new ValidationResult(ResultType.INFO);
     }
 }
