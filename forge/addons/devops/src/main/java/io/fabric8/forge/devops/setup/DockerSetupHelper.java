@@ -210,6 +210,20 @@ public class DockerSetupHelper {
      */
     public static String defaultMainClass(Project project) {
         // try to guess a default main class
+        MavenFacet maven = project.getFacet(MavenFacet.class);
+        if (maven != null) {
+            Model pom = maven.getModel();
+            if (pom != null) {
+                Properties properties = pom.getProperties();
+                String answer = properties.getProperty("docker.env.MAIN");
+                if (Strings.isNullOrBlank(answer)) {
+                    answer = properties.getProperty("fabric8.env.MAIN");
+                }
+                if (Strings.isNotBlank(answer)) {
+                    return answer;
+                }
+            }
+        }
 
         // if camel-spring is on classpath
         if (CamelProjectHelper.findCamelCDIDependency(project) != null) {
@@ -220,8 +234,7 @@ public class DockerSetupHelper {
             return "org.apache.camel.test.blueprint.Main";
         }
 
-        // TODO: what about camel-spring-boot ?
-
+        // TODO: what about spring-boot / docker-swarm??
         return null;
     }
 
