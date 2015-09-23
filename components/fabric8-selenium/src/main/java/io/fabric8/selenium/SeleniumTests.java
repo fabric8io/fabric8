@@ -17,9 +17,7 @@
 package io.fabric8.selenium;
 
 import com.google.common.base.Function;
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -31,8 +29,6 @@ import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
-import static org.junit.Assert.assertNotNull;
-
 /**
  * Helper methods for using Selenium tests with Kubernetes
  */
@@ -41,9 +37,11 @@ public class SeleniumTests {
     public static final String FABRIC8_WEBDRIVER_NAME = "FABRIC8_WEBDRIVER_NAME";
 
     public static <T> T assertWebDriverForService(KubernetesClient client, String namespace, String serviceName, Function<WebDriverFacade, T> block) throws Exception {
-        WebDriver driver = createWebDriverForService(client, namespace, serviceName);
+        WebDriver driver = createWebDriver();
         try {
-            WebDriverFacade facade = new WebDriverFacade(driver);
+            WebDriverFacade facade = new WebDriverFacade(driver, client, namespace);
+            facade.navigateToService(serviceName);
+
             T apply = block.apply(facade);
 
             String property = Systems.getEnvVarOrSystemProperty(WAIT_AFTER_SELENIUM);
@@ -70,6 +68,43 @@ public class SeleniumTests {
         } finally {
             driver.quit();
         }
+    }
+
+    public static WebDriver createWebDriver() {
+        WebDriver answer = doCreateWebDriver();
+        logInfo("Using WebDriver implementation: " + answer);
+        return answer;
+    }
+
+    protected static WebDriver doCreateWebDriver() {
+        String driverName = Systems.getEnvVarOrSystemProperty(FABRIC8_WEBDRIVER_NAME);
+        if (driverName != null) {
+            driverName = driverName.toLowerCase();
+            if (driverName.equals("chrome")) {
+                return new ChromeDriver();
+            } else if (driverName.equals("edge")) {
+                return new EdgeDriver();
+            } else if (driverName.equals("firefox")) {
+                return new FirefoxDriver();
+            } else if (driverName.equals("htmlunit")) {
+                return new HtmlUnitDriver();
+            } else if (driverName.equals("internetexplorer") || driverName.equals("ie")) {
+                return new InternetExplorerDriver();
+            } else if (driverName.equals("opera")) {
+                return new OperaDriver();
+            } else if (driverName.equals("phantomjs")) {
+                return new PhantomJSDriver();
+/*
+            } else if (driverName.equals("remote")) {
+                return new RemoteWebDriver();
+*/
+            } else if (driverName.equals("safari")) {
+                return new SafariDriver();
+            } else if (driverName.equals("htmlunit")) {
+                return new HtmlUnitDriver();
+            }
+        }
+        return new HtmlUnitDriver();
     }
 
     public static void logError(String message, Throwable e) {
@@ -114,51 +149,4 @@ public class SeleniumTests {
         }
     }
 
-    public static WebDriver createWebDriverForService(KubernetesClient client, String namespace, String serviceName) {
-        String url = KubernetesHelper.getServiceURL(client, serviceName, namespace, "http", true);
-        assertNotNull("No external Service URL could be found for namespace: " + namespace + " and name: " + serviceName, url);
-        logInfo("Connecting to service " + serviceName + " at " + url);
-
-        return createWebDriver(client, url);
-    }
-
-    public static WebDriver createWebDriver(KubernetesClient client, String url) {
-        WebDriver answer = createWebDriver();
-        if (Strings.isNotBlank(url)) {
-            answer.navigate().to(url);
-        }
-        logInfo("Using WebDriver implementation: " + answer);
-        return answer;
-    }
-
-    public static WebDriver createWebDriver() {
-        String driverName = Systems.getEnvVarOrSystemProperty(FABRIC8_WEBDRIVER_NAME);
-        if (driverName != null) {
-            driverName = driverName.toLowerCase();
-            if (driverName.equals("chrome")) {
-                return new ChromeDriver();
-            } else if (driverName.equals("edge")) {
-                return new EdgeDriver();
-            } else if (driverName.equals("firefox")) {
-                return new FirefoxDriver();
-            } else if (driverName.equals("htmlunit")) {
-                return new HtmlUnitDriver();
-            } else if (driverName.equals("internetexplorer") || driverName.equals("ie")) {
-                return new InternetExplorerDriver();
-            } else if (driverName.equals("opera")) {
-                return new OperaDriver();
-            } else if (driverName.equals("phantomjs")) {
-                return new PhantomJSDriver();
-/*
-            } else if (driverName.equals("remote")) {
-                return new RemoteWebDriver();
-*/
-            } else if (driverName.equals("safari")) {
-                return new SafariDriver();
-            } else if (driverName.equals("htmlunit")) {
-                return new HtmlUnitDriver();
-            }
-        }
-        return new HtmlUnitDriver();
-    }
 }
