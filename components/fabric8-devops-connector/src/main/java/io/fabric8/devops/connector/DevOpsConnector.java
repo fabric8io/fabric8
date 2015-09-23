@@ -174,6 +174,8 @@ public class DevOpsConnector {
         labels.put("user", username);
         labels.put("repo", repoName);
 
+        getLog().info("build name " + name);
+
         taiga = null;
         taigaProject = null;
         try {
@@ -182,6 +184,7 @@ public class DevOpsConnector {
         } catch (Exception e) {
             getLog().error("Failed to load or lazily create the Taiga project: " + e, e);
         }
+        getLog().info("taiga " + taiga);
 
         LetsChatClient letschat = null;
         try {
@@ -189,6 +192,7 @@ public class DevOpsConnector {
         } catch (Exception e) {
             getLog().error("Failed to load or lazily create the LetsChat client: " + e, e);
         }
+        getLog().info("letschat " + letschat);
 
         Map<String, String> annotations = new HashMap<>();
         jenkinsJobUrl = null;
@@ -213,6 +217,7 @@ public class DevOpsConnector {
         } catch (Exception e) {
             getLog().warn("Could not find the Jenkins URL!: " + e, e);
         }
+        getLog().info("jenkins " + jenkinsUrl);
 
 
         if (!annotationLink(annotations, "fabric8.link.issues/", issueTrackerUrl, issueTrackerLabel)) {
@@ -291,9 +296,11 @@ public class DevOpsConnector {
         }
         if (Strings.isNotBlank(name)) {
             createJenkinsJob(name, jenkinsJobUrl);
+            getLog().info("created jenkins job");
         }
         if (isRegisterWebHooks()) {
             registerWebHooks();
+            getLog().info("webhooks done");
         }
         if (modifiedConfig) {
             if (basedir == null) {
