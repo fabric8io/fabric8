@@ -16,6 +16,7 @@
  */
 package io.fabric8.selenium;
 
+import com.google.common.base.Function;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
@@ -29,8 +30,6 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.safari.SafariDriver;
-
-import java.util.function.Function;
 
 import static org.junit.Assert.assertNotNull;
 
