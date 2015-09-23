@@ -104,7 +104,7 @@ public class SeleniumTests {
                 return new HtmlUnitDriver();
             }
         }
-        return new HtmlUnitDriver();
+        return new ChromeDriver();
     }
 
     public static void logError(String message, Throwable e) {
