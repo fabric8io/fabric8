@@ -8,7 +8,7 @@
         <title>Maven Plugin | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.4.1">
+        <meta name="generator" content="GitBook 2.4.2">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.1" data-basepath="." data-revision="Tue Sep 22 2015 21:06:21 GMT+0000 (UTC)">
+    <div class="book" data-level="5.1" data-basepath="." data-revision="Wed Sep 23 2015 10:18:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1155,42 +1155,42 @@
 </ul>
 <h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="plugin-anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
 <p>To enable this maven plugin and to automatically generate/copy and release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
-<pre><code>  <plugin>
-    <groupid>io.fabric8</groupid>
-    <artifactid>fabric8-maven-plugin</artifactid>
-    <version>${fabric.version}</version>
-    <executions>
-      <execution>
-        <id>json</id>
-        <goals>
-          <goal>json</goal>
-        </goals>
-      </execution>
-    </executions>
-  </plugin>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${fabric.version}&lt;/version&gt;
+    &lt;executions&gt;
+      &lt;execution&gt;
+        &lt;id&gt;json&lt;/id&gt;
+        &lt;goals&gt;
+          &lt;goal&gt;json&lt;/goal&gt;
+        &lt;/goals&gt;
+      &lt;/execution&gt;
+    &lt;/executions&gt;
+  &lt;/plugin&gt;
 </code></pre><p>To automatically generate an <a href="appzip.html">App Zip</a> for your project then add this:</p>
-<pre><code>  <plugin>
-    <groupid>io.fabric8</groupid>
-    <artifactid>fabric8-maven-plugin</artifactid>
-    <version>${project.version}</version>
-    <executions>
-      <execution>
-        <id>zip</id>
-        <phase>package</phase>
-        <goals>
-          <goal>zip</goal>
-        </goals>
-      </execution>
-    </executions>
-  </plugin>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${project.version}&lt;/version&gt;
+    &lt;executions&gt;
+      &lt;execution&gt;
+        &lt;id&gt;zip&lt;/id&gt;
+        &lt;phase&gt;package&lt;/phase&gt;
+        &lt;goals&gt;
+          &lt;goal&gt;zip&lt;/goal&gt;
+        &lt;/goals&gt;
+      &lt;/execution&gt;
+    &lt;/executions&gt;
+  &lt;/plugin&gt;
 </code></pre><h3 id="generating-cdi-environment-variables"><a name="generating-cdi-environment-variables" class="plugin-anchor" href="#generating-cdi-environment-variables"><span class="fa fa-link"></span></a>Generating CDI environment variables</h3>
 <p>If you use CDI for your dependency injection and use the <a href="http://deltaspike.apache.org/documentation/configuration.html" target="_blank">@ConfigProperty</a> annotation from <a href="http://deltaspike.apache.org/" target="_blank">deltaspike</a> to inject environment variables or default values into your Java code then you can automatically generate a json schema file for each jar you create by just adding a <strong>provided</strong> scope dependency on the <strong>fabric8-apt</strong> module.</p>
 <p>e.g. add this to your pom.xml</p>
-<pre><code><dependency>
-  <groupid>io.fabric8</groupid>
-  <artifactid>fabric8-apt</artifactid>
-  <scope>provided</scope>
-</dependency>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;fabric8-apt&lt;/artifactId&gt;
+  &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
 </code></pre><p>This will then generate inside your jar a file called <strong>io/fabric8/environment/schema.json</strong> which will be a JSON Schema document describing all the environment variables, their types, default values and their description (if you added some javadoc for them).</p>
 <h4 id="including-the-environment-variables-in-the-generated-json"><a name="including-the-environment-variables-in-the-generated-json" class="plugin-anchor" href="#including-the-environment-variables-in-the-generated-json"><span class="fa fa-link"></span></a>Including the environment variables in the generated JSON</h4>
 <p>By default any discovered environment variable JSON Schema files will be included in the generated JSON so that your <a href="apps.html">app JSON</a> has all the available known environment variables from a CDI perspective; which makes it easy to change the app without too much detailed knowledge of the source code and helps reduce typeos since all the environment variable names are defaulted.</p>

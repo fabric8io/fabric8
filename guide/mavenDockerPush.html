@@ -8,7 +8,7 @@
         <title>docker:push | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.4.1">
+        <meta name="generator" content="GitBook 2.4.2">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.1.2" data-basepath="." data-revision="Tue Sep 22 2015 21:06:21 GMT+0000 (UTC)">
+    <div class="book" data-level="5.1.2" data-basepath="." data-revision="Wed Sep 23 2015 10:18:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1152,25 +1152,25 @@
 <p>When creating new docker images for use in Kubernetes you probably want to run a local docker registry if you do not intend to reuse the public docker registry.</p>
 <p>Make sure you have added this to your <strong>~/.m2/settings.xml</strong> file to define the <strong>docker.registry</strong> value in a profile you can activate by default...</p>
 <p>e.g. add this to the &lt;servers&gt; element:</p>
-<pre><code><?xml version="1.0"?>
-<settings>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;settings&gt;
 
-  <profiles>
-    <profile>
-      <id>docker-host</id>
-      <properties>
-        <docker.registry>${env.DOCKER_REGISTRY}</docker.registry>
-        <docker.url>${env.DOCKER_HOST}</docker.url>
-      </properties>
-    </profile>
-  </profiles>
+  &lt;profiles&gt;
+    &lt;profile&gt;
+      &lt;id&gt;docker-host&lt;/id&gt;
+      &lt;properties&gt;
+        &lt;docker.registry&gt;${env.DOCKER_REGISTRY}&lt;/docker.registry&gt;
+        &lt;docker.url&gt;${env.DOCKER_HOST}&lt;/docker.url&gt;
+      &lt;/properties&gt;
+    &lt;/profile&gt;
+  &lt;/profiles&gt;
 
   ...
 
-  <activeprofiles>
-    <activeprofile>docker-host</activeprofile>
-  </activeprofiles>
-</settings>
+  &lt;activeProfiles&gt;
+    &lt;activeProfile&gt;docker-host&lt;/activeProfile&gt;
+  &lt;/activeProfiles&gt;
+&lt;/settings&gt;
 </code></pre><h3 id="reference"><a name="reference" class="plugin-anchor" href="#reference"><span class="fa fa-link"></span></a>Reference</h3>
 <p>See the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#dockerpush" target="_blank">reference docs for docker:push</a></p>
 

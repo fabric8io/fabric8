@@ -8,7 +8,7 @@
         <title>Integration and System Testing | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.4.1">
+        <meta name="generator" content="GitBook 2.4.2">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.2" data-basepath="." data-revision="Tue Sep 22 2015 21:06:21 GMT+0000 (UTC)">
+    <div class="book" data-level="5.2" data-basepath="." data-revision="Wed Sep 23 2015 10:18:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1197,13 +1197,15 @@ io.fabric8.kubernetes.api.model.PodList sessionPods;
 </code></pre><h3 id="configuration-options"><a name="configuration-options" class="plugin-anchor" href="#configuration-options"><span class="fa fa-link"></span></a>Configuration Options</h3>
 <p>Any configuration option can be provided as an environment variable, system property or arquillian property. 
 For example:</p>
-<pre><code>    <arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jboss.org/schema/arquillian" xsi:schemalocation="http://jboss.org/schema/arquillian
-                http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+<pre><code>    &lt;arquillian xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+                xmlns=&quot;http://jboss.org/schema/arquillian&quot;
+                xsi:schemaLocation=&quot;http://jboss.org/schema/arquillian
+                http://jboss.org/schema/arquillian/arquillian_1_0.xsd&quot;&gt;
 
-        <extension qualifier="kubernetes">
-            <property name="masterUrl">true</property>
-        </extension>
-    </arquillian>
+        &lt;extension qualifier=&quot;kubernetes&quot;&gt;
+            &lt;property name=&quot;masterUrl&quot;&gt;true&lt;/property&gt;
+        &lt;/extension&gt;
+    &lt;/arquillian&gt;
 </code></pre><p>The only required configuration option is url to the kubernetes master. Since in most cases this will be specified as KUBERNETES_MASTER env variable, there is no need
 to specify it again. 
 This means that the arquillian.xml configuration file is completely optional.</p>
@@ -1248,12 +1250,12 @@ Waiting for: SomeException....
 </ul>
 <h3 id="add-it-to-your-maven-pom-xml"><a name="add-it-to-your-maven-pom-xml" class="plugin-anchor" href="#add-it-to-your-maven-pom-xml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
 <p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>
-<pre><code>        <dependency>
-            <groupid>io.fabric8</groupid>
-            <artifactid>fabric8-arquillian</artifactid>
-            <version>2.2.28</version>
-            <scope>test</scope>
-        </dependency>
+<pre><code>        &lt;dependency&gt;
+            &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+            &lt;artifactId&gt;fabric8-arquillian&lt;/artifactId&gt;
+            &lt;version&gt;2.2.28&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
 </code></pre>
                     
                     </section>
