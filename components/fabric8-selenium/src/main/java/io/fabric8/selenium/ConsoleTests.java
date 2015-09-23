@@ -23,7 +23,9 @@ import org.openqa.selenium.By;
  * Helper methods for tests using the fabric8 console
  */
 public class ConsoleTests {
-    public static void waitUntilLoggedIn(final WebDriverFacade facade, String namespace) {
+    public static void waitUntilLoggedIn(final WebDriverFacade facade) {
+        String namespace = facade.getNamespace();
+
         facade.form().
                 clearAndSendKeys(By.id("inputUsername"), "admin").
                 clearAndSendKeys(By.id("inputPassword"), "admin").

@@ -27,24 +27,21 @@ import org.openqa.selenium.WebElement;
 import static org.junit.Assert.fail;
 
 /**
+ * A helper class for testing the Fabric8 Console's Projects page
  */
 public class ProjectsPage extends PageSupport {
     private final By signInBy = By.linkText("Sign In");
     private final By createProjectBy = By.partialLinkText("Create Project");
     private final By projectsLinkBy = By.linkText("Projects");
 
-    private final WebDriverFacade driverFacade;
-    private final String namespace;
     private String startUrl;
     private String buildConfigsUrl;
 
 
-    public ProjectsPage(WebDriverFacade facade, String namespace) {
+    public ProjectsPage(WebDriverFacade facade) {
         super(facade);
-        this.driverFacade = facade;
-        this.namespace = namespace;
 
-        ConsoleTests.waitUntilLoggedIn(facade, namespace);
+        ConsoleTests.waitUntilLoggedIn(facade);
 
         startUrl = getDriver().getCurrentUrl();
         buildConfigsUrl = relativeUrl(startUrl, "/kubernetes", "/kubernetes/buildConfigs");
@@ -52,7 +49,6 @@ public class ProjectsPage extends PageSupport {
 
     public void goToProjectsPage() {
         WebDriverFacade facade = getFacade();
-        WebDriver driver = getDriver();
 
         facade.untilLinkClickedLoop(projectsLinkBy, buildConfigsUrl);
 
@@ -72,13 +68,12 @@ public class ProjectsPage extends PageSupport {
     }
 
     /**
-     * Creates a new project using the create projects wizard
+     * Creates a new project using the create projects wizard and asserts it appears on the projects page
      */
     public void createProject(NewProjectFormData form) {
         goToProjectsPage();
 
         WebDriverFacade facade = getFacade();
-        WebDriver driver = getDriver();
         facade.untilLinkClicked(createProjectBy);
 
         By nextButton = By.xpath("//button[@ng-click='execute()']");
