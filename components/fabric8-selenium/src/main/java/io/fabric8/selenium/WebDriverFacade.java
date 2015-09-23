@@ -17,7 +17,10 @@
 package io.fabric8.selenium;
 
 import com.google.common.base.Function;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Millis;
+import io.fabric8.utils.Strings;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -29,6 +32,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
@@ -36,15 +41,52 @@ import static org.junit.Assert.fail;
  * A facade and helper methods for writing {@link WebDriver} based Selenium tests
  */
 public class WebDriverFacade extends LogSupport {
+    private final WebDriver driver;
+    private final KubernetesClient client;
+    private final String namespace;
     private long defaultTimeoutInSeconds = 60;
 
-    public WebDriverFacade(WebDriver driver) {
+    public WebDriverFacade(WebDriver driver, KubernetesClient client, String namespace) {
         super(driver);
+        this.driver = driver;
+        this.client = client;
+        this.namespace = namespace;
     }
 
     @Override
     public WebDriverFacade getFacade() {
         return this;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public KubernetesClient getClient() {
+        return client;
+    }
+
+    /**
+     * Returns the service URL for the given service name
+     */
+    public String getServiceUrl(String serviceName) {
+        String url = KubernetesHelper.getServiceURL(client, serviceName, namespace, "http", true);
+        assertNotNull("No external Service URL could be found for namespace: " + namespace + " and name: " + serviceName, url);
+        assertTrue("No external Service URL could be found for namespace: " + namespace + " and name: " + serviceName, Strings.isNotBlank(url));
+        logInfo("Service " + serviceName + " in namespace: " + namespace + " URL = " + url);
+        return url;
+    }
+
+
+    /**
+     * Navigates to the given service name in the current namespace
+     *
+     * @return the URL navigated to
+     */
+    public String navigateToService(String serviceName) {
+        String url = getServiceUrl(serviceName);
+        getDriver().navigate().to(url);
+        return url;
     }
 
     /**
