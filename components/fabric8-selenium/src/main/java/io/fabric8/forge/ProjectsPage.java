@@ -82,7 +82,7 @@ public class ProjectsPage extends PageSupport {
 
 
         // it can take a while to load pages in the wizard to lets increase the wait time lots! :)
-        facade.setDefaultTimeoutInSeconds(60 * 3);
+        facade.setDefaultTimeoutInSeconds(60 * 9);
 
         String named = form.getNamed();
         facade.form().
