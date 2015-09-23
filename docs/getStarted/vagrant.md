@@ -90,7 +90,7 @@ on your installation.
 
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab!
-  * You can download the [fabric8 templates 2.2.33 distribution](http://repo1.maven.org/maven2/io/fabric8/apps/distro/2.2.33/distro-2.2.33-templates.zip) unzip and drag the JSON files you want to install onto the [fabric8 console](http://fabric8.io/guide/console.html) and they should appear on the `Run...` page  
+  * You can download the [fabric8 templates 2.2.33 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.33/distro-2.2.33-templates.zip) unzip and drag the JSON files you want to install onto the [fabric8 console](http://fabric8.io/guide/console.html) and they should appear on the `Run...` page  
 * You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
 
     oc create -f jsonOrYamlFileOrUrl
@@ -148,11 +148,11 @@ vagrant ssh
 Then you can look around.
 
 #### Docker pull issues
-    
+
 If you have issues with docker pull; you can pre-download the docker images you need before you try running the app from the OpenShift Template or via the `Run...` button in the [console](console.html).
 
 To pull the images for one or more templates use the following [gofabric8](https://github.com/fabric8io/gofabric8) command:
- 
+
 ```sh
 vagrant ssh
 sudo bash
@@ -164,9 +164,9 @@ where `logging` is the name of the template to download (you can list as many te
 #### Errors like "tcp: lookup index.docker.io: no such host"
 
 If you shut your laptop and open it later or switch WiFi networks then the docker daemon can struggle to connect to the upstream docker registry to download images. There must be some issue with Vagrant/VirtualBox DNS or something.
- 
+
 If this ever happens the simplest thing to do is just type this:
-   
+
 ```sh
 vagrant reload
 ```
