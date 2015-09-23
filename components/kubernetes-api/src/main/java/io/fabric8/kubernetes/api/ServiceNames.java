@@ -20,33 +20,31 @@ package io.fabric8.kubernetes.api;
  */
 public class ServiceNames {
 
-    // Management
-    //-------------------------------------------------------------------------
-
     /**
      * The fabric8 console
      */
     public static final String FABRIC8_CONSOLE = "fabric8";
 
+    // Management
+    //-------------------------------------------------------------------------
+
     public static final String ELASTICSEARCH = "elasticsearch";
     public static final String KIBANA = "kibana";
+    public static final String PROMETHEUS = "prometheus";
     public static final String INFLUXDB = "influxdb";
     public static final String GRAFANA = "grafana";
-
     public static final String KEYCLOAK = "keycloak";
 
-    // Continuous Delivery
+
+    // Continuous Delivery Pipeline
     //-------------------------------------------------------------------------
+    public static final String FABRIC8_FORGE = "fabric8-forge";
     public static final String GOGS = "gogs";
     public static final String JENKINS = "jenkins";
     public static final String NEXUS = "nexus";
     public static final String GERRIT = "gerrit";
     public static final String SONARQUBE = "sonarqube";
 
-    /**
-     * used for jBPM workflows with CD
-     */
-    public static final String CDELIVERY_API = "cdelivery";
 
     // Social
     //-------------------------------------------------------------------------
