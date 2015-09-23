@@ -21,7 +21,6 @@ import io.fabric8.selenium.PageSupport;
 import io.fabric8.selenium.WebDriverFacade;
 import io.fabric8.utils.Millis;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import static org.junit.Assert.fail;
@@ -33,9 +32,12 @@ public class ProjectsPage extends PageSupport {
     private final By signInBy = By.linkText("Sign In");
     private final By createProjectBy = By.partialLinkText("Create Project");
     private final By projectsLinkBy = By.linkText("Projects");
+    private final String gogsPassword = "RedHat$1";
+    private final String gogsEmail = "james.strachan@gmail.com";
 
     private String startUrl;
     private String buildConfigsUrl;
+    private String gogsUserName = "gogsadmin";
 
 
     public ProjectsPage(WebDriverFacade facade) {
@@ -116,14 +118,6 @@ public class ProjectsPage extends PageSupport {
 
         // lets assert there's a link to the project page
         facade.untilIsDisplayed(By.partialLinkText(named));
-
-
-        // TODO assert that jenkins build works and stages?
-    }
-
-    protected void untilNextWizardPage(WebDriverFacade facade, By nextButton) {
-        facade.sleep(Millis.seconds(5));
-        facade.untilIsEnabled(nextButton);
     }
 
 
@@ -133,6 +127,22 @@ public class ProjectsPage extends PageSupport {
 
     public By getSignInBy() {
         return signInBy;
+    }
+
+    public String getGogsEmail() {
+        return gogsEmail;
+    }
+
+    public String getGogsUserName() {
+        return gogsUserName;
+    }
+
+    public void setGogsUserName(String gogsUserName) {
+        this.gogsUserName = gogsUserName;
+    }
+
+    public String getGogsPassword() {
+        return gogsPassword;
     }
 
     /**
@@ -151,10 +161,15 @@ public class ProjectsPage extends PageSupport {
      */
     protected void signIntoGogs() {
         getFacade().form().
-                clearAndSendKeys(By.id("gitUsername"), "gogsadmin").
-                clearAndSendKeys(By.id("gitPassword"), "RedHat$1").
-                clearAndSendKeys(By.id("gitEmail"), "james.strachan@gmail.com").
+                clearAndSendKeys(By.id("gitUsername"), gogsUserName).
+                clearAndSendKeys(By.id("gitPassword"), gogsPassword).
+                clearAndSendKeys(By.id("gitEmail"), gogsEmail).
                 submitButton(By.xpath("//button[@ng-click='doLogin()']")).
                 submit();
+    }
+
+    protected void untilNextWizardPage(WebDriverFacade facade, By nextButton) {
+        facade.sleep(Millis.seconds(5));
+        facade.untilIsEnabled(nextButton);
     }
 }
