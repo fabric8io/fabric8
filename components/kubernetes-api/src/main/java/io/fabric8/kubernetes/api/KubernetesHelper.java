@@ -29,6 +29,7 @@ import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
 import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Context;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -1394,6 +1395,39 @@ public final class KubernetesHelper {
         return null;
     }
 
+    /**
+     * Returns the environment variable value for the first container in the given pod
+     */
+    public static String getPodEnvVar(Pod pod, String envVarName) {
+        if (pod != null) {
+            PodSpec spec = pod.getSpec();
+            if (spec != null) {
+                List<Container> containers = spec.getContainers();
+                if (containers != null && containers.size() > 0) {
+                    Container container = containers.get(0);
+                    return getContainerEnvVar(container, envVarName);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the environment variable value for the given container and name
+     */
+    public static String getContainerEnvVar(Container container, String envVarName) {
+        if (container != null) {
+            List<EnvVar> env = container.getEnv();
+            if (env != null) {
+                for (EnvVar envVar : env) {
+                    if (Objects.equal(envVarName, envVar.getName())) {
+                        return envVar.getValue();
+                    }
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Returns the pods for the given replication controller
      */
