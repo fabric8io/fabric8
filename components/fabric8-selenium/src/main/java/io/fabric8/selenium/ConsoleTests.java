@@ -23,12 +23,33 @@ import org.openqa.selenium.By;
  * Helper methods for tests using the fabric8 console
  */
 public class ConsoleTests {
+    protected static final By inputUsernameBy = By.id("inputUsername");
+    protected static final By inputPasswordBy = By.id("inputPassword");
+    protected static final By namespaceSelectBy = By.xpath("//select[@ng-model='namespace']");
+
     public static void waitUntilLoggedIn(final WebDriverFacade facade) {
+        waitUntilLoggedIn(facade, "admin", "admin");
+    }
+
+    public static void waitUntilLoggedIn(WebDriverFacade facade, String userName, String password) {
         String namespace = facade.getNamespace();
 
+        facade.sleep(Millis.seconds(5));
+
+        // lets retry a few times in case the first navigation doesn't work properly
+        for (int i = 0; i < 5; i++) {
+            try {
+                facade.untilIsDisplayed(inputUsernameBy);
+            } catch (Throwable e) {
+                // lets try reload the browser?
+                facade.logWarn("Trying to reload the browser!");
+                facade.getDriver().navigate().refresh();
+            }
+        }
+
         facade.form().
-                clearAndSendKeys(By.id("inputUsername"), "admin").
-                clearAndSendKeys(By.id("inputPassword"), "admin").
+                clearAndSendKeys(inputUsernameBy, userName).
+                clearAndSendKeys(inputPasswordBy, password).
                 submit();
 
         facade.logInfo("Logged in - waiting for the browser initialise the web app");
@@ -36,14 +57,20 @@ public class ConsoleTests {
         facade.logInfo("Logged in!");
 
         // now lets switch to the default namespace
-        By namespaceSelectBy = By.xpath("//select[@ng-model='namespace']");
-        facade.untilIsEnabled(namespaceSelectBy);
+        for (int i = 0; i < 5; i++) {
+            try {
+                facade.untilIsEnabled(namespaceSelectBy);
+            } catch (Throwable e) {
+                // lets try reload the browser?
+                facade.logWarn("Trying to reload the browser!");
+                facade.getDriver().navigate().refresh();
+            }
+        }
+
         facade.untilSelectedByVisibleText(namespaceSelectBy, namespace);
 
-        facade.sleep(Millis.seconds(2));
+        facade.sleep(Millis.seconds(10));
         facade.logInfo("Viewing namespace: " + namespace);
-
-
     }
 
 }

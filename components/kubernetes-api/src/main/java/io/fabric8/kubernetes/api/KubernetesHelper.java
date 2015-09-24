@@ -1396,16 +1396,20 @@ public final class KubernetesHelper {
     }
 
     /**
-     * Returns the environment variable value for the first container in the given pod
+     * Returns the environment variable value for the first container which has a value for it in th epod
      */
     public static String getPodEnvVar(Pod pod, String envVarName) {
         if (pod != null) {
             PodSpec spec = pod.getSpec();
             if (spec != null) {
                 List<Container> containers = spec.getContainers();
-                if (containers != null && containers.size() > 0) {
-                    Container container = containers.get(0);
-                    return getContainerEnvVar(container, envVarName);
+                if (containers != null) {
+                    for (Container container : containers) {
+                        String answer = getContainerEnvVar(container, envVarName);
+                        if (Strings.isNotBlank(answer)) {
+                            return answer;
+                        }
+                    }
                 }
             }
         }
@@ -1428,6 +1432,7 @@ public final class KubernetesHelper {
         }
         return null;
     }
+
     /**
      * Returns the pods for the given replication controller
      */
