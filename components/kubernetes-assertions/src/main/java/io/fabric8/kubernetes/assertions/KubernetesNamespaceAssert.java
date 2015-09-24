@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodAssert;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -29,6 +30,8 @@ import io.fabric8.kubernetes.api.model.ServiceListAssert;
 import io.fabric8.kubernetes.api.model.ServiceSpecAssert;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.assertj.core.api.ListAssert;
+
+import java.util.List;
 
 import static io.fabric8.kubernetes.assertions.internal.Assertions.assertThat;
 
@@ -83,6 +86,16 @@ public class KubernetesNamespaceAssert extends KubernetesAssert {
         return services(namespace);
     }
 
+
+    /**
+     * Returns the first running pod for the given replication controller or throws an assert
+     */
+    public Pod podForReplicationController(String replicationControllerName) {
+        PodsAssert forgePodsAssert = podsForReplicationController(replicationControllerName).runningStatus();
+        forgePodsAssert.describedAs("pods for " + replicationControllerName).isNotEmpty();
+        List<Pod> pods = forgePodsAssert.get();
+        return pods.get(0);
+    }
 
     /**
      * Asserts that we can find the given replication controller and match it to a list of pods, returning the pods for further assertions
