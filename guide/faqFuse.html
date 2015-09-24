@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Environments | Fabric8 Documentation</title>
+        <title>JBoss Fuse Questions | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.4.2">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./builds.html" />
+    <link rel="next" href="./faqKubernetes.html" />
     
     
-    <link rel="prev" href="./appzip.html" />
+    <link rel="prev" href="./faqGeneral.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="6.7" data-basepath="." data-revision="Thu Sep 24 2015 05:53:35 GMT+0000 (UTC)">
+    <div class="book" data-level="9.2" data-basepath="." data-revision="Thu Sep 24 2015 05:53:35 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -859,7 +859,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="6.7" data-path="environments.html">
+        <li class="chapter " data-level="6.7" data-path="environments.html">
             
                 
                     <a href="./environments.html">
@@ -1006,7 +1006,7 @@
             
         </li>
     
-        <li class="chapter " data-level="9.2" data-path="faqFuse.html">
+        <li class="chapter active" data-level="9.2" data-path="faqFuse.html">
             
                 
                     <a href="./faqFuse.html">
@@ -1162,18 +1162,16 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="working-with-environments-in-kubernetes"><a name="working-with-environments-in-kubernetes" class="plugin-anchor" href="#working-with-environments-in-kubernetes"><span class="fa fa-link"></span></a>Working with Environments in Kubernetes</h3>
-<p>Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Delivery</a> pipeline setup to move containers and configurations from dev -&gt; test -&gt; UAT -&gt; staging -&gt; production. In an ideal world we&apos;d reuse as much as possible (container images and <a href="apps.html">kubernetes app metadata</a> between environments.</p>
-<p>In Kubernetes each environment is a <strong>namespace</strong>. Then <a href="pods.html">pods</a> inside a namespace only see <a href="services.html">services</a> defined in that namespace. So <em>prod</em> pods only see <em>prod</em> services, <em>test</em> pods only see <em>test</em> services etc.</p>
-<p>So <a href="services.html">service discovery</a> takes care of finding the right database, message brokers, remote caches and other services for the environment (namespace) a pod is provisioned in.</p>
-<h3 id="reusing-json-yaml"><a name="reusing-json-yaml" class="plugin-anchor" href="#reusing-json-yaml"><span class="fa fa-link"></span></a>Reusing JSON/YAML</h3>
-<p>If you really have to, you can change the kubernetes JSON / YAML on a per environment bases to pass in different environment variables (or even config files mounted into volumes in pods); but the more things are the same between environments, the more likely you really are testing the real stuff in test before production. So if possible; just use service discovery in each environment and leave everything else the same.</p>
-<p>You can always use a different, say, database pod in testing containing test data; but ideally you&#x2019;d reuse the same JSON/YAML and images for your application code.</p>
-<p>Incidentally we have an <a href="testing.html">Arquillian integration testing framework</a> for running complete environments as a test case; it spins up a new namespace, creates however many services/pods/replication controllers, uses Arquillian / JUnit to assert things startup and then performs the actual tests (e.g. querying MBeans and stuff) and then tears everything down at the end.</p>
-<p>e.g. here&#x2019;s <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">an example integration test</a> that runs a message broker, producer and consumer and then asserts that the ActiveMQ consumer starts up properly and the ActiveMQ queues enqueue/dequeue correctly. Pretty neat for about a page of code!</p>
-<p>So we&apos;d recommend you to try to keep the JSON/YAML the same between environments. One thing that does tend to change between environments is scale. Ideally things would automatically scale; so you use modest sizes in <a href="replicationControllers">Replication Controllers</a> (e.g. replica size 1); then use per environment auto-scaling to scale things up based on load.</p>
-<p>Then your JSON/YAML and docker images can work in all environments without having to change them per environment and folks can have a completely automated Continuous Delivery mechanism setup between however many environments folks need; safe in the knowledge you are testing the same metadata, configuration and images in each environment.</p>
-<p>If you do find you need to add some kind of per-environment configuration change, the other option is to put the JSON/YAML in source control and have a branch per environment so you can make environment-specific changes when you absolutely must do (and can then easily diff between environments)</p>
+                        <h3 id="questions-on-jboss-fuse"><a name="questions-on-jboss-fuse" class="plugin-anchor" href="#questions-on-jboss-fuse"><span class="fa fa-link"></span></a>Questions on JBoss Fuse</h3>
+<p>The upstream fabric8 open source project is now focussed on the 2.x version based on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>.</p>
+<p>JBoss Fuse versions 6.x includes its <a href="https://github.com/jboss-fuse/fabric8" target="_blank">own branch of fabric8 1.x</a> using Karaf and ZooKeeper.</p>
+<p>So for any questions relating to fabric8 inside JBoss Fuse 6.x you are best off using one of these:</p>
+<ul>
+<li><a href="https://developer.jboss.org/en/products/fuse" target="_blank">JBoss Fuse Forum</a></li>
+<li><a href="https://access.redhat.com/" target="_blank">Red Hat Support</a></li>
+</ul>
+<p>You can also browser the <a href="https://issues.jboss.org/projects/ENTESB" target="_blank">JIRA for JBoss Fuse</a></p>
+<p>The JBoss Fuse fork of fabric8 1.x is here: <a href="https://github.com/jboss-fuse/fabric8" target="_blank">https://github.com/jboss-fuse/fabric8</a></p>
 
                     
                     </section>
@@ -1184,10 +1182,10 @@
         </div>
 
         
-        <a href="./appzip.html" class="navigation navigation-prev " aria-label="Previous page: App Zip"><i class="fa fa-angle-left"></i></a>
+        <a href="./faqGeneral.html" class="navigation navigation-prev " aria-label="Previous page: General Questions"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./builds.html" class="navigation navigation-next " aria-label="Next page: Builds"><i class="fa fa-angle-right"></i></a>
+        <a href="./faqKubernetes.html" class="navigation navigation-next " aria-label="Next page: Kubernetes Questions"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
