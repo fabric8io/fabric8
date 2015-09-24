@@ -56,4 +56,6 @@
     * [Add a quickstart to the App Library](jube/apps.md)
 * [FAQ](FAQ.md)
   * [General Questions](faqGeneral.md)
+  * [JBoss Fuse Questions](faqFuse.md)
   * [Kubernetes Questions](faqKubernetes.md)
+  * [OpenShift Questions](https://help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions)
