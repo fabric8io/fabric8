@@ -85,7 +85,8 @@ public class WebDriverFacade extends LogSupport {
      */
     public String navigateToService(String serviceName) {
         String url = getServiceUrl(serviceName);
-        getDriver().navigate().to(url);
+        WebDriver driver = getDriver();
+        driver.navigate().to(url);
         return url;
     }
 
