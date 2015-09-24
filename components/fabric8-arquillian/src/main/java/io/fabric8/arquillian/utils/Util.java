@@ -15,6 +15,7 @@
  */
 package io.fabric8.arquillian.utils;
 
+import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
@@ -82,17 +83,19 @@ public class Util {
 
     }
 
-    public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
-        waitUntilWeCanDestroyNamespace(session);
-        List<Throwable> errors = new ArrayList<>();
-        cleanupAllMatching(client, session, errors);
-        try {
-            client.namespaces().withName(session.getNamespace()).delete();
-        } catch (Exception e) {
-            errors.add(e);
-        }
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while cleaning up session.", errors);
+    public static void cleanupSession(KubernetesClient client, Configuration configuration, Session session) throws MultiException {
+        if (configuration.isNamespaceCleanupEnabled()) {
+            waitUntilWeCanDestroyNamespace(session);
+            List<Throwable> errors = new ArrayList<>();
+            cleanupAllMatching(client, session, errors);
+            try {
+                client.namespaces().withName(session.getNamespace()).delete();
+            } catch (Exception e) {
+                errors.add(e);
+            }
+            if (!errors.isEmpty()) {
+                throw new MultiException("Error while cleaning up session.", errors);
+            }
         }
     }
 
