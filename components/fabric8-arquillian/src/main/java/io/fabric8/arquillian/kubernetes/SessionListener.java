@@ -99,7 +99,7 @@ public class SessionListener {
 
         boolean disableEnvironmentInit = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_DISABLE_ENVIRONMENT_INIT, Boolean.FALSE);
 
-        shutdownHook = new ShutdownHook(client, session);
+        shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
         try {
@@ -129,7 +129,7 @@ public class SessionListener {
             }
         } catch (Exception e) {
             try {
-                cleanupSession(client, session);
+                cleanupSession(client, configuration, session);
             } catch (MultiException me) {
                 throw e;
             } finally {
@@ -197,9 +197,7 @@ public class SessionListener {
 
     public void stop(@Observes Stop event, KubernetesClient client, Configuration configuration) throws Exception {
         try {
-            if (configuration.isNamespaceCleanupEnabled()) {
-                cleanupSession(client, event.getSession());
-            }
+                cleanupSession(client, configuration, event.getSession());
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
