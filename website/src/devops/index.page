@@ -110,7 +110,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="https://github.com/sdelements/lets-chat">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/letschat/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"/>
         Let's Chat
       </a>
     </td>
@@ -249,7 +249,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="https://taiga.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/taiga/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"/>
         Taiga
       </a>
     </td>
@@ -261,4 +261,3 @@ Fabric8 DevOps is made up of the following Open Source components:
     </div>
   </div>
 </div>
-
