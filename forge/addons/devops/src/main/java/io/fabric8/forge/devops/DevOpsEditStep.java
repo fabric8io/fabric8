@@ -19,9 +19,8 @@ import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.forge.addon.utils.CommandHelpers;
+import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
@@ -34,6 +33,8 @@ import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import org.apache.maven.model.Model;
+import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.resource.Resource;
@@ -64,6 +65,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -182,16 +184,21 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
     }
 
     public static Iterable<String> filterCompletions(Iterable<String> values, String inputValue) {
-        List<String> answer = new ArrayList<>();
-        String lowerInputValue = inputValue.toLowerCase();
-        for (String value : values) {
-            if (value != null) {
-                if (value.toLowerCase().indexOf(lowerInputValue) >= 0) {
-                    answer.add(value);
+        boolean ignoreFilteringAsItBreaksHawtio = true;
+        if (ignoreFilteringAsItBreaksHawtio) {
+            return values;
+        } else {
+            List<String> answer = new ArrayList<>();
+            String lowerInputValue = inputValue.toLowerCase();
+            for (String value : values) {
+                if (value != null) {
+                    if (value.toLowerCase().indexOf(lowerInputValue) >= 0) {
+                        answer.add(value);
+                    }
                 }
             }
+            return answer;
         }
-        return answer;
     }
 
 
@@ -272,6 +279,30 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         }
         ProjectConfigs.defaultEnvironments(config);
 
+        String projectName = config.getBuildName();
+        if (Strings.isNullOrBlank(projectName)) {
+            projectName = named;
+        }
+
+        LOG.info("Project name is: " + projectName);
+        if (Strings.isNotBlank(projectName)) {
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            Model pom = maven.getModel();
+            if (pom != null) {
+                Properties properties = pom.getProperties();
+                boolean updated = false;
+                updated = MavenHelpers.updatePomProperty(properties, "fabric8.label.project", projectName, updated);
+                updated = MavenHelpers.updatePomProperty(properties, "fabric8.label.version", "${project.version}", updated);
+                if (updated) {
+                    LOG.info("Updating pom.xml properties!");
+                    maven.setModel(pom);
+                } else {
+                    LOG.warn("Did not update pom.xml properties!");
+                }
+            } else {
+                LOG.warn("No pom.xml found!");
+            }
+        }
 
         Boolean copyFlowToProjectValue = copyFlowToProject.getValue();
         if (copyFlowToProjectValue != null && copyFlowToProjectValue.booleanValue()) {
