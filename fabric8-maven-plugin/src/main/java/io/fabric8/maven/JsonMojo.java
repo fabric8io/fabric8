@@ -480,6 +480,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.defaultPersistentVolumeClaimRequestsStorage", defaultValue = "20")
     private String defaultPersistentVolumeClaimRequestsStorage;
 
+    /**
+     * Should we remove the version label from the service selector?
+     */
+    @Parameter(property = "fabric8.removeVersionLabelFromServiceSelector", defaultValue = "true")
+    private boolean removeVersionLabelFromServiceSelector;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
@@ -839,6 +845,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Map<String,String> serviceAnnotations = getServiceAnnotations();
             serviceAnnotations.putAll(metricsAnnotations);
 
+            Map<String, String> selector = new HashMap<>(labelMap);
+            if (removeVersionLabelFromServiceSelector) {
+                if (selector.remove("version") != null) {
+                    getLog().info("Removed 'version' label from service selector for service `" + serviceName + "`");
+                }
+            }
+
             ServiceBuilder serviceBuilder = new ServiceBuilder()
                     .withNewMetadata()
                     .withName(serviceName)
@@ -846,7 +859,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     .withAnnotations(serviceAnnotations)
                     .endMetadata();
 
-            ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(labelMap);
+            ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(selector);
 
             List<ServicePort> servicePorts = getServicePorts();
             System.out.println("Generated ports: " + servicePorts);
