@@ -27,7 +27,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://fabric8.io/guide/chaosMonkey.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/chaos-monkey/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"/>
         Chaos Monkey
       </a>
     </td>
@@ -38,7 +38,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://www.elasticsearch.org/overview/kibana/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/kibana/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"/>
         Kibana
       </a>
     </td>
@@ -49,7 +49,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://elasticsearch.com/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/elasticsearch/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"/>
         Elasticsearch
       </a>
     </td>
@@ -60,7 +60,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://grafana.org/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/grafana2/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana2/src/main/fabric8/icon.png"/>
         Grafana
       </a>
     </td>
@@ -71,7 +71,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://prometheus.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/prometheus/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"/>
         Prometheus
       </a>
     </td>
@@ -82,7 +82,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://fabric8.io/guide/console.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/fabric8/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8/src/main/fabric8/icon.svg"/>
         Console
       </a>
     </td>
@@ -166,7 +166,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://fabric8.io/guide/cdelivery.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/jenkins/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"/>
         Jenkins
       </a>
     </td>
@@ -177,7 +177,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://www.sonatype.org/nexus/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/nexus/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"/>
         Nexus
       </a>
     </td>
@@ -188,7 +188,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://fabric8.io/guide/chat.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/hubot-letschat/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"/>
         Hubot
       </a>
     </td>
@@ -210,7 +210,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://forge.jboss.org/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/fabric8-forge/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-forge/src/main/fabric8/icon.svg"/>
         JBoss Forge
       </a>
     </td>
@@ -227,7 +227,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="https://www.gerritcodereview.com/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/gerrit/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"/>
         Gerrit
       </a>
     </td>
@@ -238,7 +238,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td>
       <a href="http://gogs.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/quickstarts/master/apps/gogs/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"/>
         Gogs
       </a>
     </td>
