@@ -48,6 +48,8 @@ import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMaven
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UIWizardStep {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Fabric8SetupStep.class);
 
     private String[] jarImages = new String[]{"fabric8/java"};
     private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
@@ -243,11 +246,14 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
+        LOG.info("starting to setup fabric8 project");
         Project project = getCurrentProject(context.getUIContext());
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
 
         DockerSetupHelper.setupDocker(project, from.getValue(), main.getValue());
+
+        LOG.info("docker now setup");
 
         // make sure we have resources as we need it later
         facetFactory.install(project, ResourcesFacet.class);
@@ -255,6 +261,8 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         // install fabric8 bom
 
         // include test dependencies?
+        LOG.info("checking dependencies");
+
         if (test.getValue() != null && test.getValue()) {
             boolean hasFabric8Arquillian = !MavenHelpers.hasDependency(pom, "io.fabric8", "fabric8-arquillian");
             boolean hasArquillianJunitContainer = !MavenHelpers.hasDependency(pom, "org.jboss.arquillian.junit", "arquillian-junit-container");
@@ -297,7 +305,9 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         // to save then set the model
         if (updated) {
             maven.setModel(pom);
+            LOG.info("updated pom.xml");
         }
+
         return Results.success("Adding Fabric8 maven support with base Docker image: " + from.getValue());
     }
 
