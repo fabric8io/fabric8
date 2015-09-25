@@ -267,6 +267,10 @@
                         <basedir>${basedir}</basedir>
                         <project.version>${project.version}</project.version>
                     </systemPropertyVariables>
+                    <includes>
+                            <include>**/*TestSuite.java</include>
+                            <include>**/*Test.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
