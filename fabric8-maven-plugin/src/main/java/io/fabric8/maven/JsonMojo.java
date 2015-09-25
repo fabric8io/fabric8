@@ -305,8 +305,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The name label used in the generated Kubernetes JSON template
      */
-    @Parameter(property = "fabric8.kubernetes.name", defaultValue = "${project.artifactId}")
-    private String kubernetesName;
+    @Parameter(property = "fabric8.label.project", defaultValue = "${project.artifactId}")
+    private String projectName;
 
     /**
      * The name label used in the generated Kubernetes JSON template
@@ -566,7 +566,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             if (combinedJson instanceof Template) {
                 Template template = (Template) combinedJson;
-                setName(template, getKubernetesName());
+                setName(template, getProjectName());
                 configureTemplateDescriptionAndIcon(template, getIconUrl());
 
                 if (pureKubernetes) {
@@ -771,10 +771,13 @@ public class JsonMojo extends AbstractFabric8Mojo {
         // TODO populate properties, project etc.
         MavenProject project = getProject();
         Map<String, String> labelMap = getLabels();
-        String name = getKubernetesName();
-        if (labelMap.isEmpty() && Strings.isNotBlank(name)) {
-            // lets add a default label
-            labelMap.put("component", name);
+        String name = getProjectName();
+        if (!labelMap.containsKey("version")) {
+            labelMap.put("version", project.getVersion());
+        }
+        if (!labelMap.containsKey("project") && Strings.isNotBlank(name)) {
+            // lets add a project label
+            labelMap.put("project", name);
         }
         if (!labelMap.containsKey("provider") && Strings.isNotBlank(provider)) {
             labelMap.put("provider", provider);
@@ -1386,12 +1389,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
         this.kubernetesContainerName = kubernetesContainerName;
     }
 
-    public String getKubernetesName() {
-        return kubernetesName;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setKubernetesName(String kubernetesName) {
-        this.kubernetesName = kubernetesName;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public Map<String, Integer> getDefaultContainerPortMap() {
