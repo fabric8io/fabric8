@@ -51,4 +51,6 @@ public class Constants {
     public static final String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
 
     public static final String USE_GO_FABRIC8 = "useGoFabric8";
+
+    public static final String CLIENT_CREATOR_CLASS_NAME = "CLIENT_CREATOR_CLASS_NAME";
 }

@@ -18,6 +18,7 @@ package io.fabric8.arquillian;
 import io.fabric8.arquillian.kubernetes.ClientCreator;
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Configurer;
+import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.ControllerCreator;
 import io.fabric8.arquillian.kubernetes.SessionListener;
 import io.fabric8.arquillian.kubernetes.SuiteListener;
@@ -31,6 +32,7 @@ import io.fabric8.arquillian.kubernetes.enricher.ServiceListResourceProvider;
 import io.fabric8.arquillian.kubernetes.enricher.ServiceResourceProvider;
 import io.fabric8.arquillian.kubernetes.enricher.SessionResourceProvider;
 import io.fabric8.arquillian.kubernetes.log.LoggerFactory;
+import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -43,7 +45,7 @@ public class KubernetesExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.observer(Configuration.class)
                 .observer(Configurer.class)
-                .observer(ClientCreator.class)
+                .observer(getClientCreator())
                 .observer(ControllerCreator.class)
                 .observer(LoggerFactory.class)
                 .observer(SuiteListener.class)
@@ -58,5 +60,17 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
                 .service(ResourceProvider.class, ServiceResourceProvider.class)
                 .service(ResourceProvider.class, SessionResourceProvider.class);
+    }
+
+    private Class getClientCreator() {
+        Class creatorClass = null;
+        String creatorClassName = System.getProperty(Constants.CLIENT_CREATOR_CLASS_NAME);
+        try {
+            if (Strings.isNotBlank(creatorClassName))
+                creatorClass = KubernetesExtension.class.getClassLoader().loadClass(creatorClassName);
+        } catch (Throwable t) {
+            //fallback to default
+        }
+        return creatorClass != null ? creatorClass : ClientCreator.class;
     }
 }

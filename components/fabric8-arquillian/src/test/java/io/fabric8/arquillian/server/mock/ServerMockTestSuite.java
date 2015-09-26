@@ -14,8 +14,9 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.arquillian;
+package io.fabric8.arquillian.server.mock;
 
+import io.fabric8.arquillian.ResourceInjection;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
@@ -33,13 +34,12 @@ import java.io.IOException;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses(ResourceInjection.class)
-public class NoConfigTestSuite {
+public class ServerMockTestSuite {
 
     private static final OpenShiftMockServer MOCK = new OpenShiftMockServer();
 
     @BeforeClass
     public static void setUpClass() throws IOException {
-        System.out.println("before suite");
         MOCK.expectAndReturnAsJson("/api/v1/namespaces/arquillian", 200, new NamespaceBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
