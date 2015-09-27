@@ -17,8 +17,10 @@ package io.fabric8.docker.api.container;
 
 import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Status extends AbstractDockerDTO {
     private String statusCode;
 }

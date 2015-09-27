@@ -18,8 +18,10 @@ package io.fabric8.docker.api.image;
 import io.fabric8.docker.api.AbstractDockerDTO;
 import io.fabric8.docker.api.container.ContainerConfig;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ImageInfo extends AbstractDockerDTO {
     private String id;
     private String parent;

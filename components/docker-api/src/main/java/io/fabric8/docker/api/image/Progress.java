@@ -17,8 +17,10 @@ package io.fabric8.docker.api.image;
 
 import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Progress extends AbstractDockerDTO {
     private String id;
     private String status;
