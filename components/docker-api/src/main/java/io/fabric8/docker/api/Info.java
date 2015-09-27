@@ -18,10 +18,12 @@ package io.fabric8.docker.api;
 import java.util.List;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Info extends AbstractDockerDTO {
     private boolean debug;
     private int containers;
