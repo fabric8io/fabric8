@@ -25,7 +25,7 @@ public class JsonHelper {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T> T fromJson(String json, Class<T> clazz) throws IOException {
-        return objectMapper.reader(clazz).readValue(json);
+        return objectMapper.readerFor(clazz).readValue(json);
     }
 
     public static String toJson(Object object) throws IOException {
