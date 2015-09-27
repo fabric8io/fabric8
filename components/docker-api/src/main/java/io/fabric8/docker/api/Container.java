@@ -20,8 +20,10 @@ import io.fabric8.docker.api.container.Port;
 import java.util.List;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Container extends AbstractDockerDTO {
     private String id;
     private String image;

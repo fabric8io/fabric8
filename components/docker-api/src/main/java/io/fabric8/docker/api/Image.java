@@ -18,8 +18,10 @@ package io.fabric8.docker.api;
 import java.util.List;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Image extends AbstractDockerDTO {
     private String id;
     private List<String> repoTags;

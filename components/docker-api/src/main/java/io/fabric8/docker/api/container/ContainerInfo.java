@@ -20,10 +20,12 @@ import io.fabric8.docker.api.AbstractDockerDTO;
 import java.util.Map;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ContainerInfo extends AbstractDockerDTO {
     @JsonProperty("ID")
     private String iD;

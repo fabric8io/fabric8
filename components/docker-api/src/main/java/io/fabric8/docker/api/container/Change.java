@@ -17,8 +17,10 @@ package io.fabric8.docker.api.container;
 
 import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Change extends AbstractDockerDTO {
     private String path;
     private String kind;
