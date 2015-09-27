@@ -17,10 +17,12 @@ package io.fabric8.docker.api.container;
 
 import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Port extends AbstractDockerDTO {
     private Integer privatePort;
     private Integer publicPort;

@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ContainerConfig extends AbstractDockerDTO {
     private String hostname = "";
     private String domainname = "";

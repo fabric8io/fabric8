@@ -16,8 +16,10 @@
 package io.fabric8.docker.api;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Auth extends AbstractDockerDTO {
     private String username;
     private String password;
