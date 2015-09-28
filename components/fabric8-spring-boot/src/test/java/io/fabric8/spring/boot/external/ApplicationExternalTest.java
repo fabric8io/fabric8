@@ -13,13 +13,15 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.spring.boot;
+package io.fabric8.spring.boot.external;
 
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.spring.boot.Fabric8Application;
+import io.fabric8.spring.boot.URLToConnection;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,49 +34,47 @@ import java.net.URLConnection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {ClientFactory.class, URLToConnection.class, Fabric8Application.class})
-public class Fabric8ApplicationTest {
+public class ApplicationExternalTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        System.setProperty("MY_CONFIG_TEST", "value1");
-        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
-        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
-        System.setProperty("KUBERNETES_PROTOCOL", "https");
+        System.setProperty("SERVICE1_PROTOCOL", "https");
+        System.setProperty("SERVICE2_PROTOCOL", "https");
+        System.setProperty("SERVICE3_PROTOCOL", "https");
 
         System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
         System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }
 
+    @Autowired
+    private KubernetesClient client;
 
     @Autowired
-    private KubernetesClient kubernetes;
+    @ServiceName("service1")
+    private URLConnection service1;
 
     @Autowired
-    @ServiceName("fabric8-console-service")
-    private URLConnection consoleService;
+    @ServiceName("service2")
+    private String service2;
+
 
     @Autowired
-    @ServiceName("app-library")
-    private String appLibraryService;
-
-
-   @Autowired
-   @ServiceName("kubernetes")
-   @Protocol("http")
-    private String kubernetesService;
+    @ServiceName("service3")
+    @Protocol("http")
+    private String service3;
 
     @Test
     public void testSpringBoot() {
         //Assert client is injected
-        Assert.assertNotNull(kubernetes);
+        Assert.assertNotNull(client);
 
         //Assert injection as service
-        Assert.assertNotNull(consoleService);
+        Assert.assertNotNull(service1);
 
         //Assert injection as string
-        Assert.assertNotNull(appLibraryService);
+        Assert.assertNotNull(service2);
 
         //Assert injection as string with protocol
-        Assert.assertNotNull(kubernetesService);
+        Assert.assertNotNull(service3);
     }
 }
