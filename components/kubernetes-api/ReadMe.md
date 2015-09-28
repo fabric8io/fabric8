@@ -38,7 +38,7 @@ For example:
 
 The **KubernetesFactory** defaults to using the **KUBERNETES_MASTER** environment variable.
 
-If your Java code is running inside of a Kubernetes environment the KubernetesFactory will use the environment variables: **KUBERNETES_SERVICE_HOST** and **KUBERNETES_SERVICE_PORT** to communicate with the [kubernetes service](http://fabric8.io/guide/services.html) for the REST API.
+If your Java code is running inside of a Kubernetes environment the KubernetesFactory will default to using **kubernetes.default.svc** (override by setting **KUBERNETES_MASTER**) as the address to communicate with the [kubernetes service](http://fabric8.io/guide/services.html) for the REST API.
 
 If you wish to use a specific URL in your Java code just pass it into the factory constructor (though usually you don't need to!).
 
@@ -52,15 +52,15 @@ To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/ma
 
 All configuration is done via the following environment variables:
 
-* `KUBERNETES_SERVICE_HOST`:`KUBERNETES_SERVICE_PORT` / `KUBERNETES_MASTER` - the location of the kubernetes master
+* `KUBERNETES_MASTER` - the location of the kubernetes master
 * `KUBERNETES_NAMESPACE` - the default namespace used on operations
-* `KUBERNETES_CA_CERTIFICATE_DATA` - the full Kubernetes CA certificate as a string (only this or `KUBERNETES_CA_CERTIFICATE_FILE` should be specified)
-* `KUBERNETES_CA_CERTIFICATE_FILE` - the path to the Kubernetes CA certificate file (only this or `KUBERNETES_CA_CERTIFICATE_DATA` should be specified)
-* `KUBERNETES_CLIENT_CERTIFICATE_DATA` - the full Kubernetes client certificate as a string (only this or `KUBERNETES_CLIENT_CERTIFICATE_FILE` should be specified)
-* `KUBERNETES_CLIENT_CERTIFICATE_FILE` - the path to the Kubernetes client certificate file (only this or `KUBERNETES_CLIENT_CERTIFICATE_DATA` should be specified)
-* `KUBERNETES_CLIENT_KEY_DATA` - the full Kubernetes client private key as a string (only this or `KUBERNETES_CLIENT_KEY_FILE` should be specified)
-* `KUBERNETES_CLIENT_KEY_FILE` - the path to the Kubernetes client private key file (only this or `KUBERNETES_CLIENT_KEY_DATA` should be specified)
-* `KUBERNETES_TRUST_CERT` - whether to trust the Kubernetes server certificate (this is insecure so please try to configure certificates properly via the other environment variables if at all possible)
+* `KUBERNETES_CERTS_CA_DATA` - the full Kubernetes CA certificate as a string (only this or `KUBERNETES_CERTS_CA_FILE` should be specified)
+* `KUBERNETES_CERTS_CA_FILE` - the path to the Kubernetes CA certificate file (only this or `KUBERNETES_CERTS_CA_DATA` should be specified)
+* `KUBERNETES_CERTS_CLIENT_DATA` - the full Kubernetes client certificate as a string (only this or `KUBERNETES_CERTS_CLIENT_FILE` should be specified)
+* `KUBERNETES_CERTS_CLIENT_FILE` - the path to the Kubernetes client certificate file (only this or `KUBERNETES_CERTS_CLIENT_DATA` should be specified)
+* `KUBERNETES_CERTS_CLIENT_KEY_DATA` - the full Kubernetes client private key as a string (only this or `KUBERNETES_CERTS_CLIENT_KEY_FILE` should be specified)
+* `KUBERNETES_CERTS_CLIENT_KEY_FILE` - the path to the Kubernetes client private key file (only this or `KUBERNETES_CERTS_CLIENT_KEY_DATA` should be specified)
+* `KUBERNETES_TRUST_CERTIFICATES` - whether to trust the Kubernetes server certificate (this is insecure so please try to configure certificates properly via the other environment variables if at all possible)
 
 The `*_DATA` variants take precedence over the `*_FILE` variants.
 

@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Helper class for working with the YAML config file thats located in
  * <code>~/.kube/config</code> which is updated when you use commands
- * like <code>osc login</code> and <code>osc project myproject</code>
+ * like <code>oc login</code> and <code>oc project myproject</code>
  */
 public class Configs {
     public static final String KUBERNETES_CONFIG_FILE_PROPERTY = "kubernetes.config.file";

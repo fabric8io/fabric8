@@ -145,9 +145,9 @@ In particular [here is the code that does JMX assertions via jolokia on the cont
 
 When running an **fabric8-arquillian** integration test then the environment variable **KUBERNETES_MASTER** needs to be specified to point to the kubernetes environment in which to create the containers and services.
 
-Also you may want to set the **KUBERNETES_TRUST_CERT** variable to allow connection to kubernetes without a client certificatE:
+Also you may want to set the **KUBERNETES_TRUST_CERTIFICATES** variable to allow connection to kubernetes without a client certificatE:
 
-    export KUBERNETES_TRUST_CERT=true
+    export KUBERNETES_TRUST_CERTIFICATES=true
     export KUBERNETES_MASTER=http://localhost:8443
 
 Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a [Jube installation](http://fabric8.io/jube/getStarted.html). Also note that different integration tests can be running at the same time on the same kubernetes environment.

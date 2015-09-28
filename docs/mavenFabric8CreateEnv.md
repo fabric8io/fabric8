@@ -29,7 +29,7 @@ If you do not have [OpenShift Routes](http://docs.openshift.org/latest/admin_gui
 
 The Kubernetes environment and authentication is defined by the [kubernetes-api environment variables](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api#configuration). In particular:
 
-* `KUBERNETES_SERVICE_HOST`:`KUBERNETES_SERVICE_PORT` / `KUBERNETES_MASTER` - the location of the kubernetes master
+* `KUBERNETES_MASTER` - the location of the kubernetes master
 * `KUBERNETES_NAMESPACE` - the default namespace used on operations
 
 #### Defaults from OpenShift
