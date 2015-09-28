@@ -48,7 +48,6 @@ import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
@@ -92,23 +91,22 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        if (Strings.isNullOrBlank(configuration.getExistingNamespace())) {
+        if (Strings.isNullOrBlank(configuration.getNamespaceToUse())) {
             createNamespace(client, session);
         } else {
             assertNamespaceExists(client, session, configuration);
         }
 
-        boolean disableEnvironmentInit = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_DISABLE_ENVIRONMENT_INIT, Boolean.FALSE);
 
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
         try {
-            URL configUrl = configuration.getConfigUrl();
-            List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(session);
+            URL configUrl = configuration.getEnvironmentConfigUrl();
+            List<String> dependencies = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : Util.getMavenDependencies(session);
             List<KubernetesList> kubeConfigs = new LinkedList<>();
 
-            if (!disableEnvironmentInit) {
+            if (configuration.isEnvironmentInitEnabled()) {
                 for (String dependency : dependencies) {
                     log.info("Found dependency: " + dependency);
                     loadDependency(log, kubeConfigs, dependency, controller, configuration, namespace);
@@ -123,7 +121,7 @@ public class SessionListener {
                     kubeConfigs.add(kubeList);
                 }
             }
-            if (disableEnvironmentInit || applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
+            if (!configuration.isEnvironmentInitEnabled() || applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
                 displaySessionStatus(client, session);
             } else {
                 throw new IllegalStateException("Failed to apply kubernetes configuration.");
@@ -221,7 +219,7 @@ public class SessionListener {
     private void assertNamespaceExists(KubernetesClient client, Session session, Configuration configuration) {
         String namespace = session.getNamespace();
         if (client.namespaces().withName(namespace).get() == null) {
-            if (configuration.isLazyCreateNamespace()) {
+            if (configuration.isNamespaceLazyCreateEnabled()) {
                 Controller controller = new Controller(client);
                 controller.applyNamespace(namespace);
             } else {
@@ -256,7 +254,7 @@ public class SessionListener {
         });
 
         String namespace = session.getNamespace();
-        String routePrefix = namespace + "." + configuration.getRouteDomainPostfix();
+        String routePrefix = namespace + "." + configuration.getKubernetesDomain();
 
         preprocessEnvironment(client, controller, configuration, session);
         
@@ -343,7 +341,7 @@ public class SessionListener {
         //Wait until conditions are meet.
         if (!conditions.isEmpty()) {
             Callable<Boolean> compositeCondition = new CompositeCondition(conditions.values());
-            WaitStrategy waitStrategy = new WaitStrategy(compositeCondition, configuration.getTimeout(), configuration.getPollInterval());
+            WaitStrategy waitStrategy = new WaitStrategy(compositeCondition, configuration.getWaitTimeout(), configuration.getWaitPollInterval());
             if (!waitStrategy.await()) {
                 log.error("Timed out waiting for pods/services!");
                 return false;

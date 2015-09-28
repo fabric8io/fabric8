@@ -44,8 +44,8 @@ public class SuiteListener {
         // TODO should the test ID include the test class, method, user?
         // Or do we associate those things later on with the namespace object metadata?
         UUID uuid = UUID.randomUUID();
-        if (Strings.isNotBlank(configuration.getExistingNamespace())) {
-            session = new Session(uuid.toString(), configuration.getExistingNamespace(), logger);
+        if (Strings.isNotBlank(configuration.getNamespaceToUse())) {
+            session = new Session(uuid.toString(), configuration.getNamespaceToUse(), logger);
         } else {
             session = new Session(uuid.toString(), logger);
         }
