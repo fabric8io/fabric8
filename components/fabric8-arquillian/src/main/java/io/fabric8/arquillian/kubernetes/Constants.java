@@ -22,9 +22,9 @@ public class Constants {
     public static final String KUBERNETES_DOMAIN = "kubernetes.domain";
 
     public static final String NAMESPACE_LAZY_CREATE_ENABLED = "namespace.lazy.enabled";
-    public static final String NAMESPACE_CLEANUP_TIMEOUT = "namespace.destroy.timeout";
-    public static final String NAMESPACE_CLEANUP_CONFIRM = "namespace.destroy.confirm";
-    public static final String NAMESPACE_CLEANUP_ENABLED = "namespace.destroy.enabled";
+    public static final String NAMESPACE_CLEANUP_TIMEOUT = "namespace.cleanup.timeout";
+    public static final String NAMESPACE_CLEANUP_CONFIRM_ENABLED = "namespace.cleanup.confirm.enabled";
+    public static final String NAMESPACE_CLEANUP_ENABLED = "namespace.cleanup.enabled";
     public static final String NAMESPACE_TO_USE = "namespace.use.existing";
 
     public static final String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";

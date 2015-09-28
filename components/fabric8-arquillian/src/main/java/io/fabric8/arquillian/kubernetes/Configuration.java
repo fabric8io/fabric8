@@ -41,7 +41,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLE
 import static io.fabric8.arquillian.kubernetes.Constants.GOFABRIC8_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_CONFIRM;
+import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_CONFIRM_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_LAZY_CREATE_ENABLED;
@@ -68,7 +68,7 @@ public class Configuration {
     private long waitPollInterval = DEFAULT_WAIT_POLL_INTERVAL;
     private boolean waitForServiceConnectionEnabled = DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED;
     private List<String> waitForServiceList = new ArrayList<>();
-    private Long waitForServiceConnectionTimeout = DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT;
+    private long waitForServiceConnectionTimeout = DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT;
 
     private boolean ansiLoggerEnabled = true;
     private boolean environmentInitEnabled = true;
@@ -96,7 +96,7 @@ public class Configuration {
         return ansiLoggerEnabled;
     }
 
-    public Long getWaitForServiceConnectionTimeout() {
+    public long getWaitForServiceConnectionTimeout() {
         return waitForServiceConnectionTimeout;
     }
 
@@ -164,7 +164,7 @@ public class Configuration {
             configuration.namespaceToUse = getStringProperty(NAMESPACE_TO_USE, map, null);
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.namespaceToUse));
-            configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM, map, false);
+            configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);
             configuration.namespaceCleanupTimeout = getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT);
 
             configuration.waitTimeout = getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT);
