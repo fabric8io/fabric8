@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.2" data-basepath="." data-revision="Mon Sep 28 2015 10:51:00 GMT+0000 (UTC)">
+    <div class="book" data-level="5.2" data-basepath="." data-revision="Mon Sep 28 2015 11:01:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1262,8 +1262,8 @@ Then it will treat those as dependencies and apply them along with the configura
 <p>In particular <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74" target="_blank">here is the code that does JMX assertions via jolokia on the containers</a> that are created by the integration test.</p>
 <h3 id="requirements"><a name="requirements" class="plugin-anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
 <p>When running an <strong>fabric8-arquillian</strong> integration test then the environment variable <strong>KUBERNETES_MASTER</strong> needs to be specified to point to the kubernetes environment in which to create the containers and services.</p>
-<p>Also you may want to set the <strong>KUBERNETES_TRUST_CERT</strong> variable to allow connection to kubernetes without a client certificatE:</p>
-<pre><code>export KUBERNETES_TRUST_CERT=true
+<p>Also you may want to set the <strong>KUBERNETES_TRUST_CERTIFICATES</strong> variable to allow connection to kubernetes without a client certificatE:</p>
+<pre><code>export KUBERNETES_TRUST_CERTIFICATES=true
 export KUBERNETES_MASTER=http://localhost:8443
 </code></pre><p>Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube installation</a>. Also note that different integration tests can be running at the same time on the same kubernetes environment.</p>
 <p>If you find that you are getting exceptions and output of the form:</p>
