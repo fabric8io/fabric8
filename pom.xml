@@ -146,6 +146,7 @@
         <maven.enforcer.plugin.version>1.4</maven.enforcer.plugin.version>
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
+        <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
         <mockserver.version>3.9.17</mockserver.version>
         <mvel.version>2.2.6.Final</mvel.version>
         <openejb.container.version>4.7.2</openejb.container.version>
@@ -1544,6 +1545,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.plugin.version}</version>
+                <configuration>
+                    <additionalparam>${javadoc.opts}</additionalparam>
+                </configuration>
+            </plugin>
         </plugins>
       </pluginManagement>
       <plugins>
@@ -1725,16 +1734,15 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <additionalparam>${javadoc.opts}</additionalparam>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -1866,6 +1874,15 @@
             <properties>
                 <sun.tools.version>1.8</sun.tools.version>
             </properties>
+        </profile>
+        <profile>
+          <id>doclint-java8-disable</id>
+          <activation>
+            <jdk>[1.8,)</jdk>
+          </activation>
+          <properties>
+              <javadoc.opts>-Xdoclint:none</javadoc.opts>
+          </properties>
         </profile>
     </profiles>
 
