@@ -96,7 +96,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
                                 if (portNumber != null && portNumber > 0) {
                                     if (configuration.isWaitForServiceConnectionEnabled()) {
                                         try (Socket socket = new Socket()) {
-                                            socket.connect(new InetSocketAddress(ip, portNumber), configuration.getWaitForServiceConnectionTimeout().intValue());
+                                            socket.connect(new InetSocketAddress(ip, portNumber), (int) configuration.getWaitForServiceConnectionTimeout());
                                             serviceStatus = "Service: " + sid + " is ready. Provider:" + addr + ".";
                                             return true;
                                         } catch (Exception e) {
