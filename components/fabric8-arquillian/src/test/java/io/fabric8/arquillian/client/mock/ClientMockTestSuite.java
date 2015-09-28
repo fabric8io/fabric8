@@ -16,6 +16,7 @@
 
 package io.fabric8.arquillian.client.mock;
 
+import io.fabric8.arquillian.PodInjection;
 import io.fabric8.arquillian.ResourceInjection;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.kubernetes.client.Config;
@@ -28,7 +29,12 @@ import java.io.IOException;
 
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses(ResourceInjection.class)
+@Suite.SuiteClasses(
+        {
+                ResourceInjection.class,
+                PodInjection.class
+        }
+)
 public class ClientMockTestSuite {
 
     @BeforeClass
@@ -37,6 +43,7 @@ public class ClientMockTestSuite {
         System.setProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, "arquillian");
         System.setProperty(Constants.NAMESPACE_TO_USE, "arquillian");
         System.setProperty(Constants.NAMESPACE_LAZY_CREATE_ENABLED, "arquillian");
+        System.setProperty(Constants.ENVIRONMENT_CONFIG_URL, ClientMockTestSuite.class.getResource("/test-kubernetes-1.json").toString());
     }
 
     @AfterClass
