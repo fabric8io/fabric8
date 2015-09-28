@@ -508,6 +508,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     if (useDeploymentConfig) {
                         wrapInDeploymentConfigs(json);
                     }
+                    addEnvironmentAnnotations(json);
                 }
             }
         }
@@ -757,14 +758,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         ImageStream imageStream = new ImageStreamBuilder().withNewMetadata().withName(imageStreamName).withLabels(labels).endMetadata().build();
         list.add(imageStream);
         return imageStream;
-    }
-
-    protected static Object loadJsonFile(File file) throws MojoExecutionException {
-        try {
-            return KubernetesHelper.loadJson(file);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Failed to parse JSON " + file + ". " + e, e);
-        }
     }
 
     protected void generateKubernetesJson(File kubernetesJson) throws MojoExecutionException {
