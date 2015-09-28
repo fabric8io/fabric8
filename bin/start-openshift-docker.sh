@@ -539,7 +539,6 @@ printf "%s\n" "Set these environment variables on your development machine:"
 printf "\n"
 printf "%s\n" "export FABRIC8_CONSOLE=http://$FABRIC8_CONSOLE"
 printf "%s\n" "export DOCKER_REGISTRY=$DOCKER_REGISTRY"
-printf "%s\n" "export KUBERNETES_TRUST_CERT=true"
 if [[ -z "${DOCKER_HOST}" ]]; then
   printHostEnvVars
 fi

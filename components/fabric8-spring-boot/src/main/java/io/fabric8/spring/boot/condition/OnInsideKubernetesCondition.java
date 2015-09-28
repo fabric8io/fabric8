@@ -25,10 +25,8 @@ public class OnInsideKubernetesCondition extends SpringBootCondition {
     private final String HOSTNAME = "HOSTNAME";
     private final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
     private final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
-    private final String KUBERNETES_RO_SERVICE_HOST = "KUBERNETES_RO_SERVICE_HOST";
-    private final String KUBERNETES_RO_SERVICE_PORT = "KUBERNETES_RO_SERVICE_PORT";
 
-    private final String[] REQUIRED_ENV_VARIABLES = new String[]{HOSTNAME, KUBERNETES_SERVICE_HOST, KUBERNETES_SERVICE_PORT, KUBERNETES_RO_SERVICE_HOST, KUBERNETES_RO_SERVICE_PORT};
+    private final String[] REQUIRED_ENV_VARIABLES = new String[]{HOSTNAME, KUBERNETES_SERVICE_HOST, KUBERNETES_SERVICE_PORT};
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
