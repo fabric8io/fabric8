@@ -101,7 +101,7 @@ public class Util {
 
     protected static void waitUntilWeCanDestroyNamespace(Session session) {
         final Logger log = session.getLogger();
-        String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.NAMESPACE_CLEANUP_CONFIRM, "false");
+        String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.NAMESPACE_CLEANUP_CONFIRM_ENABLED, "false");
         if (Objects.equal(confirmDestroy, "true")) {
             showErrorsBeforePause(session);
             System.out.println();
