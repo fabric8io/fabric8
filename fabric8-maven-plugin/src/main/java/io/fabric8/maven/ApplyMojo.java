@@ -217,6 +217,8 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 createRoutes(kubernetes, entities);
             }
 
+            addEnvironmentAnnotations(entities);
+
             //Apply all items
             for (HasMetadata entity : entities) {
                 if (entity instanceof Pod) {

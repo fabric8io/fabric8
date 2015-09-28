@@ -25,4 +25,13 @@ public class Annotations {
         public static final String SSH_PUBLIC_KEY = "fabric8.io/secret-ssh-public-key";
         public static final String GPG_KEY = "fabric8.io/secret-gpg-key";
     }
+
+    public static class Builds {
+        public static final String BUILD_ID = "fabric8.io/build-id";
+        public static final String BUILD_URL = "fabric8.io/build-url";
+
+        public static final String GIT_COMMIT = "fabric8.io/git-commit";
+        public static final String GIT_URL = "fabric8.io/git-url";
+        public static final String GIT_BRANCH = "fabric8.io/git-branch";
+    }
 }
