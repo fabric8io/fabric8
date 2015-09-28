@@ -54,7 +54,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
             result = false;
             session.getLogger().warn("No services are available yet, waiting...");
         } else if (configuration.isWaitForServiceConnectionEnabled()) {
-            for (Service s : filterServices(services, configuration.getWaitForServices())) {
+            for (Service s : filterServices(services, configuration.getWaitForServiceList())) {
                 if (!isEndpointAvailable(s)) {
                     result = false;
                     break;
@@ -94,9 +94,9 @@ public class SessionServicesAreReady implements Callable<Boolean> {
                             for (ServicePort port : ports) {
                                 Integer portNumber = port.getPort();
                                 if (portNumber != null && portNumber > 0) {
-                                    if (configuration.isConnectToServicesEnabled()) {
+                                    if (configuration.isWaitForServiceConnectionEnabled()) {
                                         try (Socket socket = new Socket()) {
-                                            socket.connect(new InetSocketAddress(ip, portNumber), configuration.getServiceConnectionTimeout());
+                                            socket.connect(new InetSocketAddress(ip, portNumber), configuration.getWaitForServiceConnectionTimeout().intValue());
                                             serviceStatus = "Service: " + sid + " is ready. Provider:" + addr + ".";
                                             return true;
                                         } catch (Exception e) {

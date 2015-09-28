@@ -101,7 +101,7 @@ public class Util {
 
     protected static void waitUntilWeCanDestroyNamespace(Session session) {
         final Logger log = session.getLogger();
-        String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_NAMESPACE_CONFIRM_DESTROY, "false");
+        String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.NAMESPACE_CLEANUP_CONFIRM, "false");
         if (Objects.equal(confirmDestroy, "true")) {
             showErrorsBeforePause(session);
             System.out.println();
@@ -122,13 +122,13 @@ public class Util {
                 }
             }
         } else {
-            String timeoutText = Systems.getEnvVarOrSystemProperty(Constants.FABRIC8_NAMESPACE_DESTROY_TIMEOUT, "0");
+            String timeoutText = Systems.getEnvVarOrSystemProperty(Constants.NAMESPACE_CLEANUP_TIMEOUT, "0");
             Long timeout = null;
             if (Strings.isNotBlank(timeoutText)) {
                 try {
                     timeout = Long.parseLong(timeoutText);
                 } catch (NumberFormatException e) {
-                    log.warn("Failed to parse timeout value '" + timeoutText + "' for $Constants.FABRIC8_NAMESPACE_DESTROY_TIMEOUT. " + e);
+                    log.warn("Failed to parse timeout value '" + timeoutText + "' for $Constants.NAMESPACE_CLEANUP_TIMEOUT. " + e);
                 }
             }
             if (timeout != null && timeout > 0L) {

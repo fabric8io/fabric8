@@ -35,8 +35,8 @@ public class ClientMockTestSuite {
     public static void setUpClass() throws IOException {
         System.setProperty(Constants.CLIENT_CREATOR_CLASS_NAME, MockClientCreator.class.getName());
         System.setProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, "arquillian");
-        System.setProperty(Constants.USE_EXISTING_NAMESPACE, "arquillian");
-        System.setProperty(Constants.LAZY_CREATE_NAMESPACE, "arquillian");
+        System.setProperty(Constants.NAMESPACE_TO_USE, "arquillian");
+        System.setProperty(Constants.NAMESPACE_LAZY_CREATE_ENABLED, "arquillian");
     }
 
     @AfterClass
