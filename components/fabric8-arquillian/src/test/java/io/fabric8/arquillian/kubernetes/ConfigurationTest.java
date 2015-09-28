@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_RESOURCE_NAME;
+import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLED;
@@ -59,7 +59,7 @@ public class ConfigurationTest {
 
         System.getProperties().remove(ENVIRONMENT_INIT_ENABLED);
         System.getProperties().remove(ENVIRONMENT_CONFIG_URL);
-        System.setProperty(ENVIRONMENT_CONFIG_RESOURCE_NAME, "");
+        System.getProperties().remove(ENVIRONMENT_CONFIG_FILE_NAME);
         System.getProperties().remove(ENVIRONMENT_DEPENDENCIES);
 
         System.getProperties().remove(WAIT_TIMEOUT);
@@ -93,7 +93,7 @@ public class ConfigurationTest {
 
         map.put(ENVIRONMENT_INIT_ENABLED, "true");
         map.put(ENVIRONMENT_CONFIG_URL, expectedConfigUrl);
-        System.setProperty(ENVIRONMENT_CONFIG_RESOURCE_NAME, "");
+        map.put(ENVIRONMENT_CONFIG_FILE_NAME, "");
         map.put(ENVIRONMENT_DEPENDENCIES, "");
 
         map.put(WAIT_TIMEOUT, "0");
@@ -144,7 +144,7 @@ public class ConfigurationTest {
 
         System.setProperty(ENVIRONMENT_INIT_ENABLED, "true");
         System.setProperty(ENVIRONMENT_CONFIG_URL, expectedConfigUrl);
-        System.setProperty(ENVIRONMENT_CONFIG_RESOURCE_NAME, "");
+        System.setProperty(ENVIRONMENT_CONFIG_FILE_NAME, "");
         System.setProperty(ENVIRONMENT_DEPENDENCIES, "");
 
         System.setProperty(WAIT_TIMEOUT, "0");
@@ -195,7 +195,7 @@ public class ConfigurationTest {
 
         System.setProperty(ENVIRONMENT_INIT_ENABLED, "true");
         System.setProperty(ENVIRONMENT_CONFIG_URL, expectedConfigUrl);
-        System.setProperty(ENVIRONMENT_CONFIG_RESOURCE_NAME, "");
+        System.setProperty(ENVIRONMENT_CONFIG_FILE_NAME, "");
         System.setProperty(ENVIRONMENT_DEPENDENCIES, "");
 
         System.setProperty(WAIT_TIMEOUT, "0");
