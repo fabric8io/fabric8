@@ -17,12 +17,17 @@ package io.fabric8.maven;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -128,6 +133,15 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.envProperties", defaultValue = "${basedir}/src/main/fabric8/env.properties")
     protected File envPropertiesFile;
 
+
+    /**
+     * Specifies a file which maps environment variables or system properties to annotations which are then recorded on the
+     * ReplicationController of the generated or applied JSON
+     */
+    @Parameter(property = "fabric8.environmentVariableToAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/environemntToAnnotations.properties")
+    protected File environmentVariableToAnnotationsFile;
+
+
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
 
@@ -152,6 +166,14 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         }
 
         return null;
+    }
+
+    protected static Object loadJsonFile(File file) throws MojoExecutionException {
+        try {
+            return KubernetesHelper.loadJson(file);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to parse JSON " + file + ". " + e, e);
+        }
     }
 
     public MavenProject getProject() {
@@ -245,6 +267,79 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         return isPom(getProject());
     }
 
+    protected void addEnvironmentAnnotations(File json) throws MojoExecutionException {
+        try {
+            Object dto = loadJsonFile(json);
+            if (dto instanceof KubernetesList) {
+                KubernetesList container = (KubernetesList) dto;
+                List<HasMetadata> items = container.getItems();
+                addEnvironmentAnnotations(items);
+                getLog().info("Added enviroment annotations:");
+                printSummary(items);
+                container.setItems(items);
+                KubernetesHelper.saveJson(json, container);
+            } else if (dto instanceof Template) {
+                Template container = (Template) dto;
+                List<HasMetadata> items = container.getObjects();
+                addEnvironmentAnnotations(items);
+                getLog().info("Added enviroment annotations:");
+                printSummary(items);
+                container.setObjects(items);
+                getLog().info("Template is now:");
+                printSummary(container.getObjects());
+                KubernetesHelper.saveJson(json, container);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to updated JSON file " + json + ". " + e, e);
+        }
+    }
+
+    protected void addEnvironmentAnnotations(Iterable<HasMetadata> items) throws MojoExecutionException {
+        if (items != null) {
+            for (HasMetadata item : items) {
+                if (item instanceof KubernetesList) {
+                    KubernetesList list = (KubernetesList) item;
+                    addEnvironmentAnnotations(list.getItems());
+                } else if (item instanceof Template) {
+                    Template template = (Template) item;
+                    addEnvironmentAnnotations(template.getObjects());
+                } else if (item instanceof ReplicationController) {
+                    addEnvironmentAnnotations(item);
+                } else if (item instanceof DeploymentConfig) {
+                    addEnvironmentAnnotations(item);
+                }
+            }
+        }
+    }
+
+    protected void addEnvironmentAnnotations(HasMetadata resource) throws MojoExecutionException {
+        Map<String, String> mapEnvVarToAnnotation = new HashMap<>();
+        String resourceName = "environmentAnnotations.properties";
+        URL url = getClass().getResource(resourceName);
+        if (url == null) {
+            throw new MojoExecutionException("Could not find resource `" + resourceName + "` on the classpath!");
+        }
+        addPropertiesFileToMap(url, mapEnvVarToAnnotation);
+        addPropertiesFileToMap(this.environmentVariableToAnnotationsFile, mapEnvVarToAnnotation);
+
+        Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(resource);
+        Set<Map.Entry<String, String>> entries = mapEnvVarToAnnotation.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String envVar = entry.getKey();
+            String annotation = entry.getValue();
+
+            String value = Systems.getEnvVarOrSystemProperty(envVar);
+            if (Strings.isNotBlank(value)) {
+                String oldValue = annotations.get(annotation);
+                if (Strings.isNotBlank(oldValue)) {
+                    getLog().warn("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
+                } else {
+                    annotations.put(annotation, value);
+                }
+            }
+        }
+    }
+
     protected boolean shouldGenerateForThisProject() {
         return !isPomProject() || hasConfigDir();
     }
@@ -262,18 +357,34 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             value = unquoteTemplateExpression(value);
             answer.put(key, value);
         }
-        if (envPropertiesFile != null && envPropertiesFile.isFile() && envPropertiesFile.exists()) {
-            // lets override with these values
-            try {
+        addPropertiesFileToMap(this.envPropertiesFile, answer);
+        return answer;
+    }
+
+    protected static void addPropertiesFileToMap(File file, Map<String, String> answer) throws MojoExecutionException {
+        if (file != null && file.isFile() && file.exists()) {
+            try (FileInputStream in = new FileInputStream(file)){
                 Properties properties = new Properties();
-                properties.load(new FileInputStream(envPropertiesFile));
+                properties.load(in);
                 Map<String, String> map = toMap(properties);
                 answer.putAll(map);
             } catch (IOException e) {
-                throw new MojoExecutionException("Failed to load environment properties file: " + envPropertiesFile + ". " + e, e);
+                throw new MojoExecutionException("Failed to load properties file: " + file + ". " + e, e);
             }
         }
-        return answer;
+    }
+
+    protected static void addPropertiesFileToMap(URL url, Map<String, String> answer) throws MojoExecutionException {
+        if (url != null) {
+            try (InputStream in = url.openStream()) {
+                Properties properties = new Properties();
+                properties.load(in);
+                Map<String, String> map = toMap(properties);
+                answer.putAll(map);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Failed to load properties URL: " + url + ". " + e, e);
+            }
+        }
     }
 
     /**
