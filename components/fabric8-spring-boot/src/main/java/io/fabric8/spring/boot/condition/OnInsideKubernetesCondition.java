@@ -15,6 +15,7 @@
  */
 package io.fabric8.spring.boot.condition;
 
+import io.fabric8.utils.Strings;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
@@ -31,7 +32,7 @@ public class OnInsideKubernetesCondition extends SpringBootCondition {
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
         for (String variable : REQUIRED_ENV_VARIABLES) {
-            if (!System.getenv().containsKey(variable)) {
+            if (Strings.isNullOrBlank(System.getenv().get(variable))) {
                 return ConditionOutcome.noMatch("Environment variable " + variable + " not found.");
             }
         }

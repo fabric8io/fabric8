@@ -38,10 +38,11 @@ public class InternalServiceRegistar extends AbstractServiceRegistar {
 
     @Override
     public Service getService(String name) {
+        String prefix = name.toUpperCase();
         Map<String, String> env = System.getenv();
-        String serviceHost = env.get(name + HOST_SUFFIX);
-        String port = env.get(name + PORT_SUFFIX);
-        String protocol = env.get(name + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
+        String serviceHost = env.get(prefix + HOST_SUFFIX);
+        String port = env.get(prefix + PORT_SUFFIX);
+        String protocol = env.get(prefix + PORT_SUFFIX + "_" + port + PROTO_SUFFIX);
 
         return new ServiceBuilder()
                 .withNewMetadata()
@@ -50,7 +51,7 @@ public class InternalServiceRegistar extends AbstractServiceRegistar {
                 .withNewSpec()
                 .withClusterIP(serviceHost)
                 .addNewPort()
-                .withNewTargetPort(port)
+                .withPort(Integer.parseInt(port))
                 .withProtocol(protocol)
                 .endPort()
                 .endSpec()

@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.spring.boot;
+package io.fabric8.spring.boot.external;
 
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenshiftMockClient;
+import io.fabric8.spring.boot.Fabric8Application;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,8 +60,30 @@ public class ClientFactory {
                         "/swaggerapi/")
                 .build()).anyTimes();
 
-        Service kubernetesService = new ServiceBuilder()
-                .withNewMetadata().withName("kubernetes").endMetadata()
+        Service service1 = new ServiceBuilder()
+                .withNewMetadata().withName("service1").endMetadata()
+                .withNewSpec()
+                .addNewPort()
+                .withProtocol("TCP")
+                .withPort(80)
+                .withNewTargetPort(9090)
+                .endPort()
+                .endSpec()
+                .build();
+
+        Service service2 = new ServiceBuilder()
+                .withNewMetadata().withName("service2").endMetadata()
+                .withNewSpec()
+                .addNewPort()
+                .withProtocol("TCP")
+                .withPort(80)
+                .withNewTargetPort(8080)
+                .endPort()
+                .endSpec()
+                .build();
+
+        Service service3 = new ServiceBuilder()
+                .withNewMetadata().withName("service3").endMetadata()
                 .withNewSpec()
                 .addNewPort()
                 .withProtocol("TCP")
@@ -71,33 +94,11 @@ public class ClientFactory {
                 .endSpec()
                 .build();
 
-        Service consoleService = new ServiceBuilder()
-                .withNewMetadata().withName("fabric8-console-service").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withProtocol("TCP")
-                .withPort(80)
-                .withNewTargetPort(9090)
-                .endPort()
-                .endSpec()
-                .build();
+        mock.services().inNamespace("default").withName("service1").get().andReturn(service1).anyTimes();
+        mock.services().inNamespace("default").withName("service2").get().andReturn(service2).anyTimes();
+        mock.services().inNamespace("default").withName("service3").get().andReturn(service3).anyTimes();
 
-        Service appLibService = new ServiceBuilder()
-                .withNewMetadata().withName("app-library").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withProtocol("TCP")
-                .withPort(80)
-                .withNewTargetPort(8080)
-                .endPort()
-                .endSpec()
-                .build();
-
-        mock.services().inNamespace("default").withName("kubernetes").get().andReturn(kubernetesService).anyTimes();
-        mock.services().inNamespace("default").withName("fabric8-console-service").get().andReturn(consoleService).anyTimes();
-        mock.services().inNamespace("default").withName("app-library").get().andReturn(appLibService).anyTimes();
-
-        mock.services().list().andReturn(new ServiceListBuilder().addToItems(kubernetesService, consoleService, appLibService).build()).anyTimes();
+        mock.services().list().andReturn(new ServiceListBuilder().addToItems(service3, service1, service2).build()).anyTimes();
 
         mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().build()).anyTimes();
         mock.adapt(OpenShiftClient.class).andReturn(getOpenshiftClient()).anyTimes();
