@@ -18,6 +18,8 @@ package io.fabric8.arquillian.client.mock;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
@@ -25,6 +27,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
+import org.easymock.EasyMock;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -50,9 +53,28 @@ public class MockClientCreator {
                 .endMetadata()
                 .build());
 
-        mock.replicationControllers().inNamespace("arquillian").list().andReturn(new ReplicationControllerListBuilder().build());
-        mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().build());
-        mock.services().inNamespace("arquillian").list().andReturn(new ServiceListBuilder().build());
+        mock.replicationControllers().inNamespace("arquillian").list().andReturn(new ReplicationControllerListBuilder().build()).once();
+        mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().build()).once();
+        mock.services().inNamespace("arquillian").list().andReturn(new ServiceListBuilder().build()).once();
+
+        Pod testPod = new PodBuilder()
+                .withNewMetadata()
+                    .withName("test-pod")
+                .endMetadata()
+                .withNewSpec()
+                    .addNewContainer()
+                        .withName("test-container")
+                        .withImage("test/image1")
+                    .endContainer()
+                .endSpec()
+                .withNewStatus()
+                    .withPhase("run")
+                .endStatus()
+                .build();
+
+        mock.pods().inNamespace("arquillian").withName("test-pod").get().andReturn(null).once();
+        mock.pods().inNamespace("arquillian").create(EasyMock.<Pod>anyObject()).andReturn(testPod).once();
+        mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().addToItems(testPod).build()).anyTimes();
 
         kubernetes.set(mock.replay());
     }
