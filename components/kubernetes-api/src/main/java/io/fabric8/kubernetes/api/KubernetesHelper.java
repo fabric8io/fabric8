@@ -1232,18 +1232,28 @@ public final class KubernetesHelper {
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
-    public static String getServiceURL(KubernetesClient client, String serviceName, String namespace, String serviceProtocol, boolean serviceExternal) {
+    public static String getServiceURL(KubernetesClient client, String serviceName, String serviceNamespace, String serviceProtocol, boolean serviceExternal) {
+        return getServiceURL(client, serviceName, serviceNamespace, serviceProtocol, null, serviceExternal);
+    }
+
+    /**
+     * Returns the URL to access the service; using the environment variables, routes
+     * or service portalIP address
+     *
+     * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
+     */
+    public static String getServiceURL(KubernetesClient client, String serviceName, String serviceNamespace, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         Service srv = null;
         String serviceHost = serviceToHost(serviceName);
-        String servicePort = serviceToPort(serviceName);
+        String servicePort = serviceToPort(serviceName, servicePortName);
         String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
 
         //1. Inside Kubernetes: Services as ENV vars
         if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
-        } else if (Strings.isNotBlank(namespace)) {
-            srv = client.services().inNamespace(namespace).withName(serviceName).get();
+        } else if (Strings.isNotBlank(serviceNamespace)) {
+            srv = client.services().inNamespace(serviceNamespace).withName(serviceName).get();
         } else {
             for (Service s : client.services().list().getItems()) {
                 String sid = getName(s);
@@ -1254,26 +1264,36 @@ public final class KubernetesHelper {
             }
         }
         if (srv == null) {
-            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + namespace);
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + serviceNamespace);
         }
-        if (isOpenShift(client)) {
+
+        if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            RouteList routeList = openShiftClient.routes().inNamespace(namespace).list();
+            RouteList routeList = openShiftClient.routes().inNamespace(serviceNamespace).list();
             for (Route route : routeList.getItems()) {
                 if (route.getSpec().getTo().getName().equals(serviceName)) {
                     return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
                 }
             }
         }
-        return (serviceProto + "://" + srv.getSpec().getClusterIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort()).toLowerCase();
+        ServicePort port = findServicePortByName(srv, servicePortName);
+        if (port == null) {
+            throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
+        }
+        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
     }
 
     public static String serviceToHost(String id) {
         return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + HOST_SUFFIX), "");
     }
 
-    public static String serviceToPort(String id) {
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + PORT_SUFFIX), "");
+    public static String serviceToPort(String serviceId) {
+        return serviceToPort(serviceId, null);
+    }
+
+    public static String serviceToPort(String serviceId, String portName) {
+        String name = serviceId + PORT_SUFFIX + (Strings.isNotBlank(portName) ? "_" + portName : "");
+        return Systems.getEnvVarOrSystemProperty(toEnvVariable(name), "");
     }
 
     public static String serviceToProtocol(String id, String servicePort) {
@@ -1295,6 +1315,19 @@ public final class KubernetesHelper {
                 if (Objects.equal(portNumber, port.getContainerPort())) {
                     return port;
                 }
+            }
+        }
+        return null;
+    }
+
+    public static ServicePort findServicePortByName(Service service, String portName) {
+        if (Strings.isNullOrBlank(portName)) {
+            return service.getSpec().getPorts().iterator().next();
+        }
+
+        for (ServicePort servicePort : service.getSpec().getPorts()) {
+            if (servicePort.getName().equals(portName)) {
+                return servicePort;
             }
         }
         return null;
