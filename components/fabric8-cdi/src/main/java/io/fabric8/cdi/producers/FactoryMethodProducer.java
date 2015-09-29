@@ -43,18 +43,20 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     private final AnnotatedMethod<X> factoryMethod;
     private final String serviceId;
     private final String serviceProtocol;
+    private final String servicePort;
     private final Boolean serviceExternal;
 
-    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId, String serviceProtocol, Boolean serviceExternal) {
+    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId, String serviceProtocol, String servicePort, Boolean serviceExternal) {
         this.bean = bean;
         this.factoryMethod = factoryMethod;
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
+        this.servicePort = servicePort;
         this.serviceExternal = serviceExternal;
     }
 
     public FactoryMethodProducer<T, X> withServiceId(String serviceId) {
-        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId, serviceProtocol, serviceExternal);
+        return new FactoryMethodProducer<>(bean, factoryMethod, serviceId, serviceProtocol, servicePort, serviceExternal);
     }
 
     @Override
@@ -66,10 +68,10 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
             if (serviceName != null && String.class.equals(type)) {
-                String serviceUrl = getServiceUrl(serviceId, serviceProtocol, ctx);
+                String serviceUrl = getServiceUrl(serviceId, serviceProtocol, servicePort, ctx);
                 arguments.add(serviceUrl);
             } else if (serviceName != null && !String.class.equals(type)) {
-                Object serviceBean = getServiceBean(serviceId, serviceProtocol, (Class<Object>) type,  ctx);
+                Object serviceBean = getServiceBean(serviceId, serviceProtocol, servicePort, (Class<Object>) type,  ctx);
                 arguments.add(serviceBean);
             } else if (configuration != null) {
                 Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
@@ -103,14 +105,14 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param context
      * @return
      */
-    private String getServiceUrl(String serviceId, String serviceProtocol, CreationalContext context) {
+    private String getServiceUrl(String serviceId, String serviceProtocol, String servicePort, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
+            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, false, serviceExternal));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, serviceExternal).getProducer();
+            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, serviceExternal).getProducer();
             if (producer != null) {
-                return ServiceUrlBean.anyBean(serviceId, serviceProtocol, serviceExternal).getProducer().produce(context);
+                return ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, serviceExternal).getProducer().produce(context);
             } else {
                 throw new IllegalStateException("Could not find producer for service:" + serviceId + " protocol:" + serviceProtocol);
             }
@@ -124,12 +126,12 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param context
      * @return
      */
-    private <S> S getServiceBean(String serviceId, String serviceProtocol, Class<S> serviceType, CreationalContext context) {
+    private <S> S getServiceBean(String serviceId, String serviceProtocol, String servicePort, Class<S> serviceType, CreationalContext context) {
         try {
-            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, false, serviceExternal));
+            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, servicePort, false, serviceExternal));
         } catch (IllegalStateException e) {
 
-            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, serviceExternal, serviceType).getProducer();
+            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, serviceExternal, serviceType).getProducer();
             if (producer != null) {
                 return (S) producer.produce(context);
             } else {

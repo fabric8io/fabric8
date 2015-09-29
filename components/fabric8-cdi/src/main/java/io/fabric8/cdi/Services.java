@@ -19,7 +19,6 @@ package io.fabric8.cdi;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
-import io.fabric8.utils.Systems;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -30,9 +29,9 @@ public class Services {
 
     public static final String DEFAULT_PROTO = "tcp";
 
-    public static String toServiceUrl(String serviceName, String serviceProtocol, boolean serviceExternal) {
+    public static String toServiceUrl(String serviceName, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         String serviceNamespace = KubernetesHelper.defaultNamespace();
-        return KubernetesHelper.getServiceURL(KubernetesHolder.getClient(), serviceName, serviceNamespace, serviceProtocol, serviceExternal);
+        return KubernetesHelper.getServiceURL(KubernetesHolder.getClient(), serviceName, serviceNamespace, serviceProtocol, servicePortName, serviceExternal);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {

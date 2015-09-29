@@ -20,6 +20,7 @@ import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.External;
 import io.fabric8.annotations.Factory;
+import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
@@ -29,6 +30,7 @@ import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
 import io.fabric8.cdi.qualifiers.ExternalQualifier;
+import io.fabric8.cdi.qualifiers.PortQualifier;
 import io.fabric8.cdi.qualifiers.ProtocolQualifier;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
@@ -75,13 +77,14 @@ public class Fabric8Extension implements Extension {
                 public ServiceBean apply(ServiceBean bean) {
                     String serviceId = bean.getServiceName();
                     String serviceProtocol = bean.getServiceProtocol();
+                    String servicePort = bean.getServicePort();
                     Boolean serviceExternal = bean.getServiceExternal();
 
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
-                        ServiceBean.getBean(serviceId, serviceProtocol, null, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
+                        ServiceBean.getBean(serviceId, serviceProtocol, null, servicePort, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
                     }
-                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, serviceExternal));
+                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, servicePort, serviceExternal));
                 }
             });
         }
@@ -116,6 +119,7 @@ public class Fabric8Extension implements Extension {
             Annotated annotated = injectionPoint.getAnnotated();
             Alias alias = annotated.getAnnotation(Alias.class);
             ServiceName name = annotated.getAnnotation(ServiceName.class);
+            PortName port = annotated.getAnnotation(PortName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
             External external = annotated.getAnnotation(External.class);
             
@@ -124,6 +128,7 @@ public class Fabric8Extension implements Extension {
             String serviceName = name.value();
             String serviceProtocol = protocol != null ? protocol.value() : "tcp";
             String serviceAlias = alias != null ? alias.value() : null;
+            String servicePort = port != null ? port.value() : null;
             Boolean serviceExternal = external != null && external.value();
             
             Type type = annotated.getBaseType();
@@ -132,21 +137,24 @@ public class Fabric8Extension implements Extension {
             }
 
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceExternal);
+                ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceExternal);
             } else if (serviceEndpoint && isGenericOf(type, List.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceEndpoint, Types.LIST_OF_STRINGS);
             } else if (serviceEndpoint && isGenericOf(type, List.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (serviceEndpoint && isGenericOf(type, Set.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceEndpoint, Types.SET_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceEndpoint, Types.SET_OF_STRINGS);
             } else if (serviceEndpoint && isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else {
-                ServiceBean.getBean(serviceName, serviceProtocol, serviceAlias, serviceExternal, (Class) type);
+                ServiceBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceExternal, (Class) type);
             }
 
             if (protocol == null) {
                 setDefaultProtocol(event);
+            }
+            if (port == null) {
+                setDefaultPort(event);
             }
             if (external == null) {
                 setExternalFalse(event);
@@ -204,6 +212,18 @@ public class Fabric8Extension implements Extension {
             public Set<Annotation> getQualifiers() {
                 Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
                 qualifiers.add(new ProtocolQualifier("tcp"));
+                return Collections.unmodifiableSet(qualifiers);
+            }
+        });
+    }
+
+    private <T, X> void setDefaultPort(ProcessInjectionPoint<T, X> event) {
+        //if portname is not specified decorate injection point with "default" port.
+        event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
+            @Override
+            public Set<Annotation> getQualifiers() {
+                Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
+                qualifiers.add(new PortQualifier(""));
                 return Collections.unmodifiableSet(qualifiers);
             }
         });
