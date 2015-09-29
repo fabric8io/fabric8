@@ -18,9 +18,7 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.fabric8.kubernetes.api.extensions.Configs;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Config;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.ContainerState;
@@ -28,7 +26,6 @@ import io.fabric8.kubernetes.api.model.ContainerStateRunning;
 import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
 import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.Context;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
@@ -49,6 +46,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.internal.Utils;
@@ -140,29 +139,10 @@ public final class KubernetesHelper {
     public static final String DEFAULT_PROTO = "tcp";
 
     private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
+    private static final Config CONFIG = new ConfigBuilder().build();
 
     public static String defaultNamespace() {
-        String namespace =  Systems.getSystemPropertyOrEnvVar(KUBERNETES_NAMESPACE_SYSTEM_PROPERTY,
-                KUBERNETES_NAMESPACE_ENV, null);
-        if (Strings.isNullOrBlank(namespace)) {
-            namespace = findDefaultKubernetesNamespace();
-        }
-        if (Strings.isNotBlank(namespace)) {
-            return namespace;
-        }
-        return DEFAULT_NAMESPACE;
-    }
-
-    public static String findDefaultKubernetesNamespace() {
-
-        Config config = Configs.parseConfigs();
-        if (config != null) {
-            Context context = Configs.getCurrentContext(config);
-            if (context != null) {
-                return context.getNamespace();
-            }
-        }
-        return null;
+        return CONFIG.getNamespace();
     }
 
     /**
