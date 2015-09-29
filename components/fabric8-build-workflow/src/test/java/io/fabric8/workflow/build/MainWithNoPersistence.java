@@ -69,7 +69,7 @@ public class MainWithNoPersistence {
             RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
                     .persistence(false).knowledgeBase(kieBase);
 
-            runtimeManager = org.kie.internal.runtime.manager.RuntimeManagerFactory.Factory.get()
+            runtimeManager = org.kie.api.runtime.manager.RuntimeManagerFactory.Factory.get()
                     .newSingletonRuntimeManager(builder.get(), "com.sample:example:1.0");
         }
     }
