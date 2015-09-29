@@ -191,6 +191,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             // lets check we have created the namespace
             String namespace = getNamespace();
             controller.applyNamespace(namespace);
+            controller.setNamespace(namespace);
 
             if (dto instanceof Template) {
                 Template template = (Template) dto;

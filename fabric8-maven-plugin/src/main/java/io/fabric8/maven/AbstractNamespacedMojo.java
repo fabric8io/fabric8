@@ -26,8 +26,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
-    @Parameter(property = "fabric8.namespace", defaultValue = "${env.KUBERNETES_NAMESPACE}")
-    private String namespace;
+    @Parameter(property = "fabric8.namespace")
+    private String namespace = KubernetesHelper.defaultNamespace();
 
     /**
      * The domain added to the service ID when creating OpenShift routes
