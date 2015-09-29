@@ -25,7 +25,6 @@ public class ConfigBean {
     @ConfigProperty(name = "TEST", defaultValue = "value")
     private String property;
 
-
     public String getProperty() {
         return property;
     }

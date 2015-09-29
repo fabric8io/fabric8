@@ -23,69 +23,68 @@ import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.net.URL;
 
 @Singleton
-public class ServiceUrlBean {
+public class UrlBean {
 
     @Inject
-    @ServiceName("kubernetes")
-    URL kubernetesUrl;
+    @ServiceName("service3")
+    URL service3;
 
     @Inject
-    @ServiceName("fabric8-console-service")
-    URL consoleUrl;
+    @ServiceName("service1")
+    URL service1;
 
     @Inject
-    @ServiceName("fabric8-console-service")
+    @ServiceName("service1")
     @Protocol("tst")
-    URL testUrl;
+    URL service1WithProtocol;
 
     @Inject
-    @ServiceName("fabric8-console-service")
+    @ServiceName("service1")
     @External
-    URL externalUrl;
+    URL service1External;
 
     @Inject
-    @ServiceName("fabric8-console-service")
+    @ServiceName("service1")
     @Protocol("prtcl")
     @Alias("cool-id")
-    URL aliasedUrl;
+    URL service1Alias;
     
     @Inject
-    @Configuration("MY_CONFIG")
-    ConfigBean configBean;
+    @Configuration("CONFIG1")
+    ConfigBean config1;
 
     @Inject
-    @Configuration("MY_OTHER_CONFIG")
-    ConfigBean otherConfigBean;
+    @Configuration("CONFIG2")
+    ConfigBean config2;
 
-    public ServiceUrlBean() {
+    public UrlBean() {
     }
 
-    public URL getKubernetesUrl() {
-        return kubernetesUrl;
+    public URL getService3() {
+        return service3;
     }
 
-    public URL getConsoleUrl() {
-        return consoleUrl;
+    public URL getService1() {
+        return service1;
     }
 
-    public ConfigBean getConfigBean() {
-        return configBean;
+    public ConfigBean getConfig1() {
+        return config1;
     }
 
-    public void setConfigBean(ConfigBean configBean) {
-        this.configBean = configBean;
+    public void setConfig1(ConfigBean config1) {
+        this.config1 = config1;
     }
 
-    public ConfigBean getOtherConfigBean() {
-        return otherConfigBean;
+    public ConfigBean getConfig2() {
+        return config2;
     }
 
-    public void setOtherConfigBean(ConfigBean otherConfigBean) {
-        this.otherConfigBean = otherConfigBean;
+    public void setConfig2(ConfigBean config2) {
+        this.config2 = config2;
     }
 }

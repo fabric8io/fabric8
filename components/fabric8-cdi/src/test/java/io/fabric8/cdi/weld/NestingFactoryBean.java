@@ -27,24 +27,24 @@ import java.net.URLConnection;
 public class NestingFactoryBean {
 
     @Inject
-    @ServiceName("fabric8-console-service")
-    URLConnection consoleConnection;
+    @ServiceName("service1")
+    URLConnection service1;
 
     @Inject
-    @ServiceName("app-library")
+    @ServiceName("service2")
     @Alias("cool-library")
-    URLConnection appLibraryConnection;
+    URLConnection service2;
 
 
     public NestingFactoryBean() {
     }
 
-    public URLConnection getConsoleConnection() {
-        return consoleConnection;
+    public URLConnection getService1() {
+        return service1;
     }
 
-    public URLConnection getAppLibraryConnection() {
-        return appLibraryConnection;
+    public URLConnection getService2() {
+        return service2;
     }
 }
 

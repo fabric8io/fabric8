@@ -77,12 +77,11 @@
             <version>${deltaspike.version}</version>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>arquillian-openejb-embedded-4</artifactId>
-            <version>${openejb.container.version}</version>
-            <scope>test</scope>
-        </dependency-->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.15</version>
+        </dependency>
 
         <dependency>
             <groupId>org.jboss.weld</groupId>
@@ -141,6 +140,79 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <!--
+                      Skip tests by default. Will be using different executions
+                      setup to run different set of tests with different
+                      configurations
+                    -->
+                    <skip>true</skip>
+                    <!-- other default configuration for all the tests, just an example -->
+                    <reportFormat>plain</reportFormat>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>internal-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
+                            <environmentVariables>
+                                <HOSTNAME>dummyhost</HOSTNAME>
+                                <CONFIG1_TEST>value1</CONFIG1_TEST>
+                                <CONFIG2_TEST>value2</CONFIG2_TEST>
+                                <KUBERNETES_NAMESPACE>default</KUBERNETES_NAMESPACE>
+                                <KUBERNETES_SERVICE_HOST>dummyhost</KUBERNETES_SERVICE_HOST>
+                                <KUBERNETES_SERVICE_PORT>8080</KUBERNETES_SERVICE_PORT>
+                                <SERVICE1_PRTOTOCOL>https</SERVICE1_PRTOTOCOL>
+                                <SERVICE1_SERVICE_HOST>dummyhost1</SERVICE1_SERVICE_HOST>
+                                <SERVICE1_SERVICE_PORT>8081</SERVICE1_SERVICE_PORT>
+                                <SERVICE2_SERVICE_HOST>dummyhost2</SERVICE2_SERVICE_HOST>
+                                <SERVICE2_SERVICE_PORT>8082</SERVICE2_SERVICE_PORT>
+                                <SERVICE3_PRTOTOCOL>https</SERVICE3_PRTOTOCOL>
+                                <SERVICE3_SERVICE_HOST>dummyhost3</SERVICE3_SERVICE_HOST>
+                                <SERVICE3_SERVICE_PORT>8083</SERVICE3_SERVICE_PORT>
+                                <MULTIPORT_SERVICE_HOST>dummyhost3</MULTIPORT_SERVICE_HOST>
+                                <MULTIPORT_SERVICE_PORT>8081</MULTIPORT_SERVICE_PORT>
+                                <MULTIPORT_SERVICE_PORT_PORT1>8081</MULTIPORT_SERVICE_PORT_PORT1>
+                                <MULTIPORT_SERVICE_PORT_PORT2>8082</MULTIPORT_SERVICE_PORT_PORT2>
+                                <MULTIPORT_SERVICE_PORT_PORT3>8083</MULTIPORT_SERVICE_PORT_PORT3>
+                            </environmentVariables>
+                            <includes>
+                                <include>**/*InternalTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>external-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
+                            <environmentVariables>
+                                <HOSTNAME></HOSTNAME>
+                                <KUBERNETES_SERVICE_HOST></KUBERNETES_SERVICE_HOST>
+                                <KUBERNETES_SERVICE_PORT></KUBERNETES_SERVICE_PORT>
+                            </environmentVariables>
+                            <includes>
+                                <include>**/*ExternalTest.java</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

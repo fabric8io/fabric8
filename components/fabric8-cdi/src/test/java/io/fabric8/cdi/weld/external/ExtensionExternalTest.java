@@ -13,23 +13,25 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.cdi.weld;
+package io.fabric8.cdi.weld.external;
 
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
+import io.fabric8.cdi.weld.ClientProducer;
+import io.fabric8.cdi.weld.NestingFactoryBean;
+import io.fabric8.cdi.weld.SimpleBean;
+import io.fabric8.cdi.weld.StringToURL;
+import io.fabric8.cdi.weld.URLToConnection;
+import io.fabric8.cdi.weld.UrlBean;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import javax.enterprise.inject.New;
@@ -40,14 +42,13 @@ import java.io.File;
 import java.net.URL;
 import java.util.Set;
 
-@Ignore
 @RunWith(Arquillian.class)
-public class ExtensionTest {
+public class ExtensionExternalTest {
 
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, ServiceStringBean.class, ServiceUrlBean.class, ClientProducer.class)
+                .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, SimpleBean.class, UrlBean.class, ClientProducer.class)
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
                 .addAsWebInfResource("META-INF/beans.xml")
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")
@@ -59,23 +60,23 @@ public class ExtensionTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        System.setProperty("MY_CONFIG_TEST", "value1");
-        System.setProperty("MY_OTHER_CONFIG_TEST", "value2");
-        System.setProperty("FABRIC8_CONSOLE_SERVICE_PROTOCOL", "https");
-        System.setProperty("KUBERNETES_PROTOCOL", "https");
+        System.setProperty("CONFIG1_TEST", "value1");
+        System.setProperty("CONFIG2_TEST", "value2");
+        System.setProperty("SERVICE1_PROTOCOL", "https");
+        System.setProperty("SERVICE3_PROTOCOL", "https");
         System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
     }
 
     @Inject
-    private KubernetesClient kubernetesClient;
+    private KubernetesClient client;
 
     @Inject
     @New
-    private ServiceStringBean serviceLocationBean;
+    private SimpleBean simpleBean;
 
     @Inject
     @New
-    private ServiceUrlBean serviceUrlBean;
+    private UrlBean urlBean;
 
     @Inject
     @New
@@ -87,36 +88,36 @@ public class ExtensionTest {
 
     @Test
     public void testClientInjection() {
-        Assert.assertNotNull(kubernetesClient);
+        Assert.assertNotNull(client);
     }
 
     @Test
     public void testServiceInjection() {
-        Assert.assertNotNull(serviceLocationBean);
-        Assert.assertNotNull(serviceLocationBean.getKubernetesUrl());
-        Assert.assertNotNull(serviceLocationBean.getConsoleUrl());
+        Assert.assertNotNull(simpleBean);
+        Assert.assertNotNull(simpleBean.getOptionalUrl());
+        Assert.assertNotNull(simpleBean.getUrl());
     }
 
     @Test
     public void testProtocolOveride() {
-        Assert.assertTrue(serviceLocationBean.getTestUrl().startsWith("tst"));
+        Assert.assertTrue(simpleBean.getTestUrl().startsWith("tst"));
     }
 
     @Test
     public void testConfigInjection() {
-        Assert.assertNotNull(serviceLocationBean);
-        Assert.assertEquals("value1", serviceLocationBean.getConfigBean().getProperty());
-        Assert.assertEquals("value2", serviceLocationBean.getOtherConfigBean().getProperty());
+        Assert.assertNotNull(simpleBean);
+        Assert.assertEquals("value1", simpleBean.getConfig1().getProperty());
+        Assert.assertEquals("value2", simpleBean.getConfig2().getProperty());
     }
 
 
     @Test
     public void testFactory() {
-        Assert.assertNotNull(serviceUrlBean);
-        Assert.assertNotNull(serviceUrlBean.getKubernetesUrl());
-        Assert.assertNotNull(serviceUrlBean.getConsoleUrl());
-        Assert.assertTrue(serviceUrlBean.getConsoleUrl().toString().startsWith("https"));
-        Assert.assertTrue(serviceUrlBean.getKubernetesUrl().toString().startsWith("https"));
+        Assert.assertNotNull(urlBean);
+        Assert.assertNotNull(urlBean.getService3());
+        Assert.assertNotNull(urlBean.getService1());
+        Assert.assertTrue(urlBean.getService1().toString().startsWith("https"));
+        Assert.assertTrue(urlBean.getService3().toString().startsWith("https"));
     }
 
     @Test
@@ -127,11 +128,17 @@ public class ExtensionTest {
         Assert.assertEquals(URL.class, beans.iterator().next().getBeanClass());
     }
 
+    @Test
+    public void testMultiport() {
+        Assert.assertNotNull(simpleBean);
+        Assert.assertTrue(simpleBean.getMultiportDefault().endsWith("8081"));
+        Assert.assertTrue(simpleBean.getMultiport2().endsWith("8082"));
+    }
 
     @Test
     public void testNestingFactories() {
         Assert.assertNotNull(nestingFactoryBean);
-        Assert.assertNotNull(nestingFactoryBean.getConsoleConnection());
-        Assert.assertNotNull(nestingFactoryBean.getAppLibraryConnection());
+        Assert.assertNotNull(nestingFactoryBean.getService1());
+        Assert.assertNotNull(nestingFactoryBean.getService2());
     }
 }
