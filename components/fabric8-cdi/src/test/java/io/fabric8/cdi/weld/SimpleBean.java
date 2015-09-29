@@ -18,6 +18,7 @@ package io.fabric8.cdi.weld;
 
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Endpoint;
+import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
@@ -27,62 +28,74 @@ import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class ServiceStringBean {
+public class SimpleBean {
 
     @Inject
-    @ServiceName("kubernetes")
-    Instance<String> kubernetesUrl;
+    @ServiceName("service1")
+    String url;
+
+    @Inject
+    @ServiceName(value = "service1")
+    @Protocol("tst")
+    String testUrl;
+
+    @Inject
+    @ServiceName("service1")
+    Instance<String> optionalUrl;
 
     @Inject
     @Endpoint
-    @ServiceName("kubernetes")
-    List<String> kubernetesEndpointsUrl;
+    @ServiceName("service1")
+    List<String> endpointsUrl;
 
     @Inject
-    @ServiceName("fabric8-console-service")
-    String consoleUrl;
+    @ServiceName("multiport")
+    String multiportDefault;
 
     @Inject
-    @ServiceName(value = "fabric8-console-service")
-    @Protocol("tst")
-    String testUrl;
+    @ServiceName("multiport")
+    @PortName("port2")
+    String multiport2;
+
+
+    @Inject
+    @Configuration("CONFIG1")
+    ConfigBean config1;
+
+    @Inject
+    @Configuration("CONFIG2")
+    ConfigBean config2;
+
+    public SimpleBean() {
+    }
+
+
+    public String getUrl() {
+        return url;
+    }
 
     public String getTestUrl() {
         return testUrl;
     }
 
-    @Inject
-    @Configuration("MY_CONFIG")
-    ConfigBean configBean;
 
-    @Inject
-    @Configuration("MY_OTHER_CONFIG")
-    ConfigBean otherConfigBean;
-
-    public ServiceStringBean() {
+    public String getOptionalUrl() {
+        return optionalUrl.get();
     }
 
-    public String getKubernetesUrl() {
-        return kubernetesUrl.get();
+    public String getMultiportDefault() {
+        return multiportDefault;
     }
 
-    public String getConsoleUrl() {
-        return consoleUrl;
+    public String getMultiport2() {
+        return multiport2;
     }
 
-    public ConfigBean getConfigBean() {
-        return configBean;
+    public ConfigBean getConfig1() {
+        return config1;
     }
 
-    public void setConfigBean(ConfigBean configBean) {
-        this.configBean = configBean;
-    }
-
-    public ConfigBean getOtherConfigBean() {
-        return otherConfigBean;
-    }
-
-    public void setOtherConfigBean(ConfigBean otherConfigBean) {
-        this.otherConfigBean = otherConfigBean;
+    public ConfigBean getConfig2() {
+        return config2;
     }
 }
