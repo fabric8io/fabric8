@@ -22,6 +22,8 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 
 import org.apache.cxf.common.logging.LogUtils;
 
@@ -52,7 +54,7 @@ public class JsonSchemaLookup {
             if (mapper == null) {
                 mapper = new ObjectMapper();
 
-                mapper.setVisibilityChecker(new IgnorePropertiesBackedByTransientFields(mapper.getVisibilityChecker()));
+                mapper.setVisibility(new IgnorePropertiesBackedByTransientFields(mapper.getVisibilityChecker()));
 
                 JaxbAnnotationModule module1 = new JaxbAnnotationModule();
                 mapper.registerModule(module1);
@@ -79,7 +81,9 @@ public class JsonSchemaLookup {
         String name = clazz.getName();
         try {
             ObjectWriter writer = mapper.writer().with(new FourSpacePrettyPrinter());
-            return writer.writeValueAsString(mapper.generateJsonSchema(clazz));
+            JsonSchemaGenerator jsg = new JsonSchemaGenerator(mapper);
+            JsonSchema jsonSchema = jsg.generateSchema(clazz);
+            return writer.writeValueAsString(jsonSchema);
         } catch (Exception e) {
             LOG.log(Level.FINEST, "Failed to generate JSON schema for class " + name, e);
             return "";
