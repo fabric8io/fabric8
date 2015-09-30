@@ -1,1 +1,0 @@
-Creates the [Kubernetes Guestbook](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/examples/guestbook/README.md) example application
