@@ -18,6 +18,10 @@ package io.fabric8.devops.connector;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
+import io.fabric8.gerrit.ProjectInfoDTO;
+import io.fabric8.gerrit.CreateRepositoryDTO;
+import io.fabric8.gerrit.GitApi;
+import io.fabric8.gerrit.RepositoryDTO;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -30,8 +34,7 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.openshift.api.model.BuildConfigFluent;
-import io.fabric8.repo.git.GitRepoClient;
-import io.fabric8.repo.git.GitRepoKubernetes;
+import io.fabric8.repo.git.*;
 import io.fabric8.taiga.ModuleDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
@@ -43,6 +46,9 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
+import io.fabric8.utils.cxf.WebClients;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +58,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.annotation.Priority;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ReaderInterceptor;
+import javax.ws.rs.ext.ReaderInterceptorContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -68,11 +75,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.fabric8.utils.cxf.JsonHelper.toJson;
+import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
+import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
+import static io.fabric8.utils.cxf.WebClients.enableDigestAuthenticaionType;
+
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
  */
 public class DevOpsConnector {
     private transient Logger log = LoggerFactory.getLogger(DevOpsConnector.class);
+
+    private static final String JSON_MAGIC = ")]}'";
 
     private File basedir;
     private ProjectConfig projectConfig;
@@ -193,6 +207,15 @@ public class DevOpsConnector {
             getLog().error("Failed to load or lazily create the LetsChat client: " + e, e);
         }
         getLog().info("letschat " + letschat);
+        
+        /*
+         * Create Gerrit Git to if isGerritReview is enabled
+         */
+        try {
+            createGerritRepo(repoName);
+        } catch (Exception e) {
+            getLog().error("Failed to create GerritGit repo : " + e, e);
+        }
 
         Map<String, String> annotations = new HashMap<>();
         jenkinsJobUrl = null;
@@ -1121,6 +1144,96 @@ public class DevOpsConnector {
         return null;
     }
 
+
+    protected void createGerritRepo(String repoName) throws Exception {
+
+        //TODO - Replace hard coded values with env vars
+        String gerritUser = null;
+        String gerritPwd = null;
+        String description = "Fabric8 Git Repo";
+        String empty_commit = "true";
+        
+        // lets add defaults if not env vars
+        if (Strings.isNullOrBlank(gerritUser)) {
+            gerritUser = "admin";
+        }
+        if (Strings.isNullOrBlank(gerritPwd)) {
+            gerritPwd = "secret";
+        }
+
+        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
+        log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
+        
+        if (Strings.isNullOrBlank(gerritAddress)) {
+            throw new Exception("No address for service " + ServiceNames.GERRIT + " in namespace: "
+                    + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
+        }
+        log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
+
+        List<Object> providers = WebClients.createProviders();
+        providers.add(new RemovePrefix());
+        
+        WebClient webClient = WebClient.create(gerritAddress, providers);
+        disableSslChecks(webClient);
+        configureUserAndPassword(webClient, gerritUser, gerritPwd);
+        enableDigestAuthenticaionType(webClient);
+        GitApi gitApi = JAXRSClientFactory.fromClient(webClient, GitApi.class);
+
+        // Check first if a Git repo already exists in Gerrit
+        ProjectInfoDTO project = null;
+        try {
+            project = gitApi.getRepository(repoName);
+        } catch (WebApplicationException ex) {
+            // If we get Response Status = 404, then no repo exists. So we can create it
+            if (ex.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
+                createRepoDTO.setDescription(description);
+                createRepoDTO.setName(repoName);
+                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(empty_commit));
+
+                RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Git Repo created : " + toJson(repository));
+                }
+                log.info("Created git repo for " + repoName + " for namespace: " + namespace + " on gogs URL: " + gerritAddress);
+            }
+        }
+
+        if ((project != null) && (project.getName().equals(repoName))) {
+            throw new Exception("Repository " + repoName + " already exists !");
+        }  
+    }
+
+    @Priority(value = 1000)
+    protected static class RemovePrefix implements ReaderInterceptor {
+
+        @Override
+        public Object aroundReadFrom(ReaderInterceptorContext interceptorContext)
+                throws IOException, WebApplicationException {
+            InputStream in = interceptorContext.getInputStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder received = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                received.append(line);
+            }
+
+            String s = received.toString();
+            s = s.replace(JSON_MAGIC,"");
+
+            System.out.println("Reader Interceptor removing the prefix invoked.");
+            System.out.println("Content cleaned : " + s);
+
+            String responseContent = new String(s);
+            interceptorContext.setInputStream(new ByteArrayInputStream(
+                    responseContent.getBytes()));
+
+            return interceptorContext.proceed();
+        }
+    }
+    
     protected void createTaigaWebhook(TaigaClient taiga, ProjectDTO project) {
         if (taiga != null && project != null) {
             Long projectId = project.getId();
