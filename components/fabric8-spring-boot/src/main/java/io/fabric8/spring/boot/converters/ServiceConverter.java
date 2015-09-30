@@ -17,7 +17,12 @@ package io.fabric8.spring.boot.converters;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.utils.Strings;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -33,6 +38,7 @@ import java.util.Set;
 
 import static io.fabric8.spring.boot.Constants.DEFAULT_PROTOCOL;
 import static io.fabric8.spring.boot.Constants.EXTERNAL;
+import static io.fabric8.spring.boot.Constants.PORT;
 import static io.fabric8.spring.boot.Constants.PROTOCOL;
 
 @Component
@@ -52,12 +58,10 @@ public class ServiceConverter implements GenericConverter {
     @Override
     public Object convert(Object o, TypeDescriptor sourceType, TypeDescriptor targetType) {
         Service source = (Service) o;
-        String serviceName = KubernetesHelper.getName(source);
-        String serviceNamespace = KubernetesHelper.getNamespace(source);
         String serviceProtocol = getProtocolOfService(source);
-        Boolean serviceExternal = isServiceExternal(source);
-        serviceNamespace = serviceNamespace != null ? serviceNamespace : KubernetesHelper.defaultNamespace();
-        String str = KubernetesHelper.getServiceURL(kubernetesClient, serviceName, serviceNamespace, serviceProtocol, serviceExternal);
+        String servicePort = getPortOfService(source);
+
+        String str = getServiceURL(kubernetesClient, source, serviceProtocol, servicePort);
         try {
             if (String.class.equals(targetType.getObjectType())) {
                 return str;
@@ -82,6 +86,18 @@ public class ServiceConverter implements GenericConverter {
         return protocol;
     }
 
+
+    private String getPortOfService(Service service) {
+        String port = null;
+        if (service.getAdditionalProperties().containsKey(PORT)) {
+            Object portProperty = service.getAdditionalProperties().get(PORT);
+            if (portProperty instanceof String) {
+                port = (String) portProperty;
+            }
+        }
+        return port;
+    }
+
     private Boolean isServiceExternal(Service service) {
         Boolean external = false;
         if (service.getAdditionalProperties().containsKey(EXTERNAL)) {
@@ -91,6 +107,26 @@ public class ServiceConverter implements GenericConverter {
             }
         }
         return external;
+    }
+
+    public String getServiceURL(KubernetesClient client, Service srv, String serviceProtocol, String servicePortName) {
+        String serviceName = KubernetesHelper.getName(srv);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesHelper.serviceToProtocol(serviceName, servicePortName);
+
+        if (Strings.isNullOrBlank(servicePortName) && KubernetesHelper.isOpenShift(client)) {
+            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+            RouteList routeList = openShiftClient.routes().list();
+            for (Route route : routeList.getItems()) {
+                if (route.getSpec().getTo().getName().equals(serviceName)) {
+                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+                }
+            }
+        }
+        ServicePort port = KubernetesHelper.findServicePortByName(srv, servicePortName);
+        if (port == null) {
+            throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
+        }
+        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
     }
 
     public KubernetesClient getKubernetesClient() {

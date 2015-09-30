@@ -15,6 +15,7 @@
  */
 package io.fabric8.spring.boot.external;
 
+import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -57,11 +58,20 @@ public class ApplicationExternalTest {
     @ServiceName("service2")
     private String service2;
 
-
     @Autowired
     @ServiceName("service3")
     @Protocol("http")
     private String service3;
+
+    @Autowired
+    @ServiceName("multiport")
+    @PortName("port1")
+    private String multiport;
+
+    @Autowired
+    @ServiceName("multiport")
+    @PortName("port2")
+    private String multiport2;
 
     @Test
     public void testSpringBoot() {
@@ -76,5 +86,13 @@ public class ApplicationExternalTest {
 
         //Assert injection as string with protocol
         Assert.assertNotNull(service3);
+    }
+
+    @Test
+    public void testMultiport() {
+        Assert.assertNotNull(multiport);
+        Assert.assertTrue(multiport.endsWith("8081"));
+        Assert.assertNotNull(multiport2);
+        Assert.assertTrue(multiport2.endsWith("8082"));
     }
 }

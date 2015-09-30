@@ -15,7 +15,6 @@
  */
 package io.fabric8.spring.boot.external;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.spring.boot.AbstractServiceRegistar;
@@ -29,12 +28,11 @@ public class ExternalServiceRegistrar extends AbstractServiceRegistar implements
     private KubernetesClient kubernetesClient;
 
     @Override
-    public Service getService(String name) {
-        String serviceNamespace = KubernetesHelper.defaultNamespace();
+    public Service getService(String serviceName) {
         if (kubernetesClient == null) {
             kubernetesClient = beanFactory.getBean(KubernetesClient.class);
         }
-        return kubernetesClient.services().inNamespace(serviceNamespace).withName(name).get();
+        return kubernetesClient.services().withName(serviceName).get();
     }
 
     @Override

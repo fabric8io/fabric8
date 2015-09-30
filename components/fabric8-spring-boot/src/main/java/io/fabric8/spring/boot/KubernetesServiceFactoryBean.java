@@ -25,10 +25,12 @@ public class KubernetesServiceFactoryBean implements FactoryBean<Object>, Initia
 
     private Class<?> type;
     private String name;
+    private String port;
     private Service service;
 
     @Autowired
     private ConversionService conversionService;
+
 
     @Override
     public Object getObject() throws Exception {
@@ -68,6 +70,14 @@ public class KubernetesServiceFactoryBean implements FactoryBean<Object>, Initia
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
 
     public Service getService() {
