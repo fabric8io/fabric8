@@ -25,6 +25,15 @@ The fabric8 extension provides a unified approach in looking up for service coor
 All available services are registered as io.fabric8.kubernetes.api.model.Service objects. But there are out of the box converter to String and URL.
 The URL converter will convert the Service to a URL and the string converter to its string representation.
 
+### The @PortName annotation
+In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.
+
+        @Inject
+        @ServiceName("my-service")
+        @PortName("my-port")
+        private String service.
+
+
 ### Running inside and outside of Kubernetes
 Under the covers the code will default to using the **MY_SERVICE_SERVICE_HOST** and **MY_SERVICE_SERVICE_PORT** environment variables exposed by [kubernetes services](services.html) to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.
 
