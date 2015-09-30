@@ -255,8 +255,6 @@ public class ArchetypeBuilder {
         // package names replaced with variable placeholders - to make them parameterizable during
         // mvn archetype:generate
         File archetypeOutputDir = new File(archetypeDir, "src/main/resources/archetype-resources");
-        // optional archetype-metadata.xml provided by source project
-//        File metadataXmlFile = new File(projectDir, "archetype-metadata.xml");
         // target archetype-metadata.xml file. it'll end in resources-filtered, so most of variables will be replaced
         // during the build of archetype project
         File metadataXmlOutFile = new File(archetypeDir, "src/main/resources-filtered/META-INF/maven/archetype-metadata.xml");
@@ -445,15 +443,8 @@ public class ArchetypeBuilder {
                 }
             }
 
-            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${fabric8-profile}");
-            if (profile != null) {
-                // we do not want a default name for the profile as the end user should be able to set that value
-                // and use fabric8-profile as key as there is a problem when using fabric8.profile
-                propertyNameSet.put("fabric8-profile", null);
-            }
-
             // now lets replace the contents of some elements (adding new elements if they are not present)
-            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties", "fabric8-profile");
+            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties");
             replaceOrAddElementText(doc, root, "version", "${version}", beforeNames);
             replaceOrAddElementText(doc, root, "artifactId", "${artifactId}", beforeNames);
             replaceOrAddElementText(doc, root, "groupId", "${groupId}", beforeNames);
@@ -594,7 +585,7 @@ public class ArchetypeBuilder {
                 elements.add((Element) children.item(cn));
             }
         }
-        Element element = null;
+        Element element;
         if (elements.isEmpty()) {
             Element newElement = doc.createElement(name);
             Node first = null;
@@ -605,7 +596,7 @@ public class ArchetypeBuilder {
                 }
             }
 
-            Node node = null;
+            Node node;
             if (first != null) {
                 node = first;
             } else {
@@ -628,7 +619,6 @@ public class ArchetypeBuilder {
 
         String groupId = "io.fabric8.archetypes";
         String artifactId = archetypeUtils.firstElementText(root, "artifactId", outputName);
-        String name = archetypeUtils.firstElementText(root, "name", "");
         String description = archetypeUtils.firstElementText(root, "description", "");
         String version = "";
 
@@ -717,20 +707,6 @@ public class ArchetypeBuilder {
                     for (String name: names) {
                         copyOtherFiles(projectDir, new File(srcDir, name), new File(outDir, name), replaceFn);
                     }
-                }
-            }
-        }
-    }
-
-    private void copyDataFiles(File projectDir, File srcDir, File outDir, Replacement replaceFn) throws IOException {
-        if (srcDir.isFile()) {
-            copyFile(srcDir, outDir, replaceFn);
-        } else {
-            outDir.mkdirs();
-            String[] names = srcDir.list();
-            if (names != null) {
-                for (String name: names) {
-                    copyDataFiles(projectDir, new File(srcDir, name), new File(outDir, name), replaceFn);
                 }
             }
         }
