@@ -129,7 +129,10 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
+        LOG.info("Getting the current project");
         Project project = getCurrentProject(builder.getUIContext());
+
+        LOG.info("Got the current project");
 
         String packaging = getProjectPackaging(project);
 
@@ -316,13 +319,14 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
      * if the project got created during a new-project wizard
      */
     public Project getCurrentProject(UIContext context) {
-        Project project = getSelectedProject(context);
+        Project project = null;
+        Map<Object, Object> attributeMap = context.getAttributeMap();
+        Object object = attributeMap.get(Project.class);
+        if (object instanceof Project) {
+            project = (Project) object;
+        }
         if (project == null) {
-            Map<Object, Object> attributeMap = context.getAttributeMap();
-            Object object = attributeMap.get(Project.class);
-            if (object instanceof Project) {
-                project = (Project) object;
-            }
+            project = getSelectedProject(context);
         }
         return project;
     }

@@ -1545,6 +1545,7 @@ public final class KubernetesHelper {
 
     public static boolean isServiceSsl(String host, int port, boolean trustAllCerts) {
         try {
+            LOG.info("Checking if a service is SSL on " + host + ":" + port);
             SSLSocketFactory sslsocketfactory;
             if (trustAllCerts) {
                 sslsocketfactory = TrustEverythingSSLTrustManager.getTrustingSSLSocketFactory();
@@ -1567,9 +1568,9 @@ public final class KubernetesHelper {
                 while (in.available() > 0) {
                     System.out.print(in.read());
                 }
-
                 return true;
             } finally {
+                LOG.info("Checked if a service is SSL on " + host + ":" + port);
                 socket.close();
             }
         } catch (SSLHandshakeException e) {
