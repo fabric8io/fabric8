@@ -116,7 +116,6 @@
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
-        <hawtio.version>1.4.54</hawtio.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <httpcomponents.version>4.4.1</httpcomponents.version>
         <httpcomponents.async.version>4.1</httpcomponents.async.version>
@@ -1403,48 +1402,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-json-schema-mbean</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-osgi-devmode</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-git</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-kubernetes</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-maven-indexer</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-osgi-jmx</artifactId>
-                <version>${hawtio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-web</artifactId>
-                <version>${hawtio.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>io.hawt</groupId>
-                <artifactId>hawtio-default</artifactId>
-                <version>${hawtio.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpasyncclient</artifactId>
                 <version>${httpcomponents.async.version}</version>
@@ -1926,12 +1883,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>hawtio-snapshot</id>
-            <properties>
-                <hawtio.version>1.5-SNAPSHOT</hawtio.version>
-            </properties>
         </profile>
         <profile>
             <id>camel-snapshot</id>
