@@ -211,10 +211,12 @@ public class DevOpsConnector {
         /*
          * Create Gerrit Git to if isGerritReview is enabled
          */
-        try {
-            createGerritRepo(repoName);
-        } catch (Exception e) {
-            getLog().error("Failed to create GerritGit repo : " + e, e);
+        if (projectConfig.isCodeReviewEnabled()) {
+            try {
+                createGerritRepo(repoName);
+            } catch (Exception e) {
+                getLog().error("Failed to create GerritGit repo : " + e, e);
+            }
         }
 
         Map<String, String> annotations = new HashMap<>();
