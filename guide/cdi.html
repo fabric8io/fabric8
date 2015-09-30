@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.4" data-basepath="." data-revision="Wed Sep 30 2015 17:41:11 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4" data-basepath="." data-revision="Wed Sep 30 2015 18:00:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1167,7 +1167,7 @@
 <p>Using CDI it is possible to:</p>
 <ul>
 <li>Inject a fabric8 managed kubernetes client.</li>
-<li>Inject URL to kubernetes service using the @ServiceName.</li>
+<li>Inject URL to kubernetes service using the @ServiceName and @PortName annotations.</li>
 <li>Inject a client for a kubernetes service using the @ServiceName and @Factory.</li>
 <li>Inject configuration provided as Environamnt Variables.</li>
 <li>Create scopes of configuration using the @Configuration.</li>
@@ -1180,7 +1180,14 @@ can lookup for services using their environment variables. Application that live
 <pre><code>@Inject
 @ServiceName(&quot;my-service&quot;)
 private String service.
-</code></pre><h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
+</code></pre><h3 id="the-portname-annotation"><a name="the-portname-annotation" class="plugin-anchor" href="#the-portname-annotation"><span class="fa fa-link"></span></a>The @PortName annotation</h3>
+<p>In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;my-service&quot;)
+    @PortName(&quot;my-port&quot;)
+    private String service.
+</code></pre><p>If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.</p>
+<h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
 <p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
 <p>If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
 <h3 id="creating-custom-objects"><a name="creating-custom-objects" class="plugin-anchor" href="#creating-custom-objects"><span class="fa fa-link"></span></a>Creating custom objects</h3>
