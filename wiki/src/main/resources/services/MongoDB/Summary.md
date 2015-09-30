@@ -1,1 +1,0 @@
-<a href="http://mongodb.com/" target="mongodb">MongoDB</a> (from “humongous”) is a cross-platform document-oriented database.
