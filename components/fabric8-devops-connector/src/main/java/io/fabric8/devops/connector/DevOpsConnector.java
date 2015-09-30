@@ -1161,6 +1161,8 @@ public class DevOpsConnector {
             gerritPwd = "secret";
         }
 
+        log.info("A Gerrit git repo will be created for this name : " + repoName);
+
         String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
         log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         
