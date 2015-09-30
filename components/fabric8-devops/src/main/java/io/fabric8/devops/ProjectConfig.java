@@ -62,7 +62,7 @@ public class ProjectConfig {
                 && Maps.isNullOrEmpty(buildParameters) && Maps.isNullOrEmpty(environments) && useLocalFlow != null;
     }
 
-    public boolean isCodeReviewEnabled() {
+    public boolean hasCodeReview() {
         return codeReview != null && codeReview.booleanValue();
     }
 
