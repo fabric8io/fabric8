@@ -211,7 +211,7 @@ public class DevOpsConnector {
         /*
          * Create Gerrit Git to if isGerritReview is enabled
          */
-        if (projectConfig.isCodeReviewEnabled()) {
+        if (projectConfig.hasCodeReview()) {
             try {
                 createGerritRepo(repoName);
             } catch (Exception e) {
