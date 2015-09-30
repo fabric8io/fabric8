@@ -128,9 +128,10 @@ public class ExtensionInternalTest {
         Assert.assertEquals(URL.class, beans.iterator().next().getBeanClass());
     }
 
+    @Test
     public void testMultiport() {
         Assert.assertNotNull(simpleBean);
-        Assert.assertTrue(simpleBean.getMultiportDefault().endsWith("8080"));
+        Assert.assertTrue(simpleBean.getMultiportDefault().endsWith("8081"));
         Assert.assertTrue(simpleBean.getMultiport2().endsWith("8082"));
     }
 
