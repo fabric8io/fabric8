@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.spring.boot.external;
+package io.fabric8.spring.boot.internal;
 
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
@@ -60,72 +60,7 @@ public class ClientFactory {
                         "/swaggerapi/")
                 .build()).anyTimes();
 
-        Service service1 = new ServiceBuilder()
-                .withNewMetadata().withName("service1").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withProtocol("TCP")
-                .withPort(80)
-                .withNewTargetPort(9090)
-                .endPort()
-                .endSpec()
-                .build();
-
-        Service service2 = new ServiceBuilder()
-                .withNewMetadata().withName("service2").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withProtocol("TCP")
-                .withPort(80)
-                .withNewTargetPort(8080)
-                .endPort()
-                .endSpec()
-                .build();
-
-        Service service3 = new ServiceBuilder()
-                .withNewMetadata().withName("service3").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withProtocol("TCP")
-                .withPort(443)
-                .withNewTargetPort(443)
-                .endPort()
-                .withPortalIP("172.30.17.2")
-                .endSpec()
-                .build();
-
-
-        Service multiport = new ServiceBuilder()
-                .withNewMetadata().withName("multiport").endMetadata()
-                .withNewSpec()
-                .addNewPort()
-                .withName("port1")
-                .withProtocol("TCP")
-                .withPort(8081)
-                .withNewTargetPort(8081)
-                .endPort()
-                .addNewPort()
-                .withName("port2")
-                .withProtocol("TCP")
-                .withPort(8082)
-                .withNewTargetPort(8082)
-                .endPort()
-                .addNewPort()
-                .withName("port3")
-                .withProtocol("TCP")
-                .withPort(8083)
-                .withNewTargetPort(8083)
-                .endPort()
-                .withPortalIP("172.30.17.2")
-                .endSpec()
-                .build();
-
-        mock.services().withName("service1").get().andReturn(service1).anyTimes();
-        mock.services().withName("service2").get().andReturn(service2).anyTimes();
-        mock.services().withName("service3").get().andReturn(service3).anyTimes();
-        mock.services().withName("multiport").get().andReturn(multiport).anyTimes();
-
-        mock.services().list().andReturn(new ServiceListBuilder().addToItems(service1, service2, service3, multiport).build()).anyTimes();
+        mock.services().list().andReturn(new ServiceListBuilder().build()).anyTimes();
 
         mock.endpoints().list().andReturn(new EndpointsListBuilder().build()).anyTimes();
         mock.adapt(OpenShiftClient.class).andReturn(getOpenshiftClient()).anyTimes();

@@ -18,6 +18,7 @@ package io.fabric8.spring.boot;
 public class Constants {
 
     public static final String ALIAS = "ALIAS";
+    public static final String PORT = "PORT";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String EXTERNAL = "EXTERNAL";
 
