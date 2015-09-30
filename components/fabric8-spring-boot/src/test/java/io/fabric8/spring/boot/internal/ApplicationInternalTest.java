@@ -15,6 +15,7 @@
  */
 package io.fabric8.spring.boot.internal;
 
+import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -22,7 +23,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.spring.boot.Fabric8Application;
 import io.fabric8.spring.boot.URLToConnection;
-import io.fabric8.spring.boot.external.ClientFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.net.URLConnection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {URLToConnection.class, Fabric8Application.class})
+@SpringApplicationConfiguration(classes = {ClientFactory.class, URLToConnection.class, Fabric8Application.class})
 public class ApplicationInternalTest {
 
     @BeforeClass
@@ -64,6 +64,16 @@ public class ApplicationInternalTest {
     @Protocol("http")
     private String service3;
 
+    @Autowired
+    @ServiceName("multiport")
+    @PortName("port1")
+    private String multiport;
+
+    @Autowired
+    @ServiceName("multiport")
+    @PortName("port2")
+    private String multiport2;
+
     @Test
     public void testSpringBoot() {
         //Assert client is injected
@@ -77,5 +87,13 @@ public class ApplicationInternalTest {
 
         //Assert injection as string with protocol
         Assert.assertNotNull(service3);
+    }
+
+    @Test
+    public void testMultiport() {
+        Assert.assertNotNull(multiport);
+        Assert.assertTrue(multiport.endsWith("8081"));
+        Assert.assertNotNull(multiport2);
+        Assert.assertTrue(multiport2.endsWith("8082"));
     }
 }

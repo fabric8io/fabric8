@@ -130,6 +130,11 @@
                                 <SERVICE2_SERVICE_PORT>8082</SERVICE2_SERVICE_PORT>
                                 <SERVICE3_SERVICE_HOST>dummyhost3</SERVICE3_SERVICE_HOST>
                                 <SERVICE3_SERVICE_PORT>8083</SERVICE3_SERVICE_PORT>
+                                <MULTIPORT_SERVICE_HOST>dummyhost3</MULTIPORT_SERVICE_HOST>
+                                <MULTIPORT_SERVICE_PORT>8081</MULTIPORT_SERVICE_PORT>
+                                <MULTIPORT_SERVICE_PORT_PORT1>8081</MULTIPORT_SERVICE_PORT_PORT1>
+                                <MULTIPORT_SERVICE_PORT_PORT2>8082</MULTIPORT_SERVICE_PORT_PORT2>
+                                <MULTIPORT_SERVICE_PORT_PORT3>8083</MULTIPORT_SERVICE_PORT_PORT3>
                             </environmentVariables>
                             <includes>
                                 <include>**/*InternalTest.java</include>
