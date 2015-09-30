@@ -153,7 +153,7 @@
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
         <osgi-enterprise.version>5.0.0</osgi-enterprise.version>
         <osgi.version>5.0.0</osgi.version>
-        <pax.url.version>2.4.2</pax.url.version>
+        <pax.url.version>2.4.3</pax.url.version>
         <phantomjsdriver.version>1.2.0</phantomjsdriver.version>
         <qpid-jms.version>0.32</qpid-jms.version>
         <reflections.version>0.9.10</reflections.version>
