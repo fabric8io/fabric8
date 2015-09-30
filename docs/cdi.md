@@ -5,7 +5,7 @@ Fabric8 provides a CDI extension which is meant to make developing CDI apps for 
 Using CDI it is possible to:
 
 * Inject a fabric8 managed kubernetes client.
-* Inject URL to kubernetes service using the @ServiceName.
+* Inject URL to kubernetes service using the @ServiceName and @PortName annotations.
 * Inject a client for a kubernetes service using the @ServiceName and @Factory.
 * Inject configuration provided as Environamnt Variables.
 * Create scopes of configuration using the @Configuration.
@@ -21,6 +21,17 @@ The fabric8 extension provides a unified approach in looking up for service coor
     @Inject
     @ServiceName("my-service")
     private String service.
+
+### The @PortName annotation
+In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.
+
+        @Inject
+        @ServiceName("my-service")
+        @PortName("my-port")
+        private String service.
+
+If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.
+
 
 ### Running inside and outside of Kubernetes
 
