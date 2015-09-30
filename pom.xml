@@ -1571,7 +1571,6 @@
         <module>components</module>
         <module>tooling</module>
         <module>forge</module>
-        <module>wiki</module>
     </modules>
 
     <build>
@@ -2013,7 +2012,6 @@
                             <excludes>
                                 <exclude>${project.basedir}/sandbox/**</exclude>
                                 <exclude>${project.basedir}/website/**</exclude>
-                                <exclude>${project.basedir}/wiki/**</exclude>
                             </excludes>
                             <!-- This is where the reports will be generated -->
                             <destination>${project.build.directory}/reports</destination>

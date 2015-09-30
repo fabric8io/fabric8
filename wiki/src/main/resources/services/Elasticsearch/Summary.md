@@ -1,1 +1,0 @@
-<a href="http://elasticsearch.com/" target="elasticsearch">Elasticsearch</a> provides distributed RESTful search and analytics

@@ -27,7 +27,6 @@ object Website {
   val project_jira_key= "fabric8"
   val project_issue_url= "https://github.com/fabric8io/fabric8/issues?state=open"
   val project_forums_url= "http://fabric8.io/community/index.html"
-  val project_wiki_url= "https://github.com/fabric8io/fabric8/wiki"
   val project_logo= "/images/project-logo.png"
   val project_version= "1.0"
   val project_snapshot_version= "1.1-SNAPSHOT"
