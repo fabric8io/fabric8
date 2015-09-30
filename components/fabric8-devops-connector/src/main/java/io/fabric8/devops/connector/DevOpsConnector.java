@@ -134,6 +134,10 @@ public class DevOpsConnector {
     private String letschatRoomExpression = "fabric8_${namespace}";
 
     private String flowGitUrl = Systems.getEnvVar("JENKINS_WORKFLOW_GIT_REPOSITORY", "https://github.com/fabric8io/jenkins-workflow-library.git");
+    private String gerritUser = Systems.getEnvVar("GERRIT_ADMIN_USER","admin");
+    private String gerritPwd = Systems.getEnvVar("GERRIT_ADMIN_PWD","secret");
+    private String gerritGitInitialCommit = Systems.getEnvVar("GERRIT_INITIAL_COMMIT","false");
+    private String gerritGitRepoDesription = Systems.getEnvVar("GERRIT_REPO_DESCRIPTION","Description of the gerrit git repo");
 
     private boolean recreateMode;
     private String namespace = KubernetesHelper.defaultNamespace();
@@ -213,7 +217,7 @@ public class DevOpsConnector {
          */
         if (projectConfig.hasCodeReview()) {
             try {
-                createGerritRepo(repoName);
+                createGerritRepo(repoName, gerritUser, gerritPwd, gerritGitInitialCommit, gerritGitRepoDesription);
             } catch (Exception e) {
                 getLog().error("Failed to create GerritGit repo : " + e, e);
             }
@@ -1147,14 +1151,8 @@ public class DevOpsConnector {
     }
 
 
-    protected void createGerritRepo(String repoName) throws Exception {
+    protected void createGerritRepo(String repoName, String gerritUser, String gerritPwd, String gerritGitInitialCommit, String gerritGitRepoDesription) throws Exception {
 
-        //TODO - Replace hard coded values with env vars
-        String gerritUser = null;
-        String gerritPwd = null;
-        String description = "Fabric8 Git Repo";
-        String empty_commit = "true";
-        
         // lets add defaults if not env vars
         if (Strings.isNullOrBlank(gerritUser)) {
             gerritUser = "admin";
@@ -1191,9 +1189,9 @@ public class DevOpsConnector {
             // If we get Response Status = 404, then no repo exists. So we can create it
             if (ex.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
-                createRepoDTO.setDescription(description);
+                createRepoDTO.setDescription(gerritGitRepoDesription);
                 createRepoDTO.setName(repoName);
-                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(empty_commit));
+                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
 
                 RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
 
