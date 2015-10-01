@@ -1283,6 +1283,45 @@ public final class KubernetesHelper {
         return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
     }
 
+    /**
+     * Returns the URL to access the service; using the environment variables, routes
+     * or service portalIP address
+     *
+     * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
+     */
+    public static String getServiceURLInCurrentNamespace(KubernetesClient client, String serviceName, String serviceProtocol, String servicePortName, boolean serviceExternal) {
+        Service srv = null;
+        String serviceHost = serviceToHost(serviceName);
+        String servicePort = serviceToPort(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+
+        //1. Inside Kubernetes: Services as ENV vars
+        if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
+            return serviceProtocol + "://" + serviceHost + ":" + servicePort;
+            //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
+        } else  {
+            srv = client.services().withName(serviceName).get();
+        }
+        if (srv == null) {
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName);
+        }
+
+        if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
+            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+            RouteList routeList = openShiftClient.routes().list();
+            for (Route route : routeList.getItems()) {
+                if (route.getSpec().getTo().getName().equals(serviceName)) {
+                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+                }
+            }
+        }
+        ServicePort port = findServicePortByName(srv, servicePortName);
+        if (port == null) {
+            throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
+        }
+        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+    }
+
     public static String serviceToHost(String id) {
         return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + HOST_SUFFIX), "");
     }

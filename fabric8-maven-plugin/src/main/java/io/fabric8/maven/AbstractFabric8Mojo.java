@@ -15,31 +15,52 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectRepositories;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemas;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -328,16 +349,98 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             String envVar = entry.getKey();
             String annotation = entry.getValue();
 
-            String value = Systems.getEnvVarOrSystemProperty(envVar);
-            if (Strings.isNotBlank(value)) {
-                String oldValue = annotations.get(annotation);
-                if (Strings.isNotBlank(oldValue)) {
-                    getLog().warn("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
-                } else {
-                    annotations.put(annotation, value);
+            if (Strings.isNotBlank(envVar) && Strings.isNotBlank(annotation)) {
+                String value = Systems.getEnvVarOrSystemProperty(envVar);
+                if (Strings.isNullOrBlank(value)) {
+                    value = tryDefaultAnnotationEnvVar(envVar);
+                }
+                if (Strings.isNotBlank(value)) {
+                    String oldValue = annotations.get(annotation);
+                    if (Strings.isNotBlank(oldValue)) {
+                        getLog().warn("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
+                    } else {
+                        annotations.put(annotation, value);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Tries to default some environment variables if they are not already defined.
+     *
+     * This can happen if using Jenkins Workflow which doens't seem to define BUILD_URL or GIT_URL for example
+     *
+     * @return the value of the environment variable name if it can be found or calculated
+     */
+    protected String tryDefaultAnnotationEnvVar(String envVarName) {
+        MavenProject rootProject = getRootProject();
+        File basedir = rootProject.getBasedir();
+        ProjectConfig projectConfig = ProjectConfigs.loadFromFolder(basedir);
+        String repoName = rootProject.getArtifactId();
+
+        String userEnvVar = "JENKINS_GOGS_USER";
+        String username = Systems.getEnvVarOrSystemProperty(userEnvVar);
+
+        if (Objects.equal("BUILD_URL", envVarName)) {
+            String jobUrl = projectConfig.getLink("Job");
+            if (Strings.isNullOrBlank(jobUrl)) {
+                String name = projectConfig.getBuildName();
+                if (Strings.isNullOrBlank(name)) {
+                    // lets try deduce the jenkins build name we'll generate
+                    if (Strings.isNotBlank(repoName)) {
+                        name = repoName;
+                        if (Strings.isNotBlank(username)) {
+                            name = ProjectRepositories.createBuildName(username, repoName);
+                        } else {
+                            getLog().warn("Cannot auto-default BUILD_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Jenkins build URL");
+                        }
+                    }
+                }
+                if (Strings.isNotBlank(name)) {
+                    try {
+                        String jenkinsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.JENKINS, "http", null, true);
+                        jobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
+                        String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
+                        if (Strings.isNotBlank(buildId)) {
+                            jobUrl = URLUtils.pathJoin(jobUrl, buildId);
+                        } else {
+                            getLog().warn("Could not find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
+                        }
+                    } catch (Exception e) {
+                        getLog().warn("Could not find jenkins service URL: " + e, e);
+                    }
+                }
+            }
+            return jobUrl;
+        }
+        if (Objects.equal("GIT_URL", envVarName)) {
+            if (Strings.isNotBlank(repoName) && Strings.isNotBlank(username)) {
+                try {
+                    String gogsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.GOGS, "http", null, true);
+                    return URLUtils.pathJoin(gogsUrl, username, repoName);
+                } catch (Exception e) {
+                    getLog().warn("Could not find gogs service URL: " + e, e);
+                }
+            } else {
+                getLog().warn("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
+            }
+/*
+            TODO this is the git clone url; while we could try convert from it to a browse URL its probably too flaky?
+
+            try {
+                url = GitHelpers.extractGitUrl(basedir);
+            } catch (IOException e) {
+                getLog().warn("Failed to find git url in directory " + basedir + ". " + e, e);
+            }
+            if (Strings.isNotBlank(url)) {
+                // for gogs / github style repos we trim the .git suffix for browsing
+                return Strings.stripSuffix(url, ".git");
+            }
+*/
+        }
+
+        return null;
     }
 
     protected boolean shouldGenerateForThisProject() {
@@ -542,6 +645,21 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             project = project.getParent();
         }
         return answer;
+    }
+
+    /**
+     * Returns the root project folder
+     */
+    protected MavenProject getRootProject() {
+        MavenProject project = getProject();
+        while (project != null) {
+            MavenProject parent = project.getParent();
+            if (parent == null) {
+                break;
+            }
+            project = parent;
+        }
+        return project;
     }
 
     public String getDockerImage() {
