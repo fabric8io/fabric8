@@ -37,6 +37,9 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -413,8 +416,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
             return jobUrl;
-        }
-        if (Objects.equal("GIT_URL", envVarName)) {
+        } else if (Objects.equal("GIT_URL", envVarName)) {
             if (Strings.isNotBlank(repoName) && Strings.isNotBlank(username)) {
                 try {
                     String gogsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.GOGS, "http", null, true);
@@ -438,9 +440,50 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 return Strings.stripSuffix(url, ".git");
             }
 */
+        } else if (Objects.equal("GIT_COMMIT", envVarName)) {
+            try (Repository repository = getGitRepository(basedir, envVarName)) {
+                if (repository != null) {
+                    ObjectId id = repository.resolve(repository.getFullBranch());
+                    if (id != null) {
+                        return id.getName();
+                    }
+                }
+            } catch (IOException e) {
+                getLog().warn("failed to find git commit id. " + e, e);
+            }
+        } else if (Objects.equal("GIT_BRANCH", envVarName)) {
+            try (Repository repository = getGitRepository(basedir, envVarName)) {
+                if (repository != null) {
+                    return repository.getBranch();
+                }
+            } catch (IOException e) {
+                getLog().warn("failed to find git commit id. " + e, e);
+            }
         }
-
         return null;
+    }
+
+    protected Repository getGitRepository(File basedir, String envVarName) {
+        try {
+            Repository repository = null;
+/*
+            File gitFolder = GitHelpers.findGitRootFolder(basedir);
+            if (gitFolder != null) {
+            }
+*/
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            repository = builder.setGitDir(basedir)
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
+            if (repository == null) {
+                getLog().warn("Could not create default value for $" + envVarName + " as no .git/config file could be found");
+            }
+            return repository;
+        } catch (IOException e) {
+            getLog().warn("Failed to initialise Git Repository: " + e, e);
+            return null;
+        }
     }
 
     protected boolean shouldGenerateForThisProject() {
