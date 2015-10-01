@@ -496,7 +496,7 @@ public final class KubernetesHelper {
      * Saves the json object to the given file
      */
     public static void saveJson(File json, Object object) throws IOException {
-        OBJECT_MAPPER.writer().writeValue(json, object);
+        OBJECT_MAPPER.writer().withDefaultPrettyPrinter().writeValue(json, object);
     }
 
     /**
