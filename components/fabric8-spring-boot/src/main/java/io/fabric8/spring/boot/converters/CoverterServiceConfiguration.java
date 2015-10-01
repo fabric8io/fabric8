@@ -16,6 +16,7 @@
 package io.fabric8.spring.boot.converters;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ConversionServiceFactoryBean;
@@ -35,6 +36,7 @@ public class CoverterServiceConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(ConversionService.class)
     public ConversionService conversionService(Set<GenericConverter> genericConverters) {
         ConversionServiceFactoryBean bean = new ConversionServiceFactoryBean();
         bean.setConverters(genericConverters);
