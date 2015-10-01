@@ -1492,18 +1492,6 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>${maven.failsafe.plugin.version}</version>
           </plugin>
-          <plugin>
-                <groupId>io.sundr</groupId>
-                <artifactId>sundr-maven-plugin</artifactId>
-                <version>${sundrio.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-bom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -1515,6 +1503,52 @@
         </plugins>
       </pluginManagement>
       <plugins>
+          <plugin>
+              <groupId>io.sundr</groupId>
+              <artifactId>sundr-maven-plugin</artifactId>
+              <version>${sundrio.version}</version>
+              <configuration>
+                  <boms>
+                      <bom>
+                          <artifactId>fabric8-project-bom</artifactId>
+                          <name>Fabric8 :: Project :: Bom</name>
+                          <dependencies>
+                              <includes>
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+                              </includes>
+                          </dependencies>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                      </bom>
+                      <bom>
+                          <artifactId>fabric8-project-bom-with-deps</artifactId>
+                          <name>Fabric8 :: Project :: Bom with Dependencies</name>
+                          <dependencies>
+                              <includes>
+                                  <include>com.ning:*</include>
+                                  <include>io.netty:*</include>
+                                  <include>com.fasterxml.jackson*:*</include>
+                                  <include>net.oauth*:*</include>
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+                              </includes>
+                          </dependencies>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                      </bom>
+                  </boms>
+              </configuration>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>generate-bom</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
