@@ -168,7 +168,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
 
         // lets initialise the data from the current config if it exists
         ProjectConfig config = null;
-        Project project = getSelectedProject(context);
+        Project project = getCurrentSelectedProject(context);
         File configFile = getProjectConfigFile(project);
         if (configFile != null && configFile.exists()) {
             config = ProjectConfigs.parseProjectConfig(configFile);

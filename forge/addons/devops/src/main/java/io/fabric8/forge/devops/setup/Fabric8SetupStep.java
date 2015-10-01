@@ -18,6 +18,7 @@ package io.fabric8.forge.devops.setup;
 import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
+import io.fabric8.forge.devops.AbstractDevOpsCommand;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -38,7 +39,6 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -65,7 +64,7 @@ import static io.fabric8.forge.addon.utils.MavenHelpers.ensureMavenDependencyAdd
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
-public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UIWizardStep {
+public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(Fabric8SetupStep.class);
 
     private String[] jarImages = new String[]{"fabric8/java"};
@@ -116,21 +115,14 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
-        Project project = getCurrentProject(context.getUIContext());
-        // no more steps
         return null;
     }
 
-    @Override
-    public void validate(UIValidationContext validator) {
-        super.validate(validator);
-        Project project = getCurrentProject(validator.getUIContext());
-    }
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         LOG.info("Getting the current project");
-        Project project = getCurrentProject(builder.getUIContext());
+        Project project = getCurrentSelectedProject(builder.getUIContext());
 
         LOG.info("Got the current project");
 
@@ -250,7 +242,7 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         LOG.info("starting to setup fabric8 project");
-        Project project = getCurrentProject(context.getUIContext());
+        Project project = getCurrentSelectedProject(context.getUIContext());
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
 
@@ -312,23 +304,6 @@ public class Fabric8SetupStep extends AbstractDockerProjectCommand implements UI
         }
 
         return Results.success("Adding Fabric8 maven support with base Docker image: " + from.getValue());
-    }
-
-    /**
-     * Returns the current project either from the context or added to the attribute map
-     * if the project got created during a new-project wizard
-     */
-    public Project getCurrentProject(UIContext context) {
-        Project project = null;
-        Map<Object, Object> attributeMap = context.getAttributeMap();
-        Object object = attributeMap.get(Project.class);
-        if (object instanceof Project) {
-            project = (Project) object;
-        }
-        if (project == null) {
-            project = getSelectedProject(context);
-        }
-        return project;
     }
 
     private static String asContainer(String fromImage) {
