@@ -99,6 +99,8 @@
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
         <cxf.version>3.1.2</cxf.version>
+        <!-- cxf plugin 3.1.2 has Maven NoSuchMethodError -->
+        <cxf.plugin.version>3.0.6</cxf.plugin.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
@@ -1042,7 +1044,7 @@
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-java2wadl-plugin</artifactId>
-                 <version>${cxf.version}</version>
+                 <version>${cxf.plugin.version}</version>
              </dependency>
 
              <dependency>
