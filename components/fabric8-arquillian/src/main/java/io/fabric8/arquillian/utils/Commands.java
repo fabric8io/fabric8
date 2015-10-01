@@ -37,9 +37,9 @@ public class Commands {
         logger.info("Invoking command: " + commandText);
         try {
             Process process = Runtime.getRuntime().exec(commandArray);
-            int status = process.waitFor();
             processOutput(logger, process.getInputStream(), true);
             processOutput(logger, process.getErrorStream(), false);
+            int status = process.waitFor();
             assertEquals("status code of: " + commandText, 0, status);
         } catch (Exception e) {
             throw new AssertionError("Failed to invoke: " + commandText + "\n" + e, e);
