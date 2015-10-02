@@ -20,7 +20,7 @@ If you start [fabric8 using these instructions](openShiftDocker.html) then it sh
 
 If not you can run the App Library on any kubernetes environment as follows:
 
-    kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.2.38/app-library-2.2.38-kubernetes.json
+    kube apply -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/app-library/2.2.39/app-library-2.2.39-kubernetes.json
 
 Then make sure you have [run the console](console.html)
 
@@ -41,4 +41,4 @@ For example, the default App Library config file contains the following IMPORT_A
        
 Download one of the above zips to see the structure used:
 
-      http://central.maven.org/maven2/io/fabric8//quickstarts/fabric8-quickstarts-parent/2.2.38/fabric8-quickstarts-parent-2.2.38-app.zip
+      http://central.maven.org/maven2/io/fabric8//quickstarts/fabric8-quickstarts-parent/2.2.39/fabric8-quickstarts-parent-2.2.39-app.zip
