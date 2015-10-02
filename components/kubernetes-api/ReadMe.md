@@ -28,25 +28,27 @@ The Example program should start and list some pods.
 
 ### API Overview
 
-You use the **KubernetesFactory** to create an instance of [Kubernetes](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/main/java/io/fabric8/kubernetes/api/Kubernetes.java#L46) which supports the [Kubernetes REST API](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#kubernetes-api-server)
+You use the **DefaultKubernetesClient** to create an instance of [Kubernetes Client](https://github.com/fabric8io/kubernetes-client) which supports the [Kubernetes REST API](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#kubernetes-api-server)
 
 For example:
 
-    KubernetesFactory kubeFactory = new KubernetesFactory();
-    Kubernetes kube = kubeFactory.createKubernetes();
-    PodListSchema pods = kube.getPods();
+    KubernetesClient kube = new DefaultKubernetesClient();
+    PodList pods = kube.pods().list();
+    for (Pod pod : pods.getItems()) {
+        String name = pod.getMetadata().getName();
+        String ip = pod.getStatus().getPodIP();
+    }
 
-The **KubernetesFactory** defaults to using the **KUBERNETES_MASTER** environment variable.
+The **KubernetesClient** defaults to using the **KUBERNETES_MASTER** environment variable.
 
-If your Java code is running inside of a Kubernetes environment the KubernetesFactory will default to using **kubernetes.default.svc** (override by setting **KUBERNETES_MASTER**) as the address to communicate with the [kubernetes service](http://fabric8.io/guide/services.html) for the REST API.
+If your Java code is running inside of a Kubernetes environment the KubernetesClient will default to using **kubernetes.default.svc** (override by setting **KUBERNETES_MASTER**) as the address to communicate with the [kubernetes service](http://fabric8.io/guide/services.html) for the REST API.
 
 If you wish to use a specific URL in your Java code just pass it into the factory constructor (though usually you don't need to!).
 
-    KubernetesFactory kubeFactory = new KubernetesFactory("http://localhost:8585/");
-    Kubernetes kube = kubeFactory.createKubernetes();
-    PodListSchema pods = kube.getPods();
+    KubernetesClient kube = new DefaultKubernetesClient("http://localhost:8585/");
+    PodList pods = kube.pods().list();
 
-To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/main/java/io/fabric8/kubernetes/api/Kubernetes.java#L46) in action [check out this example](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/test/java/io/fabric8/kubernetes/api/Example.java#L48)
+To see more of the Kubernetes API in action using the [Kubernetes Client](https://github.com/fabric8io/kubernetes-client) see [this example](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/test/java/io/fabric8/kubernetes/api/Example.java#L48)
 
 ### Configuration
 

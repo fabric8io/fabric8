@@ -45,7 +45,9 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 public class Example {
 
     public static void main(String... args) {
+        System.out.println("\n\nfabric8 Kubernetes-api example");
         KubernetesClient kube = new DefaultKubernetesClient();
+        System.out.println("=========================================================================");
 
         try {
             listPods(kube);
@@ -60,6 +62,7 @@ public class Example {
         } finally {
             kube.close();
         }
+        System.out.println("=========================================================================");
     }
 
     protected static void listPods(KubernetesClient kube) {
@@ -69,7 +72,7 @@ public class Example {
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
-            System.out.println("Pod " + KubernetesHelper.getName(item) + " created: " + item.getMetadata().getCreationTimestamp());
+            System.out.println("Pod " + KubernetesHelper.getName(item) + " with ip: " + item.getStatus().getPodIP() + " created: " + item.getMetadata().getCreationTimestamp());
             PodSpec spec = item.getSpec();
             if (spec != null) {
                 List<Container> containers = spec.getContainers();
