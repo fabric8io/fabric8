@@ -443,9 +443,15 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
             try (Repository repository = getGitRepository(basedir, envVarName)) {
                 if (repository != null) {
-                    ObjectId id = repository.resolve(repository.getFullBranch());
-                    if (id != null) {
-                        return id.getName();
+                    String fullBranch = repository.getFullBranch();
+                    if (fullBranch == null) {
+                        fullBranch = repository.getBranch();
+                    }
+                    if (fullBranch != null) {
+                        ObjectId id = repository.resolve(fullBranch);
+                        if (id != null) {
+                            return id.getName();
+                        }
                     }
                 }
             } catch (IOException e) {
