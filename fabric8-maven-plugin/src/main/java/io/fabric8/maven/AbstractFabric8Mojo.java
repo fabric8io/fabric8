@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -300,7 +299,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 KubernetesList container = (KubernetesList) dto;
                 List<HasMetadata> items = container.getItems();
                 addEnvironmentAnnotations(items);
-                getLog().info("Added enviroment annotations:");
+                getLog().info("Added environment annotations:");
                 printSummary(items);
                 container.setItems(items);
                 KubernetesHelper.saveJson(json, container);
@@ -308,7 +307,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 Template container = (Template) dto;
                 List<HasMetadata> items = container.getObjects();
                 addEnvironmentAnnotations(items);
-                getLog().info("Added enviroment annotations:");
+                getLog().info("Added environment annotations:");
                 printSummary(items);
                 container.setObjects(items);
                 getLog().info("Template is now:");
@@ -343,7 +342,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         String resourceName = "environmentAnnotations.properties";
         URL url = getClass().getResource(resourceName);
         if (url == null) {
-            throw new MojoExecutionException("Could not find resource `" + resourceName + "` on the classpath!");
+            throw new MojoExecutionException("Cannot find resource `" + resourceName + "` on the classpath!");
         }
         addPropertiesFileToMap(url, mapEnvVarToAnnotation);
         addPropertiesFileToMap(this.environmentVariableToAnnotationsFile, mapEnvVarToAnnotation);
@@ -411,7 +410,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         if (Strings.isNotBlank(buildId)) {
                             jobUrl = URLUtils.pathJoin(jobUrl, buildId);
                         } else {
-                            getLog().warn("Could not find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
+                            getLog().warn("Cannot find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
                         }
                     } catch (Throwable e) {
                         Throwable cause = e;
@@ -427,9 +426,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         }
 
                         if (connectError) {
-                            getLog().debug("Cannot connect to Kubernetes due: " + cause.getMessage());
+                            getLog().warn("Cannot connect to Kubernetes to find jenkins service URL: " + cause.getMessage());
                         } else {
-                            getLog().warn("Could not find gogs service URL: " + cause, cause);
+                            getLog().warn("Cannot find jenkins service URL: " + cause, cause);
                         }
                     }
                 }
@@ -455,9 +454,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     }
 
                     if (connectError) {
-                        getLog().debug("Cannot connect to Kubernetes due: " + cause.getMessage());
+                        getLog().warn("Cannot connect to Kubernetes to find gogs service URL: " + cause.getMessage());
                     } else {
-                        getLog().warn("Could not find gogs service URL: " + cause, cause);
+                        getLog().warn("Cannot find gogs service URL: " + cause, cause);
                     }
                 }
             } else {
@@ -491,7 +490,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     }
                 }
             } catch (IOException e) {
-                getLog().warn("failed to find git commit id. " + e, e);
+                getLog().warn("Failed to find git commit id. " + e, e);
             }
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
             try (Repository repository = getGitRepository(basedir, envVarName)) {
@@ -499,7 +498,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     return repository.getBranch();
                 }
             } catch (IOException e) {
-                getLog().warn("failed to find git commit id. " + e, e);
+                getLog().warn("Failed to find git commit id. " + e, e);
             }
         }
         return null;
@@ -541,7 +540,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     .findGitDir() // scan up the file system tree
                     .build();
             if (repository == null) {
-                getLog().warn("Could not create default value for $" + envVarName + " as no .git/config file could be found");
+                getLog().warn("Cannot create default value for $" + envVarName + " as no .git/config file could be found");
             }
             return repository;
         } catch (IOException e) {
@@ -844,7 +843,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
             if (missingProperty) {
-                getLog().debug("current properties " + new TreeSet<>(properties.keySet()));
+                getLog().debug("Current properties " + new TreeSet<>(properties.keySet()));
             }
         }
     }
