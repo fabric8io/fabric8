@@ -404,15 +404,17 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     try {
                         String jenkinsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.JENKINS, "http", null, true);
                         jobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
-                        String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
-                        if (Strings.isNotBlank(buildId)) {
-                            jobUrl = URLUtils.pathJoin(jobUrl, buildId);
-                        } else {
-                            getLog().warn("Could not find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
-                        }
                     } catch (Exception e) {
                         getLog().warn("Could not find jenkins service URL: " + e, e);
                     }
+                }
+            }
+            if (Strings.isNotBlank(jobUrl)) {
+                String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
+                if (Strings.isNotBlank(buildId)) {
+                    jobUrl = URLUtils.pathJoin(jobUrl, buildId);
+                } else {
+                    getLog().warn("Could not find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
                 }
             }
             return jobUrl;
