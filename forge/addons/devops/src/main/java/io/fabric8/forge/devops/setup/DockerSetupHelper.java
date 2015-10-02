@@ -15,10 +15,6 @@
  */
 package io.fabric8.forge.devops.setup;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
@@ -26,14 +22,25 @@ import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
+import org.jboss.forge.addon.maven.plugins.Configuration;
+import org.jboss.forge.addon.maven.plugins.ConfigurationBuilder;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElement;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElementBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPlugin;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class DockerSetupHelper {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DockerSetupHelper.class);
+
 
     // see https://github.com/fabric8io/fabric8/issues/4160
     private static String dockerFromImagePrefix = "docker.io/";
@@ -45,67 +52,84 @@ public class DockerSetupHelper {
     public static void setupDocker(Project project, String fromImage, String main) {
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
-        if (!MavenHelpers.hasMavenPlugin(pom, "org.jolokia", "docker-maven-plugin")) {
-            MavenPluginBuilder plugin = MavenPluginBuilder.create()
-                    .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
 
-            ConfigurationElement cfgName = ConfigurationElementBuilder.create().setName("name").setText("${docker.image}");
-            ConfigurationElement cfgFrom = ConfigurationElementBuilder.create().setName("from").setText("${docker.from}");
-            ConfigurationElement cfgDescriptorRef = ConfigurationElementBuilder.create().setName("descriptorRef").setText("${docker.assemblyDescriptorRef}");
+        boolean springBoot = hasSpringBootMavenPlugin(project);
+        String packaging = getProjectPackaging(project);
+        boolean war = packaging != null && packaging.equals("war");
+        boolean bundle = packaging != null && packaging.equals("bundle");
+        boolean jar = packaging != null && packaging.equals("jar");
 
-            ConfigurationElement cfgAssembly = ConfigurationElementBuilder.create().setName("assembly");
-            cfgAssembly.getChildren().add(cfgDescriptorRef);
+        Map<String, String> envs = new LinkedHashMap<>();
+        if (springBoot) {
+            envs.put("JAR", "${project.artifactId}-${project.version}.war");
+            envs.put("JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
+        } else if (war) {
+            envs.put("CATALINA_OPTS", "-javaagent:/opt/tomcat/jolokia-agent.jar=host=0.0.0.0,port=8778");
+        } else if (jar && main != null) {
+            // only include main for JAR deployment as WAR/bundle is container based
+            envs.put("JAVA_MAIN_CLASS", main);
+        }
 
-            ConfigurationElement cfgBuild = ConfigurationElementBuilder.create().setName("build");
-            cfgBuild.getChildren().add(cfgFrom);
-            cfgBuild.getChildren().add(cfgAssembly);
-
-            Map<String, String> envs = new LinkedHashMap<>();
-
-            boolean springBoot = hasSpringBootMavenPlugin(project);
-            String packaging = getProjectPackaging(project);
-            boolean war = packaging != null && packaging.equals("war");
-            boolean bundle = packaging != null && packaging.equals("bundle");
-            boolean jar = packaging != null && packaging.equals("jar");
-
-            if (springBoot) {
-                envs.put("JAR", "${project.artifactId}-${project.version}.war");
-                envs.put("JAVA_OPTIONS", "-Djava.security.egd=/dev/./urandom");
-            } else if (war) {
-                envs.put("CATALINA_OPTS", "-javaagent:/opt/tomcat/jolokia-agent.jar=host=0.0.0.0,port=8778");
-            } else if (jar && main != null) {
-                // only include main for JAR deployment as WAR/bundle is container based
-                envs.put("MAIN", main);
+        MavenPluginBuilder pluginBuilder = null;
+        ConfigurationBuilder configurationBuilder = null;
+        MavenPlugin plugin = MavenHelpers.findPlugin(project, "org.jolokia", "docker-maven-plugin");
+        if (plugin != null) {
+            pluginBuilder = MavenPluginBuilder.create(plugin);
+            Configuration config = plugin.getConfig();
+            if (config != null) {
+                configurationBuilder = ConfigurationBuilder.create(config, pluginBuilder);
+            } else {
+                configurationBuilder = ConfigurationBuilder.create(pluginBuilder);
             }
+        } else {
+            pluginBuilder = MavenPluginBuilder.create()
+                    .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));;
+            configurationBuilder = pluginBuilder.createConfiguration();
+        }
 
-            if (!envs.isEmpty()) {
-                ConfigurationElement cfgEnv = ConfigurationElementBuilder.create().setName("env");
-                cfgBuild.getChildren().add(cfgEnv);
-                for (Map.Entry<String, String> env : envs.entrySet()) {
-                    ConfigurationElement cfg = ConfigurationElementBuilder.create().setName(env.getKey()).setText(env.getValue());
-                    cfgEnv.getChildren().add(cfg);
-                }
+        String commandShell = null;
+        if (bundle) {
+            commandShell = "/usr/bin/deploy-and-start";
+        }
+        setupDockerConfiguration(configurationBuilder, envs, commandShell);
+
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+        pluginFacet.addPlugin(pluginBuilder);
+
+        setupDockerProperties(project, fromImage);
+    }
+
+    protected static void setupDockerConfiguration(ConfigurationBuilder config, Map<String, String> envs, String commandShell) {
+        ConfigurationElement images = MavenHelpers.getOrCreateElement(config, "images");
+        ConfigurationElement image = MavenHelpers.getOrCreateElement(images, "image");
+        ConfigurationElement build = MavenHelpers.getOrCreateElement(image, "build");
+        ConfigurationElement env = MavenHelpers.getOrCreateElement(build, "env");
+        for (Map.Entry<String, String> entry : envs.entrySet()) {
+            ConfigurationElement cfg = ConfigurationElementBuilder.create().setName(entry.getKey()).setText(entry.getValue());
+            env.getChildren().add(cfg);
+        }
+        if (Strings.isNotBlank(commandShell)) {
+            ConfigurationElementBuilder shell = MavenHelpers.getOrCreateElementBuilder(build, "cmd", "shell");
+            if (Strings.isNullOrBlank(shell.getText())) {
+                MavenHelpers.asConfigurationElementBuilder(shell).setText(commandShell);
             }
+        }
 
-            if (bundle) {
-                // need to add command config when using bundle/karaf
-                ConfigurationElement cfgCommand = ConfigurationElementBuilder.create().setName("command").setText("/usr/bin/deploy-and-start");
-                cfgBuild.getChildren().add(cfgCommand);
+        ConfigurationElementBuilder from = MavenHelpers.getOrCreateElementBuilder(image, "from");
+        if (Strings.isNullOrBlank(from.getText())) {
+            from.setText("${docker.from}");
+        }
+        ConfigurationElementBuilder name = MavenHelpers.getOrCreateElementBuilder(build, "name");
+        if (Strings.isNullOrBlank(name.getText())) {
+            name.setText("${docker.image}");
+        }
+
+        ConfigurationElementBuilder assembly = MavenHelpers.getOrCreateElementBuilder(build, "assembly");
+        if (!assembly.hasChildByName("descriptor")) {
+            ConfigurationElementBuilder descriptorRef = MavenHelpers.getOrCreateElementBuilder(assembly, "descriptorRef");
+            if (Strings.isNullOrBlank(descriptorRef.getText())) {
+                descriptorRef.setText("${docker.assemblyDescriptorRef}");
             }
-
-            ConfigurationElement cfgImage = ConfigurationElementBuilder.create().setName("image");
-            cfgImage.getChildren().add(cfgName);
-            cfgImage.getChildren().add(cfgBuild);
-
-            ConfigurationElement cfgImages = ConfigurationElementBuilder.create().setName("images");
-            cfgImages.getChildren().add(cfgImage);
-
-            setupDockerProperties(project, fromImage);
-
-            // add docker-maven-plugin using latest version
-            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
-            plugin.createConfiguration().addConfigurationElement(cfgImages);
-            pluginFacet.addPlugin(plugin);
         }
     }
 
@@ -212,16 +236,28 @@ public class DockerSetupHelper {
         // try to guess a default main class
         MavenFacet maven = project.getFacet(MavenFacet.class);
         if (maven != null) {
-            Model pom = maven.getModel();
-            if (pom != null) {
-                Properties properties = pom.getProperties();
-                String answer = properties.getProperty("docker.env.MAIN");
-                if (Strings.isNullOrBlank(answer)) {
-                    answer = properties.getProperty("fabric8.env.MAIN");
+            String answer = null;
+            MavenPlugin plugin = MavenHelpers.findPlugin(project, "org.jolokia", "docker-maven-plugin");
+            if (plugin != null) {
+                Configuration config = plugin.getConfig();
+                ConfigurationElement element = MavenHelpers.getConfigurationElement(config, "images", "image", "build", "env", "JAVA_MAIN_CLASS");
+                if (element != null) {
+                    answer = element.getText();
                 }
-                if (Strings.isNotBlank(answer)) {
-                    return answer;
+            }
+
+            if (Strings.isNullOrBlank(answer)) {
+                Model pom = maven.getModel();
+                if (pom != null) {
+                    Properties properties = pom.getProperties();
+                    answer = properties.getProperty("docker.env.MAIN");
+                    if (Strings.isNullOrBlank(answer)) {
+                        answer = properties.getProperty("fabric8.env.MAIN");
+                    }
                 }
+            }
+            if (Strings.isNotBlank(answer)) {
+                return answer;
             }
         }
 

@@ -162,14 +162,19 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         builder.add(from);
 
         if (packaging == null || (!packaging.equals("war") && !packaging.equals("ear"))) {
+            boolean jarImage = DockerSetupHelper.isJarImage(from.getValue());
+            // TODO until we can detect reliably executable JARS versus mains lets not make this mandatory
+/*
             main.setRequired(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return DockerSetupHelper.isJarImage(from.getValue());
+                    return jarImage;
                 }
             });
+*/
             // only enable main if its required
-            main.setEnabled(main.isRequired());
+            // TODO we could disable if we knew this was an executable jar
+            main.setEnabled(jarImage);
             if (project != null) {
                 main.setDefaultValue(DockerSetupHelper.defaultMainClass(project));
             }

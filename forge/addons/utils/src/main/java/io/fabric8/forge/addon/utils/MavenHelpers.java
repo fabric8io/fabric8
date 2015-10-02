@@ -26,6 +26,13 @@ import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.maven.plugins.Configuration;
+import org.jboss.forge.addon.maven.plugins.ConfigurationElement;
+import org.jboss.forge.addon.maven.plugins.ConfigurationElementBuilder;
+import org.jboss.forge.addon.maven.plugins.ConfigurationElementNotFoundException;
+import org.jboss.forge.addon.maven.plugins.MavenPlugin;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.DependencyFacet;
@@ -69,6 +76,31 @@ public class MavenHelpers {
         return null;
     }
 
+    public static MavenPlugin findPlugin(Project project, String artifactId) {
+        return findPlugin(project, mavenPluginsGroupId, artifactId);
+    }
+
+    public static MavenPlugin findPlugin(Project project, String groupId, String artifactId) {
+        if (project != null) {
+            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+            if (pluginFacet != null) {
+                List<MavenPlugin> plugins = pluginFacet.listConfiguredPlugins();
+                if (plugins != null) {
+                    for (MavenPlugin plugin : plugins) {
+                        Coordinate coordinate = plugin.getCoordinate();
+                        if (coordinate != null) {
+                            if (Objects.equal(groupId, coordinate.getGroupId()) &&
+                                    Objects.equal(artifactId, coordinate.getArtifactId())) {
+                                return plugin;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns the profile for the given id or null if it could not be found
      */
@@ -91,7 +123,7 @@ public class MavenHelpers {
         List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies) {
             if (groupId.equals(d.getCoordinate().getGroupId()) && artifactId.equals(d.getCoordinate().getArtifactId())) {
-                System.out.println("Project already includes:  "+ groupId + ":" + artifactId + " for version: " + d.getCoordinate().getVersion());
+                System.out.println("Project already includes:  " + groupId + ":" + artifactId + " for version: " + d.getCoordinate().getVersion());
                 return false;
             }
         }
@@ -104,9 +136,9 @@ public class MavenHelpers {
         String version = MavenHelpers.getVersion(groupId, artifactId);
         if (Strings.isNotBlank(version)) {
             component = component.setVersion(version);
-            System.out.println("Adding pom.xml dependency:  "+ groupId + ":" + artifactId + " version: " + version + " scope: "+ scope);
+            System.out.println("Adding pom.xml dependency:  " + groupId + ":" + artifactId + " version: " + version + " scope: " + scope);
         } else {
-            System.out.println("No version could be found for:  "+ groupId + ":" + artifactId);
+            System.out.println("No version could be found for:  " + groupId + ":" + artifactId);
         }
         dependencyInstaller.install(project, component);
         return true;
@@ -125,7 +157,7 @@ public class MavenHelpers {
         return version;
     }
 
-    protected static Map<String,String> getGroupArtifactVersionMap() {
+    protected static Map<String, String> getGroupArtifactVersionMap() {
         if (groupArtifactVersionMap == null) {
             groupArtifactVersionMap = new HashMap<>();
 
@@ -243,6 +275,91 @@ public class MavenHelpers {
             }
         }
         return updated;
+
     }
 
+    /**
+     * Returns the plugin configuration element for the given set of element names
+     */
+    public static ConfigurationElement getConfigurationElement(Configuration config, String... names) {
+        if (config != null && names.length > 0) {
+            String first = names[0];
+            ConfigurationElement root = findConfigurationElement(config, first);
+            if (root != null) {
+                if (names.length == 1) {
+                    return root;
+                } else {
+                    int remainingLength = names.length - 1;
+                    String[] remaining = new String[remainingLength];
+                    System.arraycopy(names, 1, remaining, 0, remainingLength);
+                    return getConfigurationElement(root, remaining);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the plugin configuration element for the given set of element names
+     */
+    public static ConfigurationElement getConfigurationElement(ConfigurationElement element, String... names) {
+        ConfigurationElement e = element;
+        for (String name : names) {
+            if (e == null) {
+                break;
+            }
+            e = findChildByName(e, name);
+        }
+        return e;
+    }
+
+    public static ConfigurationElement findChildByName(ConfigurationElement element, String name) {
+        try {
+            return element.getChildByName(name);
+        } catch (Exception e) {
+           return null;
+        }
+    }
+
+    public static ConfigurationElement findConfigurationElement(Configuration config, String name) {
+        try {
+            return config.getConfigurationElement(name);
+        } catch (Exception e) {
+           return null;
+        }
+    }
+
+    public static ConfigurationElement getOrCreateElement(Configuration config, String name) {
+        ConfigurationElement answer = findConfigurationElement(config, name);
+        if (answer == null) {
+            answer = ConfigurationElementBuilder.create().setName(name);
+            config.addConfigurationElement(answer);
+        }
+        return answer;
+    }
+
+
+    public static ConfigurationElement getOrCreateElement(ConfigurationElement config, String... names) {
+        ConfigurationElement answer = config;
+        for (String name : names) {
+            answer = findChildByName(answer, name);
+            if (answer == null) {
+                ConfigurationElementBuilder configBuilder = asConfigurationElementBuilder(config);
+                answer = configBuilder.addChild(name);
+            }
+        }
+        return answer;
+    }
+
+    public static ConfigurationElementBuilder asConfigurationElementBuilder(ConfigurationElement element) {
+        if (element instanceof ConfigurationElementBuilder) {
+            return (ConfigurationElementBuilder) element;
+        } else {
+            return ConfigurationElementBuilder.createFromExisting(element);
+        }
+    }
+
+    public static ConfigurationElementBuilder getOrCreateElementBuilder(ConfigurationElement element, String... names) {
+        return asConfigurationElementBuilder(getOrCreateElement(element, names));
+    }
 }
