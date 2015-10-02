@@ -384,11 +384,11 @@
                 <artifactId>fabric8-annotations</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-build-workflow</artifactId>
               <version>${project.version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-cdi</artifactId>
@@ -653,7 +653,7 @@
                 <classifier>features</classifier>
             </dependency>
 
-            <!-- Kie && jBPM -->
+            <!-- Kie && jBPM 
             <dependency>
               <groupId>org.kie</groupId>
               <artifactId>kie-api</artifactId>
@@ -670,6 +670,7 @@
               <artifactId>jbpm-test</artifactId>
               <version>${kie.version}</version>
             </dependency>
+            -->
 
           <!-- Weld -->
             <dependency>
@@ -982,13 +983,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
-            <dependency>
-                <groupId>org.mvel</groupId>
-                <artifactId>mvel2</artifactId>
-                <version>${mvel.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
