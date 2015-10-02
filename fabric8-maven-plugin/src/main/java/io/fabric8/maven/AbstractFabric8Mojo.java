@@ -15,6 +15,35 @@
  */
 package io.fabric8.maven;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
@@ -28,7 +57,6 @@ import io.fabric8.maven.support.JsonSchemas;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -40,32 +68,6 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
@@ -402,6 +404,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
                 if (Strings.isNotBlank(name)) {
                     try {
+                        // this requires online access to kubernetes so we should silently fail if no connection
                         String jenkinsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.JENKINS, "http", null, true);
                         jobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
                         String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
@@ -410,8 +413,24 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         } else {
                             getLog().warn("Could not find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
                         }
-                    } catch (Exception e) {
-                        getLog().warn("Could not find jenkins service URL: " + e, e);
+                    } catch (Throwable e) {
+                        Throwable cause = e;
+
+                        boolean connectError = false;
+                        Iterable<Throwable> it = createExceptionIterable(e);
+                        for (Throwable t : it) {
+                            connectError = t instanceof ConnectException || "No route to host".equals(t.getMessage());
+                            if (connectError) {
+                                cause = t;
+                                break;
+                            }
+                        }
+
+                        if (connectError) {
+                            getLog().debug("Cannot connect to Kubernetes due: " + cause.getMessage());
+                        } else {
+                            getLog().warn("Could not find gogs service URL: " + cause, cause);
+                        }
                     }
                 }
             }
@@ -419,10 +438,27 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         } else if (Objects.equal("GIT_URL", envVarName)) {
             if (Strings.isNotBlank(repoName) && Strings.isNotBlank(username)) {
                 try {
+                    // this requires online access to kubernetes so we should silently fail if no connection
                     String gogsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.GOGS, "http", null, true);
                     return URLUtils.pathJoin(gogsUrl, username, repoName);
-                } catch (Exception e) {
-                    getLog().warn("Could not find gogs service URL: " + e, e);
+                } catch (Throwable e) {
+                    Throwable cause = e;
+
+                    boolean connectError = false;
+                    Iterable<Throwable> it = createExceptionIterable(e);
+                    for (Throwable t : it) {
+                        connectError = t instanceof ConnectException || "No route to host".equals(t.getMessage());
+                        if (connectError) {
+                            cause = t;
+                            break;
+                        }
+                    }
+
+                    if (connectError) {
+                        getLog().debug("Cannot connect to Kubernetes due: " + cause.getMessage());
+                    } else {
+                        getLog().warn("Could not find gogs service URL: " + cause, cause);
+                    }
                 }
             } else {
                 getLog().warn("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
@@ -467,6 +503,28 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             }
         }
         return null;
+    }
+
+    /**
+     * Creates an Iterable to walk the exception from the bottom up
+     * (the last caused by going upwards to the root exception).
+     *
+     * @see java.lang.Iterable
+     * @param exception  the exception
+     * @return the Iterable
+     */
+    protected static Iterable<Throwable> createExceptionIterable(Throwable exception) {
+        List<Throwable> throwables = new ArrayList<Throwable>();
+
+        Throwable current = exception;
+        // spool to the bottom of the caused by tree
+        while (current != null) {
+            throwables.add(current);
+            current = current.getCause();
+        }
+        Collections.reverse(throwables);
+
+        return throwables;
     }
 
     protected Repository getGitRepository(File basedir, String envVarName) {
