@@ -105,7 +105,7 @@
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <elasticsearch.version>1.7.2</elasticsearch.version>
-        <exec-maven-plugin.version>1.2.1</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <fabric8.release.version>2.0.48</fabric8.release.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
