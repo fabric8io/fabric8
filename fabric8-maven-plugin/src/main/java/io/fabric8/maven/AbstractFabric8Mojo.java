@@ -406,12 +406,6 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         // this requires online access to kubernetes so we should silently fail if no connection
                         String jenkinsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.JENKINS, "http", null, true);
                         jobUrl = URLUtils.pathJoin(jenkinsUrl, "/job", name);
-                        String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
-                        if (Strings.isNotBlank(buildId)) {
-                            jobUrl = URLUtils.pathJoin(jobUrl, buildId);
-                        } else {
-                            getLog().warn("Cannot find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
-                        }
                     } catch (Throwable e) {
                         Throwable cause = e;
 
@@ -431,6 +425,14 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                             getLog().warn("Cannot find jenkins service URL: " + cause, cause);
                         }
                     }
+                }
+            }
+            if (Strings.isNotBlank(jobUrl)) {
+                String buildId = Systems.getEnvVarOrSystemProperty("BUILD_ID");
+                if (Strings.isNotBlank(buildId)) {
+                    jobUrl = URLUtils.pathJoin(jobUrl, buildId);
+                } else {
+                    getLog().warn("Cannot find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
                 }
             }
             return jobUrl;
