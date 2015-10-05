@@ -72,11 +72,10 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.12.0</activemq.version>
-        <camel.version>2.16.0</camel.version>
-        <cxf.version>3.1.2</cxf.version>
-        <!-- cxf plugin 3.1.2 has Maven NoSuchMethodError -->
-        <cxf.plugin.version>3.0.6</cxf.plugin.version>
+        <activemq.version>5.11.0.redhat-621032</activemq.version>
+        <camel.version>2.15.1.redhat-621032</camel.version>
+        <cxf.version>3.0.4.redhat-621032</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621032</cxf.plugin.version>
 
         <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
@@ -113,6 +112,7 @@
 
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
+        <cxf.version>3.0.4.redhat-621032</cxf.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
