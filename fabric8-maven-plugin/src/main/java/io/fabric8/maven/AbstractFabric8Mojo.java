@@ -409,11 +409,13 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     } catch (Throwable e) {
                         Throwable cause = e;
 
+                        boolean notFound = false;
                         boolean connectError = false;
                         Iterable<Throwable> it = createExceptionIterable(e);
                         for (Throwable t : it) {
                             connectError = t instanceof ConnectException || "No route to host".equals(t.getMessage());
-                            if (connectError) {
+                            notFound = t instanceof IllegalArgumentException || t.getMessage() != null && t.getMessage().startsWith("No kubernetes service could be found for name");
+                            if (connectError || notFound) {
                                 cause = t;
                                 break;
                             }
@@ -421,6 +423,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
                         if (connectError) {
                             getLog().warn("Cannot connect to Kubernetes to find jenkins service URL: " + cause.getMessage());
+                        } else if (notFound) {
+                            // the message from the exception is good as-is
+                            getLog().warn(cause.getMessage());
                         } else {
                             getLog().warn("Cannot find jenkins service URL: " + cause, cause);
                         }
@@ -445,9 +450,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 } catch (Throwable e) {
                     Throwable cause = e;
 
+                    boolean notFound = false;
                     boolean connectError = false;
                     Iterable<Throwable> it = createExceptionIterable(e);
                     for (Throwable t : it) {
+                        notFound = t instanceof IllegalArgumentException || t.getMessage() != null && t.getMessage().startsWith("No kubernetes service could be found for name");
                         connectError = t instanceof ConnectException || "No route to host".equals(t.getMessage());
                         if (connectError) {
                             cause = t;
@@ -457,6 +464,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
                     if (connectError) {
                         getLog().warn("Cannot connect to Kubernetes to find gogs service URL: " + cause.getMessage());
+                    } else if (notFound) {
+                        // the message from the exception is good as-is
+                        getLog().warn(cause.getMessage());
                     } else {
                         getLog().warn("Cannot find gogs service URL: " + cause, cause);
                     }
