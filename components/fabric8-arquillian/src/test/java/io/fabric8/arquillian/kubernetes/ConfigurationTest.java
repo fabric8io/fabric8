@@ -16,6 +16,8 @@
 
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.client.Config;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -73,6 +75,11 @@ public class ConfigurationTest {
         System.getProperties().remove(GOFABRIC8_ENABLED);
     }
 
+    @After
+    public void tearDown() {
+        setUp();
+    }
+
     @Test
     public void testWithConfigMap() {
         String expctedMaster = "http://expected.master:80";
@@ -125,7 +132,17 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testConfigWithSystemProperteis() {
+    public void testFallbackToClientsDefaults() {
+        //Let's provide a fake kubeconfig for the client.
+        System.setProperty(Config.KUBERNETES_KUBECONFIG_FILE, getClass().getResource("/test-kubeconfig").getFile());
+        Configuration config = Configuration.fromMap(new HashMap<String, String>());
+        assertNotNull(config);
+
+        assertEquals("https://from.kube.config:8443/", config.getMasterUrl());
+    }
+
+    @Test
+    public void testConfigWithSystemProperties() {
         String expctedMaster = "http://expected.master:80";
         String expectedNamespace = "expected.namespace";
         String expectedDomain = "expected.domain";
@@ -176,7 +193,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testConfigWithSystemProperteisAndConfigMap() {
+    public void testConfigWithSystemPropertiesAndConfigMap() {
         String expctedMaster = "http://expected.master:80";
         String expectedNamespace = "expected.namespace";
         String expectedDomain = "expected.domain";

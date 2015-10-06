@@ -15,6 +15,8 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.utils.Strings;
 
@@ -53,6 +55,8 @@ import static io.fabric8.arquillian.kubernetes.Constants.WAIT_POLL_INTERVAL;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_TIMEOUT;
 
 public class Configuration {
+
+    private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
 
     private String masterUrl;
     private List<String> environmentDependencies = new ArrayList<>();
@@ -155,7 +159,7 @@ public class Configuration {
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
-            configuration.masterUrl = getStringProperty(KUBERNETES_MASTER, map, DEFAULT_KUBERNETES_MASTER);
+            configuration.masterUrl = getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CONFIG.getMasterUrl());
             configuration.environmentInitEnabled = getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true);
             configuration.environmentConfigUrl = getKubernetesConfigurationUrl(map);
             configuration.environmentDependencies = Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ");
