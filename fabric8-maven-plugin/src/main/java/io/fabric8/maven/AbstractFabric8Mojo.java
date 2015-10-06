@@ -15,6 +15,34 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectRepositories;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,31 +70,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
-import io.fabric8.devops.ProjectRepositories;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.maven.support.JsonSchema;
-import io.fabric8.maven.support.JsonSchemas;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.Template;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
-import io.fabric8.utils.URLUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
@@ -490,18 +493,16 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
             try (Repository repository = getGitRepository(basedir, envVarName)) {
                 if (repository != null) {
-                    String fullBranch = repository.getFullBranch();
-                    if (fullBranch == null) {
-                        fullBranch = repository.getBranch();
+                    System.out.println("Looking at repo with directory " + repository.getDirectory());
+                    Iterable<RevCommit> logs = new Git(repository).log().call();
+                    for (RevCommit rev : logs) {
+                        return rev.getName();
                     }
-                    if (fullBranch != null) {
-                        ObjectId id = repository.resolve(fullBranch);
-                        if (id != null) {
-                            return id.getName();
-                        }
-                    }
+                    getLog().warn("Cannot default " + envVarName + " no commits could be found");
+                } else {
+                    getLog().warn("Cannot default " + envVarName + " as no git repository could be found");
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 getLog().warn("Failed to find git commit id. " + e, e);
             }
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
@@ -541,15 +542,10 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     protected Repository getGitRepository(File basedir, String envVarName) {
         try {
             Repository repository = null;
-/*
-            File gitFolder = GitHelpers.findGitRootFolder(basedir);
-            if (gitFolder != null) {
-            }
-*/
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            repository = builder.setGitDir(basedir)
+            repository = builder
                     .readEnvironment() // scan environment GIT_* variables
-                    .findGitDir() // scan up the file system tree
+                    .findGitDir(basedir) // scan up the file system tree
                     .build();
             if (repository == null) {
                 getLog().warn("Cannot create default value for $" + envVarName + " as no .git/config file could be found");
