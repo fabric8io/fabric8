@@ -28,6 +28,7 @@ import io.fabric8.maven.support.JsonSchemas;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -383,6 +384,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     protected String tryDefaultAnnotationEnvVar(String envVarName) {
         MavenProject rootProject = getRootProject();
         File basedir = rootProject.getBasedir();
+        if (basedir == null) {
+            basedir = getProject().getBasedir();
+        }
+        if (basedir == null) {
+            basedir = new File(System.getProperty("basedir", "."));
+        }
         ProjectConfig projectConfig = ProjectConfigs.loadFromFolder(basedir);
         String repoName = rootProject.getArtifactId();
 
@@ -541,17 +548,21 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     protected Repository getGitRepository(File basedir, String envVarName) {
         try {
-            Repository repository = null;
+            File gitFolder = GitHelpers.findGitFolder(basedir);
+            if (gitFolder == null) {
+                getLog().warn("Could not find .git folder based on the current basedir of " + basedir);
+                return null;
+            }
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            repository = builder
-                    .readEnvironment() // scan environment GIT_* variables
-                    .findGitDir(basedir) // scan up the file system tree
+            Repository repository = builder
+                    .readEnvironment()
+                    .setGitDir(gitFolder)
                     .build();
             if (repository == null) {
                 getLog().warn("Cannot create default value for $" + envVarName + " as no .git/config file could be found");
             }
             return repository;
-        } catch (IOException e) {
+        } catch (Exception e) {
             getLog().warn("Failed to initialise Git Repository: " + e, e);
             return null;
         }
