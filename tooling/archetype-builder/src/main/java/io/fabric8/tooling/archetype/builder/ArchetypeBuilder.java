@@ -75,6 +75,7 @@ public class ArchetypeBuilder {
         "md",
         "properties",
         "scala",
+        "sh",   /* sometimes we have .sh scripts in src/test/resources */
         "ssp",
         "ts",
         "txt",
