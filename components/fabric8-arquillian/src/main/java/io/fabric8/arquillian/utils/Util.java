@@ -236,40 +236,4 @@ public class Util {
         }
         return annotations;
     }
-
-    public static List<String> getMavenDependencies(Session session) throws IOException {
-        List<String> dependencies = new ArrayList<>();
-        try {
-            File[] files = Maven.resolver().loadPomFromFile("pom.xml").importTestDependencies().resolve().withoutTransitivity().asFile();
-            for (File f : files) {
-                if (f.getName().endsWith("jar") && hasKubernetesJson(f)) {
-                    Path dir = Files.createTempDirectory(session.getId());
-                    try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
-                        Zips.unzip(new FileInputStream(f), dir.toFile());
-                        File jsonPath = dir.resolve(DEFAULT_CONFIG_FILE_NAME).toFile();
-                        if (jsonPath.exists()) {
-                            dependencies.add(jsonPath.toURI().toString());
-                        }
-                    }
-                } else if (f.getName().endsWith(".json")) {
-                    dependencies.add(f.toURI().toString());
-                }
-            }
-        } catch (Exception e) {
-            session.getLogger().warn("Skipping maven project dependencies. Caused by:" + e.getMessage());
-        }
-        return dependencies;
-    }
-
-
-    private static boolean hasKubernetesJson(File f) throws IOException {
-        try (FileInputStream fis = new FileInputStream(f); JarInputStream jis = new JarInputStream(fis)) {
-            for (JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-                if (entry.getName().equals(DEFAULT_CONFIG_FILE_NAME)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }
