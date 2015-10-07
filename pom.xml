@@ -148,7 +148,7 @@
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
-        <mockserver.version>3.10.0</mockserver.version>
+        <mockserver.version>3.10.1</mockserver.version>
         <mvel.version>2.2.7.Final</mvel.version>
         <openejb.container.version>4.7.2</openejb.container.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
