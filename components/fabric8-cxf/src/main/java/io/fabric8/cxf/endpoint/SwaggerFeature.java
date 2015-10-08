@@ -18,7 +18,6 @@ package io.fabric8.cxf.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
@@ -29,7 +28,7 @@ import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.FactoryBeanListener;
 import org.apache.cxf.service.factory.FactoryBeanListenerManager;
 
-public class SwaggerFeature extends org.apache.cxf.jaxrs.swagger.Swagger2Feature {
+public class SwaggerFeature extends org.apache.cxf.jaxrs.swagger.SwaggerFeature {
     
     @Override
     protected void initializeProvider(InterceptorProvider provider, final Bus bus) {
