@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="4.4" data-basepath="." data-revision="Thu Oct 08 2015 17:45:06 GMT+0000 (UTC)">
+    <div class="book" data-level="4.4" data-basepath="." data-revision="Thu Oct 08 2015 19:08:28 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1177,7 +1177,7 @@
 <p><img src="images/apiman1.png" alt="apiman overview diagram">.</p>
 <p><em>Overview of the apiman components</em></p>
 <h3 id="apiman-on-fabric8"><a name="apiman-on-fabric8" class="plugin-anchor" href="#apiman-on-fabric8"><span class="fa fa-link"></span></a>Apiman on Fabric8</h3>
-<p>Apiman is deployed on top of Fabric8. This means that both apiman and the gateway are Kubernetes Services, backed by one of more Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps.</p>
+<p>Apiman is deployed on top of Fabric8. This means that both apiman and the gateway are deployed as a microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.</p>
 <h3 id="getting-started"><a name="getting-started" class="plugin-anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting started</h3>
 <p>Getting started is easy, you must run the <strong>apiman</strong> app group:</p>
 <ul>
@@ -1188,8 +1188,15 @@
 <ul>
 <li>In the <a href="console.html">Console</a> click on <strong>API Management</strong>.</li>
 </ul>
-<p>and if you run in vagrant this url would be <a href="http://apiman.vagrant" target="_blank">http://apiman.vagrant</a>, but there are also entries in the menu navigation to get to &apos;API Management&apos;. The apiman dashboard will show. If this is the first time you launch it, please go into the Admin section and check that the bootstrap process loaded Policies, Users and the apiman gateway. In the apiman gateway screen you can clik the <strong>Test Gateway</strong> button to check that apiman can interact with the apiman gateway.</p>
-<p>Note that there is a known issue where apiman can come up before elasticsearch which can lead to the apiman not being able to find elasticsearch. This leads to the apiman cnonsole not being available. Killing the apiman pod(s) so they can restart will usually clear this.</p>
+<p>and if you run in vagrant this url would be <a href="http://apiman.vagrant" target="_blank">http://apiman.vagrant</a>, but there are also entries in the menu navigation to get to &apos;API Management&apos;. The apiman dashboard will show. If this is the first time you launch it, please go into the Admin section and check that the bootstrap process loaded the Roles, Policy Definitions and the apiman gateway.</p>
+<p><img src="images/apiman-roles.png" alt="Roles">.</p>
+<p><em>Roles</em></p>
+<p><img src="images/apiman-policydefinitions.png" alt="Policy Definitions">.</p>
+<p><em>Policy Definitions</em></p>
+<p><img src="images/apiman-gateway.png" alt="APIManGateway">.</p>
+<p><em>APIManGateway</em></p>
+<p>In the apiman gateway screen you can click the <strong>Test Gateway</strong> button to check that apiman can interact with the apiman gateway.</p>
+<p>Note that there is a known issue where apiman can come up before elasticsearch which can lead to the apiman not being able to find elasticsearch. This leads to the apiman console not being available. Killing the apiman pod(s) so they restart will usually clear this.</p>
 <h3 id="apiman-datamodel"><a name="apiman-datamodel" class="plugin-anchor" href="#apiman-datamodel"><span class="fa fa-link"></span></a>Apiman Datamodel</h3>
 <p>It is perhaps most important to understand the various entities used by the API Manager, as well as their relationships with each other.</p>
 <h4 id="organizations"><a name="organizations" class="plugin-anchor" href="#organizations"><span class="fa fa-link"></span></a>Organizations</h4>
@@ -1209,9 +1216,7 @@
 <h4 id="services"><a name="services" class="plugin-anchor" href="#services"><span class="fa fa-link"></span></a>Services</h4>
 <p>A service represents an external API that is being governed by the API management system. A service consists of a set of metadata including name and description as well as an external endpoint defining the API implementation. The external API implementation endpoint includes the type/protocol and the actual endpoint location so that the API can be properly proxied to at runtime.</p>
 <p>In addition, policies can be configured on a service. Typically, the policies applied to services are things like authentication. Any policies configured on service will be applied at runtime regardless of the application and service contract. This is why authentication is a common policy to configure at the service level.</p>
-<p>Services must be offered through a valid plan configured in the same organization. Service consumers must consume the service through one of those plans. Please see the section on Service Contracts for more information.
-Tip</p>
-<p>Note that, alternatively, Services can be marked as &quot;Public&quot;, which means they (once published) can be used by any client, without needing a Contract. To use a public service, simply send requests to the appropriate managed endpoint (through the API Gateway) without providing an API Key.</p>
+<p>Services must be offered through a valid plan configured in the same organization. Service consumers must consume the service through one of those plans. Please see the section on Service Contracts for more information. Note that, alternatively, Services can be marked as &quot;Public&quot;, which means they (once published) can be used by any client, without needing a Contract. To use a public service, simply send requests to the appropriate managed endpoint (through the API Gateway) without providing an API Key.</p>
 <p>Only once a service is fully configured, including its policies, implementation, and plans can it be published to the runtime gateway for consumption by applications. Once this is done, the service cannot be changed. If changes are required, a new version of the service must be created and configured.</p>
 <h4 id="applications"><a name="applications" class="plugin-anchor" href="#applications"><span class="fa fa-link"></span></a>Applications</h4>
 <p>An application represents a consumer of an API. Typical API consumers are things like mobile applications and B2B applications. Regardless of the actual application implementation, an application must be added to the API management system so that contracts can be created between it and the services it wishes to consume.</p>
@@ -1230,8 +1235,39 @@ Tip</p>
 </ul>
 <p>Within these individual sections, the end user can specify the order of the policies.</p>
 <p>When a request for a service is received by the API Gateway the policy chain is applied to the request in the order listed above. If none of the policies fail, the API Gateway will proxy the request to the backend API implementation. Once a response is received from the back end API implementation, the policy chain is then applied in reverse order to that response. This allows each policy to be applied twice, once to the inbound request and then again to the outbound response.</p>
-<h3 id="importing-services-from-fabric8"><a name="importing-services-from-fabric8" class="plugin-anchor" href="#importing-services-from-fabric8"><span class="fa fa-link"></span></a>Importing Services from Fabric8</h3>
-<p>Let&apos;s assume you have deployed the CxfCdi quickstart in Fabric8 and that you created your organization in apiman. You can now navigate to the Organization/Service page to import this service into apiman. You may notice that </p>
+<h3 id="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><a name="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway" class="plugin-anchor" href="#importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><span class="fa fa-link"></span></a>Importing a service from Fabric8 and publishing it to the gateway</h3>
+<p>Let&apos;s assume you have deployed the CxfCdi quickstart in Fabric8 and that you created your organization in apiman. You can now navigate to the Organization/Service page to import this service into apiman. Apiman will contact Kubernetes to obtain list of services in your namespace that match your search string. Use &apos;*&apos; to match all service. </p>
+<p>!TODO add Image</p>
+<p>Select import as &apos;Public Service&apos; as we don&apos;t yet have any Plans or Policies set up. We can add those later. Please notice that after the import is complete, the service has discovered the serviceUrl, serviceType, descriptionUrl and descriptionType. When the service was published to Kubernetes the service developer added this information using Kubernetes Service Annotations.</p>
+<h4 id="kubernetes-service-annotations"><a name="kubernetes-service-annotations" class="plugin-anchor" href="#kubernetes-service-annotations"><span class="fa fa-link"></span></a>Kubernetes Service Annotations</h4>
+<p>Kubernetes allows the creation of Service Annotations. Here we propose the use of the following annotations</p>
+<ul>
+<li><p>&apos;fabric8.io/servicepath&apos; - the path part of the service endpoint url. An example value could be &apos;cxfcdi&apos;,</p>
+</li>
+<li><p>&apos;fabric8.io/servicetype&apos; - the protocol of the service. Example values can be &apos;SOAP&apos; or &apos;REST&apos;,</p>
+</li>
+<li><p>&apos;fabric8.io/descriptionpath&apos; - the path part of the service description document&#x2019;s endpoint. It is a pretty safe assumption that the service self documents. An example value for a swagger 2.0 document can be &apos;cxfcdi/swagger.json&apos;,</p>
+</li>
+<li><p>&apos;fabric8.io/descriptiontype&apos; - the type of Description Language used. Example values can be &apos;WSDL&apos;, &apos;WADL&apos;, &apos;SwaggerJSON&apos;, &apos;SwaggerYAML&apos;.</p>
+</li>
+</ul>
+<p>The fragment below is taken from the service section of the kubernetes.json were these annotations are used</p>
+<pre><code>...
+&quot;objects&quot; : [ {
+  &quot;apiVersion&quot; : &quot;v1&quot;,
+  &quot;kind&quot; : &quot;Service&quot;,
+  &quot;metadata&quot; : {
+    &quot;annotations&quot; : {
+      &quot;fabric8.io/servicetype&quot; : &quot;REST&quot;,
+      &quot;fabric8.io/servicepath&quot; : &quot;cxfcdi&quot;,
+      &quot;fabric8.io/descriptionpath&quot; : &quot;cxfcdi/swagger.json&quot;,
+      &quot;fabric8.io/descriptiontype&quot; : &quot;SwaggerJSON&quot;
+  },
+...
+</code></pre><h4 id="applying-a-policy-to-a-public-service"><a name="applying-a-policy-to-a-public-service" class="plugin-anchor" href="#applying-a-policy-to-a-public-service"><span class="fa fa-link"></span></a>Applying a Policy to a &apos;Public Service&apos;</h4>
+<p>! TODO Image</p>
+<h3 id="publishing-the-service-to-the-gateway"><a name="publishing-the-service-to-the-gateway" class="plugin-anchor" href="#publishing-the-service-to-the-gateway"><span class="fa fa-link"></span></a>Publishing the service to the gateway</h3>
+<h3 id=""><a name="" class="plugin-anchor" href="#"><span class="fa fa-link"></span></a> </h3>
 <p>  To learn more about its capabilities and how to use it, please
 refer to the <a href="http://www.apiman.io/latest/user-guide.html" target="_blank">apiman User Guide</a> and other
 <a href="http://www.apiman.io/latest/tutorials.html" target="_blank">tutorial</a> resources on the apiman project site.</p>
