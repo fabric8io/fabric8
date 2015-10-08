@@ -82,14 +82,14 @@
         <maven.compiler.argument.target>${maven.compiler.target}</maven.compiler.argument.target>
         <maven.compiler.argument.source>${maven.compiler.source}</maven.compiler.argument.source>
 
-        <activemq.version>5.11.0.redhat-621032</activemq.version>
+        <activemq.version>5.11.0.redhat-621047</activemq.version>
         <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian-core.version>1.1.9.Final</arquillian-core.version>
         <arquillian-junit-container.version>1.1.9.Final</arquillian-junit-container.version>
         <asm.version>5.0.4</asm.version>
         <assertj.core.version>1.7.0</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
-        <camel.version>2.15.1.redhat-621032</camel.version>
+        <camel.version>2.15.1.redhat-621047</camel.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-fileupload.version>1.3.1</commons-fileupload.version>
@@ -98,8 +98,8 @@
         <commons-lang.version>2.6</commons-lang.version>
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
-        <cxf.version>3.0.4.redhat-621032</cxf.version>
-        <cxf.plugin.version>3.0.4.redhat-621032</cxf.plugin.version>
+        <cxf.version>3.0.4.redhat-621047</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621047</cxf.plugin.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
