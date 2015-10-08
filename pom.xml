@@ -1690,6 +1690,17 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>io/fabric8/arquillian/DependencyResolverTest.java</exclude>
+                                <exclude>io/fabric8/cdi/weld/internal/ExtensionInternalTest.java</exclude>
+                                <exclude>io/fabric8/cdi/weld/external/ExtensionExternalTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <executions>
                             <execution>
