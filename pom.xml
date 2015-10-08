@@ -1332,17 +1332,22 @@
                  <version>${swagger.jaxrs.version}</version>
              </dependency>
 
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${arquillian-core.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
+            <!-- Shrinkwrap NEEDS to be defined before arquillian
+                It seems that maven uses the first bom wins rule
+                when 2 boms define the same version of a single artifact.
+             -->
             <dependency>
                 <groupId>org.jboss.shrinkwrap.resolver</groupId>
                 <artifactId>shrinkwrap-resolver-bom</artifactId>
                 <version>${shrinkwrap-resolver.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${arquillian-core.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
