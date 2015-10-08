@@ -52,7 +52,9 @@
     -->
     <module>fabric8-cxf-plugins</module>
     <module>fabric8-groups</module>
+    <!-- jgroups is disabled in redhat branch
     <module>fabric8-jgroups</module>
+    -->
     <module>fabric8-selenium</module>
     <module>fabric8-utils</module>
     <module>fabric8-vertx</module>
