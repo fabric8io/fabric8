@@ -16,7 +16,7 @@ From the distribution or source code perform these commands to push the docker i
 
 Now let's navigate to the specific quickstart:
 
-    cd quickstarts/war/camel-servlet
+    cd quickstart/war/camel-servlet
     mvn clean install docker:build 
 
 Now let's deploy the image into the Kubernetes environment:

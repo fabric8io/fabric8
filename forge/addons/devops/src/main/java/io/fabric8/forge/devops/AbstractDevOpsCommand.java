@@ -16,9 +16,9 @@
 package io.fabric8.forge.devops;
 
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -28,13 +28,16 @@ import org.apache.maven.model.Scm;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
+import org.jboss.forge.addon.projects.Projects;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIContextProvider;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UISelection;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.output.UIOutput;
@@ -45,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.PrintStream;
+import java.util.Map;
 
 /**
  * An abstract base class for DevOps related commands
@@ -120,6 +124,30 @@ public class AbstractDevOpsCommand extends AbstractProjectCommand implements UIC
 
     @Override
     public void initializeUI(UIBuilder uiBuilder) throws Exception {
+    }
+
+    public Project getCurrentSelectedProject(UIContext context) {
+        Project project = null;
+        Map<Object, Object> attributeMap = context.getAttributeMap();
+        if (attributeMap != null) {
+            Object object = attributeMap.get(Project.class);
+            if (object instanceof Project) {
+                project = (Project) object;
+                return project;
+            }
+        }
+        UISelection<Object> selection = context.getSelection();
+        Object selectedObject = selection.get();
+        try {
+            LOG.info("START getCurrentSelectedProject: on " + getProjectFactory() + " selection: " + selectedObject + ". This may result in mvn artifacts being downloaded to ~/.m2/repository");
+            project = Projects.getSelectedProject(getProjectFactory(), context);
+            if (project != null && attributeMap != null) {
+                attributeMap.put(Project.class, project);
+            }
+            return project;
+        } finally {
+            LOG.info("END   getCurrentSelectedProject: on " + getProjectFactory() + " selection: " + selectedObject);
+        }
     }
 
     @Override

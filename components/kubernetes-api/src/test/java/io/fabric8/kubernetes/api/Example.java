@@ -15,11 +15,26 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountList;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-
-import java.util.*;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
@@ -28,55 +43,36 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
  * A simple example program testing out the REST API
  */
 public class Example {
+
     public static void main(String... args) {
+        System.out.println("\n\nfabric8 Kubernetes-api example");
+        KubernetesClient kube = new DefaultKubernetesClient();
+        System.out.println("=========================================================================");
+
         try {
-            KubernetesClient kube = new DefaultKubernetesClient();
             listPods(kube);
-            listServices(kube);
             listReplicationControllers(kube);
-            createPod(kube);
-            listPods(kube);
+            listServices(kube);
+            listServiceAccounts(kube);
+            listEndpoints(kube);
+
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
+        } finally {
+            kube.close();
         }
-    }
-
-    protected static void createPod(KubernetesClient kubernetes) throws Exception {
-        String name = "console2";
-        String image = "fabric8/hawtio";
-
-        Pod pod = new Pod();
-        KubernetesHelper.setName(pod, name);
-
-        Map<String, String> labels = new HashMap<>();
-        labels.put("fabric8", "true");
-        labels.put("container", name);
-
-        pod.getMetadata().setLabels(labels);
-        PodSpec podSpec = new PodSpec();
-        pod.setSpec(podSpec);
-
-        Container manifestContainer = new Container();
-        manifestContainer.setName(name);
-        manifestContainer.setImage(image);
-
-        List<Container> containers = new ArrayList<>();
-        containers.add(manifestContainer);
-        podSpec.setContainers(containers);
-
-        kubernetes.pods().inNamespace("mynamespace").create(pod);
-        System.out.println("Created pod: " + name);
-        System.out.println();
+        System.out.println("=========================================================================");
     }
 
     protected static void listPods(KubernetesClient kube) {
-        System.out.println("Looking up pods");
+        System.out.println("\n\nLooking up pods");
+        System.out.println("=========================================================================");
         PodList pods = kube.pods().list();
         //System.out.println("Got pods: " + pods);
         List<Pod> items = pods.getItems();
         for (Pod item : items) {
-            System.out.println("Pod " + KubernetesHelper.getName(item) + " created: " + item.getMetadata().getCreationTimestamp());
+            System.out.println("Pod " + KubernetesHelper.getName(item) + " with ip: " + item.getStatus().getPodIP() + " created: " + item.getMetadata().getCreationTimestamp());
             PodSpec spec = item.getSpec();
             if (spec != null) {
                 List<Container> containers = spec.getContainers();
@@ -100,7 +96,8 @@ public class Example {
     }
 
     protected static void listServices(KubernetesClient kube) {
-        System.out.println("Looking up services");
+        System.out.println("\n\nLooking up services");
+        System.out.println("=========================================================================");
         ServiceList services = kube.services().list();
         List<Service> serviceItems = services.getItems();
         for (Service service : serviceItems) {
@@ -111,7 +108,8 @@ public class Example {
     }
 
     protected static void listReplicationControllers(KubernetesClient kube) {
-        System.out.println("Looking up replicationControllers");
+        System.out.println("\n\nLooking up replicationControllers");
+        System.out.println("=========================================================================");
         ReplicationControllerList replicationControllers = kube.replicationControllers().list();
         List<ReplicationController> items = replicationControllers.getItems();
         for (ReplicationController item : items) {
@@ -127,13 +125,25 @@ public class Example {
     }
 
     protected static void listServiceAccounts(KubernetesClient kube) {
-        System.out.println("Looking up service accounts");
+        System.out.println("\n\nLooking up service accounts");
+        System.out.println("=========================================================================");
         ServiceAccountList serviceAccounts = kube.serviceAccounts().list();
         List<ServiceAccount> serviceAccountItems = serviceAccounts.getItems();
         for (ServiceAccount serviceAccount : serviceAccountItems) {
             System.out.println("Service Account " + KubernetesHelper.getName(serviceAccount) + " labels: " + serviceAccount.getMetadata().getLabels());
         }
         System.out.println();    
+    }
+
+    protected static void listEndpoints(KubernetesClient kube) {
+        System.out.println("\n\nLooking up endpoints");
+        System.out.println("=========================================================================");
+        EndpointsList endpoints = kube.endpoints().list();
+        List<Endpoints> endpointItems = endpoints.getItems();
+        for (Endpoints endpoint : endpointItems) {
+            System.out.println("Endpoint " + KubernetesHelper.getName(endpoint) + " labels: " + endpoint.getMetadata().getLabels());
+        }
+        System.out.println();
     }
 
 }

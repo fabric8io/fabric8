@@ -107,7 +107,7 @@ public class NewIntegrationTestClassCommand extends AbstractDevOpsCommand {
     public void initializeUI(final UIBuilder builder) throws Exception {
         super.initializeUI(builder);
 
-        Project project = getSelectedProject(builder.getUIContext());
+        Project project = getCurrentSelectedProject(builder.getUIContext());
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
         targetPackage.setCompleter(new TestPackageNameCompleter(facet));

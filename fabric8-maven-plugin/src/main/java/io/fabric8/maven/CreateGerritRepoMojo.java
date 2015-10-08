@@ -1,6 +1,7 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.gerrit.ProjectInfoDTO;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -12,6 +13,22 @@ import io.fabric8.utils.Strings;
 import io.fabric8.utils.cxf.WebClients;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AUTH;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.MalformedChallengeException;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.DigestScheme;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -24,6 +41,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import java.io.*;
+import java.net.ConnectException;
 import java.util.List;
 
 import static io.fabric8.utils.cxf.JsonHelper.toJson;
@@ -89,7 +107,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
     }
 
-    private static boolean createGerritRepo(KubernetesClient kubernetes, String namespace, Log log, String gerritUser, String gerritPwd, String repoName, String description, String empty_commit) throws MojoExecutionException, JsonProcessingException {
+    private static boolean createGerritRepo(KubernetesClient kubernetes, String namespace, Log log, String gerritUser, String gerritPwd, String repoName, String description, String empty_commit) throws MojoExecutionException, IOException {
 
         // lets add defaults if not env vars
         if (Strings.isNullOrBlank(gerritUser)) {
@@ -98,6 +116,9 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         if (Strings.isNullOrBlank(gerritPwd)) {
             gerritPwd = "secret";
         }
+        
+        // TODO
+        // Check boolean & use Log4J
 
         String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
         log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
@@ -107,71 +128,65 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
         log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
 
-        List<Object> providers = WebClients.createProviders();
-        providers.add(new RemovePrefix());
-        WebClient webClient = WebClient.create(gerritAddress, providers);
-        disableSslChecks(webClient);
-        configureUserAndPassword(webClient, gerritUser, gerritPwd);
-        enableDigestAuthenticaionType(webClient);
-        GitApi gitApi = JAXRSClientFactory.fromClient(webClient, GitApi.class);
-        
-        // Check first if a Git repo already exists in Gerrit
-        ProjectInfoDTO project = null;
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        DefaultHttpClient httpclientPost = new DefaultHttpClient();
+        String GERRIT_URL= gerritAddress + "/a/projects/" + repoName;
+        HttpGet httpget = new HttpGet(GERRIT_URL);
+        System.out.println("Requesting : " + httpget.getURI());
+
         try {
-            project = gitApi.getRepository(repoName);
-        } catch (WebApplicationException ex) {
-            // If we get Response Status = 404, then no repo exists. So we can create it
-            if (ex.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            //Initial request without credentials returns "HTTP/1.1 401 Unauthorized"
+            HttpResponse response = httpclient.execute(httpget);
+            System.out.println(response.getStatusLine());
+
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                // Get current current "WWW-Authenticate" header from response
+                // WWW-Authenticate:Digest realm="My Test Realm", qop="auth",
+                // nonce="cdcf6cbe6ee17ae0790ed399935997e8", opaque="ae40d7c8ca6a35af15460d352be5e71c"
+                Header authHeader = response.getFirstHeader(AUTH.WWW_AUTH);
+                System.out.println("authHeader = " + authHeader);
+
+                DigestScheme digestScheme = new DigestScheme();
+
+                //Parse realm, nonce sent by server.
+                digestScheme.processChallenge(authHeader);
+
+                UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "secret");
+                httpget.addHeader(digestScheme.authenticate(creds, httpget, null));
+
+                HttpPost httpPost = new HttpPost(GERRIT_URL);
+                httpPost.addHeader(digestScheme.authenticate(creds, httpPost, null));
+                httpPost.addHeader("Content-Type", "application/json");
+
                 CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
-                createRepoDTO.setDescription(description);
+                createRepoDTO.setDescription("my cool git repo");
                 createRepoDTO.setName(repoName);
                 createRepoDTO.setCreate_empty_commit(Boolean.valueOf(empty_commit));
 
-                RepositoryDTO repository = gitApi.createRepository(repoName, createRepoDTO);
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(createRepoDTO);
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Git Repo created : " + toJson(repository));
-                }
-                log.info("Created git repo for " + repoName + " for namespace: " + namespace + " on gogs URL: " + gerritAddress);
-
-                return true;
+                HttpEntity entity = new StringEntity(json);
+                httpPost.setEntity(entity);
+                
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                String responseBody = httpclientPost.execute(httpPost, responseHandler);
+                System.out.println("responseBody : " + responseBody);
             }
-        }
 
-        if ((project != null) && (project.getName().equals(repoName))) {
+        } catch (MalformedChallengeException e) {
+            e.printStackTrace();
+        } catch (AuthenticationException e) {
+            e.printStackTrace();
+        } catch (ConnectException e) {
+            System.out.println("Gerrit Server is not responding");
+        } catch (HttpResponseException e) {
+            System.out.println("Response from Gerrit Server : " + e.getMessage());
             throw new MojoExecutionException("Repository " + repoName + " already exists !");
+        } finally {
+            httpclient.getConnectionManager().shutdown();
+            httpclientPost.getConnectionManager().shutdown();
         }
-        
         return false;
     }
-
-    @Priority(value = 1000)
-    protected static class RemovePrefix implements ReaderInterceptor {
-
-        @Override
-        public Object aroundReadFrom(ReaderInterceptorContext interceptorContext)
-                throws IOException, WebApplicationException {
-            InputStream in = interceptorContext.getInputStream();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuilder received = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                received.append(line);
-            }
-            
-            String s = received.toString();
-            s = s.replace(JSON_MAGIC,"");
-
-            System.out.println("Reader Interceptor removing the prefix invoked.");
-            System.out.println("Content cleaned : " + s);
-            
-            String responseContent = new String(s);
-            interceptorContext.setInputStream(new ByteArrayInputStream(
-                    responseContent.getBytes()));
-
-            return interceptorContext.proceed();
-        }
-    }
-
 }

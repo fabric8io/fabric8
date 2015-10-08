@@ -56,6 +56,13 @@ public class ProjectConfig {
         links.put(name, url);
     }
 
+    public String getLink(String name) {
+        if (links != null) {
+            return links.get(name);
+        }
+        return null;
+    }
+
     @JsonIgnore
     public boolean isEmpty() {
         return codeReview == null && Strings.isNullOrBlank(chatRoom) && Strings.isNullOrBlank(issueProjectName) && Strings.isNullOrBlank(flow)

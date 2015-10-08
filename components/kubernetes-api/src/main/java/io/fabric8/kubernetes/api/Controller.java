@@ -833,7 +833,7 @@ public class Controller {
                         logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
 
                         if (deletePodsOnReplicationControllerUpdate) {
-                            kubernetesClient.replicationControllers().inNamespace(namespace).withName(KubernetesHelper.getName(replicationController)).delete();
+                            kubernetesClient.pods().inNamespace(namespace).withLabels(replicationController.getSpec().getSelector()).delete();
                             LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
                         } else {
                             LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");

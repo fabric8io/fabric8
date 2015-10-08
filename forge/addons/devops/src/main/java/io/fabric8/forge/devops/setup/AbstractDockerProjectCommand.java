@@ -18,6 +18,7 @@ package io.fabric8.forge.devops.setup;
 import java.io.PrintStream;
 import javax.inject.Inject;
 
+import io.fabric8.forge.devops.AbstractDevOpsCommand;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -27,7 +28,7 @@ import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 
-public abstract class AbstractDockerProjectCommand extends AbstractProjectCommand {
+public abstract class AbstractDockerProjectCommand extends AbstractDevOpsCommand {
 
     public static String CATEGORY = "Docker";
 
@@ -40,7 +41,7 @@ public abstract class AbstractDockerProjectCommand extends AbstractProjectComman
     }
 
     protected Project getSelectedProjectOrNull(UIContext context) {
-        return Projects.getSelectedProject(this.getProjectFactory(), context);
+        return getCurrentSelectedProject(context);
     }
 
     @Override

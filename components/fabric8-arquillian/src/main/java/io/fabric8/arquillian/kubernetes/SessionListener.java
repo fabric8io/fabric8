@@ -73,7 +73,9 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
+
     private ShutdownHook shutdownHook;
+    private DependencyResolver resolver = new DependencyResolver();
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         Session session = event.getSession();
@@ -103,7 +105,7 @@ public class SessionListener {
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
-            List<String> dependencies = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : Util.getMavenDependencies(session);
+            List<String> dependencies = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : resolver.resolve(session);
             List<KubernetesList> kubeConfigs = new LinkedList<>();
 
             if (configuration.isEnvironmentInitEnabled()) {

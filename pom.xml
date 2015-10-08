@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>2.2.38-SNAPSHOT</version>
+    <version>2.2.44-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -83,7 +83,7 @@
         <maven.compiler.argument.source>${maven.compiler.source}</maven.compiler.argument.source>
 
         <activemq.version>5.11.0.redhat-621032</activemq.version>
-        <archetype-packaging.version>2.2</archetype-packaging.version>
+        <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian-core.version>1.1.9.Final</arquillian-core.version>
         <arquillian-junit-container.version>1.1.9.Final</arquillian-junit-container.version>
         <asm.version>5.0.4</asm.version>
@@ -104,20 +104,23 @@
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <elasticsearch.version>1.7.2</elasticsearch.version>
-        <exec-maven-plugin.version>1.2.1</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <fabric8.release.version>2.0.48</fabric8.release.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
-        <furnace.version>2.22.3.Final</furnace.version>
+        <furnace.version>2.22.4.Final</furnace.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
         <geronimo-jms.version>1.1.1</geronimo-jms.version>
         <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
-        <gson.version>2.3.1</gson.version>
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
+        <!-- TODO: use older hibernate validator due in EAP? -->
         <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
+        <!--
+        <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
+        -->
         <httpcomponents.version>4.4.1</httpcomponents.version>
         <httpcomponents.async.version>4.1</httpcomponents.async.version>
         <jackson2.version>2.6.2</jackson2.version>
@@ -133,12 +136,17 @@
         <jetty.version>8.1.14.v20131031</jetty.version>
         <jetty9.version>9.2.10.v20150310</jetty9.version>
         <jgit.version>4.1.0.201509280440-r</jgit.version>
-        <jolokia.version>1.3.1</jolokia.version>
+        <jolokia.version>1.3.2</jolokia.version>
+
+        <!-- TODO: use older jgroups due in EAP -->
+        <jgroups.version>3.6.6.Final</jgroups.version>
+        <!--
         <jgroups.version>3.4.4.Final</jgroups.version>
+        -->
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
         <kie.version>6.3.0.Final</kie.version>
-        <kubernetes-client.version>1.3.44</kubernetes-client.version>
+        <kubernetes-client.version>1.3.47</kubernetes-client.version>
         <kubernetes-model.version>1.0.28</kubernetes-model.version>
         <log4j.version>1.2.17</log4j.version>
         <logback.version>1.1.3</logback.version>
@@ -148,7 +156,8 @@
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
-        <mockserver.version>3.10.0</mockserver.version>
+        <mockserver.version>3.10.1</mockserver.version>
+        <mvel.version>2.2.7.Final</mvel.version>
         <openejb.container.version>4.7.2</openejb.container.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
         <osgi-enterprise.version>5.0.0</osgi-enterprise.version>
@@ -163,7 +172,7 @@
         <servlet-api.version>2.5</servlet-api.version>
         <servlet30-api.version>3.0.1</servlet30-api.version>
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
-        <slf4j.version>1.7.7</slf4j.version>
+        <slf4j.version>1.7.12</slf4j.version>
         <snakeyaml.version>1.8</snakeyaml.version>
         <spring.version>4.2.1.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
@@ -1027,12 +1036,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
@@ -1085,7 +1088,7 @@
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-java2wadl-plugin</artifactId>
-                 <version>${cxf.version}</version>
+                 <version>${cxf.plugin.version}</version>
              </dependency>
 
              <dependency>
@@ -1533,17 +1536,13 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>${maven.failsafe.plugin.version}</version>
           </plugin>
-          <plugin>
-                <groupId>io.sundr</groupId>
-                <artifactId>sundr-maven-plugin</artifactId>
-                <version>${sundrio.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-bom</goal>
-                        </goals>
-                    </execution>
-                </executions>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.plugin.version}</version>
+                <configuration>
+                    <additionalparam>${javadoc.opts}</additionalparam>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1556,6 +1555,52 @@
         </plugins>
       </pluginManagement>
       <plugins>
+          <plugin>
+              <groupId>io.sundr</groupId>
+              <artifactId>sundr-maven-plugin</artifactId>
+              <version>${sundrio.version}</version>
+              <configuration>
+                  <boms>
+                      <bom>
+                          <artifactId>fabric8-project-bom</artifactId>
+                          <name>Fabric8 :: Project :: Bom</name>
+                          <dependencies>
+                              <includes>
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+                              </includes>
+                          </dependencies>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                      </bom>
+                      <bom>
+                          <artifactId>fabric8-project-bom-with-deps</artifactId>
+                          <name>Fabric8 :: Project :: Bom with Dependencies</name>
+                          <dependencies>
+                              <includes>
+                                  <include>com.ning:*</include>
+                                  <include>io.netty:*</include>
+                                  <include>com.fasterxml.jackson*:*</include>
+                                  <include>net.oauth*:*</include>
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+                              </includes>
+                          </dependencies>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                      </bom>
+                  </boms>
+              </configuration>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>generate-bom</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>

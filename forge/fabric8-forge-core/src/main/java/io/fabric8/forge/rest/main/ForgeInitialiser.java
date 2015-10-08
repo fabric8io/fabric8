@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,21 +105,39 @@ public class ForgeInitialiser {
         try {
             LOG.info("Now trying to create a new project in: " + tempDir);
             CommandCompletePostProcessor postProcessor = null;
-            commandsResource.doExecute("project-new", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir)));
+            dumpResult(commandsResource.doExecute("project-new", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir))));
 
             LOG.info("Created project!");
             LOG.info("Now lets try validate the devops-edit command");
             executionRequest = new ExecutionRequest();
             step1Inputs = new HashMap<>();
+            step1Inputs.put("from", "fabric8/java");
+            step1Inputs.put("main", "org.apache.camel.cdi.Main");
+            //step1Inputs.put("test", "true");
+
+/*
+            step2Inputs = new HashMap<>();
+            step2Inputs.put("flow", "maven/Deploy.groovy");
+*/
+
             inputList = new ArrayList<>();
             inputList.add(step1Inputs);
+            //inputList.add(step2Inputs);
             executionRequest.setInputList(inputList);
             executionRequest.setWizardStep(1);
 
-            commandsResource.doExecute("devops-edit", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir, projectName)));
-            LOG.info("Validated!");
+            dumpResult(commandsResource.doExecute("devops-edit", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir, projectName))));
+            LOG.info("Dev-Ops!");
         } catch (Exception e) {
             LOG.error("Failed to execute command: " + e, e);
+        }
+    }
+
+    protected void dumpResult(Response response) {
+        LOG.info("Status: "+ response.getStatus());
+        Object entity = response.getEntity();
+        if (entity != null) {
+            LOG.info("Got entity: "+ entity + " " + entity.getClass().getName());
         }
     }
 

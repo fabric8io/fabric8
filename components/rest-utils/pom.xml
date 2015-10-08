@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>components</artifactId>
-    <version>2.2.38-SNAPSHOT</version>
+    <version>2.2.44-SNAPSHOT</version>
   </parent>
 
   <artifactId>rest-utils</artifactId>
@@ -94,7 +94,7 @@
       <artifactId>weld-core</artifactId>
     </dependency>
 
-    <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype
+    <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype 
          WARNING - this quickstart fails with jetty-8.x, the symptoms are that the endpoints are not registered. -->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>

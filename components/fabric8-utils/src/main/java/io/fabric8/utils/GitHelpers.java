@@ -99,4 +99,16 @@ public class GitHelpers {
         }
         return answer;
     }
+
+    public static File findGitFolder(File basedir) {
+        File gitDir = new File(basedir, ".git");
+        if (gitDir.exists() && gitDir.isDirectory()) {
+            return gitDir;
+        }
+        File parent = basedir.getParentFile();
+        if (parent != null) {
+            return findGitFolder(parent);
+        }
+        return null;
+    }
 }
