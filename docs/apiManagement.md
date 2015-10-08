@@ -156,10 +156,10 @@ The fragment below is taken from the service section of the kubernetes.json were
       "kind" : "Service",
       "metadata" : {
         "annotations" : {
-          "fabric8.io/servicetype" : "REST",
-          "fabric8.io/servicepath" : "cxfcdi",
-          "fabric8.io/descriptionpath" : "cxfcdi/swagger.json",
-          "fabric8.io/descriptiontype" : "SwaggerJSON"
+          "apiman.io/servicetype" : "REST",
+          "apiman.io/servicepath" : "cxfcdi",
+          "apiman.io/descriptionpath" : "cxfcdi/swagger.json",
+          "apiman.io/descriptiontype" : "SwaggerJSON"
       },
     ...
 
