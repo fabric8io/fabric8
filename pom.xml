@@ -1517,6 +1517,7 @@
         <module>parent</module>
         <module>fabric8-apt</module>
         <module>fabric8-maven-plugin</module>
+        <module>hawt-app-maven-plugin</module>
         <module>components</module>
         <module>tooling</module>
         <module>forge</module>
