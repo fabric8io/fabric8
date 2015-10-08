@@ -19,10 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
-import io.fabric8.gerrit.ProjectInfoDTO;
 import io.fabric8.gerrit.CreateRepositoryDTO;
-import io.fabric8.gerrit.GitApi;
-import io.fabric8.gerrit.RepositoryDTO;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -47,9 +44,6 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
-import io.fabric8.utils.cxf.WebClients;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -77,7 +71,6 @@ import org.xml.sax.InputSource;
 
 import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -92,11 +85,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
-import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
-import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
-import static io.fabric8.utils.cxf.WebClients.enableDigestAuthenticaionType;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
