@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="5.6" data-basepath="." data-revision="Thu Oct 08 2015 11:25:17 GMT+0000 (UTC)">
+    <div class="book" data-level="5.6" data-basepath="." data-revision="Thu Oct 08 2015 11:35:31 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1172,8 +1172,8 @@ addon-install --coordinate io.fabric8.forge:devops,2.2.43
 addon-install --coordinate io.fabric8.forge:kubernetes,2.2.43
 </code></pre><p>You should be able to see the new commands that are installed via:</p>
 <pre><code>camel&lt;TAB&gt;
-kube&lt;TAB&gt;
-openshift&lt;TAB&gt;
+devops&lt;TAB&gt;
+kubernetes&lt;TAB&gt;
 </code></pre><p>You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what&apos;s available.</p>
 <h3 id="camel"><a name="camel" class="plugin-anchor" href="#camel"><span class="fa fa-link"></span></a>Camel</h3>
 <p>The <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.</p>
@@ -1184,6 +1184,9 @@ openshift&lt;TAB&gt;
 <li>configure the DevOps configuration of a project via the <a href="fabric8YmlFile.html">fabric8.yml file</a></li>
 <li>generate new integration or system tests for a project</li>
 </ul>
+<p>If you are inside a project try:</p>
+<pre><code>forge devops-edit
+</code></pre><p>to open the edit devops command which is a wizard that lets you configure the Docker and Fabric8 build metadata along with setting up the Jenkins workflow CD pipeline and linking the project to a team chat room and issue tracker.</p>
 <h3 id="kubernetes"><a name="kubernetes" class="plugin-anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
 <p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
 <p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
