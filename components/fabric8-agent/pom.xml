@@ -33,7 +33,7 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-apm</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
