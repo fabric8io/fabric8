@@ -248,6 +248,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
     public Result execute(UIExecutionContext context) throws Exception {
         LOG.info("starting to setup fabric8 project");
         Project project = getCurrentSelectedProject(context.getUIContext());
+        if (project == null) {
+            return Results.fail("No pom.xml available so cannot edit the project!");
+        }
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
 

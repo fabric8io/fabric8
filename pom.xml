@@ -70,6 +70,28 @@
     </scm>
 
     <properties>
+
+        <!-- upstream vs redhat versions of dependencies goes here -->
+        <activemq.version>5.11.0.redhat-621047</activemq.version>
+        <camel.version>2.15.1.redhat-621047</camel.version>
+        <cxf.version>3.0.4.redhat-621047</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621047</cxf.plugin.version>
+
+        <commons-configuration.version>1.8</commons-configuration.version>
+        <commons-io2.version>2.4</commons-io2.version>
+        <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
+        <jansi.version>1.11</jansi.version>
+        <jboss.forge.version>2.19.2.Final</jboss.forge.version>
+        <furnace.version>2.22.4.Final</furnace.version>
+        <jolokia.version>1.3.2</jolokia.version>
+        <jgroups.version>3.6.6.Final</jgroups.version>
+        <kie.version>6.3.0.Final</kie.version>
+        <snakeyaml.version>1.16</snakeyaml.version>
+        <swagger.jaxrs.version>1.5.3</swagger.jaxrs.version>
+        <vertx.version>2.1.6</vertx.version>
+        <weld.version>2.3.0.Final</weld.version>
+        <wildfly.version>8.2.2.Final</wildfly.version>
+
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <forge-project-id>fabric</forge-project-id>
         <!-- maven-compiler-plugin -->
@@ -82,33 +104,28 @@
         <maven.compiler.argument.target>${maven.compiler.target}</maven.compiler.argument.target>
         <maven.compiler.argument.source>${maven.compiler.source}</maven.compiler.argument.source>
 
-        <activemq.version>5.11.0.redhat-621047</activemq.version>
+        <fabric8.release.version>2.0.48</fabric8.release.version>
+
         <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian-core.version>1.1.9.Final</arquillian-core.version>
         <arquillian-junit-container.version>1.1.9.Final</arquillian-junit-container.version>
         <asm.version>5.0.4</asm.version>
         <assertj.core.version>1.7.0</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
-        <camel.version>2.15.1.redhat-621047</camel.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-fileupload.version>1.3.1</commons-fileupload.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
-        <commons-io2.version>2.4</commons-io2.version>
         <commons-lang.version>2.6</commons-lang.version>
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
-        <cxf.version>3.0.4.redhat-621047</cxf.version>
-        <cxf.plugin.version>3.0.4.redhat-621047</cxf.plugin.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <elasticsearch.version>1.7.2</elasticsearch.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
-        <fabric8.release.version>2.0.48</fabric8.release.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
-        <furnace.version>2.22.4.Final</furnace.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
         <geronimo-jms.version>1.1.1</geronimo-jms.version>
         <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
@@ -116,36 +133,19 @@
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
-        <!-- TODO: use older hibernate validator due in EAP? -->
-        <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
-        <!--
-        <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
-        -->
         <httpcomponents.version>4.4.1</httpcomponents.version>
         <httpcomponents.async.version>4.1</httpcomponents.async.version>
         <jackson2.version>2.6.2</jackson2.version>
-        <jansi.version>1.11</jansi.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <jasypt.version>1.9.2</jasypt.version>
         <javax.el-version>2.2.5</javax.el-version>
-        <jboss.forge.version>2.19.2.Final</jboss.forge.version>
-        <!-- TODO is this always the same as drools.version? -->
-        <jersey.version>1.18.1</jersey.version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.14.v20131031</jetty-plugin.version>
         <jetty.version>8.1.14.v20131031</jetty.version>
         <jetty9.version>9.2.10.v20150310</jetty9.version>
         <jgit.version>4.1.0.201509280440-r</jgit.version>
-        <jolokia.version>1.3.2</jolokia.version>
-
-        <!-- TODO: use older jgroups due in EAP -->
-        <jgroups.version>3.6.6.Final</jgroups.version>
-        <!--
-        <jgroups.version>3.4.4.Final</jgroups.version>
-        -->
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
-        <kie.version>6.3.0.Final</kie.version>
         <kubernetes-client.version>1.3.47</kubernetes-client.version>
         <kubernetes-model.version>1.0.28</kubernetes-model.version>
         <log4j.version>1.2.17</log4j.version>
@@ -173,16 +173,10 @@
         <servlet30-api.version>3.0.1</servlet30-api.version>
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <snakeyaml.version>1.16</snakeyaml.version>
         <spring.version>4.2.1.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
         <sundrio.version>0.1.12</sundrio.version>
-        <swagger.jaxrs.version>1.5.3</swagger.jaxrs.version>
-        <tomcat-plugin.version>2.2</tomcat-plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
-        <vertx.version>2.1.6</vertx.version>
-        <weld.version>2.3.0.Final</weld.version>
-        <wildfly.version>8.2.2.Final</wildfly.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <ning.http-client.version>1.9.31</ning.http-client.version>
 
@@ -244,60 +238,54 @@
       </snapshotRepository>
     </distributionManagement>
 
+    <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nimble and only use whats in Maven Central -->
     <repositories>
-        <repository>
-            <id>fusesource.ea</id>
-            <name>JBoss Community Early Access Release Repository</name>
-            <url>https://repository.jboss.org/nexus/content/groups/ea/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>fusesource.m2</id>
-            <name>JBoss FS Public Repository Group</name>
-            <url>https://repository.jboss.org/nexus/content/groups/fs-public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
+      <repository>
+        <id>oss-sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <name>OSS Sonatype Nexus Snapshots</name>
+        <releases>
+          <enabled>false</enabled>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </repository>
+      <repository>
+        <releases>
+          <updatePolicy>never</updatePolicy>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <id>jboss.ea</id>
+        <name>JBoss Community Early Access Release Repository</name>
+        <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+      </repository>
     </repositories>
-
     <pluginRepositories>
-        <pluginRepository>
-            <id>fusesource.ea</id>
-            <name>JBoss Community Early Access Release Repository</name>
-            <url>https://repository.jboss.org/nexus/content/groups/ea/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>fusesource.m2</id>
-            <name>JBoss FS Public Repository Group</name>
-            <url>https://repository.jboss.org/nexus/content/groups/fs-public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
+      <pluginRepository>
+        <id>oss-sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <name>OSS Sonatype Nexus Snapshots</name>
+        <releases>
+          <enabled>false</enabled>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </pluginRepository>
+      <pluginRepository>
+        <releases>
+          <updatePolicy>never</updatePolicy>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <id>jboss.ea</id>
+        <name>JBoss Community Early Access Release Repository</name>
+        <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+      </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
@@ -912,17 +900,10 @@
                 <version>${commons-lang.version}</version>
             </dependency>
 
-            <!-- Jersey -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-servlet</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>commons-configuration</groupId>
                 <artifactId>commons-configuration</artifactId>
-                <version>1.8</version>
+                <version>${commons-configuration.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
