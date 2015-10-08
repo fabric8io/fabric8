@@ -1606,7 +1606,21 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 throw new MojoExecutionException("Failed to load podSpecAnnotationsFile properties file " + podSpecAnnotationsFile + ". " + e, e);
             }
         }
-        return answer;
+        //kubernetes annotation keys can be prefixed by namespace like namespace/name, but 
+        //xml tags can't contain slashes. So by convention we will change the last "." into a "/".
+        //for example 'apiman.io.servicepath' will be turned into 'apiman.io/servicepath'
+        Map<String, String> newAnswer = new HashMap<String,String>();
+        for (String key: answer.keySet()) {
+        	int lastDot = key.lastIndexOf(".");
+        	if (! key.contains("/") && lastDot > 0) {
+	        		String namespace = key.substring(0, lastDot);
+	        		String name = key.substring(lastDot + 1);
+	        		newAnswer.put(namespace + "/" + name, answer.get(key));
+        	} else {
+        		newAnswer.put(key, answer.get(key));
+        	}
+        }
+        return newAnswer;
     }
 
     public List<EnvVar> getEnvironmentVariables() throws MojoExecutionException {
