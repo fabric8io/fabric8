@@ -173,7 +173,7 @@
         <servlet30-api.version>3.0.1</servlet30-api.version>
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <snakeyaml.version>1.8</snakeyaml.version>
+        <snakeyaml.version>1.16</snakeyaml.version>
         <spring.version>4.2.1.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
         <sundrio.version>0.1.12</sundrio.version>
@@ -393,11 +393,11 @@
                 <artifactId>fabric8-annotations</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!--dependency>
+            <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-build-workflow</artifactId>
               <version>${project.version}</version>
-            </dependency-->
+            </dependency>
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-cdi</artifactId>
@@ -662,7 +662,7 @@
                 <classifier>features</classifier>
             </dependency>
 
-            <!-- Kie && jBPM
+            <!-- Kie && jBPM -->
             <dependency>
               <groupId>org.kie</groupId>
               <artifactId>kie-api</artifactId>
@@ -679,7 +679,6 @@
               <artifactId>jbpm-test</artifactId>
               <version>${kie.version}</version>
             </dependency>
-            -->
 
           <!-- Weld -->
             <dependency>
@@ -992,6 +991,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
@@ -1544,14 +1550,6 @@
                     <additionalparam>${javadoc.opts}</additionalparam>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
-                <configuration>
-                    <additionalparam>${javadoc.opts}</additionalparam>
-                </configuration>
-            </plugin>
         </plugins>
       </pluginManagement>
       <plugins>
@@ -1788,122 +1786,6 @@
                                 <configuration>
                                     <additionalparam>${javadoc.opts}</additionalparam>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
