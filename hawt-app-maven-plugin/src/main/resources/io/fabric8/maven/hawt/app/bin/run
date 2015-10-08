@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Discover the APP_HOME from the location of this script.
+#
+if [ -z "${APP_HOME}" ] ; then
+  DIRNAME=`dirname "$0"`
+  APP_HOME=`cd "$DIRNAME"/.. ; pwd`
+  export APP_HOME
+fi
+
+# Setup some defaults.. can be changed via the etc/default file.
+APP_USER=""
+JVM_EXEC="java"
+JVM_ARGS="$JVM_ARGS"
+JVM_AGENT="$JVM_AGENT"
+SYSTEM_PROPERTIES="$SYSTEM_PROPERTIES"
+MAIN="${mvn.main}"
+MAIN_ARGS="$MAIN_ARGS"
+APP="${mvn.artifactId}"
+
+IFS=$'\r\n'
+CLASSPATH=""
+for file in `cat ${APP_HOME}/lib/.classpath` ; do
+    CLASSPATH="$CLASSPATH:${APP_HOME}/lib/$file"
+done
+
+# Source the /etc/defaults script if it exists so it can modify the
+# env vars setup so far..
+if [ -f "${APP_HOME}/etc/defaults" ] ; then
+    source ${APP_HOME}/etc/defaults
+fi
+
+JVM_DEBUG_ARGS="$JVM_DEBUG_ARGS"
+if [ -z "$JVM_DEBUG_ARGS" ]; then
+  if [ ! -z "$JVM_DEBUG" ] && [ "$JVM_DEBUG" == 'TRUE' ]; then
+    JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  fi
+fi
+
+if [ ! -z "$APP_USER" -a ! `id -un` = "$APP_USER" ] ; then
+  # re-run the launch under the right user id...
+  exec sudo -n -u ${APP_USER} $0 $@
+fi
+
+EXEC_ARGS=""
+if [ ! -z "${APP}" ] ; then
+    # Not all shells support the 'exec -a newname' syntax..
+    `exec -a test echo test 2> /dev/null`
+    if [ "$?" -eq "1" ] ; then
+      EXEC_ARGS="-a ${APP}"
+    else
+      # Lets switch to bash if you have it installed...
+      if [ -f "/bin/bash" ] ; then
+        exec "/bin/bash" $0 $@
+      fi
+    fi
+fi
+
+echo "Launching application in folder: $APP_HOME"
+if [ ! -z "${MAIN_ARGS}" ] ; then
+  echo "Running exec ${EXEC_ARGS} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} ${MAIN_ARGS}"
+  exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} ${MAIN_ARGS}
+else
+  echo "Running exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} $@"
+  exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} $@
+fi
