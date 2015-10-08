@@ -72,15 +72,14 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.12.0</activemq.version>
-        <camel.version>2.15.3</camel.version>
-        <cxf.version>3.1.2</cxf.version>
-        <!-- cxf plugin 3.1.2 has Maven NoSuchMethodError -->
-        <cxf.plugin.version>3.0.6</cxf.plugin.version>
+        <activemq.version>5.11.0.redhat-621047</activemq.version>
+        <camel.version>2.15.1.redhat-621047</camel.version>
+        <cxf.version>3.0.4.redhat-621047</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621047</cxf.plugin.version>
 
         <commons-configuration.version>1.8</commons-configuration.version>
         <commons-io2.version>2.4</commons-io2.version>
-        <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
+        <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jboss.forge.version>2.19.2.Final</jboss.forge.version>
         <furnace.version>2.22.4.Final</furnace.version>
