@@ -1689,6 +1689,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>io/fabric8/arquillian/DependencyResolverTest.java</exclude>
+                                <exclude>io/fabric8/cdi/weld/internal/ExtensionInternalTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
