@@ -23,7 +23,7 @@ _Overview of the apiman components_
 
 ### Apiman on Fabric8
 
-Apiman is deployed on top of Fabric8. This means that both apiman and the gateway are Kubernetes Services, backed by one of more Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps.
+Apiman is deployed on top of Fabric8. This means that both apiman and the gateway are deployed as a microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.
 
 
 ### Getting started
@@ -38,9 +38,23 @@ When all these applications are running you can see the console at the apiman ur
 
 * In the [Console](console.html) click on **API Management**.
 
-and if you run in vagrant this url would be http://apiman.vagrant, but there are also entries in the menu navigation to get to 'API Management'. The apiman dashboard will show. If this is the first time you launch it, please go into the Admin section and check that the bootstrap process loaded Policies, Users and the apiman gateway. In the apiman gateway screen you can clik the **Test Gateway** button to check that apiman can interact with the apiman gateway.
+and if you run in vagrant this url would be http://apiman.vagrant, but there are also entries in the menu navigation to get to 'API Management'. The apiman dashboard will show. If this is the first time you launch it, please go into the Admin section and check that the bootstrap process loaded the Roles, Policy Definitions and the apiman gateway.
 
-Note that there is a known issue where apiman can come up before elasticsearch which can lead to the apiman not being able to find elasticsearch. This leads to the apiman cnonsole not being available. Killing the apiman pod(s) so they can restart will usually clear this.
+![Roles](images/apiman-roles.png).
+
+_Roles_
+
+![Policy Definitions](images/apiman-policydefinitions.png).
+
+_Policy Definitions_
+
+![APIManGateway](images/apiman-gateway.png).
+
+_APIManGateway_
+
+In the apiman gateway screen you can click the **Test Gateway** button to check that apiman can interact with the apiman gateway.
+
+Note that there is a known issue where apiman can come up before elasticsearch which can lead to the apiman not being able to find elasticsearch. This leads to the apiman console not being available. Killing the apiman pod(s) so they restart will usually clear this.
 
 
 ### Apiman Datamodel
@@ -81,10 +95,7 @@ A service represents an external API that is being governed by the API managemen
 
 In addition, policies can be configured on a service. Typically, the policies applied to services are things like authentication. Any policies configured on service will be applied at runtime regardless of the application and service contract. This is why authentication is a common policy to configure at the service level.
 
-Services must be offered through a valid plan configured in the same organization. Service consumers must consume the service through one of those plans. Please see the section on Service Contracts for more information.
-Tip
-
-Note that, alternatively, Services can be marked as "Public", which means they (once published) can be used by any client, without needing a Contract. To use a public service, simply send requests to the appropriate managed endpoint (through the API Gateway) without providing an API Key.
+Services must be offered through a valid plan configured in the same organization. Service consumers must consume the service through one of those plans. Please see the section on Service Contracts for more information. Note that, alternatively, Services can be marked as "Public", which means they (once published) can be used by any client, without needing a Contract. To use a public service, simply send requests to the appropriate managed endpoint (through the API Gateway) without providing an API Key.
 
 Only once a service is fully configured, including its policies, implementation, and plans can it be published to the runtime gateway for consumption by applications. Once this is done, the service cannot be changed. If changes are required, a new version of the service must be created and configured.
 
@@ -117,11 +128,48 @@ Within these individual sections, the end user can specify the order of the poli
 When a request for a service is received by the API Gateway the policy chain is applied to the request in the order listed above. If none of the policies fail, the API Gateway will proxy the request to the backend API implementation. Once a response is received from the back end API implementation, the policy chain is then applied in reverse order to that response. This allows each policy to be applied twice, once to the inbound request and then again to the outbound response.
 
 
-### Importing Services from Fabric8
+### Importing a service from Fabric8 and publishing it to the gateway
 
-Let's assume you have deployed the CxfCdi quickstart in Fabric8 and that you created your organization in apiman. You can now navigate to the Organization/Service page to import this service into apiman. You may notice that 
+Let's assume you have deployed the CxfCdi quickstart in Fabric8 and that you created your organization in apiman. You can now navigate to the Organization/Service page to import this service into apiman. Apiman will contact Kubernetes to obtain list of services in your namespace that match your search string. Use '*' to match all service. 
 
+!TODO add Image
 
+Select import as 'Public Service' as we don't yet have any Plans or Policies set up. We can add those later. Please notice that after the import is complete, the service has discovered the serviceUrl, serviceType, descriptionUrl and descriptionType. When the service was published to Kubernetes the service developer added this information using Kubernetes Service Annotations.
+
+#### Kubernetes Service Annotations
+
+Kubernetes allows the creation of Service Annotations. Here we propose the use of the following annotations
+
+* 'fabric8.io/servicepath' - the path part of the service endpoint url. An example value could be 'cxfcdi',
+
+* 'fabric8.io/servicetype' - the protocol of the service. Example values can be 'SOAP' or 'REST',
+
+* 'fabric8.io/descriptionpath' - the path part of the service description document’s endpoint. It is a pretty safe assumption that the service self documents. An example value for a swagger 2.0 document can be 'cxfcdi/swagger.json',
+
+* 'fabric8.io/descriptiontype' - the type of Description Language used. Example values can be 'WSDL', 'WADL', 'SwaggerJSON', 'SwaggerYAML'.
+
+The fragment below is taken from the service section of the kubernetes.json were these annotations are used
+
+    ...
+    "objects" : [ {
+      "apiVersion" : "v1",
+      "kind" : "Service",
+      "metadata" : {
+        "annotations" : {
+          "fabric8.io/servicetype" : "REST",
+          "fabric8.io/servicepath" : "cxfcdi",
+          "fabric8.io/descriptionpath" : "cxfcdi/swagger.json",
+          "fabric8.io/descriptiontype" : "SwaggerJSON"
+      },
+    ...
+
+#### Applying a Policy to a 'Public Service'
+
+! TODO Image
+
+### Publishing the service to the gateway
+
+### 
 
 
   To learn more about its capabilities and how to use it, please
