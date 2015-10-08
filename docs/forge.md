@@ -15,8 +15,8 @@ you can install the Forge add ons via:
 You should be able to see the new commands that are installed via:
 
     camel<TAB>
-    kube<TAB>
-    openshift<TAB>
+    devops<TAB>
+    kubernetes<TAB>
 
 You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what's available.
 
@@ -33,6 +33,12 @@ The **DevOps** commands help you to
 * configure the DevOps configuration of a project via the [fabric8.yml file](fabric8YmlFile.html)
 * generate new integration or system tests for a project
 
+If you are inside a project try:
+
+    forge devops-edit
+    
+to open the edit devops command which is a wizard that lets you configure the Docker and Fabric8 build metadata along with setting up the Jenkins workflow CD pipeline and linking the project to a team chat room and issue tracker.
+    
 ### Kubernetes
 
 Before you run forge make sure your **KUBERNETES_MASTER** environment variable points to where OpenShift V3 is running.
