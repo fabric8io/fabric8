@@ -29,9 +29,9 @@ which main class to use.  For example:
 To create the app as part of you default build for the module, add the a plugin configuration similar to the following in your maven module:
 
     <plugin>
-      <groupId>io.fabric8</groupId>
+      <groupId>org.jboss.hawt.app</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>2.2.44</version>
+      <version>1.2</version>
       <executions>
         <execution>
           <goals>
@@ -62,15 +62,16 @@ source | hawt-app.source | If this directory exists, then it's contents are used
 Env Configuration Options
 -------------------------
 
-There are several environment variables that can be set before running the `bin\run` script to customize your app's startup.  
+There are several environment variables that can be set before running the `bin/run` script to customize your app's startup.  
 
 Environment Variable | Description
 -------------------- | -----------
-JVM_ARGS | Options that will be passed to the JVM.  Use it to set options like the max JVM memory (-Xmx1G).
-JVM_DEBUG_ARGS | JVM debug arguments
-JVM_DEBUG | If set to true, then enables JVM debug on port 5005
-JVM_AGENT | Set this to pass any JVM agent arguments for stuff like profilers
-MAIN_ARGS | Arguments that will be passed to you application's main method.  **Default:** the arguments passed to the `bin/run` script.
+JAVA_APP_DIR | Directory holding the application (default: parent directory of the run script)
+JAVA_OPTIONS | Options that will be passed to the JVM.  Use it to set options like the max JVM memory (-Xmx1G).
+JAVA_ENABLE_DEBUG | If set to true, then enables JVM debugging  
+JAVA_DEBUG_PORT | Port used for debugging (default: 5005)
+JAVA_AGENT | Set this to pass any JVM agent arguments for stuff like profilers
+JAVA_MAIN_ARGS | Arguments that will be passed to you application's main method.  **Default:** the arguments passed to the `bin/run` script.
 
 Runtime Defaults Configuration
 ------------------------------
@@ -80,7 +81,7 @@ all the environment variables if you wish.  You can additionally also modify the
 
 Environment Variable | Description
 -------------------- | -----------
-MAIN | The main class that will be executed.
-APP | The name of this app, if supported by your system this will be displayed as the process name. **Default:** *${project.artifactId}*
-CLASSPATH | The classpath of the java application
+JAVA_MAIN_CLASS | The main class that will be executed.
+JAVA_APP_NAME | The name of this app, if supported by your system this will be displayed as the process name. **Default:** *${project.artifactId}*
+JAVA_CLASSPATH | The classpath of the java application
 
