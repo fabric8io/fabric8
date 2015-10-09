@@ -1,53 +1,48 @@
 #!/bin/sh
-#
-# Discover the APP_HOME from the location of this script.
-#
-if [ -z "${APP_HOME}" ] ; then
-  DIRNAME=`dirname "$0"`
-  APP_HOME=`cd "$DIRNAME"/.. ; pwd`
-  export APP_HOME
+
+# ======================================
+# Startup script for flat classpath apps
+
+# Discover JAVA_APP_DIR from the script's location.
+if [ x"${JAVA_APP_DIR}" == x ] ; then
+  script_dir=`dirname "$0"`
+  JAVA_APP_DIR=`cd "$script_dir"/.. ; pwd`
+  export JAVA_APP_DIR
 fi
 
 # Setup some defaults.. can be changed via the etc/default file.
-APP_USER=""
-JVM_EXEC="java"
-JVM_ARGS="$JVM_ARGS"
-JVM_AGENT="$JVM_AGENT"
-SYSTEM_PROPERTIES="$SYSTEM_PROPERTIES"
-MAIN="${mvn.main}"
-MAIN_ARGS="$MAIN_ARGS"
-APP="${mvn.artifactId}"
+if [ x"${mvn.main}" != x ]; then
+  JAVA_MAIN_CLASS="${mvn.main}"
+elif [ x"${JAVA_MAIN_CLASS}" = x ]; then
+  echo "No JAVA_MAIN_CLASS specified"
+  exit 1
+fi
+JAVA_APP_NAME="${JAVA_APP_NAME:-${mvn.artifactId}}"
 
-IFS=$'\r\n'
-CLASSPATH=""
-for file in `cat ${APP_HOME}/lib/.classpath` ; do
-    CLASSPATH="$CLASSPATH:${APP_HOME}/lib/$file"
-done
+if [ x"${JAVA_CLASSPATH}" != x ]; then
+    classpath="${JAVA_CLASSPATH}"
+else
+    classpath="."
+    while read file; do
+        classpath="${classpath}:${JAVA_APP_DIR}/lib/$file"
+    done < ${JAVA_APP_DIR}/lib/.classpath
+fi
 
 # Source the /etc/defaults script if it exists so it can modify the
 # env vars setup so far..
-if [ -f "${APP_HOME}/etc/defaults" ] ; then
-    source ${APP_HOME}/etc/defaults
+if [ -f "${JAVA_APP_DIR}/etc/defaults" ] ; then
+    source "${JAVA_APP_DIR}/etc/defaults"
 fi
 
-JVM_DEBUG_ARGS="$JVM_DEBUG_ARGS"
-if [ -z "$JVM_DEBUG_ARGS" ]; then
-  if [ ! -z "$JVM_DEBUG" ] && [ "$JVM_DEBUG" == 'TRUE' ]; then
-    JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
-  fi
+if [ x"${JAVA_ENABLE_DEBUG}" != x ]; then
+    java_debug_args="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${JAVA_DEBUG_PORT:-5005}"
 fi
 
-if [ ! -z "$APP_USER" -a ! `id -un` = "$APP_USER" ] ; then
-  # re-run the launch under the right user id...
-  exec sudo -n -u ${APP_USER} $0 $@
-fi
-
-EXEC_ARGS=""
-if [ ! -z "${APP}" ] ; then
+if [ x"${JAVA_APP_NAME}" != x ] ; then
     # Not all shells support the 'exec -a newname' syntax..
     `exec -a test echo test 2> /dev/null`
     if [ "$?" -eq "1" ] ; then
-      EXEC_ARGS="-a ${APP}"
+      exec_args="-a ${JAVA_APP_NAME}"
     else
       # Lets switch to bash if you have it installed...
       if [ -f "/bin/bash" ] ; then
@@ -56,11 +51,12 @@ if [ ! -z "${APP}" ] ; then
     fi
 fi
 
-echo "Launching application in folder: $APP_HOME"
-if [ ! -z "${MAIN_ARGS}" ] ; then
-  echo "Running exec ${EXEC_ARGS} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} ${MAIN_ARGS}"
-  exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} ${MAIN_ARGS}
+echo "Launching application in folder: $JAVA_APP_DIR"
+arg_list="${exec_args} java ${java_debug_args} ${JAVA_OPTIONS} -classpath ${classpath} ${JAVA_MAIN_CLASS}"
+if [ x"${JAVA_MAIN_ARGS}" != x ] ; then
+    arg_list="${arg_list} ${JAVA_MAIN_ARGS}"
 else
-  echo "Running exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} $@"
-  exec ${EXEC_ARGS} ${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JVM_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN} $@
+    arg_list="${arg_list} $@"
 fi
+echo "Running ${arg_list}"
+exec ${arg_list}

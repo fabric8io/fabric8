@@ -144,7 +144,7 @@ public class BuildMojo extends AbstractDependencyFilterMojo {
         }
 
         // Finally lets write the classpath.
-        String classpathTxt = StringUtils.join(classpath.iterator(), "\r\n")+"\r\n";
+        String classpathTxt = StringUtils.join(classpath.iterator(), "\n")+"\n";
         try {
             FileUtils.fileWrite(new File(libDir, ".classpath"), classpathTxt);
         } catch (IOException e) {
@@ -153,9 +153,7 @@ public class BuildMojo extends AbstractDependencyFilterMojo {
 
         HashMap<String, String> interpolations = new HashMap<String, String>();
         interpolations.put("mvn.artifactId", project.getArtifactId());
-        if( main!=null ) {
-            interpolations.put("mvn.main", main);
-        }
+        interpolations.put("mvn.main", main != null ? main : "");
 
         copyResource("bin/run", new File(binDir, "run"), "\n", interpolations);
         chmodExecutable(new File(binDir, "run"));
