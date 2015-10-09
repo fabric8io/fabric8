@@ -29,9 +29,9 @@ which main class to use.  For example:
 To create the app as part of you default build for the module, add the a plugin configuration similar to the following in your maven module:
 
     <plugin>
-      <groupId>org.jboss.hawt.app</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>1.2</version>
+      <version>2.2.44</version>
       <executions>
         <execution>
           <goals>
@@ -72,6 +72,7 @@ JAVA_ENABLE_DEBUG | If set to true, then enables JVM debugging
 JAVA_DEBUG_PORT | Port used for debugging (default: 5005)
 JAVA_AGENT | Set this to pass any JVM agent arguments for stuff like profilers
 JAVA_MAIN_ARGS | Arguments that will be passed to you application's main method.  **Default:** the arguments passed to the `bin/run` script.
+JAVA_MAIN_CLASS | The main class to use if not configured within the plugin
 
 Runtime Defaults Configuration
 ------------------------------
