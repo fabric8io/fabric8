@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Architecture | Fabric8 Documentation</title>
+        <title>Apiman Components | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.4.3">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./pods.html" />
+    <link rel="next" href="./apimanGettingStarted.html" />
     
     
-    <link rel="prev" href="./forge.html" />
+    <link rel="prev" href="./apiManagement.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="6" data-basepath="." data-revision="Fri Oct 09 2015 02:52:09 GMT+0000 (UTC)">
+    <div class="book" data-level="4.4.1" data-basepath="." data-revision="Fri Oct 09 2015 02:52:09 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -476,7 +476,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="4.4.1" data-path="apimanComponents.html">
+        <li class="chapter active" data-level="4.4.1" data-path="apimanComponents.html">
             
                 
                     <a href="./apimanComponents.html">
@@ -819,7 +819,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="6" data-path="architecture.html">
+        <li class="chapter " data-level="6" data-path="architecture.html">
             
                 
                     <a href="./architecture.html">
@@ -1228,26 +1228,13 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="architecture"><a name="architecture" class="plugin-anchor" href="#architecture"><span class="fa fa-link"></span></a>Architecture</h2>
-<p>Fabric8 provides a number of microservices and tools above the <a href="http://kubernetes.io" target="_blank">Kubernetes</a> cloud.</p>
-<ul>
-<li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
-<li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
-</ul>
-<h4 id="kubernetes-model"><a name="kubernetes-model" class="plugin-anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
-<ul>
-<li><a href="pods.html">Pods</a></li>
-<li><a href="replicationControllers.html">Replication Controllers</a></li>
-<li><a href="services.html">Services</a></li>
-<li><a href="environments.html">Environments</a></li>
-<li><a href="apps.html">Apps</a></li>
-</ul>
-<h4 id="kubernetes-extensions-from-openshift-origin-v3"><a name="kubernetes-extensions-from-openshift-origin-v3" class="plugin-anchor" href="#kubernetes-extensions-from-openshift-origin-v3"><span class="fa fa-link"></span></a>Kubernetes extensions from OpenShift Origin v3</h4>
-<ul>
-<li><a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> </li>
-<li><a href="builds.html">Builds</a></li>
-</ul>
+                        <h2 id="overview-of-the-components-shipped-by-apiman"><a name="overview-of-the-components-shipped-by-apiman" class="plugin-anchor" href="#overview-of-the-components-shipped-by-apiman"><span class="fa fa-link"></span></a>Overview of the components shipped by apiman</h2>
+<p>The bottom half of the apiman component diagram below shows the apiman gateway. The gateway is a standalone application that functions as proxy between service consumers and producers. Requests are routed through a policy engine that applies a preconfigured chain of policies both on the way in (think of authentication policies) as well as on the way out (think of usage policies). Policies are plugins that if needed can connect to external systems to lookup authentication credentials such as LDAP, a JDBC store or a REST based call to an external system. The gateway component services runtime requests. </p>
+<p>The top half of the diagram show the apiman application itself. This application is used at design time by service producers to configure their service with policies, and or plans. Service consumers then agree to a certain plan and a contract can be set up between the two parties. More on this later. Once the desired policies, plans and contracts are in place, the service can be published to the gateway. The publish process is a REST based call from apiman to the gateway. At this point the service is live for consumption by application developers (service consumers).</p>
+<p><img src="images/apiman1.png" alt="apiman overview diagram">.</p>
+<p><em>Overview of the apiman components</em></p>
+<h3 id="apiman-on-fabric8"><a name="apiman-on-fabric8" class="plugin-anchor" href="#apiman-on-fabric8"><span class="fa fa-link"></span></a>Apiman on Fabric8</h3>
+<p>Apiman is deployed on top of Fabric8 itself. This means that both apiman and the gateway are deployed as a microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.</p>
 
                     
                     </section>
@@ -1258,10 +1245,10 @@
         </div>
 
         
-        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge Addons"><i class="fa fa-angle-left"></i></a>
+        <a href="./apiManagement.html" class="navigation navigation-prev " aria-label="Previous page: API Management"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
+        <a href="./apimanGettingStarted.html" class="navigation navigation-next " aria-label="Next page: Getting Started"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Architecture | Fabric8 Documentation</title>
+        <title>Data Model | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.4.3">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./pods.html" />
+    <link rel="next" href="./apimanImportService.html" />
     
     
-    <link rel="prev" href="./forge.html" />
+    <link rel="prev" href="./apimanGettingStarted.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="6" data-basepath="." data-revision="Fri Oct 09 2015 02:52:09 GMT+0000 (UTC)">
+    <div class="book" data-level="4.4.3" data-basepath="." data-revision="Fri Oct 09 2015 02:52:09 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -506,7 +506,7 @@
             
         </li>
     
-        <li class="chapter " data-level="4.4.3" data-path="apimanDataModel.html">
+        <li class="chapter active" data-level="4.4.3" data-path="apimanDataModel.html">
             
                 
                     <a href="./apimanDataModel.html">
@@ -819,7 +819,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="6" data-path="architecture.html">
+        <li class="chapter " data-level="6" data-path="architecture.html">
             
                 
                     <a href="./architecture.html">
@@ -1228,26 +1228,44 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="architecture"><a name="architecture" class="plugin-anchor" href="#architecture"><span class="fa fa-link"></span></a>Architecture</h2>
-<p>Fabric8 provides a number of microservices and tools above the <a href="http://kubernetes.io" target="_blank">Kubernetes</a> cloud.</p>
+                        <h2 id="apiman-datamodel"><a name="apiman-datamodel" class="plugin-anchor" href="#apiman-datamodel"><span class="fa fa-link"></span></a>Apiman Datamodel</h2>
+<p>It is perhaps most important to understand the various entities used by the API Manager, as well as their relationships with each other.</p>
+<h3 id="organizations"><a name="organizations" class="plugin-anchor" href="#organizations"><span class="fa fa-link"></span></a>Organizations</h3>
+<p>The top level container concept within the API management project its called the organization. All other entities are managed within the scope of an organization.</p>
+<p>When users log into the API management system they must be affiliated with one or more organization. Users can have different roles within that organization allowing them to perform different actions and manage different entities. Please see the User Management section below for more details on this topic.</p>
+<p>What an organization actually represents will depend upon who is using API management. When installed within a large enterprise, an organization may represent an internal group within IT (for example the HR group). If installed in the cloud, an organization might represent an external company or organization.</p>
+<p>In any case, an organization is required before the end user can create or consume services.</p>
+<h3 id="policies"><a name="policies" class="plugin-anchor" href="#policies"><span class="fa fa-link"></span></a>Policies</h3>
+<p>The most important concept in API management is the policy. The policy is the unit of work executed at runtime in order to implement API governance. All other entities within the API Manager exist in support of configuring policies and sensibly applying them at runtime.</p>
+<p>When a request for a Service is made at runtime, a policy chain is created and applied to the inbound request, prior to proxying that request to the back-end API implementation. This policy chain consists of policies configured in the API Manager.</p>
+<p>An individual policy consists of a type (e.g. authentication or rate limiting) as well as configuration details specific to the type and instance of that policy. Multiple policies can be configured per service resulting in a policy chain that is applied at runtime.</p>
+<p>It is very important to understand that policies can be configured at three different levels within API management. Policies can be configured on a service, on a plan, or on an application. For more details please see the sections below.</p>
+<h3 id="plans"><a name="plans" class="plugin-anchor" href="#plans"><span class="fa fa-link"></span></a>Plans</h3>
+<p>A plan is a set of policies that define a level of service. Whenever a service is consumed it must be consumed through a plan. Please see the section on Service Contracts for more information.</p>
+<p>An organization can have multiple plans associated with it. Typically each plan within an organization consists of the same set of policies but with different configuration details. For example, an organization might have a Gold plan with a rate limiting policy that restricts consumers to 1000 requests per day. The same organization may then have a Silver plan which is also configured with a rate limiting policy, but which restricts consumers to 500 requests per day.</p>
+<p>Once a plan has been fully configured (all desired policies added and configured) it must be locked so that it can be used by services. This is done so that service providers can&#x2019;t change the details of the plan out from underneath the application developers who are using it.</p>
+<h3 id="services"><a name="services" class="plugin-anchor" href="#services"><span class="fa fa-link"></span></a>Services</h3>
+<p>A service represents an external API that is being governed by the API management system. A service consists of a set of metadata including name and description as well as an external endpoint defining the API implementation. The external API implementation endpoint includes the type/protocol and the actual endpoint location so that the API can be properly proxied to at runtime.</p>
+<p>In addition, policies can be configured on a service. Typically, the policies applied to services are things like authentication. Any policies configured on service will be applied at runtime regardless of the application and service contract. This is why authentication is a common policy to configure at the service level.</p>
+<p>Services must be offered through a valid plan configured in the same organization. Service consumers must consume the service through one of those plans. Please see the section on Service Contracts for more information. Note that, alternatively, Services can be marked as &quot;Public&quot;, which means they (once published) can be used by any client, without needing a Contract. To use a public service, simply send requests to the appropriate managed endpoint (through the API Gateway) without providing an API Key.</p>
+<p>Only once a service is fully configured, including its policies, implementation, and plans can it be published to the runtime gateway for consumption by applications. Once this is done, the service cannot be changed. If changes are required, a new version of the service must be created and configured.</p>
+<h3 id="applications"><a name="applications" class="plugin-anchor" href="#applications"><span class="fa fa-link"></span></a>Applications</h3>
+<p>An application represents a consumer of an API. Typical API consumers are things like mobile applications and B2B applications. Regardless of the actual application implementation, an application must be added to the API management system so that contracts can be created between it and the services it wishes to consume.</p>
+<p>An application consists of basic metadata such as name and description. Policies can also be configured on an application, but are optional.</p>
+<p>Finally, service contracts can be created between an application and the service(s) it wishes to consume. Once the service contracts are created, the application can be registered with the runtime gateway. Once this registration is complete, the application can no longer be altered. If changes are required, a new version of the application must be created and configured.</p>
+<h3 id="service-contracts"><a name="service-contracts" class="plugin-anchor" href="#service-contracts"><span class="fa fa-link"></span></a>Service Contracts</h3>
+<p>A service contract is simply a link between an application and a service through a plan offered by that service. This is the only way that an application can consume a service. If there are no applications that have created service contracts with a service, that service cannot be accessed through the API management runtime gateway.</p>
+<p>When a service contract is created, the system generates a unique API key specific to that contract. All requests made to the service through the API Gateway must include this API key. The API key is used to create the runtime policy chain from the policies configured on the service, plan, and application.</p>
+<p>Service Contracts can only be created between Applications and published Services which are offered through at least one Plan. A Service Contract cannot be created between an Application and a public Service.</p>
+<h3 id="policy-chain"><a name="policy-chain" class="plugin-anchor" href="#policy-chain"><span class="fa fa-link"></span></a>Policy Chain</h3>
+<p>A policy chain is an ordered sequence of policies that are applied when a request is made for a service through the API Gateway. The order that policies are applied is important and is as follows:</p>
 <ul>
-<li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
-<li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
+<li>Application</li>
+<li>Plan</li>
+<li>Service</li>
 </ul>
-<h4 id="kubernetes-model"><a name="kubernetes-model" class="plugin-anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
-<ul>
-<li><a href="pods.html">Pods</a></li>
-<li><a href="replicationControllers.html">Replication Controllers</a></li>
-<li><a href="services.html">Services</a></li>
-<li><a href="environments.html">Environments</a></li>
-<li><a href="apps.html">Apps</a></li>
-</ul>
-<h4 id="kubernetes-extensions-from-openshift-origin-v3"><a name="kubernetes-extensions-from-openshift-origin-v3" class="plugin-anchor" href="#kubernetes-extensions-from-openshift-origin-v3"><span class="fa fa-link"></span></a>Kubernetes extensions from OpenShift Origin v3</h4>
-<ul>
-<li><a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> </li>
-<li><a href="builds.html">Builds</a></li>
-</ul>
+<p>Within these individual sections, the end user can specify the order of the policies.</p>
+<p>When a request for a service is received by the API Gateway the policy chain is applied to the request in the order listed above. If none of the policies fail, the API Gateway will proxy the request to the backend API implementation. Once a response is received from the back end API implementation, the policy chain is then applied in reverse order to that response. This allows each policy to be applied twice, once to the inbound request and then again to the outbound response.</p>
 
                     
                     </section>
@@ -1258,10 +1276,10 @@
         </div>
 
         
-        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge Addons"><i class="fa fa-angle-left"></i></a>
+        <a href="./apimanGettingStarted.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
+        <a href="./apimanImportService.html" class="navigation navigation-next " aria-label="Next page: Publish Service"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
