@@ -18,14 +18,12 @@ package io.fabric8.spring.boot.internal;
 
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.openshift.client.mock.OpenshiftMockClient;
+import io.fabric8.openshift.client.mock.OpenShiftMockClient;
 import io.fabric8.spring.boot.Fabric8Application;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
@@ -69,7 +67,7 @@ public class ClientFactory {
 
     @Bean
     public OpenShiftClient getOpenshiftClient() {
-        OpenshiftMockClient mock = new OpenshiftMockClient();
+        OpenShiftMockClient mock = new OpenShiftMockClient();
         mock.routes().list().andReturn(new RouteListBuilder().build()).anyTimes();
         mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
         return mock.replay();
