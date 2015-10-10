@@ -19,7 +19,7 @@ import io.fabric8.kubernetes.api.builds.BuildFinishedEvent;
 import io.fabric8.kubernetes.api.builds.BuildListener;
 import io.fabric8.kubernetes.api.builds.BuildWatcher;
 import io.fabric8.kubernetes.api.builds.Links;
-import io.fabric8.openshift.client.DefaultOpenshiftClient;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 
 /**
@@ -34,7 +34,7 @@ public class WatchBuilds {
 
         String consoleLink = Links.getFabric8ConsoleLink();
 
-        OpenShiftClient client = new DefaultOpenshiftClient();
+        OpenShiftClient client = new DefaultOpenShiftClient();
         BuildListener buildListener = new BuildListener() {
             @Override
             public void onBuildFinished(BuildFinishedEvent event) {
