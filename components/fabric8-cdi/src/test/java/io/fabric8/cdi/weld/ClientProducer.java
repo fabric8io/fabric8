@@ -23,7 +23,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.openshift.client.mock.OpenshiftMockClient;
+import io.fabric8.openshift.client.mock.OpenShiftMockClient;
 
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
@@ -139,7 +139,7 @@ public class ClientProducer {
     @Produces
     @Alternative
     public OpenShiftClient getOpenShiftClient() throws MalformedURLException {
-        OpenshiftMockClient mock = new OpenshiftMockClient();
+        OpenShiftMockClient mock = new OpenShiftMockClient();
 
         mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
 
