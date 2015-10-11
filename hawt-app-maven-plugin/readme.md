@@ -31,7 +31,7 @@ To create the app as part of you default build for the module, add the a plugin 
     <plugin>
       <groupId>io.fabric8</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>2.2.46</version>
+      <version>2.2.47</version>
       <executions>
         <execution>
           <goals>
