@@ -87,7 +87,6 @@
         <!-- jgroups is disabled in redhat branch
         <jgroups.version>3.6.6.Final</jgroups.version>
         -->
-        <kie.version>6.3.0.Final</kie.version>
         <slf4j.version>1.7.7</slf4j.version>
         <snakeyaml.version>1.8</snakeyaml.version>
         <swagger.jaxrs.version>1.5.3</swagger.jaxrs.version>
@@ -644,25 +643,6 @@
                 <type>xml</type>
                 <classifier>features</classifier>
             </dependency>
-
-            <!-- Kie && jBPM 
-            <dependency>
-              <groupId>org.kie</groupId>
-              <artifactId>kie-api</artifactId>
-              <version>${kie.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.kie.remote</groupId>
-              <artifactId>kie-remote-client</artifactId>
-              <version>${kie.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jbpm</groupId>
-              <artifactId>jbpm-test</artifactId>
-              <version>${kie.version}</version>
-            </dependency>
-            -->
 
           <!-- Weld -->
             <dependency>

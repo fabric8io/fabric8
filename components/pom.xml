@@ -72,8 +72,6 @@
     <!-- ohter stuff
     <module>fabric8-vertx</module>
     <module>fabric8-selenium</module>
-    <module>fabric8-build-workflow</module>
-    <module>fabric8-jbpm-workitems</module>
     <module>fabric8-spring-boot</module>
     <module>fabric8-groups</module>
     <module>fabric8-jgroups</module>
