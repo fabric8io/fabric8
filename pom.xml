@@ -476,7 +476,7 @@
                 <artifactId>fabric8-groups</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>gateway-api</artifactId>
               <version>${project.version}</version>
@@ -500,7 +500,7 @@
               <groupId>io.fabric8</groupId>
               <artifactId>gateway-servlet</artifactId>
               <version>${project.version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>gitrepo-api</artifactId>
@@ -607,14 +607,6 @@
                 <artifactId>gerrit-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- Internal testing modules -->
-            <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-core</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
