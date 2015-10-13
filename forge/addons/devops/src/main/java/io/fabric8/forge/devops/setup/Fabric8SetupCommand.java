@@ -15,10 +15,6 @@
  */
 package io.fabric8.forge.devops.setup;
 
-import java.util.Arrays;
-import java.util.Locale;
-import javax.inject.Inject;
-
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
@@ -27,9 +23,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
-import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
@@ -40,14 +34,6 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class Fabric8SetupCommand extends AbstractFabricProjectCommand implements UIWizard {
 
-    // TODO: Jube does not currently work so disable jube until working again
-    // private String[] platforms = new String[]{"Docker", "Jube", "Docker-and-Jube"};
-    private String[] platforms = new String[]{"Docker"};
-
-    @Inject
-    @WithAttributes(label = "platform", required = true, description = "The runtime platform")
-    private UISelectOne<String> platform;
-
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(Fabric8SetupCommand.class).name(
@@ -57,24 +43,12 @@ public class Fabric8SetupCommand extends AbstractFabricProjectCommand implements
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
-        context.getUIContext().getAttributeMap().put("platform", platform.getValue());
         return Results.navigateTo(Fabric8SetupStep.class);
     }
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        builder.add(platform);
-
-        platform.setValueChoices(Arrays.asList(platforms));
-
-        // TODO: Jube does not currently work so disable jube until working again
-        platform.setDefaultValue("Docker");
-        // if windows use jube, otherwise docker
-        //if (isPlatform("windows")) {
-        //    platform.setDefaultValue("Jube");
-        //} else {
-        //    platform.setDefaultValue("Docker");
-        //}
+        // noop
     }
 
     @Override
@@ -82,8 +56,4 @@ public class Fabric8SetupCommand extends AbstractFabricProjectCommand implements
         return Results.success();
     }
 
-    public static boolean isPlatform(String platform) {
-        String osName = System.getProperty("os.name").toLowerCase(Locale.US);
-        return osName.contains(platform.toLowerCase(Locale.US));
-    }
 }

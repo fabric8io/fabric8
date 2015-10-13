@@ -15,12 +15,26 @@
  */
 package io.fabric8.tooling.archetype.generator;
 
+import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Strings;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -32,22 +46,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import io.fabric8.utils.IOHelpers;
-import io.fabric8.utils.Strings;
-import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * This class is a replacement for <code>mvn archetype:generate</code> without dependencies to
@@ -195,9 +193,7 @@ public class ArchetypeHelper {
         // now lets replace all the properties in the pom.xml
         if (!replaceProperties.isEmpty()) {
             File pom = new File(outputDir, "pom.xml");
-            FileReader reader = new FileReader(pom);
-            String text = IOUtils.toString(reader);
-            IOUtils.closeQuietly(reader);
+            String text = IOHelpers.readFully(new FileReader(pom));
             for (Map.Entry<String, String> e : replaceProperties.entrySet()) {
                 text = replaceVariable(text, e.getKey(), e.getValue());
             }
@@ -209,9 +205,7 @@ public class ArchetypeHelper {
             if (Strings.isNotBlank(description)) {
                 text = text.replaceFirst("<description>(.*)</description>", "<description>" + description + "</description>");
             }
-            FileWriter writer = new FileWriter(pom);
-            IOUtils.write(text, writer);
-            IOUtils.closeQuietly(writer);
+            IOHelpers.writeTo(pom, text);
         }
 
         // now lets create the default directories

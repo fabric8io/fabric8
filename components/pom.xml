@@ -20,7 +20,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>2.2.48-SNAPSHOT</version>
+    <version>2.2.49-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -37,8 +37,12 @@
     <module>cxf-utils</module>
     <module>docker-api</module>
     <module>fabric8-annotations</module>
-
     <module>fabric8-cdi</module>
+    <module>fabric8-devops</module>
+    <module>fabric8-devops-connector</module>
+    <module>fabric8-spring-boot</module>
+    <module>fabric8-agent</module>
+    <module>fabric8-apm</module>
     <module>fabric8-cxf</module>
     <module>fabric8-cxf-plugins</module>
 
@@ -52,6 +56,7 @@
 
     <module>mq</module>
     <module>rest-utils</module>
+    <module>swagger-annotator</module>
     <module>swagger-model</module>
 
     <!-- agent stuff 
