@@ -33,20 +33,19 @@
     <skipTests>false</skipTests>
     <testExclusionPattern>**/*KubernetesTest.java</testExclusionPattern>
 
-    <jube.version>2.0.29</jube.version>
-    <fabric8.version>2.0.29</fabric8.version>
+    <fabric8.version>2.2.47</fabric8.version>
     <docker.image>${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}</docker.image>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
     <docker.from>fabric8/java</docker.from>
     <docker.port.container.jolokia>8778</docker.port.container.jolokia>
     <fabric8.label.group>quickstarts</fabric8.label.group>
-    <camel.version>2.14.1</camel.version>
+    <camel.version>2.16.0</camel.version>
     <docker.env.MAIN>org.apache.camel.cdi.Main</docker.env.MAIN>
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <docker.assemblyDescriptorRef>artifact-with-dependencies</docker.assemblyDescriptorRef>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <docker-maven-plugin-version>0.13.0</docker-maven-plugin-version>
+    <docker-maven-plugin-version>0.13.5</docker-maven-plugin-version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -177,14 +176,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>io.fabric8.jube</groupId>
-        <artifactId>jube-maven-plugin</artifactId>
-        <version>${jube.version}</version>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <version>1.4.0</version>
         <configuration>
           <mainClass>org.apache.camel.cdi.Main</mainClass>
           <includePluginDependencies>false</includePluginDependencies>
@@ -201,7 +195,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
+        <version>2.18.1</version>
         <inherited>true</inherited>
         <configuration>
           <skipTests>${skipTests}</skipTests>
@@ -250,38 +244,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>jube</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>io.fabric8.jube</groupId>
-            <artifactId>jube-maven-plugin</artifactId>
-            <version>${jube.version}</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>build</goal>
-                </goals>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>io.fabric8.jube.images.fabric8</groupId>
-                <artifactId>java</artifactId>
-                <version>${jube.version}</version>
-                <type>zip</type>
-                <classifier>image</classifier>
-              </dependency>
-            </dependencies>
           </plugin>
         </plugins>
       </build>

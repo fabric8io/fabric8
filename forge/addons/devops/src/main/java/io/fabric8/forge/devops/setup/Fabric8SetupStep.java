@@ -155,7 +155,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         from.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                // use a listener so the jube step knows what we selected as it want to reuse
+                // use a listener so the docker step knows what we selected as it want to reuse
                 builder.getUIContext().getAttributeMap().put("docker.from", event.getNewValue());
             }
         });
@@ -182,7 +182,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             main.addValueChangeListener(new ValueChangeListener() {
                 @Override
                 public void valueChanged(ValueChangeEvent event) {
-                    // use a listener so the jube step knows what we selected as it want to reuse
+                    // use a listener so the docker step knows what we selected as it want to reuse
                     builder.getUIContext().getAttributeMap().put("docker.main", event.getNewValue());
                 }
             });
