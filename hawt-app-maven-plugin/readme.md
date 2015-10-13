@@ -56,7 +56,7 @@ assembly | hawt-app.assembly | Directory where the application assembly will be 
 archive | hawt-app.archive | Archive file that will be created. **Default:** *${project.build.directory}/${project.artifactId}-${project.version}-app.tar.gz*
 archiveClassifier | hawt-app.archiveClassifier | The GAV classifier that will be assigned to the archive. **Default:** *app*
 archivePrefix | hawt-app.archivePrefix | the path prefixed on the files within the archive. **Default:** *${project.artifactId}-${project.version}-app/*
-main | hawt-app.main | The main class that will be executed by the launch process.
+javaMainClass | hawt-app.javaMainClass | The main class that will be executed by the launch process.
 source | hawt-app.source | If this directory exists, then it's contents are used to augment the contents of the application assembly. For example it could be used to add an etc/defaults script to setup environment variables. **Default:** *${basedir}/src/main/hawt-app*
 
 Env Configuration Options
@@ -77,12 +77,12 @@ JAVA_MAIN_CLASS | The main class to use if not configured within the plugin
 Runtime Defaults Configuration
 ------------------------------
 
-If an `${APP_HOME}/etc/defaults` file exists it will be sourced in by the run script and you can use this to set
-all the environment variables if you wish.  You can additionally also modify the values of the following variables if you want to change the defaults.
+If an `${APP_HOME}/bin/setenv.sh` file exists it will be sourced in by the run script and you can use this to set
+all the environment variables if you wish.  You can additionally also modify the values of the following variables 
+if you want to change the defaults.
 
 Environment Variable | Description
 -------------------- | -----------
-JAVA_MAIN_CLASS | The main class that will be executed.
-JAVA_APP_NAME | The name of this app, if supported by your system this will be displayed as the process name. **Default:** *${project.artifactId}*
-JAVA_CLASSPATH | The classpath of the java application
+JAVA_MAIN_CLASS | The main class that will be executed. If given this willoverrite the configuration property `javaMainClass`
+JAVA_CLASSPATH | The classpath of the java application to use. This will override the automatically determined classpath.
 

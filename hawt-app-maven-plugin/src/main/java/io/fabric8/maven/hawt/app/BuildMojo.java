@@ -87,12 +87,13 @@ public class BuildMojo extends AbstractDependencyFilterMojo {
     /**
      * The main class to execute for the assembly.
      */
-    @Parameter(property = "hawt-app.main")
-    protected String main;
+    @Parameter(property = "hawt-app.javaMainClass")
+    protected String javaMainClass;
 
     @Component(role= Archiver.class, hint = "tar")
     protected Archiver archiver;
 
+    // Used for attaching the archive to this artefact
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -144,19 +145,20 @@ public class BuildMojo extends AbstractDependencyFilterMojo {
         }
 
         // Finally lets write the classpath.
-        String classpathTxt = StringUtils.join(classpath.iterator(), "\n")+"\n";
         try {
-            FileUtils.fileWrite(new File(libDir, ".classpath"), classpathTxt);
+            String classpathTxt = StringUtils.join(classpath.iterator(), "\n") + "\n";
+            FileUtils.fileWrite(new File(libDir, "classpath"), classpathTxt);
         } catch (IOException e) {
-            throw new MojoExecutionException("Could create the .classpath file", e);
+            throw new MojoExecutionException("Could create the classpath file", e);
         }
 
         HashMap<String, String> interpolations = new HashMap<String, String>();
-        interpolations.put("mvn.artifactId", project.getArtifactId());
-        interpolations.put("mvn.main", main != null ? main : "");
+        // Be sure that an empty string is replaced when no main class is given
+        interpolations.put("hawtapp.mvn.main.property", javaMainClass != null ? javaMainClass : "");
 
-        copyResource("bin/run", new File(binDir, "run"), "\n", interpolations);
-        chmodExecutable(new File(binDir, "run"));
+        File targetRun = new File(binDir, "run.sh");
+        copyResource("bin/run.sh", targetRun, interpolations);
+        chmodExecutable(targetRun);
 
         if( source!=null && source.exists() ) {
             try {
@@ -187,14 +189,15 @@ public class BuildMojo extends AbstractDependencyFilterMojo {
         }
     }
 
-    private void copyResource(String source, File target, String separator, HashMap<String, String> interpolations) throws MojoExecutionException {
+    private void copyResource(String source, File target, HashMap<String, String> interpolations) throws MojoExecutionException {
 
         try {
             String content = loadTextResource(getClass().getResource(source));
             if( interpolations!=null ) {
                 content = StringUtils.interpolate(content, interpolations);
             }
-            content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
+            // Safety check
+            content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement("\n"));
             FileUtils.fileWrite(target, content);
         } catch (IOException e) {
             throw new MojoExecutionException("Could create the "+target+" file", e);

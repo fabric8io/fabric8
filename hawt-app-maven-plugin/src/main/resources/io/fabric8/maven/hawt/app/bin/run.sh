@@ -11,52 +11,44 @@ if [ x"${JAVA_APP_DIR}" == x ] ; then
 fi
 
 # Setup some defaults.. can be changed via the etc/default file.
-if [ x"${mvn.main}" != x ]; then
-  JAVA_MAIN_CLASS="${mvn.main}"
-elif [ x"${JAVA_MAIN_CLASS}" = x ]; then
+main_class=""
+if [ x"${JAVA_MAIN_CLASS}" != x ]; then
+  main_class="${JAVA_MAIN_CLASS}"
+elif [ x"${hawtapp.mvn.main.property}" != x ]; then
+  # If given, interpolated by the plugin
+  main_class="${hawtapp.mvn.main.property}"
+else
   echo "No JAVA_MAIN_CLASS specified"
   exit 1
 fi
-JAVA_APP_NAME="${JAVA_APP_NAME:-${mvn.artifactId}}"
 
+# Read in classpath
 if [ x"${JAVA_CLASSPATH}" != x ]; then
     classpath="${JAVA_CLASSPATH}"
 else
     classpath="."
     while read file; do
         classpath="${classpath}:${JAVA_APP_DIR}/lib/$file"
-    done < ${JAVA_APP_DIR}/lib/.classpath
+    done < ${JAVA_APP_DIR}/lib/classpath
 fi
 
-# Source the /etc/defaults script if it exists so it can modify the
-# env vars setup so far..
-if [ -f "${JAVA_APP_DIR}/etc/defaults" ] ; then
-    source "${JAVA_APP_DIR}/etc/defaults"
+# Custom configuration used by the startup script
+if [ -f "${script_dir}/setenv.sh" ] ; then
+    source "${script_dir}/setenv.sh"
 fi
 
 if [ x"${JAVA_ENABLE_DEBUG}" != x ]; then
     java_debug_args="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${JAVA_DEBUG_PORT:-5005}"
 fi
 
-if [ x"${JAVA_APP_NAME}" != x ] ; then
-    # Not all shells support the 'exec -a newname' syntax..
-    `exec -a test echo test 2> /dev/null`
-    if [ "$?" -eq "1" ] ; then
-      exec_args="-a ${JAVA_APP_NAME}"
-    else
-      # Lets switch to bash if you have it installed...
-      if [ -f "/bin/bash" ] ; then
-        exec "/bin/bash" $0 $@
-      fi
-    fi
-fi
-
+# Start application
 echo "Launching application in folder: $JAVA_APP_DIR"
-arg_list="${exec_args} java ${java_debug_args} ${JAVA_OPTIONS} -classpath ${classpath} ${JAVA_MAIN_CLASS}"
+arg_list="${exec_args} java ${java_debug_args} ${JAVA_OPTIONS} -classpath ${classpath} ${main_class}"
 if [ x"${JAVA_MAIN_ARGS}" != x ] ; then
     arg_list="${arg_list} ${JAVA_MAIN_ARGS}"
 else
     arg_list="${arg_list} $@"
 fi
 echo "Running ${arg_list}"
+cd ${JAVA_APP_DIR}
 exec ${arg_list}
