@@ -38,9 +38,6 @@
     <module>docker-api</module>
     <module>fabric8-annotations</module>
     <module>fabric8-cdi</module>
-    <module>fabric8-devops</module>
-    <module>fabric8-devops-connector</module>
-    <module>fabric8-spring-boot</module>
     <module>fabric8-agent</module>
     <module>fabric8-apm</module>
     <module>fabric8-cxf</module>
