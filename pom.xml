@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>2.2.48-SNAPSHOT</version>
+    <version>2.2.49-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -77,18 +77,15 @@
         <cxf.version>3.0.4.redhat-621047</cxf.version>
         <cxf.plugin.version>3.0.4.redhat-621047</cxf.plugin.version>
 
-        <commons-configuration.version>1.6</commons-configuration.version>
-        <commons-io2.version>2.4</commons-io2.version>
-        <hibernate-validator.version>5.0.3.Final</hibernate-validator.version>
+        <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
         <jboss.forge.version>2.19.2.Final</jboss.forge.version>
         <furnace.version>2.22.4.Final</furnace.version>
         <jolokia.version>1.3.2</jolokia.version>
-        <!-- jgroups is disabled in redhat branch
         <jgroups.version>3.6.6.Final</jgroups.version>
-        -->
+        <jsonschema2pojo.version>0.4.10</jsonschema2pojo.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <snakeyaml.version>1.8</snakeyaml.version>
+        <snakeyaml.version>1.16</snakeyaml.version>
         <swagger.jaxrs.version>1.5.3</swagger.jaxrs.version>
         <vertx.version>2.1.6</vertx.version>
         <weld.version>2.3.0.Final</weld.version>
@@ -109,42 +106,29 @@
         <fabric8.release.version>2.0.48</fabric8.release.version>
 
         <archetype-packaging.version>2.4</archetype-packaging.version>
-        <arquillian-core.version>1.1.9.Final</arquillian-core.version>
-        <arquillian-junit-container.version>1.1.9.Final</arquillian-junit-container.version>
+        <arquillian.version>1.1.9.Final</arquillian.version>
         <asm.version>5.0.4</asm.version>
         <assertj.core.version>1.7.0</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
-        <commons-codec.version>1.10</commons-codec.version>
-        <commons-lang3.version>3.4</commons-lang3.version>
-        <commons-fileupload.version>1.3.1</commons-fileupload.version>
-        <commons-httpclient.version>3.1</commons-httpclient.version>
-        <commons-lang.version>2.6</commons-lang.version>
+
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
         <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
-        <elasticsearch.version>1.7.2</elasticsearch.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
-        <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
-        <geronimo-jms.version>1.1.1</geronimo-jms.version>
-        <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
-        <httpcomponents.version>4.4.1</httpcomponents.version>
-        <httpcomponents.async.version>4.1</httpcomponents.async.version>
         <jackson2.version>2.6.2</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
-        <jasypt.version>1.9.2</jasypt.version>
         <javax.el-version>2.2.5</javax.el-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
-        <jetty-plugin.version>8.1.14.v20131031</jetty-plugin.version>
-        <jetty.version>8.1.14.v20131031</jetty.version>
-        <jetty9.version>9.2.10.v20150310</jetty9.version>
+        <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
+        <jetty.version>8.1.17.v20150415</jetty.version>
         <jgit.version>4.1.0.201509280440-r</jgit.version>
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
@@ -177,7 +161,7 @@
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
         <spring.version>4.2.1.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
-        <sundrio.version>0.1.13</sundrio.version>
+        <sundrio.version>0.1.14</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <ning.http-client.version>1.9.31</ning.http-client.version>
@@ -292,18 +276,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Commons -->
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io2.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
@@ -367,11 +339,6 @@
                 <artifactId>fabric8-arquillian</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-junit-container.version}</version>
-            </dependency>
 
             <dependency>
               <groupId>io.fabric8</groupId>
@@ -383,11 +350,11 @@
                 <artifactId>fabric8-annotations</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!--dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-build-workflow</artifactId>
-              <version>${project.version}</version>
-            </dependency-->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-build-workflow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-cdi</artifactId>
@@ -451,55 +418,10 @@
             </dependency>
 
             <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric8-etcd-reader-gson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric8-etcd-reader-jackson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-groups</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!--dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-api</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-apiman</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-model</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-servlet</artifactId>
-              <version>${project.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>gitrepo-api</artifactId>
@@ -574,11 +496,6 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>swagger-model</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>zookeeper-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -793,11 +710,6 @@
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-                <version>${jasypt.version}</version>
-            </dependency>
 
             <!-- OPS4J -->
             <dependency>
@@ -865,40 +777,6 @@
                 <artifactId>mockserver-netty</artifactId>
                 <version>${mockserver.version}</version>
             </dependency>
-
-            <dependency>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-ejb_3.1_spec</artifactId>
-              <version>${geronimo-ejb-3-1-spec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-                <version>${geronimo-ws-metadata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>${commons-configuration.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty</artifactId>
-                <version>6.1.26</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>6.1.26</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-osgi</artifactId>
@@ -986,17 +864,6 @@
               <version>${jackson2.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-atinject_1.0_spec</artifactId>
-                <version>${geronimo-atinject.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.yaml</groupId>
@@ -1361,20 +1228,9 @@
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>${arquillian-core.version}</version>
+                <version>${arquillian.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpasyncclient</artifactId>
-                <version>${httpcomponents.async.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>${commons-httpclient.version}</version>
             </dependency>
 
             <dependency>
@@ -1397,17 +1253,10 @@
             </dependency>
 
             <!-- JGroups -->
-
             <dependency>
                 <groupId>org.jgroups</groupId>
                 <artifactId>jgroups</artifactId>
                 <version>${jgroups.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>${elasticsearch.version}</version>
             </dependency>
 
             <dependency>
@@ -1455,12 +1304,6 @@
             </dependency>
 
             <dependency>
-              <groupId>org.hibernate</groupId>
-              <artifactId>hibernate-validator-cdi</artifactId>
-              <version>${hibernate-validator.version}</version>
-            </dependency>
-
-            <dependency>
               <groupId>javax.el</groupId>
               <artifactId>javax.el-api</artifactId>
               <version>${javax.el-version}</version>
@@ -1470,13 +1313,6 @@
               <artifactId>javax.el</artifactId>
               <version>${javax.el-version}</version>
             </dependency>
-
-            <dependency>
-              <groupId>org.eclipse.jetty.websocket</groupId>
-              <artifactId>websocket-client</artifactId>
-              <version>${jetty9.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.sun</groupId>
                 <artifactId>tools</artifactId>

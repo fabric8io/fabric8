@@ -262,7 +262,7 @@ done
 deployFabric8Console
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
-  for app in gogs hubot hubot-notifier lets-chat cdelivery jbpm-designer influxdb elasticsearch kibana orion taiga; do
+  for app in gogs hubot hubot-notifier lets-chat cdelivery influxdb elasticsearch kibana orion taiga; do
     $KUBE create -f  http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/${app}/${FABRIC8_VERSION}/${app}-${FABRIC8_VERSION}-kubernetes.json
   done
   $KUBE create -f https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
@@ -364,16 +364,6 @@ if [ -n "${OPENSHIFT_MASTER_URL}" ]; then
       "kind": "Route",
       "host": "gogs.${FABRIC8_CONSOLE}",
       "serviceName": "gogs-http-service"
-    },
-    {
-      "id": "jbpm-designer-route",
-      "metadata": {
-        "name": "jbpm-designer-route"
-      },
-      "apiVersion": "v1beta1",
-      "kind": "Route",
-      "host": "jbpm.${FABRIC8_CONSOLE}",
-      "serviceName": "jbpm-designer"
     },
     {
       "id": "orion-route",

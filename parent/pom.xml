@@ -21,19 +21,18 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-project</artifactId>
-        <version>2.2.48-SNAPSHOT</version>
+        <version>2.2.49-SNAPSHOT</version>
     </parent>
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>2.2.48-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Fabric8 :: Parent</name>
     <url>http://fabric8.io/</url>
 
     <properties>
-        <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
         <maven-build-helper-plugin.version>1.9.1</maven-build-helper-plugin.version>
         <maven-bundle-plugin.version>2.5.4</maven-bundle-plugin.version>
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>

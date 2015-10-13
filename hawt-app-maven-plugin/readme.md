@@ -15,7 +15,7 @@ Using the build goal of this plugin will create the following:
 * an unpacked assembly of the app in the `target/hawt-app` directory.
 * a tar.gz archive of that assembly directory at: `target/${project.artifactId}-${project.version}-app.tar.gz` 
 
-If you want to test out launching your app, just  execute the `target/hawt-app/bin/run` script.
+If you want to test out launching your app, just  execute the `target/hawt-app/bin/run.sh` script.
 
 Usage
 -------
@@ -23,15 +23,15 @@ Usage
 You can use it on any maven module which contains a class that can be run from the CLI.  You just need to let it know
 which main class to use.  For example:
 
-    mvn package org.jboss.hawt.app:hawt-app-maven-plugin:1.2:build -Dhawt-app.main=org.apache.camel.cdi.Main
+    mvn package io.fabric8:hawt-app-maven-plugin:2.2.48:build -Dhawt-app.javaMainClass=org.apache.camel.cdi.Main
     
-
-To create the app as part of you default build for the module, add the a plugin configuration similar to the following in your maven module:
+(replace the version number with the current version). To create the app as part of you default build for the module, 
+add the a plugin configuration similar to the following in your maven module:
 
     <plugin>
       <groupId>io.fabric8</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>2.2.47</version>
+      <version>2.2.48</version>
       <executions>
         <execution>
           <goals>
@@ -41,7 +41,7 @@ To create the app as part of you default build for the module, add the a plugin 
         </execution>
       </executions>
       <configuration>
-        <main>org.apache.camel.cdi.Main</main>
+        <javaMainClass>org.apache.camel.cdi.Main</javaMainClass>
       </configuration>
     </plugin>
 

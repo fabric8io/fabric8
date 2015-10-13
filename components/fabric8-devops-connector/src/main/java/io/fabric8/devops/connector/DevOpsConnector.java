@@ -16,6 +16,10 @@
 package io.fabric8.devops.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.Realm;
+import com.ning.http.client.Response;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
@@ -32,7 +36,8 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
 import io.fabric8.openshift.api.model.BuildConfigFluent;
-import io.fabric8.repo.git.*;
+import io.fabric8.repo.git.GitRepoClient;
+import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
 import io.fabric8.taiga.ProjectDTO;
 import io.fabric8.taiga.TaigaClient;
@@ -44,22 +49,6 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AUTH;
-import org.apache.http.auth.AuthenticationException;
-import org.apache.http.auth.MalformedChallengeException;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.DigestScheme;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +64,14 @@ import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.net.ConnectException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -85,6 +80,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
@@ -93,6 +89,7 @@ public class DevOpsConnector {
     private transient Logger log = LoggerFactory.getLogger(DevOpsConnector.class);
 
     private static final String JSON_MAGIC = ")]}'";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private File basedir;
     private ProjectConfig projectConfig;
@@ -140,10 +137,10 @@ public class DevOpsConnector {
     private String letschatRoomExpression = "fabric8_${namespace}";
 
     private String flowGitUrl = Systems.getEnvVar("JENKINS_WORKFLOW_GIT_REPOSITORY", "https://github.com/fabric8io/jenkins-workflow-library.git");
-    private String gerritUser = Systems.getEnvVar("GERRIT_ADMIN_USER","admin");
-    private String gerritPwd = Systems.getEnvVar("GERRIT_ADMIN_PWD","secret");
-    private String gerritGitInitialCommit = Systems.getEnvVar("GERRIT_INITIAL_COMMIT","false");
-    private String gerritGitRepoDesription = Systems.getEnvVar("GERRIT_REPO_DESCRIPTION","Description of the gerrit git repo");
+    private String gerritUser = Systems.getEnvVar("GERRIT_ADMIN_USER", "admin");
+    private String gerritPwd = Systems.getEnvVar("GERRIT_ADMIN_PWD", "secret");
+    private String gerritGitInitialCommit = Systems.getEnvVar("GERRIT_INITIAL_COMMIT", "false");
+    private String gerritGitRepoDesription = Systems.getEnvVar("GERRIT_REPO_DESCRIPTION", "Description of the gerrit git repo");
 
     private boolean recreateMode;
     private String namespace = KubernetesHelper.defaultNamespace();
@@ -175,6 +172,7 @@ public class DevOpsConnector {
 
     /**
      * For a given project this operation will try to update the associated DevOps resources
+     *
      * @throws Exception
      */
     public void execute() throws Exception {
@@ -365,7 +363,7 @@ public class DevOpsConnector {
 
     private String getServiceUrl(String serviceName, boolean serviceExternal, String... namespaces) {
         List<String> namespaceList = new ArrayList<>(Arrays.asList(namespaces));
-        String[] defaults = { KubernetesHelper.defaultNamespace(), "default" };
+        String[] defaults = {KubernetesHelper.defaultNamespace(), "default"};
         for (String defaultNamespace : defaults) {
             if (namespaceList.contains(defaultNamespace)) {
                 namespaceList.add(defaultNamespace);
@@ -438,7 +436,6 @@ public class DevOpsConnector {
         }
         return gitRepoClient;
     }
-
 
 
     // Properties
@@ -1059,7 +1056,7 @@ public class DevOpsConnector {
     protected void createJenkinsWebhook(String jenkinsJobUrl) {
         if (Strings.isNotBlank(jenkinsJobUrl)) {
             String jenkinsWebHook = URLUtils.pathJoin(jenkinsJobUrl, "/build");
-            Map<String,String> buildParameters = getBuildParameters();
+            Map<String, String> buildParameters = getBuildParameters();
             if (!buildParameters.isEmpty()) {
                 String postfix = "";
                 for (Map.Entry<String, String> entry : buildParameters.entrySet()) {
@@ -1071,7 +1068,7 @@ public class DevOpsConnector {
                 jenkinsWebHook += "WithParameters?" + postfix;
             }
             createWebhook(jenkinsWebHook, this.secret);
-            
+
             if (triggerJenkinsJob) {
                 triggerJenkinsWebHook(jenkinsWebHook, this.secret);
             }
@@ -1112,7 +1109,7 @@ public class DevOpsConnector {
     /**
      * If the build is parameterised lets return the build parameters
      */
-    protected Map<String,String> getBuildParameters() {
+    protected Map<String, String> getBuildParameters() {
         Map<String, String> answer = new HashMap<>();
         if (projectConfig != null) {
             String flow = projectConfig.getFlow();
@@ -1169,72 +1166,42 @@ public class DevOpsConnector {
 
         log.info("A Gerrit git repo will be created for this name : " + repoName);
 
-        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
+        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.GERRIT, namespace, "http", true);
         log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
-        
+
         if (Strings.isNullOrBlank(gerritAddress)) {
             throw new Exception("No address for service " + ServiceNames.GERRIT + " in namespace: "
                     + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         }
-        
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        DefaultHttpClient httpclientPost = new DefaultHttpClient();
-        String GERRIT_URL= gerritAddress + "/a/projects/" + repoName;
-        HttpGet httpget = new HttpGet(GERRIT_URL);
-        System.out.println("Requesting : " + httpget.getURI());
+
+        String GERRIT_URL = gerritAddress + "/a/projects/" + repoName;
+        Realm realm = new Realm.RealmBuilder()
+                .setPrincipal(gerritUser)
+                .setPassword(gerritPwd)
+                .setUsePreemptiveAuth(false)
+                .setScheme(Realm.AuthScheme.DIGEST)
+                .build();
+
+        AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder().setRealm(realm);
+
+        AsyncHttpClient client = new AsyncHttpClient(configBuilder.build());
+        System.out.println("Requesting : " + GERRIT_URL);
 
         try {
-            //Initial request without credentials returns "HTTP/1.1 401 Unauthorized"
-            HttpResponse response = httpclient.execute(httpget);
-            System.out.println(response.getStatusLine());
+            CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
+            createRepoDTO.setDescription(gerritGitRepoDescription);
+            createRepoDTO.setName(repoName);
+            createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
 
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-                // Get current current "WWW-Authenticate" header from response
-                // WWW-Authenticate:Digest realm="My Test Realm", qop="auth",
-                // nonce="cdcf6cbe6ee17ae0790ed399935997e8", opaque="ae40d7c8ca6a35af15460d352be5e71c"
-                Header authHeader = response.getFirstHeader(AUTH.WWW_AUTH);
-                System.out.println("authHeader = " + authHeader);
+            String json = MAPPER.writeValueAsString(createRepoDTO);
+            Future<Response> future = client.preparePost(GERRIT_URL).addHeader("Content-Type", "application/json").setBody(json).execute();
+            Response response = future.get();
+            System.out.println("responseBody : " + response.getResponseBody());
 
-                DigestScheme digestScheme = new DigestScheme();
-
-                //Parse realm, nonce sent by server.
-                digestScheme.processChallenge(authHeader);
-
-                UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "secret");
-                httpget.addHeader(digestScheme.authenticate(creds, httpget, null));
-
-                HttpPost httpPost = new HttpPost(GERRIT_URL);
-                httpPost.addHeader(digestScheme.authenticate(creds, httpPost, null));
-                httpPost.addHeader("Content-Type", "application/json");
-
-                CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
-                createRepoDTO.setDescription(gerritGitRepoDescription);
-                createRepoDTO.setName(repoName);
-                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
-
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(createRepoDTO);
-
-                HttpEntity entity = new StringEntity(json);
-                httpPost.setEntity(entity);
-
-                ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                String responseBody = httpclientPost.execute(httpPost, responseHandler);
-                System.out.println("responseBody : " + responseBody);
-            }
-
-        } catch (MalformedChallengeException e) {
-            e.printStackTrace();
-        } catch (AuthenticationException e) {
-            e.printStackTrace();
-        } catch (ConnectException e) {
-            System.out.println("Gerrit Server is not responding");
-        } catch (HttpResponseException e) {
-            System.out.println("Response from Gerrit Server : " + e.getMessage());
-            throw new Exception("Repository " + repoName + " already exists !");
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         } finally {
-            httpclient.getConnectionManager().shutdown();
-            httpclientPost.getConnectionManager().shutdown();
+            client.close();
         }
     }
 
@@ -1254,7 +1221,7 @@ public class DevOpsConnector {
             }
 
             String s = received.toString();
-            s = s.replace(JSON_MAGIC,"");
+            s = s.replace(JSON_MAGIC, "");
 
             System.out.println("Reader Interceptor removing the prefix invoked.");
             System.out.println("Content cleaned : " + s);
@@ -1266,7 +1233,7 @@ public class DevOpsConnector {
             return interceptorContext.proceed();
         }
     }
-    
+
     protected void createTaigaWebhook(TaigaClient taiga, ProjectDTO project) {
         if (taiga != null && project != null) {
             Long projectId = project.getId();
