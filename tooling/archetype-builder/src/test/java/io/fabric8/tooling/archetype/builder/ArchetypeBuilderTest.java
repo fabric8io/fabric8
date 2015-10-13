@@ -16,6 +16,7 @@
 package io.fabric8.tooling.archetype.builder;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.fabric8.tooling.archetype.ArchetypeUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
+import io.fabric8.utils.Files;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -66,7 +66,13 @@ public class ArchetypeBuilderTest {
             builder.close();
         }
 
-        Collection<File> files = FileUtils.listFilesAndDirs(new File("target/test-archetypes/java-hello-world-archetype"), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        Collection<File> files = Files.recursiveList(new File("target/test-archetypes/java-hello-world-archetype"), new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return true;
+            }
+        });
+
         String[] resources = new String[] {
             "",
             "/pom.xml",
@@ -145,5 +151,4 @@ public class ArchetypeBuilderTest {
         assertTrue(archetypeUtils.isValidProjectPom(new File("src/test/resources/example-2/pom.xml")));
         assertFalse(archetypeUtils.isValidProjectPom(new File("src/test/resources/example-3/pom.xml")));
     }
-
 }
