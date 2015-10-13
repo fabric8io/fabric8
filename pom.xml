@@ -407,26 +407,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric8-etcd-reader-gson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8.etcd.reader</groupId>
-                <artifactId>fabric8-etcd-reader-jackson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-groups</artifactId>
                 <version>${project.version}</version>
@@ -534,11 +514,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>zookeeper-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-vertx</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -562,14 +537,6 @@
                 <artifactId>gerrit-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- Internal testing modules -->
-            <dependency>
-                <groupId>io.fabric8.etcd</groupId>
-                <artifactId>fabric8-etcd-core</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
