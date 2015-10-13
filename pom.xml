@@ -226,11 +226,54 @@
 
     <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nimble and only use whats in Maven Central -->
     <repositories>
+        <repository>
+            <id>oss-sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <name>OSS Sonatype Nexus Snapshots</name>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jboss.ea</id>
+            <name>JBoss Community Early Access Release Repository</name>
+            <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+        </repository>
     </repositories>
-
     <pluginRepositories>
+        <pluginRepository>
+            <id>oss-sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <name>OSS Sonatype Nexus Snapshots</name>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jboss.ea</id>
+            <name>JBoss Community Early Access Release Repository</name>
+            <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+        </pluginRepository>
     </pluginRepositories>
-
+    
     <dependencyManagement>
         <dependencies>
             <dependency>
