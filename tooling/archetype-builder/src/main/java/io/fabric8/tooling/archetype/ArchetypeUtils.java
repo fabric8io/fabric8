@@ -36,7 +36,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import io.fabric8.utils.Files;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -142,7 +141,7 @@ public class ArchetypeUtils {
      */
     public boolean isValidSourceFileOrDir(File file) {
         String name = file.getName();
-        return !name.startsWith(".") && !excludeExtensions.contains(FilenameUtils.getExtension(file.getName()));
+        return !name.startsWith(".") && !excludeExtensions.contains(getExtension(file.getName()));
     }
 
     /**
@@ -255,6 +254,18 @@ public class ArchetypeUtils {
 
         s = s.trim();
         return s.length() == 0;
+    }
+
+    private static String getExtension(String filename) {
+        if (filename == null) {
+            return null;
+        }
+        int index = filename.lastIndexOf(".");
+        if (index == -1) {
+            return "";
+        } else {
+            return filename.substring(index + 1);
+        }
     }
 
 }

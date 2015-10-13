@@ -79,7 +79,6 @@
         <cxf.plugin.version>3.0.6</cxf.plugin.version>
 
         <commons-configuration.version>1.8</commons-configuration.version>
-        <commons-io2.version>2.4</commons-io2.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jboss.forge.version>2.19.2.Final</jboss.forge.version>
@@ -134,7 +133,6 @@
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
         <jetty.version>8.1.17.v20150415</jetty.version>
-        <jetty9.version>9.2.11.v20150529</jetty9.version>
         <jgit.version>4.1.0.201509280440-r</jgit.version>
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
@@ -245,11 +243,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io2.version}</version>
             </dependency>
 
             <dependency>
@@ -1353,13 +1346,6 @@
               <artifactId>javax.el</artifactId>
               <version>${javax.el-version}</version>
             </dependency>
-
-            <dependency>
-              <groupId>org.eclipse.jetty.websocket</groupId>
-              <artifactId>websocket-client</artifactId>
-              <version>${jetty9.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.sun</groupId>
                 <artifactId>tools</artifactId>
