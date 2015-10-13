@@ -125,7 +125,6 @@
         <hawtdispatch.version>1.21</hawtdispatch.version>
         <jackson2.version>2.6.2</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
-        <jasypt.version>1.9.2</jasypt.version>
         <javax.el-version>2.2.5</javax.el-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
@@ -693,11 +692,6 @@
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-                <version>${jasypt.version}</version>
             </dependency>
 
             <!-- OPS4J -->
