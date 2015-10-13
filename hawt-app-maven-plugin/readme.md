@@ -31,7 +31,7 @@ add the a plugin configuration similar to the following in your maven module:
     <plugin>
       <groupId>io.fabric8</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>2.2.47</version>
+      <version>2.2.48</version>
       <executions>
         <execution>
           <goals>
