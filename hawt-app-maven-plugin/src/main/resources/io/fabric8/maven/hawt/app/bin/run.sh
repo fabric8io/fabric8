@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# ======================================
-# Startup script for flat classpath apps
+# ================================================
+# Simple startup script for flat classpath apps
 
 # Discover JAVA_APP_DIR from the script's location.
 if [ x"${JAVA_APP_DIR}" == x ] ; then
@@ -10,7 +10,12 @@ if [ x"${JAVA_APP_DIR}" == x ] ; then
   export JAVA_APP_DIR
 fi
 
-# Setup some defaults.. can be changed via the etc/default file.
+# Custom configuration used by the startup script
+if [ -f "${script_dir}/setenv.sh" ] ; then
+    source "${script_dir}/setenv.sh"
+fi
+
+# Setup main class
 main_class=""
 if [ x"${JAVA_MAIN_CLASS}" != x ]; then
   main_class="${JAVA_MAIN_CLASS}"
@@ -32,11 +37,7 @@ else
     done < ${JAVA_APP_DIR}/lib/classpath
 fi
 
-# Custom configuration used by the startup script
-if [ -f "${script_dir}/setenv.sh" ] ; then
-    source "${script_dir}/setenv.sh"
-fi
-
+# Set debug options if required
 if [ x"${JAVA_ENABLE_DEBUG}" != x ]; then
     java_debug_args="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${JAVA_DEBUG_PORT:-5005}"
 fi
