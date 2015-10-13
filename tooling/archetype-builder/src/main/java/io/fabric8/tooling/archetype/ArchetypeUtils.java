@@ -141,7 +141,7 @@ public class ArchetypeUtils {
      */
     public boolean isValidSourceFileOrDir(File file) {
         String name = file.getName();
-        return !name.startsWith(".") && !excludeExtensions.contains(getExtension(file.getName()));
+        return !name.startsWith(".") && !excludeExtensions.contains(Files.getExtension(file.getName()));
     }
 
     /**
@@ -255,17 +255,4 @@ public class ArchetypeUtils {
         s = s.trim();
         return s.length() == 0;
     }
-
-    private static String getExtension(String filename) {
-        if (filename == null) {
-            return null;
-        }
-        int index = filename.lastIndexOf(".");
-        if (index == -1) {
-            return "";
-        } else {
-            return filename.substring(index + 1);
-        }
-    }
-
 }

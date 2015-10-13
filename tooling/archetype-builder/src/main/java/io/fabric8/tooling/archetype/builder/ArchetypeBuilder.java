@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -37,10 +38,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import io.fabric8.tooling.archetype.ArchetypeUtils;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -126,7 +126,7 @@ public class ArchetypeBuilder {
 
         if (bomFile != null && bomFile.exists()) {
             // read all properties of the bom, so we have default values for ${ } placeholders
-            String text = FileUtils.readFileToString(bomFile);
+            String text = IOHelpers.readFully(bomFile);
             Document doc = archetypeUtils.parseXml(new InputSource(new StringReader(text)));
             Element root = doc.getDocumentElement();
 
@@ -243,10 +243,10 @@ public class ArchetypeBuilder {
 
         if (clean) {
             LOG.debug("Removing generated archetype dir {}", archetypeDir);
-            FileUtils.deleteDirectory(archetypeDir);
+            Files.recursiveDelete(archetypeDir);
         } else if (outputSrcDir.exists() && outputGitIgnoreFile.exists() && fileIncludesLine(outputGitIgnoreFile, "src")) {
             LOG.debug("Removing generated src dir {}", outputSrcDir);
-            FileUtils.deleteDirectory(outputSrcDir);
+            Files.recursiveDelete(outputSrcDir);
             if (outputSrcDir.exists()) {
                 throw new RuntimeException("The projectDir " + outputSrcDir + " should not exist!");
             }
@@ -358,7 +358,7 @@ public class ArchetypeBuilder {
      */
     private void createArchetypeDescriptors(File projectPom, File archetypeDir, File archetypePom, File metadataXmlOutFile, Replacement replaceFn) throws IOException {
         LOG.debug("Parsing " + projectPom);
-        String text = replaceFn.replace(FileUtils.readFileToString(projectPom));
+        String text = replaceFn.replace(IOHelpers.readFully(projectPom));
 
         // lets update the XML
         Document doc = archetypeUtils.parseXml(new InputSource(new StringReader(text)));
@@ -493,7 +493,7 @@ public class ArchetypeBuilder {
         // now generate Archetype's pom
         if (!archetypeProjectPom.exists()) {
             StringWriter sw = new StringWriter();
-            IOUtils.copy(getClass().getResourceAsStream("default-archetype-pom.xml"), sw, "UTF-8");
+            IOHelpers.copy(new InputStreamReader(getClass().getResourceAsStream("default-archetype-pom.xml")), sw);
             Document pomDocument = archetypeUtils.parseXml(new InputSource(new StringReader(sw.toString())));
 
             List<String> emptyList = Collections.emptyList();
@@ -643,7 +643,7 @@ public class ArchetypeBuilder {
      * Checks whether the file contains specific line. Partial matches do not count.
      */
     private boolean fileIncludesLine(File file, String matches) throws IOException {
-        for (String line: FileUtils.readLines(file)) {
+        for (String line: Files.readLines(file)) {
             String trimmed = line.trim();
             if (trimmed.equals(matches)) {
                 return true;
@@ -675,7 +675,7 @@ public class ArchetypeBuilder {
      */
     private void copyFile(File src, File dest, Replacement replaceFn) throws IOException {
         if (replaceFn != null && isSourceFile(src)) {
-            String original = FileUtils.readFileToString(src);
+            String original = IOHelpers.readFully(src);
             String escapeDollarSquiggly = original;
             if (original.contains("${")) {
                 String replaced = original.replaceAll(Pattern.quote("${"), "\\${D}{");
@@ -685,12 +685,12 @@ public class ArchetypeBuilder {
             }
             // do additional replacement
             String text = replaceFn.replace(escapeDollarSquiggly);
-            FileUtils.write(dest, text);
+            IOHelpers.writeFully(dest, text);
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.warn("Not a source dir as the extension is {}", FilenameUtils.getExtension(src.getName()));
+                LOG.warn("Not a source dir as the extension is {}", Files.getExtension(src.getName()));
             }
-            FileUtils.copyFile(src, dest);
+            Files.copy(src, dest);
         }
     }
 
@@ -717,7 +717,7 @@ public class ArchetypeBuilder {
      * Returns true if this file is a valid source file name
      */
     private boolean isSourceFile(File file) {
-        String name = FilenameUtils.getExtension(file.getName()).toLowerCase();
+        String name = Files.getExtension(file.getName()).toLowerCase();
         return sourceFileExtensions.contains(name);
     }
 
@@ -739,8 +739,13 @@ public class ArchetypeBuilder {
     }
 
     private String defaultArchetypeXmlText() throws IOException {
+        InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("default-archetype-descriptor.xml"));
         StringWriter sw = new StringWriter();
-        IOUtils.copy(getClass().getResourceAsStream("default-archetype-descriptor.xml"), sw, "UTF-8");
+        try {
+            IOHelpers.copy(reader, sw);
+        } finally {
+            IOHelpers.close(reader, sw);
+        }
         return sw.toString();
     }
 

@@ -533,6 +533,18 @@ public final class Files {
 
     }
 
+    public static String getExtension(String filename) {
+        if (filename == null) {
+            return null;
+        }
+        int index = filename.lastIndexOf(".");
+        if (index == -1) {
+            return "";
+        } else {
+            return filename.substring(index + 1);
+        }
+    }
+
     /**
      * Returns the MIME type of the given file
      */
