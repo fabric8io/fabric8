@@ -107,8 +107,7 @@
         <fabric8.release.version>2.0.48</fabric8.release.version>
 
         <archetype-packaging.version>2.4</archetype-packaging.version>
-        <arquillian-core.version>1.1.9.Final</arquillian-core.version>
-        <arquillian-junit-container.version>1.1.9.Final</arquillian-junit-container.version>
+        <arquillian.version>1.1.9.Final</arquillian.version>
         <asm.version>5.0.4</asm.version>
         <assertj.core.version>1.7.0</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
@@ -319,11 +318,6 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-arquillian</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-junit-container.version}</version>
             </dependency>
 
             <dependency>
@@ -1278,7 +1272,7 @@
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>${arquillian-core.version}</version>
+                <version>${arquillian.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
