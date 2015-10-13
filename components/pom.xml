@@ -65,6 +65,7 @@
     <module>letschat-api</module>
     <module>mq</module>
     <module>rest-utils</module>
+    <module>swagger-annotator</module>
     <module>swagger-model</module>
     <module>taiga-api</module>
     <module>gerrit-api</module>
