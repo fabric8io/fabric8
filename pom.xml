@@ -126,9 +126,6 @@
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
-        <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
-        <geronimo-jms.version>1.1.1</geronimo-jms.version>
-        <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
@@ -796,18 +793,6 @@
                 <artifactId>mockserver-netty</artifactId>
                 <version>${mockserver.version}</version>
             </dependency>
-
-            <dependency>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-ejb_3.1_spec</artifactId>
-              <version>${geronimo-ejb-3-1-spec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-                <version>${geronimo-ws-metadata.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
@@ -922,12 +907,6 @@
               <groupId>com.fasterxml.jackson.dataformat</groupId>
               <artifactId>jackson-dataformat-yaml</artifactId>
               <version>${jackson2.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-atinject_1.0_spec</artifactId>
-                <version>${geronimo-atinject.version}</version>
             </dependency>
 
             <dependency>
