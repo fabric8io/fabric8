@@ -78,7 +78,6 @@
         <!-- cxf plugin 3.1.2 has Maven NoSuchMethodError -->
         <cxf.plugin.version>3.0.6</cxf.plugin.version>
 
-        <commons-configuration.version>1.8</commons-configuration.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jboss.forge.version>2.19.2.Final</jboss.forge.version>
@@ -780,12 +779,6 @@
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>${commons-configuration.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
