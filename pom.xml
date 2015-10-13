@@ -352,32 +352,13 @@
             </dependency>
             <dependency>
               <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-build-workflow</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
               <artifactId>fabric8-cdi</artifactId>
               <version>${project.version}</version>
             </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-devops</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-devops-connector</artifactId>
-              <version>${project.version}</version>
-            </dependency>
+
             <dependency>
               <groupId>io.fabric8.forge</groupId>
               <artifactId>fabric8-forge-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-jgroups</artifactId>
               <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -392,69 +373,7 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-selenium</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.seleniumhq.selenium</groupId>
-              <artifactId>selenium-java</artifactId>
-              <version>${selenium.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>com.github.detro</groupId>
-              <artifactId>phantomjsdriver</artifactId>
-              <version>${phantomjsdriver.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.seleniumhq.selenium</groupId>
-              <artifactId>selenium-firefox-driver</artifactId>
-              <version>${selenium.firefox.driver.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-groups</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-api</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-apiman</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-model</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-servlet</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>gitrepo-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>hubot-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -533,6 +452,64 @@
                 <artifactId>kubernetes-model</artifactId>
                 <version>${kubernetes-model.version}</version>
             </dependency>
+
+
+            <!-- Unsupported excluded from the release
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-groups</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-build-workflow</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-devops</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-devops-connector</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-jgroups</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-selenium</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.seleniumhq.selenium</groupId>
+              <artifactId>selenium-java</artifactId>
+              <version>${selenium.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.github.detro</groupId>
+              <artifactId>phantomjsdriver</artifactId>
+              <version>${phantomjsdriver.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.seleniumhq.selenium</groupId>
+              <artifactId>selenium-firefox-driver</artifactId>
+              <version>${selenium.firefox.driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>hubot-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>letschat-api</artifactId>
@@ -548,6 +525,7 @@
                 <artifactId>gerrit-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            -->
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -993,6 +971,11 @@
                  <artifactId>cxf-rt-rs-extension-search</artifactId>
                  <version>${cxf.version}</version>
              </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-javascript</artifactId>
