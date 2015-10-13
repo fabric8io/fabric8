@@ -1366,12 +1366,6 @@
             </dependency>
 
             <dependency>
-              <groupId>org.hibernate</groupId>
-              <artifactId>hibernate-validator-cdi</artifactId>
-              <version>${hibernate-validator.version}</version>
-            </dependency>
-
-            <dependency>
               <groupId>javax.el</groupId>
               <artifactId>javax.el-api</artifactId>
               <version>${javax.el-version}</version>
