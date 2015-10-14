@@ -1,6 +1,6 @@
 ## Fabric Annotations
 
-<a href="http://kubernetes.io/">Kubernetes</a> supports annotations on any kubernetes resource such as on a [replication controller](replicationController.html) or [service](service.html) which are a great way to add arbitrary metadata. Note that annotation are limited in total to about 64Kb so any large metadata should be added via a URL rather than in place.
+<a href="http://kubernetes.io/">Kubernetes</a> supports annotations on any kubernetes resource such as on a [replication controller](replicationController.html) or [service](services.html) which are a great way to add arbitrary metadata. Note that annotation are limited in total to about 64Kb so any large metadata should be added via a URL rather than in place.
 
 ### Continous Delivery Annotations
 
@@ -23,4 +23,14 @@ For more background on these annotation see the [Secret Annotations document](se
 | fabric8.io/secret-ssh-key | Defines one or more named ssh keys (public and private key pairs) | ```mysecretname``` or ```secret1,secret2,anothersecret``` |
 | fabric8.io/secret-ssh-public-key | Refers to a single or a bag of public keys | ```mysecretname.pub``` or ```mybagofsecrets[cheese.pub,beer.pub]``` |
 | fabric8.io/secret-gpg-key | Refers to a GPG key  | mysecretname |
+
+### Management Annotations
+
+When using [Prometheus](http://prometheus.io) to [collect metrics](metrics.html) for monitoring your containers you may wish to add these annotations to the [service](services.html):
+
+| Annotation | Description | Example |
+|------------|-------------|---------|
+| prometheus.io/scrape | Enable/disable the export of metrics to Prometheus | true |
+| prometheus.io/path | the request path to find metrics to export to Prometheus | /metrics |
+| prometheus.io/port | the request port to find metrics to export to Prometheus | 8080 |
 
