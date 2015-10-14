@@ -1366,12 +1366,7 @@
                           <name>Fabric8 :: Project :: Bom with Dependencies</name>
                           <dependencies>
                               <includes>
-                                  <include>com.ning:*</include>
-                                  <include>io.netty:*</include>
-                                  <include>com.fasterxml.jackson*:*</include>
-                                  <include>net.oauth*:*</include>
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
+                                  <include>*:*</include>
                               </includes>
                           </dependencies>
                           <properties>
