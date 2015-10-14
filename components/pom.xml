@@ -70,7 +70,7 @@
     <module>letschat-api</module>
     <module>hubot-api</module>
     <module>taiga-api</module>
-    <module>gerrit-api</module>
+    <module>gerrit-api</module> -->
   </modules>
 
   <profiles>
