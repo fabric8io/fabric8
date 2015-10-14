@@ -180,6 +180,22 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
     private String[] filesToBeExcluded;
 
+    /**
+     * Is this build a CD Pipeline build (and so raise warning levels if we cannot detect CD related
+     * metadata for the build,
+     * such as the git commit id, git URL, Jenkins job URL etc
+     */
+    @Parameter(property = "fabric8.cd.build", defaultValue = "false")
+    private boolean cdBuild;
+
+    /**
+     * The environemnt variable used to detect if the current build is inside a CD Pipeline build
+     * to enable verbose logging if we cannot auto default the CD related metadata for the build,
+     * such as the git commit id, git URL, Jenkins job URL etc
+     */
+    @Parameter(property = "fabric8.cd.envVar", defaultValue = "JENKINS_HOME")
+    private String cdEnvVarName;
+
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
             @Override
@@ -365,7 +381,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 if (Strings.isNotBlank(value)) {
                     String oldValue = annotations.get(annotation);
                     if (Strings.isNotBlank(oldValue)) {
-                        getLog().warn("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
+                        getLog().debug("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
                     } else {
                         annotations.put(annotation, value);
                     }
@@ -407,7 +423,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         if (Strings.isNotBlank(username)) {
                             name = ProjectRepositories.createBuildName(username, repoName);
                         } else {
-                            getLog().warn("Cannot auto-default BUILD_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Jenkins build URL");
+                            warnIfInCDBuild("Cannot auto-default BUILD_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Jenkins build URL");
                         }
                     }
                 }
@@ -432,12 +448,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         }
 
                         if (connectError) {
-                            getLog().warn("Cannot connect to Kubernetes to find jenkins service URL: " + cause.getMessage());
+                            warnIfInCDBuild("Cannot connect to Kubernetes to find jenkins service URL: " + cause.getMessage());
                         } else if (notFound) {
                             // the message from the exception is good as-is
-                            getLog().warn(cause.getMessage());
+                            warnIfInCDBuild(cause.getMessage());
                         } else {
-                            getLog().warn("Cannot find jenkins service URL: " + cause, cause);
+                            warnIfInCDBuild("Cannot find jenkins service URL: " + cause, cause);
                         }
                     }
                 }
@@ -447,7 +463,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 if (Strings.isNotBlank(buildId)) {
                     jobUrl = URLUtils.pathJoin(jobUrl, buildId);
                 } else {
-                    getLog().warn("Cannot find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
+                    warnIfInCDBuild("Cannot find BUILD_ID to create a specific jenkins build URL. So using: " + jobUrl);
                 }
             }
             return jobUrl;
@@ -473,16 +489,16 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     }
 
                     if (connectError) {
-                        getLog().warn("Cannot connect to Kubernetes to find gogs service URL: " + cause.getMessage());
+                        warnIfInCDBuild("Cannot connect to Kubernetes to find gogs service URL: " + cause.getMessage());
                     } else if (notFound) {
                         // the message from the exception is good as-is
-                        getLog().warn(cause.getMessage());
+                        warnIfInCDBuild(cause.getMessage());
                     } else {
-                        getLog().warn("Cannot find gogs service URL: " + cause, cause);
+                        warnIfInCDBuild("Cannot find gogs service URL: " + cause, cause);
                     }
                 }
             } else {
-                getLog().warn("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
+                warnIfInCDBuild("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
             }
 /*
             TODO this is the git clone url; while we could try convert from it to a browse URL its probably too flaky?
@@ -490,7 +506,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             try {
                 url = GitHelpers.extractGitUrl(basedir);
             } catch (IOException e) {
-                getLog().warn("Failed to find git url in directory " + basedir + ". " + e, e);
+                warnIfInCDBuild("Failed to find git url in directory " + basedir + ". " + e, e);
             }
             if (Strings.isNotBlank(url)) {
                 // for gogs / github style repos we trim the .git suffix for browsing
@@ -505,12 +521,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     for (RevCommit rev : logs) {
                         return rev.getName();
                     }
-                    getLog().warn("Cannot default " + envVarName + " no commits could be found");
+                    warnIfInCDBuild("Cannot default " + envVarName + " no commits could be found");
                 } else {
-                    getLog().warn("Cannot default " + envVarName + " as no git repository could be found");
+                    warnIfInCDBuild("Cannot default " + envVarName + " as no git repository could be found");
                 }
             } catch (Exception e) {
-                getLog().warn("Failed to find git commit id. " + e, e);
+                warnIfInCDBuild("Failed to find git commit id. " + e, e);
             }
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
             try (Repository repository = getGitRepository(basedir, envVarName)) {
@@ -518,10 +534,38 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     return repository.getBranch();
                 }
             } catch (IOException e) {
-                getLog().warn("Failed to find git commit id. " + e, e);
+                warnIfInCDBuild("Failed to find git commit id. " + e, e);
             }
         }
         return null;
+    }
+
+    protected void warnIfInCDBuild(String message) {
+        if (isInCDBuild()) {
+            getLog().warn(message);
+        } else {
+            getLog().debug(message);
+        }
+    }
+
+    /**
+     * Returns true if the current build is being run inside a CI / CD build in which case
+     * lets warn if we cannot detect things like the GIT commit or Jenkins build server URL
+     */
+    protected boolean isInCDBuild() {
+        if (cdBuild) {
+            return true;
+        }
+        String envVar = System.getenv(cdEnvVarName);
+        return Strings.isNotBlank(envVar);
+    }
+
+    protected void warnIfInCDBuild(String message, Throwable exception) {
+        if (isInCDBuild()) {
+            getLog().warn(message, exception);
+        } else {
+            getLog().debug(message, exception);
+        }
     }
 
     /**
