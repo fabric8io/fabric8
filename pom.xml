@@ -123,7 +123,7 @@
         <guava.version>18.0</guava.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <hawtdispatch.version>1.21</hawtdispatch.version>
-        <jackson2.version>2.6.2</jackson2.version>
+        <jackson2.version>2.6.3</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.el-version>2.2.5</javax.el-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
