@@ -39,6 +39,7 @@
       * [fabric8:json](mavenFabric8Json.md)
         * [annotation processors](annotationProcessors.md)
       * [fabric8:recreate](mavenFabric8Recreate.md)
+      * [fabric8:rolling](mavenFabric8Rolling.md)
     * [Integration and System Testing](testing.md)
     * [Java Libraries](javaLibraries.md)
     * [CDI](cdi.md)
