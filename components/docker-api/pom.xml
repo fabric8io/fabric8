@@ -31,8 +31,6 @@
   <properties>
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost />
-
-    <resteasy.version>3.0.8.Final</resteasy.version>
   </properties>
 
   <dependencies>
