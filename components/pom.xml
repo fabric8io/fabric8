@@ -45,7 +45,6 @@
     <module>fabric8-utils</module>
     <module>fabric8-vertx</module>
     <module>gitrepo-api</module>
-    <module>gitrepo-resteasy</module>
     <module>jolokia-assertions</module>
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
