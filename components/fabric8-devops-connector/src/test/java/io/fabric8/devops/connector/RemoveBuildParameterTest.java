@@ -36,7 +36,8 @@ public class RemoveBuildParameterTest {
         assertThat(template).isNotEmpty();
 
         String transformed = removeBuildParameter(LOG, template, "GIT_URL");
-        System.out.println("Transformed XML to: " + transformed);
+        transformed = removeBuildParameter(LOG, transformed, "VERSION_PREFIX");
+        LOG.info("Transformed XML to: " + transformed);
 
         assertThat(transformed).doesNotContain("hudson.model.ParametersDefinitionProperty");
         assertThat(transformed).doesNotContain("parameterDefinitions");
