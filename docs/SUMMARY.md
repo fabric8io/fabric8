@@ -9,7 +9,7 @@
   * [Accept self-signed certs](getStarted/browserCertificates.md)
 * [Fabric8 Quickstarts](quickstarts/index.md)
   * [Archetypes](quickstarts/archetypes.md)
-  * [Running Quickstarts](quickstarts/running.md)
+  * [Running](quickstarts/running.md)
 * [Fabric8 DevOps](fabric8DevOps.md)
   * [CI and CD](cdelivery.md)
     * [Jenkins Workflow Library](jenkinsWorkflowLibrary.md)
