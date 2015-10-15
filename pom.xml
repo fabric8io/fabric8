@@ -81,7 +81,7 @@
         <jansi.version>1.9</jansi.version>
         <jboss.forge.version>2.19.2.Final</jboss.forge.version>
         <furnace.version>2.22.4.Final</furnace.version>
-        <jolokia.version>1.3.1</jolokia.version>
+        <jolokia.version>1.3.2</jolokia.version>
         <jgroups.version>3.4.4.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.10</jsonschema2pojo.version>
         <slf4j.version>1.7.7</slf4j.version>
