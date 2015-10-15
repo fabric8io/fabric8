@@ -39,6 +39,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -254,9 +255,9 @@ public class ProjectConfigs {
             String buildName = config.getBuildName();
             if (Strings.isNotBlank(buildName) && Maps.isNullOrEmpty(config.getEnvironments())) {
                 // lets default the environments from env var
-                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Staging=${buildName}-staging,Production=${buildName}-prod");
+                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Testing=${buildName}-testing,Staging=${buildName}-staging,Production=${buildName}-prod");
                 String text = Strings.replaceAllWithoutRegex(defaultEnvironmentsText, "${buildName}", buildName);
-                Map<String,String> environments = Maps.parseMap(text);
+                LinkedHashMap<String,String> environments = Maps.parseMap(text);
                 config.setEnvironments(environments);
             }
         }

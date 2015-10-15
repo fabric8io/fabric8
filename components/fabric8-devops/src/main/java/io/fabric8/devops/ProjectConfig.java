@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.fabric8.utils.Maps;
 import io.fabric8.utils.Strings;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,7 +37,7 @@ public class ProjectConfig {
     private Boolean codeReview;
     private Map<String, String> links;
     private Map<String, String> buildParameters;
-    private Map<String, String> environments;
+    private LinkedHashMap<String, String> environments;
     private Boolean useLocalFlow;
 
     @Override
@@ -132,11 +133,11 @@ public class ProjectConfig {
         this.buildParameters = buildParameters;
     }
 
-    public Map<String, String> getEnvironments() {
+    public LinkedHashMap<String, String> getEnvironments() {
         return environments;
     }
 
-    public void setEnvironments(Map<String, String> environments) {
+    public void setEnvironments(LinkedHashMap<String, String> environments) {
         this.environments = environments;
     }
 
