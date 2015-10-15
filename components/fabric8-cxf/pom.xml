@@ -172,9 +172,6 @@
               com.fasterxml.jackson.module.jaxb;resolution:=mandatory,
               *
             </Import-Package>
-            <Export-Package>
-              io.fabric8.cxf*;version=${project.version}
-            </Export-Package>
             <_include>-osgi.bnd</_include>
           </instructions>
         </configuration>
