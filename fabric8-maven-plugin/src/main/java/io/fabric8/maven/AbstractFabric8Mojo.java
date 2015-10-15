@@ -472,7 +472,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 try {
                     // this requires online access to kubernetes so we should silently fail if no connection
                     String gogsUrl = KubernetesHelper.getServiceURLInCurrentNamespace(getKubernetes(), ServiceNames.GOGS, "http", null, true);
-                    return URLUtils.pathJoin(gogsUrl, username, repoName);
+                    String rootGitUrl = URLUtils.pathJoin(gogsUrl, username, repoName);
+                    String gitCommitId = getGitCommitId(envVarName, basedir);
+                    if (Strings.isNotBlank(gitCommitId)) {
+                        rootGitUrl = URLUtils.pathJoin(rootGitUrl, "commit", gitCommitId);
+                    }
+                    return rootGitUrl;
                 } catch (Throwable e) {
                     Throwable cause = e;
 
@@ -514,20 +519,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             }
 */
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
-            try (Repository repository = getGitRepository(basedir, envVarName)) {
-                if (repository != null) {
-                    System.out.println("Looking at repo with directory " + repository.getDirectory());
-                    Iterable<RevCommit> logs = new Git(repository).log().call();
-                    for (RevCommit rev : logs) {
-                        return rev.getName();
-                    }
-                    warnIfInCDBuild("Cannot default " + envVarName + " no commits could be found");
-                } else {
-                    warnIfInCDBuild("Cannot default " + envVarName + " as no git repository could be found");
-                }
-            } catch (Exception e) {
-                warnIfInCDBuild("Failed to find git commit id. " + e, e);
-            }
+            return getGitCommitId(envVarName, basedir);
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
             try (Repository repository = getGitRepository(basedir, envVarName)) {
                 if (repository != null) {
@@ -536,6 +528,24 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             } catch (IOException e) {
                 warnIfInCDBuild("Failed to find git commit id. " + e, e);
             }
+        }
+        return null;
+    }
+
+    protected String getGitCommitId(String envVarName, File basedir) {
+        try (Repository repository = getGitRepository(basedir, envVarName)) {
+            if (repository != null) {
+                System.out.println("Looking at repo with directory " + repository.getDirectory());
+                Iterable<RevCommit> logs = new Git(repository).log().call();
+                for (RevCommit rev : logs) {
+                    return rev.getName();
+                }
+                warnIfInCDBuild("Cannot default " + envVarName + " no commits could be found");
+            } else {
+                warnIfInCDBuild("Cannot default " + envVarName + " as no git repository could be found");
+            }
+        } catch (Exception e) {
+            warnIfInCDBuild("Failed to find git commit id. " + e, e);
         }
         return null;
     }
