@@ -16,33 +16,50 @@
 package io.fabric8.cdi;
 
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class KubernetesHolder {
 
     private static KubernetesClient client;
+    private static final AtomicReference<BeanManager> BEAN_MANAGER = new AtomicReference<>();
 
     public synchronized static KubernetesClient getClient() {
         if (client != null) {
             return client;
         }
-        BeanManager beanManager = CDI.current().getBeanManager();
-
-        Set<Bean<?>> beans = beanManager.getBeans(KubernetesClient.class);
-        if (beans.isEmpty()) {
-            throw new IllegalStateException("Could not find client beans!");
+        BeanManager beanManager = getBeanManager();
+        if (beanManager != null) {
+           Set<Bean<?>> beans = beanManager.getBeans(KubernetesClient.class);
+            if (beans.isEmpty()) {
+                throw new IllegalStateException("Could not find client beans!");
+            } else {
+                CreationalContext ctx = beanManager.createCreationalContext(null);
+                client = (KubernetesClient) beanManager.getReference(beans.iterator().next(), KubernetesClient.class, ctx);
+            }
         } else {
-            CreationalContext ctx = beanManager.createCreationalContext(null);
-            client = (KubernetesClient) beanManager.getReference(beans.iterator().next(), KubernetesClient.class, ctx);
+            client = new DefaultKubernetesClient();
         }
         return client;
+    }
+
+    private static BeanManager getBeanManager() {
+        try {
+            return CDI.current().getBeanManager();
+        } catch (Throwable t) {
+            return BEAN_MANAGER.get();
+        }
+    }
+
+    public static void useBeanManager(BeanManager beanManager) {
+        BEAN_MANAGER.set(beanManager);
     }
 
 }
