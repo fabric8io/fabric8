@@ -46,6 +46,21 @@ To specify an explicit namespace and domain in recreate mode:
     mvn fabric8:apply -Dfabric8.recreate=true \
     -Dfabric8.domain=foo.acme.com -Dfabric8.namespace=cheese   
 
+
+## Specifying environments and namespaces
+
+You can use the `fabric8.namespace` system property to explicitly specify the kubernetes namespace to apply things to...
+
+    mvn fabric8:rolling -Dfabric8.namespace=cheese
+    
+Or you can use the `fabric8.environment` system property to refer to a named environment such as `Testing`, `Staging` or `Production` which is then mapped to the physical namespace by using the [fabric8.yml file](fabric8YamlFile.html).
+
+    mvn fabric8:rolling -Dfabric8.environment=Staging
+
+This lets you keep a level of indirection between the logical environment names for a project and the physical namespaces in kubernetes which probably have team or user prefixes/postfixes. This lets you share the same Jenkinsfiles (Jenkins workflow groovy scripts) across different projects. 
+
+e.g. you can have a standard command to apply to the Staging environment and this can be applied to any project which has a `fabric8.yml` file generated.    
+    
 ### Templates
 
 Applying an [OpenShift template](http://docs.openshift.org/latest/dev_guide/templates.html) works the same as a regular `List` of Kubernetes resources. 

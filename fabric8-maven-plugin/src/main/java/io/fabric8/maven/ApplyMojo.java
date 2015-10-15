@@ -43,6 +43,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,6 +68,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
      */
     @Component
     protected ArtifactResolver resolver;
+
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = false)
+    private MavenProject project;
 
     /**
      * Location of the localRepository repository.
@@ -258,6 +263,11 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
     public boolean isRollingUpgradePreserveScale() {
         return false;
+    }
+
+    @Override
+    public MavenProject getProject() {
+        return project;
     }
 
     /**

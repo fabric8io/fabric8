@@ -221,6 +221,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         }
     }
 
+    @Override
     public MavenProject getProject() {
         return project;
     }
@@ -808,37 +809,6 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
         }
-    }
-
-    /**
-     * Returns the root project folder
-     */
-    protected File getRootProjectFolder() {
-        File answer = null;
-        MavenProject project = getProject();
-        while (project != null) {
-            File basedir = project.getBasedir();
-            if (basedir != null) {
-                answer = basedir;
-            }
-            project = project.getParent();
-        }
-        return answer;
-    }
-
-    /**
-     * Returns the root project folder
-     */
-    protected MavenProject getRootProject() {
-        MavenProject project = getProject();
-        while (project != null) {
-            MavenProject parent = project.getParent();
-            if (parent == null) {
-                break;
-            }
-            project = parent;
-        }
-        return project;
     }
 
     public String getDockerImage() {
