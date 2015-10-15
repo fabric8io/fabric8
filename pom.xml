@@ -138,7 +138,7 @@
         <logback.version>1.1.3</logback.version>
         <lombok.version>1.16.6</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
-        <maven.enforcer.plugin.version>1.4</maven.enforcer.plugin.version>
+        <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
