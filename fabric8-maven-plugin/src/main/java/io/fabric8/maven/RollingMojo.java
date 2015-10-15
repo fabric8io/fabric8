@@ -20,6 +20,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
@@ -27,10 +28,26 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  */
 @Mojo(name = "rolling", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.INSTALL)
 public class RollingMojo extends ApplyMojo {
+    /**
+     * Should we preserve the current scale of the ReplicationController as we perform the rolling upgrade.
+     *
+     * If false then we will rolling upgrade to the replica count in the generated kubernetes.json
+     */
+    @Parameter(property = "fabric8.rolling.preserveScale", defaultValue = "true")
+    private boolean rollingUpgradePreserveScale;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         setRollingUpgrades(true);
         super.execute();
+    }
 
+    @Override
+    public boolean isRollingUpgradePreserveScale() {
+        return rollingUpgradePreserveScale;
+    }
+
+    public void setRollingUpgradePreserveScale(boolean rollingUpgradePreserveScale) {
+        this.rollingUpgradePreserveScale = rollingUpgradePreserveScale;
     }
 }

@@ -181,6 +181,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setProcessTemplatesLocally(processTemplatesLocally);
             controller.setDeletePodsOnReplicationControllerUpdate(deletePodsOnReplicationControllerUpdate);
             controller.setRollingUpgrade(rollingUpgrades);
+            controller.setRollingUpgradePreserveScale(isRollingUpgradePreserveScale());
 
             boolean openShift = KubernetesHelper.isOpenShift(kubernetes);
             getLog().info("Is OpenShift: " + openShift);
@@ -253,6 +254,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
     public void setRollingUpgrades(boolean rollingUpgrades) {
         this.rollingUpgrades = rollingUpgrades;
+    }
+
+    public boolean isRollingUpgradePreserveScale() {
+        return false;
     }
 
     /**
