@@ -42,34 +42,34 @@ public class ServerMockTestSuite {
 
     @BeforeClass
     public static void setUpClass() throws IOException {
-        MOCK.expectAndReturnAsJson("/api/v1/namespaces/arquillian", 200, new NamespaceBuilder()
+        MOCK.expect().withPath("/api/v1/namespaces/arquillian").andReturn(200, new NamespaceBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
-                .and().build());
+                .and().build()).always();
 
-        MOCK.expectAndReturnAsJson("/api/v1/namespaces/arquillian/replicationcontrollers", 200, new ReplicationControllerListBuilder()
+        MOCK.expect().withPath("/api/v1/namespaces/arquillian/replicationcontrollers").andReturn(200, new ReplicationControllerListBuilder()
                 .addNewItem()
                 .withNewMetadata()
                 .withName("repl1")
                 .endMetadata()
                 .endItem()
-                .build());
+                .build()).always();
 
 
-        MOCK.expectAndReturnAsJson("/api/v1/namespaces/arquillian/pods", 200, new PodListBuilder().addNewItem()
+        MOCK.expect().withPath("/api/v1/namespaces/arquillian/pods").andReturn(200, new PodListBuilder().addNewItem()
                 .withNewMetadata()
                 .withName("pod1")
                 .endMetadata()
                 .endItem()
-                .build());
+                .build()).always();
 
-        MOCK.expectAndReturnAsJson("/api/v1/namespaces/arquillian/services", 200, new ServiceListBuilder()
+        MOCK.expect().withPath("/api/v1/namespaces/arquillian/services").andReturn(200, new ServiceListBuilder()
                 .addNewItem()
                 .withNewMetadata()
                 .withName("service1")
                 .endMetadata()
                 .endItem()
-                .build());
+                .build()).always();
 
 
         MOCK.init();
