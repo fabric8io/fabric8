@@ -135,7 +135,7 @@ One thing to be careful of is that adding test dependencies on kubernetes.json w
 
 ### Example
 
-There are lots of examples in the [quickstarts](http://fabric8.io/guide/quickstarts.html).
+There are lots of examples in the [quickstarts](quickstarts/index.md).
 
 Here is an [example Arquillian Fabric8 integration test](https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57) that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.
 

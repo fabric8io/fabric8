@@ -27,7 +27,7 @@ How this is done is described in this [recipe](local.html).
 ### What's next
 
 * [Run a fabric8 App](apps.html)
-* [Check out the Quickstarts](../quickstarts.html)
+* [Check out the Quickstarts](../quickstarts/index.html)
 * [Learn how to develop applications locally](develop.html)
 * [Running a quickstart on the iPaaS](example.html)
 
