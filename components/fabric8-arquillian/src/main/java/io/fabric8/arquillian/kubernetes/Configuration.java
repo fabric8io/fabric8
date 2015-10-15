@@ -15,14 +15,19 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +45,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_RESO
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLED;
+import static io.fabric8.arquillian.kubernetes.Constants.FABRIC8_ENVIRONMENT;
 import static io.fabric8.arquillian.kubernetes.Constants.GOFABRIC8_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
@@ -63,6 +69,7 @@ public class Configuration {
     private URL environmentConfigUrl;
 
     private String namespaceToUse;
+    private String environment;
     private boolean namespaceLazyCreateEnabled = DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED;
     private boolean namespaceCleanupEnabled = DEFAULT_NAMESPACE_CLEANUP_ENABLED;
     private long namespaceCleanupTimeout = 10000L;
@@ -79,6 +86,7 @@ public class Configuration {
     private String kubernetesDomain;
     private Boolean gofabric8Enabled;
     private Map<String, String> properties;
+
 
     public Map<String, String> getProperties() {
         return properties;
@@ -137,7 +145,52 @@ public class Configuration {
     }
 
     public String getNamespaceToUse() {
+        if (Strings.isNullOrBlank(namespaceToUse)) {
+            String envName = getEnvironment();
+            if (Strings.isNotBlank(envName)) {
+                namespaceToUse = findNamespaceForEnvironment(envName);
+            }
+        }
         return namespaceToUse;
+    }
+
+    /**
+     * Resolves a logical environment name for a project, such as <code>Testing</code> to the physical projcect/team specific
+     * namespace value.
+     *
+     * It tries to find a fabric8.yml file in this folder or a parent folder and loads it and tries to use it to find the
+     * namespace for the given environment or uses environment variables to resolve the environment name -> physical namespace
+     * @return the namespace
+     */
+    protected static String findNamespaceForEnvironment(String environment) {
+        String namespace = null;
+        String basedir = System.getProperty("basedir", ".");
+        File folder = new File(basedir);
+        ProjectConfig projectConfig = ProjectConfigs.findFromFolder(folder);
+        if (projectConfig != null) {
+            LinkedHashMap<String, String> environments = projectConfig.getEnvironments();
+            if (environments != null) {
+                namespace = environments.get(environment);
+            }
+        }
+        if (Strings.isNullOrBlank(namespace)) {
+            // lets try find an environment variable or system property
+            String envVarName = environment.toUpperCase() + "_NAMESPACE";
+            namespace = Systems.getEnvVarOrSystemProperty(envVarName);
+            if (Strings.isNullOrBlank(namespace)) {
+                throw new IllegalStateException("Could not find namespace for environment `" + environment
+                        + "` by looking for a fabric8.yml file and at environment variable $" + envVarName);
+            }
+        }
+        if (Strings.isNotBlank(namespace)) {
+            System.out.println("Mapping environment `" + environment + "` to namespace `" + namespace + "`");
+        }
+        return namespace;
+
+    }
+
+    public String getEnvironment() {
+        return environment;
     }
 
     public URL getEnvironmentConfigUrl() {
@@ -166,6 +219,7 @@ public class Configuration {
 
             configuration.namespaceLazyCreateEnabled = getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED);
             configuration.namespaceToUse = getStringProperty(NAMESPACE_TO_USE, map, null);
+            configuration.environment = getStringProperty(FABRIC8_ENVIRONMENT, map, null);
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.namespaceToUse));
             configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);

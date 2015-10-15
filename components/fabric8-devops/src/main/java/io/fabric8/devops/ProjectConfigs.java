@@ -75,6 +75,25 @@ public class ProjectConfigs {
 
 
     /**
+     * Tries to find the project configuration from the current directory or a parent folder.
+     *
+     * If no fabric8.yml file can be found just return an empty configuration
+     */
+    public static ProjectConfig findFromFolder(File folder) {
+        if (folder.isDirectory()) {
+            File projectConfigFile = new File(folder, FILE_NAME);
+            if (projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile()) {
+                return loadFromFolder(folder);
+            }
+            File parentFile = folder.getParentFile();
+            if (parentFile != null) {
+                return findFromFolder(parentFile);
+            }
+        }
+        return new ProjectConfig();
+    }
+
+    /**
      * Returns the project config from the given url if it exists or null
      */
     public static ProjectConfig loadFromUrl(String url) {
@@ -262,4 +281,5 @@ public class ProjectConfigs {
             }
         }
     }
+
 }

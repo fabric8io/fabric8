@@ -11,6 +11,11 @@
           <description></description>
           <defaultValue>${GIT_URL}</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION_PREFIX</name>
+          <description></description>
+          <defaultValue>${VERSION_PREFIX}</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>

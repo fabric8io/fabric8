@@ -76,7 +76,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         if (Strings.isNullOrBlank(namespace)) {
             if (Strings.isNotBlank(environment)) {
                 namespace = getNamespaceForEnvironment(environment);
-
             }
         }
         if (Strings.isNullOrBlank(namespace)) {
