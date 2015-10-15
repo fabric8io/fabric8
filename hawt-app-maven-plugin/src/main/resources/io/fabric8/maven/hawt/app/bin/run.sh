@@ -38,7 +38,7 @@ else
 fi
 
 # Set debug options if required
-if [ x"${JAVA_ENABLE_DEBUG}" != x ]; then
+if [ x"${JAVA_ENABLE_DEBUG}" != x ] && [ "${JAVA_ENABLE_DEBUG}" != "false" ]; then
     java_debug_args="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${JAVA_DEBUG_PORT:-5005}"
 fi
 
