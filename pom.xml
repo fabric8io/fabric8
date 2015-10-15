@@ -1603,13 +1603,13 @@
         <profile>
             <id>camel-snapshot</id>
             <properties>
-                <camel.version>2.16-SNAPSHOT</camel.version>
+                <camel.version>2.17-SNAPSHOT</camel.version>
             </properties>
         </profile>
         <profile>
             <id>kubernetes-model-snapshot</id>
             <properties>
-                <kubernetes-model.version>1.0.26-SNAPSHOT</kubernetes-model.version>
+                <kubernetes-model.version>1.0.30-SNAPSHOT</kubernetes-model.version>
             </properties>
         </profile>
         <profile>
