@@ -62,6 +62,7 @@ public class Fabric8Extension implements Extension {
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event, BeanManager beanManager) {
 
+        KubernetesHolder.useBeanManager(beanManager);
         //Only add the bean if no other bean is found.
         if (beanManager.getBeans(KubernetesClient.class).isEmpty()) {
             event.addBean(new KubernetesClientBean());
