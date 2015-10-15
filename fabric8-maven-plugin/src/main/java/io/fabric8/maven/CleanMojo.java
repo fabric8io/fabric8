@@ -60,13 +60,6 @@ public class CleanMojo extends ApplyMojo {
             openShiftClient.buildConfigs().delete();
             openShiftClient.deploymentConfigs().delete();
             openShiftClient.templates().delete();
-
-            if (deep) {
-                openShiftClient.users().delete();
-                openShiftClient.groups().delete();
-                openShiftClient.policies().delete();
-                openShiftClient.policyBindings().delete();
-            }
         }
     }
 }
