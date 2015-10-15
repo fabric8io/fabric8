@@ -87,6 +87,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     private boolean createNewResources;
 
     /**
+     * Should we use rolling upgrades to apply changes?
+     */
+    @Parameter(property = "fabric8.rolling", defaultValue = "false")
+    private boolean rollingUpgrades;
+
+    /**
      * Should we fail if there is no kubernetes json
      */
     @Parameter(property = "fabric8.apply.failOnNoKubernetesJson", defaultValue = "false")
@@ -174,6 +180,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setIgnoreRunningOAuthClients(ignoreRunningOAuthClients);
             controller.setProcessTemplatesLocally(processTemplatesLocally);
             controller.setDeletePodsOnReplicationControllerUpdate(deletePodsOnReplicationControllerUpdate);
+            controller.setRollingUpgrade(rollingUpgrades);
 
             boolean openShift = KubernetesHelper.isOpenShift(kubernetes);
             getLog().info("Is OpenShift: " + openShift);
@@ -238,6 +245,14 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    public boolean isRollingUpgrades() {
+        return rollingUpgrades;
+    }
+
+    public void setRollingUpgrades(boolean rollingUpgrades) {
+        this.rollingUpgrades = rollingUpgrades;
     }
 
     /**

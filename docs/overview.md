@@ -1,41 +1,77 @@
 ## Overview
 
-<strong>fabric8</strong> is an open source <a href="http://fabric8.io/guide/fabric8DevOps.html">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html">Integration Platform</a> which is built as a reusable set of microservices that run on top of <a href="http://kubernetes.io/">Kubernetes</a> and <a href="http://www.openshift.org/">OpenShift V3</a>
+*fabric8* is an open source
+[DevOps](http://fabric8.io/guide/fabric8DevOps.html) and
+[Integration Platform](http://fabric8.io/guide/ipaas.html) which is
+built as a reusable set of microservices that run on top of
+[Kubernetes](http://kubernetes.io/) and
+[OpenShift V3](http://www.openshift.org/)
 
 
 ### [Fabric8 DevOps](fabric8DevOps.html)
 
 [Fabric8 DevOps](fabric8DevOps.html) provides:
 
-* <a href="http://fabric8.io/guide/cdelivery.html">Continuous Integration and Continous Delivery</a> to help you deliver software faster and more reliably using <a href="https://jenkins-ci.org/">Jenkins</a> with a [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable CD pipelines with integrated <a href="http://fabric8.io/guide/chat.html">Chat</a> and <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>
+* [Continuous](http://fabric8.io/guide/cdelivery.html) Integration and
+  Continous Delivery</a> to help you deliver software faster and more
+  reliably using [Jenkins](https://jenkins-ci.org/) with a
+  [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable
+  CD pipelines with integrated
+  [Chat](http://fabric8.io/guide/chat.html) and
+  [Chaos Monkey](http://fabric8.io/guide/chaosMonkey.html) 
 
-* <a href="http://fabric8.io/guide/management.html">Management</a> of your applications with a powerful <a href="http://fabric8.io/guide/console.html">Console</a> with centralised <a href="http://fabric8.io/guide/logging.html">Logging</a> and <a href="http://fabric8.io/guide/metrics.html">Metrics</a> along with deep management of Java Containers using <a href="http://hawt.io/">Hawtio</a> and <a href="http://jolokia.org/">Jolokia</a>
+* [Management](http://fabric8.io/guide/management.html) of your
+  applications with a powerful
+  [Console](http://fabric8.io/guide/console.html) with centralised
+  [Logging](http://fabric8.io/guide/logging.html) and
+  [Metrics](http://fabric8.io/guide/metrics.html) along with deep
+  management of Java Containers using [Hawtio](http://hawt.io/) and
+  [Jolokia](http://jolokia.org/)
 
 ### [Fabric8 iPaaS](ipaas.html)
 
-[Fabric8 iPaaS](ipaas.html) is an <i>Integration Platform As A Service</i> with <a href="http://fabric8.io/guide/console.html">deep visualisation</a> of your <a href="http://camel.apache.org/">Apache Camel</a> integration services, an <a href="http://fabric8.io/guide/apiRegistry.html">API Registry</a> to view of all your RESTful &amp; SOAP APIs and <a href="http://fabric8.io/guide/fabric8MQ.html">Fabric8 MQ</a> provides <i>Messaging As A Service</i> based on <a href="http://activemq.apache.org/">Apache ActiveMQ</a>
+[Fabric8 iPaaS](ipaas.html) is an *Integration Platform As A
+Service* with
+[deep visualisation](http://fabric8.io/guide/console.html) of your
+[Apache Camel](http://camel.apache.org/) integration services, an
+[API Registry](http://fabric8.io/guide/apiRegistry.html) to view of
+all your RESTful and SOAP APIs and
+[Fabric8 MQ](http://fabric8.io/guide/fabric8MQ.html) provides
+*Messaging As A Service* based on
+[Apache ActiveMQ](http://activemq.apache.org/)
       
 ### [Fabric8 Tools](tools.html)
 
-<a href="http://fabric8.io/guide/tools.html">Fabric8 Tools</a></h3> helps the Java community take full advantage of <a href="http://kubernetes.io/">Kubernetes</a>:
+[Fabric8 Tools](http://fabric8.io/guide/tools.html) helps the
+Java community take full advantage of
+[Kubernetes](http://kubernetes.io/):
 
-<ul>
-  <li>
-    <a href="http://fabric8.io/guide/mavenPlugin.html">Maven Plugin</a> for working with <a href="http://kubernetes.io/">Kubernetes</a>
-  </li>
-  <li>
-    <a href="http://fabric8.io/guide/testing.html">Integration and System Testing</a> of <a href="http://kubernetes.io/">Kubernetes</a> resources easily inside <a href="http://junit.org/">JUnit</a> with <a href="http://arquillian.org/">Arquillian</a>
-  </li>
-  <li>
-    <a href="http://fabric8.io/guide/javaLibraries.html">Java Libraries</a> and support for <a href="http://fabric8.io/guide/cdi.html">CDI</a> extensions for working with <a href="http://kubernetes.io/">Kubernetes</a>
-  </li>
-</ul>
+* [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html) for working
+  with [Kubernetes](http://kubernetes.io/)
+* [Integration and System Testing](http://fabric8.io/guide/testing.html)
+  of [Kubernetes](http://kubernetes.io/) resources easily inside
+  [JUnit](http://junit.org/) with [Arquillian](http://arquillian.org/)
+* [Java Libraries](http://fabric8.io/guide/javaLibraries.html) and
+  support for [CDI](http://fabric8.io/guide/cdi.html) extensions for
+  working with [Kubernetes](http://kubernetes.io/) 
 
 ### Supported Platforms
 
-Fabric8 works great with [Docker](http://www.docker.com/) and implementations of [Kubernetes](http://kubernetes.io/) such as [Kubernetes itself](http://kubernetes.io/), [OpenShift V3](http://openshift.github.io/), [Project Atomic](http://www.projectatomic.io/) and [Google Container Engine](https://cloud.google.com/container-engine/).
+Fabric8 works great with [Docker](http://www.docker.com/) and
+implementations of [Kubernetes](http://kubernetes.io/) such as
+[Kubernetes itself](http://kubernetes.io/),
+[OpenShift V3](http://openshift.github.io/),
+[Project Atomic](http://www.projectatomic.io/) and
+[Google Container Engine](https://cloud.google.com/container-engine/).
 
-For non-linux platforms which don't yet support native Docker we have [Jube](jube/index.html) which is an open source pure Java implementation of Kubernetes.
+For non-linux platforms which don't yet support native Docker we have
+[Jube](jube/index.html) which is an open source pure Java
+implementation of Kubernetes.
 
-Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on premise and public cloud), by Project Atomic and VMware; so it's increasingly becoming the standard API to PaaS and _Container As A Service_ on the open hybrid clouds. [Jube](jube.html) then helps extend Kubernetes to run Java based middleware on any operating system which supports Java 7.
+Kubernetes is supported on Google and Microsofts clouds, by OpenShift
+V3 (on premise and public cloud), by Project Atomic and VMware; so
+it's increasingly becoming the standard API to PaaS and _Container As
+A Service_ on the open hybrid clouds. [Jube](jube.html) then helps
+extend Kubernetes to run Java based middleware on any operating system
+which supports Java 7.
 

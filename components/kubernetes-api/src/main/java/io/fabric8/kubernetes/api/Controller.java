@@ -93,6 +93,7 @@ public class Controller {
     private boolean servicesOnlyMode;
     private boolean ignoreServiceMode;
     private boolean ignoreRunningOAuthClients = true;
+    private boolean rollingUpgrade;
     private boolean processTemplatesLocally;
     private File logJsonDir;
     private File basedir;
@@ -817,37 +818,42 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
         }
-        ReplicationController old = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).get();
-        if (isRunning(old)) {
-            if (UserConfigurationCompare.configEqual(replicationController, old)) {
-                LOG.info("ReplicationController hasn't changed so not doing anything");
-            } else {
-                if (isRecreateMode()) {
-                    LOG.info("Deleting ReplicationController: " + id);
-                    kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).delete();
-                    doCreateReplicationController(replicationController, namespace, sourceName);
+        if (rollingUpgrade) {
+            LOG.info("Rolling upgrade of the RC " + namespace + "/" + id);
+            kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).rolling().replace(replicationController);
+        } else {
+            ReplicationController old = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).get();
+            if (isRunning(old)) {
+                if (UserConfigurationCompare.configEqual(replicationController, old)) {
+                    LOG.info("ReplicationController hasn't changed so not doing anything");
                 } else {
-                    LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
-                    try {
-                        Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).replace(replicationController);
-                        logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
+                    if (isRecreateMode()) {
+                        LOG.info("Deleting ReplicationController: " + id);
+                        kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).delete();
+                        doCreateReplicationController(replicationController, namespace, sourceName);
+                    } else {
+                        LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
+                        try {
+                            Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).replace(replicationController);
+                            logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
 
-                        if (deletePodsOnReplicationControllerUpdate) {
-                            kubernetesClient.pods().inNamespace(namespace).withLabels(replicationController.getSpec().getSelector()).delete();
-                            LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
-                        } else {
-                            LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
+                            if (deletePodsOnReplicationControllerUpdate) {
+                                kubernetesClient.pods().inNamespace(namespace).withLabels(replicationController.getSpec().getSelector()).delete();
+                                LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
+                            } else {
+                                LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
+                            }
+                        } catch (Exception e) {
+                            onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
                         }
-                    } catch (Exception e) {
-                        onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
                     }
                 }
-            }
-        } else {
-            if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
             } else {
-                doCreateReplicationController(replicationController, namespace, sourceName);
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
+                } else {
+                    doCreateReplicationController(replicationController, namespace, sourceName);
+                }
             }
         }
     }
@@ -1094,5 +1100,13 @@ public class Controller {
 
     public void setRequireSecretsCreatedBeforeReplicationControllers(boolean requireSecretsCreatedBeforeReplicationControllers) {
         this.requireSecretsCreatedBeforeReplicationControllers = requireSecretsCreatedBeforeReplicationControllers;
+    }
+
+    public boolean isRollingUpgrade() {
+        return rollingUpgrade;
+    }
+
+    public void setRollingUpgrade(boolean rollingUpgrade) {
+        this.rollingUpgrade = rollingUpgrade;
     }
 }

@@ -352,7 +352,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 if (Strings.isNotBlank(value)) {
                     String oldValue = annotations.get(annotation);
                     if (Strings.isNotBlank(oldValue)) {
-                        getLog().warn("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
+                        getLog().debug("Not adding annotation `" + annotation + "` to " + KubernetesHelper.getKind(resource) + " " + KubernetesHelper.getName(resource) + " with value `" + value + "` as there is already an annotation value of `" + oldValue + "`");
                     } else {
                         annotations.put(annotation, value);
                     }

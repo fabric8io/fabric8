@@ -13,6 +13,7 @@ For generating and applying Kubernetes JSON
 
 * [fabric8:json](mavenFabric8Json.html) generates kubernetes json for your maven project
 * [fabric8:apply](mavenFabric8Apply.html) applies the kubernetes json into a namespace in a kubernetes cluster
+* [fabric8:rolling](mavenFabric8DRolling.html) works like [fabric8:apply](mavenFabric8Apply.html) but performs a **rolling update** on any [replication controllers](replicationControllers.html) which already exist 
 * [fabric8:recreate](mavenFabric8DRecreate.html) works like [fabric8:apply](mavenFabric8Apply.html) but forces all resources which exist to be recreated
 
 Helper goals for working with Kubernetes 
