@@ -1223,6 +1223,13 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- allows quickstarts to override the ancient plexu-utils that somemtimes comes in from shrinkwrap boms -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.0.22</version>
+            </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
