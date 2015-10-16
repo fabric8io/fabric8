@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3" data-basepath=".." data-revision="Fri Oct 16 2015 15:23:38 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3" data-basepath=".." data-revision="Fri Oct 16 2015 15:31:15 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1362,7 +1362,7 @@ can customize this to your needs</p>
 </code></pre><p>which will include the install and <code>docker:build</code> steps. </p>
 <p>During the docker the docker daemon may need to pull docker images during the build which will show on the console. Have a bit patience as that can take a little time.</p>
 <p>The application will be deployed and running on Kubernetes as a pod.</p>
-<h3 id="showing-the-state-of-the-deployment-and-view-logs"><a name="showing-the-state-of-the-deployment-and-view-logs" class="plugin-anchor" href="#showing-the-state-of-the-deployment-and-view-logs"><span class="fa fa-link"></span></a>Showing the state of the deployment and view logs</h3>
+<h4 id="showing-the-state-of-the-deployment-and-view-logs"><a name="showing-the-state-of-the-deployment-and-view-logs" class="plugin-anchor" href="#showing-the-state-of-the-deployment-and-view-logs"><span class="fa fa-link"></span></a>Showing the state of the deployment and view logs</h4>
 <p>After you have deployed the application, you often would like to see if everything is as expected. We can do this by listing all the running pods and their state:</p>
 <pre><code>oc get pods
 </code></pre><p>What you should see in the list, is a pod with the name of <code>quickstart-java-simple-fatjar</code> and a random suffix as shown below:</p>
@@ -1379,7 +1379,7 @@ router-1-lz02h                        1/1       Running   0          6m
 </code></pre><p>That will dump the logs which can be <em>massive</em>. What you may want to do is to follow the logs using the <code>-f</code> flag, by doing:</p>
 <pre><code>oc logs -f quickstart-java-simple-fatjar-o8hxg
 </code></pre><p>And then the console is updated in real time, you can use <code>ctrl + c</code> to exit the logging.</p>
-<h3 id="updating-the-source-code"><a name="updating-the-source-code" class="plugin-anchor" href="#updating-the-source-code"><span class="fa fa-link"></span></a>Updating the source code</h3>
+<h4 id="updating-the-source-code"><a name="updating-the-source-code" class="plugin-anchor" href="#updating-the-source-code"><span class="fa fa-link"></span></a>Updating the source code</h4>
 <p>We would now like to update the source code so the application prints a different message to the log, and then redeploy the changed application.</p>
 <p>To do that we start by changing the source code which you can load into your favorite Java editor, or use a plain text editor as the source code is so simple we can change it without a full blown Java editor.</p>
 <p>The source code is in the <code>src/main/java/io/fabric8/quickstarts/java/simple/fatjar/Main.java</code> java file, which we change as follows:</p>
@@ -1416,7 +1416,7 @@ I was here: GT7rh
 I was here: gYQu0
 I was here: hzEoO
 I was here: YEk5a
-</code></pre><h3 id="deleting-the-running-quickstart"><a name="deleting-the-running-quickstart" class="plugin-anchor" href="#deleting-the-running-quickstart"><span class="fa fa-link"></span></a>Deleting the running quickstart</h3>
+</code></pre><h4 id="deleting-the-running-quickstart"><a name="deleting-the-running-quickstart" class="plugin-anchor" href="#deleting-the-running-quickstart"><span class="fa fa-link"></span></a>Deleting the running quickstart</h4>
 <p>Kubernetes is designed as a resilliant platform, so for example if for some reason a pod is killed (a node crashes, or something), then the platform is self healing and will spin up a new pod.</p>
 <p>So if you want to delete the running quickstart, you would either need to scale it down to 0, or delete the <em>replication controlller</em> that is monitoring the pod state and would scale up or down pods depending on your <em>desired state</em>. </p>
 <p>So what we can do is to delete the controller using</p>
@@ -1425,7 +1425,7 @@ I was here: YEk5a
 <p>You can get a list of all running <em>replication controllers</em> with:</p>
 <pre><code>oc get rc
 </code></pre><p>Another easy way would be to use the fabric8 web console to delete the quickstat.</p>
-<h3 id="closing-remarks"><a name="closing-remarks" class="plugin-anchor" href="#closing-remarks"><span class="fa fa-link"></span></a>Closing remarks</h3>
+<h4 id="closing-remarks"><a name="closing-remarks" class="plugin-anchor" href="#closing-remarks"><span class="fa fa-link"></span></a>Closing remarks</h4>
 <p>Yay you made through this first walk through of the most simple quickstart we have. For the next walk lets up the game a bit and use Camel and Kubernetes services.</p>
 <p>When you are ready see you at <a href="walkthrough2.md">walking with Camel and kubernetes</a>.</p>
 
