@@ -6,6 +6,11 @@ either run directly by checking it out from the
 [ipaas-quickstarts GitHub project](https://github.com/fabric8io/ipaas-quickstarts)
 or run as an archetype.
 
+
+First time users of fabric8 may enjoy a [walk through](walkthrough.md) a simple quickstart
+to show you in detailed steps how to work with the quickstarts.
+
+
 The following quickstarts are available:
 
 * [CDI](https://github.com/fabric8io/ipaas-quickstarts/tree/master/quickstart/cdi)
@@ -61,10 +66,6 @@ project.
 
 Detailed instruction for running the quickstarts can be found in an
 etract section ["Running Quickstarts"](running.md)
-
-
-
-
 
 
 
