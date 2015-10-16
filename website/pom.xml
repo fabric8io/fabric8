@@ -36,6 +36,7 @@
   <description>The fabric8.io Website and Documentation</description>
 
   <properties>
+    <camel.version>2.15.3</camel.version>
     <jettyPort>8000</jettyPort>
     <scala.version>2.9.0</scala.version>
 <!--
