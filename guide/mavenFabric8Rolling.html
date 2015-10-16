@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Metrics | Fabric8 Documentation</title>
+        <title>fabric8:rolling | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.4.3">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./ipaas.html" />
+    <link rel="next" href="./testing.html" />
     
     
-    <link rel="prev" href="./logging.html" />
+    <link rel="prev" href="./mavenFabric8Recreate.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="4.4.3" data-basepath="." data-revision="Fri Oct 16 2015 13:32:44 GMT+0000 (UTC)">
+    <div class="book" data-level="6.1.10" data-basepath="." data-revision="Fri Oct 16 2015 13:32:44 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -410,7 +410,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="4.4.3" data-path="metrics.html">
+        <li class="chapter " data-level="4.4.3" data-path="metrics.html">
             
                 
                     <a href="./metrics.html">
@@ -770,7 +770,7 @@
             
         </li>
     
-        <li class="chapter " data-level="6.1.10" data-path="mavenFabric8Rolling.html">
+        <li class="chapter active" data-level="6.1.10" data-path="mavenFabric8Rolling.html">
             
                 
                     <a href="./mavenFabric8Rolling.html">
@@ -1292,22 +1292,11 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h2>
-<p>Capturing historical metrics an extremely useful tool to help diagnose your running system.</p>
-<p>With fabric8 we recommend using:</p>
-<ul>
-<li><a href="http://influxdb.com/" target="_blank">InfluxDB</a> or <a href="https://github.com/rhq-project/rhq-metrics" target="_blank">RHQ Metrics</a> as the back end storage of historical metric data as they are both easy to scale, provide replicated data for resilience and are very easy to query</li>
-<li><a href="http://grafana.org/" target="_blank">Grafana</a> as the console to view, query and analyze metrics</li>
-<li>to collect the metrics we use <a href="https://github.com/google/cadvisor" target="_blank">cAdvisor</a> for collecting metrics from docker containers and <a href="https://github.com/jimmidyson/jadvisor" target="_blank">jAdvisor</a> for collecting metrics from JMX using <a href="http://jolokia.org/" target="_blank">jolokia</a></li>
-</ul>
-<h3 id="how-to-use-metrics-in-fabric8"><a name="how-to-use-metrics-in-fabric8" class="plugin-anchor" href="#how-to-use-metrics-in-fabric8"><span class="fa fa-link"></span></a>How to use Metrics in fabric8</h3>
-<p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab.</p>
-<ul>
-<li>click the <strong>Run...</strong> button and select the <strong>InfluxDB</strong> app to and run it.</li>
-<li>click the <strong>Run...</strong> button and select the <strong>Grafana</strong> app to and run it.</li>
-</ul>
-<p>You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you <a href="getStarted/openshift.html">use the bash script to install fabric8</a> with the <strong>-k</strong> command line option enabled. Hopefully one day we&apos;ll be able to turn cadvisor and jadvisor into <a href="apps.html">apps</a> you can easily run in the same way.</p>
-<p>Once the above is running, the <a href="console.html">Fabric8 Console</a> should have a <strong>Metrics</strong> tab letting you view and search the metrics via <a href="http://grafana.org/" target="_blank">Grafana</a>.</p>
+                        <h2 id="fabric8-rolling"><a name="fabric8-rolling" class="plugin-anchor" href="#fabric8-rolling"><span class="fa fa-link"></span></a>fabric8:rolling</h2>
+<p>The maven <code>fabric8:rolling</code> goal takes the JSON file generated via <a href="mavenFabric8Json.html">mvn fabric8:json</a> located at <code>target/classes/kubernetes.json</code> and applies it to the current Kubernetes environment and namespace creating all resources which don&apos;t exist and performing a <strong>rolling update</strong> of any <a href="replicationControllers.html">replication controllers</a> which already  exist. </p>
+<p>This goal is short hand for </p>
+<pre><code>mvn fabric8:apply -Dfabric8.rolling=true
+</code></pre><p>See the  <a href="mavenFabric8Apply.html">fabric8:apply</a> goal for more details on the available <a href="mavenFabric8Apply.html#maven-properties">properties</a></p>
 
                     
                     </section>
@@ -1318,10 +1307,10 @@
         </div>
 
         
-        <a href="./logging.html" class="navigation navigation-prev " aria-label="Previous page: Logging"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenFabric8Recreate.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:recreate"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./ipaas.html" class="navigation navigation-next " aria-label="Next page: Fabric8 iPaaS"><i class="fa fa-angle-right"></i></a>
+        <a href="./testing.html" class="navigation navigation-next " aria-label="Next page: Integration and System Testing"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

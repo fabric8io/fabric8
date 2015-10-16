@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Metrics | Fabric8 Documentation</title>
+        <title>Annotations | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.4.3">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="./ipaas.html" />
+    <link rel="next" href="./secretAnnotations.html" />
     
     
-    <link rel="prev" href="./logging.html" />
+    <link rel="prev" href="./forge.html" />
     
 
         
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="4.4.3" data-basepath="." data-revision="Fri Oct 16 2015 13:32:44 GMT+0000 (UTC)">
+    <div class="book" data-level="7" data-basepath="." data-revision="Fri Oct 16 2015 13:32:44 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -410,7 +410,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="4.4.3" data-path="metrics.html">
+        <li class="chapter " data-level="4.4.3" data-path="metrics.html">
             
                 
                     <a href="./metrics.html">
@@ -862,7 +862,7 @@
             
         </li>
     
-        <li class="chapter " data-level="7" data-path="annotations.html">
+        <li class="chapter active" data-level="7" data-path="annotations.html">
             
                 
                     <a href="./annotations.html">
@@ -1292,22 +1292,102 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h2>
-<p>Capturing historical metrics an extremely useful tool to help diagnose your running system.</p>
-<p>With fabric8 we recommend using:</p>
-<ul>
-<li><a href="http://influxdb.com/" target="_blank">InfluxDB</a> or <a href="https://github.com/rhq-project/rhq-metrics" target="_blank">RHQ Metrics</a> as the back end storage of historical metric data as they are both easy to scale, provide replicated data for resilience and are very easy to query</li>
-<li><a href="http://grafana.org/" target="_blank">Grafana</a> as the console to view, query and analyze metrics</li>
-<li>to collect the metrics we use <a href="https://github.com/google/cadvisor" target="_blank">cAdvisor</a> for collecting metrics from docker containers and <a href="https://github.com/jimmidyson/jadvisor" target="_blank">jAdvisor</a> for collecting metrics from JMX using <a href="http://jolokia.org/" target="_blank">jolokia</a></li>
-</ul>
-<h3 id="how-to-use-metrics-in-fabric8"><a name="how-to-use-metrics-in-fabric8" class="plugin-anchor" href="#how-to-use-metrics-in-fabric8"><span class="fa fa-link"></span></a>How to use Metrics in fabric8</h3>
-<p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab.</p>
-<ul>
-<li>click the <strong>Run...</strong> button and select the <strong>InfluxDB</strong> app to and run it.</li>
-<li>click the <strong>Run...</strong> button and select the <strong>Grafana</strong> app to and run it.</li>
-</ul>
-<p>You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you <a href="getStarted/openshift.html">use the bash script to install fabric8</a> with the <strong>-k</strong> command line option enabled. Hopefully one day we&apos;ll be able to turn cadvisor and jadvisor into <a href="apps.html">apps</a> you can easily run in the same way.</p>
-<p>Once the above is running, the <a href="console.html">Fabric8 Console</a> should have a <strong>Metrics</strong> tab letting you view and search the metrics via <a href="http://grafana.org/" target="_blank">Grafana</a>.</p>
+                        <h2 id="fabric-annotations"><a name="fabric-annotations" class="plugin-anchor" href="#fabric-annotations"><span class="fa fa-link"></span></a>Fabric Annotations</h2>
+<p><a href="http://kubernetes.io/" target="_blank">Kubernetes</a> supports annotations on any kubernetes resource such as on a <a href="replicationController.html">replication controller</a> or <a href="services.html">service</a> which are a great way to add arbitrary metadata. Note that annotation are limited in total to about 64Kb so any large metadata should be added via a URL rather than in place.</p>
+<h3 id="continous-delivery-annotations"><a name="continous-delivery-annotations" class="plugin-anchor" href="#continous-delivery-annotations"><span class="fa fa-link"></span></a>Continous Delivery Annotations</h3>
+<p>These annotations are to help support <a href="cdelivery.html">Continuous Delivery</a> and to link deployments to the CI build which generated the image along with the source code changes and so forth.</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fabric8.io/build-id</td>
+<td>The build number used to generate this docker image and kubernetes resource</td>
+<td>2</td>
+</tr>
+<tr>
+<td>fabric8.io/build-url</td>
+<td>The URL to view the build which generated the docker image and kubernetes resource</td>
+<td><a href="http://jenkins.vagrant.f8/job/gogsadmin-james3/2" target="_blank">http://jenkins.vagrant.f8/job/gogsadmin-james3/2</a></td>
+</tr>
+<tr>
+<td>fabric8.io/git-branch</td>
+<td>The git branch that generated the image</td>
+<td>gogsadmin-james3-1.0.2</td>
+</tr>
+<tr>
+<td>fabric8.io/git-commit</td>
+<td>The git commit ID of the source code used to generate the image</td>
+<td>5e1116f63df0bac2a80bdae2ebdc563577bbdf3c</td>
+</tr>
+<tr>
+<td>fabric8.io/git-url</td>
+<td>The URL to view the git commit history</td>
+<td><a href="http://gogs.vagrant.f8/gogsadmin/james3/commit/5e1116f63df0bac2a80bdae2ebdc563577bbdf3c" target="_blank">http://gogs.vagrant.f8/gogsadmin/james3/commit/5e1116f63df0bac2a80bdae2ebdc563577bbdf3c</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="secret-annotations"><a name="secret-annotations" class="plugin-anchor" href="#secret-annotations"><span class="fa fa-link"></span></a>Secret Annotations</h3>
+<p>For more background on these annotation see the <a href="secretAnnotations.html">Secret Annotations document</a>; they are used to annotate OpenShift templates and <a href="replicationController.html">replication controllers</a> with their secret requirements so that its easier to install applications using <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> and the <code>gofabric8 secrets</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fabric8.io/secret-ssh-key</td>
+<td>Defines one or more named ssh keys (public and private key pairs)</td>
+<td><code>mysecretname</code> or <code>secret1,secret2,anothersecret</code></td>
+</tr>
+<tr>
+<td>fabric8.io/secret-ssh-public-key</td>
+<td>Refers to a single or a bag of public keys</td>
+<td><code>mysecretname.pub</code> or <code>mybagofsecrets[cheese.pub,beer.pub]</code></td>
+</tr>
+<tr>
+<td>fabric8.io/secret-gpg-key</td>
+<td>Refers to a GPG key</td>
+<td>mysecretname</td>
+</tr>
+</tbody>
+</table>
+<h3 id="management-annotations"><a name="management-annotations" class="plugin-anchor" href="#management-annotations"><span class="fa fa-link"></span></a>Management Annotations</h3>
+<p>When using <a href="http://prometheus.io" target="_blank">Prometheus</a> to <a href="metrics.html">collect metrics</a> for monitoring your containers you may wish to add these annotations to the <a href="services.html">service</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prometheus.io/scrape</td>
+<td>Enable/disable the export of metrics to Prometheus</td>
+<td>true</td>
+</tr>
+<tr>
+<td>prometheus.io/path</td>
+<td>the request path to find metrics to export to Prometheus</td>
+<td>/metrics</td>
+</tr>
+<tr>
+<td>prometheus.io/port</td>
+<td>the request port to find metrics to export to Prometheus</td>
+<td>8080</td>
+</tr>
+</tbody>
+</table>
 
                     
                     </section>
@@ -1318,10 +1398,10 @@
         </div>
 
         
-        <a href="./logging.html" class="navigation navigation-prev " aria-label="Previous page: Logging"><i class="fa fa-angle-left"></i></a>
+        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge Addons"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./ipaas.html" class="navigation navigation-next " aria-label="Next page: Fabric8 iPaaS"><i class="fa fa-angle-right"></i></a>
+        <a href="./secretAnnotations.html" class="navigation navigation-next " aria-label="Next page: Secret Annotations"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
