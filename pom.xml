@@ -105,6 +105,7 @@
 
         <fabric8.release.version>2.0.48</fabric8.release.version>
 
+        <aether.version>1.0.0.v20140518</aether.version>
         <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian.version>1.1.9.Final</arquillian.version>
         <asm.version>5.0.4</asm.version>
@@ -162,7 +163,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.2.2.RELEASE</spring.version>
         <spring.boot.version>1.2.6.RELEASE</spring.boot.version>
-        <sundrio.version>0.1.14</sundrio.version>
+        <sundrio.version>0.1.15</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <ning.http-client.version>1.9.31</ning.http-client.version>
@@ -1222,7 +1223,24 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-spi</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
 
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-impl</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-util</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
             <!-- allows quickstarts to override the ancient plexu-utils that somemtimes comes in from shrinkwrap boms -->
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
