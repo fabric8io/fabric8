@@ -45,7 +45,6 @@
     * [Integration and System Testing](testing.md)
     * [Java Libraries](javaLibraries.md)
     * [CDI](cdi.md)
-    * [QuickStarts](quickstarts.md)
     * [Forge Addons](forge.md)
 * [Annotations](annotations.md)
   * [Secret Annotations](secretAnnotations.md)
