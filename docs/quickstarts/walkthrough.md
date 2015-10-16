@@ -106,7 +106,7 @@ During the docker the docker daemon may need to pull docker images during the bu
 The application will be deployed and running on Kubernetes as a pod.
 
 
-### Showing the state of the deployment and view logs
+#### Showing the state of the deployment and view logs
 
 After you have deployed the application, you often would like to see if everything is as expected. We can do this by listing all the running pods and their state:
 
@@ -136,7 +136,7 @@ That will dump the logs which can be _massive_. What you may want to do is to fo
     
 And then the console is updated in real time, you can use `ctrl + c` to exit the logging.
 
-### Updating the source code
+#### Updating the source code
 
 We would now like to update the source code so the application prints a different message to the log, and then redeploy the changed application.
 
@@ -194,7 +194,7 @@ I was here: hzEoO
 I was here: YEk5a
 ```
 
-### Deleting the running quickstart
+#### Deleting the running quickstart
 
 Kubernetes is designed as a resilliant platform, so for example if for some reason a pod is killed (a node crashes, or something), then the platform is self healing and will spin up a new pod.
 
@@ -213,7 +213,7 @@ You can get a list of all running _replication controllers_ with:
 Another easy way would be to use the fabric8 web console to delete the quickstat.
 
 
-### Closing remarks
+#### Closing remarks
 
 Yay you made through this first walk through of the most simple quickstart we have. For the next walk lets up the game a bit and use Camel and Kubernetes services.
 
