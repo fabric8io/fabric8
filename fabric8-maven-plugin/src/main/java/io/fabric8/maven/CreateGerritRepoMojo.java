@@ -1,18 +1,14 @@
 package io.fabric8.maven;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.gerrit.ProjectInfoDTO;
+import io.fabric8.gerrit.CreateRepositoryDTO;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.gerrit.GitApi;
-import io.fabric8.gerrit.CreateRepositoryDTO;
-import io.fabric8.gerrit.RepositoryDTO;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.cxf.WebClients;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.client.WebClient;
+
+import java.io.IOException;
+import java.net.ConnectException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,26 +24,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.DigestScheme;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import javax.annotation.Priority;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ReaderInterceptor;
-import javax.ws.rs.ext.ReaderInterceptorContext;
-import java.io.*;
-import java.net.ConnectException;
-import java.util.List;
-
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
-import static io.fabric8.utils.cxf.WebClients.configureUserAndPassword;
-import static io.fabric8.utils.cxf.WebClients.disableSslChecks;
-import static io.fabric8.utils.cxf.WebClients.enableDigestAuthenticaionType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Creates a Gerrit Git repository
@@ -128,8 +113,8 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
         }
         log.info("Querying Gerrit for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
 
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        DefaultHttpClient httpclientPost = new DefaultHttpClient();
+        CloseableHttpClient httpclient = HttpClientBuilder.create().build();
+        CloseableHttpClient httpclientPost = HttpClientBuilder.create().build();
         String GERRIT_URL= gerritAddress + "/a/projects/" + repoName;
         HttpGet httpget = new HttpGet(GERRIT_URL);
         System.out.println("Requesting : " + httpget.getURI());
@@ -184,8 +169,8 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
             System.out.println("Response from Gerrit Server : " + e.getMessage());
             throw new MojoExecutionException("Repository " + repoName + " already exists !");
         } finally {
-            httpclient.getConnectionManager().shutdown();
-            httpclientPost.getConnectionManager().shutdown();
+            httpclient.close();
+            httpclientPost.close();
         }
         return false;
     }
