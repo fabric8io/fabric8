@@ -105,7 +105,7 @@
 
         <fabric8.release.version>2.0.51</fabric8.release.version>
 
-        <aether.version>1.0.2.v20150114</aether.version>
+        <aether.version>1.0.0.v20140518</aether.version>
         <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian.version>1.1.9.Final</arquillian.version>
         <asm.version>5.0.4</asm.version>
