@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="6.5" data-basepath="." data-revision="Mon Oct 19 2015 12:52:44 GMT+0000 (UTC)">
+    <div class="book" data-level="6.5" data-basepath="." data-revision="Mon Oct 19 2015 13:43:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1047,80 +1047,14 @@
             
         </li>
     
-        <li class="chapter " data-level="10" data-path="jube/index.html">
-            
-                
-                    <a href="./jube/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.</b>
-                        
-                        Jube
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="10.1" data-path="jube/getStarted.html">
-            
-                
-                    <a href="./jube/getStarted.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.1.</b>
-                        
-                        Get Started
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.2" data-path="jube/runQuickstart.html">
-            
-                
-                    <a href="./jube/runQuickstart.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.2.</b>
-                        
-                        Running a quickstart on Jube
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.3" data-path="jube/apps.html">
-            
-                
-                    <a href="./jube/apps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.3.</b>
-                        
-                        Add a quickstart to the App Library
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="11" data-path="FAQ.html">
+        <li class="chapter " data-level="10" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.</b>
+                            <b>10.</b>
                         
                         FAQ
                     </a>
@@ -1129,14 +1063,14 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="11.1" data-path="faqGeneral.html">
+        <li class="chapter " data-level="10.1" data-path="faqGeneral.html">
             
                 
                     <a href="./faqGeneral.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.1.</b>
+                            <b>10.1.</b>
                         
                         General Questions
                     </a>
@@ -1144,14 +1078,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.2" data-path="faqFuse.html">
+        <li class="chapter " data-level="10.2" data-path="faqFuse.html">
             
                 
                     <a href="./faqFuse.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.2.</b>
+                            <b>10.2.</b>
                         
                         JBoss Fuse Questions
                     </a>
@@ -1159,14 +1093,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.3" data-path="faqKubernetes.html">
+        <li class="chapter " data-level="10.3" data-path="faqKubernetes.html">
             
                 
                     <a href="./faqKubernetes.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.3.</b>
+                            <b>10.3.</b>
                         
                         Kubernetes Questions
                     </a>
@@ -1174,14 +1108,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.4" >
+        <li class="chapter " data-level="10.4" >
             
                 
                     <a target="_blank" href="https:/help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.4.</b>
+                            <b>10.4.</b>
                         
                         OpenShift Questions
                     </a>
@@ -1319,6 +1253,7 @@ kubernetes&lt;TAB&gt;
 <p>The <strong>DevOps</strong> commands help you to </p>
 <ul>
 <li>create new projects</li>
+<li>setup existing project for docker/fabric8 using the <strong>fabric8-setup</strong> command</li>
 <li>configure the DevOps configuration of a project via the <a href="fabric8YmlFile.html">fabric8.yml file</a></li>
 <li>generate new integration or system tests for a project</li>
 </ul>
@@ -1327,13 +1262,7 @@ kubernetes&lt;TAB&gt;
 </code></pre><p>to open the edit devops command which is a wizard that lets you configure the Docker and Fabric8 build metadata along with setting up the Jenkins workflow CD pipeline and linking the project to a team chat room and issue tracker.</p>
 <h3 id="kubernetes"><a name="kubernetes" class="plugin-anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
 <p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
-<p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
-<pre><code>export KUBERNETES_MASTER=http://localhost:8585/
-</code></pre><p>You can now list pods / replication controllers / services via</p>
-<pre><code>kubernetes-pod-list
-kubernetes-replication-controller-list
-kubernetes-service-list
-</code></pre><h4 id="applying-json"><a name="applying-json" class="plugin-anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h4>
+<h4 id="applying-json"><a name="applying-json" class="plugin-anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h4>
 <p>If you are in a build which has <a href="mavenPlugin.html#generating-the-json">generated a kubernetes JSON file</a> <strong>target/classes/kubernetes.json</strong> you can apply this via...</p>
 <pre><code>kubernetes-apply --file target/classes/kubernetes.json
 </code></pre>

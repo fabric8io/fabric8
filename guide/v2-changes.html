@@ -33,7 +33,7 @@
         
     
     
-    <link rel="next" href="./jube/index.html" />
+    <link rel="next" href="./FAQ.html" />
     
     
     <link rel="prev" href="./builds.html" />
@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="9" data-basepath="." data-revision="Mon Oct 19 2015 12:52:44 GMT+0000 (UTC)">
+    <div class="book" data-level="9" data-basepath="." data-revision="Mon Oct 19 2015 13:43:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1047,80 +1047,14 @@
             
         </li>
     
-        <li class="chapter " data-level="10" data-path="jube/index.html">
-            
-                
-                    <a href="./jube/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.</b>
-                        
-                        Jube
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="10.1" data-path="jube/getStarted.html">
-            
-                
-                    <a href="./jube/getStarted.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.1.</b>
-                        
-                        Get Started
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.2" data-path="jube/runQuickstart.html">
-            
-                
-                    <a href="./jube/runQuickstart.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.2.</b>
-                        
-                        Running a quickstart on Jube
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.3" data-path="jube/apps.html">
-            
-                
-                    <a href="./jube/apps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.3.</b>
-                        
-                        Add a quickstart to the App Library
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="11" data-path="FAQ.html">
+        <li class="chapter " data-level="10" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.</b>
+                            <b>10.</b>
                         
                         FAQ
                     </a>
@@ -1129,14 +1063,14 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="11.1" data-path="faqGeneral.html">
+        <li class="chapter " data-level="10.1" data-path="faqGeneral.html">
             
                 
                     <a href="./faqGeneral.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.1.</b>
+                            <b>10.1.</b>
                         
                         General Questions
                     </a>
@@ -1144,14 +1078,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.2" data-path="faqFuse.html">
+        <li class="chapter " data-level="10.2" data-path="faqFuse.html">
             
                 
                     <a href="./faqFuse.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.2.</b>
+                            <b>10.2.</b>
                         
                         JBoss Fuse Questions
                     </a>
@@ -1159,14 +1093,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.3" data-path="faqKubernetes.html">
+        <li class="chapter " data-level="10.3" data-path="faqKubernetes.html">
             
                 
                     <a href="./faqKubernetes.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.3.</b>
+                            <b>10.3.</b>
                         
                         Kubernetes Questions
                     </a>
@@ -1174,14 +1108,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.4" >
+        <li class="chapter " data-level="10.4" >
             
                 
                     <a target="_blank" href="https:/help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.4.</b>
+                            <b>10.4.</b>
                         
                         OpenShift Questions
                     </a>
@@ -1302,7 +1236,7 @@
                     
                         <h2 id="changes-since-version-1-x"><a name="changes-since-version-1-x" class="plugin-anchor" href="#changes-since-version-1-x"><span class="fa fa-link"></span></a>Changes since Version 1.x</h2>
 <p>In fabric8 1.x we assumed only a JVM was available and then we built lots of abstractions that are very similar to <a href="http://kubernetes.io" target="_blank">Kubernetes</a>.</p>
-<p>In fabric8 2.x we have decided to assume a base of <a href="http://kubernetes.io" target="_blank">Kubernetes</a> &amp; <a href="http://docker.io/" target="_blank">Docker</a> and to use the Kubernetes REST API to orchestrate containers. For non-linux platforms which don&apos;t support Docker we have <a href="jube/index.html">Jube</a> which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.</p>
+<p>In fabric8 2.x we have decided to assume a base of <a href="http://kubernetes.io" target="_blank">Kubernetes</a> &amp; <a href="http://docker.io/" target="_blank">Docker</a> and to use the Kubernetes REST API to orchestrate containers.</p>
 <p>Because of this approach we do quite a few things a little differently under the covers. In fabric8 1.x we had to do a lot of work to replicate the kinds of things Kubernetes gives us; things like discovery of services, wiring, auto   scaling etc.</p>
 <p>However as an end user writing, say, Java applications or using technologies like ActiveMQ, Camel or containers like Karaf, Tomcat, WildFly or Spring Boot things should seem pretty similar; though in many ways things get much simpler now (as discovery, wiring and packaging is now simpler and more standardised).</p>
 <p>The aim of fabric8 on Kubernetes is still to support any runtime application server or software distribution at all; though docker containers will be the standard mechanism for packaging and running software. The change from 1.x to 2.x does not mean any application servers are no longer supported; it&apos;s the reverse - now any docker image is supported ;).</p>
@@ -1337,7 +1271,6 @@
 <p>In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a Kubernetes-like layer all combined into a single project (with V1 Gateway being very like <a href="services.html">Kubernetes Services</a>). So to create containers we have a REST API and CLI.</p>
 <p>So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still <a href="http://hawt.io/" target="_blank">hawtio</a>; it&apos;s got all the same tooling for ActiveMQ, Camel, CXF, OSGi; it&apos;s got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the Kubernetes CLI.</p>
 <p>Another side benefit of V2 is that less wiring Java code is required. e.g. any library using ActiveMQ or the camel-activemq component no longer needs to specify a brokerURL or include custom discovery code; it can just set the <strong>AMQ_PORT</strong> environment variable to point to the service port for the broker group (e.g. the regional cluster of ActiveMQ required) so that the code connects to localhost and <a href="services.html">Kubernetes Services</a> does the rest! Note this also works for all programming languages and clients too.</p>
-<p>Some of the old 1.x code got refactored into making <a href="jube.html">Jube</a> which is the pure Java implementation of Kubernetes we can use for running fabric8 on platforms which don&apos;t have native Kubernetes or Docker support.</p>
 <h4 id="does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2"><a name="does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2" class="plugin-anchor" href="#does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2"><span class="fa fa-link"></span></a>Does that mean there is no need to use etcd / ZK clusters in V2?</h4>
 <p>Kubernetes/OpenShift ships with etcd today and uses that to manage the minions. So a fabric8 cluster may be able to reuse the underlying etcd to do things like master election, partitioning etc.</p>
 <p>Though depending on multi tenant requirements; applications might not be allowed to reuse the same etcd as an Kubernetes/OpenShift  installation. e.g. OpenShift Online with 2 million apps probably isn&apos;t gonna let any user application just read and write lots of data to the global etcd ;).</p>
@@ -1360,7 +1293,7 @@
         <a href="./builds.html" class="navigation navigation-prev " aria-label="Previous page: Builds"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./jube/index.html" class="navigation navigation-next " aria-label="Next page: Jube"><i class="fa fa-angle-right"></i></a>
+        <a href="./FAQ.html" class="navigation navigation-next " aria-label="Next page: FAQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

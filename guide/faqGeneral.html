@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="11.1" data-basepath="." data-revision="Mon Oct 19 2015 12:52:44 GMT+0000 (UTC)">
+    <div class="book" data-level="10.1" data-basepath="." data-revision="Mon Oct 19 2015 13:43:02 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1047,80 +1047,14 @@
             
         </li>
     
-        <li class="chapter " data-level="10" data-path="jube/index.html">
-            
-                
-                    <a href="./jube/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.</b>
-                        
-                        Jube
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="10.1" data-path="jube/getStarted.html">
-            
-                
-                    <a href="./jube/getStarted.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.1.</b>
-                        
-                        Get Started
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.2" data-path="jube/runQuickstart.html">
-            
-                
-                    <a href="./jube/runQuickstart.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.2.</b>
-                        
-                        Running a quickstart on Jube
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="10.3" data-path="jube/apps.html">
-            
-                
-                    <a href="./jube/apps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.3.</b>
-                        
-                        Add a quickstart to the App Library
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="11" data-path="FAQ.html">
+        <li class="chapter " data-level="10" data-path="FAQ.html">
             
                 
                     <a href="./FAQ.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.</b>
+                            <b>10.</b>
                         
                         FAQ
                     </a>
@@ -1129,14 +1063,14 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="11.1" data-path="faqGeneral.html">
+        <li class="chapter active" data-level="10.1" data-path="faqGeneral.html">
             
                 
                     <a href="./faqGeneral.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.1.</b>
+                            <b>10.1.</b>
                         
                         General Questions
                     </a>
@@ -1144,14 +1078,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.2" data-path="faqFuse.html">
+        <li class="chapter " data-level="10.2" data-path="faqFuse.html">
             
                 
                     <a href="./faqFuse.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.2.</b>
+                            <b>10.2.</b>
                         
                         JBoss Fuse Questions
                     </a>
@@ -1159,14 +1093,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.3" data-path="faqKubernetes.html">
+        <li class="chapter " data-level="10.3" data-path="faqKubernetes.html">
             
                 
                     <a href="./faqKubernetes.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.3.</b>
+                            <b>10.3.</b>
                         
                         Kubernetes Questions
                     </a>
@@ -1174,14 +1108,14 @@
             
         </li>
     
-        <li class="chapter " data-level="11.4" >
+        <li class="chapter " data-level="10.4" >
             
                 
                     <a target="_blank" href="https:/help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>11.4.</b>
+                            <b>10.4.</b>
                         
                         OpenShift Questions
                     </a>
@@ -1328,7 +1262,6 @@
 <li><a href="javaLibraries.html">Java libraries</a> for working with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/docker-api" target="_blank">docker</a> along with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes and jolokia</a> so its easier to develop Java based tools and services which work well with Kubernetes</li>
 <li><a href="testing.html">Testing with Arquillian</a> helps you perform integration tests of your <a href="apps.html">apps</a></li>
 <li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
-<li>to support non-Linux platforms which do not yet have native Go Lang or Docker support there&apos;s also <a href="jube.html">Jube</a> which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.</li>
 </ul>
 </li>
 </ul>
@@ -1340,11 +1273,9 @@
 <p>fabric8 runs on Java 7 and 8.</p>
 <h4 id="are-docker-and-kubernetes-required-to-run-fabric8"><a name="are-docker-and-kubernetes-required-to-run-fabric8" class="plugin-anchor" href="#are-docker-and-kubernetes-required-to-run-fabric8"><span class="fa fa-link"></span></a>Are Docker and Kubernetes required to run Fabric8?</h4>
 <p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
-<p>However we need to be able to work on platforms which don&apos;t support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers. For those platforms we have <a href="http://fabric8.io/jube/goals.html" target="_blank">Jube</a> which is a pure Java implementation of Kubernetes which emulates Docker.</p>
 <h4 id="is-windows-supported"><a name="is-windows-supported" class="plugin-anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
 <p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
-<p>If you need to run Java on real Windows processes then we recommend using <a href="jube/index.html">Jube</a> which will run your Java containers as real windows processes.</p>
 <h4 id="does-fabric8-use-zookeeper-runtime-registry"><a name="does-fabric8-use-zookeeper-runtime-registry" class="plugin-anchor" href="#does-fabric8-use-zookeeper-runtime-registry"><span class="fa fa-link"></span></a>Does Fabric8 use ZooKeeper runtime registry?</h4>
 <p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn&apos;t need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
 <p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> or <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
@@ -1363,7 +1294,6 @@ without keeping the configuration in any central repository (like Git).</p>
 managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like 
 <a href="mavenPlugin.html">Fabric8 Maven plugin</a>
 or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
-<p>If you are using <a href="jube/getStarted.html">Jube as the Kubernetes implementation</a> and to emulate Docker then you will need to run a Jube server.</p>
 <h4 id="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><a name="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell" class="plugin-anchor" href="#if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><span class="fa fa-link"></span></a>If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
 <p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> with the <a href="forge.html">Fabric8 add-on</a>.</p>
 <p>For provisioning purposes (like creating containers/services or changing the replica sizes) you can use the <a href="forge.html">Fabric8 add-on</a> or use the shell from OpenShift/Kubernetes.</p>
