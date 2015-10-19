@@ -28,7 +28,7 @@
   <artifactId>fabric8-cxf</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: CXF Component</name>
+  <name>Fabric8 :: CXF</name>
 
   <dependencies>
     <dependency>
