@@ -159,7 +159,6 @@
         <sundrio.version>0.1.15</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.6</zookeeper.version>
-        <ning.http-client.version>1.9.31</ning.http-client.version>
 
         <!-- OSGi bundles properties -->
         <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
