@@ -149,7 +149,6 @@
         <pax.url.version>2.4.3</pax.url.version>
         <phantomjsdriver.version>1.2.0</phantomjsdriver.version>
         <reflections.version>0.9.10</reflections.version>
-        <resteasy.version>3.0.13.Final</resteasy.version>
         <selenium.version>2.48.2</selenium.version>
         <selenium.firefox.driver.version>2.28.0</selenium.firefox.driver.version>
         <servlet-api.version>2.5</servlet-api.version>
