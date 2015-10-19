@@ -819,8 +819,6 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     public String getDockerImage() {
         return dockerImage;
-//        MavenProject project = getProject();
-//        return project.getProperties().getProperty("docker.image");
     }
 
     Set<File> getDependencies() throws IOException {
