@@ -121,9 +121,7 @@
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
-        <hawtbuf.version>1.11</hawtbuf.version>
-        <hawtdispatch.version>1.21</hawtdispatch.version>
-        <jackson2.version>2.6.2</jackson2.version>
+        <jackson2.version>2.6.3</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.el-version>2.2.5</javax.el-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
@@ -709,22 +707,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Hawt stuff -->
-            <dependency>
-                <groupId>org.fusesource.hawtdispatch</groupId>
-                <artifactId>hawtdispatch</artifactId>
-                <version>${hawtdispatch.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.hawtdispatch</groupId>
-                <artifactId>hawtdispatch-transport</artifactId>
-                <version>${hawtdispatch.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.hawtbuf</groupId>
-                <artifactId>hawtbuf</artifactId>
-                <version>${hawtbuf.version}</version>
-            </dependency>
             <!-- EasyMock -->
             <dependency>
                 <groupId>org.easymock</groupId>
