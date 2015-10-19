@@ -24,7 +24,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fabric8</groupId>
     <artifactId>fabric8-cdi</artifactId>
     <name>Fabric8 :: CDI</name>
 
@@ -48,10 +47,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dnsjava</groupId>
-            <artifactId>dnsjava</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.enterprise</groupId>
@@ -80,7 +75,6 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.0.15</version>
         </dependency>
 
         <dependency>
