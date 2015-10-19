@@ -34,7 +34,6 @@ Try reading the [overview](/guide/overview.html) to see if that helps give you a
     * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) and [docker](https://github.com/fabric8io/fabric8/tree/master/components/docker-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
     * [Testing with Arquillian](testing.html) helps you perform integration tests of your [apps](apps.html)
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
-    * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.
 
 #### What maven plugin goals are available?
  
@@ -48,15 +47,11 @@ fabric8 runs on Java 7 and 8.
 
 Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.
 
-However we need to be able to work on platforms which don't support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers. For those platforms we have [Jube](http://fabric8.io/jube/goals.html) which is a pure Java implementation of Kubernetes which emulates Docker.
-
 #### Is Windows supported
 
 We recommend using a linux based system for production; preferably if you want a fully managed platform use [Docker](http://docker.io/) and [Kubernetes](http://kubernetes.io) or [OpenShift Origin V3](https://github.com/openshift/origin).
 
 Windows is currently only partially supported. Windows users may consider using [Docker](http://docker.io/) so that all the fabric8 technologies run inside a linux VM in lightweight containers.
-
-If you need to run Java on real Windows processes then we recommend using [Jube](jube/index.html) which will run your Java containers as real windows processes.
 
 #### Does Fabric8 use ZooKeeper runtime registry?
 
@@ -85,8 +80,6 @@ No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providin
 managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like 
 [Fabric8 Maven plugin](mavenPlugin.html)
 or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/manage it.
-
-If you are using [Jube as the Kubernetes implementation](jube/getStarted.html) and to emulate Docker then you will need to run a Jube server.
 
 #### If there is no Fabric8 server, how can I use Fabric8 shell?
 

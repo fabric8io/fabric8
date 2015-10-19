@@ -46,48 +46,8 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- kubernetes json files -->
-    <dependency>
-      <groupId>io.fabric8.jube.images.fabric8</groupId>
-      <artifactId>fabric8-mq</artifactId>
-      <classifier>kubernetes</classifier>
-      <type>json</type>
-      <version>${fabric8.test.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8.jube.images.fabric8</groupId>
-      <artifactId>fabric8-mq-producer</artifactId>
-      <classifier>kubernetes</classifier>
-      <type>json</type>
-      <version>${fabric8.test.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8.jube.images.fabric8</groupId>
-      <artifactId>fabric8-mq-consumer</artifactId>
-      <classifier>kubernetes</classifier>
-      <type>json</type>
-      <version>${fabric8.test.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!-- TODO add the kubernetes json for what we need in the test -->
+
   </dependencies>
+
 </project>

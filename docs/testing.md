@@ -150,7 +150,7 @@ Also you may want to set the **KUBERNETES_TRUST_CERTIFICATES** variable to allow
     export KUBERNETES_TRUST_CERTIFICATES=true
     export KUBERNETES_MASTER=http://localhost:8443
 
-Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a [Jube installation](http://fabric8.io/jube/getStarted.html). Also note that different integration tests can be running at the same time on the same kubernetes environment.
+Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE). Also note that different integration tests can be running at the same time on the same kubernetes environment.
 
 If you find that you are getting exceptions and output of the form:
 

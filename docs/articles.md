@@ -2,6 +2,9 @@ For the lastest and greatest articles on fabric8 check out the [fabric8 blog](ht
 
 ## Videos
 
+* [Getting started with fabric8](https://medium.com/fabric8-io/getting-started-with-fabric8-7bd7ff14958e) zero to running with fabric8 on OpenShift V3 with Vagrant
+* [Create and explore Continuous Delivery Pipelines with Fabric8 and Jenkins on OpenShift](https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a)
+* [Cheers — Video recording of walk-through of the simple Java fat-jar fabric8 quickstart](https://medium.com/fabric8-io/cheers-video-recording-of-walk-through-of-the-simple-java-fat-jar-fabric8-quickstart-f4af9e58af76)
 * [One Stop multi stage CI / CD with fabric8 and Chat](https://medium.com/fabric8-io/continuous-delivery-with-fabric8-d3c7cad76954) by [James Rawlings](https://medium.com/@jdrawlings)
 * [Using the Fabric8 Console on GKE](https://vimeo.com/134408470) by [James Rawlings](https://medium.com/@jdrawlings)
 * [demo using the Fabric8 console to work with Kubernetes and OpenShift V3 apps](https://medium.com/@jstrachan/demo-using-the-fabric8-console-to-work-with-kubernetes-and-openshift-v3-apps-42feb965c479) a presentation by [James Strachan](http://twitter.com/jstrachan) at the [Kubernetes meetup London](http://www.meetup.com/Kubernetes-London/events/221521966/)
