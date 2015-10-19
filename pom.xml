@@ -143,9 +143,8 @@
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
         <mockserver.version>3.10.1</mockserver.version>
         <mvel.version>2.2.7.Final</mvel.version>
+        <osgi.version>4.3.1</osgi.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
-        <osgi-enterprise.version>5.0.0</osgi-enterprise.version>
-        <osgi.version>5.0.0</osgi.version>
         <pax.url.version>2.4.3</pax.url.version>
         <phantomjsdriver.version>1.2.0</phantomjsdriver.version>
         <reflections.version>0.9.10</reflections.version>
@@ -530,11 +529,6 @@
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi-compendium.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.enterprise</artifactId>
-                <version>${osgi-enterprise.version}</version>
             </dependency>
 
             <!-- Camel -->
