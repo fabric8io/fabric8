@@ -1,5 +1,8 @@
 #!/bin/bash
 
+### this script is used by cicle-ci to publish the website
+### https://github.com/fabric8io/fabric8/blob/master/circle.yml#L33
+
 echo ============================================================================
 echo Deploying fabric8 website
 echo ============================================================================
