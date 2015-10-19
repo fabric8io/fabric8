@@ -196,6 +196,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.cd.envVar", defaultValue = "JENKINS_HOME")
     private String cdEnvVarName;
 
+    /**
+     * The docker image to use.
+     */
+    @Parameter(property = "docker.image")
+    private String dockerImage;
+
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
             @Override
@@ -812,8 +818,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     }
 
     public String getDockerImage() {
-        MavenProject project = getProject();
-        return project.getProperties().getProperty("docker.image");
+        return dockerImage;
+//        MavenProject project = getProject();
+//        return project.getProperties().getProperty("docker.image");
     }
 
     Set<File> getDependencies() throws IOException {

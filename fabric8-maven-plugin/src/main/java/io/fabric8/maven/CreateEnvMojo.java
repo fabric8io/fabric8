@@ -90,8 +90,8 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.dockerRunScript", defaultValue = "docker-run.sh")
     private String dockerRunScriptFileName;
 
-    @Parameter(property = "docker.image")
-    private String name;
+    // the docker image name we will use
+    private volatile String name;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -110,6 +110,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             expandEnvironmentVariable(env);
             displayEnv(env);
 
+            name = getDockerImage();
             if (name == null) {
                 name = findFirstImageName(list);
             }
@@ -254,7 +255,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 for (Container container : pod.getSpec().getContainers()) {
-                    if (container.getImage().equals(name)) {
+                    if (container.getImage().equals(getDockerImage())) {
                         result.putAll(mapFromEnv(container.getEnv()));
                     }
                 }
