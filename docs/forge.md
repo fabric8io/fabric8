@@ -30,6 +30,7 @@ The [Apache Camel](http://camel.apache.org/) commands allow you to do all kinds 
 The **DevOps** commands help you to 
 
 * create new projects
+* setup existing project for docker/fabric8 using the **fabric8-setup** command
 * configure the DevOps configuration of a project via the [fabric8.yml file](fabric8YmlFile.html)
 * generate new integration or system tests for a project
 
@@ -42,17 +43,6 @@ to open the edit devops command which is a wizard that lets you configure the Do
 ### Kubernetes
 
 Before you run forge make sure your **KUBERNETES_MASTER** environment variable points to where OpenShift V3 is running.
-
-If you want to run Forge against a local [Jube](http://fabric8.io/jube/getStarted.html) server then try this:
-
-    export KUBERNETES_MASTER=http://localhost:8585/
-
-You can now list pods / replication controllers / services via
-
-    kubernetes-pod-list
-    kubernetes-replication-controller-list
-    kubernetes-service-list
-
 
 #### Applying JSON
 

@@ -2,7 +2,7 @@
 
 In fabric8 1.x we assumed only a JVM was available and then we built lots of abstractions that are very similar to [Kubernetes](http://kubernetes.io).
 
-In fabric8 2.x we have decided to assume a base of [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the Kubernetes REST API to orchestrate containers. For non-linux platforms which don't support Docker we have [Jube](jube/index.html) which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.
+In fabric8 2.x we have decided to assume a base of [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the Kubernetes REST API to orchestrate containers.
 
 Because of this approach we do quite a few things a little differently under the covers. In fabric8 1.x we had to do a lot of work to replicate the kinds of things Kubernetes gives us; things like discovery of services, wiring, auto   scaling etc.
 
@@ -65,8 +65,6 @@ In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a con
 So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); it's got all the same tooling for ActiveMQ, Camel, CXF, OSGi; it's got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the Kubernetes CLI.
 
 Another side benefit of V2 is that less wiring Java code is required. e.g. any library using ActiveMQ or the camel-activemq component no longer needs to specify a brokerURL or include custom discovery code; it can just set the **AMQ_PORT** environment variable to point to the service port for the broker group (e.g. the regional cluster of ActiveMQ required) so that the code connects to localhost and [Kubernetes Services](services.html) does the rest! Note this also works for all programming languages and clients too.
-
-Some of the old 1.x code got refactored into making [Jube](jube.html) which is the pure Java implementation of Kubernetes we can use for running fabric8 on platforms which don't have native Kubernetes or Docker support.
 
 #### Does that mean there is no need to use etcd / ZK clusters in V2?
 

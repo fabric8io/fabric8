@@ -67,16 +67,6 @@ title: read up on fabric8!
           View articles, presentations, blog posts and view recorded screencast demonstrations by fabric8 developers and users.
         </dd>
       </dl>
-      <dl>
-        <dt>
-          <a href="/jube/getStarted.html">Jube</a>
-        </dt>
-        <dd>
-          Jube is a pure Java implementation of Kubernetes for users who cannot use Linux, Docker or Go Lang but want to reuse the
-          Kubernetes standard of container orchestration while emulating docker (by running containers as operating system processes using
-          <a href="/jube/imageZips.html">image zips</a> instead of docker container images).
-        </dd>
-      </dl>
     </div>
 
     <div class="col-md-12">

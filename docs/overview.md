@@ -64,14 +64,8 @@ implementations of [Kubernetes](http://kubernetes.io/) such as
 [Project Atomic](http://www.projectatomic.io/) and
 [Google Container Engine](https://cloud.google.com/container-engine/).
 
-For non-linux platforms which don't yet support native Docker we have
-[Jube](jube/index.html) which is an open source pure Java
-implementation of Kubernetes.
-
 Kubernetes is supported on Google and Microsofts clouds, by OpenShift
 V3 (on premise and public cloud), by Project Atomic and VMware; so
 it's increasingly becoming the standard API to PaaS and _Container As
-A Service_ on the open hybrid clouds. [Jube](jube.html) then helps
-extend Kubernetes to run Java based middleware on any operating system
-which supports Java 7.
+A Service_ on the open hybrid clouds.
 
