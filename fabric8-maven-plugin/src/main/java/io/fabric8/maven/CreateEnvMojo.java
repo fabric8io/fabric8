@@ -255,7 +255,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 for (Container container : pod.getSpec().getContainers()) {
-                    if (container.getImage().equals(getDockerImage())) {
+                    if (container.getImage().equals(name)) {
                         result.putAll(mapFromEnv(container.getEnv()));
                     }
                 }
