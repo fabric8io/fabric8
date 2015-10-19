@@ -155,12 +155,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency -->
-
         <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-maven</artifactId>

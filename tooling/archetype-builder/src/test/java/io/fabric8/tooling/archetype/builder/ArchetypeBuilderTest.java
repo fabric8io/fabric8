@@ -85,8 +85,6 @@ public class ArchetypeBuilderTest {
             "/src/main/resources/archetype-resources/pom.xml",
             "/src/main/resources/archetype-resources/src",
             "/src/main/resources/archetype-resources/src/test",
-            "/src/main/resources/archetype-resources/src/test/resources",
-            "/src/main/resources/archetype-resources/src/test/resources/logback-test.xml",
             "/src/main/resources/archetype-resources/src/test/java",
             "/src/main/resources/archetype-resources/src/test/java/HelloTest.java",
             "/src/main/resources/archetype-resources/src/main",
@@ -102,7 +100,8 @@ public class ArchetypeBuilderTest {
             "/src/main/resources-filtered/META-INF/maven/archetype-metadata.xml",
         };
         for (String r : resources) {
-            assertTrue(files.remove(new File("target/test-archetypes/java-hello-world-archetype" + r)));
+            File file = new File("target/test-archetypes/java-hello-world-archetype" + r);
+            assertTrue(r + " should exists", files.remove(file));
         }
         assertTrue("Failed to create correct Archetype project", files.isEmpty());
     }
