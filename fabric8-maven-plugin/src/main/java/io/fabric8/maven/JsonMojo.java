@@ -1359,7 +1359,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             // lets generate it from the docker user and the camelCase artifactId
             String groupPrefix = null;
             MavenProject project = getProject();
-            String imageName = project.getProperties().getProperty("docker.image");
+            String imageName = getDockerImage();
             if (Strings.isNotBlank(imageName)) {
                 String[] paths = imageName.split("/");
                 if (paths != null) {
