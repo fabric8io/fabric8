@@ -36,18 +36,24 @@ public class GitUserHelper {
     private final String gitUser;
     private final String gitPassword;
     private String address;
+    private String internalAddress;
 
     // TODO it'd be nice to pick either http or https based on the port number of the gogs service
     // so if folks configured it on https then we'd just work
     @Inject
     public GitUserHelper(@ServiceName("gogs") @Protocol("http") @External String gogsUrl,
+                         @ServiceName("gogs") @Protocol("http") String gogsInternalUrl,
                          @ConfigProperty(name = "JENKINS_GOGS_USER") String gitUser,
                          @ConfigProperty(name = "JENKINS_GOGS_PASSWORD") String gitPassword) {
         this.gitUser = gitUser;
         this.gitPassword = gitPassword;
-        this.address = gogsUrl.toString();
+        this.address = gogsUrl;
+        this.internalAddress = gogsInternalUrl;
         if (!address.endsWith("/")) {
             address += "/";
+        }
+        if (!internalAddress.endsWith("/")) {
+            internalAddress += "/";
         }
     }
 
@@ -87,6 +93,6 @@ public class GitUserHelper {
         if (!Strings.isNullOrEmpty(emailHeader)) {
             email = emailHeader;
         }
-        return new UserDetails(address, user, password, email);
+        return new UserDetails(address, internalAddress, user, password, email);
     }
 }

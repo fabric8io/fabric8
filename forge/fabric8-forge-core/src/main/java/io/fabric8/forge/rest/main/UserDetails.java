@@ -18,17 +18,23 @@ package io.fabric8.forge.rest.main;
 import io.fabric8.repo.git.GitRepoClient;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class UserDetails {
+    private static final transient Logger LOG = LoggerFactory.getLogger(UserDetails.class);
+
+    private final String internalAddress;
     private final String user;
     private final String password;
     private final String address;
     private final String email;
     private String branch = "master";
 
-    public UserDetails(String address, String user, String password, String email) {
+    public UserDetails(String address, String internalAddress, String user, String password, String email) {
+        this.internalAddress = internalAddress;
         this.user = user;
         this.password = password;
         this.address = address;
@@ -55,6 +61,10 @@ public class UserDetails {
         return address;
     }
 
+    public String getInternalAddress() {
+        return internalAddress;
+    }
+
     public String getBranch() {
         return branch;
     }
@@ -64,7 +74,8 @@ public class UserDetails {
     }
 
     public GitRepoClient createRepoClient() {
-        return new GitRepoClient(address, user, password);
+        LOG.info("creating git repository client at: " + internalAddress);
+        return new GitRepoClient(internalAddress, user, password);
     }
 
     public CredentialsProvider createCredentialsProvider() {
