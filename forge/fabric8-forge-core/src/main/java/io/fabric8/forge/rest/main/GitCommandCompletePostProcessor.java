@@ -131,6 +131,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String password = userDetails.getPassword();
         String authorEmail = userDetails.getEmail();
         String address = userDetails.getAddress();
+        String internalAddress = userDetails.getInternalAddress();
         String branch = userDetails.getBranch();
         String origin = projectFileSystem.getRemote();
 
@@ -184,7 +185,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                             fullName = user + "/" + named;
                         }
                         String htmlUrl = address + user + "/" + named;
-                        String remoteUrl = address + user + "/" + named + ".git";
+                        String remoteUrl = internalAddress + user + "/" + named + ".git";
                         //results.appendOut("Created git repository " + fullName + " at: " + htmlUrl);
 
                         results.setOutputProperty("fullName", fullName);

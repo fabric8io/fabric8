@@ -101,7 +101,7 @@ public class ForgeInitialiser {
         inputList.add(step2Inputs);
         executionRequest.setInputList(inputList);
         executionRequest.setWizardStep(2);
-        UserDetails userDetails = new UserDetails("someAddress", "dummyUser", "dummyPassword", "dummy@doesNotExist.com");
+        UserDetails userDetails = new UserDetails("someAddress", "someInternalAddress", "dummyUser", "dummyPassword", "dummy@doesNotExist.com");
         try {
             LOG.info("Now trying to create a new project in: " + tempDir);
             CommandCompletePostProcessor postProcessor = null;
