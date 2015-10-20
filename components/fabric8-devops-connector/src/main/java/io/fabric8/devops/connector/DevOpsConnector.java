@@ -288,7 +288,7 @@ public class DevOpsConnector {
             }
         }
 
-        BuildConfigFluent<BuildConfigBuilder>.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
+        BuildConfigFluent.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
                 withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
                 withNewSpec();
 
