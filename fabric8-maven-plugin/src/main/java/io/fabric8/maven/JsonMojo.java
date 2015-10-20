@@ -855,7 +855,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     .withAnnotations(serviceAnnotations)
                     .endMetadata();
 
-            ServiceFluent<ServiceBuilder>.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(selector);
+            ServiceFluent.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(selector);
 
             List<ServicePort> servicePorts = getServicePorts();
             System.out.println("Generated ports: " + servicePorts);
