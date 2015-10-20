@@ -55,20 +55,19 @@ public class GenerateKindToClassMap {
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             Set<Map.Entry<String, String>> entries = sortedMap.entrySet();
             writer.println("/**\n" +
-                    " * Licensed to the Apache Software Foundation (ASF) under one or more\n" +
-                    " * contributor license agreements.  See the NOTICE file distributed with\n" +
-                    " * this work for additional information regarding copyright ownership.\n" +
-                    " * The ASF licenses this file to You under the Apache License, Version 2.0\n" +
-                    " * (the \"License\"); you may not use this file except in compliance with\n" +
-                    " * the License.  You may obtain a copy of the License at\n" +
-                    " * <p/>\n" +
-                    " * http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    " * <p/>\n" +
-                    " * Unless required by applicable law or agreed to in writing, software\n" +
-                    " * distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    " * See the License for the specific language governing permissions and\n" +
-                    " * limitations under the License.\n" +
+                    " *  Copyright 2005-2015 Red Hat, Inc.\n" +
+                    " *\n" +
+                    " *  Red Hat licenses this file to you under the Apache License, version\n" +
+                    " *  2.0 (the \"License\"); you may not use this file except in compliance\n" +
+                    " *  with the License.  You may obtain a copy of the License at\n" +
+                    " *\n" +
+                    " *     http://www.apache.org/licenses/LICENSE-2.0\n" +
+                    " *\n" +
+                    " *  Unless required by applicable law or agreed to in writing, software\n" +
+                    " *  distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                    " *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n" +
+                    " *  implied.  See the License for the specific language governing\n" +
+                    " *  permissions and limitations under the License.\n" +
                     " */\n" +
                     "package io.fabric8.kubernetes.api.support;\n" +
                     "\n");
