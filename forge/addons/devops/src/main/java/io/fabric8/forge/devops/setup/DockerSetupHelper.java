@@ -120,11 +120,11 @@ public class DockerSetupHelper {
             }
         }
 
-        ConfigurationElementBuilder from = MavenHelpers.getOrCreateElementBuilder(image, "from");
+        ConfigurationElementBuilder from = MavenHelpers.getOrCreateElementBuilder(build, "from");
         if (Strings.isNullOrBlank(from.getText())) {
             from.setText("${docker.from}");
         }
-        ConfigurationElementBuilder name = MavenHelpers.getOrCreateElementBuilder(build, "name");
+        ConfigurationElementBuilder name = MavenHelpers.getOrCreateElementBuilder(image, "name");
         if (Strings.isNullOrBlank(name.getText())) {
             name.setText("${docker.image}");
         }
