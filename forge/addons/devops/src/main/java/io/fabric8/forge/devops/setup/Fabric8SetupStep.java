@@ -17,7 +17,7 @@ package io.fabric8.forge.devops.setup;
 
 import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
-import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
+import io.fabric8.forge.addon.utils.validator.ClassNameOrMavenPropertyValidator;
 import io.fabric8.forge.devops.AbstractDevOpsCommand;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
@@ -39,6 +39,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.input.InputComponent;
+import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
@@ -74,7 +76,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
 
     @Inject
     @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
-    private UISelectOne<String> from;
+    private UIInput<String> from;
 
     @Inject
     @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
@@ -132,7 +134,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         boolean springBoot = hasSpringBootMavenPlugin(project);
 
         // limit the choices depending on the project packaging
-        List<String> choices = new ArrayList<String>();
+        final List<String> choices = new ArrayList<String>();
         if (packaging == null || springBoot || "jar".equals(packaging)) {
             choices.addAll(Arrays.asList(jarImages));
         }
@@ -142,7 +144,12 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         if (!springBoot && (packaging == null || "war".equals(packaging))) {
             choices.addAll(Arrays.asList(warImages));
         }
-        from.setValueChoices(choices);
+        from.setCompleter(new UICompleter<String>() {
+            @Override
+            public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
+                return choices;
+            }
+        });
 
         // is it possible to pre select a choice?
         if (choices.size() > 0) {
@@ -178,7 +185,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             if (project != null) {
                 main.setDefaultValue(DockerSetupHelper.defaultMainClass(project));
             }
-            main.addValidator(new ClassNameValidator(true));
+            main.addValidator(new ClassNameOrMavenPropertyValidator(true));
             main.addValueChangeListener(new ValueChangeListener() {
                 @Override
                 public void valueChanged(ValueChangeEvent event) {
