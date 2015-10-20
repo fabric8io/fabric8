@@ -34,4 +34,12 @@ public class Annotations {
         public static final String GIT_URL = "fabric8.io/git-url";
         public static final String GIT_BRANCH = "fabric8.io/git-branch";
     }
+
+    public static class Project {
+        public static final String PREFIX = "fabric8.io/project-";
+    }
+
+    public static class Tests {
+        public static final String SESSION_ID = "fabric8.io/test-session-id";
+    }
 }
