@@ -61,7 +61,6 @@
     <module>docker-api</module>
     <module>fabric8-agent</module>
     <module>fabric8-apm</module>
-    <module>fabric8-groups</module>
     <module>fabric8-jgroups</module>
     <module>fabric8-selenium</module>
     <module>fabric8-devops</module>

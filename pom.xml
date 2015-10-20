@@ -450,11 +450,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-groups</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-build-workflow</artifactId>
               <version>${project.version}</version>
