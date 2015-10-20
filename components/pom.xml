@@ -32,7 +32,6 @@
 
   <modules>
     <!-- code generation jobs go first -->
-    <module>kubernetes-codegen</module>
     <module>fabric8-arquillian</module>
     <module>cxf-utils</module>
 

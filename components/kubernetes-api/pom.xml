@@ -78,14 +78,6 @@
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- lets force the codegen to run first -->
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-codegen</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
