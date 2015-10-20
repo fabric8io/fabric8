@@ -49,7 +49,6 @@
             <module>fabric8-cxf-registry</module>
     -->
     <module>fabric8-cxf-plugins</module>
-    <module>fabric8-groups</module>
     <module>fabric8-jgroups</module>
     <module>fabric8-selenium</module>
     <module>fabric8-utils</module>
