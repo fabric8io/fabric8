@@ -36,7 +36,7 @@ public class YamlTest {
     @Test
     public void testGenerateYaml() throws Exception {
         ProjectConfig config = new ProjectConfig();
-        config.setFlow("maven/Deploy.groovy");
+        config.setPipeline("maven/Deploy.groovy");
         config.setChatRoom("myroom");
         config.setCodeReview(true);
         config.setIssueProjectName("THING");
@@ -58,7 +58,7 @@ public class YamlTest {
 
         assertThat(config.getChatRoom()).isEqualTo("myroom");
         assertThat(config.getIssueProjectName()).isEqualTo("foo");
-        assertThat(config.getFlow()).isEqualTo("maven/CanaryReleaseThenStage.groovy");
+        assertThat(config.getPipeline()).isEqualTo("maven/CanaryReleaseThenStage.groovy");
         LinkedHashMap<String, String> environments = config.getEnvironments();
 
         // lets assert that things are in the correct order...

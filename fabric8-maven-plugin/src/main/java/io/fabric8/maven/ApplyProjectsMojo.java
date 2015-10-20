@@ -60,7 +60,7 @@ public class ApplyProjectsMojo extends AbstractNamespacedMojo {
             connector.setNamespace(namespace);
 
             ProjectConfig config = connector.getProjectConfig();
-            String flow = config != null ? config.getFlow() : null;
+            String flow = config != null ? config.getPipeline() : null;
 
             getLog().info("Updating project " + project.getUser() + "/" + project.getRepoName() + " at " + project.getGitUrl() + " and flow " + flow + " in namespace: " + namespace);
 

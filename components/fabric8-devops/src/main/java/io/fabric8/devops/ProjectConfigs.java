@@ -50,7 +50,7 @@ public class ProjectConfigs {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectConfigs.class);
 
     public static final String FILE_NAME = "fabric8.yml";
-    public static final String LOCAL_FLOW_FILE_NAME = "flow.groovy";
+    public static final String LOCAL_FLOW_FILE_NAME = "Jenkinsfile";
 
     public static String toYaml(Object dto) throws JsonProcessingException {
         ObjectMapper mapper = createObjectMapper();
@@ -67,7 +67,7 @@ public class ProjectConfigs {
             try {
                 return ProjectConfigs.parseProjectConfig(projectConfigFile);
             } catch (IOException e) {
-                LOG.warn("Failed to parse " + projectConfigFile);
+                LOG.warn("Failed to parse " + projectConfigFile + ". " + e, e);
             }
         }
         return new ProjectConfig();
@@ -259,11 +259,14 @@ public class ProjectConfigs {
             }
         }
         String flow = null;
-        Object flowValue = map.get("flow");
+        Object flowValue = map.get("pipeline");
+        if (flowValue == null) {
+            flowValue = map.get("flow");
+        }
         if (flowValue != null) {
             flow = flowValue.toString();
         }
-        config.setFlow(flow);
+        config.setPipeline(flow);
     }
 
     /**

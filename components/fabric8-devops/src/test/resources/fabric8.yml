@@ -1,4 +1,4 @@
-flow: "maven/CanaryReleaseThenStage.groovy"
+pipeline: "maven/CanaryReleaseThenStage.groovy"
 issueProjectName: "foo"
 codeReview: true
 chatRoom: "myroom"

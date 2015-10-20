@@ -80,7 +80,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -936,7 +935,7 @@ public class DevOpsConnector {
 
     protected void createJenkinsJob(String buildName, String jenkinsJobUrl) {
         if (projectConfig != null) {
-            String flow = projectConfig.getFlow();
+            String flow = projectConfig.getPipeline();
             String flowGitUrlValue = null;
             boolean localFlow = false;
             if (Strings.isNotBlank(flow)) {
@@ -945,6 +944,8 @@ public class DevOpsConnector {
                 flow = ProjectConfigs.LOCAL_FLOW_FILE_NAME;
                 flowGitUrlValue = this.gitUrl;
                 localFlow = true;
+            } else {
+                getLog().info("Not creating Jenkins job as no pipeline defined for project configuration!");
             }
             String versionPrefix = Systems.getSystemPropertyOrEnvVar("VERSION_PREFIX", "VERSION_PREFIX", "1.0");
             if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
@@ -1161,7 +1162,7 @@ public class DevOpsConnector {
     protected Map<String, String> getBuildParameters() {
         Map<String, String> answer = new HashMap<>();
         if (projectConfig != null) {
-            String flow = projectConfig.getFlow();
+            String flow = projectConfig.getPipeline();
             if (flow != null && Strings.isNotBlank(gitUrl)) {
                 answer.put("GIT_URL", gitUrl);
             }
