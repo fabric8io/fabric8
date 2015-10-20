@@ -19,6 +19,7 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -31,8 +32,6 @@ import io.fabric8.utils.Objects;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
-import io.fabric8.utils.Zips;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,17 +39,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 
@@ -213,8 +207,9 @@ public class Util {
         File dir = getProjectBaseDir(session);
         String gitUrl = findGitUrl(session, dir);
 
+        annotations.put(Annotations.Tests.SESSION_ID, session.getId());
         if (Strings.isNotBlank(gitUrl)) {
-            annotations.put("fabric8.devops/gitUrl", gitUrl);
+            annotations.put(Annotations.Builds.GIT_URL, gitUrl);
         }
         // lets see if there's a maven generated set of pom properties
         File pomProperties = new File(dir, "target/maven-archiver/pom.properties");
@@ -227,7 +222,7 @@ public class Util {
                     String key = entry.getKey();
                     String value = entry.getValue();
                     if (Strings.isNotBlank(key) && Strings.isNotBlank(value)) {
-                        annotations.put("fabric8.devops/" + key, value);
+                        annotations.put(Annotations.Project.PREFIX + key, value);
                     }
                 }
             } catch (IOException e) {
