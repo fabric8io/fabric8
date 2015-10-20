@@ -16,7 +16,6 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.support.KindToClassMapping;
 import io.fabric8.utils.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,34 +57,57 @@ public class UserConfigurationCompare {
             return configEqualMap((Map) entity1, castTo(Map.class, entity2));
         } else if (entity2 instanceof ObjectMeta) {
             return configEqualObjectMeta((ObjectMeta) entity1, castTo(ObjectMeta.class, entity2));
+        } else if (entity1 instanceof Collection && entity2 instanceof Collection) {
+            return collectionsEqual((Collection) entity1, (Collection) entity2);
         } else {
-            Set<Class<?>> classes = new HashSet<>(KindToClassMapping.getKindToClassMap().values());
-            Class<?> aClass = getMappedClass(entity1.getClass(), classes);
+            Class<?> aClass = getCommonDenominator(entity1.getClass(), entity2.getClass());
             if (aClass != null) {
                 Object castEntity2 = castTo(aClass, entity2);
                 if (castEntity2 == null) {
                     return false;
-                } else {
+                } else if (aClass.getPackage().getName().startsWith("io.fabric8")) {
                     return configEqualKubernetesDTO(entity1, entity2, aClass);
                 }
-            } else {
-                return Objects.equal(entity1, entity2);
+            }
+            return Objects.equal(entity1, entity2);
+        }
+    }
+
+    static <L,R> boolean collectionsEqual(Collection<L> left, Collection<R> right) {
+        return subCollection(left, right) && subCollection(right, left);
+    }
+
+
+    static <L, R> boolean itemExists(L item, Collection<R> collection) {
+        for (R candidate : collection) {
+            if (configEqual(item, candidate)) {
+                return true;
             }
         }
+        return false;
     }
 
-    // Needed for "editable" classes...
-    private static Class<?> getMappedClass(Class<?> entityClass, Set<Class<?>> classMapping) {
-        if (classMapping.contains(entityClass)) {
-            return entityClass;
+    static <L, R> boolean subCollection(Collection<L> left, Collection<R> right) {
+        for (L candidate : left) {
+            if (!itemExists(candidate, right)) {
+                return false;
+            }
         }
-        Class<?> superClass = entityClass.getSuperclass();
-        if (classMapping.contains(superClass)) {
-            return superClass;
-        }
-        return null;
+        return true;
     }
 
+    static Class getCommonDenominator(Class left, Class right) {
+        if (left.equals(right)) {
+            return left;
+        } else if (left.isAssignableFrom(right)) {
+            return getCommonDenominator(left, right.getSuperclass());
+        } else if (right.isAssignableFrom(left)) {
+            return getCommonDenominator(left.getSuperclass(), right);
+        } else {
+            //no match
+            return null;
+        }
+    }
 
     /**
      * Compares 2 instances of the given Kubernetes DTO class to see if the user has changed their configuration.
