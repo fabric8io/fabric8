@@ -892,7 +892,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
             if (pureKubernetes) {
                 try {
-                    result = applyTemplates(template);
+                    result = applyTemplates(resultTemplate);
                 } catch (IOException e) {
                     throw new MojoExecutionException("Failed to process template locally " + e, e);
                 }
