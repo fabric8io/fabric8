@@ -116,3 +116,51 @@ oadm registry --create --credentials=openshift.local.config/master/openshift-reg
 
 As the next step you can now [setup the OpenShift client](local.html) and install 
 the [fabric8 applications](apps.html)
+
+## Troubleshooting
+
+If you are having issues logging into th econsole, ensure you've enabled ```cors-allowed``` as shown above in the ```./openshift start``` command. 
+
+Another way to do that is to edit the ```/etc/openshift/master/master-config.yaml``` file [and add en entry like the following](https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441):
+
+```
+$vi /etc/openshift/master/master-config.yaml
+```
+then add:
+```
+corsAllowedOrigins:
+  - .*
+```
+
+After making a change then run:
+
+```
+$ restart master
+systemctl restart openshift-master
+```
+
+Also [make sure your user has a login via web console](https://github.com/fabric8io/fabric8/issues/4866#issue-109652169) e.g. if using HTPasswdPasswordIdentityProvider in OSEv3
+          
+```
+htpasswd -b /etc/openshift-passwd admin admin
+```
+
+### If you ran gofabric8 with the wrong domain
+
+You might have the wrong domain setup for the fabric8 ServiceAccount. You should be able to see this via
+
+```
+oc get oauthclient fabric8
+```
+
+If its got the wrong domain for the redirect URIs, just delete it and re-run gofabric8.
+
+```
+oc delete oauthclient fabric8
+gofabric8 deploy -y -d my-new-domain.com
+gofabric8 secrets -y
+oc get oauthclient fabric8
+```
+
+Though there's a pending issue to do this automatically whenever you run gofabric8 deploy 
+
