@@ -28,7 +28,6 @@ import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -68,12 +67,11 @@ import java.util.concurrent.Callable;
 
 import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
 import static io.fabric8.arquillian.utils.Namespaces.createNamespace;
-import static io.fabric8.arquillian.utils.Namespaces.updateNamesapceStatus;
+import static io.fabric8.arquillian.utils.Namespaces.updateNamespaceStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.KubernetesHelper.*;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
@@ -101,7 +99,7 @@ public class SessionListener {
             createNamespace(client, session);
         } else {
             checkNamespace(client, session, configuration);
-            updateNamesapceStatus(client, session, Constants.RUNNING_STATUS);
+            updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
         }
 
         shutdownHook = new ShutdownHook(client, configuration, session);

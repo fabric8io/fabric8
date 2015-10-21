@@ -86,7 +86,7 @@ public class Util {
                 throw new MultiException("Error while cleaning up session.", errors);
             }
         } else {
-            Namespaces.updateNamesapceStatus(client, session, status);
+            Namespaces.updateNamespaceStatus(client, session, status);
         }
     }
 
