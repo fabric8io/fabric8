@@ -83,6 +83,6 @@ public class ServerMockTestSuite {
 
     @AfterClass
     public static void tearDownClass() throws IOException {
-        MOCK.getServer().shutdown();
+        //MOCK.getServer().shutdown();
     }
 }

@@ -39,11 +39,11 @@ public class Namespaces {
     public static Namespace createNamespace(KubernetesClient client, Session session) {
         return client.namespaces().createNew()
                 .withNewMetadata()
-                .withName(session.getNamespace())
-                .addToLabels("provider", "fabric8")
-                .addToLabels("component", "integrationTest")
-                .addToLabels("framework", "arquillian")
-                .withAnnotations(createNamespaceAnnotations(session, Constants.RUNNING_STATUS))
+                    .withName(session.getNamespace())
+                    .addToLabels("provider", "fabric8")
+                    .addToLabels("component", "integrationTest")
+                    .addToLabels("framework", "arquillian")
+                    .withAnnotations(createNamespaceAnnotations(session, Constants.RUNNING_STATUS))
                 .endMetadata()
                 .done();
     }
@@ -58,19 +58,13 @@ public class Namespaces {
         throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
     }
 
-    public static Namespace updateNamesapceStatus(KubernetesClient client, final Session session, final String status) {
-        return client.namespaces().withName(session.getNamespace()).edit().accept(new Visitor() {
-            @Override
-            public void visit(Object item) {
-                if (item instanceof ObjectMetaBuilder) {
-                    ObjectMetaBuilder builder = (ObjectMetaBuilder) item;
-                    Map<String, String> annotations = createNamespaceAnnotations(session, status);
-                    for (Map.Entry<String, String> entry : annotations.entrySet()) {
-                        builder.addToAnnotations(entry.getKey(), entry.getValue());
-                    }
-                }
-            }
-        }).done();
+    public static synchronized Namespace updateNamespaceStatus(KubernetesClient client, final Session session, final String status) {
+        return client.namespaces().withName(session.getNamespace())
+                .edit()
+                    .editMetadata()
+                        .addToAnnotations(createNamespaceAnnotations(session, status))
+                    .endMetadata()
+                .done();
     }
 
     private static Map<String, String> createNamespaceAnnotations(Session session, String status) {
