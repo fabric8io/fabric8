@@ -30,6 +30,7 @@ import java.util.Set;
 /**
  */
 public class Routes {
+
     public static Route createRouteForService(String routeDomainPostfix, String namespace, Service service, Logger log) {
         Route route = null;
         String id = KubernetesHelper.getName(service);

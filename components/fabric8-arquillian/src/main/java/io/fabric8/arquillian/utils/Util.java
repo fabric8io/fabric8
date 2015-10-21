@@ -19,7 +19,6 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
-import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -29,21 +28,17 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Objects;
-import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import org.jboss.arquillian.test.spi.TestResult;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
@@ -77,7 +72,7 @@ public class Util {
 
     }
 
-    public static void cleanupSession(KubernetesClient client, Configuration configuration, Session session) throws MultiException {
+    public static void cleanupSession(KubernetesClient client, Configuration configuration, Session session, String status) throws MultiException {
         if (configuration.isNamespaceCleanupEnabled()) {
             waitUntilWeCanDestroyNamespace(session);
             List<Throwable> errors = new ArrayList<>();
@@ -90,6 +85,8 @@ public class Util {
             if (!errors.isEmpty()) {
                 throw new MultiException("Error while cleaning up session.", errors);
             }
+        } else {
+            Namespaces.updateNamesapceStatus(client, session, status);
         }
     }
 
@@ -187,7 +184,6 @@ public class Util {
         }
 
     }
-
     public static String findGitUrl(Session session, File dir) {
         try {
             return GitHelpers.extractGitUrl(dir);
@@ -202,33 +198,4 @@ public class Util {
         return new File(basedir);
     }
 
-    public static Map<String, String> createNamespaceAnnotations(Session session) {
-        Map<String, String> annotations = new HashMap<>();
-        File dir = getProjectBaseDir(session);
-        String gitUrl = findGitUrl(session, dir);
-
-        annotations.put(Annotations.Tests.SESSION_ID, session.getId());
-        if (Strings.isNotBlank(gitUrl)) {
-            annotations.put(Annotations.Builds.GIT_URL, gitUrl);
-        }
-        // lets see if there's a maven generated set of pom properties
-        File pomProperties = new File(dir, "target/maven-archiver/pom.properties");
-        if (pomProperties.isFile()) {
-            try {
-                Properties properties = new Properties();
-                properties.load(new FileInputStream(pomProperties));
-                Map<String, String> map = PropertiesHelper.toMap(properties);
-                for (Map.Entry<String, String> entry : map.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    if (Strings.isNotBlank(key) && Strings.isNotBlank(value)) {
-                        annotations.put(Annotations.Project.PREFIX + key, value);
-                    }
-                }
-            } catch (IOException e) {
-                session.getLogger().warn("Failed to load " + pomProperties + " file to annotate the namespace: " + e);
-            }
-        }
-        return annotations;
-    }
 }
