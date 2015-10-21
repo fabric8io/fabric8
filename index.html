@@ -105,44 +105,30 @@
 
 <div class="container">
   <!-- begin load main.html -->
-  <!-- begin info row -->
+  <style>
+  img.logo {
+    width: 48px;
+    height: 48px;
+  }
+</style>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+<p>
+  Fabric8 is an integrated open source <a href="http://fabric8.io/guide/fabric8DevOps.html">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html">Integration Platform</a> which works out of the box on any <a href="http://kubernetes.io/">Kubernetes</a> or <a href="http://www.openshift.org/">OpenShift</a> environment and provides <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery</a>, <a href="http://fabric8.io/guide/management.html">Management</a>, <a href="http://fabric8.io/guide/chat.html">ChatOps</a> and a <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>.
+</p>
+<p>
+  Here's a <a href="https://vimeo.com/142857726">video</a> demonstrating <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery Pipelines</a>:
+</p>
+
 <div class="row">
   <p class="text-center">
-    <strong>fabric8</strong> is an open source <a href="http://fabric8.io/guide/fabric8DevOps.html">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html">Integration Platform</a> which is built as a reusable set of microservices that run on top of <a href="http://kubernetes.io/">Kubernetes</a> and <a href="http://www.openshift.org/">OpenShift V3</a>
+      <iframe src="https://player.vimeo.com/video/142857726" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+  <p class="text-center">
+    <a href="https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a">more details in a blog post</a>
   </p>
 </div>
-
-  <div class="row">
-  <!-- begin info column 1 -->
-  <div class="col-md-4">
-    <h3><a href="http://fabric8.io/guide/management.html">Management</a></h3>
-    <p>
-      manage your applications more easily with a powerful <a href="http://fabric8.io/guide/console.html">Console</a> with centralised <a href="http://fabric8.io/guide/logging.html">Logging</a> and <a href="http://fabric8.io/guide/metrics.html">Metrics</a> along with deep management of Java Containers using <a href="http://hawt.io/">Hawtio</a> and <a href="http://jolokia.org/">Jolokia</a>
-    </p>
-
-  </div>
-  <!-- end info column 1 -->
-
-  <!-- begin info column 2 -->
-  <div class="col-md-4">
-    <h3><a href="http://fabric8.io/devops/index.html">Continuous Delivery &amp; DevOps</a></h3>
-    <p>
-      helps you deliver software faster and more reliably using <a href="https://jenkins-ci.org/">Jenkins</a> and <a href="http://www.openshift.org/">OpenShift V3</a> with integrated <a href="http://fabric8.io/guide/chat.html">Chat</a>
-    </p>
-  </div>
-  <!-- end info column 2 -->
-
-  <!-- begin info column 3 -->
-  <div class="col-md-4">
-    <h3><a href="http://fabric8.io/guide/ipaas.html">iPaaS</a></h3>
-    <p>
-      an <i>Integration Platform As A Service</i> with <a href="http://fabric8.io/guide/console.html">deep visualisation</a> of your <a href="http://camel.apache.org/">Apache Camel</a> integration services, an <a href="http://fabric8.io/guide/apiRegistry.html">API Registry</a> to view of all your RESTful &amp; SOAP APIs and <a href="http://fabric8.io/guide/fabric8MQ.html">Fabric8 MQ</a> provides <i>Messaging As A Service</i> based on <a href="http://activemq.apache.org/">Apache ActiveMQ</a>
-    </p>
-
-  </div>
-  <!-- end info column 3 -->
-</div>
-
 
 <div class="row">
   <div class="col-md-3">
@@ -155,89 +141,259 @@
 
   <div class="col-md-3">
     <p class="text-center">
-      <a class="btn btn-large btn-success btn-huge" title="Watch a video demonstration of using Fabric8" href="https://vimeo.com/134408622">
-        Watch Video
+      <a class="btn btn-large btn-success btn-huge" title="Watch a video demonstrations of using Fabric8" href="https://vimeo.com/tag:fabric8">
+        Watch Videos
       </a>
-    </p>
-    <p class="text-center">
-      <a href="https://vimeo.com/tag:fabric8" title="View more video demos of using fabric8">more videos</a>
     </p>
   </div>
 </div>
-<div class="row">
-  <h3><a href="http://fabric8.io/guide/tools.html">Kubernetes Tools</a></h3>
 
-  <p><strong>fabric8</strong> also provides a number of <a href="http://fabric8.io/guide/tools.html">tools</a> to help the Java community take full advantage of <a href="http://kubernetes.io/">Kubernetes</a>:</p>
-  <ul>
-    <li>
-      <a href="http://fabric8.io/guide/mavenPlugin.html">Maven Plugin</a> for working with <a href="http://kubernetes.io/">Kubernetes</a>
-    </li>
-    <li>
-      <a href="http://fabric8.io/guide/testing.html">Testing</a> of <a href="http://kubernetes.io/">Kubernetes</a> resources easily inside <a href="http://junit.org/">JUnit</a> with <a href="http://arquillian.org/">Arquillian</a>
-    </li>
-    <li>
-      <a href="http://fabric8.io/guide/javaLibraries.html">Java Libraries</a> and support for <a href="http://fabric8.io/guide/cdi.html">CDI</a> extensions for working with <a href="http://kubernetes.io/">Kubernetes</a>
-    </li>
-  </ul>
+<br/>
+
+<p>
+Fabric8 DevOps is made up of the following Open Source components:
+</p>
+
+<h4>Continuous Improvement</h4>
+
+<table class="table">
+  <tr>
+    <td>
+      <a href="http://fabric8.io/guide/chaosMonkey.html">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"/>
+        Chaos Monkey
+      </a>
+    </td>
+    <td>
+      Randomly kills pods to help check your environment can withstand failures
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://www.elasticsearch.org/overview/kibana/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"/>
+        Kibana
+      </a>
+    </td>
+    <td>
+      Lets you view, filter and search all logs and events that have been written to Elasticsearch.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://elasticsearch.com/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"/>
+        Elasticsearch
+      </a>
+    </td>
+    <td>
+      Elasticsearch is a distributed fault tolerant scalable search engine for logs, events and documents
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://grafana.org/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana2/src/main/fabric8/icon.png"/>
+        Grafana
+      </a>
+    </td>
+    <td>
+      Rich metrics dashboard and graph editor for Prometheus and InfluxDB
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://prometheus.io/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"/>
+        Prometheus
+      </a>
+    </td>
+    <td>
+      Service monitoring, metrics and alerting system with a time series database
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://fabric8.io/guide/console.html">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/console/src/main/fabric8/icon.svg"/>
+        Console
+      </a>
+    </td>
+    <td>
+      Console and deep visualisation into projects, Kubernetes, OpenShift, Docker and JVMs
+    </td>
+  </tr>
+</table>
+
+
+<h4>Social</h4>
+
+<table class="table">
+  <tr>
+    <td>
+      <a href="http://slack.com">
+        <img class="logo" src="../images/logos/slack.png"/>
+        Slack
+      </a>
+    </td>
+    <td>
+      Public hosted chat service
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/sdelements/lets-chat">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"/>
+        Let's Chat
+      </a>
+    </td>
+    <td>
+      Open source on premise chat service
+    </td>
+  </tr>
+</table>
+
+
+<h4>Systems Availability</h4>
+
+<table class="table">
+  <tr>
+    <td>
+      <a href="http://docker.com/">
+        <img class="logo" src="../images/logos/docker.png"/>
+        Docker
+      </a>
+    </td>
+    <td>
+      Linux container API, runtime, tooling and image registry
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://kubernetes.io/">
+        <img class="logo" src="../images/logos/kubernetes.png"/>
+        Kubernetes
+      </a>
+    </td>
+    <td>
+      Container orchestration
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://www.openshift.org/">
+        <img class="logo" src="../images/logos/openshift.png"/>
+        OpenShift
+      </a>
+    </td>
+    <td>
+      A PaaS (Platform As A Service) based on Docker and Kubernetes
+    </td>
+  </tr>
+</table>
+
+
+<h4>Automation</h4>
+
+<table class="table">
+  <tr>
+    <td>
+      <a href="http://fabric8.io/guide/cdelivery.html">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"/>
+        Jenkins
+      </a>
+    </td>
+    <td>
+      Continuous Integration and Continuous Delivery using <a href="http://fabric8.io/guide/jenkinsWorkflowLibrary.html">reusable Jenkins Workflows</a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://www.sonatype.org/nexus/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"/>
+        Nexus
+      </a>
+    </td>
+    <td>
+      Maven repository manager for Canary and Promoted releases along with a mirror of central maven repositories
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://fabric8.io/guide/chat.html">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"/>
+        Hubot
+      </a>
+    </td>
+    <td>
+      Chat bot with gateways to various chat services like Slack, Let's Chat, IRC and many others
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://fabric8.io/guide/testing.html">
+        <img class="logo" src="../images/logos/arquillian.png"/>
+        Arquillian
+      </a>
+    </td>
+    <td>
+      System testing of Docker containers and Kubernetes resources in JUnit and Jenkins
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://forge.jboss.org/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-forge/src/main/fabric8/icon.svg"/>
+        JBoss Forge
+      </a>
+    </td>
+    <td>
+      A Java toolbox to help create apps faster
+    </td>
+  </tr>
+</table>
+
+
+<h4>Transparency</h4>
+
+<table class="table">
+  <tr>
+    <td>
+      <a href="https://www.gerritcodereview.com/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"/>
+        Gerrit
+      </a>
+    </td>
+    <td>
+      Code review of changes
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="http://gogs.io/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"/>
+        Gogs
+      </a>
+    </td>
+    <td>
+      On premise git repository hosting
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://taiga.io/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"/>
+        Taiga
+      </a>
+    </td>
+    <td>
+      Project Management Tool (i.e. issue tracker and kanban board)
+    </td>
+  </tr>
+</table>
+    </div>
+  </div>
 </div>
-
-<div class="row">
-  <h3>Getting Started Video</h3>
-
-  <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134408216" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-  </p>
-  <p class="text-center">
-    <a href="http://fabric8.io/guide/getStarted/index.html">more details</a>
-  </p>
-</div>
-
-<div class="row">
-  <h3>Fabric8 Devops: Continuous Integration &amp; Continuous Deployment with staging and chat based approval to production</h3>
-
-  <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134408622" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-  </p>
-  <p class="text-center">
-    <a href="https://medium.com/fabric8-io/continuous-delivery-with-fabric8-d3c7cad76954">more details</a>
-  </p>
-</div>
-
-<div class="row">
-  <h3>Using the Console</h3>
-
-  <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/125255595" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-  </p>
-  <p class="text-center">
-    <a href="http://fabric8.io/guide/console.html">more details</a>
-  </p>
-</div>
-
-<div class="row">
-  <h3>Chaos Monkey</h3>
-
-  <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134822210" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-  </p>
-  <p class="text-center">
-    <a href="http://fabric8.io/guide/chaosMonkey.html">more details</a>
-  </p>
-</div>
-
-<div class="row">
-  <h3>About</h3>
-  <p>
-    <strong>fabric8</strong> is an open source community project <i>(sponsored by <a href="http://redhat.com/">Red Hat, Inc.</a>)</i>
-  </p>
-
-  <p>
-    <strong>fabric8</strong> is being closely integrated into <a href="http://www.openshift.org/">OpenShift V3</a> but
-    it is also designed to run on top of any  <a href="http://kubernetes.io/">Kubernetes cluster</a>
-  </p>
-</div>
-<!-- end info row -->
-
   <!-- end load main.html -->
 </div>
 
