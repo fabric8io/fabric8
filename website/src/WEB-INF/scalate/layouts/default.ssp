@@ -1,4 +1,4 @@
-<%@ var title : String = "fabric8 - an open source integration platform" %>
+<%@ var title : String = "fabric8 - an open source developer platform" %>
 <%@ var body: String = null %>
 <%@ var overview: String = null %>
 <%@ var spot: String = null %>
@@ -23,7 +23,7 @@
     <meta charset="utf-8" />
     <title>${title}</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta content="an open source integration platform" name="description" />
+    <meta content="an open source developer platform" name="description" />
     <link href="/stylesheets/normalize.css" rel="stylesheet">
     <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
     <link href="/stylesheets/theme.css" rel="stylesheet">
@@ -64,7 +64,7 @@
             </a>
           </div>
           <div class="col-lg-6 text-center visible-lg">
-            <h1>an open source integration platform</h1>
+            <h1>an open source developer platform</h1>
           </div>
         </div>
       </div>
