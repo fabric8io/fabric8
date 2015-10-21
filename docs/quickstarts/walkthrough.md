@@ -217,5 +217,3 @@ Another easy way would be to use the fabric8 web console to delete the quickstat
 
 Yay you made through this first walk through of the most simple quickstart we have. For the next walk lets up the game a bit and use Camel and Kubernetes services.
 
-When you are ready see you at [walking with Camel and kubernetes](walkthrough2.md).
-
