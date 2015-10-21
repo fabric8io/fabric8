@@ -37,7 +37,7 @@ public class ShutdownHook extends Thread {
     public void run() {
         session.getLogger().warn("Shutdown hook cleaning up the integration test!");
         try {
-            cleanupSession(client, configuration, session);
+            cleanupSession(client, configuration, session, Constants.ABORTED_STATUS);
         } catch (MultiException e) {
             session.getLogger().warn(e.getMessage());
         }
