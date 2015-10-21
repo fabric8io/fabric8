@@ -4,7 +4,10 @@
     height: 48px;
   }
   td.icon-column {
-    width: 200px;
+    width: 180px;
+  }
+  td.icon-desc-column {
+    width: 380px;
   }
 </style>
 <div class="container">
@@ -13,16 +16,16 @@
 <p>
   Fabric8 is an integrated open source <a href="http://fabric8.io/guide/fabric8DevOps.html">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html">Integration Platform</a> which works out of the box on any <a href="http://kubernetes.io/">Kubernetes</a> or <a href="http://www.openshift.org/">OpenShift</a> environment and provides <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery</a>, <a href="http://fabric8.io/guide/management.html">Management</a>, <a href="http://fabric8.io/guide/chat.html">ChatOps</a> and a <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>.
 </p>
-<p>
-  Here's a <a href="https://vimeo.com/142857726">video</a> demonstrating <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery Pipelines</a>:
-</p>
 
 <div class="row">
   <p class="text-center">
+<!--
       <iframe src="https://player.vimeo.com/video/142857726" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+-->
+      <iframe src="https://player.vimeo.com/video/142857726" width="600" height="300" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
   </p>
   <p class="text-center">
-    <a href="https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a">more details in a blog post</a>
+    a <a href="https://vimeo.com/142857726">video</a> demonstrating <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery Pipelines</a>. See <a href="https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a">the blog post</a>
   </p>
 </div>
 
@@ -60,18 +63,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Chaos Monkey
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Randomly kills pods to help check your environment can withstand failures
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://www.elasticsearch.org/overview/kibana/">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"/>
         Kibana
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Lets you view, filter and search all logs and events that have been written to Elasticsearch.
     </td>
   </tr>
@@ -82,18 +83,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Elasticsearch
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Elasticsearch is a distributed fault tolerant scalable search engine for logs, events and documents
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://grafana.org/">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana2/src/main/fabric8/icon.png"/>
         Grafana
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Rich metrics dashboard and graph editor for Prometheus and InfluxDB
     </td>
   </tr>
@@ -104,18 +103,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Prometheus
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Service monitoring, metrics and alerting system with a time series database
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://fabric8.io/guide/console.html">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/console/src/main/fabric8/icon.svg"/>
         Console
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Console and deep visualisation into projects, Kubernetes, OpenShift, Docker and JVMs
     </td>
   </tr>
@@ -132,18 +129,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Slack
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Public hosted chat service
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="https://github.com/sdelements/lets-chat">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"/>
         Let's Chat
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Open source on premise chat service
     </td>
   </tr>
@@ -160,18 +155,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Docker
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Linux container API, runtime, tooling and image registry
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://kubernetes.io/">
         <img class="logo" src="../images/logos/kubernetes.png"/>
         Kubernetes
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Container orchestration
     </td>
   </tr>
@@ -182,7 +175,7 @@ Fabric8 DevOps is made up of the following Open Source components:
         OpenShift
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       A PaaS (Platform As A Service) based on Docker and Kubernetes
     </td>
   </tr>
@@ -199,18 +192,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Jenkins
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Continuous Integration and Continuous Delivery using <a href="http://fabric8.io/guide/jenkinsWorkflowLibrary.html">reusable Jenkins Workflows</a>
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://www.sonatype.org/nexus/">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"/>
         Nexus
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Maven repository manager for Canary and Promoted releases along with a mirror of central maven repositories
     </td>
   </tr>
@@ -221,18 +212,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Hubot
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Chat bot with gateways to various chat services like Slack, Let's Chat, IRC and many others
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://fabric8.io/guide/testing.html">
         <img class="logo" src="../images/logos/arquillian.png"/>
         Arquillian
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       System testing of Docker containers and Kubernetes resources in JUnit and Jenkins
     </td>
   </tr>
@@ -243,7 +232,7 @@ Fabric8 DevOps is made up of the following Open Source components:
         JBoss Forge
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       A Java toolbox to help create apps faster
     </td>
   </tr>
@@ -260,18 +249,16 @@ Fabric8 DevOps is made up of the following Open Source components:
         Gerrit
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Code review of changes
     </td>
-  </tr>
-  <tr>
     <td class="icon-column">
       <a href="http://gogs.io/">
         <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"/>
         Gogs
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       On premise git repository hosting
     </td>
   </tr>
@@ -282,7 +269,7 @@ Fabric8 DevOps is made up of the following Open Source components:
         Taiga
       </a>
     </td>
-    <td>
+    <td class="icon-desc-column">
       Project Management Tool (i.e. issue tracker and kanban board)
     </td>
   </tr>
