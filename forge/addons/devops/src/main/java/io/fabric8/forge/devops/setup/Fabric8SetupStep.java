@@ -19,6 +19,7 @@ import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameOrMavenPropertyValidator;
 import io.fabric8.forge.devops.AbstractDevOpsCommand;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -258,9 +259,6 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         if (project == null) {
             return Results.fail("No pom.xml available so cannot edit the project!");
         }
-        MavenFacet maven = project.getFacet(MavenFacet.class);
-        Model pom = maven.getModel();
-
         DockerSetupHelper.setupDocker(project, from.getValue(), main.getValue());
 
         LOG.info("docker now setup");
@@ -272,6 +270,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
 
         // include test dependencies?
         LOG.info("checking dependencies");
+
+        MavenFacet maven = project.getFacet(MavenFacet.class);
+        Model pom = maven.getModel();
 
         if (test.getValue() != null && test.getValue()) {
             boolean hasFabric8Arquillian = !MavenHelpers.hasDependency(pom, "io.fabric8", "fabric8-arquillian");
@@ -311,6 +312,11 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.iconRef", "icons/" + iconValue, updated);
         }
         updated = MavenHelpers.updatePomProperty(properties, "fabric8.label.group", group.getValue(), updated);
+        String servicePort = getDefaultServicePort(project);
+        if (servicePort != null) {
+            updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.containerPort", servicePort, updated);
+            updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.port", "80", updated);
+        }
 
         // to save then set the model
         if (updated) {
@@ -319,6 +325,23 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         }
 
         return Results.success("Adding Fabric8 maven support with base Docker image: " + from.getValue());
+    }
+
+    /**
+     * Try to determine the default service port.
+     *
+     * If this is a WAR or EAR then lets assume 8080.
+     *
+     * For karaf we can't know its definitely got http inside; so lets punt for now.
+     */
+    protected String getDefaultServicePort(Project project) {
+        String packaging = getProjectPackaging(project);
+        if (Strings.isNotBlank(packaging)) {
+            if (Objects.equal("war", packaging) || Objects.equal("ear", packaging)) {
+                return "8080";
+            }
+        }
+        return null;
     }
 
     private static String asContainer(String fromImage) {
