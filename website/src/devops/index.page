@@ -14,7 +14,7 @@ title: Fabric8 DevOps
       <h1>Fabric8 DevOps</h1>
 
 <p>
-  Fabric8 DevOps provides a completely integrated open source DevOps platform which works out of the box on any <a href="http://kubernetes.io/">Kubernetes</a> or <a href="http://www.openshift.org/">OpenShift</a> environment and provides <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery</a>, <a href="http://fabric8.io/guide/management.html">Management</a> and  <a href="http://fabric8.io/guide/chat.html">ChatOps</a>.
+  Fabric8 DevOps provides a completely integrated open source DevOps platform which works out of the box on any <a href="http://kubernetes.io/">Kubernetes</a> or <a href="http://www.openshift.org/">OpenShift</a> environment and provides <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery</a>, <a href="http://fabric8.io/guide/management.html">Management</a>, <a href="http://fabric8.io/guide/chat.html">ChatOps</a> and <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>.
 </p>
 <p>
   Here's a <a href="https://vimeo.com/142857726">video</a> demonstrating <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery Pipelines</a>:
