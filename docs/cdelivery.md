@@ -84,3 +84,16 @@ For now use user `gogsadmin` and password `RedHat$1` as the user and password in
 * Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
 
 For more information see [Install Fabric8 on OpenShift Guide](getStarted/openshift.html).
+
+### Demo
+
+Here is a [video demonstrating Fabric8 Continuous Delivery Pipelines](https://vimeo.com/142857726)
+
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://player.vimeo.com/video/142857726" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+  <p class="text-center">
+    <a href="https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a">more details in a blog post</a>
+  </p>
+</div>

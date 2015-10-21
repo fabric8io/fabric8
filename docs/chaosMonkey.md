@@ -13,3 +13,18 @@ Click the `Run...` button on the `apps` tab of the [fabric8 console](console.htm
 We highly recommend you run the [Chat](chat.html) application first and login to the chat room so that you can see the monkey awesome take place in the chat room as pods are killed!
 
 You can configure the template of the Chaos Monkey to specifically include or exclude certain kinds of pods using wildcards; chaos monkey can even kill itself which is quite funny ;)
+
+
+### Demo
+
+Here is a [video demonstrating Chaos Monkey](https://vimeo.com/134822210) using the [ChatOps integration](chat.html)
+
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://player.vimeo.com/video/134822210" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+  </p>
+</div>
+
+### Installation
+    
+To install your own Chaos Monkey see the [Install Fabric8 on Kubernetes or OpenShift Guide](getStarted/apps.html)    
