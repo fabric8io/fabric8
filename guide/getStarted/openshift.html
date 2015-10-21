@@ -44,7 +44,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2" data-basepath=".." data-revision="Tue Oct 20 2015 16:04:31 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2" data-basepath=".." data-revision="Wed Oct 21 2015 06:01:04 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1307,6 +1307,27 @@ oadm registry --create --credentials=openshift.local.config/master/openshift-reg
 </code></pre><h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
 <p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install 
 the <a href="apps.html">fabric8 applications</a></p>
+<h2 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
+<p>If you are having issues logging into th econsole, ensure you&apos;ve enabled <code>cors-allowed</code> as shown above in the <code>./openshift start</code> command. </p>
+<p>Another way to do that is to edit the <code>/etc/openshift/master/master-config.yaml</code> file <a href="https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441" target="_blank">and add en entry like the following</a>:</p>
+<pre><code>$vi /etc/openshift/master/master-config.yaml
+</code></pre><p>then add:</p>
+<pre><code>corsAllowedOrigins:
+  - .*
+</code></pre><p>After making a change then run:</p>
+<pre><code>$ restart master
+systemctl restart openshift-master
+</code></pre><p>Also <a href="https://github.com/fabric8io/fabric8/issues/4866#issue-109652169" target="_blank">make sure your user has a login via web console</a> e.g. if using HTPasswdPasswordIdentityProvider in OSEv3</p>
+<pre><code>htpasswd -b /etc/openshift-passwd admin admin
+</code></pre><h3 id="if-you-ran-gofabric8-with-the-wrong-domain"><a name="if-you-ran-gofabric8-with-the-wrong-domain" class="plugin-anchor" href="#if-you-ran-gofabric8-with-the-wrong-domain"><span class="fa fa-link"></span></a>If you ran gofabric8 with the wrong domain</h3>
+<p>You might have the wrong domain setup for the fabric8 ServiceAccount. You should be able to see this via</p>
+<pre><code>oc get oauthclient fabric8
+</code></pre><p>If its got the wrong domain for the redirect URIs, just delete it and re-run gofabric8.</p>
+<pre><code>oc delete oauthclient fabric8
+gofabric8 deploy -y -d my-new-domain.com
+gofabric8 secrets -y
+oc get oauthclient fabric8
+</code></pre><p>Though there&apos;s a pending issue to do this automatically whenever you run gofabric8 deploy </p>
 
                     
                     </section>
