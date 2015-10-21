@@ -17,6 +17,7 @@
 package io.fabric8.arquillian.client.mock;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
@@ -44,14 +45,16 @@ public class MockClientCreator {
 
     public void createClient(@Observes Configuration config) throws MalformedURLException {
         KubernetesMockClient mock = new KubernetesMockClient();
-
-        mock.getMasterUrl().andReturn(new URL("http://mock.client:80")).anyTimes();
-
-        mock.namespaces().withName("arquillian").get().andReturn(new NamespaceBuilder()
+        Namespace namespace = new NamespaceBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
                 .endMetadata()
-                .build());
+                .build();
+
+        mock.getMasterUrl().andReturn(new URL("http://mock.client:80")).anyTimes();
+
+        mock.namespaces().withName("arquillian").get().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
 
         mock.replicationControllers().inNamespace("arquillian").list().andReturn(new ReplicationControllerListBuilder().build()).once();
         mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().build()).once();

@@ -66,6 +66,10 @@ public class Constants {
 
     public static final String DEFAULT_KUBERNETES_MASTER = "https://kubernetes.default.svc";
 
+    public static final String RUNNING_STATUS = "RUNNING";
+    public static final String ABORTED_STATUS = "ABORTED";
+    public static final String ERROR_STATUS = "ERROR";
+
 
 
 }

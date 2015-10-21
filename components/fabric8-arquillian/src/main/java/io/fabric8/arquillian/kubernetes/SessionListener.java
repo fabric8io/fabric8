@@ -26,9 +26,9 @@ import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
-import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -49,6 +49,7 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.TestResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +66,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
+import static io.fabric8.arquillian.utils.Namespaces.createNamespace;
+import static io.fabric8.arquillian.utils.Namespaces.updateNamesapceStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
@@ -96,9 +100,9 @@ public class SessionListener {
         if (Strings.isNullOrBlank(configuration.getNamespaceToUse())) {
             createNamespace(client, session);
         } else {
-            assertNamespaceExists(client, session, configuration);
+            checkNamespace(client, session, configuration);
+            updateNamesapceStatus(client, session, Constants.RUNNING_STATUS);
         }
-
 
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -130,7 +134,7 @@ public class SessionListener {
             }
         } catch (Exception e) {
             try {
-                cleanupSession(client, configuration, session);
+                cleanupSession(client, configuration, session, Constants.ERROR_STATUS);
             } catch (MultiException me) {
                 throw e;
             } finally {
@@ -196,36 +200,12 @@ public class SessionListener {
     }
 
 
-    public void stop(@Observes Stop event, KubernetesClient client, Configuration configuration) throws Exception {
+    public void stop(@Observes Stop event, TestResult result, KubernetesClient client, Configuration configuration) throws Exception {
         try {
-                cleanupSession(client, configuration, event.getSession());
+                cleanupSession(client, configuration, event.getSession(), result.getStatus().name());
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
-            }
-        }
-    }
-
-    private void createNamespace(KubernetesClient client, Session session) {
-        client.namespaces().createNew()
-                .withNewMetadata()
-                .withName(session.getNamespace())
-                .addToLabels("provider", "fabric8")
-                .addToLabels("component", "integrationTest")
-                .addToLabels("framework", "arquillian")
-                .withAnnotations(Util.createNamespaceAnnotations(session))
-                .endMetadata()
-                .done();
-    }
-
-    private void assertNamespaceExists(KubernetesClient client, Session session, Configuration configuration) {
-        String namespace = session.getNamespace();
-        if (client.namespaces().withName(namespace).get() == null) {
-            if (configuration.isNamespaceLazyCreateEnabled()) {
-                Controller controller = new Controller(client);
-                controller.applyNamespace(namespace);
-            } else {
-                throw new IllegalStateException("Namespace " + namespace + "doesn't exists");
             }
         }
     }
