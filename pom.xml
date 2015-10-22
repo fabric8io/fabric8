@@ -72,10 +72,10 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.11.0.redhat-621054</activemq.version>
-        <camel.version>2.15.1.redhat-621054</camel.version>
-        <cxf.version>3.0.4.redhat-621054</cxf.version>
-        <cxf.plugin.version>3.0.4.redhat-621054</cxf.plugin.version>
+        <activemq.version>5.11.0.redhat-621069</activemq.version>
+        <camel.version>2.15.1.redhat-621069</camel.version>
+        <cxf.version>3.0.4.redhat-621069</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621069</cxf.plugin.version>
 
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
@@ -87,7 +87,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <snakeyaml.version>1.8</snakeyaml.version>
         <swagger.jaxrs.version>1.5.4</swagger.jaxrs.version>
-        <vertx.version>2.1.6</vertx.version>
+        <!-- <vertx.version>2.1.6</vertx.version> -->
         <weld.version>2.3.0.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
@@ -433,11 +433,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-vertx</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-model</artifactId>
                 <version>${kubernetes-model.version}</version>
             </dependency>
@@ -463,6 +458,11 @@
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-devops-connector</artifactId>
               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-vertx</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
