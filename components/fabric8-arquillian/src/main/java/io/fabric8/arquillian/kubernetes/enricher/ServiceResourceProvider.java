@@ -16,6 +16,7 @@
 package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.annotations.ServiceName;
+import io.fabric8.annotations.ServiceName;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -49,21 +50,16 @@ public class ServiceResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
-            if ( qualifies(service, qualifiers) ) {
-                return service;
+        String name = getServiceName(qualifiers);
+        return client.pods().inNamespace(session.getNamespace()).withName(name).get();
+    }
+
+    private String getServiceName(Annotation... qualifiers) {
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof ServiceName) {
+                return ((ServiceName) annotation).value();
             }
         }
         return null;
-    }
-
-    private boolean qualifies(Service s, Annotation... qualifiers) {
-        for (Annotation annotation : qualifiers) {
-            if (annotation instanceof ServiceName) {
-                String id = ((ServiceName) annotation).value();
-                return id.equals(getName(s));
-            }
-        }
-        return false;
     }
 }

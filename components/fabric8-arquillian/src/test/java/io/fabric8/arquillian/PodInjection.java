@@ -16,6 +16,8 @@
 
 package io.fabric8.arquillian;
 
+import io.fabric8.annotations.PodName;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -35,10 +37,18 @@ public class PodInjection {
     @ArquillianResource
     private PodList podList;
 
+    @PodName("test-pod")
+    @ArquillianResource
+    private Pod pod;
+
+
     @Test
     public void testPodListInjection() {
         assertNotNull(podList);
         assertEquals(1, podList.getItems().size());
         assertEquals("test-pod", podList.getItems().get(0).getMetadata().getName());
+
+        assertNotNull(pod);
+        assertEquals("test-pod", pod.getMetadata().getName());
     }
 }

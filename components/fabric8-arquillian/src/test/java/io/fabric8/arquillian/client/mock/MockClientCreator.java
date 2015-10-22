@@ -77,6 +77,7 @@ public class MockClientCreator {
 
         mock.pods().inNamespace("arquillian").withName("test-pod").get().andReturn(null).once();
         mock.pods().inNamespace("arquillian").create(EasyMock.<Pod>anyObject()).andReturn(testPod).once();
+        mock.pods().inNamespace("arquillian").withName("test-pod").get().andReturn(testPod).anyTimes();
         mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().addToItems(testPod).build()).anyTimes();
 
         kubernetes.set(mock.replay());
