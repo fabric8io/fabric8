@@ -24,7 +24,6 @@ Affected Openshift resources are:
 - build configs
 - deployment configs
 - image streams
-- templates
 
 ## Deep clean up
 
@@ -33,3 +32,4 @@ The command accepts an extra option that allows deep cleaning. In this case, the
 - secrets
 - service accounts
 - security context constraints
+- templates

@@ -59,7 +59,9 @@ public class CleanMojo extends ApplyMojo {
             openShiftClient.imageStreams().delete();
             openShiftClient.buildConfigs().delete();
             openShiftClient.deploymentConfigs().delete();
-            openShiftClient.templates().delete();
+            if (deep) {
+                openShiftClient.templates().delete();
+            }
         }
     }
 }
