@@ -16,6 +16,7 @@
 package io.fabric8.forge.rest;
 
 import io.fabric8.forge.rest.main.GitUserHelper;
+import io.fabric8.forge.rest.main.ProjectFileSystem;
 import io.fabric8.forge.rest.main.RepositoryCache;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.repo.git.GitRepoClient;
@@ -33,6 +34,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -48,6 +51,9 @@ public class RepositoriesResource {
 
     @Inject
     private RepositoryCache repositoryCache;
+
+    @Inject
+    private ProjectFileSystem projectFileSystem;
 
     @Context
     private HttpServletRequest request;
@@ -79,6 +85,29 @@ public class RepositoriesResource {
         return repositoryCache.getOrFindUserRepository(user, name, repoClient);
     }
 
+    @Path("user/{owner}/{repo}")
+    public RepositoryResource repositoryResource(@PathParam("owner") String userId, @PathParam("repo") String repositoryName) throws IOException {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        String origin = projectFileSystem.getRemote();
+
+        String branch = request.getParameter("ref");
+        if (Strings.isNullOrBlank(branch)) {
+            branch = "master";
+        }
+        File projectFolder = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
+        File gitFolder = new File(projectFolder, ".git");
+        RepositoryResource resource = new RepositoryResource(gitFolder, userDetails, origin, branch);
+        try {
+            String message = request.getParameter("message");
+            if (Strings.isNotBlank(message)) {
+                resource.setMessage(message);
+            }
+        } catch (Exception e) {
+            LOG.warn("failed to load message parameter: " + e, e);
+        }
+        return resource;
+    }
+
     protected void enrichRepository(RepositoryDTO repositoryDTO) {
         String repoName = repositoryDTO.getName();
         if (Strings.isNullOrBlank(repoName)) {
@@ -97,9 +126,7 @@ public class RepositoriesResource {
 
     protected GitRepoClient createGitRepoClient() {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
-
-        LOG.info("Using  user " + userDetails.getUser() + " at " + userDetails.getAddress());
-
+        LOG.debug("Using user " + userDetails.getUser() + " at " + userDetails.getAddress());
         return userDetails.createRepoClient();
     }
 

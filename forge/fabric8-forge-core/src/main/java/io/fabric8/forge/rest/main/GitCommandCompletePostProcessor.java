@@ -26,33 +26,21 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
-import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.URLUtils;
-import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.PushResult;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import java.io.File;
@@ -60,8 +48,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -136,7 +122,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String origin = projectFileSystem.getRemote();
 
         try {
-            disableSslCertificateChecks();
+            GitHelpers.disableSslCertificateChecks();
 
             CredentialsProvider credentials = userDetails.createCredentialsProvider();
             PersonIdent personIdent = new PersonIdent(user, authorEmail);
@@ -194,12 +180,12 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
                         // now lets import the code and publish
                         LOG.info("Using remoteUrl: " + remoteUrl + " and remote name " + origin);
-                        configureBranch(git, branch, origin, remoteUrl);
+                        GitHelpers.configureBranch(git, branch, origin, remoteUrl);
 
                         addDummyFileToEmptyFolders(basedir);
                         String message = createCommitMessage(name, executionRequest);
                         LOG.info("Commiting and pushing to: " + remoteUrl + " and remote name " + origin);
-                        doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
+                        GitHelpers.doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
 
                         LOG.info("Creating any pending webhooks");
                         registerWebHooks(context);
@@ -223,12 +209,12 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                                 .build();
 
                         Git git = new Git(repository);
-                        String remoteUrl = getRemoteURL(git, branch);
+                        String remoteUrl = GitHelpers.getRemoteURL(git, branch);
                         if (origin == null) {
                             LOG.warn("Could not find remote git URL for folder " + absolutePath);
                         } else {
                             String message = createCommitMessage(name, executionRequest);
-                            doAddCommitAndPushFiles(git, credentials, personIdent, remoteUrl, branch, origin, message);
+                            GitHelpers.doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
                         }
                     }
                 }
@@ -271,67 +257,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
     }
 
-    /**
-     * We've created a project so lets try trigger a jenkins seed build
-     */
-    protected void triggerJenkinsSeedBuild() {
-        if (!Strings.isNullOrEmpty(jenkinsSeedJob)) {
-            String address = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, KubernetesHelper.defaultNamespace(), "http", false);
-            if (!Strings.isNullOrEmpty(address)) {
-                String jobUrl = URLUtils.pathJoin(address, "/job/", jenkinsSeedJob, "/build");
-
-                LOG.info("Attempting to trigger the jenkins seed build on: " + jobUrl);
-
-                String json = "{}";
-                HttpURLConnection connection = null;
-                try {
-                    URL url = new URL(jobUrl);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setDoOutput(true);
-
-                    OutputStreamWriter out = new OutputStreamWriter(
-                            connection.getOutputStream());
-                    out.write(json);
-
-                    out.close();
-                    int status = connection.getResponseCode();
-                    String message = connection.getResponseMessage();
-                    LOG.info("Got response code from Jenkins: " + status + " message: " + message);
-                    if (status != 200) {
-                        LOG.error("Failed to trigger job " + jenkinsSeedJob + " on " + jobUrl + ". Status: " + status + " message: " + message);
-                    }
-                } catch (Exception e) {
-                    LOG.error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                }
-            }
-        }
-    }
-
-    protected static void disableSslCertificateChecks() {
-        LOG.info("Trusting all SSL certificates");
-
-        try {
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, new TrustManager[]{new TrustEverythingSSLTrustManager()}, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-            // bypass host name check, too.
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
-                }
-            });
-        } catch (NoSuchAlgorithmException e) {
-            LOG.warn("Failed to bypass certificate check", e);
-        } catch (KeyManagementException e) {
-            LOG.warn("Failed to bypass certificate check", e);
-        }
-    }
 
     /**
      * Lets generate a commit message with the command name and all the parameters we specify
@@ -382,79 +307,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             }
         }
         return serviceAddress;
-    }
-
-    protected void handleKubernetesResourceCreation(String kind, Object entity, String results) {
-        LOG.warn("Created " + entity + ". Results: " + results);
-    }
-
-    /**
-     * Returns the remote git URL for the given branch
-     */
-    protected String getRemoteURL(Git git, String branch) {
-        StoredConfig config = git.getRepository().getConfig();
-        return config.getString("branch", branch, "remote");
-    }
-
-    protected void configureBranch(Git git, String branch, String origin, String remoteRepository) {
-        // lets update the merge config
-        if (!Strings.isNullOrEmpty(branch)) {
-            StoredConfig config = git.getRepository().getConfig();
-            config.setString("branch", branch, "remote", origin);
-            config.setString("branch", branch, "merge", "refs/heads/" + branch);
-
-            config.setString("remote", origin, "url", remoteRepository);
-            config.setString("remote", origin, "fetch", "+refs/heads/*:refs/remotes/" + origin + "/*");
-            try {
-                config.save();
-            } catch (IOException e) {
-                LOG.error("Failed to save the git configuration to " + git.getRepository().getDirectory()
-                        + " with branch " + branch + " on " + origin + " remote repo: " + remoteRepository + " due: " + e.getMessage() + ". This exception is ignored.", e);
-            }
-        }
-    }
-
-    private void addFiles(Git git, File... files) throws GitAPIException, IOException {
-        File rootDir = GitHelpers.getRootGitDirectory(git);
-        for (File file : files) {
-            String relativePath = getFilePattern(rootDir, file);
-            git.add().addFilepattern(relativePath).call();
-        }
-    }
-
-    private String getFilePattern(File rootDir, File file) throws IOException {
-        String relativePath = Files.getRelativePath(rootDir, file);
-        if (relativePath.startsWith(File.separator)) {
-            relativePath = relativePath.substring(1);
-        }
-        return relativePath.replace(File.separatorChar, '/');
-    }
-
-    protected void doAddCommitAndPushFiles(Git git, CredentialsProvider credentials, PersonIdent personIdent, String remote, String branch, String origin, String message) throws GitAPIException, IOException {
-        git.add().addFilepattern(".").call();
-        doCommitAndPush(git, message, credentials, personIdent, remote, branch, origin);
-    }
-
-    protected RevCommit doCommitAndPush(Git git, String message, CredentialsProvider credentials, PersonIdent author, String remote, String branch, String origin) throws IOException, GitAPIException {
-        CommitCommand commit = git.commit().setAll(true).setMessage(message);
-        if (author != null) {
-            commit = commit.setAuthor(author);
-        }
-
-        RevCommit answer = commit.call();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Committed " + answer.getId() + " " + answer.getFullMessage());
-        }
-
-        if (isPushOnCommit()) {
-            Iterable<PushResult> results = git.push().setCredentialsProvider(credentials).setRemote(origin).call();
-            for (PushResult result : results) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Pushed " + result.getMessages() + " " + result.getURI() + " branch: " + branch + " updates: " + GitHelpers.toString(result.getRemoteUpdates()));
-                }
-            }
-        }
-        return answer;
     }
 
     protected boolean isPushOnCommit() {
