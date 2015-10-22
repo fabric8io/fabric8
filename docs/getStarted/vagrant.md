@@ -173,7 +173,7 @@ So you should be able to run things like
 
 ```sh
 docker ps
-docker log nameOfContainer
+docker logs nameOfContainer
 ```
 
 You can SSH into the vagrant image using:
