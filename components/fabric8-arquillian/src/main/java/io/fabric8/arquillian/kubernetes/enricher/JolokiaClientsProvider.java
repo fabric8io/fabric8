@@ -45,8 +45,6 @@ public class JolokiaClientsProvider implements ResourceProvider {
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
-        Session session = sessionInstance.get();
-
         JolokiaClients jolokiaClients = new JolokiaClients(client);
         return jolokiaClients;
     }
