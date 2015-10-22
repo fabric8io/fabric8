@@ -23,11 +23,19 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
+import io.fabric8.openshift.api.model.RouteBuilder;
+import io.fabric8.openshift.api.model.RouteBuilderAssert;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.client.mock.OpenShiftMockClient;
 import org.easymock.EasyMock;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -45,11 +53,43 @@ public class MockClientCreator {
 
     public void createClient(@Observes Configuration config) throws MalformedURLException {
         KubernetesMockClient mock = new KubernetesMockClient();
+
+
         Namespace namespace = new NamespaceBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
                 .endMetadata()
                 .build();
+
+        Service testService = new ServiceBuilder()
+                .withNewMetadata()
+                    .withName("test-service")
+                .endMetadata()
+                .build();
+
+        ReplicationController testReplicationController = new ReplicationControllerBuilder()
+                .withNewMetadata()
+                .withName("test-controller")
+                .endMetadata()
+                .build();
+
+        Pod testPod = new PodBuilder()
+                .withNewMetadata()
+                .withName("test-pod")
+                .endMetadata()
+                .withNewSpec()
+                .addNewContainer()
+                .withName("test-container")
+                .withImage("test/image1")
+                .endContainer()
+                .endSpec()
+                .withNewStatus()
+                .withPhase("run")
+                .endStatus()
+                .build();
+
+
+
 
         mock.getMasterUrl().andReturn(new URL("http://mock.client:80")).anyTimes();
 
@@ -60,26 +100,27 @@ public class MockClientCreator {
         mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().build()).once();
         mock.services().inNamespace("arquillian").list().andReturn(new ServiceListBuilder().build()).once();
 
-        Pod testPod = new PodBuilder()
-                .withNewMetadata()
-                    .withName("test-pod")
-                .endMetadata()
-                .withNewSpec()
-                    .addNewContainer()
-                        .withName("test-container")
-                        .withImage("test/image1")
-                    .endContainer()
-                .endSpec()
-                .withNewStatus()
-                    .withPhase("run")
-                .endStatus()
-                .build();
-
         mock.pods().inNamespace("arquillian").withName("test-pod").get().andReturn(null).once();
         mock.pods().inNamespace("arquillian").create(EasyMock.<Pod>anyObject()).andReturn(testPod).once();
         mock.pods().inNamespace("arquillian").withName("test-pod").get().andReturn(testPod).anyTimes();
         mock.pods().inNamespace("arquillian").list().andReturn(new PodListBuilder().addToItems(testPod).build()).anyTimes();
 
+        mock.services().inNamespace("arquillian").withName("test-service").get().andReturn(null).once();
+        mock.services().inNamespace("arquillian").create(EasyMock.<Service>anyObject()).andReturn(testService).anyTimes();
+        mock.services().inNamespace("arquillian").withName("test-service").get().andReturn(testService).anyTimes();
+        mock.services().inNamespace("arquillian").list().andReturn(new ServiceListBuilder().addToItems(testService).build()).anyTimes();
+
+        mock.replicationControllers().inNamespace("arquillian").withName("test-controller").get().andReturn(null).once();
+        mock.replicationControllers().inNamespace("arquillian").create(EasyMock.<ReplicationController>anyObject()).andReturn(testReplicationController).anyTimes();
+        mock.replicationControllers().inNamespace("arquillian").list().andReturn(new ReplicationControllerListBuilder().addToItems(testReplicationController).build()).anyTimes();
+
+        mock.adapt(OpenShiftClient.class).andReturn(createOpenshiftClient()).anyTimes();
         kubernetes.set(mock.replay());
+    }
+
+    OpenShiftClient createOpenshiftClient() throws MalformedURLException {
+        OpenShiftMockClient mock = new OpenShiftMockClient();
+        mock.routes().inNamespace("arquillian").withName("test-service").get().andReturn(new RouteBuilder().build());
+        return mock.replay();
     }
 }
