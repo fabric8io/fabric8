@@ -42,7 +42,6 @@
     <module>fabric8-cxf-plugins</module>
 
     <module>fabric8-utils</module>
-    <module>fabric8-vertx</module>
     <module>gitrepo-api</module>
     <module>jolokia-assertions</module>
     <module>kubernetes-api</module>
@@ -65,6 +64,7 @@
     <module>fabric8-devops</module>
     <module>fabric8-devops-connector</module>
     <module>fabric8-spring-boot</module>
+    <module>fabric8-vertx</module>
     <module>letschat-api</module>
     <module>hubot-api</module>
     <module>taiga-api</module>
