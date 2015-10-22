@@ -163,6 +163,7 @@
                     <environmentVariables>
                         <KUBERNETES_MASTER></KUBERNETES_MASTER>
                         <KUBERNETES_NAMESPACE></KUBERNETES_NAMESPACE>
+                        <FABRIC8_ENVIRONMENT/>
                         <KUBERNETES_DOMAIN></KUBERNETES_DOMAIN>
                         <NAMESPACE_LAZY_CREATE_ENABLED></NAMESPACE_LAZY_CREATE_ENABLED>
                         <NAMESPACE_CLEANUP_TIMEOUT></NAMESPACE_CLEANUP_TIMEOUT>

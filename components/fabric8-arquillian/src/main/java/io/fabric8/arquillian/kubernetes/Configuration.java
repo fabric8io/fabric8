@@ -21,7 +21,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.internal.Utils;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -33,7 +32,6 @@ import java.util.Map;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_KUBERNETES_MASTER;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_CLEANUP_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_CLEANUP_TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED;
@@ -145,12 +143,6 @@ public class Configuration {
     }
 
     public String getNamespaceToUse() {
-        if (Strings.isNullOrBlank(namespaceToUse)) {
-            String envName = getEnvironment();
-            if (Strings.isNotBlank(envName)) {
-                namespaceToUse = findNamespaceForEnvironment(envName);
-            }
-        }
         return namespaceToUse;
     }
 
@@ -162,31 +154,28 @@ public class Configuration {
      * namespace for the given environment or uses environment variables to resolve the environment name -> physical namespace
      * @return the namespace
      */
-    protected static String findNamespaceForEnvironment(String environment) {
+    private static String findNamespaceForEnvironment(String environment, Map<String, String> map) {
         String namespace = null;
-        String basedir = System.getProperty("basedir", ".");
-        File folder = new File(basedir);
-        ProjectConfig projectConfig = ProjectConfigs.findFromFolder(folder);
-        if (projectConfig != null) {
-            LinkedHashMap<String, String> environments = projectConfig.getEnvironments();
-            if (environments != null) {
-                namespace = environments.get(environment);
+        if (!Strings.isNullOrBlank(environment)) {
+            String basedir = System.getProperty("basedir", ".");
+            File folder = new File(basedir);
+            ProjectConfig projectConfig = ProjectConfigs.findFromFolder(folder);
+            if (projectConfig != null) {
+                LinkedHashMap<String, String> environments = projectConfig.getEnvironments();
+                if (environments != null) {
+                    namespace = environments.get(environment);
+                }
             }
-        }
-        if (Strings.isNullOrBlank(namespace)) {
-            // lets try find an environment variable or system property
-            String envVarName = environment.toUpperCase() + "_NAMESPACE";
-            namespace = Systems.getEnvVarOrSystemProperty(envVarName);
             if (Strings.isNullOrBlank(namespace)) {
-                throw new IllegalStateException("Could not find namespace for environment `" + environment
-                        + "` by looking for a fabric8.yml file and at environment variable $" + envVarName);
+                // lets try find an environment variable or system property
+                String key = environment.toLowerCase() + ".namespace";
+                namespace = getStringProperty(key, map, null);
             }
-        }
-        if (Strings.isNotBlank(namespace)) {
-            System.out.println("Mapping environment `" + environment + "` to namespace `" + namespace + "`");
+            if (Strings.isNullOrBlank(namespace)) {
+                throw new IllegalStateException("A fabric8 environment has been specified, but no matching namespace was found.");
+            }
         }
         return namespace;
-
     }
 
     public String getEnvironment() {
@@ -213,13 +202,17 @@ public class Configuration {
         Configuration configuration = new Configuration();
         try {
             configuration.masterUrl = getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CONFIG.getMasterUrl());
+            configuration.environment = getStringProperty(FABRIC8_ENVIRONMENT, map, null);
             configuration.environmentInitEnabled = getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true);
             configuration.environmentConfigUrl = getKubernetesConfigurationUrl(map);
             configuration.environmentDependencies = Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ");
 
             configuration.namespaceLazyCreateEnabled = getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED);
-            configuration.namespaceToUse = getStringProperty(NAMESPACE_TO_USE, map, null);
-            configuration.environment = getStringProperty(FABRIC8_ENVIRONMENT, map, null);
+
+            String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+            String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map);
+            configuration.namespaceToUse = selectNamespace(environmentNamespace, existingNamespace);
+
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.namespaceToUse));
             configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);
@@ -237,9 +230,27 @@ public class Configuration {
 
             configuration.properties = map;
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else {
+                throw new RuntimeException(t);
+            }
         }
         return configuration;
+    }
+
+    private static String selectNamespace(String environment, String explicit) {
+        if (environment == null && explicit == null) {
+            return null;
+        } else if (environment != null && explicit == null) {
+            return environment;
+        } else if (environment == null && explicit != null) {
+            return explicit;
+        } else if (environment.equals(explicit)) {
+            return environment;
+        } else {
+            throw new IllegalStateException("Different namespace values have been specified via environment:" + environment + " and explicitly:" + explicit + ".");
+        }
     }
 
     /**

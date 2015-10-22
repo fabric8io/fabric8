@@ -29,6 +29,7 @@ import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_RESO
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLED;
+import static io.fabric8.arquillian.kubernetes.Constants.FABRIC8_ENVIRONMENT;
 import static io.fabric8.arquillian.kubernetes.Constants.GOFABRIC8_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
@@ -43,8 +44,10 @@ import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNEC
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_LIST;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_POLL_INTERVAL;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_TIMEOUT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
 public class ConfigurationTest {
 
     @Before
@@ -53,6 +56,7 @@ public class ConfigurationTest {
         System.getProperties().remove(KUBERNETES_DOMAIN);
         System.getProperties().remove(KUBERNETES_NAMESPACE);
 
+        System.getProperties().remove(FABRIC8_ENVIRONMENT);
         System.getProperties().remove(NAMESPACE_LAZY_CREATE_ENABLED);
         System.getProperties().remove(NAMESPACE_CLEANUP_TIMEOUT);
         System.getProperties().remove(NAMESPACE_CLEANUP_CONFIRM_ENABLED);
@@ -252,5 +256,22 @@ public class ConfigurationTest {
         assertTrue(configuration.isNamespaceCleanupEnabled());
         assertTrue(configuration.isNamespaceLazyCreateEnabled());
         assertTrue(configuration.isWaitForServiceConnectionEnabled());
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void testNamespaceConflict() {
+        Map<String, String> map = new HashMap<>();
+        map.put(NAMESPACE_TO_USE, "namesapce1");
+        map.put(FABRIC8_ENVIRONMENT, "testing");
+        map.put("testing.namesapce", "namespace2");
+        Configuration.fromMap(map);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testMissingEnvironmentNamespace() {
+        Map<String, String> map = new HashMap<>();
+        map.put(FABRIC8_ENVIRONMENT, "testing");
+        Configuration.fromMap(map);
     }
 }
