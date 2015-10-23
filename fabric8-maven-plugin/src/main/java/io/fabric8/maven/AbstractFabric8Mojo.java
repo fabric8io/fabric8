@@ -528,19 +528,25 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
             return getGitCommitId(envVarName, basedir);
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
-            try (Repository repository = getGitRepository(basedir, envVarName)) {
+            Repository repository = getGitRepository(basedir, envVarName);
+            try {
                 if (repository != null) {
                     return repository.getBranch();
                 }
             } catch (IOException e) {
                 warnIfInCDBuild("Failed to find git commit id. " + e, e);
+            } finally {
+                if (repository != null) {
+                    repository.close();
+                }
             }
         }
         return null;
     }
 
     protected String getGitCommitId(String envVarName, File basedir) {
-        try (Repository repository = getGitRepository(basedir, envVarName)) {
+        Repository repository = getGitRepository(basedir, envVarName);
+        try {
             if (repository != null) {
                 System.out.println("Looking at repo with directory " + repository.getDirectory());
                 Iterable<RevCommit> logs = new Git(repository).log().call();
@@ -553,6 +559,10 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             }
         } catch (Exception e) {
             warnIfInCDBuild("Failed to find git commit id. " + e, e);
+        } finally {
+            if (repository != null) {
+                repository.close();
+            }
         }
         return null;
     }
