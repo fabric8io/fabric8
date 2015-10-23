@@ -8,7 +8,7 @@ It currently discovers all [Swagger](http://swagger.io/), [WADL](http://www.w3.o
 
 For the API Registry to be able to discover the API contracts and endpoints then JMX must be enabled in your JVM (which it tends to be by default), then JMX needs to be enabled in CXF and Camel.
 
-In addition the JVM needs to expose its [Jolokia port](http://jolokia.org/) which it does by default in the base container images used in in the various [quickstarts](quickstarts.html).
+In addition the JVM needs to expose its [Jolokia port](http://jolokia.org/) which it does by default in the base container images used in in the various [quickstarts](quickstarts/index.html).
 
 For CXF you need to ensure that JMX is properly enabled and that the **fabric-cxf** library is included in your CXF application which adds the necessary JMX operations so that we can remotely discover the correct endpoints inside the JVM.
 

@@ -11,5 +11,5 @@ Fabric8 provides many tools to help you work with [Kubernetes](http://kubernetes
 * [CDI](cdi.html) provides an easy way to work with Kubernetes [services](service.html) using the CDI Dependency Injection approach
 * [Testing](testing.html) helps you perform integration and system tests of your [apps](apps.html) on top of Kubernetes
 * [Forge Addons](forge.html) provides a universal command line shell and IDE plugins for working with your projects and fabric8
-* [QuickStarts](quickstarts.html) provide a really easy way to get started
+* [QuickStarts](quickstarts/index.html) provide a really easy way to get started
 

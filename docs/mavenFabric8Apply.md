@@ -46,6 +46,21 @@ To specify an explicit namespace and domain in recreate mode:
     mvn fabric8:apply -Dfabric8.recreate=true \
     -Dfabric8.domain=foo.acme.com -Dfabric8.namespace=cheese   
 
+
+## Specifying environments and namespaces
+
+You can use the `fabric8.namespace` system property to explicitly specify the kubernetes namespace to apply things to...
+
+    mvn fabric8:rolling -Dfabric8.namespace=cheese
+    
+Or you can use the `fabric8.environment` system property to refer to a named environment such as `Testing`, `Staging` or `Production` which is then mapped to the physical namespace by using the [fabric8.yml file](fabric8YamlFile.html).
+
+    mvn fabric8:rolling -Dfabric8.environment=Staging
+
+This lets you keep a level of indirection between the logical environment names for a project and the physical namespaces in kubernetes which probably have team or user prefixes/postfixes. This lets you share the same Jenkinsfiles (Jenkins workflow groovy scripts) across different projects. 
+
+e.g. you can have a standard command to apply to the Staging environment and this can be applied to any project which has a `fabric8.yml` file generated.    
+    
 ### Templates
 
 Applying an [OpenShift template](http://docs.openshift.org/latest/dev_guide/templates.html) works the same as a regular `List` of Kubernetes resources. 
@@ -84,6 +99,13 @@ The following maven property values are used to configure the behaviour of the a
 <tr>
 <td>fabric8.domain</td>
 <td>The domain to expose the services as <a href="http://docs.openshift.org/latest/admin_guide/router.html">OpenShift Routes</a>. Defaults to <code>$KUBERNETES_DOMAIN</code>.</td>
+</tr>
+<tr>
+<td>fabric8.extended.environment.metadata</td>
+<td>Whether to try to fetch extended environment metadata during the json, or apply goals. The following ENV variables is supported: <tt>BUILD_URI</tt>, <tt>GIT_URL</tt>, <tt>GIT_COMMIT</tt>, <tt>GIT_BRANCH</tt>
+    If any of these ENV variable is empty then if this option is enabled, then the value is attempted to be fetched from an online connection to the Kubernetes master. If the connection fails then the goal will report this as a failure gently and continue.
+    This option can be turned off, to avoid any live connection to the Kubernetes master.
+</td>
 </tr>
 <tr>
 <td>fabric8.namespace</td>
