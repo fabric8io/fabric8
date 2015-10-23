@@ -50,6 +50,12 @@ public class EndpointStatsCommand extends AbstractJolokiaCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        // TODO: require Camel 2.16+
+        return false;
+    }
+
+    @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         name.setCompleter(new CamelContextCompleter(getController()));
         builder.add(name);
@@ -69,8 +75,9 @@ public class EndpointStatsCommand extends AbstractJolokiaCommand {
             val2 = s.split(",");
         }
 
-        org.apache.camel.commands.EndpointStatisticCommand command = new org.apache.camel.commands.EndpointStatisticCommand(name.getValue(), val, val2);
-        command.execute(getController(), getOutput(context), getError(context));
+        // TODO: require Camel 2.16+
+        // org.apache.camel.commands.EndpointStatisticCommand command = new org.apache.camel.commands.EndpointStatisticCommand(name.getValue(), val, val2);
+        // command.execute(getController(), getOutput(context), getError(context));
 
         return Results.success();
     }

@@ -42,6 +42,12 @@ public class RestApiDocCommand extends AbstractJolokiaCommand {
     }
 
     @Override
+    public boolean isEnabled(UIContext context) {
+        // TODO: require Camel 2.16+
+        return false;
+    }
+
+    @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         name.setCompleter(new CamelContextCompleter(getController()));
         builder.add(name);
@@ -54,8 +60,9 @@ public class RestApiDocCommand extends AbstractJolokiaCommand {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
-        org.apache.camel.commands.RestApiDocCommand command = new org.apache.camel.commands.RestApiDocCommand(name.getValue());
-        command.execute(getController(), getOutput(context), getError(context));
+        // TODO: require Camel 2.16+
+        // org.apache.camel.commands.RestApiDocCommand command = new org.apache.camel.commands.RestApiDocCommand(name.getValue());
+        // command.execute(getController(), getOutput(context), getError(context));
 
         return Results.success();
     }
