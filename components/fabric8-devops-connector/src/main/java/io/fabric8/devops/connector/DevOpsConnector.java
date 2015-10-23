@@ -15,6 +15,7 @@
  */
 package io.fabric8.devops.connector;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -79,7 +80,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -156,6 +156,7 @@ public class DevOpsConnector {
     private String jenkinsJobUrl;
     private ProjectDTO taigaProject;
     private TaigaClient taiga;
+    private String jenkinsJobName;
 
 
     @Override
@@ -327,10 +328,7 @@ public class DevOpsConnector {
         } catch (Exception e) {
             getLog().error("Failed to create BuildConfig for " + KubernetesHelper.toJson(buildConfig) + ". " + e, e);
         }
-        if (Strings.isNotBlank(name)) {
-            createJenkinsJob(name, jenkinsJobUrl);
-            getLog().info("created jenkins job");
-        }
+        this.jenkinsJobName = name;
         if (isRegisterWebHooks()) {
             registerWebHooks();
             getLog().info("webhooks done");
@@ -391,6 +389,10 @@ public class DevOpsConnector {
     }
 
     public void registerWebHooks() {
+        if (Strings.isNotBlank(jenkinsJobName)) {
+            createJenkinsJob(jenkinsJobName, jenkinsJobUrl);
+            getLog().info("created jenkins job");
+        }
         if (Strings.isNotBlank(jenkinsJobUrl)) {
             createJenkinsWebhook(jenkinsJobUrl);
         }
@@ -933,7 +935,7 @@ public class DevOpsConnector {
 
     protected void createJenkinsJob(String buildName, String jenkinsJobUrl) {
         if (projectConfig != null) {
-            String flow = projectConfig.getFlow();
+            String flow = projectConfig.getPipeline();
             String flowGitUrlValue = null;
             boolean localFlow = false;
             if (Strings.isNotBlank(flow)) {
@@ -942,13 +944,17 @@ public class DevOpsConnector {
                 flow = ProjectConfigs.LOCAL_FLOW_FILE_NAME;
                 flowGitUrlValue = this.gitUrl;
                 localFlow = true;
+            } else {
+                getLog().info("Not creating Jenkins job as no pipeline defined for project configuration!");
             }
+            String versionPrefix = Systems.getSystemPropertyOrEnvVar("VERSION_PREFIX", "VERSION_PREFIX", "1.0");
             if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
                 String template = loadJenkinsBuildTemplate(getLog());
                 if (Strings.isNotBlank(template)) {
                     template = template.replace("${FLOW_PATH}", flow);
                     template = template.replace("${FLOW_GIT_URL}", flowGitUrlValue);
                     template = template.replace("${GIT_URL}", gitUrl);
+                    template = template.replace("${VERSION_PREFIX}", versionPrefix);
                     if (localFlow) {
                         // lets remove the GIT_URL parameter
                         template = removeBuildParameter(getLog(), template, "GIT_URL");
@@ -1021,7 +1027,6 @@ public class DevOpsConnector {
             getLog().info("POSTING the jenkins job to: " + jobUrl);
             getLog().debug("Jenkins XML: " + xml);
 
-            String json = "{}";
             HttpURLConnection connection = null;
             try {
                 URL url = new URL(jobUrl);
@@ -1039,10 +1044,10 @@ public class DevOpsConnector {
                 String message = connection.getResponseMessage();
                 getLog().info("Got response code from Jenkins: " + status + " message: " + message);
                 if (status != 200) {
-                    getLog().error("Failed to trigger job " + jobName + " on " + jobUrl + ". Status: " + status + " message: " + message);
+                    getLog().error("Failed to register job " + jobName + " on " + jobUrl + ". Status: " + status + " message: " + message);
                 }
             } catch (Exception e) {
-                getLog().error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
+                getLog().error("Failed to register jenkins on " + jobUrl + ". " + e, e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
@@ -1070,17 +1075,33 @@ public class DevOpsConnector {
             createWebhook(jenkinsWebHook, this.secret);
 
             if (triggerJenkinsJob) {
-                triggerJenkinsWebHook(jenkinsWebHook, this.secret);
+                triggerJenkinsWebHook(jenkinsJobUrl, jenkinsWebHook, this.secret);
             }
         }
     }
 
-    protected void triggerJenkinsWebHook(String jobUrl, String secret) {
-        getLog().info("Triggering Jenkins webhook: " + jobUrl);
+    protected void triggerJenkinsWebHook(String jobUrl, String triggerUrl, String secret) {
+        // lets check if this build is already running in which case do nothing
+        String lastBuild = URLUtils.pathJoin(jobUrl, "/lastBuild/api/json");
+        JsonNode lastBuildJson = parseLastBuildJson(lastBuild);
+        JsonNode building = null;
+        if (lastBuildJson != null && lastBuildJson.isObject()) {
+            building = lastBuildJson.get("building");
+            if (building != null && building.isBoolean()) {
+                if (building.booleanValue()) {
+                    getLog().info("Build is already running so lets not trigger another one!");
+                    return;
+                }
+            }
+        }
+        getLog().info("Got last build JSON: " + lastBuildJson + " building: " + building);
+
+
+        getLog().info("Triggering Jenkins webhook: " + triggerUrl);
         String json = "{}";
         HttpURLConnection connection = null;
         try {
-            URL url = new URL(jobUrl);
+            URL url = new URL(triggerUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -1095,15 +1116,44 @@ public class DevOpsConnector {
             String message = connection.getResponseMessage();
             getLog().info("Got response code from Jenkins: " + status + " message: " + message);
             if (status != 200) {
-                getLog().error("Failed to trigger job " + jobUrl + ". Status: " + status + " message: " + message);
+                getLog().error("Failed to trigger job " + triggerUrl + ". Status: " + status + " message: " + message);
             }
         } catch (Exception e) {
-            getLog().error("Failed to trigger jenkins on " + jobUrl + ". " + e, e);
+            getLog().error("Failed to trigger jenkins on " + triggerUrl + ". " + e, e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
+    }
+
+    protected JsonNode parseLastBuildJson(String urlText) {
+        HttpURLConnection connection = null;
+        String message = null;
+        try {
+            URL url = new URL(urlText);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            int status = connection.getResponseCode();
+            message = connection.getResponseMessage();
+            getLog().info("Got response code from URL: " + url +" " + status + " message: " + message);
+            if (status != 200 || Strings.isNullOrBlank(message)) {
+                getLog().debug("Failed to load URL " + url + ". Status: " + status + " message: " + message);
+            } else {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.reader().readTree(message);
+            }
+        } catch (Exception e) {
+            getLog().debug("Failed to load URL " + urlText + ". " + e, e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1112,23 +1162,13 @@ public class DevOpsConnector {
     protected Map<String, String> getBuildParameters() {
         Map<String, String> answer = new HashMap<>();
         if (projectConfig != null) {
-            String flow = projectConfig.getFlow();
+            String flow = projectConfig.getPipeline();
             if (flow != null && Strings.isNotBlank(gitUrl)) {
                 answer.put("GIT_URL", gitUrl);
             }
             Map<String, String> parameters = projectConfig.getBuildParameters();
             if (parameters != null) {
                 answer.putAll(parameters);
-            }
-            Map<String, String> environments = projectConfig.getEnvironments();
-            if (environments != null) {
-                Set<Map.Entry<String, String>> entries = environments.entrySet();
-                for (Map.Entry<String, String> entry : entries) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    String paramName = key.toUpperCase() + "_NAMESPACE";
-                    answer.put(paramName, value);
-                }
             }
             if (!answer.containsKey("VERSION_PREFIX")) {
                 answer.put("VERSION_PREFIX", "1.0");

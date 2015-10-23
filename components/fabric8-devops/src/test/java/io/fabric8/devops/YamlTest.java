@@ -16,11 +16,19 @@
 package io.fabric8.devops;
 
 
+import io.fabric8.utils.Pair;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
@@ -28,7 +36,7 @@ public class YamlTest {
     @Test
     public void testGenerateYaml() throws Exception {
         ProjectConfig config = new ProjectConfig();
-        config.setFlow("maven/Deploy.groovy");
+        config.setPipeline("maven/Deploy.groovy");
         config.setChatRoom("myroom");
         config.setCodeReview(true);
         config.setIssueProjectName("THING");
@@ -50,7 +58,27 @@ public class YamlTest {
 
         assertThat(config.getChatRoom()).isEqualTo("myroom");
         assertThat(config.getIssueProjectName()).isEqualTo("foo");
-        assertThat(config.getFlow()).isEqualTo("maven/CanaryReleaseThenStage.groovy");
+        assertThat(config.getPipeline()).isEqualTo("maven/CanaryReleaseThenStage.groovy");
+        LinkedHashMap<String, String> environments = config.getEnvironments();
+
+        // lets assert that things are in the correct order...
+        List<Pair<String,String>> expectedEnvironents = Arrays.asList(
+            new Pair<String,String>("Testing", "gogsadmin-james4-testing"),
+            new Pair<String,String>("Staging", "gogsadmin-james4-staging"),
+            new Pair<String,String>("Production", "gogsadmin-james4-prod")
+        );
+        int idx = 0;
+        Set<Map.Entry<String, String>> entries = environments.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            System.out.println("Found environment " + key + " = " + value);
+            Pair<String, String> actual = new Pair<>(key, value);
+            assertTrue("Too many entries - found unexpected value: " + actual, expectedEnvironents.size() > idx);
+            Pair<String, String> expected = expectedEnvironents.get(idx++);
+            assertEquals("environment " + idx, expected, actual);
+        }
     }
 
 }

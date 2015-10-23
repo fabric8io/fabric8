@@ -15,7 +15,6 @@
  */
 package io.fabric8.arquillian.kubernetes.enricher;
 
-import io.fabric8.annotations.ReplicationControllerName;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -25,6 +24,8 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
+
+import static io.fabric8.arquillian.kubernetes.enricher.EnricherUtils.getReplicationControllerName;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
@@ -49,14 +50,5 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
         Session session = sessionInstance.get();
         String name = getReplicationControllerName(qualifiers);
         return client.pods().inNamespace(session.getNamespace()).withName(name).get();
-    }
-
-    private String getReplicationControllerName(Annotation... qualifiers) {
-        for (Annotation annotation : qualifiers) {
-            if (annotation instanceof ReplicationControllerName) {
-                return ((ReplicationControllerName) annotation).value();
-            }
-        }
-        return null;
     }
 }

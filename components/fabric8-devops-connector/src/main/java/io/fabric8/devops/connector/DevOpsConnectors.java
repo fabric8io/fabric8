@@ -55,13 +55,13 @@ public class DevOpsConnectors {
                 config = new ProjectConfig();
 
                 // lets add a dummy build so we can at least build snapshots on demand in OpenShift
-                config.setFlow("maven/Deploy.groovy");
+                config.setPipeline("maven/Deploy.groovy");
             }
             config.setBuildName(buildName);
             connector.setProjectConfig(config);
             connector.setRegisterWebHooks(false);
 
-            System.out.println("Created config " + config.getBuildName() + " with flow " + config.getFlow());
+            System.out.println("Created config " + config.getBuildName() + " with flow " + config.getPipeline());
         }
         return connector;
     }

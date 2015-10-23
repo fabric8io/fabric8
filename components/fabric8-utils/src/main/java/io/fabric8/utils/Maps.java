@@ -16,7 +16,7 @@
 package io.fabric8.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -236,8 +236,8 @@ public class Maps {
     /**
      * Parses text from an environment variable of the form "key=value,key2=value2" into a Map
      */
-    public static Map<String, String> parseMap(String text) {
-        Map<String, String> answer = new HashMap<>();
+    public static LinkedHashMap<String, String> parseMap(String text) {
+        LinkedHashMap<String, String> answer = new LinkedHashMap<>();
         if (Strings.isNotBlank(text)) {
             String[] entries = text.split(",");
             if (entries != null) {

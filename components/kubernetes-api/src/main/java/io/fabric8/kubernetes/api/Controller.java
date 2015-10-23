@@ -18,15 +18,11 @@ package io.fabric8.kubernetes.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Doneable;
-import io.fabric8.kubernetes.api.model.DoneablePersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
-import io.fabric8.kubernetes.api.model.PersistentVolumeClaimList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
@@ -34,7 +30,6 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretVolumeSource;
-import io.fabric8.kubernetes.api.model.SecurityContextConstraints;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
@@ -102,6 +97,7 @@ public class Controller {
     private boolean deletePodsOnReplicationControllerUpdate = true;
     private String namesapce = KubernetesHelper.defaultNamespace();
     private boolean requireSecretsCreatedBeforeReplicationControllers;
+    private boolean rollingUpgradePreserveScale = true;
 
     public Controller() {
         this(new DefaultKubernetesClient());
@@ -818,42 +814,50 @@ public class Controller {
             LOG.debug("Only processing Services right now so ignoring ReplicationController: " + namespace + ":" + id);
             return;
         }
-        if (rollingUpgrade) {
-            LOG.info("Rolling upgrade of the RC " + namespace + "/" + id);
-            kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).rolling().replace(replicationController);
-        } else {
-            ReplicationController old = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).get();
-            if (isRunning(old)) {
-                if (UserConfigurationCompare.configEqual(replicationController, old)) {
-                    LOG.info("ReplicationController hasn't changed so not doing anything");
-                } else {
-                    if (isRecreateMode()) {
-                        LOG.info("Deleting ReplicationController: " + id);
-                        kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).delete();
-                        doCreateReplicationController(replicationController, namespace, sourceName);
-                    } else {
-                        LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
-                        try {
-                            Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).replace(replicationController);
-                            logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
-
-                            if (deletePodsOnReplicationControllerUpdate) {
-                                kubernetesClient.pods().inNamespace(namespace).withLabels(replicationController.getSpec().getSelector()).delete();
-                                LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
-                            } else {
-                                LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
-                            }
-                        } catch (Exception e) {
-                            onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+        ReplicationController old = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).get();
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(replicationController, old)) {
+                LOG.info("ReplicationController hasn't changed so not doing anything");
+            } else {
+                ReplicationControllerSpec newSpec = replicationController.getSpec();
+                ReplicationControllerSpec oldSpec = old.getSpec();
+                if (rollingUpgrade) {
+                    LOG.info("Rolling upgrade of the RC " + namespace + "/" + id);
+                    // lets preserve the number of replicas currently running in the environment we are about to upgrade
+                    if (rollingUpgradePreserveScale && newSpec != null && oldSpec != null) {
+                        Integer replicas = oldSpec.getReplicas();
+                        if (replicas != null) {
+                            newSpec.setReplicas(replicas);
                         }
                     }
-                }
-            } else {
-                if (!isAllowCreate()) {
-                    LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
-                } else {
+                    LOG.info("rollingUpgradePreserveScale " + rollingUpgradePreserveScale + " new replicas is " + newSpec.getReplicas());
+                    kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).rolling().replace(replicationController);
+                } else if (isRecreateMode()) {
+                    LOG.info("Deleting ReplicationController: " + id);
+                    kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).delete();
                     doCreateReplicationController(replicationController, namespace, sourceName);
+                } else {
+                    LOG.info("Updating replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
+                    try {
+                        Object answer = kubernetesClient.replicationControllers().inNamespace(namespace).withName(id).replace(replicationController);
+                        logGeneratedEntity("Updated replicationController: ", namespace, replicationController, answer);
+
+                        if (deletePodsOnReplicationControllerUpdate) {
+                            kubernetesClient.pods().inNamespace(namespace).withLabels(newSpec.getSelector()).delete();
+                            LOG.info("Deleting any pods for the replication controller to ensure they use the new configuration");
+                        } else {
+                            LOG.info("Warning not deleted any pods so they could well be running with the old configuration!");
+                        }
+                    } catch (Exception e) {
+                        onApplyError("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationController, e);
+                    }
                 }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a replicationController from " + sourceName + " namespace " + namespace + " name " + getName(replicationController));
+            } else {
+                doCreateReplicationController(replicationController, namespace, sourceName);
             }
         }
     }
@@ -1108,5 +1112,13 @@ public class Controller {
 
     public void setRollingUpgrade(boolean rollingUpgrade) {
         this.rollingUpgrade = rollingUpgrade;
+    }
+
+    public boolean isRollingUpgradePreserveScale() {
+        return rollingUpgradePreserveScale;
+    }
+
+    public void setRollingUpgradePreserveScale(boolean rollingUpgradePreserveScale) {
+        this.rollingUpgradePreserveScale = rollingUpgradePreserveScale;
     }
 }

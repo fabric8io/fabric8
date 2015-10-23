@@ -28,6 +28,56 @@
         "dnsPolicy": "ClusterFirst",
         "serviceAccount": "default"
       }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "test-service"
+      },
+      "spec": {
+        "ports": [
+          {
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ReplicationController",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "test-controller"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "name": "somelabel"
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "name": "somelabel"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "test-container2",
+                "image": "test/image2",
+                "ports": [
+                  {
+                    "name": "http-server",
+                    "containerPort": 80
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }

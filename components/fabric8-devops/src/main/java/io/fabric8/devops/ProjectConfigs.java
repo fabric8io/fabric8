@@ -39,6 +39,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class ProjectConfigs {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectConfigs.class);
 
     public static final String FILE_NAME = "fabric8.yml";
-    public static final String LOCAL_FLOW_FILE_NAME = "flow.groovy";
+    public static final String LOCAL_FLOW_FILE_NAME = "Jenkinsfile";
 
     public static String toYaml(Object dto) throws JsonProcessingException {
         ObjectMapper mapper = createObjectMapper();
@@ -66,12 +67,31 @@ public class ProjectConfigs {
             try {
                 return ProjectConfigs.parseProjectConfig(projectConfigFile);
             } catch (IOException e) {
-                LOG.warn("Failed to parse " + projectConfigFile);
+                LOG.warn("Failed to parse " + projectConfigFile + ". " + e, e);
             }
         }
         return new ProjectConfig();
     }
 
+
+    /**
+     * Tries to find the project configuration from the current directory or a parent folder.
+     *
+     * If no fabric8.yml file can be found just return an empty configuration
+     */
+    public static ProjectConfig findFromFolder(File folder) {
+        if (folder.isDirectory()) {
+            File projectConfigFile = new File(folder, FILE_NAME);
+            if (projectConfigFile != null && projectConfigFile.exists() && projectConfigFile.isFile()) {
+                return loadFromFolder(folder);
+            }
+            File parentFile = folder.getParentFile();
+            if (parentFile != null) {
+                return findFromFolder(parentFile);
+            }
+        }
+        return new ProjectConfig();
+    }
 
     /**
      * Returns the project config from the given url if it exists or null
@@ -239,11 +259,14 @@ public class ProjectConfigs {
             }
         }
         String flow = null;
-        Object flowValue = map.get("flow");
+        Object flowValue = map.get("pipeline");
+        if (flowValue == null) {
+            flowValue = map.get("flow");
+        }
         if (flowValue != null) {
             flow = flowValue.toString();
         }
-        config.setFlow(flow);
+        config.setPipeline(flow);
     }
 
     /**
@@ -254,11 +277,12 @@ public class ProjectConfigs {
             String buildName = config.getBuildName();
             if (Strings.isNotBlank(buildName) && Maps.isNullOrEmpty(config.getEnvironments())) {
                 // lets default the environments from env var
-                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Staging=${buildName}-staging,Production=${buildName}-prod");
+                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Testing=${buildName}-testing,Staging=${buildName}-staging,Production=${buildName}-prod");
                 String text = Strings.replaceAllWithoutRegex(defaultEnvironmentsText, "${buildName}", buildName);
-                Map<String,String> environments = Maps.parseMap(text);
+                LinkedHashMap<String,String> environments = Maps.parseMap(text);
                 config.setEnvironments(environments);
             }
         }
     }
+
 }

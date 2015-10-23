@@ -20,6 +20,7 @@ public class Constants {
     public static final String KUBERNETES_MASTER = "kubernetes.master";
     public static final String KUBERNETES_NAMESPACE = "kubernetes.namespace";
     public static final String KUBERNETES_DOMAIN = "kubernetes.domain";
+    public static final String FABRIC8_ENVIRONMENT = "fabric8.environment";
 
     public static final String NAMESPACE_LAZY_CREATE_ENABLED = "namespace.lazy.enabled";
     public static final String NAMESPACE_CLEANUP_TIMEOUT = "namespace.cleanup.timeout";

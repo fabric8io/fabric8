@@ -68,6 +68,10 @@
             <artifactId>fabric8-utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-devops</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-aether</artifactId>
             <version>${pax.url.version}</version>
@@ -159,6 +163,7 @@
                     <environmentVariables>
                         <KUBERNETES_MASTER></KUBERNETES_MASTER>
                         <KUBERNETES_NAMESPACE></KUBERNETES_NAMESPACE>
+                        <FABRIC8_ENVIRONMENT/>
                         <KUBERNETES_DOMAIN></KUBERNETES_DOMAIN>
                         <NAMESPACE_LAZY_CREATE_ENABLED></NAMESPACE_LAZY_CREATE_ENABLED>
                         <NAMESPACE_CLEANUP_TIMEOUT></NAMESPACE_CLEANUP_TIMEOUT>

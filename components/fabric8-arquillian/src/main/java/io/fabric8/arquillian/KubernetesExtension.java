@@ -24,6 +24,7 @@ import io.fabric8.arquillian.kubernetes.SessionListener;
 import io.fabric8.arquillian.kubernetes.SuiteListener;
 import io.fabric8.arquillian.kubernetes.enricher.ClientResourceProvider;
 import io.fabric8.arquillian.kubernetes.enricher.ControllerResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.J4pClientProvider;
 import io.fabric8.arquillian.kubernetes.enricher.JolokiaClientsProvider;
 import io.fabric8.arquillian.kubernetes.enricher.PodListResourceProvider;
 import io.fabric8.arquillian.kubernetes.enricher.PodResourceProvider;
@@ -55,6 +56,7 @@ public class KubernetesExtension implements LoadableExtension {
         builder.service(ResourceProvider.class, ClientResourceProvider.class)
                 .service(ResourceProvider.class, ControllerResourceProvider.class)
                 .service(ResourceProvider.class, JolokiaClientsProvider.class)
+                .service(ResourceProvider.class, J4pClientProvider.class)
                 .service(ResourceProvider.class, PodListResourceProvider.class)
                 .service(ResourceProvider.class, PodResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
