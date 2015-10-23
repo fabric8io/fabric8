@@ -29,7 +29,7 @@
     <artifactId>swagger-annotator</artifactId>
     <packaging>jar</packaging>
 
-    <name>Fabric8 :: Swagger Annotator</name>
+    <name>Fabric8 :: Swagger :: Annotator</name>
     <description>A jsonschema2pojo custom annotator that is used to generate swagger model</description>
 
     <dependencies>
