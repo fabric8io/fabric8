@@ -75,6 +75,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
+import static io.fabric8.utils.PropertiesHelper.getLong;
 
 /**
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its
@@ -858,7 +859,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             ServiceFluent.SpecNested<ServiceBuilder> serviceSpecBuilder = serviceBuilder.withNewSpec().withSelector(selector);
 
             List<ServicePort> servicePorts = getServicePorts();
-            System.out.println("Generated ports: " + servicePorts);
+            getLog().info("Generated ports: " + servicePorts);
             boolean hasPorts = servicePorts != null & !servicePorts.isEmpty();
             if (hasPorts) {
                 serviceSpecBuilder.withPorts(servicePorts);
