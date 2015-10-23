@@ -210,7 +210,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      * <p/>
      * This option can be turned off, to avoid any live connection to the Kubernetes master.
      */
-    @Parameter(property = "fabric8.extended.environment.metadata", defaultValue = "true")
+    @Parameter(property = "fabric8.extended.environment.metadata", defaultValue = "false") // is default false on redhat branch
     private Boolean extendedMetadata;
 
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {
