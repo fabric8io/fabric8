@@ -55,7 +55,6 @@
 
 
     <!-- Unsupported modules (excluded from the release)
-    <module>docker-api</module>
     <module>fabric8-agent</module>
     <module>fabric8-apm</module>
     <module>fabric8-jgroups</module>

@@ -1,6 +1,6 @@
 ## Kubernetes Client API
 
-This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0 similar to the [Fabric8 Docker API](https://github.com/fabric8io/fabric8/blob/master/components/docker-api/ReadMe.md).
+This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0.
 
 ### Add it to your Maven pom.xml
 

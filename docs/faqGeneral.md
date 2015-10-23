@@ -31,7 +31,7 @@ Try reading the [overview](/guide/overview.html) to see if that helps give you a
   * adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:
     * [Fabric8 Apps](fabric8Apps.html) to provide reusable [logging](logging.html), [metrics](metrics.html) and make it easier to consume integration and messaging services
     * deep and rich [tooling](http://fabric8.io/guide/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as the [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html) and [Forge Addons](http://fabric8.io/guide/forge.html)
-    * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) and [docker](https://github.com/fabric8io/fabric8/tree/master/components/docker-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
+    * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
     * [Testing with Arquillian](testing.html) helps you perform integration tests of your [apps](apps.html)
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
 
