@@ -29,7 +29,7 @@
   <artifactId>jolokia-assertions</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Jolokia Assertions</name>
+  <name>Fabric8 :: Jolokia :: Assertions</name>
 
   <properties>
   </properties>

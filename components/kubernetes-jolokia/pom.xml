@@ -27,7 +27,7 @@
   <artifactId>kubernetes-jolokia</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: Kubernetes Jolokia</name>
+  <name>Fabric8 :: Kubernetes :: Jolokia</name>
 
   <dependencies>
     <dependency>

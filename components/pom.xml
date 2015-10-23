@@ -31,43 +31,49 @@
   <name>Fabric8 :: Components</name>
 
   <modules>
-    <!-- code generation jobs go first -->
-    <module>fabric8-arquillian</module>
-    <module>cxf-utils</module>
-
-    <module>fabric8-annotations</module>
-    <module>fabric8-cdi</module>
-
-    <module>fabric8-cxf</module>
-    <module>fabric8-cxf-plugins</module>
-
+    <!-- utils -->
     <module>fabric8-utils</module>
-    <module>gitrepo-api</module>
-    <module>jolokia-assertions</module>
-    <module>kubernetes-api</module>
+    <module>cxf-utils</module>
+    <module>rest-utils</module>
+
+    <!-- kubernetes/jolokia -->
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-generator</module>
+    <module>jolokia-assertions</module>
 
-    <module>rest-utils</module>
-    <module>swagger-annotator</module>
-    <module>swagger-model</module>
+    <!-- fabric8 base -->
+    <module>fabric8-annotations</module>
+    <module>fabric8-cdi</module>
 
+    <!-- apis -->
+    <module>kubernetes-api</module>
+    <module>gerrit-api</module>
+    <module>gitrepo-api</module>
+    <module>hubot-api</module>
+    <module>letschat-api</module>
+    <module>taiga-api</module>
 
-    <!-- Unsupported modules (excluded from the release)
-    <module>fabric8-agent</module>
-    <module>fabric8-apm</module>
-    <module>fabric8-jgroups</module>
-    <module>fabric8-selenium</module>
+    <!-- fabric8 -->
+    <!--<module>fabric8-agent</module>-->
+    <!--<module>fabric8-apm</module>-->
+    <module>fabric8-arquillian</module>
+    <module>fabric8-cxf</module>
+    <module>fabric8-cxf-plugins</module>
+    <!--<module>fabric8-cxf-registry</module>--> <!-- TODO: does not work yet -->
     <module>fabric8-devops</module>
     <module>fabric8-devops-connector</module>
-    <module>fabric8-spring-boot</module>
-    <module>fabric8-vertx</module>
-    <module>letschat-api</module>
-    <module>mq</module>
-    <module>hubot-api</module>
-    <module>taiga-api</module>
-    <module>gerrit-api</module> -->
+    <!--<module>fabric8-jgroups</module>-->
+    <!--<module>fabric8-selenium</module>-->
+    <!--<module>fabric8-spring-boot</module>-->
+    <!--<module>fabric8-vertx</module>-->
+
+    <!-- misc -->
+    <!--<module>mq</module>--> <!-- TODO: should this not be named fabric8-mq -->
+
+    <!-- swagger -->
+    <module>swagger-annotator</module>
+    <module>swagger-model</module>
   </modules>
 
   <profiles>
