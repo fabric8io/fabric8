@@ -16,18 +16,28 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.util.LinkedHashMap;
 
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     @Parameter(property = "fabric8.namespace")
-    private String namespace = KubernetesHelper.defaultNamespace();
+    private String namespace;
+
+    @Parameter(property = "fabric8.environment")
+    private String environment;
 
     /**
      * The domain added to the service ID when creating OpenShift routes
@@ -63,9 +73,64 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     protected synchronized String getNamespace() {
         if (Strings.isNullOrBlank(namespace)) {
+            if (Strings.isNotBlank(environment)) {
+                namespace = getNamespaceForEnvironment(environment);
+            }
+        }
+        if (Strings.isNullOrBlank(namespace)) {
             namespace = KubernetesHelper.defaultNamespace();
         }
         return namespace;
+    }
+
+    /**
+     * Lets look in the fabric8.yml file if it exists and find the environment name from it
+     * otherwise lets look for environment variables or return null
+     */
+    protected String getNamespaceForEnvironment(String environment) throws IllegalStateException {
+        String namespace = null;
+        ProjectConfig projectConfig = findProjectConfig();
+        if (projectConfig != null) {
+            LinkedHashMap<String, String> environments = projectConfig.getEnvironments();
+            if (environments != null) {
+                namespace = environments.get(environment);
+            }
+        }
+        if (Strings.isNullOrBlank(namespace)) {
+            // lets try find an environment variable or system property
+            String envVarName = environment.toUpperCase() + "_NAMESPACE";
+            namespace = Systems.getEnvVarOrSystemProperty(envVarName);
+            if (Strings.isNullOrBlank(namespace)) {
+                throw new IllegalStateException("Could not find namespace for environment `" + environment
+                        + "` by looking for a fabric8.yml file and at environment variable $" + envVarName);
+            }
+        }
+        if (Strings.isNotBlank(namespace)) {
+            getLog().info("Mapping environment `" + environment + "` to namespace `" + namespace + "`");
+        }
+        return namespace;
+    }
+
+    /**
+     * Returns the configuration of the project in the <code>fabric8.yml</code> file in the root project or current directory
+     * or returns an empty configuraiton
+     */
+    protected ProjectConfig findProjectConfig() {
+        MavenProject rootProject = getRootProject();
+        File basedir = null;
+        if (rootProject != null) {
+            basedir = rootProject.getBasedir();
+        }
+        if (basedir == null) {
+            MavenProject project = getProject();
+            if (project != null) {
+                basedir = project.getBasedir();
+            }
+        }
+        if (basedir == null) {
+            basedir = new File(System.getProperty("basedir", "."));
+        }
+        return ProjectConfigs.loadFromFolder(basedir);
     }
 
     public String getRouteDomain() {
@@ -94,5 +159,40 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     public void setFailOnError(boolean failOnError) {
         this.failOnError = failOnError;
+    }
+
+    public MavenProject getProject() {
+        return null;
+    }
+
+    /**
+     * Returns the root project folder
+     */
+    protected File getRootProjectFolder() {
+        File answer = null;
+        MavenProject project = getProject();
+        while (project != null) {
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                answer = basedir;
+            }
+            project = project.getParent();
+        }
+        return answer;
+    }
+
+    /**
+     * Returns the root project folder
+     */
+    protected MavenProject getRootProject() {
+        MavenProject project = getProject();
+        while (project != null) {
+            MavenProject parent = project.getParent();
+            if (parent == null) {
+                break;
+            }
+            project = parent;
+        }
+        return project;
     }
 }
