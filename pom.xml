@@ -359,12 +359,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>gateway-api</artifactId>
               <version>${project.version}</version>

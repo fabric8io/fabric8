@@ -34,7 +34,6 @@
     <!-- code generation jobs go first -->
     <module>fabric8-arquillian</module>
     <module>cxf-utils</module>
-    <module>docker-api</module>
     <module>fabric8-annotations</module>
     <module>fabric8-cdi</module>
     <module>fabric8-devops</module>

@@ -38,10 +38,6 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 
 * [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) provides a Java library for connecting the various DevOps services like git hosting, chat, issue tracking and jenkins for a project reusing the optional `fabric8.yml` file
 
-### Docker
-
-* [docker-api](https://github.com/fabric8io/fabric8/tree/master/components/docker-api) for working directly with a docker host over its REST API
-
 ### Etcd
 
 * [etcd-api](https://github.com/fabric8io/fabric8/blob/master/components/fabric-etcd/) provides a Java API for working with [etcd](https://github.com/coreos/etcd/blob/master/README.md)
