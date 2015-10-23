@@ -408,16 +408,18 @@ public class RepositoryResource {
 
     @POST
     @Path("revert/{commitId}/{path:.*}")
-    public void revert(@PathParam("commitId") String objectId, @PathParam("path") String blobPath) throws Exception {
+    public CommitInfo revert(@PathParam("commitId") String objectId, @PathParam("path") String blobPath) throws Exception {
         String contents = doGetContent(objectId, blobPath);
         if (contents != null) {
-            doWrite(blobPath, contents.getBytes(), personIdent, message);
+            return doWrite(blobPath, contents.getBytes(), personIdent, message);
+        } else {
+            return null;
         }
     }
 
     @POST
     @Path("mv/{path:.*}")
-    public RevCommit rename(@QueryParam("old") String oldPath, @PathParam("path") String newPath) throws Exception {
+    public CommitInfo rename(@QueryParam("old") String oldPath, @PathParam("path") String newPath) throws Exception {
         File file = getRelativeFile(oldPath);
         File newFile = getRelativeFile(newPath);
         if (file.exists()) {
@@ -430,23 +432,45 @@ public class RepositoryResource {
             String filePattern = getFilePattern(newPath);
             git.add().addFilepattern(filePattern).call();
             CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-            return commitThenPush(commit);
+            return createCommitInfo(commitThenPush(commit));
         } else {
             return null;
         }
     }
 
     @POST
+    @Path("rm")
+    @Consumes({"application/xml", "application/json", "text/json"})
+    public CommitInfo remove(List<String> paths) throws Exception {
+        if (paths != null && paths.size() > 0) {
+            int count = 0;
+            for (String path : paths) {
+                File file = getRelativeFile(path);
+                if (file.exists()) {
+                    count++;
+                    Files.recursiveDelete(file);
+                    String filePattern = getFilePattern(path);
+                    git.rm().addFilepattern(filePattern).call();
+                }
+            }
+            if (count > 0) {
+                CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
+                return createCommitInfo(commitThenPush(commit));
+            }
+        }
+        return null;
+    }
+
+    @POST
     @Path("rm/{path:.*}")
-    public RevCommit remove(String path) throws Exception {
+    public CommitInfo remove(@PathParam("path") String path) throws Exception {
         File file = getRelativeFile(path);
         if (file.exists()) {
             Files.recursiveDelete(file);
-
             String filePattern = getFilePattern(path);
             git.rm().addFilepattern(filePattern).call();
             CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-            return commitThenPush(commit);
+            return createCommitInfo(commitThenPush(commit));
         } else {
             return null;
         }
