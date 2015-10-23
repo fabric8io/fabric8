@@ -101,6 +101,13 @@ The following maven property values are used to configure the behaviour of the a
 <td>The domain to expose the services as <a href="http://docs.openshift.org/latest/admin_guide/router.html">OpenShift Routes</a>. Defaults to <code>$KUBERNETES_DOMAIN</code>.</td>
 </tr>
 <tr>
+<td>fabric8.extended.environment.metadata</td>
+<td>Whether to try to fetch extended environment metadata during the json, or apply goals. The following ENV variables is supported: <tt>BUILD_URI</tt>, <tt>GIT_URL</tt>, <tt>GIT_COMMIT</tt>, <tt>GIT_BRANCH</tt>
+    If any of these ENV variable is empty then if this option is enabled, then the value is attempted to be fetched from an online connection to the Kubernetes master. If the connection fails then the goal will report this as a failure gently and continue.
+    This option can be turned off, to avoid any live connection to the Kubernetes master.
+</td>
+</tr>
+<tr>
 <td>fabric8.namespace</td>
 <td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
 </tr>

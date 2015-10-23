@@ -25,7 +25,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 

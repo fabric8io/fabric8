@@ -118,6 +118,13 @@ You can use maven properties to customize the generation of the JSON:
 <td>Allows an extra JSON file to be merged into the generated kubernetes json file. Defaults to using the file <code>target/classes/kubernetes-extra.json</code>.</td>
 </tr>
 <tr>
+<td>fabric8.extended.environment.metadata</td>
+<td>Whether to try to fetch extended environment metadata during the json, or apply goals. The following ENV variables is supported: <tt>BUILD_URI</tt>, <tt>GIT_URL</tt>, <tt>GIT_COMMIT</tt>, <tt>GIT_BRANCH</tt>
+    If any of these ENV variable is empty then if this option is enabled, then the value is attempted to be fetched from an online connection to the Kubernetes master. If the connection fails then the goal will report this as a failure gently and continue.
+    This option can be turned off, to avoid any live connection to the Kubernetes master.
+</td>
+</tr>
+<tr>
 <td>fabric8.generateJson</td>
 <td>If set to false then the generation of the JSON is disabled.</td>
 </tr>

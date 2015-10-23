@@ -15,35 +15,6 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
-import io.fabric8.devops.ProjectRepositories;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.maven.support.JsonSchema;
-import io.fabric8.maven.support.JsonSchemas;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.Template;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.GitHelpers;
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
-import io.fabric8.utils.URLUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,6 +42,33 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectRepositories;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
@@ -201,6 +199,19 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      */
     @Parameter(property = "docker.image")
     private String dockerImage;
+
+    /**
+     * Whether to try to fetch extended environment metadata during the <tt>json</tt>, or <tt>apply</tt> goals.
+     * <p/>
+     * The following ENV variables is supported: <tt>BUILD_URI</tt>, <tt>GIT_URL</tt>, <tt>GIT_COMMIT</tt>, <tt>GIT_BRANCH</tt>
+     * If any of these ENV variable is empty then if this option is enabled, then the value is attempted to
+     * be fetched from an online connection to the Kubernetes master. If the connection fails then the
+     * goal will report this as a failure gently and continue.
+     * <p/>
+     * This option can be turned off, to avoid any live connection to the Kubernetes master.
+     */
+    @Parameter(property = "fabric8.extended.environment.metadata", defaultValue = "true")
+    private Boolean extendedMetadata;
 
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
@@ -405,6 +416,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      * @return the value of the environment variable name if it can be found or calculated
      */
     protected String tryDefaultAnnotationEnvVar(String envVarName) {
+        // only do this if enabled
+        if (extendedMetadata != null && !extendedMetadata) {
+            return null;
+        }
+
         MavenProject rootProject = getRootProject();
         File basedir = rootProject.getBasedir();
         if (basedir == null) {
