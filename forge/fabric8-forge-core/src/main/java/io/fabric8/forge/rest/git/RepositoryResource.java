@@ -19,6 +19,7 @@ package io.fabric8.forge.rest.git;
 import io.fabric8.forge.rest.git.dto.CommitInfo;
 import io.fabric8.forge.rest.git.dto.CommitTreeInfo;
 import io.fabric8.forge.rest.git.dto.FileDTO;
+import io.fabric8.forge.rest.git.dto.StatusDTO;
 import io.fabric8.forge.rest.main.GitHelpers;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.utils.Files;
@@ -142,14 +143,16 @@ public class RepositoryResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("reading file: " + file.getPath());
         }
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
+        if (!file.exists() || file.isDirectory()) {
             List<FileDTO> answer = new ArrayList<>();
-            if (files != null) {
-                for (File child : files) {
-                    FileDTO dto = createFileDTO(child, false);
-                    if (dto != null) {
-                        answer.add(dto);
+            if (file.exists()) {
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File child : files) {
+                        FileDTO dto = createFileDTO(child, false);
+                        if (dto != null) {
+                            answer.add(dto);
+                        }
                     }
                 }
             }
@@ -468,19 +471,21 @@ public class RepositoryResource {
     }
 
 
-    protected Response uploadFile(@PathParam("path") String path, String message, final InputStream body) throws Exception {
+    protected Response uploadFile(final @PathParam("path") String path, String message, final InputStream body) throws Exception {
         this.message = message;
         final File file = getRelativeFile(path);
 
         return writeOperation(new Callable<Response>() {
             @Override
             public Response call() throws Exception {
+                boolean exists = file.exists();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("writing file: " + file.getPath());
                 }
                 file.getParentFile().mkdirs();
                 IOHelpers.writeTo(file, body);
-                return Response.ok("updated " + file.getPath()).build();
+                String status = exists ? "updated" : "created";
+                return Response.ok(new StatusDTO(path, status)).build();
             }
         });
     }
