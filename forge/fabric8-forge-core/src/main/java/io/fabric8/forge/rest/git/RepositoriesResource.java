@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.rest;
+package io.fabric8.forge.rest.git;
 
 import io.fabric8.forge.rest.main.GitUserHelper;
 import io.fabric8.forge.rest.main.ProjectFileSystem;
@@ -22,6 +22,7 @@ import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.utils.Strings;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class RepositoriesResource {
     }
 
     @Path("user/{owner}/{repo}")
-    public RepositoryResource repositoryResource(@PathParam("owner") String userId, @PathParam("repo") String repositoryName) throws IOException {
+    public RepositoryResource repositoryResource(@PathParam("owner") String userId, @PathParam("repo") String repositoryName) throws IOException, GitAPIException {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
         String origin = projectFileSystem.getRemote();
 
@@ -96,7 +97,8 @@ public class RepositoriesResource {
         }
         File projectFolder = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
         File gitFolder = new File(projectFolder, ".git");
-        RepositoryResource resource = new RepositoryResource(gitFolder, userDetails, origin, branch);
+        String remoteRepository = userId + "/" + repositoryName;
+        RepositoryResource resource = new RepositoryResource(gitFolder, userDetails, origin, branch, remoteRepository);
         try {
             String message = request.getParameter("message");
             if (Strings.isNotBlank(message)) {

@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.forge.rest.dto;
+package io.fabric8.forge.rest.git.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
@@ -31,9 +28,7 @@ import java.io.IOException;
 /**
  * Used to list contents of git
  */
-@JsonNaming(value = PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class FileDTO {
+public class FileDTO extends GitDTOSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(FileDTO.class);
 
     private final String type;

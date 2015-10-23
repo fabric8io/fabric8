@@ -19,7 +19,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.fabric8.forge.rest.RootResource;
 import org.apache.cxf.feature.LoggingFeature;
 import io.fabric8.forge.rest.CommandsResource;
-import io.fabric8.forge.rest.RepositoriesResource;
+import io.fabric8.forge.rest.git.RepositoriesResource;
 
 import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;

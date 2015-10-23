@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  */
@@ -149,4 +150,18 @@ public class GitHelpers {
         git.add().addFilepattern(".").call();
         doCommitAndPush(git, message, credentials, personIdent, branch, origin, pushOnCommit);
     }
+
+    /**
+     * Retrieves a Java Date from a Git commit.
+     *
+     * @param commit the commit
+     * @return date of the commit or Date(0) if the commit is null
+     */
+    public static Date getCommitDate(RevCommit commit) {
+        if (commit == null) {
+            return new Date(0);
+        }
+        return new Date(commit.getCommitTime() * 1000L);
+    }
+
 }
