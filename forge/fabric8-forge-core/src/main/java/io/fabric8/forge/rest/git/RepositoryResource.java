@@ -193,6 +193,12 @@ public class RepositoryResource {
     }
 
     @GET
+    @Path("diff/{objectId1}")
+    public String diff(@PathParam("objectId1") String objectId) throws IOException {
+        return diff(objectId, null, null);
+    }
+
+    @GET
     @Path("diff/{objectId1}/{objectId2}")
     public String diff(@PathParam("objectId1") String objectId, @PathParam("objectId2") String baseObjectId) throws IOException {
         return diff(objectId, baseObjectId, null);

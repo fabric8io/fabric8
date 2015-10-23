@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -70,9 +71,9 @@ import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMaven
 public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(Fabric8SetupStep.class);
 
-    private String[] jarImages = new String[]{"fabric8/java"};
-    private String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
-    private String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+    private String[] jarImages = new String[]{DockerSetupHelper.DEFAULT_JAVA_IMAGE, DockerSetupHelper.OTHER_JAVA_IMAGE};
+    private String[] bundleImages = new String[]{DockerSetupHelper.DEFAULT_KARAF_IMAGE};
+    private String[] warImages = new String[]{DockerSetupHelper.DEFAULT_TOMCAT_IMAGE, DockerSetupHelper.DEFAULT_WILDFLY_IMAGE};
 
     @Inject
     @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
@@ -136,14 +137,13 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         // limit the choices depending on the project packaging
         final List<String> choices = new ArrayList<String>();
         if (packaging == null || springBoot || "jar".equals(packaging)) {
-            choices.add(jarImages[0]);
+            choices.addAll(Arrays.asList(jarImages));
         }
         if (packaging == null || "bundle".equals(packaging)) {
             choices.add(bundleImages[0]);
         }
         if (!springBoot && (packaging == null || "war".equals(packaging))) {
-            choices.add(warImages[0]);
-            choices.add(warImages[1]);
+            choices.addAll(Arrays.asList(warImages));
         }
         from.setCompleter(new UICompleter<String>() {
             @Override

@@ -41,13 +41,18 @@ import java.util.Properties;
 public class DockerSetupHelper {
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerSetupHelper.class);
 
+    public static final String DEFAULT_KARAF_IMAGE = "fabric8/karaf-2.4";
+    public static final String DEFAULT_TOMCAT_IMAGE = "fabric8/tomcat-8.0";
+    public static final String DEFAULT_WILDFLY_IMAGE = "jboss/wildfly";
+    public static final String DEFAULT_JAVA_IMAGE = "fabric8/s2i-java:1.1.0";
+    public static final String OTHER_JAVA_IMAGE = "fabric8/sti-java-jboss-jdk8:1.0.14";
 
     // see https://github.com/fabric8io/fabric8/issues/4160
     private static String dockerFromImagePrefix = "docker.io/";
 
-    private static String[] jarImages = new String[]{"fabric8/java"};
-    private static String[] bundleImages = new String[]{"fabric8/karaf-2.4"};
-    private static String[] warImages = new String[]{"fabric8/tomcat-8.0", "jboss/wildfly"};
+    private static String[] jarImages = new String[]{DEFAULT_JAVA_IMAGE};
+    private static String[] bundleImages = new String[]{DEFAULT_KARAF_IMAGE};
+    private static String[] warImages = new String[]{DEFAULT_TOMCAT_IMAGE, DEFAULT_WILDFLY_IMAGE};
 
     public static void setupDocker(Project project, String fromImage, String main) {
         MavenFacet maven = project.getFacet(MavenFacet.class);

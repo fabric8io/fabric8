@@ -72,10 +72,11 @@ import java.util.TreeSet;
 
 public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditStep.class);
+    private static final String DEFAULT_MAVEN_FLOW = "maven/CanaryReleaseStageAndApprovePromote.groovy";
 
     @Inject
-    @WithAttributes(label = "flow", required = false, description = "The URL of the Jenkins workflow groovy script to use for builds")
-    private UIInput<String> flow;
+    @WithAttributes(label = "pipeline", required = false, description = "The Jenkins workflow groovy script to use for defining the Continous Delivery pipeline")
+    private UIInput<String> pipeline;
 
     @Inject
     @WithAttributes(label = "copyFlowToProject", required = false, description = "Should we copy the Jenkins Workflow script into the project source code")
@@ -109,26 +110,31 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         final UIContext context = builder.getUIContext();
-        flow.setCompleter(new UICompleter<String>() {
+        pipeline.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 return filterCompletions(getFlowURIs(context), value);
             }
         });
-        flow.addValueChangeListener(new ValueChangeListener() {
+        pipeline.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
                 String value = event.getNewValue() != null ? event.getNewValue().toString() : null;
                 if (value != null) {
                     String description = getDescriptionForFlow(value);
-                    flow.setNote(description != null ? description : "");
+                    pipeline.setNote(description != null ? description : "");
                 } else {
-                    flow.setNote("");
+                    pipeline.setNote("");
                 }
                 boolean canCopy = Strings.isNotBlank(value);
                 copyFlowToProject.setEnabled(canCopy);
             }
         });
+        if (getCurrentSelectedProject(context) != null) {
+            pipeline.setDefaultValue(DEFAULT_MAVEN_FLOW);
+            pipeline.setValue(DEFAULT_MAVEN_FLOW);
+        } else {
+        }
         chatRoom.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
@@ -174,13 +180,15 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             config = ProjectConfigs.parseProjectConfig(configFile);
         }
         if (config != null) {
-            CommandHelpers.setInitialComponentValue(flow, config.getFlow());
+            String flow = config.getPipeline();
+            if (Strings.isNotBlank(flow)) {
+                CommandHelpers.setInitialComponentValue(this.pipeline, flow);
+            }
             CommandHelpers.setInitialComponentValue(chatRoom, config.getChatRoom());
             CommandHelpers.setInitialComponentValue(issueProjectName, config.getIssueProjectName());
             CommandHelpers.setInitialComponentValue(codeReview, config.getCodeReview());
         }
-
-        inputComponents = CommandHelpers.addInputComponents(builder, flow, copyFlowToProject, chatRoom, issueProjectName, codeReview);
+        inputComponents = CommandHelpers.addInputComponents(builder, pipeline, copyFlowToProject, chatRoom, issueProjectName, codeReview);
     }
 
     public static Iterable<String> filterCompletions(Iterable<String> values, String inputValue) {
@@ -307,22 +315,22 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         Boolean copyFlowToProjectValue = copyFlowToProject.getValue();
         if (copyFlowToProjectValue != null && copyFlowToProjectValue.booleanValue()) {
             if (basedir == null && !basedir.isDirectory()) {
-                LOG.warn("Cannot copy the flow to the project as no basedir!");
+                LOG.warn("Cannot copy the pipeline to the project as no basedir!");
             } else {
-                String flow = this.flow.getValue();
+                String flow = this.pipeline.getValue();
                 if (Strings.isNullOrBlank(flow)) {
-                    LOG.warn("Cannot copy the flow to the project as no flow selected!");
+                    LOG.warn("Cannot copy the pipeline to the project as no pipeline selected!");
                 } else {
                     String flowText = getFlowContent(flow, uiContext);
                     if (Strings.isNullOrBlank(flowText))  {
-                        LOG.warn("Cannot copy the flow to the project as no flow text could be loaded!");
+                        LOG.warn("Cannot copy the pipeline to the project as no pipeline text could be loaded!");
                     } else {
                         flowText = Strings.replaceAllWithoutRegex(flowText, "GIT_URL", "'" + gitUrl + "'");
                         File newFile = new File(basedir, ProjectConfigs.LOCAL_FLOW_FILE_NAME);
                         Files.writeToFile(newFile, flowText.getBytes());
-                        LOG.info("Written flow to " + newFile);
+                        LOG.info("Written pipeline to " + newFile);
                         if (config != null) {
-                            config.setFlow(null);
+                            config.setPipeline(null);
                             config.setUseLocalFlow(true);
                         }
                     }
@@ -402,7 +410,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 try {
                     return IOHelpers.readFully(file);
                 } catch (IOException e) {
-                    LOG.warn("Failed to load local flow " + file + ". " + e, e);
+                    LOG.warn("Failed to load local pipeline " + file + ". " + e, e);
                 }
             }
         }

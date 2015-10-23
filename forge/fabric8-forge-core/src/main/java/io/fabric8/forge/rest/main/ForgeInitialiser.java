@@ -117,7 +117,7 @@ public class ForgeInitialiser {
 
 /*
             step2Inputs = new HashMap<>();
-            step2Inputs.put("flow", "maven/Deploy.groovy");
+            step2Inputs.put("pipeline", "maven/Deploy.groovy");
 */
 
             inputList = new ArrayList<>();
