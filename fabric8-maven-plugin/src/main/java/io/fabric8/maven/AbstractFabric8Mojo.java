@@ -187,7 +187,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     private boolean cdBuild;
 
     /**
-     * The environemnt variable used to detect if the current build is inside a CD Pipeline build
+     * The environment variable used to detect if the current build is inside a CD Pipeline build
      * to enable verbose logging if we cannot auto default the CD related metadata for the build,
      * such as the git commit id, git URL, Jenkins job URL etc
      */
