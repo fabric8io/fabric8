@@ -114,8 +114,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
 
         String user = userDetails.getUser();
-        String password = userDetails.getPassword();
-        String authorEmail = userDetails.getEmail();
         String address = userDetails.getAddress();
         String internalAddress = userDetails.getInternalAddress();
         String branch = userDetails.getBranch();
@@ -125,7 +123,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             GitHelpers.disableSslCertificateChecks();
 
             CredentialsProvider credentials = userDetails.createCredentialsProvider();
-            PersonIdent personIdent = new PersonIdent(user, authorEmail);
+            PersonIdent personIdent = userDetails.createPersonIdent();
 
             if (name.equals(PROJECT_NEW_COMMAND)) {
                 String targetLocation = null;

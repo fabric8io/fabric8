@@ -21,6 +21,7 @@ import io.fabric8.forge.rest.git.dto.CommitTreeInfo;
 import io.fabric8.forge.rest.git.dto.FileDTO;
 import io.fabric8.forge.rest.git.dto.StatusDTO;
 import io.fabric8.forge.rest.main.GitHelpers;
+import io.fabric8.forge.rest.main.ProjectFileSystem;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
@@ -32,6 +33,7 @@ import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
@@ -93,52 +95,60 @@ public class RepositoryResource {
     private final File basedir;
     private final UserDetails userDetails;
     private final String remoteRepository;
+    private final GitLockManager lockManager;
+    private final ProjectFileSystem projectFileSystem;
     private final String origin;
+    private final String cloneUrl;
     private final String branch;
-    private final Repository repository;
-    private final Git git;
     private final PersonIdent personIdent;
     private String message;
 
-    public RepositoryResource(File gitFolder, UserDetails userDetails, String origin, String branch, String remoteRepository) throws IOException, GitAPIException {
+    public RepositoryResource(File basedir, File gitFolder, UserDetails userDetails, String origin, String branch, String remoteRepository, GitLockManager lockManager, ProjectFileSystem projectFileSystem, String cloneUrl) throws IOException, GitAPIException {
+        this.basedir = basedir;
         this.gitFolder = gitFolder;
         this.userDetails = userDetails;
         this.remoteRepository = remoteRepository;
-        this.basedir = gitFolder.getParentFile();
+        this.lockManager = lockManager;
+        this.projectFileSystem = projectFileSystem;
         this.origin = origin;
+        this.cloneUrl = cloneUrl;
         String user = userDetails.getUser();
         String authorEmail = userDetails.getEmail();
         this.personIdent = new PersonIdent(user, authorEmail);
         this.branch = branch;
-        if (!gitFolder.exists() || !gitFolder.isDirectory()) {
-            throw new IOException(".git folder does not exist at " + gitFolder.getPath());
-        }
-
-        FileRepositoryBuilder builder = new FileRepositoryBuilder();
-        this.repository = builder.setGitDir(gitFolder)
-                .readEnvironment() // scan environment GIT_* variables
-                .findGitDir() // scan up the file system tree
-                .build();
-
-        this.git = new Git(repository);
-        if (Strings.isNullOrBlank(origin)) {
-            throw new IOException("Could not find remote git URL for folder " + gitFolder.getPath());
-        }
-        checkoutBranch();
     }
 
+    protected static String getFilePattern(String path) {
+        return trimLeadingSlash(path);
+    }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public static String trimLeadingSlash(String name) {
+        if (name != null && name.startsWith("/")) {
+            name = name.substring(1);
+        }
+        return name;
     }
 
     public String getMessage() {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     @GET
     @Path("content/{path:.*}")
-    public Response fileDetails(@PathParam("path") String path) throws Exception {
+    public Response fileDetails(final @PathParam("path") String path) throws Exception {
+        return gitReadOperation(new GitOperation<Response>() {
+            @Override
+            public Response call(Git git, GitContext context) throws Exception {
+                return doFileDetails(path);
+            }
+        });
+    }
+
+    protected Response doFileDetails(String path) {
         final File file = getRelativeFile(path);
         if (LOG.isDebugEnabled()) {
             LOG.debug("reading file: " + file.getPath());
@@ -165,7 +175,16 @@ public class RepositoryResource {
 
     @GET
     @Path("raw/{path:.*}")
-    public Response rawFile(@PathParam("path") String path) throws Exception {
+    public Response rawFile(final @PathParam("path") String path) throws Exception {
+        return gitReadOperation(new GitOperation<Response>() {
+            @Override
+            public Response call(Git git, GitContext context) throws Exception {
+                return doRawFile(path);
+            }
+        });
+    }
+
+    protected Response doRawFile(String path) throws IOException {
         final File file = getRelativeFile(path);
         if (LOG.isDebugEnabled()) {
             LOG.debug("reading file: " + file.getPath());
@@ -197,19 +216,28 @@ public class RepositoryResource {
 
     @GET
     @Path("diff/{objectId1}")
-    public String diff(@PathParam("objectId1") String objectId) throws IOException {
+    public String diff(@PathParam("objectId1") String objectId) throws Exception {
         return diff(objectId, null, null);
     }
 
     @GET
     @Path("diff/{objectId1}/{objectId2}")
-    public String diff(@PathParam("objectId1") String objectId, @PathParam("objectId2") String baseObjectId) throws IOException {
+    public String diff(@PathParam("objectId1") String objectId, @PathParam("objectId2") String baseObjectId) throws Exception {
         return diff(objectId, baseObjectId, null);
     }
 
     @GET
     @Path("diff/{objectId1}/{objectId2}/{path:.*}")
-    public String diff(@PathParam("objectId1") String objectId, @PathParam("objectId2") String baseObjectId, @PathParam("path") String pathOrBlobPath) throws IOException {
+    public String diff(final @PathParam("objectId1") String objectId, final @PathParam("objectId2") String baseObjectId, final @PathParam("path") String pathOrBlobPath) throws Exception {
+        return gitReadOperation(new GitOperation<String>() {
+            @Override
+            public String call(Git git, GitContext context) throws Exception {
+                return doDiff(git, objectId, baseObjectId, pathOrBlobPath);
+            }
+        });
+    }
+
+    protected String doDiff(Git git, String objectId, String baseObjectId, String pathOrBlobPath) throws IOException {
         Repository r = git.getRepository();
         String blobPath = trimLeadingSlash(pathOrBlobPath);
 
@@ -263,10 +291,18 @@ public class RepositoryResource {
         return buffer.toString();
     }
 
-
     @GET
     @Path("commitInfo/{commitId}")
-    public CommitInfo commitInfo(@PathParam("commitId") String commitId) {
+    public CommitInfo commitInfo(final @PathParam("commitId") String commitId) throws Exception {
+        return gitReadOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doCommitInfo(git, commitId);
+            }
+        });
+    }
+
+    protected CommitInfo doCommitInfo(Git git, String commitId) {
         Repository repository = git.getRepository();
         RevCommit commit = CommitUtils.getCommit(repository, commitId);
         if (commit == null) {
@@ -281,7 +317,16 @@ public class RepositoryResource {
      */
     @GET
     @Path("commitTree/{commitId}")
-    public List<CommitTreeInfo> getCommitTree(@PathParam("commitId") String commitId) {
+    public List<CommitTreeInfo> getCommitTree(final @PathParam("commitId") String commitId) throws Exception {
+        return gitReadOperation(new GitOperation<List<CommitTreeInfo>>() {
+            @Override
+            public List<CommitTreeInfo> call(Git git, GitContext context) throws Exception {
+                return doGetCommitTree(git, commitId);
+            }
+        });
+    }
+
+    protected List<CommitTreeInfo> doGetCommitTree(Git git, String commitId) {
         Repository repository = git.getRepository();
         List<CommitTreeInfo> list = new ArrayList<CommitTreeInfo>();
         RevCommit commit = CommitUtils.getCommit(repository, commitId);
@@ -336,18 +381,27 @@ public class RepositoryResource {
 
     @GET
     @Path("history")
-    public List<CommitInfo> history(@QueryParam("limit") int limit) {
+    public List<CommitInfo> history(@QueryParam("limit") int limit) throws Exception {
         return history(null, null, limit);
     }
 
     @GET
     @Path("history/{commitId}/{path:.*}")
-    public List<CommitInfo> history(@PathParam("commitId") String objectId, @PathParam("path") String pathOrBlobPath, @QueryParam("limit") int limit) {
+    public List<CommitInfo> history(@PathParam("commitId") final String objectId, @PathParam("path") final String pathOrBlobPath, @QueryParam("limit") final int limit) throws Exception {
+        return gitReadOperation(new GitOperation<List<CommitInfo>>() {
+            @Override
+            public List<CommitInfo> call(Git git, GitContext context) throws Exception {
+                return doHistory(git, objectId, pathOrBlobPath, limit);
+            }
+        });
+    }
+
+    protected List<CommitInfo> doHistory(Git git, String objectId, String pathOrBlobPath, int limit) {
         List<CommitInfo> results = new ArrayList<CommitInfo>();
         Repository r = git.getRepository();
 
         try {
-            String head = getHEAD();
+            String head = getHEAD(git);
         } catch (Exception e) {
             LOG.error("Cannot find HEAD of this git repository! " + e, e);
             return results;
@@ -369,7 +423,7 @@ public class RepositoryResource {
             finder.findFrom(objectId);
         } else {
             if (Strings.isNotBlank(branch)) {
-                ObjectId branchObjectId = getBranchObjectId();
+                ObjectId branchObjectId = getBranchObjectId(git);
                 if (branchObjectId != null) {
                     finder = finder.findFrom(branchObjectId);
                 } else {
@@ -390,7 +444,16 @@ public class RepositoryResource {
 
     @POST
     @Path("mkdir/{path:.*}")
-    public CommitInfo createDirectory(String path) throws Exception {
+    public CommitInfo createDirectory(@PathParam("commitId") final String path) throws Exception {
+        return gitWriteOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doCreateDirectory(git, path);
+            }
+        });
+    }
+
+    protected CommitInfo doCreateDirectory(Git git, String path) throws Exception {
         File file = getRelativeFile(path);
         if (file.exists()) {
             return null;
@@ -401,17 +464,25 @@ public class RepositoryResource {
         add.call();
 
         CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-        RevCommit revCommit = commitThenPush(commit);
+        RevCommit revCommit = commitThenPush(git, commit);
         return createCommitInfo(revCommit);
     }
 
-
     @POST
     @Path("revert/{commitId}/{path:.*}")
-    public CommitInfo revert(@PathParam("commitId") String objectId, @PathParam("path") String blobPath) throws Exception {
-        String contents = doGetContent(objectId, blobPath);
+    public CommitInfo revert(@PathParam("commitId") final String objectId, @PathParam("path") final String blobPath) throws Exception {
+        return gitWriteOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doRevert(git, objectId, blobPath);
+            }
+        });
+    }
+
+    protected CommitInfo doRevert(Git git, String objectId, String blobPath) throws Exception {
+        String contents = doGetContent(git, objectId, blobPath);
         if (contents != null) {
-            return doWrite(blobPath, contents.getBytes(), personIdent, message);
+            return doWrite(git, blobPath, contents.getBytes(), personIdent, message);
         } else {
             return null;
         }
@@ -419,7 +490,16 @@ public class RepositoryResource {
 
     @POST
     @Path("mv/{path:.*}")
-    public CommitInfo rename(@QueryParam("old") String oldPath, @PathParam("path") String newPath) throws Exception {
+    public CommitInfo rename(@QueryParam("old") final String oldPath, @PathParam("path") final String newPath) throws Exception {
+        return gitWriteOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doRename(git, oldPath, newPath);
+            }
+        });
+    }
+
+    protected CommitInfo doRename(Git git, String oldPath, String newPath) throws Exception {
         File file = getRelativeFile(oldPath);
         File newFile = getRelativeFile(newPath);
         if (file.exists()) {
@@ -432,7 +512,7 @@ public class RepositoryResource {
             String filePattern = getFilePattern(newPath);
             git.add().addFilepattern(filePattern).call();
             CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-            return createCommitInfo(commitThenPush(commit));
+            return createCommitInfo(commitThenPush(git, commit));
         } else {
             return null;
         }
@@ -441,7 +521,16 @@ public class RepositoryResource {
     @POST
     @Path("rm")
     @Consumes({"application/xml", "application/json", "text/json"})
-    public CommitInfo remove(List<String> paths) throws Exception {
+    public CommitInfo remove(final List<String> paths) throws Exception {
+        return gitWriteOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doRemove(git, paths);
+            }
+        });
+    }
+
+    protected CommitInfo doRemove(Git git, List<String> paths) throws Exception {
         if (paths != null && paths.size() > 0) {
             int count = 0;
             for (String path : paths) {
@@ -455,7 +544,7 @@ public class RepositoryResource {
             }
             if (count > 0) {
                 CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-                return createCommitInfo(commitThenPush(commit));
+                return createCommitInfo(commitThenPush(git, commit));
             }
         }
         return null;
@@ -463,14 +552,23 @@ public class RepositoryResource {
 
     @POST
     @Path("rm/{path:.*}")
-    public CommitInfo remove(@PathParam("path") String path) throws Exception {
+    public CommitInfo remove(@PathParam("path") final String path) throws Exception {
+        return gitWriteOperation(new GitOperation<CommitInfo>() {
+            @Override
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doRemove(git, path);
+            }
+        });
+    }
+
+    protected CommitInfo doRemove(Git git, String path) throws Exception {
         File file = getRelativeFile(path);
         if (file.exists()) {
             Files.recursiveDelete(file);
             String filePattern = getFilePattern(path);
             git.rm().addFilepattern(filePattern).call();
             CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(message);
-            return createCommitInfo(commitThenPush(commit));
+            return createCommitInfo(commitThenPush(git, commit));
         } else {
             return null;
         }
@@ -478,7 +576,16 @@ public class RepositoryResource {
 
     @GET
     @Path("listBranches")
-    public List<String> listBranches() throws GitAPIException {
+    public List<String> listBranches() throws Exception {
+        return gitReadOperation(new GitOperation<List<String>>() {
+            @Override
+            public List<String> call(Git git, GitContext context) throws Exception {
+                return doListBranches(git);
+            }
+        });
+    }
+
+    protected List<String> doListBranches(Git git) throws Exception {
         SortedSet<String> names = new TreeSet<String>();
         List<Ref> call = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
         for (Ref ref : call) {
@@ -494,27 +601,108 @@ public class RepositoryResource {
         return new ArrayList<String>(names);
     }
 
+    protected <T> T gitReadOperation(GitOperation<T> operation) throws Exception {
+        GitContext context = new GitContext();
+        return gitOperation(context, operation);
+    }
 
-    protected Response uploadFile(final @PathParam("path") String path, String message, final InputStream body) throws Exception {
-        this.message = message;
-        final File file = getRelativeFile(path);
+    protected <T> T gitWriteOperation(GitOperation<T> operation) throws Exception {
+        GitContext context = new GitContext();
+        context.setRequireCommit(true);
+        context.setRequirePush(true);
+        return gitOperation(context, operation);
+    }
 
-        return writeOperation(new Callable<Response>() {
+    protected <T> T gitOperation(final GitContext context, final GitOperation<T> operation) throws Exception {
+        return lockManager.withLock(gitFolder, new Callable<T>() {
+
             @Override
-            public Response call() throws Exception {
-                boolean exists = file.exists();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("writing file: " + file.getPath());
+            public T call() throws Exception {
+                projectFileSystem.cloneRepoIfNotExist(userDetails, basedir, cloneUrl);
+
+                FileRepositoryBuilder builder = new FileRepositoryBuilder();
+                Repository repository = builder.setGitDir(gitFolder)
+                        .readEnvironment() // scan environment GIT_* variables
+                        .findGitDir() // scan up the file system tree
+                        .build();
+
+                Git git = new Git(repository);
+                if (Strings.isNullOrBlank(origin)) {
+                    throw new IOException("Could not find remote git URL for folder " + gitFolder.getPath());
                 }
-                file.getParentFile().mkdirs();
-                IOHelpers.writeTo(file, body);
-                String status = exists ? "updated" : "created";
-                return Response.ok(new StatusDTO(path, status)).build();
+
+                CredentialsProvider credentials = userDetails.createCredentialsProvider();
+
+                disableSslCertificateChecks();
+                LOG.info("Stashing local changes to the repo");
+                boolean hasHead = true;
+                try {
+                    git.log().all().call();
+                    hasHead = git.getRepository().getAllRefs().containsKey("HEAD");
+                } catch (NoHeadException e) {
+                    hasHead = false;
+                }
+                if (hasHead) {
+                    // lets stash any local changes just in case..
+                    try {
+                        git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
+                    } catch (Throwable e) {
+                        LOG.error("Failed to stash changes: " + e, e);
+                        Throwable cause = e.getCause();
+                        if (cause != null && cause != e) {
+                            LOG.error("Cause: " + cause, cause);
+                        }
+                    }
+                }
+
+                checkoutBranch(git);
+                if (context.isRequirePull()) {
+                    doPull(git, context);
+                }
+
+                T result = operation.call(git, context);
+
+                if (Strings.isNullOrBlank(message)) {
+                    message = "";
+                }
+                if (context.isRequireCommit()) {
+                    doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
+                }
+                return result;
             }
         });
     }
 
-    protected CommitInfo doWrite(String path, byte[] contents, PersonIdent personIdent, String commitMessage) throws Exception {
+    protected void doPull(Git git, GitContext context) throws GitAPIException {
+        LOG.info("Performing a pull in git repository " + this.gitFolder + " on remote URL: " + this.remoteRepository);
+        CredentialsProvider cp = userDetails.createCredentialsProvider();
+        git.pull().setCredentialsProvider(cp).setRebase(true).call();
+    }
+
+    protected Response uploadFile(final String path, final String message, final InputStream body) throws Exception {
+        return gitWriteOperation(new GitOperation<Response>() {
+            @Override
+            public Response call(Git git, GitContext context) throws Exception {
+                return doUploadFile(path, message, body);
+            }
+        });
+    }
+
+    protected Response doUploadFile(final String path, String message, final InputStream body) throws Exception {
+        this.message = message;
+        final File file = getRelativeFile(path);
+
+        boolean exists = file.exists();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("writing file: " + file.getPath());
+        }
+        file.getParentFile().mkdirs();
+        IOHelpers.writeTo(file, body);
+        String status = exists ? "updated" : "created";
+        return Response.ok(new StatusDTO(path, status)).build();
+    }
+
+    protected CommitInfo doWrite(Git git, String path, byte[] contents, PersonIdent personIdent, String commitMessage) throws Exception {
         File file = getRelativeFile(path);
         file.getParentFile().mkdirs();
 
@@ -525,21 +713,17 @@ public class RepositoryResource {
         add.call();
 
         CommitCommand commit = git.commit().setAll(true).setAuthor(personIdent).setMessage(commitMessage);
-        RevCommit revCommit = commitThenPush(commit);
+        RevCommit revCommit = commitThenPush(git, commit);
         return createCommitInfo(revCommit);
     }
 
-    protected static String getFilePattern(String path) {
-        return trimLeadingSlash(path);
-    }
-
-    protected RevCommit commitThenPush(CommitCommand commit) throws Exception {
+    protected RevCommit commitThenPush(Git git, CommitCommand commit) throws Exception {
         RevCommit answer = commit.call();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Committed " + answer.getId() + " " + answer.getFullMessage());
         }
         if (isPushOnCommit()) {
-            Iterable<PushResult> results = doPush();
+            Iterable<PushResult> results = doPush(git);
             for (PushResult result : results) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Pushed " + result.getMessages() + " " + result.getURI() + " branch: " + branch + " updates: " + toString(result.getRemoteUpdates()));
@@ -551,24 +735,6 @@ public class RepositoryResource {
 
     protected File getRelativeFile(String path) {
         return new File(basedir, trimLeadingSlash(path));
-    }
-
-    protected <T> T writeOperation(Callable<T> callback) throws Exception {
-        String user = userDetails.getUser();
-        String authorEmail = userDetails.getEmail();
-        String branch = userDetails.getBranch();
-
-        T answer = callback.call();
-        disableSslCertificateChecks();
-
-        CredentialsProvider credentials = userDetails.createCredentialsProvider();
-        PersonIdent personIdent = new PersonIdent(user, authorEmail);
-
-        if (Strings.isNullOrBlank(message)) {
-            message = "";
-        }
-        doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
-        return answer;
     }
 
     protected boolean isPushOnCommit() {
@@ -584,19 +750,12 @@ public class RepositoryResource {
         return new CommitInfo(sha, author, date, merge, shortMessage);
     }
 
-    protected String getHEAD() {
+    protected String getHEAD(Git git) {
         RevCommit commit = CommitUtils.getHead(git.getRepository());
         return commit.getName();
     }
 
-    public static String trimLeadingSlash(String name) {
-        if (name != null && name.startsWith("/")) {
-            name = name.substring(1);
-        }
-        return name;
-    }
-
-    protected ObjectId getBranchObjectId() {
+    protected ObjectId getBranchObjectId(Git git) {
         Ref branchRef = null;
         try {
             String branchRevName = "refs/heads/" + branch;
@@ -619,7 +778,7 @@ public class RepositoryResource {
         return branchObjectId;
     }
 
-    public String currentBranch() {
+    public String currentBranch(Git git) {
         try {
             return git.getRepository().getBranch();
         } catch (IOException e) {
@@ -628,14 +787,14 @@ public class RepositoryResource {
         }
     }
 
-    protected void checkoutBranch() throws GitAPIException {
-        String current = currentBranch();
+    protected void checkoutBranch(Git git) throws GitAPIException {
+        String current = currentBranch(git);
         if (Objects.equals(current, branch)) {
             return;
         }
         // lets check if the branch exists
         CheckoutCommand command = git.checkout().setName(branch);
-        boolean exists = localBranchExists(branch);
+        boolean exists = localBranchExists(git, branch);
         if (!exists) {
             command = command.setCreateBranch(true).setForce(true).
                     setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).
@@ -645,18 +804,18 @@ public class RepositoryResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Checked out branch " + branch + " with results " + ref.getName());
         }
-        configureBranch(branch);
+        configureBranch(git, branch);
     }
 
 
-    protected String doGetContent(String objectId, String pathOrBlobPath) {
-        objectId = defaultObjectId(objectId);
+    protected String doGetContent(Git git, String objectId, String pathOrBlobPath) {
+        objectId = defaultObjectId(git, objectId);
         Repository r = git.getRepository();
         String blobPath = trimLeadingSlash(pathOrBlobPath);
         return BlobUtils.getContent(r, objectId, blobPath);
     }
 
-    protected String defaultObjectId(String objectId) {
+    protected String defaultObjectId(Git git, String objectId) {
         if (objectId == null || objectId.trim().length() == 0) {
             RevCommit commit = CommitUtils.getHead(git.getRepository());
             objectId = commit.getName();
@@ -664,7 +823,7 @@ public class RepositoryResource {
         return objectId;
     }
 
-    protected void configureBranch(String branch) {
+    protected void configureBranch(Git git, String branch) {
         // lets update the merge config
         if (Strings.isNotBlank(branch)) {
             StoredConfig config = git.getRepository().getConfig();
@@ -681,7 +840,7 @@ public class RepositoryResource {
         }
     }
 
-    protected boolean localBranchExists(String branch) throws GitAPIException {
+    protected boolean localBranchExists(Git git, String branch) throws GitAPIException {
         List<Ref> list = git.branchList().call();
         String fullName = "refs/heads/" + branch;
         boolean localBranchExists = false;
@@ -728,8 +887,8 @@ public class RepositoryResource {
         return builder.toString();
     }
 
-    protected Iterable<PushResult> doPush() throws Exception {
+    protected Iterable<PushResult> doPush(Git git) throws Exception {
         CredentialsProvider credentials = userDetails.createCredentialsProvider();
-        return this.git.push().setCredentialsProvider(credentials).setRemote(getRemote()).call();
+        return git.push().setCredentialsProvider(credentials).setRemote(getRemote()).call();
     }
 }
