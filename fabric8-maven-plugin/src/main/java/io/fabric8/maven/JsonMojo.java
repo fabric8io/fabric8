@@ -1264,11 +1264,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected Probe getProbe(String prefix) {
         Probe probe = new Probe();
         Properties properties = getProject().getProperties();
-        Long initialDelaySeconds = PropertiesHelper.getLong(properties, prefix + ".initialDelaySeconds");
+        Long initialDelaySeconds = getLong(properties, prefix + ".initialDelaySeconds");
         if (initialDelaySeconds != null) {
             probe.setInitialDelaySeconds(initialDelaySeconds);
         }
-        Long timeoutSeconds = PropertiesHelper.getLong(properties, prefix + ".timeoutSeconds");
+        Long timeoutSeconds = getLong(properties, prefix + ".timeoutSeconds");
         if (timeoutSeconds != null) {
             probe.setTimeoutSeconds(timeoutSeconds);
         }
