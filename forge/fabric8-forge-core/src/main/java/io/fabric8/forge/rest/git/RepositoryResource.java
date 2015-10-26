@@ -561,6 +561,20 @@ public class RepositoryResource {
         });
     }
 
+    @POST
+    @Path("removeProject")
+    public Response remove() throws Exception {
+        return lockManager.withLock(gitFolder, new Callable<Response>() {
+
+            @Override
+            public Response call() throws Exception {
+                LOG.info("Removing clone of project at " + basedir);
+                Files.recursiveDelete(basedir);
+                return Response.ok(new StatusDTO(basedir.getName(), "remove project")).build();
+            }
+        });
+    }
+
     protected CommitInfo doRemove(Git git, String path) throws Exception {
         File file = getRelativeFile(path);
         if (file.exists()) {
