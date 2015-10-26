@@ -19,11 +19,13 @@ package io.fabric8.forge.rest.git.dto;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.XmlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Used to list contents of git
@@ -42,11 +44,13 @@ public class FileDTO extends GitDTOSupport {
     private String gitUrl;
     private String htmlUrl;
     private String downloadUrl;
+    private String[] xmlNamespaces;
 
     public static FileDTO createFileDTO(File file, String parentPath, boolean includeContent) {
         String content = null;
         String encoding = null;
-        if (includeContent && file.isFile()) {
+        boolean isFile = file.isFile();
+        if (includeContent && isFile) {
             try {
                 byte[] bytes = Files.readBytes(file);
                 content = new String(Base64Encoder.encode(bytes));
@@ -57,7 +61,7 @@ public class FileDTO extends GitDTOSupport {
         }
         String type = file.isDirectory() ? "dir" : "file";
         long size = 0;
-        if (file.isFile()) {
+        if (isFile) {
             size = file.length();
         }
         String name = file.getName();
@@ -66,7 +70,20 @@ public class FileDTO extends GitDTOSupport {
             String separator = path.endsWith("/") ? "" : "/";
             path = parentPath + separator + name;
         }
-        return new FileDTO(type, size, name, path, encoding, content);
+        FileDTO fileDTO = new FileDTO(type, size, name, path, encoding, content);
+        if (isFile && name.endsWith(".xml")) {
+            // lets load the XML namespaces
+            try {
+                Set<String> uris = XmlHelper.getNamespaces(file);
+                if (uris.size() > 0) {
+                    String[] namespaces = uris.toArray(new String[uris.size()]);
+                    fileDTO.setXmlNamespaces(namespaces);
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to parse the XML namespaces in " + file + " due: " + e.getMessage() + ". This exception is ignored.", e);
+            }
+        }
+        return fileDTO;
     }
 
 
@@ -153,5 +170,13 @@ public class FileDTO extends GitDTOSupport {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String[] getXmlNamespaces() {
+        return xmlNamespaces;
+    }
+
+    public void setXmlNamespaces(String[] xmlNamespaces) {
+        this.xmlNamespaces = xmlNamespaces;
     }
 }
