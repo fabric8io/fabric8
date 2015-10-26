@@ -46,6 +46,15 @@ public class FileDTO extends GitDTOSupport {
     private String downloadUrl;
     private String[] xmlNamespaces;
 
+    public FileDTO(String type, long size, String name, String path, String encoding, String content) {
+        this.content = content;
+        this.type = type;
+        this.encoding = encoding;
+        this.size = size;
+        this.name = name;
+        this.path = path;
+    }
+
     public static FileDTO createFileDTO(File file, String parentPath, boolean includeContent) {
         String content = null;
         String encoding = null;
@@ -56,7 +65,7 @@ public class FileDTO extends GitDTOSupport {
                 content = new String(Base64Encoder.encode(bytes));
                 encoding = "base64";
             } catch (IOException e) {
-                LOG.warn("Failed to load: "+ file.getPath() + ". " + e, e);
+                LOG.warn("Failed to load: " + file.getPath() + ". " + e, e);
             }
         }
         String type = file.isDirectory() ? "dir" : "file";
@@ -86,16 +95,6 @@ public class FileDTO extends GitDTOSupport {
         return fileDTO;
     }
 
-
-    public FileDTO(String type, long size, String name, String path, String encoding, String content) {
-        this.content = content;
-        this.type = type;
-        this.encoding = encoding;
-        this.size = size;
-        this.name = name;
-        this.path = path;
-    }
-
     @Override
     public String toString() {
         return "FileDTO{" +
@@ -116,6 +115,10 @@ public class FileDTO extends GitDTOSupport {
         return downloadUrl;
     }
 
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
     public String getEncoding() {
         return encoding;
     }
@@ -124,8 +127,16 @@ public class FileDTO extends GitDTOSupport {
         return gitUrl;
     }
 
+    public void setGitUrl(String gitUrl) {
+        this.gitUrl = gitUrl;
+    }
+
     public String getHtmlUrl() {
         return htmlUrl;
+    }
+
+    public void setHtmlUrl(String htmlUrl) {
+        this.htmlUrl = htmlUrl;
     }
 
     public String getName() {
@@ -140,6 +151,10 @@ public class FileDTO extends GitDTOSupport {
         return sha;
     }
 
+    public void setSha(String sha) {
+        this.sha = sha;
+    }
+
     public long getSize() {
         return size;
     }
@@ -150,22 +165,6 @@ public class FileDTO extends GitDTOSupport {
 
     public String getUrl() {
         return url;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    public void setGitUrl(String gitUrl) {
-        this.gitUrl = gitUrl;
-    }
-
-    public void setHtmlUrl(String htmlUrl) {
-        this.htmlUrl = htmlUrl;
-    }
-
-    public void setSha(String sha) {
-        this.sha = sha;
     }
 
     public void setUrl(String url) {

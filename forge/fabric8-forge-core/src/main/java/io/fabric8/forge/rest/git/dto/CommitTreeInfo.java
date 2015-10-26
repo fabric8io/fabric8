@@ -2,13 +2,13 @@
  * Copyright (C) 2013 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,14 +24,14 @@ import org.eclipse.jgit.lib.FileMode;
  * Represent part of a commit
  */
 public class CommitTreeInfo {
+    public DiffEntry.ChangeType changeType;
     private int mode;
     private String path;
     private String name;
     private String id;
     private long size;
     private String commitId;
-   	private boolean isParentPath;
-    public DiffEntry.ChangeType changeType;
+    private boolean isParentPath;
 
     public CommitTreeInfo() {
     }
@@ -61,16 +61,16 @@ public class CommitTreeInfo {
     }
 
     public boolean isSymlink() {
-   		return FileMode.SYMLINK.equals(mode);
-   	}
+        return FileMode.SYMLINK.equals(mode);
+    }
 
-   	public boolean isSubmodule() {
-   		return FileMode.GITLINK.equals(mode);
-   	}
+    public boolean isSubmodule() {
+        return FileMode.GITLINK.equals(mode);
+    }
 
-   	public boolean isTree() {
-   		return FileMode.TREE.equals(mode);
-   	}
+    public boolean isTree() {
+        return FileMode.TREE.equals(mode);
+    }
 
     public String getPath() {
         return path;

@@ -1,17 +1,17 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Copyright 2005-2015 Red Hat, Inc.
+ * <p/>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.forge.rest.git;
 
@@ -56,6 +56,9 @@ public class RepositoriesResource {
     @Inject
     private ProjectFileSystem projectFileSystem;
 
+    @Inject
+    private GitLockManager lockManager;
+
     @Context
     private HttpServletRequest request;
 
@@ -95,10 +98,12 @@ public class RepositoriesResource {
         if (Strings.isNullOrBlank(branch)) {
             branch = "master";
         }
-        File projectFolder = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
+        //File projectFolder = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
+        File projectFolder = projectFileSystem.getUserProjectFolder(userId, repositoryName);
+        String cloneUrl = projectFileSystem.getCloneUrl(userId, repositoryName, userDetails);
         File gitFolder = new File(projectFolder, ".git");
         String remoteRepository = userId + "/" + repositoryName;
-        RepositoryResource resource = new RepositoryResource(gitFolder, userDetails, origin, branch, remoteRepository);
+        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl);
         try {
             String message = request.getParameter("message");
             if (Strings.isNotBlank(message)) {

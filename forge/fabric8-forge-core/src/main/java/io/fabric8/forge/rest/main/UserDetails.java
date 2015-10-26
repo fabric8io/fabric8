@@ -16,6 +16,7 @@
 package io.fabric8.forge.rest.main;
 
 import io.fabric8.repo.git.GitRepoClient;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
@@ -80,5 +81,9 @@ public class UserDetails {
 
     public CredentialsProvider createCredentialsProvider() {
         return  new UsernamePasswordCredentialsProvider(user, password);
+    }
+
+    public PersonIdent createPersonIdent() {
+        return new PersonIdent(user, email);
     }
 }

@@ -1,7 +1,5 @@
 package io.fabric8.forge.rest.git.dto;
 
-import java.util.Date;
-
 /**
  * Represents information about a commit log or history
  */
