@@ -72,8 +72,8 @@
     <!--<module>mq</module>--> <!-- TODO: should this not be named fabric8-mq -->
 
     <!-- swagger -->
-    <module>swagger-annotator</module>
-    <module>swagger-model</module>
+    <!--<module>swagger-annotator</module>-->
+    <!--<module>swagger-model</module>-->
   </modules>
 
   <profiles>
