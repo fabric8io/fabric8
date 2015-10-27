@@ -80,15 +80,14 @@
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
         <jboss.forge.version>2.20.0.Final</jboss.forge.version>
-        <furnace.version>2.22.4.Final</furnace.version>
-        <jolokia.version>1.3.1</jolokia.version>
+        <furnace.version>2.22.5.Final</furnace.version>
+        <jolokia.version>1.3.2</jolokia.version>
         <jgroups.version>3.4.4.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.16</jsonschema2pojo.version>
-        <slf4j.version>1.7.7</slf4j.version>
         <snakeyaml.version>1.8</snakeyaml.version>
         <swagger.jaxrs.version>1.5.4</swagger.jaxrs.version>
-        <!-- <vertx.version>2.1.6</vertx.version> -->
-        <weld.version>2.3.0.Final</weld.version>
+        <!--<vertx.version>2.1.6</vertx.version>-->
+        <weld.version>2.3.1.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <forge-project-id>fabric</forge-project-id>
@@ -139,7 +138,7 @@
         <log4j.version>1.2.17</log4j.version>
         <lombok.version>1.16.6</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
-        <maven.enforcer.plugin.version>1.4</maven.enforcer.plugin.version>
+        <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.18.1</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
@@ -156,6 +155,7 @@
         <servlet-api.version>2.5</servlet-api.version>
         <servlet30-api.version>3.0.1</servlet30-api.version>
         <shrinkwrap-resolver.version>2.2.0</shrinkwrap-resolver.version>
+        <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.2.2.RELEASE</spring.version>
         <spring.boot.version>1.2.7.RELEASE</spring.boot.version>
         <sundrio.version>0.1.18</sundrio.version>
