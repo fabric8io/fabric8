@@ -170,6 +170,9 @@
               org.apache.cxf.service.factory;version="[3.0,4)",
               org.apache.cxf.service.model;version="[3.0,4)",
               com.fasterxml.jackson.module.jaxb;resolution:=mandatory,
+              io.swagger.jaxrs.config;resolution:=optional,
+              io.swagger.jaxrs.listing;resolution:=optional,
+              io.swagger.annotations;resolution:=optional,
               *
             </Import-Package>
             <_include>-osgi.bnd</_include>
