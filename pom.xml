@@ -72,10 +72,10 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.11.0.redhat-621069</activemq.version>
-        <camel.version>2.15.1.redhat-621069</camel.version>
-        <cxf.version>3.0.4.redhat-621069</cxf.version>
-        <cxf.plugin.version>3.0.4.redhat-621069</cxf.plugin.version>
+        <activemq.version>5.11.0.redhat-621070</activemq.version>
+        <camel.version>2.15.1.redhat-621070</camel.version>
+        <cxf.version>3.0.4.redhat-621070</cxf.version>
+        <cxf.plugin.version>3.0.4.redhat-621070</cxf.plugin.version>
 
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
