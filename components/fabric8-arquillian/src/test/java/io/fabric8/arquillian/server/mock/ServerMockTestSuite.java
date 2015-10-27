@@ -79,6 +79,7 @@ public class ServerMockTestSuite {
         System.setProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, "arquillian");
         System.setProperty(Constants.NAMESPACE_TO_USE, "arquillian");
         System.setProperty(Constants.NAMESPACE_LAZY_CREATE_ENABLED, "arquillian");
+        System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }
 
     @AfterClass
