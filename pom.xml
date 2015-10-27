@@ -88,7 +88,7 @@
         <snakeyaml.version>1.16</snakeyaml.version>
         <swagger.jaxrs.version>1.5.4</swagger.jaxrs.version>
         <vertx.version>2.1.6</vertx.version>
-        <weld.version>2.3.0.Final</weld.version>
+        <weld.version>2.3.1.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <forge-project-id>fabric</forge-project-id>
