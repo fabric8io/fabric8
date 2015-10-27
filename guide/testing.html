@@ -8,7 +8,7 @@
         <title>Integration and System Testing | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.4.3">
+        <meta name="generator" content="GitBook 2.5.0">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -28,6 +28,14 @@
         <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-highlight/website.css">
         
     
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
     
 
         
@@ -44,13 +52,10 @@
     <body>
         
         
-    <div class="book" data-level="6.2" data-basepath="." data-revision="Tue Oct 27 2015 10:23:28 GMT+0000 (UTC)">
+    <div class="book" data-level="6.2" data-chapter-title="Integration and System Testing" data-filepath="testing.md" data-basepath="." data-revision="Tue Oct 27 2015 13:43:11 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
-    <div class="book-search" role="search">
-        <input type="text" placeholder="Type to search" class="form-control" />
-    </div>
     <nav role="navigation">
         <ul class="summary">
             
@@ -1146,80 +1151,7 @@
         <div class="body-inner">
             <div class="book-header" role="navigation">
     <!-- Actions Left -->
-    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
-    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
     
-    <div id="font-settings-wrapper" class="dropdown pull-left">
-        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
-        </a>
-        <div class="dropdown-menu font-settings">
-    <div class="dropdown-caret">
-        <span class="caret-outer"></span>
-        <span class="caret-inner"></span>
-    </div>
-
-    <div class="buttons">
-        <button type="button" id="reduce-font-size" class="button size-2">A</button>
-        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
-    </div>
-
-    <div class="buttons font-family-list">
-        <button type="button" data-font="0" class="button">Serif</button>
-        <button type="button" data-font="1" class="button">Sans</button>
-    </div>
-
-    <div class="buttons color-theme-list">
-        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
-        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
-        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
-    </div>
-</div>
-
-    </div>
-
-    <!-- Actions Right -->
-    
-    <div class="dropdown pull-right">
-        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
-        </a>
-        <div class="dropdown-menu font-settings dropdown-left">
-            <div class="dropdown-caret">
-                <span class="caret-outer"></span>
-                <span class="caret-inner"></span>
-            </div>
-            <div class="buttons">
-                <button type="button" data-sharing="twitter" class="button">
-                    Share on Twitter
-                </button>
-                <button type="button" data-sharing="google-plus" class="button">
-                    Share on Google
-                </button>
-                <button type="button" data-sharing="facebook" class="button">
-                    Share on Facebook
-                </button>
-                <button type="button" data-sharing="weibo" class="button">
-                    Share on Weibo
-                </button>
-                <button type="button" data-sharing="instapaper" class="button">
-                    Share on Instapaper
-                </button>
-            </div>
-        </div>
-    </div>
-    
-
-    
-    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
-    
-    
-    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
-    
-    
-    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
-    
-    
-    
-
 
     <!-- Title -->
     <h1>
@@ -1248,7 +1180,7 @@
 <li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
 </ul>
-<h3 id="session-lifecycle-amp-labels"><a name="session-lifecycle-amp-labels" class="plugin-anchor" href="#session-lifecycle-amp-labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
+<h3 id="session-lifecycle--labels"><a name="session-lifecycle--labels" class="plugin-anchor" href="#session-lifecycle--labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
 <p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
 <p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
@@ -1350,7 +1282,7 @@ Waiting for: SomeException....
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="http://fabric8.io/guide/pods.html" target="_blank">Pods</a> inside Kubernetes which expose the Jolokia port</li>
 </ul>
-<h3 id="add-it-to-your-maven-pom-xml"><a name="add-it-to-your-maven-pom-xml" class="plugin-anchor" href="#add-it-to-your-maven-pom-xml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
+<h3 id="add-it-to-your-maven-pomxml"><a name="add-it-to-your-maven-pomxml" class="plugin-anchor" href="#add-it-to-your-maven-pomxml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
 <p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>
 <pre><code>        &lt;dependency&gt;
             &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
@@ -1379,9 +1311,25 @@ Waiting for: SomeException....
         
 <script src="gitbook/app.js"></script>
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"fontSettings":{"theme":null,"family":"sans","size":2}};
+    var config = {"anchors":{},"highlight":{},"search":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
     gitbook.start(config);
 });
 </script>
