@@ -22,8 +22,7 @@ import io.fabric8.utils.Strings;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -91,6 +90,25 @@ public class ProjectFileSystem {
         return workflowFolder;
     }
 
+    public File getSecretsFolder(String namespace, String secretName, String dataKey) {
+        File root = new File(rootProjectFolder);
+        File namespacesFolder = new File(root, "secrets");
+        File namespaceFolder = new File(namespacesFolder, namespace);
+        File secretsFolder = new File(namespaceFolder, secretName);
+        File dataFile = new File(secretsFolder, dataKey);
+        secretsFolder.mkdirs();
+        return dataFile;
+    }
+
+    public File getNamespaceProjectFolder(String namespace, String projectId) {
+        File root = new File(rootProjectFolder);
+        File namespacesFolder = new File(root, "namespace");
+        File namespaceFolder = new File(namespacesFolder, namespace);
+        File projectFolder = new File(namespaceFolder, projectId);
+        projectFolder.mkdirs();
+        return projectFolder;
+    }
+
     public File getUserProjectFolder(String user, String project) {
         File userFolder = getUserProjectFolder(user);
         File projectFolder = new File(userFolder, project);
@@ -104,7 +122,7 @@ public class ProjectFileSystem {
                 @Override
                 public void run() {
                     LOG.debug("Cloning or pulling jenkins workflow repo from " + jenkinsWorkflowGitUrl + " to " + folder);
-                    cloneOrPullRepo(userDetails, folder, jenkinsWorkflowGitUrl);
+                    cloneOrPullRepo(userDetails, folder, jenkinsWorkflowGitUrl, null, null);
                 }
             });
         } else {
@@ -136,17 +154,18 @@ public class ProjectFileSystem {
         if (Strings.isNullOrBlank(cloneUrl)) {
             throw new NotFoundException("No cloneUrl defined for user repository: " + user + "/" + repositoryName);
         }
-        return cloneOrPullRepo(userDetails, projectFolder, cloneUrl);
+        return cloneOrPullRepo(userDetails, projectFolder, cloneUrl, null, null);
     }
 
-    public File cloneOrPullRepo(UserDetails userDetails, File projectFolder, String cloneUrl) {
+    public File cloneOrPullRepo(UserDetails userDetails, File projectFolder, String cloneUrl, File sshPrivateKey, File sshPublicKey) {
         File gitFolder = new File(projectFolder, ".git");
         CredentialsProvider credentialsProvider = userDetails.createCredentialsProvider();
         if (!Files.isDirectory(gitFolder) || !Files.isDirectory(projectFolder)) {
             // lets clone the git repository!
-            cloneRepo(projectFolder, cloneUrl, credentialsProvider);
+            cloneRepo(projectFolder, cloneUrl, credentialsProvider, sshPrivateKey, sshPublicKey, this.remote);
+
         } else {
-            doPull(gitFolder, credentialsProvider, userDetails.getBranch(), userDetails.createPersonIdent());
+            doPull(gitFolder, credentialsProvider, userDetails.getBranch(), userDetails.createPersonIdent(), userDetails);
         }
         return projectFolder;
     }
@@ -156,17 +175,21 @@ public class ProjectFileSystem {
         CredentialsProvider credentialsProvider = userDetails.createCredentialsProvider();
         if (!Files.isDirectory(gitFolder) || !Files.isDirectory(projectFolder)) {
             // lets clone the git repository!
-            cloneRepo(projectFolder, cloneUrl, credentialsProvider);
+            cloneRepo(projectFolder, cloneUrl, credentialsProvider, userDetails.getSshPrivateKey(), userDetails.getSshPublicKey(), this.remote);
+
         }
         return projectFolder;
     }
 
-    protected void cloneRepo(File projectFolder, String cloneUrl, CredentialsProvider credentialsProvider) {
+    public static void cloneRepo(File projectFolder, String cloneUrl, CredentialsProvider credentialsProvider, final File sshPrivateKey, final File sshPublicKey, String remote) {
         // clone the repo!
         boolean cloneAll = true;
         LOG.info("Cloning git repo " + cloneUrl + " into directory " + projectFolder.getAbsolutePath() + " cloneAllBranches: " + cloneAll);
-        CloneCommand command = Git.cloneRepository().setCredentialsProvider(credentialsProvider).
-                setCloneAllBranches(cloneAll).setURI(cloneUrl).setDirectory(projectFolder).setRemote(remote);
+        CloneCommand command = Git.cloneRepository();
+        GitHelpers.configureCommand(command, credentialsProvider, sshPrivateKey, sshPublicKey);
+        command = command.setCredentialsProvider(credentialsProvider).
+                        setCloneAllBranches(cloneAll).setURI(cloneUrl).setDirectory(projectFolder).setRemote(remote);
+
         try {
             Git git = command.call();
         } catch (Throwable e) {
@@ -175,7 +198,7 @@ public class ProjectFileSystem {
         }
     }
 
-    protected void doPull(File gitFolder, CredentialsProvider cp, String branch, PersonIdent personIdent) {
+    protected void doPull(File gitFolder, CredentialsProvider cp, String branch, PersonIdent personIdent, UserDetails userDetails) {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             Repository repository = builder.setGitDir(gitFolder)
@@ -225,7 +248,9 @@ public class ProjectFileSystem {
             //git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
             LOG.info("Performing a pull in git repository " + projectFolder.getCanonicalPath() + " on remote URL: " + url);
-            git.pull().setCredentialsProvider(cp).setRebase(true).call();
+            PullCommand pull = git.pull();
+            GitHelpers.configureCommand(pull, userDetails);
+            pull.setRebase(true).call();
         } catch (Throwable e) {
             LOG.error("Failed to pull from the remote git repo with credentials " + cp + " due: " + e.getMessage() + ". This exception is ignored.", e);
         }
@@ -234,4 +259,5 @@ public class ProjectFileSystem {
     public void invokeLater(Runnable runnable, long millis) {
         executorService.schedule(runnable, millis, TimeUnit.MILLISECONDS);
     }
+
 }

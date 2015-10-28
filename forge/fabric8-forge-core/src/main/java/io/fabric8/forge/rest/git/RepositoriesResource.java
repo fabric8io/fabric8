@@ -19,8 +19,17 @@ import io.fabric8.forge.rest.main.GitUserHelper;
 import io.fabric8.forge.rest.main.ProjectFileSystem;
 import io.fabric8.forge.rest.main.RepositoryCache;
 import io.fabric8.forge.rest.main.UserDetails;
+import io.fabric8.kubernetes.api.model.LocalObjectReference;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigSpec;
+import io.fabric8.openshift.api.model.BuildSource;
+import io.fabric8.openshift.api.model.GitBuildSource;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
@@ -37,7 +46,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 /**
  */
@@ -46,6 +57,8 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class RepositoriesResource {
     private static final transient Logger LOG = LoggerFactory.getLogger(RepositoriesResource.class);
+    public static final String SSH_PRIVATE_KEY_DATA_KEY = "ssh-privatekey";
+    public static final String SSH_PUBLIC_KEY_DATA_KEY = "ssh-publickey";
 
     @Inject
     private GitUserHelper gitUserHelper;
@@ -58,6 +71,9 @@ public class RepositoriesResource {
 
     @Inject
     private GitLockManager lockManager;
+
+    @Inject
+    private KubernetesClient kubernetes;
 
     @Context
     private HttpServletRequest request;
@@ -113,6 +129,94 @@ public class RepositoriesResource {
             LOG.warn("failed to load message parameter: " + e, e);
         }
         return resource;
+    }
+
+    @Path("project/{namespace}/{projectId}")
+    public RepositoryResource projectRepositoryResource(@PathParam("namespace") String namespace, @PathParam("projectId") String projectId) throws IOException, GitAPIException {
+        UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        String origin = projectFileSystem.getRemote();
+
+        String remoteRepository = namespace + "/" + projectId;
+
+        String branch = request.getParameter("ref");
+        if (Strings.isNullOrBlank(branch)) {
+            branch = "master";
+        }
+        File projectFolder = projectFileSystem.getNamespaceProjectFolder(namespace, projectId);
+
+        // lets get the BuildConfig
+        OpenShiftClient osClient = kubernetes.adapt(OpenShiftClient.class).inNamespace(namespace);
+        BuildConfig buildConfig = osClient.buildConfigs().withName(projectId).get();
+        if (buildConfig == null) {
+            LOG.debug("No build config for " + remoteRepository);
+            return null;
+        }
+        BuildConfigSpec spec = buildConfig.getSpec();
+        if (spec == null) {
+            LOG.debug("No build config spec for " + remoteRepository);
+            return null;
+        }
+        BuildSource source = spec.getSource();
+        if (source == null) {
+            LOG.debug("No build config source for " + remoteRepository);
+            return null;
+        }
+        GitBuildSource gitSource = source.getGit();
+        if (gitSource == null) {
+            LOG.debug("No build config git source for " + remoteRepository);
+            return null;
+        }
+        String uri = gitSource.getUri();
+        if (Strings.isNullOrBlank(uri)) {
+            LOG.debug("No build config git URI for " + remoteRepository);
+            return null;
+        }
+        String sourceSecretName = null;
+        LocalObjectReference sourceSecret = source.getSourceSecret();
+        if (sourceSecret != null) {
+            sourceSecretName = sourceSecret.getName();
+        }
+        String cloneUrl = uri;
+        File gitFolder = new File(projectFolder, ".git");
+        LOG.debug("Cloning " + cloneUrl);
+        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl);
+        if (sourceSecretName != null) {
+            try {
+                Secret secret = osClient.secrets().withName(sourceSecretName).get();
+                if (secret != null) {
+                    Map<String, String> data = secret.getData();
+                    File privateKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PRIVATE_KEY_DATA_KEY, data.get(SSH_PRIVATE_KEY_DATA_KEY));
+                    userDetails.setSshPrivateKey(privateKeyFile);
+                    if (privateKeyFile != null) {
+                        privateKeyFile.setReadable(false, true);
+                    }
+                    File publicKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PUBLIC_KEY_DATA_KEY, data.get(SSH_PUBLIC_KEY_DATA_KEY));
+                    userDetails.setSshPublicKey(publicKeyFile);
+                }
+            } catch (IOException e) {
+                LOG.error("Failed to load secret key " + sourceSecretName + ". " + e, e);
+                throw new RuntimeException("Failed to load secret key " + sourceSecretName + ". " + e, e);
+            }
+        }
+        try {
+            String message = request.getParameter("message");
+            if (Strings.isNotBlank(message)) {
+                resource.setMessage(message);
+            }
+        } catch (Exception e) {
+            LOG.warn("failed to load message parameter: " + e, e);
+        }
+        return resource;
+    }
+
+    protected File createSshKeyFile(@PathParam("namespace") String namespace, String sourceSecretName, String privateKeyName, String privateKey) throws IOException {
+        File keyFile = null;
+        if (privateKey != null) {
+            byte[] text = Base64.getDecoder().decode(privateKey);
+            keyFile = projectFileSystem.getSecretsFolder(namespace, sourceSecretName, privateKeyName);
+            Files.writeToFile(keyFile, text);
+        }
+        return keyFile;
     }
 
     protected void enrichRepository(RepositoryDTO repositoryDTO) {
