@@ -19,9 +19,13 @@ import org.apache.deltaspike.core.impl.scope.conversation.ConversationBeanHolder
 import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessBeanAccessHistory;
 import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessBeanHolder;
 import org.apache.deltaspike.core.impl.scope.viewaccess.ViewAccessViewHistory;
+import org.apache.deltaspike.core.impl.scope.window.DefaultWindowContextQuotaHandler;
 import org.apache.deltaspike.core.impl.scope.window.WindowBeanHolder;
+import org.apache.deltaspike.core.impl.scope.window.WindowContextProducer;
+import org.apache.deltaspike.core.impl.scope.window.WindowContextQuotaHandlerCache;
 import org.apache.deltaspike.core.impl.scope.window.WindowIdHolder;
 import org.apache.deltaspike.core.spi.config.ConfigSourceProvider;
+import org.apache.deltaspike.core.spi.scope.window.WindowContextQuotaHandler;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -33,9 +37,18 @@ import java.io.File;
 
 public class DeltaspikeTestBase {
 
-
     public static Class[] getDeltaSpikeHolders() {
-        return new Class<?>[]{WindowBeanHolder.class,WindowIdHolder.class,ConversationBeanHolder.class,ViewAccessBeanHolder.class,ViewAccessBeanAccessHistory.class,ViewAccessViewHistory.class};
+        return new Class<?>[]{
+                WindowContextProducer.class,
+                WindowContextQuotaHandlerCache.class,
+                DefaultWindowContextQuotaHandler.class,
+                WindowContextQuotaHandler.class,
+                WindowBeanHolder.class,
+                WindowIdHolder.class,
+                ConversationBeanHolder.class,
+                ViewAccessBeanHolder.class,
+                ViewAccessBeanAccessHistory.class,
+                ViewAccessViewHistory.class};
     }
     
     @Deployment
