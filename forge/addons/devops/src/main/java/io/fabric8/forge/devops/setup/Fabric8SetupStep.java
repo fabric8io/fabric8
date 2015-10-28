@@ -337,8 +337,21 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         updated = MavenHelpers.updatePomProperty(properties, "fabric8.label.group", group.getValue(), updated);
         String servicePort = getDefaultServicePort(project);
         if (servicePort != null) {
+            String name = pom.getArtifactId();
+            // there is a max 24 chars limit in OpenShift/Kubernetes
+            if (name.length() > 24) {
+                // print a warning
+                String msg = "The fabric8.service.name: " + name + " is being limited to max 24 chars as that is required by Kubernetes/Openshift."
+                        + " You can change the name of the service in the <properties> section of the Maven pom file.";
+                // log and print to system out as the latter is what is seen in the CLI
+                LOG.warn(msg);
+                System.out.println(msg);
+                // clip the name at max 24 chars
+                name = name.substring(0, 24);
+            }
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.containerPort", servicePort, updated);
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.port", "80", updated);
+            updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.name", name, updated);
         }
 
         // to save then set the model
