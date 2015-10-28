@@ -112,7 +112,7 @@
 
         <compiler.plugin.version>3.3</compiler.plugin.version>
         <curator.version>2.9.0</curator.version>
-        <deltaspike.version>1.0.3</deltaspike.version>
+        <deltaspike.version>1.5.1</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
