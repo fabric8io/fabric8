@@ -183,7 +183,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         addDummyFileToEmptyFolders(basedir);
                         String message = createCommitMessage(name, executionRequest);
                         LOG.info("Commiting and pushing to: " + remoteUrl + " and remote name " + origin);
-                        GitHelpers.doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
+                        GitHelpers.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
 
                         LOG.info("Creating any pending webhooks");
                         registerWebHooks(context);
@@ -212,7 +212,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                             LOG.warn("Could not find remote git URL for folder " + absolutePath);
                         } else {
                             String message = createCommitMessage(name, executionRequest);
-                            GitHelpers.doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
+                            GitHelpers.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
                         }
                     }
                 }
