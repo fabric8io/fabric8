@@ -299,8 +299,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         MavenPluginBuilder pluginBuilder;
         MavenPlugin plugin = MavenHelpers.findPlugin(project, "io.fabric8", "fabric8-maven-plugin");
         if (plugin != null) {
+            // if there is an existing then leave it as-is
             LOG.info("Found existing fabric8-maven-plugin");
-            pluginBuilder = MavenPluginBuilder.create(plugin);
+            pluginBuilder = null;
         } else {
             LOG.info("Adding fabric8-maven-plugin");
             // add fabric8 plugin
@@ -310,8 +311,10 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
                     .addExecution(ExecutionBuilder.create().setId("attach").setPhase("package").addGoal("attach"));
         }
 
-        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
-        pluginFacet.addPlugin(pluginBuilder);
+        if (pluginBuilder != null) {
+            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+            pluginFacet.addPlugin(pluginBuilder);
+        }
     }
 
     private void setupArguillianTest(Project project, Model pom) {

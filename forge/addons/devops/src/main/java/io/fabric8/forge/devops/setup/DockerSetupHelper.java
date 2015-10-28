@@ -79,27 +79,29 @@ public class DockerSetupHelper {
         ConfigurationBuilder configurationBuilder;
         MavenPlugin plugin = MavenHelpers.findPlugin(project, "org.jolokia", "docker-maven-plugin");
         if (plugin != null) {
-            pluginBuilder = MavenPluginBuilder.create(plugin);
-            Configuration config = plugin.getConfig();
-            if (config != null) {
-                configurationBuilder = ConfigurationBuilder.create(config, pluginBuilder);
-            } else {
-                configurationBuilder = ConfigurationBuilder.create(pluginBuilder);
-            }
+            // if there is an existing then leave it as-is
+            LOG.info("Found existing docker-maven-plugin");
+            pluginBuilder = null;
+            configurationBuilder = null;
         } else {
+            LOG.info("Adding docker-maven-plugin");
             pluginBuilder = MavenPluginBuilder.create()
-                    .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
-            configurationBuilder = pluginBuilder.createConfiguration();
+                    .setCoordinate(MavenHelpers.createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
+            configurationBuilder = ConfigurationBuilder.create(pluginBuilder);
+            pluginBuilder.setConfiguration(configurationBuilder);
         }
 
-        String commandShell = null;
-        if (bundle) {
-            commandShell = "/usr/bin/deploy-and-start";
-        }
-        setupDockerConfiguration(configurationBuilder, envs, commandShell);
+        // if we are adding then we need to include some configurations as well
+        if (pluginBuilder != null) {
+            String commandShell = null;
+            if (bundle) {
+                commandShell = "/usr/bin/deploy-and-start";
+            }
+            setupDockerConfiguration(configurationBuilder, envs, commandShell);
 
-        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
-        pluginFacet.addPlugin(pluginBuilder);
+            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+            pluginFacet.addPlugin(pluginBuilder);
+        }
 
         setupDockerProperties(project, fromImage);
     }
