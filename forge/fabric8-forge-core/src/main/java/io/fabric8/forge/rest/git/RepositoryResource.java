@@ -32,6 +32,8 @@ import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -83,6 +85,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
+import static io.fabric8.forge.rest.main.GitHelpers.configureCommand;
 import static io.fabric8.forge.rest.main.GitHelpers.disableSslCertificateChecks;
 import static io.fabric8.forge.rest.main.GitHelpers.doAddCommitAndPushFiles;
 
@@ -136,6 +139,7 @@ public class RepositoryResource {
     public void setMessage(String message) {
         this.message = message;
     }
+
 
     @GET
     @Path("content/{path:.*}")
@@ -680,7 +684,7 @@ public class RepositoryResource {
                     message = "";
                 }
                 if (context.isRequireCommit()) {
-                    doAddCommitAndPushFiles(git, credentials, personIdent, branch, origin, message, isPushOnCommit());
+                    doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
                 }
                 return result;
             }
@@ -690,7 +694,9 @@ public class RepositoryResource {
     protected void doPull(Git git, GitContext context) throws GitAPIException {
         LOG.info("Performing a pull in git repository " + this.gitFolder + " on remote URL: " + this.remoteRepository);
         CredentialsProvider cp = userDetails.createCredentialsProvider();
-        git.pull().setCredentialsProvider(cp).setRebase(true).call();
+        PullCommand command = git.pull();
+        configureCommand(command, userDetails);
+        command.setCredentialsProvider(cp).setRebase(true).call();
     }
 
     protected Response uploadFile(final String path, final String message, final InputStream body) throws Exception {
@@ -902,7 +908,9 @@ public class RepositoryResource {
     }
 
     protected Iterable<PushResult> doPush(Git git) throws Exception {
-        CredentialsProvider credentials = userDetails.createCredentialsProvider();
-        return git.push().setCredentialsProvider(credentials).setRemote(getRemote()).call();
+        PushCommand command = git.push();
+        configureCommand(command, userDetails);
+        return command.setRemote(getRemote()).call();
     }
+
 }

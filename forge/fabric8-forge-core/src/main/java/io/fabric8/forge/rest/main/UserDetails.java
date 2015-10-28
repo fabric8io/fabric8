@@ -16,11 +16,16 @@
 package io.fabric8.forge.rest.main;
 
 import io.fabric8.repo.git.GitRepoClient;
+import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  */
@@ -33,6 +38,8 @@ public class UserDetails {
     private final String address;
     private final String email;
     private String branch = "master";
+    private File sshPrivateKey;
+    private File sshPublicKey;
 
     public UserDetails(String address, String internalAddress, String user, String password, String email) {
         this.internalAddress = internalAddress;
@@ -80,10 +87,49 @@ public class UserDetails {
     }
 
     public CredentialsProvider createCredentialsProvider() {
-        return  new UsernamePasswordCredentialsProvider(user, password);
+        if (sshPrivateKey != null) {
+            return new CredentialsProvider() {
+                @Override
+                public boolean isInteractive() {
+                    return false;
+                }
+
+                @Override
+                public boolean supports(CredentialItem... items) {
+                    return true;
+                }
+
+                @Override
+                public boolean get(URIish uri, CredentialItem... items) throws UnsupportedCredentialItem {
+                        /*
+                        for (CredentialItem item : items) {
+                            ((CredentialItem.StringType) item).setValue("yourpassphrase");
+                        }
+                        */
+                    return true;
+                }
+            };
+        }
+        return new UsernamePasswordCredentialsProvider(user, password);
     }
 
     public PersonIdent createPersonIdent() {
         return new PersonIdent(user, email);
+    }
+
+    public File getSshPrivateKey() {
+        return sshPrivateKey;
+    }
+
+    public File getSshPublicKey() {
+        return sshPublicKey;
+    }
+
+    public void setSshPrivateKey(File sshPrivateKey) {
+        this.sshPrivateKey = sshPrivateKey;
+    }
+
+    public void setSshPublicKey(File sshPublicKey) {
+        this.sshPublicKey = sshPublicKey;
     }
 }
