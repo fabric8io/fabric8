@@ -1113,9 +1113,11 @@ public final class KubernetesHelper {
                 addObjectsToItemArray(items, object);
             }
         }
+        KubernetesList fullList = new KubernetesList();
+        fullList.setItems(items);
         moveServicesToFrontOfArray(items);
         removeDuplicates(items);
-        Object answer = Templates.combineTemplates(list, items);
+        Object answer = Templates.combineTemplates(fullList);
         items = toItemList(answer);
         removeDuplicates(items);
         return answer;
