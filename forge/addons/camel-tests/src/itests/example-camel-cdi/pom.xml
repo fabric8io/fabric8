@@ -45,7 +45,7 @@
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <docker.assemblyDescriptorRef>artifact-with-dependencies</docker.assemblyDescriptorRef>
-    <docker-maven-plugin-version>0.13.5</docker-maven-plugin-version>
+    <docker-maven-plugin-version>0.13.6</docker-maven-plugin-version>
   </properties>
   <dependencyManagement>
     <dependencies>
