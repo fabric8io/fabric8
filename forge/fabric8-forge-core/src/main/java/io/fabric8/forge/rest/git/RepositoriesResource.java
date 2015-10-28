@@ -29,6 +29,7 @@ import io.fabric8.openshift.api.model.GitBuildSource;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
+import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -46,7 +47,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -212,9 +212,9 @@ public class RepositoriesResource {
     protected File createSshKeyFile(@PathParam("namespace") String namespace, String sourceSecretName, String privateKeyName, String privateKey) throws IOException {
         File keyFile = null;
         if (privateKey != null) {
-            byte[] text = Base64.getDecoder().decode(privateKey);
+            String text = Base64Encoder.decode(privateKey);
             keyFile = projectFileSystem.getSecretsFolder(namespace, sourceSecretName, privateKeyName);
-            Files.writeToFile(keyFile, text);
+            Files.writeToFile(keyFile, text.getBytes());
         }
         return keyFile;
     }
