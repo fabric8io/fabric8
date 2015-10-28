@@ -66,6 +66,7 @@ import java.util.concurrent.Callable;
 
 import static io.fabric8.forge.addon.utils.MavenHelpers.ensureMavenDependencyAdded;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
+import static io.fabric8.forge.devops.setup.DockerSetupHelper.setupDocker;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardStep {
@@ -259,53 +260,72 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         if (project == null) {
             return Results.fail("No pom.xml available so cannot edit the project!");
         }
-        DockerSetupHelper.setupDocker(project, from.getValue(), main.getValue());
 
-        LOG.info("docker now setup");
-
-        // make sure we have resources as we need it later
-        facetFactory.install(project, ResourcesFacet.class);
-
-        // install fabric8 bom
-
-        // include test dependencies?
-        LOG.info("checking dependencies");
+        // setup docker-maven-plugin and fabric8-maven-plugin
+        setupDocker(project, from.getValue(), main.getValue());
+        LOG.info("docker-maven-plugin now setup");
+        setupFabricMavenPlugin(project);
+        LOG.info("fabric8-maven-plugin now setup");
 
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
 
+        // import fabric8 bom
+        LOG.info("importing fabric8 bom");
+        importFabricBom(project, pom);
+
+        // make sure we have resources as we need it later
+        facetFactory.install(project, ResourcesFacet.class);
+
+        LOG.info("setting up arquillian test");
+        setupArguillianTest(project, pom);
+
+        LOG.info("setting up fabric8 properties");
+        setupFabricProperties(project, maven, pom);
+
+        return Results.success("Adding Fabric8 Maven support with base Docker image: " + from.getValue());
+    }
+
+    private void importFabricBom(Project project, Model pom) {
+        if (!MavenHelpers.hasManagedDependency(pom, "io.fabric8", "fabric8-project")) {
+            Dependency bom = DependencyBuilder.create()
+                    .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
+                    .setScopeType("import");
+            dependencyInstaller.installManaged(project, bom);
+        }
+    }
+
+    private void setupFabricMavenPlugin(Project project) {
+        MavenPluginBuilder pluginBuilder;
+        MavenPlugin plugin = MavenHelpers.findPlugin(project, "io.fabric8", "fabric8-maven-plugin");
+        if (plugin != null) {
+            LOG.info("Found existing fabric8-maven-plugin");
+            pluginBuilder = MavenPluginBuilder.create(plugin);
+        } else {
+            LOG.info("Adding fabric8-maven-plugin");
+            // add fabric8 plugin
+            pluginBuilder = MavenPluginBuilder.create()
+                    .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
+                    .addExecution(ExecutionBuilder.create().setId("json").setPhase("generate-resources").addGoal("json"))
+                    .addExecution(ExecutionBuilder.create().setId("attach").setPhase("package").addGoal("attach"));
+        }
+
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
+        pluginFacet.addPlugin(pluginBuilder);
+    }
+
+    private void setupArguillianTest(Project project, Model pom) {
         if (test.getValue() != null && test.getValue()) {
-            boolean hasFabric8Arquillian = !MavenHelpers.hasDependency(pom, "io.fabric8", "fabric8-arquillian");
-            boolean hasArquillianJunitContainer = !MavenHelpers.hasDependency(pom, "org.jboss.arquillian.junit", "arquillian-junit-container");
-
-
-            // I guess we only need to add this import if we add a test case?
-            // unless the app is using fabric8-cdi or something?
-            if (!hasFabric8Arquillian || !hasArquillianJunitContainer) {
-                if (!MavenHelpers.hasManagedDependency(pom, "io.fabric8", "fabric8-project")) {
-                    Dependency bom = DependencyBuilder.create()
-                            .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-project", VersionHelper.fabric8Version(), "pom"))
-                            .setScopeType("import");
-                    dependencyInstaller.installManaged(project, bom);
-                }
-            }
             ensureMavenDependencyAdded(project, dependencyInstaller, "io.fabric8", "fabric8-arquillian", "test");
             ensureMavenDependencyAdded(project, dependencyInstaller, "org.jboss.arquillian.junit", "arquillian-junit-container", "test");
         }
+    }
 
-        if (!MavenHelpers.hasMavenPlugin(pom, "io.fabric8", "fabric8-maven-plugin")) {
-            // add fabric8 plugin
-            MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
-            MavenPlugin plugin = MavenPluginBuilder.create()
-                    .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-maven-plugin", VersionHelper.fabric8Version()))
-                    .addExecution(ExecutionBuilder.create().setId("json").addGoal("json"))
-                    .addExecution(ExecutionBuilder.create().setId("zip").addGoal("zip"));
-            pluginFacet.addPlugin(plugin);
-        }
-
+    private void setupFabricProperties(Project project, MavenFacet maven, Model pom) {
         // update properties section in pom.xml
-        Properties properties = pom.getProperties();
         boolean updated = false;
+
+        Properties properties = pom.getProperties();
         updated = MavenHelpers.updatePomProperty(properties, "fabric8.label.container", container.getValue(), updated);
         String iconValue = icon.getValue();
         if (Strings.isNotBlank(iconValue)) {
@@ -323,8 +343,6 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             maven.setModel(pom);
             LOG.info("updated pom.xml");
         }
-
-        return Results.success("Adding Fabric8 maven support with base Docker image: " + from.getValue());
     }
 
     /**

@@ -15,9 +15,16 @@
  */
 package io.fabric8.forge.addon.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import org.apache.maven.model.Build;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
@@ -29,23 +36,13 @@ import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.maven.plugins.Configuration;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElement;
 import org.jboss.forge.addon.maven.plugins.ConfigurationElementBuilder;
-import org.jboss.forge.addon.maven.plugins.ConfigurationElementNotFoundException;
 import org.jboss.forge.addon.maven.plugins.MavenPlugin;
-import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.DependencyFacet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  */
@@ -123,7 +120,7 @@ public class MavenHelpers {
         List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies) {
             if (groupId.equals(d.getCoordinate().getGroupId()) && artifactId.equals(d.getCoordinate().getArtifactId())) {
-                System.out.println("Project already includes:  " + groupId + ":" + artifactId + " for version: " + d.getCoordinate().getVersion());
+                LOG.debug("Project already includes:  " + groupId + ":" + artifactId + " for version: " + d.getCoordinate().getVersion());
                 return false;
             }
         }
@@ -136,16 +133,16 @@ public class MavenHelpers {
         String version = MavenHelpers.getVersion(groupId, artifactId);
         if (Strings.isNotBlank(version)) {
             component = component.setVersion(version);
-            System.out.println("Adding pom.xml dependency:  " + groupId + ":" + artifactId + " version: " + version + " scope: " + scope);
+            LOG.debug("Adding pom.xml dependency:  " + groupId + ":" + artifactId + " version: " + version + " scope: " + scope);
         } else {
-            System.out.println("No version could be found for:  " + groupId + ":" + artifactId);
+            LOG.debug("No version could be found for:  " + groupId + ":" + artifactId);
         }
         dependencyInstaller.install(project, component);
         return true;
     }
 
     /**
-     * Returns the version from the list of pre-configured versions of common groupid/artifact pairs
+     * Returns the version from the list of pre-configured versions of common groupId/artifact pairs
      */
     public static String getVersion(String groupId, String artifactId) {
         String key = "" + groupId + "/" + artifactId;
@@ -203,26 +200,6 @@ public class MavenHelpers {
     }
 
     /**
-     * Returns true if the pom has the given plugin
-     */
-    public static boolean hasMavenPlugin(Model pom, String groupId, String artifactId) {
-        if (pom != null) {
-            Build build = pom.getBuild();
-            if (build != null) {
-                List<Plugin> plugins = build.getPlugins();
-                if (plugins != null) {
-                    for (Plugin plugin : plugins) {
-                        if (Objects.equal(groupId, plugin.getGroupId()) && Objects.equal(artifactId, plugin.getArtifactId())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Returns true if the pom has the given dependency
      */
     public static boolean hasDependency(Model pom, String groupId, String artifactId) {
@@ -234,7 +211,7 @@ public class MavenHelpers {
     }
 
     /**
-     * Returns true if the lilst has the given dependency
+     * Returns true if the list has the given dependency
      */
     public static boolean hasDependency(List<org.apache.maven.model.Dependency> dependencies, String groupId, String artifactId) {
         if (dependencies != null) {
@@ -263,12 +240,12 @@ public class MavenHelpers {
     /**
      * Updates the given maven property value if value is not null and returns true if the pom has been changed
      *
-     * @returns true if the value changed and was non null or updated was true
+     * @return true if the value changed and was non null or updated was true
      */
     public static boolean updatePomProperty(Properties properties, String name, Object value, boolean updated) {
         if (value != null) {
             Object oldValue = properties.get(name);
-            if (value != null && !Objects.equal(oldValue, value)) {
+            if (!Objects.equal(oldValue, value)) {
                 LOG.info("Updating pom.xml property: " + name + " to " + value);
                 properties.put(name, value);
                 return true;

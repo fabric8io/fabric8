@@ -75,8 +75,8 @@ public class DockerSetupHelper {
             envs.put("JAVA_MAIN_CLASS", main);
         }
 
-        MavenPluginBuilder pluginBuilder = null;
-        ConfigurationBuilder configurationBuilder = null;
+        MavenPluginBuilder pluginBuilder;
+        ConfigurationBuilder configurationBuilder;
         MavenPlugin plugin = MavenHelpers.findPlugin(project, "org.jolokia", "docker-maven-plugin");
         if (plugin != null) {
             pluginBuilder = MavenPluginBuilder.create(plugin);
@@ -88,7 +88,7 @@ public class DockerSetupHelper {
             }
         } else {
             pluginBuilder = MavenPluginBuilder.create()
-                    .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));;
+                    .setCoordinate(createCoordinate("org.jolokia", "docker-maven-plugin", VersionHelper.dockerVersion()));
             configurationBuilder = pluginBuilder.createConfiguration();
         }
 
