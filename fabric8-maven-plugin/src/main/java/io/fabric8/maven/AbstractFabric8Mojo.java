@@ -564,7 +564,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         Repository repository = getGitRepository(basedir, envVarName);
         try {
             if (repository != null) {
-                System.out.println("Looking at repo with directory " + repository.getDirectory());
+                getLog().info("Looking at repo with directory " + repository.getDirectory());
                 Iterable<RevCommit> logs = new Git(repository).log().call();
                 for (RevCommit rev : logs) {
                     return rev.getName();
@@ -577,7 +577,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             warnIfInCDBuild("Failed to find git commit id. " + e, e);
         } finally {
             if (repository != null) {
-                repository.close();
+                try {
+                    repository.close();
+                } catch (Exception e) {
+                    // ignore
+                }
             }
         }
         return null;
@@ -637,7 +641,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         try {
             File gitFolder = GitHelpers.findGitFolder(basedir);
             if (gitFolder == null) {
-                getLog().warn("Could not find .git folder based on the current basedir of " + basedir);
+                warnIfInCDBuild("Could not find .git folder based on the current basedir of " + basedir);
                 return null;
             }
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
@@ -646,11 +650,11 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                     .setGitDir(gitFolder)
                     .build();
             if (repository == null) {
-                getLog().warn("Cannot create default value for $" + envVarName + " as no .git/config file could be found");
+                warnIfInCDBuild("Cannot create default value for $" + envVarName + " as no .git/config file could be found");
             }
             return repository;
         } catch (Exception e) {
-            getLog().warn("Failed to initialise Git Repository: " + e, e);
+            warnIfInCDBuild("Failed to initialise Git Repository: " + e, e);
             return null;
         }
     }
@@ -724,7 +728,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     public JsonSchema getEnvironmentVariableJsonSchema() throws IOException, MojoExecutionException {
         JsonSchema schema = JsonSchemas.loadEnvironmentSchemas(getCompileClassLoader(), getProject().getBuild().getOutputDirectory());
         if (schema == null) {
-            getLog().info("No environment schemas found for file: " + JsonSchemas.ENVIRONMENT_SCHEMA_FILE);
+            getLog().debug("No environment schemas found for file: " + JsonSchemas.ENVIRONMENT_SCHEMA_FILE);
             schema = new JsonSchema();
         }
         Map<String, String> envs = getEnvironmentVariableProperties();
