@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ExecutionResult {
+    private String projectName;
 	private final ExecutionStatus status;
 	private final String message;
 	private String output;
@@ -80,6 +81,14 @@ public class ExecutionResult {
 
     public boolean isCanMoveToNextStep() {
         return canMoveToNextStep;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     /**

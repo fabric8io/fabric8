@@ -483,7 +483,7 @@ public class CommandsResource {
         return controller;
     }
 
-    protected <T> T withUIContext(String namespace, String projectName, String resourcePath, boolean write, final RestUIFunction<T> function) throws Exception {
+    protected <T> T withUIContext(final String namespace, final String projectName, String resourcePath, boolean write, final RestUIFunction<T> function) throws Exception {
         final ResourceFactory resourceFactory = getResourceFactory();
         if (Strings.isNotBlank(namespace) && Strings.isNotBlank(projectName) && resourceFactory != null) {
             RepositoriesResource repositoriesResource = new RepositoriesResource(gitUserHelper, repositoryCache, projectFileSystem, lockManager, kubernetes);
@@ -500,7 +500,7 @@ public class CommandsResource {
                         File directory = gitDir.getParentFile();
                         LOG.debug("using repository directory: " + directory.getAbsolutePath());
                         Resource<?> selection = resourceFactory.create(directory);
-                        try (RestUIContext context = new RestUIContext(selection)) {
+                        try (RestUIContext context = new RestUIContext(selection, namespace, projectName)) {
                             T answer = function.apply(context);
                             String commitMessage = context.getCommitMessage();
                             if (Strings.isNotBlank(commitMessage)) {
