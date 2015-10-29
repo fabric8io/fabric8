@@ -270,7 +270,10 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         Project project = getSelectedProject(context);
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
-        WebResourcesFacet webFacet = project.getFacet(WebResourcesFacet.class);
+        WebResourcesFacet webResourcesFacet = null;
+        if (project.hasFacet(WebResourcesFacet.class)) {
+            webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        }
 
         // does the project already have camel?
         Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
@@ -318,7 +321,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         FileResource file = facet != null ? facet.getResource(xml) : null;
         if (file == null || !file.exists()) {
-            file = webFacet != null ? webFacet.getWebResource(xml) : null;
+            file = webResourcesFacet != null ? webResourcesFacet.getWebResource(xml) : null;
         }
         if (file == null || !file.exists()) {
             return Results.fail("Cannot find XML file " + xml);

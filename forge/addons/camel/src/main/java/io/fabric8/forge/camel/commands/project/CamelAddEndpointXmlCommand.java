@@ -93,7 +93,10 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
         final ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
-        WebResourcesFacet webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        WebResourcesFacet webResourcesFacet = null;
+        if (project.hasFacet(WebResourcesFacet.class)) {
+            webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        }
 
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
