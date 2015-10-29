@@ -15,6 +15,16 @@
  */
 package io.fabric8.forge.devops.setup;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import javax.inject.Inject;
+
 import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameOrMavenPropertyValidator;
@@ -31,7 +41,6 @@ import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPlugin;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
-import org.jboss.forge.addon.maven.profiles.ProfileBuilder;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -56,16 +65,6 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Callable;
 
 import static io.fabric8.forge.addon.utils.MavenHelpers.ensureMavenDependencyAdded;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
@@ -291,9 +290,13 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         setupFabricProperties(project, maven, pom);
 
         LOG.info("setting up fabric8 maven profiles");
-        setupFabricMavenProfiles(project, maven, pom);
+        boolean f8profiles = setupFabricMavenProfiles(project, maven, pom);
 
-        return Results.success("Adding Fabric8 Maven support with base Docker image: " + from.getValue());
+        String msg = "Added Fabric8 Maven support with base Docker image: " + from.getValue();
+        if (f8profiles) {
+            msg += ". Added the following Maven profiles [f8-build, f8-deploy, f8-local-deploy] to make building the project easier, e.g. mvn -Pf8-local-deploy";
+        }
+        return Results.success(msg);
     }
 
     private void importFabricBom(Project project, Model pom) {
@@ -371,9 +374,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         }
     }
 
-    private void setupFabricMavenProfiles(Project project, MavenFacet maven, Model pom) {
+    private boolean setupFabricMavenProfiles(Project project, MavenFacet maven, Model pom) {
         if (profiles.getValue() == null || !profiles.getValue()) {
-            return;
+            return false;
         }
 
         boolean updated = false;
@@ -423,6 +426,8 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             maven.setModel(pom);
             LOG.info("updated pom.xml");
         }
+
+        return true;
     }
 
     /**
