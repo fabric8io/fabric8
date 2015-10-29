@@ -21,7 +21,9 @@ import io.fabric8.forge.addon.utils.validator.ClassNameOrMavenPropertyValidator;
 import io.fabric8.forge.devops.AbstractDevOpsCommand;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Profile;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.facets.FacetFactory;
@@ -29,6 +31,7 @@ import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.plugins.ExecutionBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPlugin;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.profiles.ProfileBuilder;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -99,6 +102,10 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
     @Inject
     @WithAttributes(label = "test", required = false, defaultValue = "true", description = "Include test dependencies")
     private UIInput<Boolean> test;
+
+    @Inject
+    @WithAttributes(label = "profiles", required = false, defaultValue = "true", description = "Include Maven fabric8 profiles for easily building and deploying")
+    private UIInput<Boolean> profiles;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -250,7 +257,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             }
         });
 
-        builder.add(test).add(icon).add(group).add(container);
+        builder.add(profiles).add(test).add(icon).add(group).add(container);
     }
 
     @Override
@@ -282,6 +289,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
 
         LOG.info("setting up fabric8 properties");
         setupFabricProperties(project, maven, pom);
+
+        LOG.info("setting up fabric8 maven profiles");
+        setupFabricMavenProfiles(project, maven, pom);
 
         return Results.success("Adding Fabric8 Maven support with base Docker image: " + from.getValue());
     }
@@ -352,6 +362,60 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.containerPort", servicePort, updated);
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.port", "80", updated);
             updated = MavenHelpers.updatePomProperty(properties, "fabric8.service.name", name, updated);
+        }
+
+        // to save then set the model
+        if (updated) {
+            maven.setModel(pom);
+            LOG.info("updated pom.xml");
+        }
+    }
+
+    private void setupFabricMavenProfiles(Project project, MavenFacet maven, Model pom) {
+        if (profiles.getValue() == null || !profiles.getValue()) {
+            return;
+        }
+
+        boolean updated = false;
+        Profile profile = MavenHelpers.findProfile(pom, "f8-build");
+        if (profile == null) {
+            LOG.info("Adding f8-build profile");
+            profile = new Profile();
+            profile.setId("f8-build");
+            Build build = new Build();
+            build.setDefaultGoal("clean install docker:build fabric8:json");
+            profile.setBuild(build);
+            pom.addProfile(profile);
+            updated = true;
+        }
+        profile = MavenHelpers.findProfile(pom, "f8-deploy");
+        if (profile == null) {
+            LOG.info("Adding f8-deploy profile");
+            profile = new Profile();
+            profile.setId("f8-deploy");
+            Properties prop = new Properties();
+            prop.setProperty("fabric8.imagePullPolicySnapshot", "Always");
+            prop.setProperty("fabric8.recreate", "true");
+            profile.setProperties(prop);
+            Build build = new Build();
+            build.setDefaultGoal("clean install docker:build docker:push fabric8:json fabric8:apply");
+            profile.setBuild(build);
+            pom.addProfile(profile);
+            updated = true;
+        }
+        profile = MavenHelpers.findProfile(pom, "f8-local-deploy");
+        if (profile == null) {
+            LOG.info("Adding f8-local-deploy profile");
+            profile = new Profile();
+            profile.setId("f8-local-deploy");
+            Properties prop = new Properties();
+            prop.setProperty("fabric8.recreate", "true");
+            profile.setProperties(prop);
+            Build build = new Build();
+            build.setDefaultGoal("clean install docker:build fabric8:json fabric8:apply");
+            profile.setBuild(build);
+            pom.addProfile(profile);
+            updated = true;
         }
 
         // to save then set the model
