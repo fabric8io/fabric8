@@ -393,7 +393,7 @@ public class DevOpsConnector {
             createJenkinsJob(jenkinsJobName, jenkinsJobUrl);
             getLog().info("created jenkins job");
         }
-        if (Strings.isNotBlank(jenkinsJobUrl)) {
+        if (Strings.isNotBlank(jenkinsJobUrl) && Strings.isNotBlank(jenkinsJobName)) {
             createJenkinsWebhook(jenkinsJobUrl);
         }
         if (taiga != null && taigaProject != null) {
@@ -1293,6 +1293,8 @@ public class DevOpsConnector {
     }
 
     protected void createWebhook(String url, String webhookSecret) {
+        // TODO we should only register a webhook if either git + other system is on premise or if its all online
+        // e.g. we shouldn't try to register webhooks on public github with on premise services
         try {
             GitRepoClient gitRepoClient = getGitRepoClient();
             WebHooks.createGogsWebhook(gitRepoClient, getLog(), username, repoName, url, webhookSecret);

@@ -25,6 +25,7 @@ import java.io.File;
 public class RestUIContext extends AbstractUIContext {
     private final Resource<?> selection;
     private final RestUIProvider provider = new RestUIProvider();
+    private String commitMessage;
 
     public RestUIContext() {
         this.selection = null;
@@ -60,4 +61,11 @@ public class RestUIContext extends AbstractUIContext {
         return provider;
     }
 
+    public String getCommitMessage() {
+        return commitMessage;
+    }
+
+    public void setCommitMessage(String commitMessage) {
+        this.commitMessage = commitMessage;
+    }
 }

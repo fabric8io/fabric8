@@ -22,13 +22,23 @@ import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.dto.UICommands;
 import io.fabric8.forge.rest.dto.ValidationResult;
 import io.fabric8.forge.rest.dto.WizardResultsDTO;
+import io.fabric8.forge.rest.git.GitContext;
+import io.fabric8.forge.rest.git.GitLockManager;
+import io.fabric8.forge.rest.git.GitOperation;
+import io.fabric8.forge.rest.git.RepositoriesResource;
+import io.fabric8.forge.rest.git.RepositoryResource;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.main.GitUserHelper;
 import io.fabric8.forge.rest.main.ProjectFileSystem;
+import io.fabric8.forge.rest.main.RepositoryCache;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.forge.rest.ui.RestUIContext;
+import io.fabric8.forge.rest.ui.RestUIFunction;
 import io.fabric8.forge.rest.ui.RestUIRuntime;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.resource.ResourceFactory;
@@ -50,6 +60,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -86,10 +97,20 @@ public class CommandsResource {
     @Inject
     private GitUserHelper gitUserHelper;
 
+    @Inject
+    private RepositoryCache repositoryCache;
+
+    @Inject
+    private KubernetesClient kubernetes;
+
+    @Inject
+    private GitLockManager lockManager;
+
     @Context
     private HttpServletRequest request;
 
     private ConverterFactory converterFactory;
+
 
     @GET
     public String getInfo() {
@@ -112,66 +133,82 @@ public class CommandsResource {
     @GET
     @Path("/commands")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<CommandInfoDTO> getCommands() {
-        return getCommands(null);
+    public List<CommandInfoDTO> getCommands() throws Exception {
+        return getCommands(null, null, null);
     }
 
     @GET
-    @Path("/commands/{path: .*}")
+    @Path("/commands/{namespace}/{projectName}/{path: .*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<CommandInfoDTO> getCommands(@PathParam("path") String resourcePath) {
-        List<CommandInfoDTO> answer = new ArrayList<>();
-        try (RestUIContext context = createUIContext(resourcePath)) {
-            for (String name : commandFactory.getCommandNames(context)) {
-                try {
-                    CommandInfoDTO dto = createCommandInfoDTO(context, name);
-                    if (dto != null && dto.isEnabled()) {
-                        answer.add(dto);
+    public List<CommandInfoDTO> getCommands(@PathParam("namespace") String namespace, @PathParam("projectName") String projectName, @PathParam("path") String resourcePath) throws Exception {
+        return withUIContext(namespace, projectName, resourcePath, false, new RestUIFunction<List<CommandInfoDTO>>() {
+            @Override
+            public List<CommandInfoDTO> apply(RestUIContext context) {
+                List<CommandInfoDTO> answer = new ArrayList<>();
+                for (String name : commandFactory.getCommandNames(context)) {
+                    try {
+                        CommandInfoDTO dto = createCommandInfoDTO(context, name);
+                        if (dto != null && dto.isEnabled()) {
+                            answer.add(dto);
+                        }
+                    } catch (Exception e) {
+                        LOG.warn("Ignored exception on command " + name + " probably due to missing project?: " + e, e);
                     }
-                } catch (Exception e) {
-                    LOG.warn("Ignored exception on command " + name + " probably due to missing project?: " + e, e);
                 }
+                return answer;
             }
-        }
-        return answer;
+        });
     }
 
     @GET
     @Path("/command/{name}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCommandInfo(@PathParam("name") String name) {
-        return getCommandInfo(name, null);
+    public Response getCommandInfo(@PathParam("name") String name) throws Exception {
+        return getCommandInfo(name, null, null, null);
     }
 
     @GET
-    @Path("/command/{name}/{path: .*}")
+    @Path("/command/{name}/{namespace}/{projectName}/{path: .*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCommandInfo(@PathParam("name") String name, @PathParam("path") String resourcePath) {
-        CommandInfoDTO answer = null;
-        try (RestUIContext context = createUIContext(resourcePath)) {
-            answer = createCommandInfoDTO(context, name);
-        }
-        if (answer != null) {
-            return Response.ok(answer).build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+    public Response getCommandInfo(@PathParam("name") final String name, @PathParam("namespace") final String namespace, @PathParam("projectName") final String projectName,
+                                   @PathParam("path") final String resourcePath) throws Exception {
+        return withUIContext(namespace, projectName, resourcePath, false, new RestUIFunction<Response>() {
+            @Override
+            public Response apply(RestUIContext context) {
+                CommandInfoDTO answer = createCommandInfoDTO(context, name);
+                if (answer != null) {
+                    return Response.ok(answer).build();
+                } else {
+                    return Response.status(Status.NOT_FOUND).build();
+                }
+            }
+        });
     }
 
     @GET
     @Path("/commandInput/{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCommandInput(@PathParam("name") String name) throws Exception {
-        return getCommandInput(name, null);
+        return getCommandInput(name, null, null, null);
     }
 
     @GET
-    @Path("/commandInput/{name}/{path: .*}")
+    @Path("/commandInput/{name}/{namespace}/{projectName}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCommandInput(@PathParam("name") String name, @PathParam("path") String resourcePath) throws Exception {
-        try {
-            CommandInputDTO answer = null;
-            try (RestUIContext context = createUIContext(resourcePath)) {
+    public Response getCommandInput(@PathParam("name") final String name, @PathParam("namespace") String namespace, @PathParam("projectName") String projectName) throws Exception {
+        return getCommandInput(name, namespace, projectName, null);
+    }
+
+    @GET
+    @Path("/commandInput/{name}/{namespace}/{projectName}/{path: .*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCommandInput(@PathParam("name") final String name,
+                                    @PathParam("namespace") String namespace, @PathParam("projectName") String projectName,
+                                    @PathParam("path") String resourcePath) throws Exception {
+        return withUIContext(namespace, projectName, resourcePath, false, new RestUIFunction<Response>() {
+            @Override
+            public Response apply(RestUIContext context) throws Exception {
+                CommandInputDTO answer = null;
                 UICommand command = getCommandByName(context, name);
                 if (command != null) {
                     CommandController controller = createController(context, command);
@@ -183,10 +220,7 @@ public class CommandsResource {
                     return Response.status(Status.NOT_FOUND).build();
                 }
             }
-        } catch (Throwable e) {
-            LOG.warn("Failed to find input for command " + name + ". " + e, e);
-            throw e;
-        }
+        });
     }
 
 
@@ -194,16 +228,24 @@ public class CommandsResource {
     @Path("/command/execute/{name}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response executeCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
+    public Response executeCommand(@PathParam("name") final String name, final ExecutionRequest executionRequest) throws Exception {
         try {
-            UserDetails userDetails = null;
-            CommandCompletePostProcessor postProcessor = this.commandCompletePostProcessor;
+            final CommandCompletePostProcessor postProcessor = this.commandCompletePostProcessor;
+            final UserDetails userDetails;
             if (postProcessor != null) {
                 userDetails = postProcessor.preprocessRequest(name, executionRequest, request);
+            } else {
+                userDetails = null;
             }
+            String namespace = executionRequest.getNamespace();
+            String projectName = executionRequest.getProjectName();
             String resourcePath = executionRequest.getResource();
-            RestUIContext uiContext = createUIContext(resourcePath);
-            return doExecute(name, executionRequest, postProcessor, userDetails, uiContext);
+            return withUIContext(namespace, projectName, resourcePath, true, new RestUIFunction<Response>() {
+                @Override
+                public Response apply(RestUIContext uiContext) throws Exception {
+                    return doExecute(name, executionRequest, postProcessor, userDetails, uiContext);
+                }
+            });
         } catch (Throwable e) {
             LOG.warn("Failed to invoke command " + name + " on " + executionRequest + ". " + e, e);
             throw e;
@@ -293,6 +335,7 @@ public class CommandsResource {
             if (answer.isCommandCompleted() && postProcessor != null) {
                 postProcessor.firePostCompleteActions(name, executionRequest, context, controller, answer, request);
             }
+            context.setCommitMessage(ExecutionRequest.createCommitMessage(name, executionRequest));
             return Response.ok(answer).build();
         }
     }
@@ -315,14 +358,24 @@ public class CommandsResource {
     @Path("/command/validate/{name}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateCommand(@PathParam("name") String name, ExecutionRequest executionRequest) throws Exception {
+    public Response validateCommand(@PathParam("name") final String name, final ExecutionRequest executionRequest) throws Exception {
         try {
-            UserDetails userDetails = null;
+            final UserDetails userDetails;
             if (commandCompletePostProcessor != null) {
                 userDetails = commandCompletePostProcessor.preprocessRequest(name, executionRequest, request);
+            } else {
+                userDetails = null;
             }
-            String resourcePath = executionRequest.getResource();
-            return doValidate(name, executionRequest, userDetails, createUIContext(resourcePath));
+            final String namespace = executionRequest.getNamespace();
+            final String projectName = executionRequest.getProjectName();
+            final String resourcePath = executionRequest.getResource();
+            return withUIContext(namespace, projectName, resourcePath, false, new RestUIFunction<Response>() {
+                @Override
+                public Response apply(RestUIContext uiContext) throws Exception {
+                    return doValidate(name, executionRequest, userDetails, uiContext);
+                }
+            });
+
         } catch (Throwable e) {
             LOG.warn("Failed to invoke command " + name + " on " + executionRequest + ". " + e, e);
             throw e;
@@ -430,35 +483,46 @@ public class CommandsResource {
         return controller;
     }
 
-    protected RestUIContext createUIContext(String resourcePath) {
-        ResourceFactory resourceFactory = getResourceFactory();
-        Resource<?> selection = null;
-        if (Strings.isNotBlank(resourcePath) && resourceFactory != null) {
-            // lets split out user repositories
-            String path = Strings.stripPrefix(resourcePath, "/");
-            String userFolder = "user/";
-            if (path.startsWith(userFolder)) {
-                path = Strings.stripPrefix(path, userFolder);
-                String[] userAndPath = path.split("/", 2);
-                if (userAndPath.length < 2) {
-                    LOG.warn("Could not extract user name and path from resource: " + resourcePath);
-                } else {
-                    String userId = userAndPath[0];
-                    String repositoryName = userAndPath[1];
-
-                    UserDetails userDetails = gitUserHelper.createUserDetails(request);
-
-                    File file = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
-                    selection = resourceFactory.create(file);
-                    LOG.info("Completed pulling source code");
-                }
+    protected <T> T withUIContext(String namespace, String projectName, String resourcePath, boolean write, final RestUIFunction<T> function) throws Exception {
+        final ResourceFactory resourceFactory = getResourceFactory();
+        if (Strings.isNotBlank(namespace) && Strings.isNotBlank(projectName) && resourceFactory != null) {
+            RepositoriesResource repositoriesResource = new RepositoriesResource(gitUserHelper, repositoryCache, projectFileSystem, lockManager, kubernetes);
+            repositoriesResource.setRequest(request);
+            final RepositoryResource projectResource = repositoriesResource.projectRepositoryResource(namespace, projectName);
+            if (projectResource == null) {
+                throw new NotFoundException("Could not find git project for namespace: " + namespace + " and projectName: " + projectName);
             } else {
-                LOG.warn("Unknown path of the form user/{userId}/{repositoryName}");
-                throw new RuntimeException("Expected path of the form user/{userId}/{repositoryName} but got: " + path);
+                GitOperation<T> operation = new GitOperation<T>() {
+                    @Override
+                    public T call(Git git, GitContext gitContext) throws Exception {
+                        Repository repository = git.getRepository();
+                        File gitDir = repository.getDirectory();
+                        File directory = gitDir.getParentFile();
+                        LOG.debug("using repository directory: " + directory.getAbsolutePath());
+                        Resource<?> selection = resourceFactory.create(directory);
+                        try (RestUIContext context = new RestUIContext(selection)) {
+                            T answer = function.apply(context);
+                            String commitMessage = context.getCommitMessage();
+                            if (Strings.isNotBlank(commitMessage)) {
+                                projectResource.setMessage(commitMessage);
+                            }
+                            return answer;
+                        }
+                    }
+                };
+                if (write) {
+                    return projectResource.gitWriteOperation(operation);
+                } else {
+                    return projectResource.gitReadOperation(operation);
+                }
+            }
+        } else {
+            try (RestUIContext context = new RestUIContext(null)) {
+                return function.apply(context);
             }
         }
-        return new RestUIContext(selection);
     }
+
 
     public RestUIContext createUIContext(File file) {
         ResourceFactory resourceFactory = getResourceFactory();

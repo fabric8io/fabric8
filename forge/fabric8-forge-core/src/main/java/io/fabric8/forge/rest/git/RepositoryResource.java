@@ -619,12 +619,12 @@ public class RepositoryResource {
         return new ArrayList<String>(names);
     }
 
-    protected <T> T gitReadOperation(GitOperation<T> operation) throws Exception {
+    public <T> T gitReadOperation(GitOperation<T> operation) throws Exception {
         GitContext context = new GitContext();
         return gitOperation(context, operation);
     }
 
-    protected <T> T gitWriteOperation(GitOperation<T> operation) throws Exception {
+    public <T> T gitWriteOperation(GitOperation<T> operation) throws Exception {
         GitContext context = new GitContext();
         context.setRequireCommit(true);
         context.setRequirePush(true);

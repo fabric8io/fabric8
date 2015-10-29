@@ -15,11 +15,14 @@
  */
 package io.fabric8.forge.rest.dto;
 
+import org.jboss.forge.furnace.util.Strings;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="ggastald@redhat.com">George Gastaldi</a>
@@ -29,6 +32,12 @@ public class ExecutionRequest {
     @XmlElement
     private String resource;
 
+    @XmlElement
+    private String projectName;
+
+    @XmlElement
+    private String namespace;
+
     @XmlElementWrapper
     private List<Map<String, String>> inputList;
 
@@ -36,6 +45,28 @@ public class ExecutionRequest {
     private List<String> promptQueue;
 
     private Integer wizardStep;
+
+    /**
+     * Lets generate a commit message with the command name and all the parameters we specify
+     */
+    public static String createCommitMessage(String name, ExecutionRequest executionRequest) {
+        StringBuilder builder = new StringBuilder(name);
+        List<Map<String, String>> inputList = executionRequest.getInputList();
+        for (Map<String, String> map : inputList) {
+            Set<Map.Entry<String, String>> entries = map.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (!Strings.isNullOrEmpty(value) && !value.equals("0") && !value.toLowerCase().equals("false")) {
+                    builder.append(" --");
+                    builder.append(key);
+                    builder.append("=");
+                    builder.append(value);
+                }
+            }
+        }
+        return builder.toString();
+    }
 
     @Override
     public String toString() {
@@ -52,6 +83,22 @@ public class ExecutionRequest {
 
     public void setInputList(List<Map<String, String>> inputList) {
         this.inputList = inputList;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     /**
