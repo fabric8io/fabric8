@@ -53,7 +53,7 @@ import java.util.Map;
 /**
  * An abstract base class for DevOps related commands
  */
-public class AbstractDevOpsCommand extends AbstractProjectCommand implements UICommand {
+public abstract class AbstractDevOpsCommand extends AbstractProjectCommand implements UICommand {
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDevOpsCommand.class);
 
     public static String CATEGORY = "DevOps";
