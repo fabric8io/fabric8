@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>fabric8:json | Fabric8 Documentation</title>
+        <title>Consume a Service | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.5.1">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="./annotationProcessors.html" />
+    <link rel="next" href="./tools.html" />
     
     
-    <link rel="prev" href="./mavenFabric8DevOps.html" />
+    <link rel="prev" href="./apimanImportService.html" />
     
 
         
@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.1.8" data-chapter-title="fabric8:json" data-filepath="mavenFabric8Json.md" data-basepath="." data-revision="Thu Oct 29 2015 14:38:58 GMT+0000 (UTC)">
+    <div class="book" data-level="5.4.5" data-chapter-title="Consume a Service" data-filepath="apimanConsumeService.md" data-basepath="." data-revision="Thu Oct 29 2015 14:38:58 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -592,7 +592,7 @@
             
         </li>
     
-        <li class="chapter " data-level="5.4.5" data-path="apimanConsumeService.html">
+        <li class="chapter active" data-level="5.4.5" data-path="apimanConsumeService.html">
             
                 
                     <a href="./apimanConsumeService.html">
@@ -754,7 +754,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="6.1.8" data-path="mavenFabric8Json.html">
+        <li class="chapter " data-level="6.1.8" data-path="mavenFabric8Json.html">
             
                 
                     <a href="./mavenFabric8Json.html">
@@ -1181,265 +1181,24 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8json"><a name="fabric8json" class="plugin-anchor" href="#fabric8json"><span class="fa fa-link"></span></a>fabric8:json</h2>
-<p>The maven <code>fabric8:json</code> goal generates the <code>kubernetes.json</code> file for your <a href="apps.html">App</a> from your Maven project and adds it as an artifact to your build so that it gets versioned and released along with your artifacts.</p>
-<p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
-<h3 id="generation-options"><a name="generation-options" class="plugin-anchor" href="#generation-options"><span class="fa fa-link"></span></a>Generation options</h3>
-<p>You have various options for how to create the <code>kubernetes.json</code></p>
-<ul>
-<li>hand craft yourself and put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)</li>
-<li>let the fabric8:json goal generate it for you using its default rules and maven properties (see below)</li>
-<li>use the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create the metadata yourself; or enrich the default created metadata </li>
-<li>you can enrich the generated JSON with additional metadata JSON file (using the <code>fabric8.extra.json</code> property which defaults to the file <code>target/classes/kubernetes-extra.json</code>)</li>
-</ul>
-<p>If you have a maven project which is a typical microservice style application with a single <a href="replicationControllers.html">replication controller</a> and <a href="services.html">service</a> then we recommend just using the defaults that get generated; otherwise try the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create, edit or enrich the generated metadata (e.g. to add extra services).  </p>
-<h3 id="example-usage"><a name="example-usage" class="plugin-anchor" href="#example-usage"><span class="fa fa-link"></span></a>Example usage</h3>
-<p>In a maven project type:</p>
-<pre><code>mvn fabric8:json
-open target/classes/kubernetes.json
-</code></pre><p>You&apos;ll then see the generated kubernetes JSON file.</p>
-<h3 id="creating-openshift-templates"><a name="creating-openshift-templates" class="plugin-anchor" href="#creating-openshift-templates"><span class="fa fa-link"></span></a>Creating OpenShift Templates</h3>
-<p><a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> are an extension to Kubernetes JSON to allow parameters to be specified which are then specified by a user or generated as the template gets processed and applied.</p>
-<p>To generate an OpenShift Template for your Maven project you just need to define one or more <em>parameters</em> for your project using the maven properties <code>fabric8.parameter.FOO.description</code> and <code>fabric8.parameter.FOO.value</code>. Refer to the <a href="#maven-properties">Maven Property Reference</a> for more details. </p>
-<h3 id="specifying-environment-variables"><a name="specifying-environment-variables" class="plugin-anchor" href="#specifying-environment-variables"><span class="fa fa-link"></span></a>Specifying environment variables</h3>
-<p>You can use maven properties to specify environment variables to pass into the generated PodSpec in the ReplicationController as follows...</p>
-<pre><code>&lt;project&gt;
-...
-  &lt;properties&gt;
-    &lt;fabric8.env.FOO&gt;bar&lt;/fabric8.env.FOO&gt;
-    ...
-  &lt;/properties&gt;
-...
-&lt;/project&gt;
-</code></pre><p>The above will then be the equivalent in docker terms of running...</p>
-<pre><code>docker run -d -e FOO=bar ${DOCKER_IMAGE}
-</code></pre><h4 id="templates-and-parameters"><a name="templates-and-parameters" class="plugin-anchor" href="#templates-and-parameters"><span class="fa fa-link"></span></a>Templates and parameters</h4>
-<p>When using <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> you want to parameterize things so users can more easily configure things. This means using expressions like <code>${FOO}</code> inside environment variable names or values.</p>
-<p>One issue with this is that maven properties tend to expand expressions of the form <code>${FOO}</code> if there is a maven property or environment variable of that name. There is currently no way to escape those expressions inside maven property elements in the pom.xml <code>&lt;properties/&gt;</code> element.</p>
-<p>So to make it easier to configure environment variables while bypassing maven&apos;s property expansion, you can use a file specified via <code>fabric8.envProperties</code> property which defaults to the file <code>src/main/fabric8/env.properties</code>. </p>
-<p>i.e. if you create a file called <code>src/main/fabric8/env.properties</code> in your project that looks like this</p>
-<pre><code>FOO = bar
-ANOTHER = some ${CHEESE}
-</code></pre><p>In the above example there will be 2 environment variables defined, <code>FOO</code> and <code>ANOTHER</code> with <code>ANOTHER</code> using a template parameter expression for <code>CHEESE</code></p>
-<p>Note that you can mix and match both approaches. The nice thing about maven properties is they can be inherited from parent projects. The nice thing about the <code>env.properties</code> file approach is you have more fine grained control over property expansion and dealing better with OpenShift template parameter expressions.</p>
-<h3 id="combining-json-files"><a name="combining-json-files" class="plugin-anchor" href="#combining-json-files"><span class="fa fa-link"></span></a>Combining JSON files</h3>
-<p>The <code>fabric8:json</code> goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you&apos;ll have lots of fine grained generated <code>kubernetes.json</code> files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume. </p>
-<p>Another advantage of combining the JSON files together is that the <code>fabric8:json</code> goal automatically moves <code>Service</code> objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).</p>
-<p>By default a <code>List</code> of items is created; unless the pom.xml defines any <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameters (see <a href="##creating-openshift-templates">Creating OpenShift Templates</a> for more detail) or any of the dependent JSON files are <code>Template</code>. The <code>fabric8:json</code> goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined <code>Template</code>.</p>
-<h4 id="examples"><a name="examples" class="plugin-anchor" href="#examples"><span class="fa fa-link"></span></a>Examples</h4>
-<p>The fabric8 project defines a number of different <a href="https://github.com/fabric8io/quickstarts/tree/master/app-groups" target="_blank">application modules</a> for all the various parts of fabric8.</p>
-<p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> and combine them into the resulting JSON. </p>
-<p>See <a href="https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35" target="_blank">this example</a> to see how we can configure this in a pom.xml.</p>
-<h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
-<p>You can use maven properties to customize the generation of the JSON:</p>
-<table class="table table-striped">
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-<tr>
-<td>docker.image</td>
-<td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md" target="_blank">docker-maven-plugin</a> to define the output docker image name.</td>
-</tr>
-<tr>
-<td>fabric8.combineDependencies</td>
-<td>If enabled then the maven dependencies will be scanned for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> which are then combined into the resulting generated JSON file. See <a href="#combining-json-files">Combining JSON files</a></td>
-</tr>
-<tr>
-<td>fabric8.container.name</td>
-<td>The docker container name of the application in the generated JSON. This defaults to <code>${project.artifactId}-container</code></td>
-</tr>
-<tr>
-<td>fabric8.containerPrivileged</td>
-<td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
-</tr>
-<tr>
-<td>fabric8.env.FOO = BAR</td>
-<td>Defines the environment variable FOO and value BAR.</td>
-</tr>
-<tr>
-<td>fabric8.extra.json</td>
-<td>Allows an extra JSON file to be merged into the generated kubernetes json file. Defaults to using the file <code>target/classes/kubernetes-extra.json</code>.</td>
-</tr>
-<tr>
-<td>fabric8.extended.environment.metadata</td>
-<td>Whether to try to fetch extended environment metadata during the json, or apply goals. The following ENV variables is supported: <tt>BUILD_URI</tt>, <tt>GIT_URL</tt>, <tt>GIT_COMMIT</tt>, <tt>GIT_BRANCH</tt>
-    If any of these ENV variable is empty then if this option is enabled, then the value is attempted to be fetched from an online connection to the Kubernetes master. If the connection fails then the goal will report this as a failure gently and continue.
-    This option can be turned off, to avoid any live connection to the Kubernetes master.
-</td>
-</tr>
-<tr>
-<td>fabric8.generateJson</td>
-<td>If set to false then the generation of the JSON is disabled.</td>
-</tr>
-<tr>
-<td>fabric8.iconRef</td>
-<td>Provides the resource name of the icon to use; found using the current classpath (including the ones shipped inside the maven plugin). For example <code>icons/myicon.svg</code> to find the icon in the <code>src/main/resources/icons</code> directorty. You can refer to a common set of icons by setting this option to a value of: activemq, camel, java, jetty, karaf, mule, spring-boot, tomcat, tomee, weld, wildfly</td>
-</tr>
-<tr>
-<td>fabric8.iconUrl</td>
-<td>The URL to use to link to the icon in the generated Template.</td>
-</tr>
-<tr>
-<td>fabric8.iconUrlPrefix</td>
-<td>The URL prefix added to the relative path of the icon file</td>
-</tr>
-<tr>
-<td>fabric8.iconBranch</td>
-<td>The SCM branch used when creating a URL to the icon file. The default value is <code>master</code>.</td>
-</tr>
-<tr>
-</tr><tr>
-<td>fabric8.imagePullPolicy</td>
-<td>Specifies the image pull policy; one of <code>Always</code>,  <code>Never</code> or <code>IfNotPresent</code>, . Defaults to <code>Always</code> if the project version ends with <code>SNAPSHOT</code> otherwise it is left blank. On newer OpenShift / Kubernetes versions a blank value implies <code>IfNotPresent</code></td>
-</tr>
-<tr>
-<td>fabric8.imagePullPolicySnapshot</td>
-<td>Specifies the image pull policy used by default for <code>SNAPSHOT</code> maven versions.</td>
-</tr>
-<tr>
-<td>fabric8.includeAllEnvironmentVariables</td>
-<td>Should the environment variable JSON Schema files, generate by the **fabric-apt** API plugin be discovered and included in the generated kuberentes JSON file. Defaults to true.</td>
-</tr>
-<tr>
-<td>fabric8.includeNamespaceEnvVar</td>
-<td>Whether we should include the namespace in the containers&apos; env vars. Defaults to <code>true
-</code></td></tr>
-<tr>
-<td>fabric8.label.FOO = BAR</td>
-<td>Defines the kubernetes label FOO and value BAR.</td>
-</tr>
-<tr>
-<td>fabric8.livenessProbe.exec</td>
-<td>Creates a exec action liveness probe with this command.</td>
-</tr>
-<tr>
-<td>fabric8.livenessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action liveness probe on with this path.</td>
-</tr>
-<tr>
-<td>fabric8.livenessProbe.httpGet.port</td>
-<td>Creates a HTTP GET action liveness probe on this port.</td>
-</tr>
-<tr>
-<td>fabric8.livenessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action liveness probe on this host.</td>
-</tr>
-<tr>
-<td>fabric8.livenessProbe.port</td>
-<td>Creates a TCP socket action liveness probe on specified port.</td>
-</tr>
-<tr>
-<td>fabric8.namespaceEnvVar</td>
-<td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
-</tr>
-<tr>
-<td>fabric8.parameter.FOO.description</td>
-<td>Defines the description of the <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
-</tr>
-<tr>
-<td>fabric8.parameter.FOO.value</td>
-<td>Defines the value of the <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
-</tr>
-<tr>
-<td>fabric8.port.container.FOO = 1234</td>
-<td>Declares that the pod&apos;s container has a port named FOO with a container port 1234.</td>
-</tr>
-<tr>
-<td>fabric8.port.host.FOO = 4567</td>
-<td>Declares that the pod&apos;s container has a port port named FOO which is mapped to host port 4567.</td>
-</tr>
-<tr>
-<td>fabric8.provider</td>
-<td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.exec</td>
-<td>Creates a exec action readiness probe with this command.</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action readiness probe on with this path.</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.httpGet.port</td>
-<td>Creates a HTTP GET action readiness probe on this port.</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action readiness probe on this host.</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.port</td>
-<td>Creates a TCP socket action readiness probe on specified port.</td>
-</tr>
-<tr>
-<td>fabric8.replicas</td>
-<td>The number of pods to create for the <a href="http://fabric8.io/guide/replicationControllers.html" target="_blank">Replication Controller</a> if the plugin is generating the App JSON file.</td>
-</tr>
-<tr>
-<td>fabric8.replicationController.name</td>
-<td>The name of the replication controller used in the generated JSON. This defaults to <code>${project.artifactId}-controller</code></td>
-</tr>
-<tr>
-<td>fabric8.serviceAccount</td>
-<td>The name of the service account to use in this pod (defaults to none)</td>
-</tr>
-<tr>
-<td>fabric8.service.name</td>
-<td>The name of the Service to generate. Defaults to <code>${project.artifactId}</code> (the artifact Id of the project)</td>
-</tr>
-<tr>
-<td>fabric8.service.port</td>
-<td>The port of the Service to generate (if a kubernetes service is required).</td>
-</tr>
-<tr>
-<td>fabric8.service.type</td>
-<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
-  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
-</tr>
-<tr>
-<td>fabric8.service.containerPort</td>
-<td>The container port of the Service to generate (if a kubernetes service is required).</td>
-</tr>
-<tr>
-<td>fabric8.service.protocol</td>
-<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
-</tr>
-<tr>
-<td>fabric8.service.port.&lt;portName&gt;</td>
-<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
-</tr>
-<tr>
-<td>fabric8.service.containerPort.&lt;portName&gt;</td>
-<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
-</tr>
-<tr>
-<td>fabric8.service.protocol.&lt;portName&gt;</td>
-<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
-</tr>
-<tr>
-<td>fabric8.volume.FOO.emptyDir = somemedium</td>
-<td>Defines the emtpy volume with name FOO and medium somemedium.</td>
-</tr>
-<tr>
-<td>fabric8.volume.FOO.hostPath = /some/path</td>
-<td>Defines the host dir volume with name FOO.</td>
-</tr>
-<tr>
-<td>fabric8.volume.FOO.mountPath = /some/path</td>
-<td>Defines the volume mount with name FOO.</td>
-</tr>
-<tr>
-<td>fabric8.volume.FOO.readOnly</td>
-<td>Specifies whether or not a volume is read only.</td>
-</tr>
-<tr>
-<td>fabric8.volume.FOO.secret = BAR</td>
-<td>Defines the secret name to be BAR for the FOO volume.</td>
-</tr>
-</table>
-
+                        <h2 id="consuming-a-service-from-fabric8-in-your-application"><a name="consuming-a-service-from-fabric8-in-your-application" class="plugin-anchor" href="#consuming-a-service-from-fabric8-in-your-application"><span class="fa fa-link"></span></a>Consuming a service from Fabric8 in your Application</h2>
+<h3 id="create-an-application"><a name="create-an-application" class="plugin-anchor" href="#create-an-application"><span class="fa fa-link"></span></a>Create an Application</h3>
+<p>Application developers that want to consume services can &apos;Create an New Application&apos; from the apiman dashboard screen. On the Application screen you can do a &apos;Search for Services to consume&apos;. Find the quickstart-java-cxf-cdi service</p>
+<p><img src="images/apiman-new-application.png" alt="new application">.</p>
+<p>and once found a selected you should notice that in the &apos;Choose Version&apos; selector you have the option to consume either version 1.0 or version 1.1 of the service. </p>
+<p><img src="images/apiman-consume-service.png" alt="consume service">.</p>
+<p>Also note that there is a &apos;View Service Definition&apos; link which brings you to a great api documented generated from the swagger.json the service developer imported earlier.</p>
+<h3 id="swagger"><a name="swagger" class="plugin-anchor" href="#swagger"><span class="fa fa-link"></span></a>Swagger</h3>
+<p>During the &apos;Publishing of the Service&apos; we talked about the service developer setting the definitionType and definitionUrl. If these were set, Apiman can import the Swagger 2.0 JSON during the service import Alternatively the service developer can manually paste the swagger.json into the service definition.</p>
+<p><img src="images/apiman-definition.png" alt="service definition">.</p>
+<p>As mentioned above Service consumers will be presented with a link to the service definition api document</p>
+<p><img src="images/apiman-definition2.png" alt="service definition link">.</p>
+<p>which is a full description of the API of the service along with sample requests, responses statuses and exceptions.</p>
+<p><img src="images/apiman-definition3.png" alt="service definition link">.</p>
+<p>Since the service developer published the service as a &apos;Public Service&apos; the application developer can simply start using the endpoint
+&apos;To directly invoke the Service, send requests to the API Gateway endpoint below&apos;. </p>
+<h3 id="service-plans-and-contracts"><a name="service-plans-and-contracts" class="plugin-anchor" href="#service-plans-and-contracts"><span class="fa fa-link"></span></a>Service Plans and Contracts</h3>
+<p>Now that you have had your first experience with Apiman, you probably want to create version 1.2 of the CDICXF service and <em>not</em> make it public this time. Now try setting up some plan, policies and contracts between service developers and consumers. Please follow the <a href="http://www.apiman.io/latest/user-guide.html" target="_blank">Apiman Docs</a> if you need help with that.</p>
 
                     
                     </section>
@@ -1450,10 +1209,10 @@ ANOTHER = some ${CHEESE}
         </div>
 
         
-        <a href="./mavenFabric8DevOps.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:devops"><i class="fa fa-angle-left"></i></a>
+        <a href="./apimanImportService.html" class="navigation navigation-prev " aria-label="Previous page: Publish Service"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./annotationProcessors.html" class="navigation navigation-next " aria-label="Next page: annotation processors"><i class="fa fa-angle-right"></i></a>
+        <a href="./tools.html" class="navigation navigation-next " aria-label="Next page: Fabric8 Tools"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
