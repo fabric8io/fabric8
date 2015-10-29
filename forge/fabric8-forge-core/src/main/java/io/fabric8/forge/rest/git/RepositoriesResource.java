@@ -40,6 +40,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -60,23 +61,23 @@ public class RepositoriesResource {
     public static final String SSH_PRIVATE_KEY_DATA_KEY = "ssh-privatekey";
     public static final String SSH_PUBLIC_KEY_DATA_KEY = "ssh-publickey";
 
-    @Inject
-    private GitUserHelper gitUserHelper;
-
-    @Inject
-    private RepositoryCache repositoryCache;
-
-    @Inject
-    private ProjectFileSystem projectFileSystem;
-
-    @Inject
-    private GitLockManager lockManager;
-
-    @Inject
-    private KubernetesClient kubernetes;
+    private final GitUserHelper gitUserHelper;
+    private final RepositoryCache repositoryCache;
+    private final ProjectFileSystem projectFileSystem;
+    private final GitLockManager lockManager;
+    private final KubernetesClient kubernetes;
 
     @Context
     private HttpServletRequest request;
+
+    @Inject
+    public RepositoriesResource(GitUserHelper gitUserHelper, RepositoryCache repositoryCache, ProjectFileSystem projectFileSystem, GitLockManager lockManager, KubernetesClient kubernetes) {
+        this.gitUserHelper = gitUserHelper;
+        this.repositoryCache = repositoryCache;
+        this.projectFileSystem = projectFileSystem;
+        this.lockManager = lockManager;
+        this.kubernetes = kubernetes;
+    }
 
     @GET
     @Path("_ping")
@@ -148,28 +149,23 @@ public class RepositoriesResource {
         OpenShiftClient osClient = kubernetes.adapt(OpenShiftClient.class).inNamespace(namespace);
         BuildConfig buildConfig = osClient.buildConfigs().withName(projectId).get();
         if (buildConfig == null) {
-            LOG.debug("No build config for " + remoteRepository);
-            return null;
+            throw new NotFoundException("No BuildConfig for " + remoteRepository);
         }
         BuildConfigSpec spec = buildConfig.getSpec();
         if (spec == null) {
-            LOG.debug("No build config spec for " + remoteRepository);
-            return null;
+            throw new NotFoundException("No BuildConfig spec for " + remoteRepository);
         }
         BuildSource source = spec.getSource();
         if (source == null) {
-            LOG.debug("No build config source for " + remoteRepository);
-            return null;
+            throw new NotFoundException("No BuildConfig source for " + remoteRepository);
         }
         GitBuildSource gitSource = source.getGit();
         if (gitSource == null) {
-            LOG.debug("No build config git source for " + remoteRepository);
-            return null;
+            throw new NotFoundException("No BuildConfig git source for " + remoteRepository);
         }
         String uri = gitSource.getUri();
         if (Strings.isNullOrBlank(uri)) {
-            LOG.debug("No build config git URI for " + remoteRepository);
-            return null;
+            throw new NotFoundException("No BuildConfig git URI for " + remoteRepository);
         }
         String sourceSecretName = null;
         LocalObjectReference sourceSecret = source.getSourceSecret();
@@ -207,6 +203,14 @@ public class RepositoriesResource {
             LOG.warn("failed to load message parameter: " + e, e);
         }
         return resource;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
     }
 
     protected File createSshKeyFile(@PathParam("namespace") String namespace, String sourceSecretName, String privateKeyName, String privateKey) throws IOException {

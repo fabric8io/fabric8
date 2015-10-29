@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +64,15 @@ public class ForgeInitialiser {
         furnaceProducer.setup(repoDir);
     }
 
-    public void preloadCommands(CommandsResource commandsResource) {
+    public void preloadCommands(CommandsResource commandsResource)  {
         LOG.info("Preloading commands");
-        List<CommandInfoDTO> commands = commandsResource.getCommands();
-        LOG.info("Loaded " + commands.size() + " commands");
+        List<CommandInfoDTO> commands = Collections.EMPTY_LIST;
+        try {
+            commands = commandsResource.getCommands();
+            LOG.info("Loaded " + commands.size() + " commands");
+        } catch (Exception e) {
+            LOG.error("Failed to preload commands! " + e, e);
+        }
 
         // lets try preload the archetypes
         LOG.info("Preloading archetypes");

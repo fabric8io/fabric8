@@ -19,21 +19,16 @@ import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
 import io.fabric8.utils.IOHelpers;
-import io.fabric8.utils.URLUtils;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
@@ -45,13 +40,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import static io.fabric8.utils.cxf.JsonHelper.toJson;
 
@@ -120,12 +111,12 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         String origin = projectFileSystem.getRemote();
 
         try {
-            GitHelpers.disableSslCertificateChecks();
-
-            CredentialsProvider credentials = userDetails.createCredentialsProvider();
-            PersonIdent personIdent = userDetails.createPersonIdent();
-
             if (name.equals(PROJECT_NEW_COMMAND)) {
+                GitHelpers.disableSslCertificateChecks();
+
+                CredentialsProvider credentials = userDetails.createCredentialsProvider();
+                PersonIdent personIdent = userDetails.createPersonIdent();
+
                 String targetLocation = null;
                 String named = null;
                 List<Map<String, String>> inputList = executionRequest.getInputList();
@@ -181,7 +172,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         GitHelpers.configureBranch(git, branch, origin, remoteUrl);
 
                         addDummyFileToEmptyFolders(basedir);
-                        String message = createCommitMessage(name, executionRequest);
+                        String message = ExecutionRequest.createCommitMessage(name, executionRequest);
                         LOG.info("Commiting and pushing to: " + remoteUrl + " and remote name " + origin);
                         GitHelpers.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
 
@@ -195,6 +186,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                     }
                 }
             } else {
+/*
                 File basedir = context.getInitialSelectionFile();
                 String absolutePath = basedir != null ? basedir.getAbsolutePath() : null;
                 if (basedir != null) {
@@ -216,6 +208,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         }
                     }
                 }
+*/
                 registerWebHooks(context);
             }
         } catch (Exception e) {
@@ -255,28 +248,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
         }
     }
 
-
-    /**
-     * Lets generate a commit message with the command name and all the parameters we specify
-     */
-    protected String createCommitMessage(String name, ExecutionRequest executionRequest) {
-        StringBuilder builder = new StringBuilder(name);
-        List<Map<String, String>> inputList = executionRequest.getInputList();
-        for (Map<String, String> map : inputList) {
-            Set<Map.Entry<String, String>> entries = map.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (!Strings.isNullOrEmpty(value) && !value.equals("0") && !value.toLowerCase().equals("false")) {
-                    builder.append(" --");
-                    builder.append(key);
-                    builder.append("=");
-                    builder.append(value);
-                }
-            }
-        }
-        return builder.toString();
-    }
 
     protected String getServiceAddress(String serviceName, String namespace) {
         LOG.info("Looking up service " + serviceName + " for namespace: " + namespace);
