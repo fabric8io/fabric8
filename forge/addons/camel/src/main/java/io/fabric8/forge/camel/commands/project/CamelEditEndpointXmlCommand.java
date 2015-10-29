@@ -21,8 +21,6 @@ import javax.inject.Inject;
 import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
-import org.jboss.forge.addon.facets.constraints.FacetConstraint;
-import org.jboss.forge.addon.facets.constraints.FacetConstraintType;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
@@ -41,7 +39,6 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-@FacetConstraint(value = {ResourcesFacet.class, WebResourcesFacet.class}, type = FacetConstraintType.OPTIONAL)
 public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
