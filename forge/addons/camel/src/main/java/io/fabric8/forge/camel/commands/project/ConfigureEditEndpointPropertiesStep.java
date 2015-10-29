@@ -160,7 +160,10 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
 
         Project project = getSelectedProject(context);
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
-        WebResourcesFacet webFacet = project.getFacet(WebResourcesFacet.class);
+        WebResourcesFacet webResourcesFacet = null;
+        if (project.hasFacet(WebResourcesFacet.class)) {
+            webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        }
 
         // does the project already have camel?
         Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
@@ -204,17 +207,14 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        // TODO: Camel 2.15.3 asEndpointUriXml
-        String uri = catalog.asEndpointUri(camelComponentName, options);
+        String uri = catalog.asEndpointUriXml(camelComponentName, options);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
-        // TODO need to replace & with &amp;
-        uri = org.apache.camel.util.StringHelper.xmlEncode(uri);
 
         FileResource file = facet != null ? facet.getResource(xml) : null;
         if (file == null || !file.exists()) {
-            file = webFacet != null ? webFacet.getWebResource(xml) : null;
+            file = webResourcesFacet != null ? webResourcesFacet.getWebResource(xml) : null;
         }
         if (file == null || !file.exists()) {
             return Results.fail("Cannot find XML file " + xml);

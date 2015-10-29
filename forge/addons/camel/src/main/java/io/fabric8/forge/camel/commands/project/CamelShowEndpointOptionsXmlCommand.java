@@ -68,7 +68,10 @@ public class CamelShowEndpointOptionsXmlCommand extends AbstractCamelProjectComm
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
-        WebResourcesFacet webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        WebResourcesFacet webResourcesFacet = null;
+        if (project.hasFacet(WebResourcesFacet.class)) {
+            webResourcesFacet = project.getFacet(WebResourcesFacet.class);
+        }
 
         // use value choices instead of completer as that works better in web console
         completer = new XmlEndpointsCompleter(resourcesFacet, webResourcesFacet);
