@@ -30,6 +30,7 @@
     * [Getting Started](apimanGettingStarted.md)
     * [Data Model](apimanDataModel.md)
     * [Publish Service](apimanImportService.md)
+    * [Consume a Service](apimanConsumeService.md)
 * [Fabric8 Tools](tools.md)
     * [Maven Plugin](mavenPlugin.md)
       * [docker:build](mavenDockerBuild.md)
