@@ -15,11 +15,11 @@
  */
 package io.fabric8.forge.rest.main;
 
+import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
-import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.GitRepoClient;
@@ -29,7 +29,6 @@ import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.jboss.forge.addon.ui.controller.CommandController;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
@@ -77,6 +76,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
     @Override
     public UserDetails preprocessRequest(String name, ExecutionRequest executionRequest, HttpServletRequest request) {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
+        // TODO this isn't really required if there's a secret associated with the BuildConfig source
         if (Strings.isNullOrEmpty(userDetails.getUser()) || Strings.isNullOrEmpty(userDetails.getUser())) {
             throw new NotAuthorizedException("You must authenticate to be able to perform this command");
         }
@@ -114,7 +114,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             if (name.equals(PROJECT_NEW_COMMAND)) {
                 GitHelpers.disableSslCertificateChecks();
 
-                CredentialsProvider credentials = userDetails.createCredentialsProvider();
                 PersonIdent personIdent = userDetails.createPersonIdent();
 
                 String targetLocation = null;
@@ -162,6 +161,7 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         String htmlUrl = address + user + "/" + named;
                         String remoteUrl = internalAddress + user + "/" + named + ".git";
                         //results.appendOut("Created git repository " + fullName + " at: " + htmlUrl);
+                        String cloneUrl =  htmlUrl + ".git";
 
                         results.setOutputProperty("fullName", fullName);
                         results.setOutputProperty("cloneUrl", remoteUrl);
@@ -176,44 +176,41 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
                         LOG.info("Commiting and pushing to: " + remoteUrl + " and remote name " + origin);
                         GitHelpers.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
 
+                        String namespace = firstNotBlank(context.getProjectName(), executionRequest.getNamespace());
+                        String projectName = firstNotBlank(named, context.getProjectName(), executionRequest.getProjectName());
+                        results.setProjectName(projectName);
+                        createBuildConfig(context, namespace, projectName, cloneUrl);
+
                         LOG.info("Creating any pending webhooks");
                         registerWebHooks(context);
 
                         LOG.info("Done creating webhooks!");
-
-                        // TODO only need to do this if we have not created a jenkins build...
-                        //triggerJenkinsSeedBuild();
                     }
                 }
             } else {
-/*
-                File basedir = context.getInitialSelectionFile();
-                String absolutePath = basedir != null ? basedir.getAbsolutePath() : null;
-                if (basedir != null) {
-                    File gitFolder = new File(basedir, ".git");
-                    if (gitFolder.exists() && gitFolder.isDirectory()) {
-                        FileRepositoryBuilder builder = new FileRepositoryBuilder();
-                        Repository repository = builder.setGitDir(gitFolder)
-                                .readEnvironment() // scan environment GIT_* variables
-                                .findGitDir() // scan up the file system tree
-                                .build();
-
-                        Git git = new Git(repository);
-                        String remoteUrl = GitHelpers.getRemoteURL(git, branch);
-                        if (origin == null) {
-                            LOG.warn("Could not find remote git URL for folder " + absolutePath);
-                        } else {
-                            String message = createCommitMessage(name, executionRequest);
-                            GitHelpers.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
-                        }
-                    }
-                }
-*/
                 registerWebHooks(context);
             }
         } catch (Exception e) {
             handleException(e);
         }
+    }
+
+    public static String firstNotBlank(String... texts) {
+        for (String text : texts) {
+            if (!Strings.isNullOrEmpty(text)) {
+                return text;
+            }
+        }
+        return null;
+    }
+
+    protected void createBuildConfig(RestUIContext context, String namespace, String projectName, String cloneUrl) throws Exception {
+        LOG.info("Creating a BuildConfig for namespace: " + namespace + " project: " + projectName);
+        DevOpsConnector connector = new DevOpsConnector();
+        connector.setGitUrl(cloneUrl);
+        connector.setNamespace(namespace);
+        connector.setProjectName(projectName);
+        connector.execute();
     }
 
     /**
@@ -246,36 +243,6 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
             Runnable runnable = (Runnable) registerWebHooksValue;
             projectFileSystem.invokeLater(runnable, 1000L);
         }
-    }
-
-
-    protected String getServiceAddress(String serviceName, String namespace) {
-        LOG.info("Looking up service " + serviceName + " for namespace: " + namespace);
-        io.fabric8.kubernetes.api.model.Service service = kubernetes.services().inNamespace(namespace).withName(serviceName).get();
-
-        String serviceAddress = null;
-        if (service != null) {
-            String portalIP = service.getSpec().getClusterIP();
-            if (!Strings.isNullOrEmpty(portalIP)) {
-                List<ServicePort> servicePorts = service.getSpec().getPorts();
-                if (servicePorts != null && !servicePorts.isEmpty()) {
-                    Integer port = servicePorts.iterator().next().getPort();
-                    String prefix = "http://";
-                    String postfix = "";
-                    if (port != null) {
-                        if (port == 443) {
-                            prefix = "https://";
-                        }
-
-                        if (port != 80) {
-                            postfix = ":" + port;
-                        }
-                    }
-                    serviceAddress = prefix + portalIP + postfix;
-                }
-            }
-        }
-        return serviceAddress;
     }
 
     protected boolean isPushOnCommit() {

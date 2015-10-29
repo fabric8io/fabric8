@@ -25,6 +25,8 @@ import java.io.File;
 public class RestUIContext extends AbstractUIContext {
     private final Resource<?> selection;
     private final RestUIProvider provider = new RestUIProvider();
+    private String namespace;
+    private String projectName;
     private String commitMessage;
 
     public RestUIContext() {
@@ -34,6 +36,12 @@ public class RestUIContext extends AbstractUIContext {
     public RestUIContext(Resource<?> selection) {
         super();
         this.selection = selection;
+    }
+
+    public RestUIContext(Resource<?> selection, String namespace, String projectName) {
+        this(selection);
+        this.namespace = namespace;
+        this.projectName = projectName;
     }
 
     public File getInitialSelectionFile() {
@@ -59,6 +67,14 @@ public class RestUIContext extends AbstractUIContext {
     @Override
     public RestUIProvider getProvider() {
         return provider;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getProjectName() {
+        return projectName;
     }
 
     public String getCommitMessage() {

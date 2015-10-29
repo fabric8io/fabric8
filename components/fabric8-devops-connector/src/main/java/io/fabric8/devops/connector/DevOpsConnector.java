@@ -144,6 +144,8 @@ public class DevOpsConnector {
 
     private boolean recreateMode;
     private String namespace = KubernetesHelper.defaultNamespace();
+    private String projectName;
+
     private String fabric8ConsoleNamespace = KubernetesHelper.defaultNamespace();
     private String jenkinsNamespace = KubernetesHelper.defaultNamespace();
 
@@ -180,18 +182,23 @@ public class DevOpsConnector {
         loadConfigFile();
         KubernetesClient kubernetes = getKubernetes();
 
-        String name = null;
-        if (projectConfig != null) {
-            name = projectConfig.getBuildName();
-        }
+        String name = projectName;
         if (Strings.isNullOrBlank(name)) {
-            name = jenkinsJob;
-        }
-        if (Strings.isNullOrBlank(name)) {
-            name = ProjectRepositories.createBuildName(username, repoName);
             if (projectConfig != null) {
-                projectConfig.setBuildName(name);
+                name = projectConfig.getBuildName();
             }
+            if (Strings.isNullOrBlank(name)) {
+                name = jenkinsJob;
+            }
+            if (Strings.isNullOrBlank(name)) {
+                name = ProjectRepositories.createBuildName(username, repoName);
+                if (projectConfig != null) {
+                    projectConfig.setBuildName(name);
+                }
+            }
+        }
+        if (Strings.isNullOrBlank(projectName)) {
+            projectName = name;
         }
         Map<String, String> labels = new HashMap<>();
         labels.put("user", username);
@@ -220,7 +227,7 @@ public class DevOpsConnector {
         /*
          * Create Gerrit Git to if isGerritReview is enabled
          */
-        if (projectConfig.hasCodeReview()) {
+        if (projectConfig != null && projectConfig.hasCodeReview()) {
             try {
                 createGerritRepo(repoName, gerritUser, gerritPwd, gerritGitInitialCommit, gerritGitRepoDesription);
             } catch (Exception e) {
@@ -288,7 +295,7 @@ public class DevOpsConnector {
         }
 
         BuildConfigFluent.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
-                withNewMetadata().withName(name).withLabels(labels).withAnnotations(annotations).endMetadata().
+                withNewMetadata().withName(projectName).withLabels(labels).withAnnotations(annotations).endMetadata().
                 withNewSpec();
 
         if (Strings.isNotBlank(gitUrl)) {
@@ -771,6 +778,13 @@ public class DevOpsConnector {
         this.repositoryBrowseLink = repositoryBrowseLink;
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 
     // Implementation methods
     //-------------------------------------------------------------------------

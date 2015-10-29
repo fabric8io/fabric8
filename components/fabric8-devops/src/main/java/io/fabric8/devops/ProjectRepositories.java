@@ -39,10 +39,6 @@ public class ProjectRepositories {
     }
 
     public static String createBuildName(String username, String repoName) {
-        String name = repoName;
-        if (Strings.isNotBlank(username)) {
-            name = username + "-" + name;
-        }
-        return name;
+        return repoName;
     }
 }
