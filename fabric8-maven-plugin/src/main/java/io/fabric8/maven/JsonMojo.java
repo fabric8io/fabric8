@@ -1144,7 +1144,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         if (Strings.isNullOrBlank(answer)) {
-            getLog().warn("No icon file found for this project!");
+            getLog().debug("No icon file found for this project");
         } else {
             getLog().info("Icon URL: " + answer);
         }

@@ -62,13 +62,11 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 @Mojo(name = "apply", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.INSTALL)
 public class ApplyMojo extends AbstractFabric8Mojo {
 
-
     /**
      * Used to look up Artifacts in the remote repository.
      */
     @Component
     protected ArtifactResolver resolver;
-
 
     @Parameter(defaultValue = "${project}", readonly = true, required = false)
     private MavenProject project;
@@ -168,7 +166,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         KubernetesClient kubernetes = getKubernetes();
         
         if (kubernetes.getMasterUrl() == null || Strings.isNullOrBlank(kubernetes.getMasterUrl().toString())) {
-        	throw new MojoFailureException("Can't find Kubernetes master URL");
+        	throw new MojoFailureException("Cannot find Kubernetes master URL");
         }
         
         getLog().info("Using kubernetes at: " + kubernetes.getMasterUrl() + " in namespace " + getNamespace());
@@ -189,8 +187,9 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             controller.setRollingUpgradePreserveScale(isRollingUpgradePreserveScale());
 
             boolean openShift = KubernetesHelper.isOpenShift(kubernetes);
-            getLog().info("Is OpenShift: " + openShift);
-            if (!openShift) {
+            if (openShift) {
+                getLog().info("OpenShift platform detected");
+            } else {
                 disableOpenShiftFeatures(controller);
             }
 
@@ -198,7 +197,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             String fileName = json.getName();
             Object dto = KubernetesHelper.loadJson(json);
             if (dto == null) {
-                throw new MojoFailureException("Could not load kubernetes json: " + json);
+                throw new MojoFailureException("Cannot load kubernetes json: " + json);
             }
 
             // lets check we have created the namespace
@@ -299,10 +298,10 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         try {
             RouteList routes = kubernetes.adapt(OpenShiftClient.class).routes().inNamespace(namespace).list();
             if (routes != null) {
-                List<Route> items = routes.getItems();
+                routes.getItems();
             }
         } catch (Exception e) {
-            log.warn("Could not load routes; we maybe are not connected to an OpenShift environment? " + e, e);
+            log.warn("Cannot load OpenShift Routes; maybe not connected to an OpenShift platform? " + e, e);
             return;
         }
         List<Route> routes = new ArrayList<>();
@@ -333,7 +332,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
             routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
             route.setSpec(routeSpec);
-            String json = null;
+            String json;
             try {
                 json = KubernetesHelper.toJson(route);
             } catch (JsonProcessingException e) {
@@ -349,7 +348,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
      * <p/>
      * By default lets ignore the kubernetes services and any service which does not expose ports 80 and 443
      *
-     * @returns true if we should create an OpenShift Route for this service.
+     * @return true if we should create an OpenShift Route for this service.
      */
     protected static boolean shouldCreateRouteForService(Log log, Service service, String id) {
         if ("kubernetes".equals(id) || "kubernetes-ro".equals(id)) {
@@ -374,7 +373,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
 
     public static void loadDependency(Log log, Collection<KubernetesList> kubeConfigs, File file) throws IOException {
         if (file.isFile()) {
-            log.info("Loading file " + file);
+            log.debug("Loading file " + file);
             addConfig(kubeConfigs, loadJson(file));
         } else {
             File[] children = file.listFiles();
