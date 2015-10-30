@@ -620,12 +620,20 @@ public class RepositoryResource {
     }
 
     public <T> T gitReadOperation(GitOperation<T> operation) throws Exception {
-        GitContext context = new GitContext();
+        return gitReadOperation(operation, new GitContext());
+    }
+
+    public <T> T gitReadOperation(GitOperation<T> operation, GitContext context) throws Exception {
+        context.setRequireCommit(false);
+        context.setRequirePush(false);
         return gitOperation(context, operation);
     }
 
     public <T> T gitWriteOperation(GitOperation<T> operation) throws Exception {
-        GitContext context = new GitContext();
+        return gitWriteoperation(operation, new GitContext());
+    }
+
+    public <T> T gitWriteoperation(GitOperation<T> operation, GitContext context) throws Exception {
         context.setRequireCommit(true);
         context.setRequirePush(true);
         return gitOperation(context, operation);

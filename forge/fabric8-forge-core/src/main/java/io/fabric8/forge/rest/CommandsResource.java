@@ -369,12 +369,14 @@ public class CommandsResource {
             final String namespace = executionRequest.getNamespace();
             final String projectName = executionRequest.getProjectName();
             final String resourcePath = executionRequest.getResource();
+            GitContext gitContext = new GitContext();
+            gitContext.setRequirePull(false);
             return withUIContext(namespace, projectName, resourcePath, false, new RestUIFunction<Response>() {
                 @Override
                 public Response apply(RestUIContext uiContext) throws Exception {
                     return doValidate(name, executionRequest, userDetails, uiContext);
                 }
-            });
+            }, gitContext);
 
         } catch (Throwable e) {
             LOG.warn("Failed to invoke command " + name + " on " + executionRequest + ". " + e, e);
@@ -483,7 +485,11 @@ public class CommandsResource {
         return controller;
     }
 
-    protected <T> T withUIContext(final String namespace, final String projectName, String resourcePath, boolean write, final RestUIFunction<T> function) throws Exception {
+    protected <T> T withUIContext(String namespace, String projectName, String resourcePath, boolean write, RestUIFunction<T> function) throws Exception {
+        return withUIContext(namespace, projectName, resourcePath, write, function, new GitContext());
+    }
+
+    protected <T> T withUIContext(final String namespace, final String projectName, String resourcePath, boolean write, final RestUIFunction<T> function, final GitContext gitContext) throws Exception {
         final ResourceFactory resourceFactory = getResourceFactory();
         if (Strings.isNotBlank(namespace) && Strings.isNotBlank(projectName) && resourceFactory != null) {
             RepositoriesResource repositoriesResource = new RepositoriesResource(gitUserHelper, repositoryCache, projectFileSystem, lockManager, kubernetes);
