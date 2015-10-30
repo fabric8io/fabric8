@@ -17,10 +17,14 @@ package io.fabric8.devops.connector;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.Realm;
-import com.ning.http.client.Response;
+import com.squareup.okhttp.Authenticator;
+import com.squareup.okhttp.Challenge;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
@@ -83,6 +87,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,12 +96,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
+
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
  */
 public class DevOpsConnector {
+
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
     private transient Logger log = LoggerFactory.getLogger(DevOpsConnector.class);
 
     private static final String JSON_MAGIC = ")]}'";
@@ -1329,12 +1339,8 @@ public class DevOpsConnector {
     protected void createGerritRepo(String repoName, String gerritUser, String gerritPwd, String gerritGitInitialCommit, String gerritGitRepoDescription) throws Exception {
 
         // lets add defaults if not env vars
-        if (Strings.isNullOrBlank(gerritUser)) {
-            gerritUser = "admin";
-        }
-        if (Strings.isNullOrBlank(gerritPwd)) {
-            gerritPwd = "secret";
-        }
+        final String username = Strings.isNullOrBlank(gerritUser) ? "admin" : gerritUser;
+        final String password = Strings.isNullOrBlank(gerritPwd) ? "secret" : gerritPwd;
 
         log.info("A Gerrit git repo will be created for this name : " + repoName);
 
@@ -1347,16 +1353,33 @@ public class DevOpsConnector {
         }
 
         String GERRIT_URL = gerritAddress + "/a/projects/" + repoName;
-        Realm realm = new Realm.RealmBuilder()
-                .setPrincipal(gerritUser)
-                .setPassword(gerritPwd)
-                .setUsePreemptiveAuth(false)
-                .setScheme(Realm.AuthScheme.DIGEST)
-                .build();
 
-        AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder().setRealm(realm);
+        OkHttpClient client = new OkHttpClient();
+        if (isNotNullOrEmpty(gerritUser) && isNotNullOrEmpty(gerritPwd)) {
+            client.setAuthenticator(new Authenticator() {
+                @Override
+                public Request authenticate(Proxy proxy, Response response) throws IOException {
+                    List<Challenge> challenges = response.challenges();
+                    Request request = response.request();
+                    for (int i = 0, size = challenges.size(); i < size; i++) {
+                        Challenge challenge = challenges.get(i);
+                        if (!"Basic".equalsIgnoreCase(challenge.getScheme())) continue;
 
-        AsyncHttpClient client = new AsyncHttpClient(configBuilder.build());
+                        String credential = Credentials.basic(username, password);
+                        return request.newBuilder()
+                                .header("Authorization", credential)
+                                .build();
+                    }
+                    return null;
+                }
+
+                @Override
+                public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+                    return null;
+                }
+            });
+        }
+
         System.out.println("Requesting : " + GERRIT_URL);
 
         try {
@@ -1365,15 +1388,17 @@ public class DevOpsConnector {
             createRepoDTO.setName(repoName);
             createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
 
-            String json = MAPPER.writeValueAsString(createRepoDTO);
-            Future<Response> future = client.preparePost(GERRIT_URL).addHeader("Content-Type", "application/json").setBody(json).execute();
-            Response response = future.get();
-            System.out.println("responseBody : " + response.getResponseBody());
+            RequestBody body = RequestBody.create(JSON, MAPPER.writeValueAsString(createRepoDTO));
+            Request request = new Request.Builder().post(body).url(GERRIT_URL).build();
+            Response response = client.newCall(request).execute();
+            System.out.println("responseBody : " + response.body().string());
 
         } catch (Throwable t) {
             throw new RuntimeException(t);
         } finally {
-            client.close();
+            if (client != null && client.getConnectionPool() != null) {
+                client.getConnectionPool().evictAll();
+            }
         }
     }
 
