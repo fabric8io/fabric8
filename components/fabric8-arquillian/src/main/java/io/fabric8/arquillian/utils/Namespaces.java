@@ -20,9 +20,7 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
-import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
@@ -67,13 +65,22 @@ public class Namespaces {
                 .done();
     }
 
+    public static synchronized Namespace updateNamespaceTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
+        return client.namespaces().withName(session.getNamespace())
+                .edit()
+                .editMetadata()
+                    .addToAnnotations(String.format(Annotations.Tests.TEST_CASE_STATUS_FORMAT, test), status)
+                .endMetadata()
+                .done();
+    }
+
     private static Map<String, String> createNamespaceAnnotations(Session session, String status) {
         Map<String, String> annotations = new HashMap<>();
         File dir = Util.getProjectBaseDir(session);
         String gitUrl = Util.findGitUrl(session, dir);
 
         annotations.put(Annotations.Tests.SESSION_ID, session.getId());
-        annotations.put(Annotations.Tests.STATUS, status);
+        annotations.put(Annotations.Tests.TEST_SESSION_STATUS, status);
         if (Strings.isNotBlank(gitUrl)) {
             annotations.put(Annotations.Builds.GIT_URL, gitUrl);
         }
