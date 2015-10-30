@@ -33,6 +33,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProviderUserInfo;
+import org.eclipse.jgit.transport.HttpTransport;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.PushResult;
@@ -40,6 +41,7 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.transport.http.HttpConnectionFactory;
 import org.eclipse.jgit.util.FS;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
@@ -222,8 +224,10 @@ public class GitHelpers {
             command.setTransportConfigCallback(new TransportConfigCallback() {
                 @Override
                 public void configure(Transport transport) {
-                    SshTransport sshTransport = (SshTransport) transport;
-                    sshTransport.setSshSessionFactory(sshSessionFactory);
+                    if (transport instanceof SshTransport) {
+                        SshTransport sshTransport = (SshTransport) transport;
+                        sshTransport.setSshSessionFactory(sshSessionFactory);
+                    }
                 }
             });
         }
