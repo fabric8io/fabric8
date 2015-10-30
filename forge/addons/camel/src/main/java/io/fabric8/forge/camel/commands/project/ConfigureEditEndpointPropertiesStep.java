@@ -207,7 +207,13 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUriXml(camelComponentName, options);
+        // Camel 2.15.x does not have asEndpointXmlUri so we need to replace it manually
+        String uri = catalog.asEndpointUri(camelComponentName, options);
+        if (uri == null) {
+            return Results.fail("Cannot create endpoint uri");
+        }
+        uri = org.apache.camel.util.StringHelper.xmlEncode(uri);
+
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
