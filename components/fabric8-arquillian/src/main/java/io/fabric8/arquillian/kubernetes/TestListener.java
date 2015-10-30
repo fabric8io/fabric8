@@ -15,8 +15,8 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
-import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Namespaces;
+import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestResult;
@@ -25,12 +25,21 @@ import org.jboss.arquillian.test.spi.event.suite.BeforeTestLifecycleEvent;
 
 public class TestListener {
 
+    private static final int MAX_ANNOTATION_KEY_LENGTH = 63;
+
     public void start(@Observes(precedence = Integer.MIN_VALUE) BeforeTestLifecycleEvent event, KubernetesClient client, Session session) {
-        Namespaces.updateNamespaceTestStatus(client, session, event.getTestClass().getName(), "RUNNING");
+        String pkg = event.getTestClass().getJavaClass().getPackage().getName();
+        String className = event.getTestClass().getJavaClass().getSimpleName();
+        String methodName = event.getTestMethod().getName();
+        Namespaces.updateNamespaceTestStatus(client, session, trimName(pkg, className, methodName), "RUNNING");
     }
 
-    public void stop(@Observes(precedence = Integer.MIN_VALUE) AfterTestLifecycleEvent event, TestResult result, KubernetesClient client, Session session, Logger logger) {
-        Namespaces.updateNamespaceTestStatus(client, session, event.getTestClass().getName(), result.getStatus().name());
+    public void stop(@Observes(precedence = Integer.MIN_VALUE) AfterTestLifecycleEvent event, TestResult result, KubernetesClient client, Session session) {
+        String pkg = event.getTestClass().getJavaClass().getPackage().getName();
+        String className = event.getTestClass().getJavaClass().getSimpleName();
+        String methodName = event.getTestMethod().getName();
+
+        Namespaces.updateNamespaceTestStatus(client, session, trimName(pkg, className, methodName), result.getStatus().name());
         switch (result.getStatus()) {
             case PASSED:
                 session.getPassed().incrementAndGet();
@@ -41,5 +50,33 @@ public class TestListener {
             case SKIPPED:
                 session.getSkiped().incrementAndGet();
         }
+    }
+
+    static String trimName(String packageName, String className, String methodName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(trimPackage(packageName)).append(".").append(className).append(".").append(methodName);
+        String result = sb.toString();
+        int prefixLength = Annotations.Tests.TEST_CASE_STATUS.length();
+        if (prefixLength + result.length() > MAX_ANNOTATION_KEY_LENGTH) {
+            result = result.substring(prefixLength + result.length() - MAX_ANNOTATION_KEY_LENGTH);
+        }
+        if (result.charAt(0) == '.') {
+            result = result.substring(1);
+        }
+        return result;
+    }
+
+    static String trimPackage(String pkg) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String part : pkg.split("\\.")) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(".");
+            }
+            sb.append(part.substring(0, 1));
+        }
+        return sb.toString();
     }
 }

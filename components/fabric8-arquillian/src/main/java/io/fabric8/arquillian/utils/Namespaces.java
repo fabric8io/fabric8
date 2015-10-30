@@ -69,7 +69,7 @@ public class Namespaces {
         return client.namespaces().withName(session.getNamespace())
                 .edit()
                 .editMetadata()
-                    .addToAnnotations(String.format(Annotations.Tests.TEST_CASE_STATUS_FORMAT, test), status)
+                    .addToAnnotations(Annotations.Tests.TEST_CASE_STATUS+ test, status)
                 .endMetadata()
                 .done();
     }
