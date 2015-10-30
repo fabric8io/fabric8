@@ -17,10 +17,14 @@ package io.fabric8.devops.connector;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.Realm;
-import com.ning.http.client.Response;
+import com.squareup.okhttp.Authenticator;
+import com.squareup.okhttp.Challenge;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
@@ -29,14 +33,23 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
+import io.fabric8.kubernetes.api.model.LocalObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
 import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildConfigFluent;
+import io.fabric8.openshift.api.model.BuildConfigSpec;
+import io.fabric8.openshift.api.model.BuildSource;
+import io.fabric8.openshift.api.model.BuildStrategy;
+import io.fabric8.openshift.api.model.BuildTriggerPolicy;
+import io.fabric8.openshift.api.model.BuildTriggerPolicyBuilder;
+import io.fabric8.openshift.api.model.CustomBuildStrategy;
+import io.fabric8.openshift.api.model.GitBuildSource;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
@@ -74,6 +87,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,10 +96,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
+
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
  */
 public class DevOpsConnector {
+
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
     private transient Logger log = LoggerFactory.getLogger(DevOpsConnector.class);
 
     private static final String JSON_MAGIC = ")]}'";
@@ -159,6 +180,7 @@ public class DevOpsConnector {
     private ProjectDTO taigaProject;
     private TaigaClient taiga;
     private String jenkinsJobName;
+    private String gitSourceSecretName;
 
 
     @Override
@@ -293,40 +315,102 @@ public class DevOpsConnector {
                 }
             }
         }
-
-        BuildConfigFluent.SpecNested<BuildConfigBuilder> specBuilder = new BuildConfigBuilder().
-                withNewMetadata().withName(projectName).withLabels(labels).withAnnotations(annotations).endMetadata().
-                withNewSpec();
-
-        if (Strings.isNotBlank(gitUrl)) {
-            specBuilder = specBuilder.withNewSource().
-                    withType("Git").withNewGit().withUri(gitUrl).endGit().
-                    endSource();
+        Controller controller = createController();
+        OpenShiftClient openShiftClient = getKubernetes().adapt(OpenShiftClient.class);
+        BuildConfig buildConfig = null;
+        try {
+            buildConfig = openShiftClient.inNamespace(namespace).buildConfigs().withName(projectName).get();
+        } catch (Exception e) {
+            log.error("Failed to load build config for " + namespace + "/" + projectName + ". " + e, e);
         }
+        log.info("Loaded build config for " + namespace + "/" + projectName  + " " + buildConfig);
+
+        // if we have loaded a build config then lets assume its correct!
+        boolean foundExistingGitUrl = false;
+        if (buildConfig != null) {
+            BuildConfigSpec spec = buildConfig.getSpec();
+            if (spec != null) {
+                BuildSource source = spec.getSource();
+                if (source != null) {
+                    GitBuildSource git = source.getGit();
+                    if (git != null) {
+                        gitUrl = git.getUri();
+                        log.info("Loaded existing BuildConfig git url: " + gitUrl);
+                        foundExistingGitUrl = true;
+                    }
+                    LocalObjectReference sourceSecret = source.getSourceSecret();
+                    if (sourceSecret != null) {
+                        gitSourceSecretName = sourceSecret.getName();
+                    }
+                }
+            }
+            if (!foundExistingGitUrl) {
+                log.warn("Could not find a git url in the loaded BuildConfig: " + buildConfig);
+            }
+            log.info("Loaded gitSourceSecretName: " + gitSourceSecretName);
+        }
+
+
+
+
+
+        if (buildConfig == null) {
+            buildConfig = new BuildConfig();
+        }
+        ObjectMeta metadata = getOrCreateMetadata(buildConfig);
+        metadata.setName(projectName);
+        metadata.setAnnotations(annotations);
+        metadata.setLabels(labels);
+        BuildConfigSpec spec = buildConfig.getSpec();
+        if (spec == null) {
+            spec = new BuildConfigSpec();
+            buildConfig.setSpec(spec);
+        }
+
+        log.info("gitUrl is: " + gitUrl);
+        if (!foundExistingGitUrl && Strings.isNotBlank(gitUrl)) {
+            BuildSource source = spec.getSource();
+            if (source == null) {
+                source = new BuildSource();
+                spec.setSource(source);
+            }
+            source.setType("Git");
+            GitBuildSource git = source.getGit();
+            if (git == null) {
+                git = new GitBuildSource();
+                source.setGit(git);
+            }
+            git.setUri(gitUrl);
+        }
+
         if (Strings.isNotBlank(buildImageStream) && Strings.isNotBlank(buildImageTag)) {
+            BuildStrategy strategy = spec.getStrategy();
+            if (strategy == null) {
+                strategy = new BuildStrategy();
+                spec.setStrategy(strategy);
+            }
+
+            // TODO only do this if we are using Jenkins?
+            strategy.setType("Custom");
+            CustomBuildStrategy customStrategy = strategy.getCustomStrategy();
+            if (customStrategy == null) {
+                customStrategy = new CustomBuildStrategy();
+                strategy.setCustomStrategy(customStrategy);
+            }
 
             ListEnvVarBuilder envBuilder = new ListEnvVarBuilder();
             envBuilder.withEnvVar("BASE_URI", jenkinsUrl);
             envBuilder.withEnvVar("JOB_NAME", name);
-
-            specBuilder = specBuilder.
-                    withNewStrategy().
-                    withType("Custom").withNewCustomStrategy().withNewFrom().withKind("DockerImage").withName(s2iCustomBuilderImage).endFrom()
-                    .withEnv(envBuilder.build()).endCustomStrategy().
-                            endStrategy();
-
+            customStrategy.setEnv(envBuilder.build());
+            customStrategy.setFrom(new ObjectReferenceBuilder().withKind("DockerImage").withName(s2iCustomBuilderImage).build());
         }
-        BuildConfig buildConfig = specBuilder.
-                addNewTrigger().
-                withType("GitHub").withNewGithub().withSecret(secret).endGithub().
-                endTrigger().
-                addNewTrigger().
-                withType("Generic").withNewGeneric().withSecret(secret).endGeneric().
-                endTrigger().
-                endSpec().
-                build();
+        List<BuildTriggerPolicy> triggers = spec.getTriggers();
+        if (triggers.isEmpty()) {
+            triggers.add(new BuildTriggerPolicyBuilder().withType("GitHub").withNewGithub().withSecret(secret).endGithub().build());
+            triggers.add(new BuildTriggerPolicyBuilder().withType("Generic").withNewGeneric().withSecret(secret).endGeneric().build());
+            spec.setTriggers(triggers);
+        }
 
-        Controller controller = createController();
         try {
             getLog().info("About to apply build config: " + new JSONObject(KubernetesHelper.toJson(buildConfig)).toString(4));
             controller.applyBuildConfig(buildConfig, "maven");
@@ -952,22 +1036,26 @@ public class DevOpsConnector {
             String flow = projectConfig.getPipeline();
             String flowGitUrlValue = null;
             boolean localFlow = false;
+            String projectGitUrl = convertGitUrlToHttpFromSsh(this.gitUrl);
             if (Strings.isNotBlank(flow)) {
                 flowGitUrlValue = this.flowGitUrl;
             } else if (projectConfig.isUseLocalFlow()) {
                 flow = ProjectConfigs.LOCAL_FLOW_FILE_NAME;
-                flowGitUrlValue = this.gitUrl;
+                flowGitUrlValue = projectGitUrl;
                 localFlow = true;
             } else {
                 getLog().info("Not creating Jenkins job as no pipeline defined for project configuration!");
             }
             String versionPrefix = Systems.getSystemPropertyOrEnvVar("VERSION_PREFIX", "VERSION_PREFIX", "1.0");
-            if (Strings.isNotBlank(flow) && Strings.isNotBlank(gitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
+            if (Strings.isNotBlank(flow) && Strings.isNotBlank(projectGitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
                 String template = loadJenkinsBuildTemplate(getLog());
                 if (Strings.isNotBlank(template)) {
+                    if (Strings.isNotBlank(gitSourceSecretName)) {
+                        template = addBuildParameter(getLog(), template, "SOURCE_SECRET", gitSourceSecretName, "Name of the Kubernetes Secret required to clone the git repository");
+                    }
                     template = template.replace("${FLOW_PATH}", flow);
                     template = template.replace("${FLOW_GIT_URL}", flowGitUrlValue);
-                    template = template.replace("${GIT_URL}", gitUrl);
+                    template = template.replace("${GIT_URL}", projectGitUrl);
                     template = template.replace("${VERSION_PREFIX}", versionPrefix);
                     if (localFlow) {
                         // lets remove the GIT_URL parameter
@@ -977,6 +1065,21 @@ public class DevOpsConnector {
                 }
             }
         }
+    }
+
+    /**
+     * Jenkins can't clone yet git URLs using openshift secrets so lets switch to https for now for CI builds
+     */
+    protected String convertGitUrlToHttpFromSsh(String gitUrl) {
+        if (Strings.isNotBlank(gitUrl)) {
+            String prefix = "git@";
+            if (gitUrl.startsWith(prefix)) {
+                String remaining = gitUrl.substring(prefix.length());
+                remaining = remaining.replace(":", "/");
+                return  "https://" + remaining;
+            }
+        }
+        return gitUrl;
     }
 
     public static String loadJenkinsBuildTemplate(Logger log) {
@@ -991,6 +1094,31 @@ public class DevOpsConnector {
             } catch (IOException e) {
                 log.error("Failed to load template " + templateName + " from " + url + ". " + e, e);
             }
+        }
+        return template;
+    }
+
+    public static String addBuildParameter(Logger log, String template, String parameterName, String parameterValue, String description) {
+        try {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = documentBuilder.parse(new InputSource(new StringReader(template)));
+            Element rootElement = doc.getDocumentElement();
+            NodeList parameterDefs = rootElement.getElementsByTagName("parameterDefinitions");
+            if (parameterDefs != null && parameterDefs.getLength() > 0) {
+                Node paramDefNode = parameterDefs.item(0);
+                Element stringParamDef = DomHelper.addChildElement(paramDefNode, "hudson.model.StringParameterDefinition");
+
+                DomHelper.addChildElement(stringParamDef, "name", parameterName);
+                DomHelper.addChildElement(stringParamDef, "defaultValue", parameterValue);
+
+                if (Strings.isNotBlank(description)) {
+                    DomHelper.addChildElement(stringParamDef, "description", description);
+                }
+            } else {
+                log.warn("Could not find the <parameterDefinitions> to add the build parameter name " + parameterName + " with value: " + parameterValue);
+            }
+        } catch (Exception e) {
+            log.error("Failed to add the build parameter from the Jenkins XML. " + e, e);
         }
         return template;
     }
@@ -1211,12 +1339,8 @@ public class DevOpsConnector {
     protected void createGerritRepo(String repoName, String gerritUser, String gerritPwd, String gerritGitInitialCommit, String gerritGitRepoDescription) throws Exception {
 
         // lets add defaults if not env vars
-        if (Strings.isNullOrBlank(gerritUser)) {
-            gerritUser = "admin";
-        }
-        if (Strings.isNullOrBlank(gerritPwd)) {
-            gerritPwd = "secret";
-        }
+        final String username = Strings.isNullOrBlank(gerritUser) ? "admin" : gerritUser;
+        final String password = Strings.isNullOrBlank(gerritPwd) ? "secret" : gerritPwd;
 
         log.info("A Gerrit git repo will be created for this name : " + repoName);
 
@@ -1229,16 +1353,33 @@ public class DevOpsConnector {
         }
 
         String GERRIT_URL = gerritAddress + "/a/projects/" + repoName;
-        Realm realm = new Realm.RealmBuilder()
-                .setPrincipal(gerritUser)
-                .setPassword(gerritPwd)
-                .setUsePreemptiveAuth(false)
-                .setScheme(Realm.AuthScheme.DIGEST)
-                .build();
 
-        AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder().setRealm(realm);
+        OkHttpClient client = new OkHttpClient();
+        if (isNotNullOrEmpty(gerritUser) && isNotNullOrEmpty(gerritPwd)) {
+            client.setAuthenticator(new Authenticator() {
+                @Override
+                public Request authenticate(Proxy proxy, Response response) throws IOException {
+                    List<Challenge> challenges = response.challenges();
+                    Request request = response.request();
+                    for (int i = 0, size = challenges.size(); i < size; i++) {
+                        Challenge challenge = challenges.get(i);
+                        if (!"Basic".equalsIgnoreCase(challenge.getScheme())) continue;
 
-        AsyncHttpClient client = new AsyncHttpClient(configBuilder.build());
+                        String credential = Credentials.basic(username, password);
+                        return request.newBuilder()
+                                .header("Authorization", credential)
+                                .build();
+                    }
+                    return null;
+                }
+
+                @Override
+                public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+                    return null;
+                }
+            });
+        }
+
         System.out.println("Requesting : " + GERRIT_URL);
 
         try {
@@ -1247,15 +1388,17 @@ public class DevOpsConnector {
             createRepoDTO.setName(repoName);
             createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
 
-            String json = MAPPER.writeValueAsString(createRepoDTO);
-            Future<Response> future = client.preparePost(GERRIT_URL).addHeader("Content-Type", "application/json").setBody(json).execute();
-            Response response = future.get();
-            System.out.println("responseBody : " + response.getResponseBody());
+            RequestBody body = RequestBody.create(JSON, MAPPER.writeValueAsString(createRepoDTO));
+            Request request = new Request.Builder().post(body).url(GERRIT_URL).build();
+            Response response = client.newCall(request).execute();
+            System.out.println("responseBody : " + response.body().string());
 
         } catch (Throwable t) {
             throw new RuntimeException(t);
         } finally {
-            client.close();
+            if (client != null && client.getConnectionPool() != null) {
+                client.getConnectionPool().evictAll();
+            }
         }
     }
 

@@ -35,21 +35,11 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-api</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>openshift-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>kubernetes-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>openshift-client-with-deps</artifactId>
+            <artifactId>openshift-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>

@@ -706,7 +706,7 @@ public class Controller {
         }
     }
 
-    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientOperation<KubernetesClient, T, L, D, ClientResource<T, D>> resources) throws Exception {
+    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientOperation<T, L, D, ClientResource<T, D>> resources) throws Exception {
         String namespace = getNamespace();
         String id = getName(resource);
         String kind = getKind(resource);
@@ -743,7 +743,7 @@ public class Controller {
         }
     }
 
-    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientOperation<KubernetesClient, T, L, D, ClientResource<T, D>> resources) throws Exception {
+    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientOperation<T, L, D, ClientResource<T, D>> resources) throws Exception {
         String kind = getKind(resource);
         LOG.info("Creating a " + kind + " from " + sourceName + " namespace " + namespace + " name " + getName(resource));
         try {
