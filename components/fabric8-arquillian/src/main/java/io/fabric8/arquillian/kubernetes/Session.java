@@ -18,6 +18,8 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.utils.Systems;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Represents a testing session.
  * It is used for scoping pods, service and replication controllers created during the test.
@@ -26,6 +28,9 @@ public class Session {
     private final String id;
     private final Logger logger;
     private final String namespace;
+    private final AtomicInteger passed = new AtomicInteger();
+    private final AtomicInteger failed = new AtomicInteger();
+    private final AtomicInteger skiped = new AtomicInteger();
 
     private static final String NAMESPACE_PREFIX = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
 
@@ -60,5 +65,17 @@ public class Session {
      */
     public String getNamespace() {
         return namespace;
+    }
+
+    public AtomicInteger getPassed() {
+        return passed;
+    }
+
+    public AtomicInteger getFailed() {
+        return failed;
+    }
+
+    public AtomicInteger getSkiped() {
+        return skiped;
     }
 }

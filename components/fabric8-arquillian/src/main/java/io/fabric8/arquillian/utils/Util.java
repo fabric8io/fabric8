@@ -90,6 +90,7 @@ public class Util {
         }
     }
 
+
     protected static void waitUntilWeCanDestroyNamespace(Session session) {
         final Logger log = session.getLogger();
         String confirmDestroy = Systems.getEnvVarOrSystemProperty(Constants.NAMESPACE_CLEANUP_CONFIRM_ENABLED, "false");
@@ -198,4 +199,11 @@ public class Util {
         return new File(basedir);
     }
 
+    public static String getSessionStatus(Session session) {
+        if (session.getFailed().get() > 0) {
+            return "FAILED";
+        } else {
+            return "PASSED";
+        }
+    }
 }

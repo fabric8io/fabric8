@@ -15,6 +15,7 @@
  */
 package io.fabric8.arquillian;
 
+import io.fabric8.arquillian.kubernetes.TestListener;
 import io.fabric8.arquillian.kubernetes.ClientCreator;
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Configurer;
@@ -51,6 +52,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .observer(ControllerCreator.class)
                 .observer(LoggerFactory.class)
                 .observer(SuiteListener.class)
+                .observer(TestListener.class)
                 .observer(SessionListener.class);
 
         builder.service(ResourceProvider.class, ClientResourceProvider.class)

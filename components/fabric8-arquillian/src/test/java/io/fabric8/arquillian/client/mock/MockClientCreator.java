@@ -54,7 +54,6 @@ public class MockClientCreator {
     public void createClient(@Observes Configuration config) throws MalformedURLException {
         KubernetesMockClient mock = new KubernetesMockClient();
 
-
         Namespace namespace = new NamespaceBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
@@ -88,12 +87,29 @@ public class MockClientCreator {
                 .endStatus()
                 .build();
 
-
-
-
         mock.getMasterUrl().andReturn(new URL("http://mock.client:80")).anyTimes();
 
         mock.namespaces().withName("arquillian").get().andReturn(namespace).anyTimes();
+
+        //This is a bit tricky and worths a comment:
+        //when editing inline vie edit()/createNew() etc expectation is always once(). The anyTimes() below refers to done() not edit().
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
+        mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
         mock.namespaces().withName("arquillian").edit().done().andReturn(namespace).anyTimes();
 
         mock.replicationControllers().inNamespace("arquillian").list().andReturn(new ReplicationControllerListBuilder().build()).once();

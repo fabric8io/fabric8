@@ -26,6 +26,7 @@ import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
+import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -197,10 +198,10 @@ public class SessionListener {
         }
     }
 
-
-    public void stop(@Observes Stop event, TestResult result, KubernetesClient client, Configuration configuration) throws Exception {
+    public void stop(@Observes Stop event, KubernetesClient client, Configuration configuration) throws Exception {
         try {
-                cleanupSession(client, configuration, event.getSession(), result.getStatus().name());
+            Session session = event.getSession();
+            cleanupSession(client, configuration, session, Util.getSessionStatus(session));
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);

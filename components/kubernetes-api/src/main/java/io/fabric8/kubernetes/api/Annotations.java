@@ -40,7 +40,8 @@ public class Annotations {
     }
 
     public static class Tests {
-        public static final String SESSION_ID = "fabric8.io/test-session-id";
-        public static final String STATUS = "fabric8.io/test-status";
+        public static final String SESSION_ID = "fabric8.io/test-session/id";
+        public static final String TEST_CASE_STATUS_FORMAT = "fabric8.io/test-case/%s/status";
+        public static final String TEST_SESSION_STATUS = "fabric8.io/test-session/status";
     }
 }
