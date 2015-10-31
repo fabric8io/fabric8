@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.5" data-chapter-title="Forge Addons" data-filepath="forge.md" data-basepath="." data-revision="Fri Oct 30 2015 22:12:20 GMT+0000 (UTC)">
+    <div class="book" data-level="6.5" data-chapter-title="Forge Addons" data-filepath="forge.md" data-basepath="." data-revision="Sat Oct 31 2015 10:57:36 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1201,11 +1201,14 @@ kubernetes&lt;TAB&gt;
 <ul>
 <li>create new projects</li>
 <li>setup existing project for docker/fabric8 using the <strong>fabric8-setup</strong> command</li>
+<li>configure Kubernetes Service</li>
 <li>configure the DevOps configuration of a project via the <a href="fabric8YmlFile.html">fabric8.yml file</a></li>
 <li>generate new integration or system tests for a project</li>
 </ul>
-<p>If you are inside a project try:</p>
-<pre><code>forge devops-edit
+<p>To setup a Maven project for fabric8 and Docker then use the command:</p>
+<pre><code>fabric8-setup
+</code></pre><p>If you are inside a project then use the command:</p>
+<pre><code>devops-edit
 </code></pre><p>to open the edit devops command which is a wizard that lets you configure the Docker and Fabric8 build metadata along with setting up the Jenkins workflow CD pipeline and linking the project to a team chat room and issue tracker.</p>
 <h3 id="kubernetes"><a name="kubernetes" class="plugin-anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
 <p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
