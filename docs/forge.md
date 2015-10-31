@@ -35,6 +35,7 @@ The **DevOps** commands help you to
 * configure the DevOps configuration of a project via the [fabric8.yml file](fabric8YmlFile.html)
 * generate new integration or system tests for a project
 
+
 To setup a Maven project for fabric8 and Docker then use the command:
 
     fabric8-setup
@@ -48,6 +49,8 @@ to open the edit devops command which is a wizard that lets you configure the Do
 ### Kubernetes
 
 Before you run forge make sure your **KUBERNETES_MASTER** environment variable points to where OpenShift V3 is running.
+
+The `oc` or `kubectl` client are more powerful than the kubernetes forge addon, and its recommended to use these clients.
 
 #### Applying JSON
 
