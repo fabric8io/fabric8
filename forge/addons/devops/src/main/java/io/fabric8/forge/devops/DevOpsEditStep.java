@@ -69,7 +69,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditStep.class);
     private static final String DEFAULT_MAVEN_FLOW = "maven/CanaryReleaseStageAndApprovePromote.groovy";
@@ -133,7 +132,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         if (getCurrentSelectedProject(context) != null) {
             pipeline.setDefaultValue(DEFAULT_MAVEN_FLOW);
             pipeline.setValue(DEFAULT_MAVEN_FLOW);
-        } else {
         }
         chatRoom.setCompleter(new UICompleter<String>() {
             @Override
@@ -200,7 +198,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             String lowerInputValue = inputValue.toLowerCase();
             for (String value : values) {
                 if (value != null) {
-                    if (value.toLowerCase().indexOf(lowerInputValue) >= 0) {
+                    if (value.toLowerCase().contains(lowerInputValue)) {
                         answer.add(value);
                     }
                 }
@@ -215,11 +213,9 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         return null;
     }
 
-
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         LOG.info("Creating the fabric8.yml file");
-
 
         String fileName = ProjectConfigs.FILE_NAME;
         Project project = getSelectedProject(context);
@@ -239,7 +235,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
 
         CommandHelpers.putComponentValuesInAttributeMap(context, inputComponents);
         updateConfiguration(context, config);
-        System.out.println("Result: " + config);
+        LOG.info("Result: " + config);
 
         String message;
         if (config.isEmpty() && !hasFile) {
@@ -538,7 +534,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         this.taiga = taiga;
     }
 
-
     public static File getProjectConfigFile(Project project) {
         if (project == null) {
             return null;
@@ -553,7 +548,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         }
         return ResourceUtil.getContextFile(configFileResource);
     }
-
 
     protected void updateConfiguration(UIExecutionContext context, ProjectConfig config) {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();

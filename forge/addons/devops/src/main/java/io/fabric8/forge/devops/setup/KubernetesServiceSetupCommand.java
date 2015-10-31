@@ -51,7 +51,7 @@ public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(KubernetesServiceSetupCommand.class).name(
-                "Kubernetes Service").category(Categories.create(AbstractFabricProjectCommand.CATEGORY))
+                "Fabric8: Kubernetes Service").category(Categories.create(AbstractFabricProjectCommand.CATEGORY))
                 .description("Add/Update Kubernetes Service");
     }
 

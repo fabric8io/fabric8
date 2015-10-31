@@ -33,6 +33,8 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -45,6 +47,8 @@ import static io.fabric8.utils.cxf.JsonHelper.toJson;
  * Creates a new integration test build in OpenShift for the current project
  */
 public class NewIntegrationTestBuildCommand extends AbstractDevOpsCommand {
+    private static final transient Logger LOG = LoggerFactory.getLogger(NewIntegrationTestBuildCommand.class);
+
     @Inject
     @WithAttributes(name = "buildName", label = "Build name",
             description = "The build configuration name to generate.",
@@ -70,7 +74,6 @@ public class NewIntegrationTestBuildCommand extends AbstractDevOpsCommand {
             description = "If the git URI is not specified in the pom.xml then this allows you to specify one to be used.",
             required = false)
     UIInput<String> gitUri;
-
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -110,7 +113,7 @@ public class NewIntegrationTestBuildCommand extends AbstractDevOpsCommand {
         List<EnvVar> envVars = createEnvVars(buildConfigName, gitUrlText, mavenCommand.getValue());
         BuildConfig buildConfig = BuildConfigs.createIntegrationTestBuildConfig(buildConfigName, labels, gitUrlText, imageText, envVars);
 
-        System.out.println("Generated BuildConfig: " + toJson(buildConfig));
+        LOG.info("Generated BuildConfig: " + toJson(buildConfig));
 
         ImageStream imageRepository = BuildConfigs.imageRepository(buildConfigName, labels);
 

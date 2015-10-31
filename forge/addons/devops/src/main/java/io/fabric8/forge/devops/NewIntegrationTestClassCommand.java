@@ -87,13 +87,11 @@ public class NewIntegrationTestClassCommand extends AbstractDevOpsCommand {
             defaultValue = "FailSafe")
     private UIInput<ITestPlugin> itestPlugin;
 
-
     @Inject
     private DependencyInstaller dependencyInstaller;
 
     @Inject
     private DependencyResolver dependencyResolver;
-
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -141,7 +139,7 @@ public class NewIntegrationTestClassCommand extends AbstractDevOpsCommand {
             Model mavenModel = mavenFacet.getModel();
             Profile kitProfile = MavenHelpers.findProfile(mavenModel, profileId);
             if (kitProfile == null) {
-                System.out.println("Creating a new maven profile for id: " + profileId);
+                LOG.info("Creating a new maven profile for id: " + profileId);
                 kitProfile = new Profile();
                 kitProfile.setId(profileId);
             }
@@ -152,7 +150,7 @@ public class NewIntegrationTestClassCommand extends AbstractDevOpsCommand {
                 itestPluginArtifactId = itestPluginValue.getArtifactId();
             }
             if (itestPluginArtifactId == null) {
-                System.out.println("Warning - no itestPlugin specified!");
+                LOG.warn("Warning - no itestPlugin specified!");
                 itestPluginArtifactId = MavenHelpers.failsafeArtifactId;
             }
             String version = MavenHelpers.getVersion(MavenHelpers.mavenPluginsGroupId, itestPluginArtifactId);
@@ -169,7 +167,7 @@ public class NewIntegrationTestClassCommand extends AbstractDevOpsCommand {
                     LOG.debug("Ignored exception looking up maven plugin for " + coordinate + " for profile " + kitProfileImpl);
                 }
                 if (surefirePlugin == null) {
-                    System.out.println("Creating a new plugin for " + coordinate + " on profile " + kitProfileImpl);
+                    LOG.info("Creating a new plugin for " + coordinate + " on profile " + kitProfileImpl);
                     String wildcard = integrationTestWildcard.getValue();
                     ConfigurationBuilder configuration = ConfigurationBuilder.create();
                     configuration.createConfigurationElement("includes").createConfigurationElement("include").setText(wildcard);

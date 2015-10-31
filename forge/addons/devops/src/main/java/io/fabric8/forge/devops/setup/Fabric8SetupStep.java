@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import io.fabric8.forge.addon.utils.MavenHelpers;
 import io.fabric8.forge.addon.utils.VersionHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameOrMavenPropertyValidator;
-import io.fabric8.forge.devops.AbstractDevOpsCommand;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Build;
@@ -58,10 +57,13 @@ import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
 import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
+import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.util.Categories;
+import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,7 @@ import static io.fabric8.forge.devops.setup.DockerSetupHelper.setupDocker;
 import static io.fabric8.forge.devops.setup.SetupProjectHelper.findCamelArtifacts;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
-public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardStep {
+public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(Fabric8SetupStep.class);
 
     private String[] jarImages = new String[]{DockerSetupHelper.DEFAULT_JAVA_IMAGE, DockerSetupHelper.OTHER_JAVA_IMAGE};
@@ -120,6 +122,13 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
     FacetFactory facetFactory;
 
     @Override
+    public UICommandMetadata getMetadata(UIContext context) {
+        return Metadata.forCommand(Fabric8SetupStep.class).name(
+                "Fabric8: Setup").category(Categories.create(CATEGORY))
+                .description("Configure the Fabric8 and Docker options for the project");
+    }
+
+    @Override
     public boolean isEnabled(UIContext context) {
         // this is a step in a wizard, you cannot run this standalone
         return false;
@@ -130,11 +139,10 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         return null;
     }
 
-
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         LOG.info("Getting the current project");
-        final Project project = getCurrentSelectedProject(builder.getUIContext());
+        final Project project = getSelectedProject(builder.getUIContext());
 
         LOG.info("Got the current project");
 
@@ -270,7 +278,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         LOG.info("starting to setup fabric8 project");
-        Project project = getCurrentSelectedProject(context.getUIContext());
+        Project project = getSelectedProject(context.getUIContext());
         if (project == null) {
             return Results.fail("No pom.xml available so cannot edit the project!");
         }

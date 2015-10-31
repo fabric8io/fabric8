@@ -31,12 +31,17 @@ The **DevOps** commands help you to
 
 * create new projects
 * setup existing project for docker/fabric8 using the **fabric8-setup** command
+* configure Kubernetes Service
 * configure the DevOps configuration of a project via the [fabric8.yml file](fabric8YmlFile.html)
 * generate new integration or system tests for a project
 
-If you are inside a project try:
+To setup a Maven project for fabric8 and Docker then use the command:
 
-    forge devops-edit
+    fabric8-setup
+
+If you are inside a project then use the command:
+
+    devops-edit
     
 to open the edit devops command which is a wizard that lets you configure the Docker and Fabric8 build metadata along with setting up the Jenkins workflow CD pipeline and linking the project to a team chat room and issue tracker.
     

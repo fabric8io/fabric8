@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Map;
 
-
 public class SaveDevOpsStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(SaveDevOpsStep.class);
 
@@ -51,14 +50,13 @@ public class SaveDevOpsStep extends AbstractDevOpsCommand implements UIWizardSte
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        // noop
     }
-
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         return null;
     }
-
 
     public static File getProjectConfigFile(Project project) {
         if (project == null) {
@@ -93,7 +91,7 @@ public class SaveDevOpsStep extends AbstractDevOpsCommand implements UIWizardSte
         }
 
         updateConfiguration(context, config);
-        System.out.println("Result: " + config);
+        LOG.info("Result: " + config);
 
         if (config.isEmpty() && !hasFile) {
             return Results.success("No " + fileName + " need be generated as there is no configuration");

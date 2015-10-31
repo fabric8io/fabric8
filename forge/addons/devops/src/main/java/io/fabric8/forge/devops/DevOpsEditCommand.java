@@ -27,12 +27,8 @@ import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class DevOpsEditCommand extends AbstractDevOpsCommand implements UIWizard {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditCommand.class);
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -41,7 +37,6 @@ public class DevOpsEditCommand extends AbstractDevOpsCommand implements UIWizard
                 .name(AbstractDevOpsCommand.CATEGORY + ": Edit")
                 .description("Edit the DevOps configuration for this project");
     }
-
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
