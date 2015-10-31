@@ -15,12 +15,16 @@
  */
 package io.fabric8.forge.rest.main;
 
-import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.forge.rest.dto.ExecutionRequest;
 import io.fabric8.forge.rest.dto.ExecutionResult;
 import io.fabric8.forge.rest.hooks.CommandCompletePostProcessor;
 import io.fabric8.forge.rest.ui.RestUIContext;
+import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.repo.git.CreateRepositoryDTO;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.RepositoryDTO;
@@ -206,11 +210,15 @@ public class GitCommandCompletePostProcessor implements CommandCompletePostProce
 
     protected void createBuildConfig(RestUIContext context, String namespace, String projectName, String cloneUrl) throws Exception {
         LOG.info("Creating a BuildConfig for namespace: " + namespace + " project: " + projectName);
-        DevOpsConnector connector = new DevOpsConnector();
-        connector.setGitUrl(cloneUrl);
-        connector.setNamespace(namespace);
-        connector.setProjectName(projectName);
-        connector.execute();
+        String jenkinsUrl = getJenkinsServiceUrl(namespace);
+        BuildConfig buildConfig = Builds.createDefaultBuildConfig(projectName, cloneUrl, jenkinsUrl);
+        Controller controller = new Controller(kubernetes);
+        controller.setNamespace(namespace);
+        controller.applyBuildConfig(buildConfig, "from project " + projectName);
+    }
+
+    protected String getJenkinsServiceUrl(String namespace) {
+        return KubernetesHelper.getServiceURL(kubernetes, ServiceNames.JENKINS, namespace, "http", true);
     }
 
     /**

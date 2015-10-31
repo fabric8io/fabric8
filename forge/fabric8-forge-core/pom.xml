@@ -62,10 +62,6 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-devops-connector</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
       <artifactId>gitrepo-api</artifactId>
     </dependency>
     <dependency>

@@ -32,10 +32,9 @@ import io.fabric8.gerrit.CreateRepositoryDTO;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
+import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
@@ -44,10 +43,6 @@ import io.fabric8.letschat.RoomDTO;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigSpec;
 import io.fabric8.openshift.api.model.BuildSource;
-import io.fabric8.openshift.api.model.BuildStrategy;
-import io.fabric8.openshift.api.model.BuildTriggerPolicy;
-import io.fabric8.openshift.api.model.BuildTriggerPolicyBuilder;
-import io.fabric8.openshift.api.model.CustomBuildStrategy;
 import io.fabric8.openshift.api.model.GitBuildSource;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.repo.git.GitRepoClient;
@@ -94,7 +89,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
 
@@ -122,10 +116,10 @@ public class DevOpsConnector {
     private String fullName;
 
     private String gitUrl;
-    private String secret = "secret101";
-    private String buildImageStream = "triggerJenkins";
-    private String buildImageTag = "latest";
-    private String s2iCustomBuilderImage = "fabric8/openshift-s2i-jenkins-trigger";
+    private String secret = Builds.DEFAULT_SECRET;
+    private String buildImageStream = Builds.DEFAULT_BUILD_IMAGE_STREAM;
+    private String buildImageTag = Builds.DEFAULT_IMAGE_TAG;
+    private String s2iCustomBuilderImage = Builds.DEFAULT_CUSTOM_BUILDER_IMAGE;
     private String jenkinsJob;
     private boolean triggerJenkinsJob = true;
 
@@ -349,6 +343,7 @@ public class DevOpsConnector {
             }
             log.info("Loaded gitSourceSecretName: " + gitSourceSecretName);
         }
+        log.info("gitUrl is: " + gitUrl);
 
 
 
@@ -361,55 +356,7 @@ public class DevOpsConnector {
         metadata.setName(projectName);
         metadata.setAnnotations(annotations);
         metadata.setLabels(labels);
-        BuildConfigSpec spec = buildConfig.getSpec();
-        if (spec == null) {
-            spec = new BuildConfigSpec();
-            buildConfig.setSpec(spec);
-        }
-
-        log.info("gitUrl is: " + gitUrl);
-        if (!foundExistingGitUrl && Strings.isNotBlank(gitUrl)) {
-            BuildSource source = spec.getSource();
-            if (source == null) {
-                source = new BuildSource();
-                spec.setSource(source);
-            }
-            source.setType("Git");
-            GitBuildSource git = source.getGit();
-            if (git == null) {
-                git = new GitBuildSource();
-                source.setGit(git);
-            }
-            git.setUri(gitUrl);
-        }
-
-        if (Strings.isNotBlank(buildImageStream) && Strings.isNotBlank(buildImageTag)) {
-            BuildStrategy strategy = spec.getStrategy();
-            if (strategy == null) {
-                strategy = new BuildStrategy();
-                spec.setStrategy(strategy);
-            }
-
-            // TODO only do this if we are using Jenkins?
-            strategy.setType("Custom");
-            CustomBuildStrategy customStrategy = strategy.getCustomStrategy();
-            if (customStrategy == null) {
-                customStrategy = new CustomBuildStrategy();
-                strategy.setCustomStrategy(customStrategy);
-            }
-
-            ListEnvVarBuilder envBuilder = new ListEnvVarBuilder();
-            envBuilder.withEnvVar("BASE_URI", jenkinsUrl);
-            envBuilder.withEnvVar("JOB_NAME", name);
-            customStrategy.setEnv(envBuilder.build());
-            customStrategy.setFrom(new ObjectReferenceBuilder().withKind("DockerImage").withName(s2iCustomBuilderImage).build());
-        }
-        List<BuildTriggerPolicy> triggers = spec.getTriggers();
-        if (triggers.isEmpty()) {
-            triggers.add(new BuildTriggerPolicyBuilder().withType("GitHub").withNewGithub().withSecret(secret).endGithub().build());
-            triggers.add(new BuildTriggerPolicyBuilder().withType("Generic").withNewGeneric().withSecret(secret).endGeneric().build());
-            spec.setTriggers(triggers);
-        }
+        Builds.configureDefaultBuildConfig(buildConfig, name, gitUrl, foundExistingGitUrl, buildImageStream, buildImageTag, s2iCustomBuilderImage, secret, jenkinsUrl);
 
         try {
             getLog().info("About to apply build config: " + new JSONObject(KubernetesHelper.toJson(buildConfig)).toString(4));
