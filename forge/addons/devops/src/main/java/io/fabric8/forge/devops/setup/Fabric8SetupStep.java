@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
 import static io.fabric8.forge.addon.utils.MavenHelpers.ensureMavenDependencyAdded;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.setupDocker;
+import static io.fabric8.forge.devops.setup.SetupProjectHelper.findCamelArtifacts;
 
 @FacetConstraint({MavenFacet.class, MavenPluginFacet.class, ResourcesFacet.class})
 public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardStep {
@@ -133,7 +134,7 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
         LOG.info("Getting the current project");
-        Project project = getCurrentSelectedProject(builder.getUIContext());
+        final Project project = getCurrentSelectedProject(builder.getUIContext());
 
         LOG.info("Got the current project");
 
@@ -237,6 +238,11 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
         icon.setDefaultValue(new Callable<String>() {
             @Override
             public String call() throws Exception {
+                // favor Camel if there is a Camel dependency
+                if (!findCamelArtifacts(project).isEmpty()) {
+                    return "camel";
+                }
+
                 if (container.getValue() != null) {
                     for (String choice : icon.getValueChoices()) {
                         if (choice.equals(container.getValue())) {
@@ -244,7 +250,9 @@ public class Fabric8SetupStep extends AbstractDevOpsCommand implements UIWizardS
                         }
                     }
                 }
-                return null;
+
+                // use java by default
+                return "java";
             }
         });
 

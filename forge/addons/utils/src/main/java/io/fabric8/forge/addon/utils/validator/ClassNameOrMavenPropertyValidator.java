@@ -19,9 +19,8 @@ package io.fabric8.forge.addon.utils.validator;
 import org.jboss.forge.addon.parser.java.utils.ResultType;
 import org.jboss.forge.addon.parser.java.utils.ValidationResult;
 
-/**
- */
 public class ClassNameOrMavenPropertyValidator extends ClassNameValidator {
+
     public ClassNameOrMavenPropertyValidator(boolean allowPackageName) {
         super(allowPackageName);
     }

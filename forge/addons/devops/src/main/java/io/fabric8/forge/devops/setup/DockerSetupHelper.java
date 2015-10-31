@@ -62,7 +62,7 @@ public class DockerSetupHelper {
         String packaging = getProjectPackaging(project);
         boolean war = packaging != null && packaging.equals("war");
         boolean bundle = packaging != null && packaging.equals("bundle");
-        boolean jar = packaging != null && packaging.equals("jar");
+        boolean jar = packaging == null || packaging.equals("jar"); // jar is default packaging
 
         Map<String, String> envs = new LinkedHashMap<>();
         if (springBoot) {
