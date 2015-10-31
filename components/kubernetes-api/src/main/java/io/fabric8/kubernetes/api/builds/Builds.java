@@ -55,7 +55,7 @@ public class Builds {
     public static BuildConfig createDefaultBuildConfig(String name, String gitUrl, String jenkinsUrl) {
         BuildConfig buildConfig = new BuildConfig();
         getOrCreateMetadata(buildConfig).setName(name);
-        boolean foundExistingGitUrl = true;
+        boolean foundExistingGitUrl = false;
         return configureDefaultBuildConfig(buildConfig, name, gitUrl, foundExistingGitUrl, jenkinsUrl);
     }
 
