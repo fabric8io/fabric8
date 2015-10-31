@@ -15,18 +15,12 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
-import io.fabric8.forge.camel.commands.project.completer.XmlResourcesCamelEndpointsVisitor;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
-
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -34,7 +28,6 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
-import org.jboss.forge.addon.resource.visit.ResourceVisitor;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -85,8 +78,8 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder.getUIContext());
-        final JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
-        
+        JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
+
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
@@ -98,18 +91,6 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
                 if (value != null) {
                     // the component may have a dash, so remove it
                     value = value.replaceAll("-", "");
-                }
-                List<CamelEndpointDetails> endpoints = new ArrayList<>();
-                ResourceVisitor visitor = new XmlResourcesCamelEndpointsVisitor((ResourcesFacet) facet, endpoints);
-                ((ResourcesFacet) facet).visitResources(visitor);
-                Iterator<CamelEndpointDetails> it = endpoints.iterator();
-                while (it.hasNext()) {
-                        CamelEndpointDetails det = it.next();
-                        if (det.getEndpointInstance() != null) {
-                                if (det.getEndpointInstance().equals(instanceName)) {
-                                        return null;
-                                }
-                        }
                 }
                 return value;
             }
