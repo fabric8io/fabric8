@@ -54,7 +54,7 @@ public class DockerSetupHelper {
     private static String[] bundleImages = new String[]{DEFAULT_KARAF_IMAGE};
     private static String[] warImages = new String[]{DEFAULT_TOMCAT_IMAGE, DEFAULT_WILDFLY_IMAGE};
 
-    public static void setupDocker(Project project, String fromImage, String main) {
+    public static void setupDocker(Project project, String organization, String fromImage, String main) {
         MavenFacet maven = project.getFacet(MavenFacet.class);
         Model pom = maven.getModel();
 
@@ -103,7 +103,7 @@ public class DockerSetupHelper {
             pluginFacet.addPlugin(pluginBuilder);
         }
 
-        setupDockerProperties(project, fromImage);
+        setupDockerProperties(project, organization, fromImage);
     }
 
     protected static void setupDockerConfiguration(ConfigurationBuilder config, Map<String, String> envs, String commandShell,
@@ -147,7 +147,7 @@ public class DockerSetupHelper {
         }
     }
 
-    public static void setupDockerProperties(Project project, String fromImage) {
+    public static void setupDockerProperties(Project project, String organization, String fromImage) {
         String packaging = getProjectPackaging(project);
 
         boolean springBoot = hasSpringBootMavenPlugin(project);
@@ -160,11 +160,10 @@ public class DockerSetupHelper {
         Model pom = maven.getModel();
         Properties properties = pom.getProperties();
         boolean updated = false;
-        updated = MavenHelpers.updatePomProperty(properties, "docker.registryPrefix", "${env.DOCKER_REGISTRY}/", updated);
         if (Strings.isNotBlank(fromImage)) {
             updated = MavenHelpers.updatePomProperty(properties, "docker.from", dockerFromImagePrefix + fromImage, updated);
         }
-        updated = MavenHelpers.updatePomProperty(properties, "docker.image", "${docker.registryPrefix}fabric8/${project.artifactId}:${project.version}", updated);
+        updated = MavenHelpers.updatePomProperty(properties, "docker.image", organization + "/${project.artifactId}:${project.version}", updated);
         // jolokia is exposed on our docker images on port 8778
         updated = MavenHelpers.updatePomProperty(properties, "docker.port.container.jolokia", "8778", updated);
 

@@ -82,12 +82,12 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
     private String[] warImages = new String[]{DockerSetupHelper.DEFAULT_TOMCAT_IMAGE, DockerSetupHelper.DEFAULT_WILDFLY_IMAGE};
 
     @Inject
-    @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
-    private UIInput<String> from;
+    @WithAttributes(label = "organization", required = true, description = "The docker organization/company")
+    private UIInput<String> organization;
 
     @Inject
-    @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
-    private UIInput<String> main;
+    @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
+    private UIInput<String> from;
 
     @Inject
     @WithAttributes(label = "container", required = false, description = "Container name to use for the app")
@@ -100,6 +100,10 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
     @Inject
     @WithAttributes(label = "icon", required = false, description = "Icon to use for the app")
     private UISelectOne<String> icon;
+
+    @Inject
+    @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
+    private UIInput<String> main;
 
     @Inject
     @WithAttributes(label = "test", required = false, defaultValue = "true", description = "Include test dependencies")
@@ -141,13 +145,15 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
+        organization.setDefaultValue("fabric8");
+        builder.add(organization);
+
         LOG.info("Getting the current project");
         final Project project = getSelectedProject(builder.getUIContext());
 
         LOG.info("Got the current project");
 
         String packaging = getProjectPackaging(project);
-
         boolean springBoot = hasSpringBootMavenPlugin(project);
 
         // limit the choices depending on the project packaging
@@ -284,7 +290,7 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
         }
 
         // setup docker-maven-plugin and fabric8-maven-plugin
-        setupDocker(project, from.getValue(), main.getValue());
+        setupDocker(project, organization.getValue(), from.getValue(), main.getValue());
         LOG.info("docker-maven-plugin now setup");
         setupFabricMavenPlugin(project);
         LOG.info("fabric8-maven-plugin now setup");
