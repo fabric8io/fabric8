@@ -44,13 +44,13 @@ public class DockerSetupHelper {
     public static final String DEFAULT_KARAF_IMAGE = "fabric8/karaf-2.4";
     public static final String DEFAULT_TOMCAT_IMAGE = "fabric8/tomcat-8.0";
     public static final String DEFAULT_WILDFLY_IMAGE = "jboss/wildfly:9.0.2.Final";
-    public static final String DEFAULT_JAVA_IMAGE = "fabric8/s2i-java:1.1.6";
-    public static final String OTHER_JAVA_IMAGE = "fabric8/java-jboss-openjdk8-jdk:1.0.10";
+    public static final String DEFAULT_JAVA_IMAGE = "fabric8/java-jboss-openjdk8-jdk:1.0.10";
+    public static final String S2I_JAVA_IMAGE = "fabric8/s2i-java:1.1.6";
 
     // see https://github.com/fabric8io/fabric8/issues/4160
     private static String dockerFromImagePrefix = "docker.io/";
 
-    private static String[] jarImages = new String[]{DEFAULT_JAVA_IMAGE};
+    private static String[] jarImages = new String[]{DEFAULT_JAVA_IMAGE}; // s2i is not yet supported
     private static String[] bundleImages = new String[]{DEFAULT_KARAF_IMAGE};
     private static String[] warImages = new String[]{DEFAULT_TOMCAT_IMAGE, DEFAULT_WILDFLY_IMAGE};
 

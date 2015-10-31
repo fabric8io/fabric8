@@ -77,7 +77,7 @@ import static io.fabric8.forge.devops.setup.SetupProjectHelper.findCamelArtifact
 public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(Fabric8SetupStep.class);
 
-    private String[] jarImages = new String[]{DockerSetupHelper.DEFAULT_JAVA_IMAGE, DockerSetupHelper.OTHER_JAVA_IMAGE};
+    private String[] jarImages = new String[]{DockerSetupHelper.DEFAULT_JAVA_IMAGE, DockerSetupHelper.S2I_JAVA_IMAGE};
     private String[] bundleImages = new String[]{DockerSetupHelper.DEFAULT_KARAF_IMAGE};
     private String[] warImages = new String[]{DockerSetupHelper.DEFAULT_TOMCAT_IMAGE, DockerSetupHelper.DEFAULT_WILDFLY_IMAGE};
 
