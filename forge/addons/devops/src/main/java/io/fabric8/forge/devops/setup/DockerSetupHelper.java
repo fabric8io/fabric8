@@ -106,7 +106,8 @@ public class DockerSetupHelper {
         setupDockerProperties(project, fromImage);
     }
 
-    protected static void setupDockerConfiguration(ConfigurationBuilder config, Map<String, String> envs, String commandShell) {
+    protected static void setupDockerConfiguration(ConfigurationBuilder config, Map<String, String> envs, String commandShell,
+                                                   boolean springBoot, boolean war, boolean bundle, boolean jar) {
         ConfigurationElement images = MavenHelpers.getOrCreateElement(config, "images");
         ConfigurationElement image = MavenHelpers.getOrCreateElement(images, "image");
         ConfigurationElement build = MavenHelpers.getOrCreateElement(image, "build");
@@ -132,6 +133,12 @@ public class DockerSetupHelper {
         }
 
         ConfigurationElementBuilder assembly = MavenHelpers.getOrCreateElementBuilder(build, "assembly");
+        if (springBoot || jar) {
+            if (!assembly.hasChildByName("basedir")) {
+                ConfigurationElementBuilder baseDir = MavenHelpers.getOrCreateElementBuilder(assembly, "basedir");
+                baseDir.setText("/app");
+            }
+        }
         if (!assembly.hasChildByName("descriptor")) {
             ConfigurationElementBuilder descriptorRef = MavenHelpers.getOrCreateElementBuilder(assembly, "descriptorRef");
             if (Strings.isNullOrBlank(descriptorRef.getText())) {
