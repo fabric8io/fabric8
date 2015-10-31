@@ -13,11 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.devops.setup;
 
 import java.util.Properties;
-import java.util.concurrent.Callable;
-
 import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
@@ -27,37 +25,34 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
-import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
-import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 @FacetConstraint({MavenFacet.class})
-public class CamelKubernetesServiceSetupCommand extends AbstractCamelProjectCommand implements UIWizard{
+public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand {
 
     @Inject
-    @WithAttributes(label = "serviceName", required = false, description = "The service name")
+    @WithAttributes(label = "serviceName", required = true, description = "The service name")
     private UIInput<String> serviceName;
 
     @Inject
-    @WithAttributes(label = "servicePort", required = false, description = "The service port")
+    @WithAttributes(label = "servicePort", required = true, description = "The service port")
     private UIInput<String> servicePort;
 
     @Inject
-    @WithAttributes(label = "containerPort", required = false, description = "The service port used by container")
+    @WithAttributes(label = "containerPort", required = true, description = "The service port used by container")
     private UIInput<String> containerPort;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelKubernetesServiceSetupCommand.class).name(
-                "Camel: Kubernetes Service").category(Categories.create(CATEGORY))
-                .description("Add/Update Kubernetes service");
+        return Metadata.forCommand(KubernetesServiceSetupCommand.class).name(
+                "Kubernetes Service").category(Categories.create(AbstractFabricProjectCommand.CATEGORY))
+                .description("Add/Update Kubernetes Service");
     }
 
     @Override
@@ -104,35 +99,19 @@ public class CamelKubernetesServiceSetupCommand extends AbstractCamelProjectComm
 
     @Override
     public void initializeUI(final UIBuilder builder) throws Exception {
-        serviceName.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return null;
-            }
-        });
+        Project project = getSelectedProject(builder.getUIContext());
 
-        // the from image values
-        servicePort.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return null;
-            }
-        });
+        MavenFacet maven = project.getFacet(MavenFacet.class);
+        Model pom = maven.getModel();
+        final Properties properties = pom.getProperties();
 
-        containerPort.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                // use the project name as default value
-                return null;
-            }
-        });
+        if (properties != null) {
+            serviceName.setDefaultValue(properties.getProperty("fabric8.service.name", ""));
+            servicePort.setDefaultValue(properties.getProperty("fabric8.service.port", ""));
+            containerPort.setDefaultValue(properties.getProperty("fabric8.service.containerPort", ""));
+        }
 
         builder.add(serviceName).add(servicePort).add(containerPort);
-        
     }
 
-    @Override
-    public NavigationResult next(UINavigationContext arg0) throws Exception {
-        return null;
-    }
 }

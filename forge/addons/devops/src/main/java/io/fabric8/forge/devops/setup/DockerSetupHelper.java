@@ -97,7 +97,7 @@ public class DockerSetupHelper {
             if (bundle) {
                 commandShell = "/usr/bin/deploy-and-start";
             }
-            setupDockerConfiguration(configurationBuilder, envs, commandShell);
+            setupDockerConfiguration(configurationBuilder, envs, commandShell, springBoot, war, bundle, jar);
 
             MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
             pluginFacet.addPlugin(pluginBuilder);
