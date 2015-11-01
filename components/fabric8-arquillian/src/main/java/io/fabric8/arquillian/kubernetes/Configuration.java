@@ -166,13 +166,13 @@ public class Configuration {
                     namespace = environments.get(environment);
                 }
             }
+            String key = environment.toLowerCase() + ".namespace";
             if (Strings.isNullOrBlank(namespace)) {
                 // lets try find an environment variable or system property
-                String key = environment.toLowerCase() + ".namespace";
                 namespace = getStringProperty(key, map, null);
             }
             if (Strings.isNullOrBlank(namespace)) {
-                throw new IllegalStateException("A fabric8 environment has been specified, but no matching namespace was found.");
+                throw new IllegalStateException("A fabric8 environment '" + environment + "' has been specified, but no matching namespace was found in the fabric8.yml file or '" + key + "' system property");
             }
         }
         return namespace;
