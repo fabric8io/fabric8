@@ -55,6 +55,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+import org.jboss.forge.roaster.model.source.AnnotationSource;
+import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
@@ -62,7 +64,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifactDependency;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.isDefaultValue;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 import static io.fabric8.forge.addon.utils.UIHelper.createUIInput;
@@ -86,7 +90,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConfigureEditEndpointPropertiesStep.class).name(
-                "Camel: Add Endpoint XML").category(Categories.create(CATEGORY))
+                "Camel: Add Endpoint").category(Categories.create(CATEGORY))
                 .description("Configure the endpoint options to use");
     }
 
@@ -196,8 +200,18 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         Map<String, String> options = new HashMap<String, String>();
         for (InputComponent input : inputs) {
             String key = input.getName();
-            // only use the value if a value was set
+            // only use the value if a value was set (and the value is not the same as the default value)
             if (input.hasValue()) {
+                String value = input.getValue().toString();
+                if (value != null) {
+                    // do not add the value if it match the default value
+                    boolean matchDefault = isDefaultValue(camelComponentName, key, value);
+                    if (!matchDefault) {
+                        options.put(key, value);
+                    }
+                }
+            } else if (input.isRequired() && input.hasDefaultValue()) {
+                // if its required then we need to grab the value
                 String value = input.getValue().toString();
                 if (value != null) {
                     options.put(key, value);
@@ -217,46 +231,47 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         JavaClassSource clazz = existing.getJavaType();
-        MethodSource configure = clazz.getMethod("configure");
-        String body = configure.getBody();
 
-        // make sure to import the Camel endpoint
-        clazz.addImport("org.apache.camel.Endpoint");
+        // add the endpoint as a field
+        // special for CDI as we use different set of annotations
+        boolean updated = true;
+        boolean cdi = findCamelArtifactDependency(project, "camel-cdi") != null;
 
-        // insert the endpoint code
-        if (body == null) {
-            body = "";
+        FieldSource field = clazz.getField(endpointInstanceName);
+        AnnotationSource annotation;
+        if (field == null) {
+            field = clazz.addField();
+            field.setName(endpointInstanceName);
+            field.setType("org.apache.camel.Endpoint");
+            field.setPrivate();
+            updated = false;
         }
-
-        // find if we have the endpoint already
-        String match = String.format("Endpoint %s=", endpointInstanceName);
-        List<String> lines = LineNumberHelper.readLines(new StringReader(body));
-        int index = -1;
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
-            if (line.trim().startsWith(match)) {
-                index = i;
-                break;
+        if (cdi) {
+            annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
+            if (annotation == null) {
+                if (!field.hasAnnotation("javax.inject.Inject")) {
+                    field.addAnnotation("javax.inject.Inject");
+                }
+                annotation = field.addAnnotation("org.apache.camel.cdi.Uri");
             }
-        }
-
-        // the line to add/update
-        String line = String.format("Endpoint %s = endpoint(\"%s\");\n\n", endpointInstanceName, uri);
-
-        if (index == -1) {
-            // add new line in top
-            lines.add(0, line);
         } else {
-            // update existing
-            lines.set(index, line);
+            annotation = field.getAnnotation("org.apache.camel.EndpointInject");
+        }
+        annotation.removeAllValues();
+        annotation.setStringValue(uri);
+
+        // make sure to import what we use
+        clazz.addImport("org.apache.camel.Endpoint");
+        if (cdi) {
+            clazz.addImport("javax.inject.Inject");
+            clazz.addImport("org.apache.camel.cdi.Uri");
+        } else {
+            clazz.addImport("org.apache.camel.EndpointInject");
         }
 
-        // update source code
-        String content = LineNumberHelper.linesToString(lines);
-        configure.setBody(content);
         facet.saveJavaSource(clazz);
 
-        if (index == -1) {
+        if (updated) {
             return Results.success("Updated endpoint " + endpointInstanceName + " in " + routeBuilder);
         } else {
             return Results.success("Added endpoint " + endpointInstanceName + " in " + routeBuilder);
@@ -303,6 +318,8 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 if (value != null) {
                     options.put(key, value);
                 }
+                // skip values which are the same as the default value
+
             }
         }
 
