@@ -344,12 +344,10 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         connector.setGitUrl(gitUrl);
         connector.setRepoName(named);
 
-        // lets not register webhooks yet - lets trigger the build immediately
-        // then later on lets register a webhook for any further commits
-        // otherwise we can get a timing issue where the push happens before the
-        // webhook handling kicks in
         connector.setRegisterWebHooks(true);
-        connector.setTriggerJenkinsJob(true);
+
+        // lets not trigger the jenkins webhook yet as the git push should trigger the build
+        connector.setTriggerJenkinsJob(false);
 
         LOG.info("Using connector: " + connector);
 
