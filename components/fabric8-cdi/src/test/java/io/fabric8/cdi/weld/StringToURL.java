@@ -17,6 +17,7 @@ package io.fabric8.cdi.weld;
 
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Factory;
+import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 
 import javax.inject.Singleton;
@@ -25,11 +26,17 @@ import java.net.URL;
 
 @Singleton
 public class StringToURL {
-    
+
     @Factory
     @ServiceName
-    public URL toUrl(@ServiceName String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
-        String protocol = protocolConfig.getProtocol();
-        return new URL(protocol+"://" + service.substring(service.lastIndexOf("/")));
+    public URL toUrl(@Protocol("http") @ServiceName String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
+        //The protocol is specified by @Protocol annotation. ProtocolConfig is used just to test @Configuration inside @Factory. Its not actually required.
+        String sourceProtocol = protocolConfig.getSourceProtocol();
+        String targetProtocol = protocolConfig.getTargetProtocol();
+
+        if (sourceProtocol != null && targetProtocol != null && !sourceProtocol.equals(targetProtocol) && service.startsWith(sourceProtocol)) {
+            return new URL(service.replaceFirst(sourceProtocol, targetProtocol));
+        }
+        return new URL(service);
     }
 }

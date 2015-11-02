@@ -62,8 +62,8 @@ public class ExtensionExternalTest {
     public static void setUpClass() throws Exception {
         System.setProperty("CONFIG1_TEST", "value1");
         System.setProperty("CONFIG2_TEST", "value2");
-        System.setProperty("SERVICE1_PROTOCOL", "https");
-        System.setProperty("SERVICE3_PROTOCOL", "https");
+        System.setProperty("SERVICE1_SOURCE_PROTOCOL", "http");
+        System.setProperty("SERVICE1_TARGET_PROTOCOL", "https");
         System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
     }
 
@@ -117,7 +117,7 @@ public class ExtensionExternalTest {
         Assert.assertNotNull(urlBean.getService3());
         Assert.assertNotNull(urlBean.getService1());
         Assert.assertTrue(urlBean.getService1().toString().startsWith("https"));
-        Assert.assertTrue(urlBean.getService3().toString().startsWith("https"));
+        Assert.assertTrue(urlBean.getService3().toString().startsWith("http"));
     }
 
     @Test
