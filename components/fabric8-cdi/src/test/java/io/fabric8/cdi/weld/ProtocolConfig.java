@@ -22,10 +22,18 @@ import javax.inject.Inject;
 public class ProtocolConfig {
     
     @Inject
-    @ConfigProperty(name = "protocol", defaultValue = "http")
-    private String protocol;
+    @ConfigProperty(name = "SOURCE_PROTOCOL")
+    private String sourceProtocol;
 
-    public String getProtocol() {
-        return protocol;
+    @Inject
+    @ConfigProperty(name = "TARGET_PROTOCOL")
+    private String targetProtocol;
+
+    public String getSourceProtocol() {
+        return sourceProtocol;
+    }
+
+    public String getTargetProtocol() {
+        return targetProtocol;
     }
 }

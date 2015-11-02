@@ -17,12 +17,14 @@ package io.fabric8.cdi.producers;
 
 
 import io.fabric8.annotations.Configuration;
+import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 import io.fabric8.cdi.qualifiers.Qualifiers;
+import io.fabric8.utils.Strings;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -66,12 +68,16 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
             Type type = parameter.getBaseType();
             ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
+            Protocol protocol = parameter.getAnnotation(Protocol.class);
             Configuration configuration = parameter.getAnnotation(Configuration.class);
+
+            String actualProtocol = (protocol != null && Strings.isNotBlank(protocol.value())) ? protocol.value() : serviceProtocol;
+
             if (serviceName != null && String.class.equals(type)) {
-                String serviceUrl = getServiceUrl(serviceId, serviceProtocol, servicePort, ctx);
+                String serviceUrl = getServiceUrl(serviceId, actualProtocol, servicePort, ctx);
                 arguments.add(serviceUrl);
             } else if (serviceName != null && !String.class.equals(type)) {
-                Object serviceBean = getServiceBean(serviceId, serviceProtocol, servicePort, (Class<Object>) type,  ctx);
+                Object serviceBean = getServiceBean(serviceId, actualProtocol, servicePort, (Class<Object>) type,  ctx);
                 arguments.add(serviceBean);
             } else if (configuration != null) {
                 Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
