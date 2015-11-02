@@ -27,11 +27,10 @@ import javax.enterprise.util.AnnotationLiteral;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
@@ -52,14 +51,14 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         this.name = name;
         ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
         this.beanType = (Class<T>) genericSuperclass.getActualTypeArguments()[0];
-        List<Type> allTypes = new ArrayList<>();
+        Set<Type> allTypes = new LinkedHashSet<>();
         allTypes.add(beanType);
 
-        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(t)) {
             allTypes.add(t);
         }
 
-        types = Collections.unmodifiableSet(new HashSet<>(allTypes));
+        types = Collections.unmodifiableSet(allTypes);
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(annotations)));
     }
 
@@ -67,28 +66,28 @@ public abstract class BaseBean<T> implements Bean<T>, PassivationCapable {
         this.name = name;
         ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
         this.beanType = (Class<T>) genericSuperclass.getActualTypeArguments()[0];
-        List<Type> allTypes = new ArrayList<>();
+        Set<Type> allTypes = new LinkedHashSet<>();
         allTypes.add(beanType);
 
-        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(t)) {
             allTypes.add(t);
         }
 
-        types = Collections.unmodifiableSet(new HashSet<>(allTypes));
+        types = Collections.unmodifiableSet(allTypes);
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_QUALIFIERS)));
     }
 
     public BaseBean(String name, Type beanType, Annotation ... annotations) {
         this.name = name;
         this.beanType = beanType;
-        List<Type> allTypes = new ArrayList<>();
+        Set<Type> allTypes = new LinkedHashSet<>();
         allTypes.add(beanType);
 
-        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(beanType)) {
+        for (Type t = Types.superClassOf(beanType); !allTypes.contains(Object.class) && t != null; t =   Types.superClassOf(t)) {
             allTypes.add(t);
         }
 
-        types = Collections.unmodifiableSet(new HashSet<>(allTypes));
+        types = Collections.unmodifiableSet(allTypes);
         qualifiers = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(annotations)));
     }
 
