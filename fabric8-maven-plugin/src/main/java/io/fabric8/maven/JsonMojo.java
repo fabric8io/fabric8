@@ -94,6 +94,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_METRICS_SCRAPE_ANNOTATION = FABRIC8_METRICS_SCRAPE + ".annotation";
     public static final String FABRIC8_METRICS_PORT = FABRIC8_METRICS_PREFIX + "port" ;
     public static final String FABRIC8_METRICS_PORT_ANNOTATION = FABRIC8_METRICS_PORT + ".annotation" ;
+    public static final String FABRIC8_METRICS_SCHEME = FABRIC8_METRICS_PREFIX + "scheme" ;
+    public static final String FABRIC8_METRICS_SCHEME_ANNOTATION = FABRIC8_METRICS_SCHEME + ".annotation" ;
     public static final String FABRIC8_PORT_SERVICE_PREFIX = FABRIC8_PORT_SERVICE + ".";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
@@ -362,6 +364,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String metricsPortAnnotation;
 
     /**
+     * Annotation value to add for metrics scheme.
+     */
+    @Parameter(property = FABRIC8_METRICS_SCHEME)
+    private String metricsScheme;
+
+    /**
+     * Annotation to add for metrics scheme.
+     */
+    @Parameter(property = FABRIC8_METRICS_SCHEME_ANNOTATION, defaultValue = "prometheus.io/scheme")
+    private String metricsSchemeAnnotation;
+
+    /**
      * The service port
      */
     @Parameter(property = FABRIC8_PORT_SERVICE)
@@ -447,7 +461,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.templateAnnotationsFile", defaultValue = "${basedir}/src/main/fabric8/templateAnnotations.properties")
     protected File templateAnnotationsFile;
-    
+
     /**
      * The properties file used to specify the annotations to be added to the generated Service
      * <code>
@@ -837,6 +851,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 metricsAnnotations.put(metricsScrapeAnnotation, Boolean.toString(metricsScrape));
                 if (metricsPort != null) {
                     metricsAnnotations.put(metricsPortAnnotation, metricsPort.toString());
+                }
+                if (metricsScheme != null) {
+                    metricsAnnotations.put(metricsSchemeAnnotation, metricsScheme);
                 }
             }
             Map<String,String> serviceAnnotations = getServiceAnnotations();
@@ -1587,7 +1604,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         return templateAnnotations;
     }
-    
+
     public Map<String, String> getServiceAnnotations() throws MojoExecutionException {
     	if (serviceAnnotations == null) {
             serviceAnnotations = loadAnnotations(serviceAnnotationsFile, "fabric8.annotations.service.", "Service");
@@ -1607,7 +1624,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 throw new MojoExecutionException("Failed to load podSpecAnnotationsFile properties file " + podSpecAnnotationsFile + ". " + e, e);
             }
         }
-        //kubernetes annotation keys can be prefixed by namespace like namespace/name, but 
+        //kubernetes annotation keys can be prefixed by namespace like namespace/name, but
         //xml tags can't contain slashes. So by convention we will change the last "." into a "/".
         //for example 'apiman.io.servicepath' will be turned into 'apiman.io/servicepath'
         Map<String, String> newAnswer = new HashMap<String,String>();
