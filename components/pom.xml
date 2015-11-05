@@ -69,7 +69,7 @@
     <!--<module>fabric8-vertx</module>-->
 
     <!-- misc -->
-    <!--<module>mq</module>--> <!-- TODO: should this not be named fabric8-mq -->
+    <module>mq</module>
 
     <!-- swagger -->
     <!--<module>swagger-annotator</module>-->
