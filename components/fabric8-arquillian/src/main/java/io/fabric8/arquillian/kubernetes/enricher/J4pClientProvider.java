@@ -73,7 +73,7 @@ public class J4pClientProvider implements ResourceProvider {
         }
 
         if (Strings.isNotBlank(replicationControllerName)) {
-            ReplicationController replicationController = client.replicationControllers().inNamespace(session.getNamespace()).withName(serviceName).get();
+            ReplicationController replicationController = client.replicationControllers().inNamespace(session.getNamespace()).withName(replicationControllerName).get();
             if (replicationController != null) {
                 return jolokiaClients.clientForReplicationController(replicationController);
             }
