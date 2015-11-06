@@ -80,7 +80,7 @@ public class JolokiaClients {
      * Returns a client for the first working pod for the given replication controller
      */
     public J4pClient clientForReplicationController(ReplicationController replicationController) {
-        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().list().getItems());
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().inNamespace(replicationController.getMetadata().getNamespace()).list().getItems());
         return clientForPod(pods);
     }
 
@@ -97,7 +97,7 @@ public class JolokiaClients {
      * Returns all the clients for the first working pod for the given replication controller
      */
     public List<J4pClient> clientsForReplicationController(ReplicationController replicationController) {
-        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().list().getItems());
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().inNamespace(replicationController.getMetadata().getNamespace()).list().getItems());
         return clientsForPod(pods);
     }
 
@@ -125,7 +125,7 @@ public class JolokiaClients {
      * Returns a client for the first working pod for the given service
      */
     public J4pClient clientForService(Service service) {
-        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().list().getItems());
+        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().inNamespace(service.getMetadata().getNamespace()).list().getItems());
         return clientForPod(pods);
     }
 
@@ -142,7 +142,7 @@ public class JolokiaClients {
      * Returns all the clients the first working pod for the given service
      */
     public List<J4pClient> clientsForService(Service service) {
-        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().list().getItems());
+        List<Pod> pods = KubernetesHelper.getPodsForService(service, kubernetes.pods().inNamespace(service.getMetadata().getNamespace()).list().getItems());
         return clientsForPod(pods);
     }
 
