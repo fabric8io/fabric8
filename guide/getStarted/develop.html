@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="2.6" data-chapter-title="Develop locally" data-filepath="getStarted/develop.md" data-basepath=".." data-revision="Fri Nov 06 2015 17:04:48 GMT+0000 (UTC)">
+    <div class="book" data-level="2.6" data-chapter-title="Develop locally" data-filepath="getStarted/develop.md" data-basepath=".." data-revision="Fri Nov 06 2015 19:26:25 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1190,7 +1190,7 @@
 </code></pre><p>And don&apos;t define any of the other docker env vars like <code>DOCKER_CERT_PATH</code> or <code>DOCKER_TLS_VERIFY</code>.</p>
 <p>Now when in a shell on your host (OS X / Windows) you can type <code>docker ps</code> and the output is the same as if you type the same command inside the <code>vagrant ssh</code> shell inside the vagrant VM.</p>
 <p>This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don&apos;t need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don&apos;t try to push or pull the image! </p>
-<p><strong>NOTE</strong>  you need to make sure that your kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.2.59 the default in <code>mvn fabric8:json</code> is to now omit this value which means it uses the kubernetes default which is <code>PullIfAbsent</code>.</p>
+<p><strong>NOTE</strong>  you need to make sure that your kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.2.62 the default in <code>mvn fabric8:json</code> is to now omit this value which means it uses the kubernetes default which is <code>PullIfAbsent</code>.</p>
 <h3 id="build-and-apply"><a name="build-and-apply" class="plugin-anchor" href="#build-and-apply"><span class="fa fa-link"></span></a>Build and apply</h3>
 <p>So in a Maven project type the following:</p>
 <pre><code>mvn install docker:build fabric8:json fabric8:apply
