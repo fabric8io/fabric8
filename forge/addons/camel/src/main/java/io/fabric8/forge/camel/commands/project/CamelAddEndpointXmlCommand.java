@@ -54,7 +54,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     private UISelectOne<String> componentNameFilter;
 
     @Inject
-    @WithAttributes(label = "Name", required = true, description = "Name of component type to add")
+    @WithAttributes(label = "Name", required = true, description = "Name of component to use for the endpoint")
     private UISelectOne<String> componentName;
 
     @Inject
