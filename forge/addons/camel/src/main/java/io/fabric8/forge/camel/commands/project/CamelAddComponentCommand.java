@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;

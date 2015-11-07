@@ -230,9 +230,9 @@ public final class CamelCatalogHelper {
     /**
      * Checks whether the given value is matching the default value from the given component.
      *
-     * @param scheme     the component name
-     * @param key        the option key
-     * @param value      the option value
+     * @param scheme the component name
+     * @param key    the option key
+     * @param value  the option value
      * @return <tt>true</tt> if matching the default value, <tt>false</tt> otherwise
      */
     public static boolean isDefaultValue(String scheme, String key, String value) {
@@ -259,7 +259,7 @@ public final class CamelCatalogHelper {
     /**
      * Gets the description for this component.
      *
-     * @param scheme     the component name
+     * @param scheme the component name
      */
     public static String getComponentDescription(String scheme) {
         // use the camel catalog
@@ -284,7 +284,7 @@ public final class CamelCatalogHelper {
     /**
      * Gets the description for this data format.
      *
-     * @param dataFormat     the data format name
+     * @param dataFormat the data format name
      */
     public static String getDataFormatDescription(String dataFormat) {
         // use the camel catalog
@@ -309,7 +309,7 @@ public final class CamelCatalogHelper {
     /**
      * Gets the description for this language.
      *
-     * @param language     the language name
+     * @param language the language name
      */
     public static String getLanguageDescription(String language) {
         // use the camel catalog

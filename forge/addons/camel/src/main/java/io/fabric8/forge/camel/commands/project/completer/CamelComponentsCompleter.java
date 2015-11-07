@@ -31,8 +31,8 @@ import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
 
 public class CamelComponentsCompleter implements UICompleter<String> {
 

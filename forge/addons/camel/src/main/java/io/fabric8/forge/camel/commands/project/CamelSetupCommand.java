@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.Set;
 import javax.inject.Inject;
 
-import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import io.fabric8.forge.addon.utils.VersionHelper;
+import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;

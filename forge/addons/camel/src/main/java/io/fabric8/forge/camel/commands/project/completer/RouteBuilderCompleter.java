@@ -43,7 +43,7 @@ public class RouteBuilderCompleter implements UICompleter<String> {
                 try {
                     JavaClass clazz = javaResource.getJavaType();
                     String superType = clazz.getSuperType();
-                    if (superType != null && RouteBuilder.class.getName().equals(superType) ) {
+                    if (superType != null && RouteBuilder.class.getName().equals(superType)) {
                         routeBuilders.add(clazz.getQualifiedName());
                     }
                 } catch (FileNotFoundException e) {

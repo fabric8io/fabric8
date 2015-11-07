@@ -15,24 +15,17 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.XmlFileCompleter;
-import io.fabric8.forge.camel.commands.project.completer.XmlResourcesCamelEndpointsVisitor;
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
-import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
-import org.jboss.forge.addon.resource.visit.ResourceVisitor;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -116,30 +109,6 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
                 } else {
                     componentName.setNote("");
                 }
-            }
-        });
-
-        instanceName.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String value = componentName.getValue();
-                if (value != null) {
-                    // the component may have a dash, so remove it
-                    value = value.replaceAll("-", "");
-                }
-                List<CamelEndpointDetails> endpoints = new ArrayList<>();
-                ResourceVisitor visitor = new XmlResourcesCamelEndpointsVisitor(resourcesFacet, endpoints);
-                resourcesFacet.visitResources(visitor);
-                Iterator<CamelEndpointDetails> it = endpoints.iterator();
-                while (it.hasNext()) {
-                	CamelEndpointDetails det = it.next();
-                	if (det.getEndpointInstance() != null) {
-                		if (det.getEndpointInstance().equals(instanceName)) {
-                			return null;
-                		}
-                	}
-                }
-                return value;
             }
         });
 
