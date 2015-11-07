@@ -16,7 +16,6 @@
 package io.fabric8.forge.camel.commands.project;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
@@ -97,18 +96,6 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
                 } else {
                     componentName.setNote("");
                 }
-            }
-        });
-
-        instanceName.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String value = componentName.getValue();
-                if (value != null) {
-                    // the component may have a dash, so remove it
-                    value = value.replaceAll("-", "");
-                }
-                return value;
             }
         });
 

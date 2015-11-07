@@ -46,7 +46,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
 
             // must be a route builder class
             String superType = clazz.getSuperType();
-            if (superType != null && !RouteBuilder.class.getName().equals(superType) ) {
+            if (superType != null && !RouteBuilder.class.getName().equals(superType)) {
                 return;
             }
 

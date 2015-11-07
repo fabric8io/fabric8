@@ -15,14 +15,15 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+import javax.inject.Inject;
+
 import io.fabric8.forge.addon.utils.completer.PackageNameCompleter;
-import io.fabric8.forge.camel.commands.project.completer.XmlResourcesCamelEndpointsVisitor;
-import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
-import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import io.fabric8.forge.addon.utils.validator.PackageNameValidator;
-
-import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
+import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
+import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -30,7 +31,6 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
-import org.jboss.forge.addon.resource.visit.ResourceVisitor;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -48,14 +48,6 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.jboss.forge.roaster.model.util.Strings;
-
-import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
 public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCommand implements UIWizard {
@@ -121,30 +113,6 @@ public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCom
                 } else {
                     componentName.setNote("");
                 }
-            }
-        });
-
-        instanceName.setDefaultValue(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String value = componentName.getValue();
-                if (value != null) {
-                    // the component may have a dash, so remove it
-                    value = value.replaceAll("-", "");
-                }
-                List<CamelEndpointDetails> endpoints = new ArrayList<>();
-                ResourceVisitor visitor = new XmlResourcesCamelEndpointsVisitor((ResourcesFacet) facet, endpoints);
-                ((ResourcesFacet) facet).visitResources(visitor);
-                Iterator<CamelEndpointDetails> it = endpoints.iterator();
-                while (it.hasNext()) {
-                        CamelEndpointDetails det = it.next();
-                        if (det.getEndpointInstance() != null) {
-                                if (det.getEndpointInstance().equals(instanceName)) {
-                                        return null;
-                                }
-                        }
-                }
-                return value;
             }
         });
 

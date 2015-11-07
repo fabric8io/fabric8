@@ -22,9 +22,9 @@ import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.addon.utils.JavaHelper;
-import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
+import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -206,8 +206,8 @@ public final class CamelCommandsHelper {
     /**
      * Gets the JSon schema primitive type.
      *
-     * @param   name the json type
-     * @return  the primitive Java Class type
+     * @param name the json type
+     * @return the primitive Java Class type
      */
     public static Class getPrimitiveWrapperClassType(String name) {
         if ("string".equals(name)) {

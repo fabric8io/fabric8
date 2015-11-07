@@ -30,8 +30,8 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.dataFormatsFromArtifact;
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.dataFormatsFromArtifact;
 
 public class CamelDataFormatsCompleter implements UICompleter<String> {
 

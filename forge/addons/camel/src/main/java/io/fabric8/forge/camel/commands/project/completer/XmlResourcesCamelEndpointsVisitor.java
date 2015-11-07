@@ -17,9 +17,9 @@ package io.fabric8.forge.camel.commands.project.completer;
 
 import java.util.List;
 
-import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
-import io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper;
 import io.fabric8.forge.addon.utils.XmlLineNumberParser;
+import io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper;
+import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.resource.visit.ResourceVisitor;
