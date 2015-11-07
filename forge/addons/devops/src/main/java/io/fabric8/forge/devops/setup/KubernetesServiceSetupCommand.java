@@ -18,6 +18,7 @@ package io.fabric8.forge.devops.setup;
 import java.util.Properties;
 import javax.inject.Inject;
 
+import io.fabric8.forge.addon.utils.validator.MaxLengthValidator;
 import org.apache.maven.model.Model;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
@@ -37,15 +38,15 @@ import org.jboss.forge.addon.ui.util.Metadata;
 public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand {
 
     @Inject
-    @WithAttributes(label = "Service name", required = true, description = "The service name")
+    @WithAttributes(label = "Service Name", required = true, description = "The service name")
     private UIInput<String> serviceName;
 
     @Inject
-    @WithAttributes(label = "Service port", required = true, description = "The service port")
+    @WithAttributes(label = "Service Port", required = true, description = "The service port (outside)")
     private UIInput<String> servicePort;
 
     @Inject
-    @WithAttributes(label = "Container port", required = true, description = "The service port used by container")
+    @WithAttributes(label = "Container Port", required = true, description = "The service port used by the container (inside)")
     private UIInput<String> containerPort;
 
     @Override
@@ -110,6 +111,8 @@ public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand 
             servicePort.setDefaultValue(properties.getProperty("fabric8.service.port", ""));
             containerPort.setDefaultValue(properties.getProperty("fabric8.service.containerPort", ""));
         }
+        // the service name must at most be 24 chars
+        serviceName.addValidator(new MaxLengthValidator(24));
 
         builder.add(serviceName).add(servicePort).add(containerPort);
     }
