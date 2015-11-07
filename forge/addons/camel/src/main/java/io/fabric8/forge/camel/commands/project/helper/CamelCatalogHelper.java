@@ -26,6 +26,26 @@ import org.apache.camel.catalog.JSonSchemaHelper;
 
 public final class CamelCatalogHelper {
 
+    /**
+     * Returns the text in title case
+     */
+    public static String asTitleCase(String text) {
+        StringBuilder sb = new StringBuilder();
+        boolean next = true;
+
+        for (char c : text.toCharArray()) {
+            if (Character.isSpaceChar(c)) {
+                next = true;
+            } else if (next) {
+                c = Character.toTitleCase(c);
+                next = false;
+            }
+            sb.append(c);
+        }
+
+        return sb.toString();
+    }
+
     public static String endpointComponentName(String uri) {
         if (uri != null) {
             int idx = uri.indexOf(":");

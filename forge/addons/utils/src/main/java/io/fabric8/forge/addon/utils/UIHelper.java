@@ -35,6 +35,7 @@ public final class UIHelper {
      *
      * @return the input widget, or <tt>null</tt> if not supported because of inputClazz not possible to be used
      */
+    @SuppressWarnings("unchecked")
     public static InputComponent createUIInput(InputComponentFactory factory, ConverterFactory converterFactory, String name, Class inputClazz,
                                                String required, String currentValue, String defaultValue, String enums, String description) {
 
@@ -58,7 +59,7 @@ public final class UIHelper {
                 ui.setValue(value);
             }
             // the enums are comma separated
-            List<String> list  = new ArrayList<>();
+            List<String> list = new ArrayList<>();
             String[] values = enums.split(",");
             for (String v : values) {
                 list.add(v);
@@ -106,16 +107,32 @@ public final class UIHelper {
             input = ui;
         }
 
-        if (input != null) {
-            if (Objects.equals("true", required)) {
-                input.setRequired(true);
-            }
-            input.setLabel(name);
-            // must use an empty description otherwise the UI prints null
-            input.setDescription(description != null ? description : "");
+        if (Objects.equals("true", required)) {
+            input.setRequired(true);
         }
+        String label = asTitleCase(name);
+        input.setLabel(label);
+        // must use an empty description otherwise the UI prints null
+        input.setDescription(description != null ? description : "");
 
         return input;
+    }
+
+    /**
+     * Returns the text in human readable title/camel case format
+     */
+    public static String asTitleCase(String text) {
+        // see: http://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
+        text = text.replaceAll(
+                String.format("%s|%s|%s",
+                        "(?<=[A-Z])(?=[A-Z][a-z])",
+                        "(?<=[^A-Z])(?=[A-Z])",
+                        "(?<=[A-Za-z])(?=[^A-Za-z])"
+                ),
+                " "
+        );
+
+        return Character.toUpperCase(text.charAt(0)) + text.substring(1);
     }
 
 }
