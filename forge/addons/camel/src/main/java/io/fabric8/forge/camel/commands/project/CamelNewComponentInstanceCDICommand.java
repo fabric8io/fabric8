@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project;
 
 import io.fabric8.forge.addon.utils.completer.PackageNameCompleter;
 import io.fabric8.forge.camel.commands.project.completer.XmlResourcesCamelEndpointsVisitor;
+import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import io.fabric8.forge.addon.utils.validator.PackageNameValidator;
@@ -36,6 +37,8 @@ import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
+import org.jboss.forge.addon.ui.input.ValueChangeListener;
+import org.jboss.forge.addon.ui.input.events.ValueChangeEvent;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
@@ -107,6 +110,19 @@ public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCom
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
+        // show note about the chosen component
+        componentName.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChanged(ValueChangeEvent event) {
+                String component = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                if (component != null) {
+                    String description = CamelCatalogHelper.getComponentDescription(component);
+                    componentName.setNote(description != null ? description : "");
+                } else {
+                    componentName.setNote("");
+                }
+            }
+        });
 
         instanceName.setDefaultValue(new Callable<String>() {
             @Override
