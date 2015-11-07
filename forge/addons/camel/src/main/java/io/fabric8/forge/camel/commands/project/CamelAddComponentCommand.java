@@ -42,11 +42,11 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "filter", required = false, description = "To filter components")
+    @WithAttributes(label = "Filter", required = false, description = "To filter components")
     private UISelectOne<String> filter;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of component type to add")
+    @WithAttributes(label = "Name", required = true, description = "Name of component type to add")
     private UISelectOne<String> name;
 
     @Inject

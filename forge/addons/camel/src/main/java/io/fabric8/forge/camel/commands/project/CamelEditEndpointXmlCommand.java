@@ -42,7 +42,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
-    @WithAttributes(label = "endpoints", required = true, description = "The endpoints from the project")
+    @WithAttributes(label = "Endpoints", required = true, description = "The endpoints from the project")
     private UISelectOne<String> endpoints;
 
     @Inject

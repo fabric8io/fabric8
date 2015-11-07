@@ -82,35 +82,35 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
     private String[] warImages = new String[]{DockerSetupHelper.DEFAULT_TOMCAT_IMAGE, DockerSetupHelper.DEFAULT_WILDFLY_IMAGE};
 
     @Inject
-    @WithAttributes(label = "organization", required = true, description = "The docker organization/company")
+    @WithAttributes(label = "Docker Organization", required = true, description = "The Docker organization/company")
     private UIInput<String> organization;
 
     @Inject
-    @WithAttributes(label = "from", required = true, description = "The docker image to use as base line")
+    @WithAttributes(label = "Docker Image From", required = true, description = "The Docker image to use as base line")
     private UIInput<String> from;
 
     @Inject
-    @WithAttributes(label = "container", required = false, description = "Container name to use for the app")
+    @WithAttributes(label = "Container label", required = false, description = "Container label to use for the app")
     private UIInput<String> container;
 
     @Inject
-    @WithAttributes(label = "group", required = false, description = "Group label to use for the app")
+    @WithAttributes(label = "Group label", required = false, description = "Group label to use for the app")
     private UIInput<String> group;
 
     @Inject
-    @WithAttributes(label = "icon", required = false, description = "Icon to use for the app")
+    @WithAttributes(label = "Icon", required = false, description = "Icon to use for the app")
     private UISelectOne<String> icon;
 
     @Inject
-    @WithAttributes(label = "main", required = false, description = "Main class to use for Java standalone")
+    @WithAttributes(label = "Main class", required = false, description = "Main class to use for Java standalone")
     private UIInput<String> main;
 
     @Inject
-    @WithAttributes(label = "test", required = false, defaultValue = "true", description = "Include test dependencies")
+    @WithAttributes(label = "Test classes", required = false, defaultValue = "true", description = "Include test dependencies")
     private UIInput<Boolean> test;
 
     @Inject
-    @WithAttributes(label = "profiles", required = false, defaultValue = "true", description = "Include Maven fabric8 profiles for easily building and deploying")
+    @WithAttributes(label = "Maven Fabric8 Profiles", required = false, defaultValue = "true", description = "Include Maven fabric8 profiles for easily building and deploying")
     private UIInput<Boolean> profiles;
 
     @Inject

@@ -57,23 +57,23 @@ import java.util.concurrent.Callable;
 public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
-    @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
+    @WithAttributes(label = "Filter", required = false, description = "To filter components")
     private UISelectOne<String> componentNameFilter;
 
     @Inject
-    @WithAttributes(label = "componentName", required = true, description = "Name of component type to add")
+    @WithAttributes(label = "Component Name", required = true, description = "Name of component type to add")
     private UISelectOne<String> componentName;
 
     @Inject
-    @WithAttributes(label = "instanceName", required = true, description = "Name of component instance to add")
+    @WithAttributes(label = "Instance Name", required = true, description = "Name of component instance to add")
     private UISelectOne<String> instanceName;
 
     @Inject
-    @WithAttributes(label = "targetPackage", required = false, description = "The package name where this type will be created")
+    @WithAttributes(label = "Package Name", required = false, description = "The package name where this type will be created")
     private UIInput<String> targetPackage;
 
     @Inject
-    @WithAttributes(label = "className", required = true, description = "Name of @Producer class")
+    @WithAttributes(label = "Class Name", required = true, description = "Name of @Producer class")
     private UIInput<String> className;
 
     @Inject

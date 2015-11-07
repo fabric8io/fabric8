@@ -37,15 +37,15 @@ import org.jboss.forge.addon.ui.util.Metadata;
 public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand {
 
     @Inject
-    @WithAttributes(label = "serviceName", required = true, description = "The service name")
+    @WithAttributes(label = "Service name", required = true, description = "The service name")
     private UIInput<String> serviceName;
 
     @Inject
-    @WithAttributes(label = "servicePort", required = true, description = "The service port")
+    @WithAttributes(label = "Service port", required = true, description = "The service port")
     private UIInput<String> servicePort;
 
     @Inject
-    @WithAttributes(label = "containerPort", required = true, description = "The service port used by container")
+    @WithAttributes(label = "Container port", required = true, description = "The service port used by container")
     private UIInput<String> containerPort;
 
     @Override
@@ -94,7 +94,7 @@ public class KubernetesServiceSetupCommand extends AbstractFabricProjectCommand 
             maven.setModel(pom);
         }
 
-        return Results.success("Adding/Updating Kubernetes service");
+        return Results.success("Kubernetes service updated");
     }
 
     @Override

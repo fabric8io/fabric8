@@ -51,12 +51,12 @@ import org.jboss.forge.addon.ui.util.Metadata;
 public class CamelNewBlueprintXmlCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "directory", required = false, defaultValue = "OSGI-INF/blueprint",
+    @WithAttributes(label = "Directory", required = false, defaultValue = "OSGI-INF/blueprint",
             description = "The directory name where this type will be created")
     private UIInput<String> directory;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of XML file")
+    @WithAttributes(label = "File Name", required = true, description = "Name of XML file")
     private UIInput<String> name;
 
     @Inject

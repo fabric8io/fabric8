@@ -47,19 +47,19 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
-    @WithAttributes(label = "componentNameFilter", required = false, description = "To filter components")
+    @WithAttributes(label = "Filter", required = false, description = "To filter components")
     private UISelectOne<String> componentNameFilter;
 
     @Inject
-    @WithAttributes(label = "componentName", required = true, description = "Name of component type to add")
+    @WithAttributes(label = "Name", required = true, description = "Name of component type to add")
     private UISelectOne<String> componentName;
 
     @Inject
-    @WithAttributes(label = "instanceName", required = true, description = "Name of endpoint instance to add")
+    @WithAttributes(label = "Instance Name", required = true, description = "Name of endpoint instance to add")
     private UIInput<String> instanceName;
 
     @Inject
-    @WithAttributes(label = "routeBuilder", required = true, description = "The RouteBuilder class to use")
+    @WithAttributes(label = "RouteBuilder Class", required = true, description = "The RouteBuilder class to use")
     private UISelectOne<String> routeBuilder;
 
     @Inject

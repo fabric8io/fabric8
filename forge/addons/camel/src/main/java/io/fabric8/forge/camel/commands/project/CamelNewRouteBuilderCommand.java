@@ -43,11 +43,11 @@ import org.jboss.forge.roaster.model.source.JavaClassSource;
 public class CamelNewRouteBuilderCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "targetPackage", required = false, description = "The package name where this type will be created")
+    @WithAttributes(label = "Target Package", required = false, description = "The package name where this type will be created")
     private UIInput<String> targetPackage;
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of RouteBuilder class")
+    @WithAttributes(label = "Class Name", required = true, description = "Name of RouteBuilder class")
     private UIInput<String> name;
 
     @Override

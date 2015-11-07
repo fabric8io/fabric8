@@ -44,11 +44,11 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
     private String[] choices = new String[]{"camel-core", "camel-blueprint", "camel-cdi", "camel-spring", "camel-spring-boot"};
 
     @Inject
-    @WithAttributes(label = "kind", required = true, description = "Camel project kind.")
+    @WithAttributes(label = "Project Kind", required = true, description = "Camel project kind.")
     private UISelectOne<String> kind;
 
     @Inject
-    @WithAttributes(label = "version", required = false, description = "Camel version to use. If none provided then the latest version will be used.")
+    @WithAttributes(label = "Camel Version", required = false, description = "Camel version to use. If none provided then the latest version will be used.")
     private UIInput<String> version;
 
     @Inject

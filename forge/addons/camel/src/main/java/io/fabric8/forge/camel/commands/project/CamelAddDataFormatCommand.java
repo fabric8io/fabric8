@@ -41,7 +41,7 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "name", required = true, description = "Name of dataformat to add")
+    @WithAttributes(label = "Name", required = true, description = "Name of dataformat to add")
     private UISelectOne<String> name;
 
     @Inject
