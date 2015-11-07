@@ -38,7 +38,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-public class CamelEditEndpointRouteBuilderCommand extends AbstractCamelProjectCommand implements UIWizard {
+public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "Endpoints", required = true, description = "The endpoints from the project")
@@ -54,9 +54,9 @@ public class CamelEditEndpointRouteBuilderCommand extends AbstractCamelProjectCo
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelEditEndpointRouteBuilderCommand.class).name(
-                "Camel: Edit Endpoint RouteBuilder").category(Categories.create(CATEGORY))
-                .description("Edit Camel endpoint from an existing RouteBuilder");
+        return Metadata.forCommand(CamelEditEndpointCommand.class).name(
+                "Camel: Edit Endpoint").category(Categories.create(CATEGORY))
+                .description("Edit Camel endpoint from an existing RouteBuilder class");
     }
 
     @Override

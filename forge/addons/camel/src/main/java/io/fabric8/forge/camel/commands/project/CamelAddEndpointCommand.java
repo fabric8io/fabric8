@@ -47,7 +47,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
-public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCommand implements UIWizard {
+public class CamelAddEndpointCommand extends AbstractCamelProjectCommand implements UIWizard {
 
     @Inject
     @WithAttributes(label = "Filter", required = false, description = "To filter components")
@@ -73,9 +73,9 @@ public class CamelAddEndpointRouteBuilderCommand extends AbstractCamelProjectCom
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelAddEndpointRouteBuilderCommand.class).name(
-                "Camel: Add Endpoint RouteBuilder").category(Categories.create(CATEGORY))
-                .description("Adds a Camel endpoint to an existing RouteBuilder");
+        return Metadata.forCommand(CamelAddEndpointCommand.class).name(
+                "Camel: Add Endpoint").category(Categories.create(CATEGORY))
+                .description("Adds a Camel endpoint to an existing RouteBuilder class");
     }
 
     @Override
