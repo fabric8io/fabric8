@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands.project;
+package io.fabric8.forge.camel.commands.project.archetype;
 
 import java.io.InputStream;
 import java.net.URL;

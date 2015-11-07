@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import io.fabric8.forge.camel.commands.project.completer.XmlFileCompleter;
 import io.fabric8.forge.camel.commands.project.completer.XmlResourcesCamelEndpointsVisitor;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;

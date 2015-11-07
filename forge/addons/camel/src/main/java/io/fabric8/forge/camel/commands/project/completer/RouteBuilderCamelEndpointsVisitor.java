@@ -17,7 +17,7 @@ package io.fabric8.forge.camel.commands.project.completer;
 
 import java.util.List;
 
-import io.fabric8.forge.camel.commands.project.CamelEndpointDetails;
+import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.apache.camel.builder.RouteBuilder;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;

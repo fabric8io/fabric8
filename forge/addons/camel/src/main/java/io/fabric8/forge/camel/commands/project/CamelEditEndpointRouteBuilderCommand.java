@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCompleter;
+import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
