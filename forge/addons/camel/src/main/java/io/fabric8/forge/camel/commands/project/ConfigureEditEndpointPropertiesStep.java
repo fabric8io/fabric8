@@ -66,6 +66,7 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 
+@Deprecated
 public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
     @Inject
@@ -82,7 +83,7 @@ public class ConfigureEditEndpointPropertiesStep extends AbstractCamelProjectCom
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConfigureEditEndpointPropertiesStep.class).name(
-                "Camel: Edit Endpoint").category(Categories.create(CATEGORY))
+                "Camel: Endpoint options").category(Categories.create(CATEGORY))
                 .description("Configure the endpoint options to use");
     }
 

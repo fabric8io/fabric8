@@ -71,7 +71,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConfigureEditEndpointPropertiesStep.class).name(
+        return Metadata.forCommand(ConfigureComponentPropertiesStep.class).name(
                 "Camel: New Component").category(Categories.create(CATEGORY))
                 .description("Configure the component options to use");
     }

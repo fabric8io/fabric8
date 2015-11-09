@@ -70,9 +70,6 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
 
-// TODO: merge with ConfigureEditEndpointPropertiesStep or keep separated
-// this one is the older for adding new endpoints
-
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
     @Inject
@@ -88,8 +85,8 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(ConfigureEditEndpointPropertiesStep.class).name(
-                "Camel: Add Endpoint").category(Categories.create(CATEGORY))
+        return Metadata.forCommand(ConfigureEndpointPropertiesStep.class).name(
+                "Camel: Endpoint options").category(Categories.create(CATEGORY))
                 .description("Configure the endpoint options to use");
     }
 
@@ -103,16 +100,11 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
 
         // either we have an uri from an existing endpoint to edit, or we only have the component name to create a new endpoint
-
         String camelComponentName = optionalAttributeValue(attributeMap, "componentName");
         String uri = optionalAttributeValue(attributeMap, "endpointUri");
 
         if (camelComponentName == null && uri != null) {
             camelComponentName = endpointComponentName(uri);
-        }
-
-        if (camelComponentName == null && uri == null) {
-            throw new IllegalArgumentException("Component name or endpoint uri did not get passed on from the previous wizard page");
         }
 
         String json = catalog.componentJSonSchema(camelComponentName);
@@ -170,9 +162,17 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     }
 
     protected Result executeXml(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
-        String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
-        String endpointInstanceName = mandatoryAttributeValue(attributeMap, "instanceName");
+        String camelComponentName = optionalAttributeValue(attributeMap, "componentName");
+        String endpointInstanceName = optionalAttributeValue(attributeMap, "instanceName");
+        String endpointUrl = mandatoryAttributeValue(attributeMap, "endpointUri");
+        String mode = mandatoryAttributeValue(attributeMap, "mode");
         String xml = mandatoryAttributeValue(attributeMap, "xml");
+        String lineNumber;
+        if ("edit".equals(mode)) {
+            lineNumber = mandatoryAttributeValue(attributeMap, "lineNumber");
+        } else {
+            lineNumber = optionalAttributeValue(attributeMap, "lineNumber");
+        }
 
         Project project = getSelectedProject(context);
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
@@ -203,29 +203,30 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         Map<String, String> options = new HashMap<String, String>();
         for (InputComponent input : inputs) {
             String key = input.getName();
-            // only use the value if a value was set
+            // only use the value if a value was set (and the value is not the same as the default value)
             if (input.hasValue()) {
+                String value = input.getValue().toString();
+                if (value != null) {
+                    // do not add the value if it match the default value
+                    boolean matchDefault = isDefaultValue(camelComponentName, key, value);
+                    if (!matchDefault) {
+                        options.put(key, value);
+                    }
+                }
+            } else if (input.isRequired() && input.hasDefaultValue()) {
+                // if its required then we need to grab the value
                 String value = input.getValue().toString();
                 if (value != null) {
                     options.put(key, value);
                 }
-                // skip values which are the same as the default value
-
             }
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUri(camelComponentName, options);
+        String uri = catalog.asEndpointUriXml(camelComponentName, options);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
-
-        // since this is XML we need to escape & as &amp;
-        // to be safe that & is not already &amp; we need to revert it first
-        uri = StringHelper.replaceAll(uri, "&amp;", "&");
-        uri = StringHelper.replaceAll(uri, "&", "&amp;");
-        uri = StringHelper.replaceAll(uri, "<", "&lt;");
-        uri = StringHelper.replaceAll(uri, ">", "&gt;");
 
         FileResource file = facet != null ? facet.getResource(xml) : null;
         if (file == null || !file.exists()) {
@@ -235,8 +236,34 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             return Results.fail("Cannot find XML file " + xml);
         }
 
-        Document root = XmlLineNumberParser.parseXml(file.getResourceInputStream());
+        // if we have a line number then use that to edit the existing value
+        if (lineNumber != null) {
+            List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
+            return addEndpointJava(lines, lineNumber, endpointUrl, uri, file, xml);
+        } else {
+            // we are in add mode, so parse dom to find <camelContext> and insert the endpoint where its needed
+            Document root = XmlLineNumberParser.parseXml(file.getResourceInputStream());
+            return addEndpointXml(root, endpointInstanceName, uri, file, xml);
+        }
+    }
 
+    private Result addEndpointJava(List<String> lines, String lineNumber, String endpointUrl, String uri, FileResource file, String xml) {
+        // the list is 0-based, and line number is 1-based
+        int idx = Integer.valueOf(lineNumber) - 1;
+        String line = lines.get(idx);
+
+        // replace uri with new value
+        line = StringHelper.replaceAll(line, endpointUrl, uri);
+        lines.set(idx, line);
+
+        // and save the file back
+        String content = LineNumberHelper.linesToString(lines);
+        file.setContents(content);
+
+        return Results.success("Update endpoint uri: " + uri + " in XML file " + xml);
+    }
+
+    private Result addEndpointXml(Document root, String endpointInstanceName, String uri, FileResource file, String xml) throws Exception {
         String lineNumber;
 
         // The DOM api is so fucking terrible!
@@ -306,18 +333,10 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 // and save the file back
                 String content = LineNumberHelper.linesToString(lines);
                 file.setContents(content);
-
-                if (created) {
-                    return Results.success("Added endpoint: " + endpointInstanceName + " with uri: " + uri);
-                } else {
-                    return Results.success("Update endpoint: " + endpointInstanceName + " with uri: " + uri);
-                }
             }
-
-            return Results.fail("Cannot find <camelContext> in XML file " + xml);
-        } else {
-            return Results.fail("Cannot parse XML file " + xml);
         }
+
+        return Results.success("Added endpoint uri: " + uri + " in XML file " + xml);
     }
 
     protected Result executeJava(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {

@@ -110,6 +110,7 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         attributeMap.put("componentName", componentName.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("routeBuilder", routeBuilder.getValue());
+        attributeMap.put("mode", "add");
         attributeMap.put("kind", "java");
         return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
     }
