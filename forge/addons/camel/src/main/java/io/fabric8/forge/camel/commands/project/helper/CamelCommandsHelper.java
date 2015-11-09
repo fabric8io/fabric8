@@ -180,13 +180,20 @@ public final class CamelCommandsHelper {
                 clazz = loadStringSupportedType(javaType);
             }
             if (clazz == null) {
-                clazz = (Class<Object>) Class.forName(javaType);
+                try {
+                    clazz = (Class<Object>) Class.forName(javaType);
+                } catch (Throwable e) {
+                    // its a custom java type so use String as the input type, so you can refer to it using # lookup
+                    if ("object".equals(type)) {
+                        clazz = loadPrimitiveWrapperType("java.lang.String");
+                    }
+                }
             }
-            if (clazz.equals(String.class) || clazz.equals(Date.class) || clazz.equals(Boolean.class)
-                    || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz)) {
+            if (clazz != null && (clazz.equals(String.class) || clazz.equals(Date.class) || clazz.equals(Boolean.class)
+                    || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz))) {
                 return clazz;
             }
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable e) {
             // ignore errors
         }
         return null;
