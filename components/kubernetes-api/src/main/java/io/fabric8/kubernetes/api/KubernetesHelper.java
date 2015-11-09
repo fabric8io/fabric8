@@ -1278,6 +1278,9 @@ public final class KubernetesHelper {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
+        if ("None".equals(srv.getSpec().getClusterIP())) {
+            throw new IllegalStateException("Service: " + serviceName + " in namespace:" + serviceNamespace + "is head-less. Search for endpoints instead.");
+        }
         return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
     }
 
