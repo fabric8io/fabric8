@@ -64,7 +64,6 @@ public class ExtensionExternalTest {
         System.setProperty("CONFIG2_TEST", "value2");
         System.setProperty("SERVICE1_SOURCE_PROTOCOL", "http");
         System.setProperty("SERVICE1_TARGET_PROTOCOL", "https");
-        System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
     }
 
     @Inject

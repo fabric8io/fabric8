@@ -1250,28 +1250,24 @@ public final class KubernetesHelper {
         String servicePort = serviceToPort(serviceName, servicePortName);
         String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
 
+        //Use specified or fallback namespace.
+        String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
+
         //1. Inside Kubernetes: Services as ENV vars
         if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
-        } else if (Strings.isNotBlank(serviceNamespace)) {
-            srv = client.services().inNamespace(serviceNamespace).withName(serviceName).get();
-        } else {
-            for (Service s : client.services().list().getItems()) {
-                String sid = getName(s);
-                if (serviceName.equals(sid)) {
-                    srv = s;
-                    break;
-                }
-            }
+        } else if (Strings.isNotBlank(actualNamespace)) {
+            srv = client.services().inNamespace(actualNamespace).withName(serviceName).get();
         }
+
         if (srv == null) {
-            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + serviceNamespace);
+            throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + actualNamespace);
         }
 
         if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            RouteList routeList = openShiftClient.routes().inNamespace(serviceNamespace).list();
+            RouteList routeList = openShiftClient.routes().inNamespace(actualNamespace).list();
             for (Route route : routeList.getItems()) {
                 if (route.getSpec().getTo().getName().equals(serviceName)) {
                     return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();

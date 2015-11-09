@@ -21,9 +21,11 @@ import io.fabric8.kubernetes.api.model.RootPathsBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
+import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenShiftMockClient;
+import org.easymock.IAnswer;
 
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
@@ -129,9 +131,14 @@ public class ClientProducer {
 
 
         mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().build()).anyTimes();
-
-
         mock.adapt(OpenShiftClient.class).andReturn(getOpenShiftClient()).anyTimes();
+
+        mock.getNamespace().andAnswer(new IAnswer<String>() {
+            @Override
+            public String answer() throws Throwable {
+                return Utils.getEnvVar("KUBERNETES_NAMESPACE", null);
+            }
+        }).anyTimes();
 
         return mock.replay();
     }
