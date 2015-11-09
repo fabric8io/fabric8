@@ -41,6 +41,9 @@ import java.util.Set;
 
 public class FactoryMethodProducer<T, X> implements Producer<T> {
 
+    private static final String INVOCATION_ERROR_FORMAT = "Failed to invoke @Factory annotated method: %s on bean: %s with arguments: %s";
+    private static final String PARAMETER_ERROR_FORMAT = "Failed to process @Factory annotated method: %s on bean: %s. Error processing parameter at position: %d. Check method signature for superfluous arguments or missing annotations.";
+
     private final Bean<T> bean;
     private final AnnotatedMethod<X> factoryMethod;
     private final String serviceId;
@@ -66,31 +69,43 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
         List<Object> arguments = new ArrayList<>();
 
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
-            Type type = parameter.getBaseType();
-            ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
-            Protocol protocol = parameter.getAnnotation(Protocol.class);
-            Configuration configuration = parameter.getAnnotation(Configuration.class);
+            try {
+                Type type = parameter.getBaseType();
+                ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
+                Protocol protocol = parameter.getAnnotation(Protocol.class);
+                Configuration configuration = parameter.getAnnotation(Configuration.class);
 
-            String actualProtocol = (protocol != null && Strings.isNotBlank(protocol.value())) ? protocol.value() : serviceProtocol;
+                String actualProtocol = (protocol != null && Strings.isNotBlank(protocol.value())) ? protocol.value() : serviceProtocol;
 
-            if (serviceName != null && String.class.equals(type)) {
-                String serviceUrl = getServiceUrl(serviceId, actualProtocol, servicePort, ctx);
-                arguments.add(serviceUrl);
-            } else if (serviceName != null && !String.class.equals(type)) {
-                Object serviceBean = getServiceBean(serviceId, actualProtocol, servicePort, (Class<Object>) type,  ctx);
-                arguments.add(serviceBean);
-            } else if (configuration != null) {
-                Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
-                arguments.add(config);
-            } else {
-                Object other = BeanProvider.getContextualReferences((Class) type, false);
-                arguments.add(other);
+                if (serviceName != null && String.class.equals(type)) {
+                    String serviceUrl = getServiceUrl(serviceId, actualProtocol, servicePort, ctx);
+                    arguments.add(serviceUrl);
+                } else if (serviceName != null && !String.class.equals(type)) {
+                    Object serviceBean = getServiceBean(serviceId, actualProtocol, servicePort, (Class<Object>) type, ctx);
+                    arguments.add(serviceBean);
+                } else if (configuration != null) {
+                    Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
+                    arguments.add(config);
+                } else {
+                    Object other = BeanProvider.getContextualReferences((Class) type, true);
+                    arguments.add(other);
+                }
+            } catch (Throwable t) {
+                throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
+                        factoryMethod.getJavaMember().getName(),
+                        factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                        parameter.getPosition()));
             }
         }
+
         try {
             return (T) factoryMethod.getJavaMember().invoke(bean.create(ctx), arguments.toArray());
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+
+            throw new RuntimeException(String.format(INVOCATION_ERROR_FORMAT,
+                    factoryMethod.getJavaMember().getName(),
+                    factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                    arguments));
         }
     }
 
