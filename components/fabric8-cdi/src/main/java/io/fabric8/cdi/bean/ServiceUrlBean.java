@@ -63,7 +63,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
 
     private ServiceUrlBean(String serviceName, String serviceProtocol, String serviceAlias, String servicePort, Boolean serviceEndpoint, Boolean serviceExternal) {
         super(serviceAlias, String.class,
-                serviceEndpoint ? new FirstEndpointProducer(serviceName, serviceProtocol) : new ServiceUrlProducer(serviceName, serviceProtocol, servicePort, serviceExternal) ,
+                serviceEndpoint ? new FirstEndpointProducer(serviceName, serviceProtocol, servicePort) : new ServiceUrlProducer(serviceName, serviceProtocol, servicePort, serviceExternal) ,
                 Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;

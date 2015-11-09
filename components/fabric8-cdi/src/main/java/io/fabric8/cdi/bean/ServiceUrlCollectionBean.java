@@ -64,7 +64,7 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
     private final Type serviceCollectionType;
 
     private ServiceUrlCollectionBean(String serviceName, String serviceProtocol, String serviceAlias, String servicePort, Boolean serviceEndpoint, Type serviceCollectionType) {
-        super(serviceAlias, serviceCollectionType, new ServiceEndpointsProducer(serviceName, serviceProtocol), Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, false));
+        super(serviceAlias, serviceCollectionType, new ServiceEndpointsProducer(serviceName, serviceProtocol, servicePort), Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, false));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.serviceAlias = serviceAlias;

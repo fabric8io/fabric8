@@ -28,13 +28,16 @@ public class ServiceEndpointsProducer implements Producer<List<String>> {
 
     private final String serviceId;
     private final String serviceProtocol;
+    private final String servicePort;
 
     public ServiceEndpointsProducer(String serviceId) {
-        this(serviceId,  Services.DEFAULT_PROTO);
+        this(serviceId,  Services.DEFAULT_PROTO, null);
     }
-    public ServiceEndpointsProducer(String serviceId, String serviceProtocol) {
+
+    public ServiceEndpointsProducer(String serviceId, String serviceProtocol, String servicePort) {
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
+        this.servicePort = servicePort;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class ServiceEndpointsProducer implements Producer<List<String>> {
         if (serviceId == null) {
             throw new IllegalArgumentException("No service id has been specified.");
         }
-        return Services.toServiceEndpointUrl(serviceId, serviceProtocol);
+        return Services.toServiceEndpointUrl(serviceId, serviceProtocol, servicePort);
     }
 
     @Override

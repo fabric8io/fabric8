@@ -27,14 +27,16 @@ public class FirstEndpointProducer implements Producer<String> {
 
     private final String serviceId;
     private final String serviceProtocol;
+    private final String servicePort;
 
     public FirstEndpointProducer(String serviceId) {
-        this(serviceId, Services.DEFAULT_PROTO);
+        this(serviceId, Services.DEFAULT_PROTO, null);
     }
 
-    public FirstEndpointProducer(String serviceId, String serviceProtocol) {
+    public FirstEndpointProducer(String serviceId, String serviceProtocol, String servicePort) {
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
+        this.servicePort = servicePort;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class FirstEndpointProducer implements Producer<String> {
         if (serviceId == null) {
             throw new IllegalArgumentException("No service id has been specified.");
         }
-        return Services.toServiceEndpointUrl(serviceId, serviceProtocol).iterator().next();
+        return Services.toServiceEndpointUrl(serviceId, serviceProtocol, servicePort).iterator().next();
     }
 
     @Override
