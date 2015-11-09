@@ -200,11 +200,32 @@
                             <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
                             <environmentVariables>
                                 <HOSTNAME></HOSTNAME>
+                                <KUBERNETES_NAMESPACE>default</KUBERNETES_NAMESPACE>
                                 <KUBERNETES_SERVICE_HOST></KUBERNETES_SERVICE_HOST>
                                 <KUBERNETES_SERVICE_PORT></KUBERNETES_SERVICE_PORT>
                             </environmentVariables>
                             <includes>
                                 <include>**/*ExternalTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>no-namespace-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
+                            <environmentVariables>
+                                <HOSTNAME>dummyhost</HOSTNAME>
+                                <KUBERNETES_NAMESPACE></KUBERNETES_NAMESPACE>
+                                <KUBERNETES_AUTH_TRYKUBECONFIG>false</KUBERNETES_AUTH_TRYKUBECONFIG>
+                                <KUBERNETES_AUTH_TRYKUBESERVICEACCCOUNT>false</KUBERNETES_AUTH_TRYKUBESERVICEACCCOUNT>
+                            </environmentVariables>
+                            <includes>
+                                <include>**/*NoNamespaceTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
