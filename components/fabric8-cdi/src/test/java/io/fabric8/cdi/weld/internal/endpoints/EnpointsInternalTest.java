@@ -21,6 +21,7 @@ import io.fabric8.cdi.weld.ClientProducer;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,8 +54,14 @@ public class EnpointsInternalTest {
         createInstance(ServiceInstanceWithEndpoint.class);
     }
 
+    @Test
+    public void testServiceInstanceWithMultiPortEndpoint() {
+        ServiceInstanceWithMultiPortEndpoint obj = createInstance(ServiceInstanceWithMultiPortEndpoint.class);
+        Assert.assertEquals("http://172.30.17.2:8082", obj.getService());
+    }
 
-    void createInstance(Class type) {
+
+    <T> T createInstance(Class<T> type) {
         weld = new Weld()
                 .disableDiscovery()
                 .extensions(new Fabric8Extension())
@@ -64,8 +71,9 @@ public class EnpointsInternalTest {
 
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
-            weld.getBeanManager().getReference(bean, type, ctx);
+            return (T) weld.getBeanManager().getReference(bean, type, ctx);
         }
+        return null;
     }
 
 }

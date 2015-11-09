@@ -18,6 +18,7 @@ package io.fabric8.cdi;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
+import io.fabric8.kubernetes.api.model.EndpointPort;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
@@ -36,7 +37,7 @@ public class Services {
         return KubernetesHelper.getServiceURL(client, serviceName, serviceNamespace, serviceProtocol, servicePortName, serviceExternal);
     }
 
-    public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol) {
+    public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol, String servicePort) {
         List<String> endpoints = new ArrayList<>();
         KubernetesClient client = KubernetesHolder.getClient();
         String namespace = client.getNamespace();
@@ -58,7 +59,11 @@ public class Services {
             if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
                 for (EndpointSubset subset : item.getSubsets()) {
                     for (EndpointAddress address : subset.getAddresses()) {
-                        endpoints.add(serviceProto +"://" +address.getIp());
+                        for (EndpointPort endpointPort : subset.getPorts()) {
+                            if (servicePort == null || servicePort.equals(endpointPort.getName())) {
+                                endpoints.add(serviceProto + "://" + address.getIp() + ":" + endpointPort.getPort());
+                            }
+                        }
                     }
                 }
                 break;

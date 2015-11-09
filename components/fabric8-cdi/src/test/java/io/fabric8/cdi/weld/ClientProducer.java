@@ -122,7 +122,7 @@ public class ClientProducer {
                             .withNewTargetPort(8082)
                         .endPort()
                         .addNewPort()
-                            .withName("port2")
+                            .withName("port3")
                             .withProtocol("TCP")
                             .withPort(8083)
                             .withNewTargetPort(8083)
@@ -149,11 +149,27 @@ public class ClientProducer {
                 .endSubset()
                 .build();
 
+        Endpoints multiPortEndpoint = new EndpointsBuilder()
+                .withNewMetadata()
+                    .withName("multiport")
+                .withNamespace("default")
+                .endMetadata()
+                .addNewSubset()
+                    .addNewAddresse()
+                        .withIp("172.30.17.2")
+                    .endAddresse()
+                    .addNewPort("port1", 8081, "TCP")
+                    .addNewPort("port2", 8082, "TCP")
+                    .addNewPort("port3", 8083, "TCP")
+                    .endSubset()
+                .build();
+
+
         mock.endpoints().inNamespace("default").withName("service1").get().andReturn(
                 service1Endpoints
         ).anyTimes();
 
-        mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().addToItems(service1Endpoints).build()).anyTimes();
+        mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().addToItems(multiPortEndpoint, service1Endpoints).build()).anyTimes();
         mock.adapt(OpenShiftClient.class).andReturn(getOpenShiftClient()).anyTimes();
 
         mock.getNamespace().andAnswer(new IAnswer<String>() {
