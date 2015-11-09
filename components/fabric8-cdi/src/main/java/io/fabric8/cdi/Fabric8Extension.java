@@ -58,7 +58,9 @@ import java.util.Set;
 
 public class Fabric8Extension implements Extension {
 
+    private static final String INJECTION_POINT_UNKNOWN_TYPE = "Failed to process injection point on bean %s with type: %s. Don't know how to handle type.";
     private static final Set<FactoryMethodContext> factories = new LinkedHashSet<>();
+
 
     public void afterDiscovery(final @Observes AfterBeanDiscovery event, BeanManager beanManager) {
 
@@ -138,17 +140,19 @@ public class Fabric8Extension implements Extension {
             }
 
             if (type.equals(String.class)) {
-                ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceExternal);
-            } else if (serviceEndpoint && isGenericOf(type, List.class, String.class)) {
+                ServiceUrlBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceEndpoint, serviceExternal);
+            } else if (isGenericOf(type, List.class, String.class)) {
                 ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceEndpoint, Types.LIST_OF_STRINGS);
-            } else if (serviceEndpoint && isGenericOf(type, List.class, null)) {
+            } else if (isGenericOf(type, List.class, null)) {
                 //TODO: Integrate with Factories(?)
-            } else if (serviceEndpoint && isGenericOf(type, Set.class, String.class)) {
+            } else if (isGenericOf(type, Set.class, String.class)) {
                 ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceEndpoint, Types.SET_OF_STRINGS);
-            } else if (serviceEndpoint && isGenericOf(type, Set.class, null)) {
+            } else if (isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
-            } else {
+            } else if (type instanceof Class) {
                 ServiceBean.getBean(serviceName, serviceProtocol, serviceAlias, servicePort, serviceExternal, (Class) type);
+            } else {
+                throw new RuntimeException(String.format(INJECTION_POINT_UNKNOWN_TYPE, injectionPoint.getBean().getBeanClass(), type));
             }
 
             if (protocol == null) {

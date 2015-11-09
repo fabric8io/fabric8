@@ -16,6 +16,8 @@
 
 package io.fabric8.cdi.weld.nonamespace;
 
+import io.fabric8.cdi.Fabric8Extension;
+import io.fabric8.cdi.weld.ClientProducer;
 import org.hamcrest.CoreMatchers;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -40,10 +42,15 @@ public class NoNamespaceTest {
 
 
     void createInstance(Class type) {
-        WeldContainer weld = new Weld().initialize();
+        WeldContainer weld = new Weld()
+                .disableDiscovery()
+                .extensions(new Fabric8Extension())
+                .beanClasses(ClientProducer.class, MyBean.class)
+                .alternatives(ClientProducer.class)
+                .initialize();
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
-             weld.getBeanManager().getReference(bean, type, ctx);
+            weld.getBeanManager().getReference(bean, type, ctx);
         }
     }
 
