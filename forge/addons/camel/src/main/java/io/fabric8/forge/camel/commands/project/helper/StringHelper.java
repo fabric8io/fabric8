@@ -15,8 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
-import org.apache.camel.util.ObjectHelper;
-
 public final class StringHelper {
 
     /**
@@ -31,7 +29,7 @@ public final class StringHelper {
      * @throws IllegalArgumentException if the input arguments is invalid
      */
     public static String replaceAll(String input, String from, String to) {
-        if (ObjectHelper.isEmpty(input)) {
+        if (input == null || input.isEmpty()) {
             return input;
         }
         if (from == null) {
