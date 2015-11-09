@@ -16,6 +16,8 @@
 
 package io.fabric8.cdi.weld;
 
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsBuilder;
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.RootPathsBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
@@ -73,6 +75,7 @@ public class ClientProducer {
                 .build()
         ).anyTimes();
 
+        //Services
         mock.services().inNamespace("default").withName("service2").get().andReturn(
                 new ServiceBuilder()
                         .withNewMetadata().withName("service2").endMetadata()
@@ -129,8 +132,28 @@ public class ClientProducer {
                         .build()
         ).anyTimes();
 
+        //Endpoints
+        Endpoints service1Endpoints = new EndpointsBuilder()
+                .withNewMetadata()
+                    .withName("service1")
+                    .withNamespace("default")
+                .endMetadata()
+                .addNewSubset()
+                .addNewPort()
+                .withName("port")
+                .withPort(8080)
+                .endPort()
+                .addNewAddresse()
+                .withIp("172.30.17.2")
+                .endAddresse()
+                .endSubset()
+                .build();
 
-        mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().build()).anyTimes();
+        mock.endpoints().inNamespace("default").withName("service1").get().andReturn(
+                service1Endpoints
+        ).anyTimes();
+
+        mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().addToItems(service1Endpoints).build()).anyTimes();
         mock.adapt(OpenShiftClient.class).andReturn(getOpenShiftClient()).anyTimes();
 
         mock.getNamespace().andAnswer(new IAnswer<String>() {

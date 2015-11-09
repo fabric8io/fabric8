@@ -14,43 +14,57 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.cdi.weld.internal.brokenfactory;
+package io.fabric8.cdi.weld.internal.endpoints;
 
 import io.fabric8.cdi.Fabric8Extension;
 import io.fabric8.cdi.weld.ClientProducer;
-import org.hamcrest.CoreMatchers;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.ExpectedException;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 
-public class BrokenFactoryInternalTest {
+public class EnpointsInternalTest {
+
+    private WeldContainer weld;
+
+    @After
+    public void cleanUp() {
+        if (weld != null) {
+            weld.shutdown();
+        }
+    }
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testServiceInjection() {
-        expectedException.expect(ThrowableMessageMatcher.hasMessage(CoreMatchers.startsWith("Failed to process @Factory annotated method")));
-        createInstance(MyBean.class);
+    public void testServiceListWithoutEndpoint() {
+        createInstance(ServiceListWithoutEndpoint.class);
+    }
+
+
+    @Test
+    public void testServiceInstanceWithEndpoint() {
+        createInstance(ServiceInstanceWithEndpoint.class);
     }
 
 
     void createInstance(Class type) {
-        WeldContainer weld = new Weld()
+        weld = new Weld()
                 .disableDiscovery()
                 .extensions(new Fabric8Extension())
-                .beanClasses(ClientProducer.class, MyFactory.class, MyBean.class)
+                .beanClasses(ClientProducer.class, type)
                 .alternatives(ClientProducer.class)
                 .initialize();
+
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
-             weld.getBeanManager().getReference(bean, type, ctx);
+            weld.getBeanManager().getReference(bean, type, ctx);
         }
     }
 
