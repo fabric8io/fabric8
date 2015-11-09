@@ -235,6 +235,9 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
+        // TODO: Remove this when upgrading to Camel 2.16.1
+        // we do not want to use %23 for # syntax
+        uri = uri.replaceAll("\\=\\%23", "=#");
 
         FileResource file = facet != null ? facet.getResource(xml) : null;
         if (file == null || !file.exists()) {
@@ -401,6 +404,9 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
+        // TODO: Remove this when upgrading to Camel 2.16.1
+        // we do not want to use %23 for # syntax
+        uri = uri.replaceAll("\\=\\%23", "=#");
 
         JavaResource existing = facet.getJavaResource(routeBuilder);
         if (existing == null || !existing.exists()) {
