@@ -173,6 +173,13 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         if ("edit".equals(mode)) {
             lineNumber = mandatoryAttributeValue(attributeMap, "lineNumber");
             endpointUrl = mandatoryAttributeValue(attributeMap, "endpointUri");
+
+            // since this is XML we need to escape & as &amp;
+            // to be safe that & is not already &amp; we need to revert it first
+            endpointUrl = StringHelper.replaceAll(endpointUrl, "&amp;", "&");
+            endpointUrl = StringHelper.replaceAll(endpointUrl, "&", "&amp;");
+            endpointUrl = StringHelper.replaceAll(endpointUrl, "<", "&lt;");
+            endpointUrl = StringHelper.replaceAll(endpointUrl, ">", "&gt;");
         }
 
         Project project = getSelectedProject(context);
