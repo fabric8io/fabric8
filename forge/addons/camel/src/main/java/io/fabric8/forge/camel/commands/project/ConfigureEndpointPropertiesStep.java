@@ -164,14 +164,15 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     protected Result executeXml(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
         String camelComponentName = optionalAttributeValue(attributeMap, "componentName");
         String endpointInstanceName = optionalAttributeValue(attributeMap, "instanceName");
-        String endpointUrl = mandatoryAttributeValue(attributeMap, "endpointUri");
         String mode = mandatoryAttributeValue(attributeMap, "mode");
         String xml = mandatoryAttributeValue(attributeMap, "xml");
-        String lineNumber;
+
+        // edit mode includes the existing uri and line number
+        String lineNumber = null;
+        String endpointUrl = null;
         if ("edit".equals(mode)) {
             lineNumber = mandatoryAttributeValue(attributeMap, "lineNumber");
-        } else {
-            lineNumber = optionalAttributeValue(attributeMap, "lineNumber");
+            endpointUrl = mandatoryAttributeValue(attributeMap, "endpointUri");
         }
 
         Project project = getSelectedProject(context);
@@ -239,7 +240,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         // if we have a line number then use that to edit the existing value
         if (lineNumber != null) {
             List<String> lines = LineNumberHelper.readLines(file.getResourceInputStream());
-            return addEndpointJava(lines, lineNumber, endpointUrl, uri, file, xml);
+            return editEndpointXml(lines, lineNumber, endpointUrl, uri, file, xml);
         } else {
             // we are in add mode, so parse dom to find <camelContext> and insert the endpoint where its needed
             Document root = XmlLineNumberParser.parseXml(file.getResourceInputStream());
@@ -247,7 +248,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
     }
 
-    private Result addEndpointJava(List<String> lines, String lineNumber, String endpointUrl, String uri, FileResource file, String xml) {
+    private Result editEndpointXml(List<String> lines, String lineNumber, String endpointUrl, String uri, FileResource file, String xml) {
         // the list is 0-based, and line number is 1-based
         int idx = Integer.valueOf(lineNumber) - 1;
         String line = lines.get(idx);
@@ -260,7 +261,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         String content = LineNumberHelper.linesToString(lines);
         file.setContents(content);
 
-        return Results.success("Update endpoint uri: " + uri + " in XML file " + xml);
+        return Results.success("Update endpoint uri: " + uri + " in file " + xml);
     }
 
     private Result addEndpointXml(Document root, String endpointInstanceName, String uri, FileResource file, String xml) throws Exception {

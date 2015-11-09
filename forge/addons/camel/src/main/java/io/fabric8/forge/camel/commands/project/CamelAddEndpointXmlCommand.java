@@ -123,6 +123,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         attributeMap.put("componentName", componentName.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("xml", xml.getValue());
+        attributeMap.put("mode", "add");
         attributeMap.put("kind", "xml");
         return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
     }
