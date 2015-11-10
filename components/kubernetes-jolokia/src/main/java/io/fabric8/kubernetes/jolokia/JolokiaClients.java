@@ -46,7 +46,7 @@ public class JolokiaClients {
     private String user = Systems.getEnvVarOrSystemProperty("JOLOKIA_USER", "JOLOKIA_USER", "admin");
     private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");;
     private Filter<Pod> podFilter = null;
-    private boolean useKubeProxy = false;
+    private boolean useKubeProxy = true;
 
     public JolokiaClients() {
         this(new DefaultKubernetesClient());
@@ -54,10 +54,6 @@ public class JolokiaClients {
 
     public JolokiaClients(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
-        if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
-            // lets assume we are outside of kubernetes
-            useKubeProxy = true;
-        }
     }
 
     public KubernetesClient getKubernetes() {
@@ -286,8 +282,8 @@ public class JolokiaClients {
                             ObjectMeta metadata = pod.getMetadata();
                             String namespace = metadata.getNamespace();
                             String podName = metadata.getName();
-                            String jolokiaUrl = URLUtils.join(masterUrl.toString(), "/api/v1/namespaces/" + namespace + "/pods/" + podName + ":8778/proxy/jolokia/");
-                            System.out.println("Using jolokia URL: " + jolokiaUrl);
+                            String jolokiaUrl = URLUtils.join(masterUrl.toString(), "/api/v1/namespaces/" + namespace + "/pods/https:" + podName + ":8778/proxy/jolokia/");
+                            LOG.info("Using jolokia URL: " + jolokiaUrl);
                             return createJolokiaClient(container, jolokiaUrl);
                         }
                         PodStatus currentState = pod.getStatus();
