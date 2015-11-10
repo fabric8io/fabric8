@@ -142,8 +142,6 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
 
         // TODO: sort the options by label, so we can group per label of 10.
 
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
-
         // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
         List<InputComponent> allInputs = createUIInputsForCamelComponent(camelComponentName, null, componentFactory, converterFactory);
         int size = allInputs.size();
