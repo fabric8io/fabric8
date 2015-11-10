@@ -15,29 +15,23 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.addon.utils.LineNumberHelper;
 import io.fabric8.forge.addon.utils.XmlLineNumberParser;
-import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
-import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
@@ -47,7 +41,6 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
-import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
@@ -64,8 +57,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifactDependency;
-import static io.fabric8.forge.addon.utils.UIHelper.createUIInput;
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.isDefaultValue;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.ensureCamelArtifactIdAdded;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.loadCamelComponentDetails;
@@ -73,15 +64,28 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
     @Inject
-    private InputComponentFactory componentFactory;
-
-    @Inject
     private DependencyInstaller dependencyInstaller;
 
-    @Inject
-    private DependencyResolver dependencyResolver;
+    private final List<InputComponent> allInputs;
+    private final List<InputComponent> inputs;
+    private final boolean last;
 
-    private List<InputComponent> inputs = new ArrayList<>();
+    @Deprecated
+    public ConfigureEndpointPropertiesStep() {
+        this(null, null, null, null, false);
+    }
+
+    public ConfigureEndpointPropertiesStep(ProjectFactory projectFactory,
+                                           DependencyInstaller dependencyInstaller,
+                                           List<InputComponent> allInputs,
+                                           List<InputComponent> inputs,
+                                           boolean last) {
+        this.projectFactory = projectFactory;
+        this.dependencyInstaller = dependencyInstaller;
+        this.allInputs = allInputs;
+        this.inputs = inputs;
+        this.last = last;
+    }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
@@ -93,54 +97,9 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Override
     @SuppressWarnings("unchecked")
     public void initializeUI(UIBuilder builder) throws Exception {
-        // lets create a field for each property on the component
-
-        CamelCatalog catalog = new DefaultCamelCatalog();
-
-        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
-
-        // either we have an uri from an existing endpoint to edit, or we only have the component name to create a new endpoint
-        String camelComponentName = optionalAttributeValue(attributeMap, "componentName");
-        String uri = optionalAttributeValue(attributeMap, "endpointUri");
-
-        if (camelComponentName == null && uri != null) {
-            camelComponentName = endpointComponentName(uri);
-        }
-
-        String json = catalog.componentJSonSchema(camelComponentName);
-        if (json == null) {
-            throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
-        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
-
-        if (data != null) {
-            Set<String> namesAdded = new HashSet<>();
-            for (Map<String, String> propertyMap : data) {
-                String name = propertyMap.get("name");
-                String kind = propertyMap.get("kind");
-                String type = propertyMap.get("type");
-                String javaType = propertyMap.get("javaType");
-                String deprecated = propertyMap.get("deprecated");
-                String required = propertyMap.get("required");
-                String currentValue = currentValues.get(name);
-                String defaultValue = propertyMap.get("defaultValue");
-                String description = propertyMap.get("description");
-                String enums = propertyMap.get("enum");
-
-                if (!Strings.isNullOrEmpty(name)) {
-                    Class<Object> inputClazz = CamelCommandsHelper.loadValidInputTypes(javaType, type);
-                    if (inputClazz != null) {
-                        if (namesAdded.add(name)) {
-                            InputComponent input = createUIInput(componentFactory, getConverterFactory(), name, inputClazz, required, currentValue, defaultValue, enums, description);
-                            if (input != null) {
-                                builder.add(input);
-                                inputs.add(input);
-                            }
-                        }
-                    }
-                }
+        if (inputs != null) {
+            for (InputComponent input : inputs) {
+                builder.add(input);
             }
         }
     }
@@ -153,11 +112,21 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-        String kind = mandatoryAttributeValue(attributeMap, "kind");
-        if ("xml".equals(kind)) {
-            return executeXml(context, attributeMap);
+
+        if (!last) {
+            // TODO: carry over options to the next page (yikes we need to store this state ourselves)
+        }
+
+        // only if last
+        if (last) {
+            String kind = mandatoryAttributeValue(attributeMap, "kind");
+            if ("xml".equals(kind)) {
+                return executeXml(context, attributeMap);
+            } else {
+                return executeJava(context, attributeMap);
+            }
         } else {
-            return executeJava(context, attributeMap);
+            return null;
         }
     }
 
@@ -209,7 +178,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         // collect all the options that was set
         Map<String, String> options = new HashMap<String, String>();
-        for (InputComponent input : inputs) {
+        for (InputComponent input : allInputs) {
             String key = input.getName();
             // only use the value if a value was set (and the value is not the same as the default value)
             if (input.hasValue()) {
