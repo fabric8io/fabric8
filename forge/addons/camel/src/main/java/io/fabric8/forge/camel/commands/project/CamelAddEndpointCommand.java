@@ -119,6 +119,12 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+
+        NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
+        if (navigationResult != null) {
+            return navigationResult;
+        }
+
         attributeMap.put("componentName", componentName.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("routeBuilder", routeBuilder.getValue());
@@ -155,7 +161,9 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
             builder.add(step);
         }
 
-        return builder.build();
+        navigationResult = builder.build();
+        attributeMap.put("navigationResult", navigationResult);
+        return navigationResult;
     }
 
     @Override
