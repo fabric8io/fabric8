@@ -17,14 +17,6 @@ package io.fabric8.devops.connector;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.Authenticator;
-import com.squareup.okhttp.Challenge;
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
@@ -58,6 +50,22 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AUTH;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.MalformedChallengeException;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.DigestScheme;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +89,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,16 +98,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
-
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 
 /**
  * Updates a project's connections to its various DevOps resources like issue tracking, chat and jenkins builds
  */
 public class DevOpsConnector {
-
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private transient Logger log = LoggerFactory.getLogger(DevOpsConnector.class);
 
@@ -1282,16 +1286,19 @@ public class DevOpsConnector {
         return null;
     }
 
-
     protected void createGerritRepo(String repoName, String gerritUser, String gerritPwd, String gerritGitInitialCommit, String gerritGitRepoDescription) throws Exception {
 
         // lets add defaults if not env vars
-        final String username = Strings.isNullOrBlank(gerritUser) ? "admin" : gerritUser;
-        final String password = Strings.isNullOrBlank(gerritPwd) ? "secret" : gerritPwd;
+        if (Strings.isNullOrBlank(gerritUser)) {
+            gerritUser = "admin";
+        }
+        if (Strings.isNullOrBlank(gerritPwd)) {
+            gerritPwd = "secret";
+        }
 
         log.info("A Gerrit git repo will be created for this name : " + repoName);
 
-        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes, ServiceNames.GERRIT, namespace, "http", true);
+        String gerritAddress = KubernetesHelper.getServiceURL(kubernetes,ServiceNames.GERRIT, namespace, "http", true);
         log.info("Found gerrit address: " + gerritAddress + " for namespace: " + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
 
         if (Strings.isNullOrBlank(gerritAddress)) {
@@ -1299,55 +1306,67 @@ public class DevOpsConnector {
                     + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         }
 
-        String GERRIT_URL = gerritAddress + "/a/projects/" + repoName;
-
-        OkHttpClient client = new OkHttpClient();
-        if (isNotNullOrEmpty(gerritUser) && isNotNullOrEmpty(gerritPwd)) {
-            client.setAuthenticator(new Authenticator() {
-                @Override
-                public Request authenticate(Proxy proxy, Response response) throws IOException {
-                    List<Challenge> challenges = response.challenges();
-                    Request request = response.request();
-                    for (int i = 0, size = challenges.size(); i < size; i++) {
-                        Challenge challenge = challenges.get(i);
-                        if (!"Basic".equalsIgnoreCase(challenge.getScheme())) continue;
-
-                        String credential = Credentials.basic(username, password);
-                        return request.newBuilder()
-                                .header("Authorization", credential)
-                                .build();
-                    }
-                    return null;
-                }
-
-                @Override
-                public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
-                    return null;
-                }
-            });
-        }
-
-        System.out.println("Requesting : " + GERRIT_URL);
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        DefaultHttpClient httpclientPost = new DefaultHttpClient();
+        String GERRIT_URL= gerritAddress + "/a/projects/" + repoName;
+        HttpGet httpget = new HttpGet(GERRIT_URL);
+        System.out.println("Requesting : " + httpget.getURI());
 
         try {
-            CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
-            createRepoDTO.setDescription(gerritGitRepoDescription);
-            createRepoDTO.setName(repoName);
-            createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
+            //Initial request without credentials returns "HTTP/1.1 401 Unauthorized"
+            HttpResponse response = httpclient.execute(httpget);
+            System.out.println(response.getStatusLine());
 
-            RequestBody body = RequestBody.create(JSON, MAPPER.writeValueAsString(createRepoDTO));
-            Request request = new Request.Builder().post(body).url(GERRIT_URL).build();
-            Response response = client.newCall(request).execute();
-            System.out.println("responseBody : " + response.body().string());
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                // Get current current "WWW-Authenticate" header from response
+                // WWW-Authenticate:Digest realm="My Test Realm", qop="auth",
+                // nonce="cdcf6cbe6ee17ae0790ed399935997e8", opaque="ae40d7c8ca6a35af15460d352be5e71c"
+                Header authHeader = response.getFirstHeader(AUTH.WWW_AUTH);
+                System.out.println("authHeader = " + authHeader);
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        } finally {
-            if (client != null && client.getConnectionPool() != null) {
-                client.getConnectionPool().evictAll();
+                DigestScheme digestScheme = new DigestScheme();
+
+                //Parse realm, nonce sent by server.
+                digestScheme.processChallenge(authHeader);
+
+                UsernamePasswordCredentials creds = new UsernamePasswordCredentials(gerritUser, gerritPwd);
+                httpget.addHeader(digestScheme.authenticate(creds, httpget, null));
+
+                HttpPost httpPost = new HttpPost(GERRIT_URL);
+                httpPost.addHeader(digestScheme.authenticate(creds, httpPost, null));
+                httpPost.addHeader("Content-Type", "application/json");
+
+                CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
+                createRepoDTO.setDescription(gerritGitRepoDescription);
+                createRepoDTO.setName(repoName);
+                createRepoDTO.setCreate_empty_commit(Boolean.valueOf(gerritGitInitialCommit));
+
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(createRepoDTO);
+
+                HttpEntity entity = new StringEntity(json);
+                httpPost.setEntity(entity);
+
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                String responseBody = httpclientPost.execute(httpPost, responseHandler);
+                System.out.println("responseBody : " + responseBody);
             }
+
+        } catch (MalformedChallengeException e) {
+            e.printStackTrace();
+        } catch (AuthenticationException e) {
+            e.printStackTrace();
+        } catch (ConnectException e) {
+            System.out.println("Gerrit Server is not responding");
+        } catch (HttpResponseException e) {
+            System.out.println("Response from Gerrit Server : " + e.getMessage());
+            throw new Exception("Repository " + repoName + " already exists !");
+        } finally {
+            httpclient.getConnectionManager().shutdown();
+            httpclientPost.getConnectionManager().shutdown();
         }
     }
+
 
     @Priority(value = 1000)
     protected static class RemovePrefix implements ReaderInterceptor {

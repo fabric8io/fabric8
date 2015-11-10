@@ -121,6 +121,7 @@
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>18.0</guava.version>
+        <httpclient.version>4.2.5</httpclient.version>
         <jackson2.version>2.6.3</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.el-version>2.2.5</javax.el-version>
@@ -641,6 +642,11 @@
             </dependency>
 
             <!-- Others -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-framework</artifactId>
