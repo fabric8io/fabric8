@@ -15,12 +15,16 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -32,6 +36,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.input.InputComponent;
+import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
@@ -41,9 +47,12 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.createUIInputsForCamelComponent;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
 public class CamelAddEndpointCommand extends AbstractCamelProjectCommand implements UIWizard {
@@ -63,6 +72,9 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
     @Inject
     @WithAttributes(label = "RouteBuilder Class", required = true, description = "The RouteBuilder class to use")
     private UISelectOne<String> routeBuilder;
+
+    @Inject
+    private InputComponentFactory componentFactory;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -112,7 +124,38 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         attributeMap.put("routeBuilder", routeBuilder.getValue());
         attributeMap.put("mode", "add");
         attributeMap.put("kind", "java");
-        return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
+
+        // we need to figure out how many options there is so we can as many steps we need
+        String camelComponentName = componentName.getValue();
+
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(camelComponentName);
+        if (json == null) {
+            throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
+        }
+
+        // TODO: sort the options by label, so we can group per label of 10.
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
+
+        // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
+        List<InputComponent> allInputs = createUIInputsForCamelComponent(camelComponentName, null, componentFactory, converterFactory);
+        int size = allInputs.size();
+
+        NavigationResultBuilder builder = Results.navigationBuilder();
+        int pages = size / 10 + 1;
+        for (int i = 0; i < pages; i++) {
+            int from = i * 10;
+            int delta = Math.min(10, size - from);
+            int to = from + delta;
+            boolean last = i == pages -1;
+            List<InputComponent> inputs = allInputs.subList(from, to);
+            ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
+                    allInputs, inputs, last);
+            builder.add(step);
+        }
+
+        return builder.build();
     }
 
     @Override

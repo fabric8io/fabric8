@@ -15,9 +15,13 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
@@ -28,16 +32,24 @@ import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
+import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.input.InputComponent;
+import org.jboss.forge.addon.ui.input.InputComponentFactory;
+import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
+
+import static io.fabric8.forge.addon.utils.UIHelper.createUIInput;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 
 public final class CamelCommandsHelper {
 
@@ -278,4 +290,53 @@ public final class CamelCommandsHelper {
         }
         return null;
     }
+
+    public static List<InputComponent> createUIInputsForCamelComponent(String camelComponentName, String uri,
+                                                                       InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
+        List<InputComponent> inputs = new ArrayList<>();
+
+        if (camelComponentName == null && uri != null) {
+            camelComponentName = endpointComponentName(uri);
+        }
+
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(camelComponentName);
+        if (json == null) {
+            throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
+        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
+
+        if (data != null) {
+            Set<String> namesAdded = new HashSet<>();
+            for (Map<String, String> propertyMap : data) {
+                String name = propertyMap.get("name");
+                String kind = propertyMap.get("kind");
+                String type = propertyMap.get("type");
+                String javaType = propertyMap.get("javaType");
+                String deprecated = propertyMap.get("deprecated");
+                String required = propertyMap.get("required");
+                String currentValue = currentValues.get(name);
+                String defaultValue = propertyMap.get("defaultValue");
+                String description = propertyMap.get("description");
+                String enums = propertyMap.get("enum");
+
+                if (!Strings.isNullOrEmpty(name)) {
+                    Class<Object> inputClazz = CamelCommandsHelper.loadValidInputTypes(javaType, type);
+                    if (inputClazz != null) {
+                        if (namesAdded.add(name)) {
+                            InputComponent input = createUIInput(componentFactory, converterFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
+                            if (input != null) {
+                                inputs.add(input);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return inputs;
+    }
+
 }
