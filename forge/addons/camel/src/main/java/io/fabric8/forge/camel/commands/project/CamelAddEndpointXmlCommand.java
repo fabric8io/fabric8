@@ -24,7 +24,6 @@ import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
@@ -74,9 +73,6 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
 
     @Inject
     private DependencyInstaller dependencyInstaller;
-
-    @Inject
-    private DependencyResolver dependencyResolver;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
