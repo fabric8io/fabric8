@@ -40,8 +40,16 @@
       <artifactId>jolokia-client-java</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
     </dependency>
 
     <!-- testing -->
@@ -53,11 +61,6 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-jolokia</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

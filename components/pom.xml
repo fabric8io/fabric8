@@ -58,6 +58,7 @@
     <module>fabric8-agent</module>
     <module>fabric8-apm</module>
     <module>fabric8-arquillian</module>
+    <module>fabric8-camel</module>
     <module>fabric8-cxf</module>
     <module>fabric8-cxf-plugins</module>
     <!--<module>fabric8-cxf-registry</module>--> <!-- TODO: does not work yet -->

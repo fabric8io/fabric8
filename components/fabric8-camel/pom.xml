@@ -1,0 +1,102 @@
+<!--
+
+     Copyright 2005-2015 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>components</artifactId>
+    <version>2.2.63-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fabric8-camel</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Fabric8 :: Camel</name>
+
+  <properties>
+    <example.rcName>camel1</example.rcName>
+    <example.rcNamespace>${example.rcName}-staging</example.rcNamespace>
+    <example.camelContext>myCamel</example.camelContext>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-jolokia</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>jolokia-assertions</artifactId>
+    </dependency>
+    <!--
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-api</artifactId>
+        </dependency>
+          <dependency>
+              <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-utils</artifactId>
+          </dependency>
+
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-client-java</artifactId>
+        </dependency>
+    -->
+
+    <!-- testing -->
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>${exec-maven-plugin.version}</version>
+              <configuration>
+                <mainClass>io.fabric8.camel.Example</mainClass>
+                <includePluginDependencies>false</includePluginDependencies>
+                <classpathScope>test</classpathScope>
+                <arguments>
+                  <argument>${example.rcName}</argument>
+                  <argument>${example.rcNamespace}</argument>
+                  <argument>${example.camelContext}</argument>
+                </arguments>
+              </configuration>
+            </plugin>
+    </plugins>
+  </build>
+
+</project>

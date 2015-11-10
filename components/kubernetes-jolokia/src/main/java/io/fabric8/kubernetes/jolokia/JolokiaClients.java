@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.utils.URLUtils;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -27,6 +28,7 @@ import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +46,7 @@ public class JolokiaClients {
     private String user = Systems.getEnvVarOrSystemProperty("JOLOKIA_USER", "JOLOKIA_USER", "admin");
     private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");;
     private Filter<Pod> podFilter = null;
+    private boolean useKubeProxy = false;
 
     public JolokiaClients() {
         this(new DefaultKubernetesClient());
@@ -51,6 +54,10 @@ public class JolokiaClients {
 
     public JolokiaClients(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
+        if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
+            // lets assume we are outside of kubernetes
+            useKubeProxy = true;
+        }
     }
 
     public KubernetesClient getKubernetes() {
@@ -60,9 +67,19 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given replication controller or throws an assertion error if one could not be found
      */
-    public J4pClient assertClientForReplicationController(String replicationControllerId, String namespace) {
-        J4pClient client = clientForReplicationController(replicationControllerId, namespace);
-        assertNotNull(client, "No client for replicationController: " + replicationControllerId);
+    public J4pClient assertClientForReplicationController(String replicationControllerName) {
+        J4pClient client = clientForReplicationController(replicationControllerName);
+        assertNotNull(client, "No client for replicationController: " + replicationControllerName);
+        return client;
+    }
+
+
+    /**
+     * Returns a client for the first working pod for the given replication controller or throws an assertion error if one could not be found
+     */
+    public J4pClient assertClientForReplicationController(String replicationControllerName, String namespace) {
+        J4pClient client = clientForReplicationController(replicationControllerName, namespace);
+        assertNotNull(client, "No client for replicationController: " + replicationControllerName);
         return client;
     }
 
@@ -70,9 +87,18 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given service  or throws an assertion error if one could not be found
      */
-    public J4pClient assertClientForService(String serviceId, String namespace) {
-        J4pClient client = clientForService(serviceId, namespace);
-        assertNotNull(client, "No client for service: " + serviceId);
+    public J4pClient assertClientForService(String serviceName) {
+        J4pClient client = clientForService(serviceName);
+        assertNotNull(client, "No client for service: " + serviceName);
+        return client;
+    }
+
+    /**
+     * Returns a client for the first working pod for the given service  or throws an assertion error if one could not be found
+     */
+    public J4pClient assertClientForService(String serviceName, String namespace) {
+        J4pClient client = clientForService(serviceName, namespace);
+        assertNotNull(client, "No client for service: " + serviceName);
         return client;
     }
 
@@ -80,7 +106,16 @@ public class JolokiaClients {
      * Returns a client for the first working pod for the given replication controller
      */
     public J4pClient clientForReplicationController(ReplicationController replicationController) {
-        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, kubernetes.pods().inNamespace(replicationController.getMetadata().getNamespace()).list().getItems());
+        Objects.requireNonNull(replicationController, "ReplicationController");
+        PodList podList = kubernetes.pods().inNamespace(replicationController.getMetadata().getNamespace()).list();
+        List<Pod> items = null;
+        if (podList != null) {
+            items = podList.getItems();
+        }
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("No pods found for ReplicationController " + KubernetesHelper.summaryText(replicationController));
+        }
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController, items);
         return clientForPod(pods);
     }
 
@@ -88,8 +123,20 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given replication controller
      */
-    public J4pClient clientForReplicationController(String replicationControllerId, String namespace) {
-        return clientForReplicationController(kubernetes.replicationControllers().inNamespace(namespace).withName(replicationControllerId).get());
+    public J4pClient clientForReplicationController(String replicationControllerName, String namespace) {
+        ReplicationController replicationController = requireReplicationController(replicationControllerName, namespace);
+        return clientForReplicationController(replicationController);
+    }
+
+
+
+    /**
+     * Returns a client for the first working pod for the given replication controller
+     */
+    public J4pClient clientForReplicationController(String replicationControllerName) {
+        ReplicationController replicationController = kubernetes.replicationControllers().withName(replicationControllerName).get();
+        Objects.requireNonNull(replicationController, "No ReplicationController found for name: " + replicationControllerName);
+        return clientForReplicationController(replicationController);
     }
 
 
@@ -104,8 +151,9 @@ public class JolokiaClients {
     /**
      * Returns all the clients for the first working pod for the given replication controller
      */
-    public List<J4pClient> clientsForReplicationController(String replicationControllerId, String namespace) {
-        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(kubernetes.replicationControllers().inNamespace(namespace).withName(replicationControllerId).get(),
+    public List<J4pClient> clientsForReplicationController(String replicationControllerName, String namespace) {
+        ReplicationController replicationController = requireReplicationController(replicationControllerName, namespace);
+        List<Pod> pods = KubernetesHelper.getPodsForReplicationController(replicationController,
                 kubernetes.pods().inNamespace(namespace).list().getItems());
         return clientsForPod(pods);
     }
@@ -115,9 +163,19 @@ public class JolokiaClients {
     /**
      * Returns a client for the first working pod for the given service
      */
-    public J4pClient clientForService(String serviceId, String namespace) {
-        List<Pod> pods = KubernetesHelper.getPodsForService(kubernetes.services().inNamespace(namespace).withName(serviceId).get(),
+    public J4pClient clientForService(String serviceName, String namespace) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(requireService(serviceName, namespace),
                 kubernetes.pods().inNamespace(namespace).list().getItems());
+        return clientForPod(pods);
+    }
+
+
+    /**
+     * Returns a client for the first working pod for the given service
+     */
+    public J4pClient clientForService(String serviceName) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(requireService(serviceName),
+                kubernetes.pods().list().getItems());
         return clientForPod(pods);
     }
 
@@ -132,9 +190,18 @@ public class JolokiaClients {
     /**
      * Returns all the clients for the first working pod for the given service
      */
-    public List<J4pClient> clientsForService(String serviceId, String namespace) {
-        List<Pod> pods = KubernetesHelper.getPodsForService(kubernetes.services().inNamespace(namespace).withName(serviceId).get(),
+    public List<J4pClient> clientsForService(String serviceName, String namespace) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(requireService(serviceName, namespace),
                 kubernetes.pods().inNamespace(namespace).list().getItems());
+        return clientsForPod(pods);
+    }
+
+    /**
+     * Returns all the clients for the first working pod for the given service
+     */
+    public List<J4pClient> clientsForService(String serviceName) {
+        List<Pod> pods = KubernetesHelper.getPodsForService(requireService(serviceName),
+                kubernetes.pods().list().getItems());
         return clientsForPod(pods);
     }
 
@@ -191,7 +258,7 @@ public class JolokiaClients {
     /**
      * Returns the Jolokia client for the first container in the pod which exposes the jolokia port
      */
-    public J4pClient clientForPod(Pod pod) {
+    public J4pClient  clientForPod(Pod pod) {
         String host = KubernetesHelper.getHost(pod);
         List<Container> containers = KubernetesHelper.getContainers(pod);
         for (Container container : containers) {
@@ -214,6 +281,15 @@ public class JolokiaClients {
                 if (containerPort != null) {
                     String name = port.getName();
                     if (containerPort == 8778 || (Objects.equals("jolokia", name) && containerPort.intValue() > 0)) {
+                        if (useKubeProxy) {
+                            URL masterUrl = getKubernetes().getMasterUrl();
+                            ObjectMeta metadata = pod.getMetadata();
+                            String namespace = metadata.getNamespace();
+                            String podName = metadata.getName();
+                            String jolokiaUrl = URLUtils.join(masterUrl.toString(), "/api/v1/namespaces/" + namespace + "/pods/" + podName + ":8778/proxy/jolokia/");
+                            System.out.println("Using jolokia URL: " + jolokiaUrl);
+                            return createJolokiaClient(container, jolokiaUrl);
+                        }
                         PodStatus currentState = pod.getStatus();
                         String podIP = currentState.getPodIP();
                         if (Strings.isNotBlank(podIP)) {
@@ -302,6 +378,14 @@ public class JolokiaClients {
         this.password = password;
     }
 
+    public boolean isUseKubeProxy() {
+        return useKubeProxy;
+    }
+
+    public void setUseKubeProxy(boolean useKubeProxy) {
+        this.useKubeProxy = useKubeProxy;
+    }
+
     public Filter<Pod> getPodFilter() {
         return podFilter;
     }
@@ -321,5 +405,23 @@ public class JolokiaClients {
             builder = builder.password(password);
         }
         return builder.build();
+    }
+
+    protected ReplicationController requireReplicationController(String replicationControllerName, String namespace) {
+        ReplicationController answer = kubernetes.replicationControllers().inNamespace(namespace).withName(replicationControllerName).get();
+        Objects.requireNonNull(answer, "No ReplicationController found for namespace: " + namespace + " name: " + replicationControllerName);
+        return answer;
+    }
+
+    protected Service requireService(String serviceName) {
+        Service answer = kubernetes.services().withName(serviceName).get();
+        Objects.requireNonNull(answer, "No Service found for name: " + serviceName);
+        return answer;
+    }
+
+    protected Service requireService(String serviceName, String namespace) {
+        Service answer = kubernetes.services().inNamespace(namespace).withName(serviceName).get();
+        Objects.requireNonNull(answer, "No Service found for namespace: " + namespace + " name: " + serviceName);
+        return answer;
     }
 }
