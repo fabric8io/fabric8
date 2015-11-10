@@ -113,11 +113,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     public Result execute(UIExecutionContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        if (!last) {
-            // TODO: carry over options to the next page (yikes we need to store this state ourselves)
-        }
-
-        // only if last
+        // only execute if we are last
         if (last) {
             String kind = mandatoryAttributeValue(attributeMap, "kind");
             if ("xml".equals(kind)) {
@@ -347,7 +343,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         // collect all the options that was set
         Map<String, String> options = new HashMap<String, String>();
-        for (InputComponent input : inputs) {
+        for (InputComponent input : allInputs) {
             String key = input.getName();
             // only use the value if a value was set (and the value is not the same as the default value)
             if (input.hasValue()) {
