@@ -15,12 +15,15 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.XmlFileCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
@@ -30,6 +33,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.input.InputComponent;
+import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
@@ -39,9 +44,12 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.createUIInputsForCamelComponent;
 
 public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
@@ -60,6 +68,9 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     @Inject
     @WithAttributes(label = "XML File", required = true, description = "The XML file to use (either Spring or Blueprint)")
     private UISelectOne<String> xml;
+
+    @Inject
+    private InputComponentFactory componentFactory;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -120,12 +131,49 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+
+        NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
+        if (navigationResult != null) {
+            return navigationResult;
+        }
+
         attributeMap.put("componentName", componentName.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("xml", xml.getValue());
         attributeMap.put("mode", "add");
         attributeMap.put("kind", "xml");
-        return Results.navigateTo(ConfigureEndpointPropertiesStep.class);
+
+        // we need to figure out how many options there is so we can as many steps we need
+        String camelComponentName = componentName.getValue();
+
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(camelComponentName);
+        if (json == null) {
+            throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
+        }
+
+        // TODO: sort the options by label, so we can group per label of 10.
+
+        // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
+        List<InputComponent> allInputs = createUIInputsForCamelComponent(camelComponentName, null, componentFactory, converterFactory);
+        int size = allInputs.size();
+
+        NavigationResultBuilder builder = Results.navigationBuilder();
+        int pages = size / 10 + 1;
+        for (int i = 0; i < pages; i++) {
+            int from = i * 10;
+            int delta = Math.min(10, size - from);
+            int to = from + delta;
+            boolean last = i == pages -1;
+            List<InputComponent> inputs = allInputs.subList(from, to);
+            ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
+                    allInputs, inputs, last);
+            builder.add(step);
+        }
+
+        navigationResult = builder.build();
+        attributeMap.put("navigationResult", navigationResult);
+        return navigationResult;
     }
 
     @Override
