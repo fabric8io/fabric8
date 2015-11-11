@@ -16,6 +16,7 @@
 
 package io.fabric8.cdi;
 
+import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -62,7 +63,7 @@ public class Utils {
             for (Annotation annotation : annotations) {
                 if (annotation.annotationType().equals(ServiceName.class)) {
                     hasServiceName = true;
-                } else if (annotation.annotationType().equals(ServicePort.class)) {
+                } else if (annotation.annotationType().equals(PortName.class)) {
                     port = readAnnotationValue(annotation.toString());
                 }
 
