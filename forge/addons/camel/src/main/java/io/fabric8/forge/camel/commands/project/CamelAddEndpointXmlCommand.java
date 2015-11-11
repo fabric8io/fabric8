@@ -52,6 +52,8 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper
 
 public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand implements UIWizard {
 
+    private static final int MAX_OPTIONS = 15;
+
     @Inject
     @WithAttributes(label = "Filter", required = false, description = "To filter components")
     private UISelectOne<String> componentNameFilter;
@@ -155,18 +157,18 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
-        // TODO: sort the options by label, so we can group per label of 10.
+        // TODO: sort the options by label, so we can group per label of MAX_OPTIONS.
 
         // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
         List<InputComponent> allInputs = createUIInputsForCamelComponent(camelComponentName, null, componentFactory, converterFactory);
         int size = allInputs.size();
 
         NavigationResultBuilder builder = Results.navigationBuilder();
-        // calculate the number of page we need when there is at most 10 options per page
-        int pages = size % 10 == 0 ? size / 10 : size / 10 + 1;
+        // calculate the number of page we need when there is at most MAX_OPTIONS options per page
+        int pages = size % MAX_OPTIONS == 0 ? size / MAX_OPTIONS : size / MAX_OPTIONS + 1;
         for (int i = 0; i < pages; i++) {
-            int from = i * 10;
-            int delta = Math.min(10, size - from);
+            int from = i * MAX_OPTIONS;
+            int delta = Math.min(MAX_OPTIONS, size - from);
             int to = from + delta;
             boolean last = i == pages -1;
             List<InputComponent> inputs = allInputs.subList(from, to);
