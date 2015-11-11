@@ -95,6 +95,9 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
+        attributeMap.remove("navigationResult");
+
         Project project = getSelectedProject(builder.getUIContext());
         final ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
         WebResourcesFacet webResourcesFacet = null;
@@ -128,9 +131,13 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
-        if (navigationResult != null) {
-            return navigationResult;
+        // must be same component name to allow reusing existing navigation reuslt
+        String previous = (String) attributeMap.get("componentName");
+        if (previous != null && previous.equals(componentName.getValue())) {
+            NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
+            if (navigationResult != null) {
+                return navigationResult;
+            }
         }
 
         attributeMap.put("componentName", componentName.getValue());
@@ -168,7 +175,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             builder.add(step);
         }
 
-        navigationResult = builder.build();
+        NavigationResult navigationResult = builder.build();
         attributeMap.put("navigationResult", navigationResult);
         return navigationResult;
     }

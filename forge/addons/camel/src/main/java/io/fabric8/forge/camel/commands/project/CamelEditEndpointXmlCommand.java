@@ -82,6 +82,9 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
+        attributeMap.remove("navigationResult");
+
         Project project = getSelectedProject(builder.getUIContext());
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
         WebResourcesFacet webResourcesFacet = null;
