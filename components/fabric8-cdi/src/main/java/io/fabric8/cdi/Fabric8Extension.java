@@ -1,17 +1,17 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Copyright 2005-2015 Red Hat, Inc.
+ * <p/>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.cdi;
 
@@ -56,6 +56,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.fabric8.cdi.Utils.getFactoryMethodPort;
+import static io.fabric8.cdi.Utils.getFactoryMethodProtocol;
+import static io.fabric8.cdi.Utils.or;
+
 public class Fabric8Extension implements Extension {
 
     private static final String INJECTION_POINT_UNKNOWN_TYPE = "Failed to process injection point on bean %s with type: %s. Don't know how to handle type.";
@@ -79,14 +83,15 @@ public class Fabric8Extension implements Extension {
                 @Override
                 public ServiceBean apply(ServiceBean bean) {
                     String serviceId = bean.getServiceName();
-                    String serviceProtocol = bean.getServiceProtocol();
-                    String servicePort = bean.getServicePort();
+                    String serviceProtocol = or(bean.getServiceProtocol(), getFactoryMethodProtocol(factoryMethodContext.getFactoryMethod().getJavaMember()), "tcp");
+                    String servicePort = or(bean.getServicePort(), getFactoryMethodPort(factoryMethodContext.getFactoryMethod().getJavaMember()));
                     Boolean serviceExternal = bean.getServiceExternal();
 
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
                         ServiceBean.getBean(serviceId, serviceProtocol, null, servicePort, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
                     }
+
                     return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, servicePort, serviceExternal));
                 }
             });
@@ -99,7 +104,7 @@ public class Fabric8Extension implements Extension {
         for (ServiceUrlCollectionBean bean : ServiceUrlCollectionBean.getBeans()) {
             event.addBean(bean);
         }
-        
+
         for (ServiceBean bean : ServiceBean.getBeans()) {
             if (bean.getProducer() != null) {
                 event.addBean(bean);
@@ -111,8 +116,8 @@ public class Fabric8Extension implements Extension {
     }
 
     public <R> void processAnnotatedType(@Observes ProcessAnnotatedType<R> pat,
-                              BeanManager beanManager) {
-     AnnotatedType type = pat.getAnnotatedType();
+                                         BeanManager beanManager) {
+        AnnotatedType type = pat.getAnnotatedType();
     }
 
 
@@ -125,18 +130,18 @@ public class Fabric8Extension implements Extension {
             PortName port = annotated.getAnnotation(PortName.class);
             Protocol protocol = annotated.getAnnotation(Protocol.class);
             External external = annotated.getAnnotation(External.class);
-            
+
             Boolean serviceEndpoint = annotated.getAnnotation(Endpoint.class) != null;
 
             String serviceName = name.value();
-            String serviceProtocol = protocol != null ? protocol.value() : "tcp";
+            String serviceProtocol = protocol != null ? protocol.value() : "";
             String serviceAlias = alias != null ? alias.value() : null;
             String servicePort = port != null ? port.value() : null;
             Boolean serviceExternal = external != null && external.value();
-            
+
             Type type = annotated.getBaseType();
-            if (type instanceof ParameterizedType && Instance.class.equals(((ParameterizedType)type).getRawType())) {
-                type =  ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (type instanceof ParameterizedType && Instance.class.equals(((ParameterizedType) type).getRawType())) {
+                type = ((ParameterizedType) type).getActualTypeArguments()[0];
             }
 
             if (type.equals(String.class)) {
@@ -208,15 +213,15 @@ public class Fabric8Extension implements Extension {
         }
         return false;
     }
-    
-    
+
+
     private <T, X> void setDefaultProtocol(ProcessInjectionPoint<T, X> event) {
         //if protocol is not specified decorate injection point with "default" protocol.
         event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
             @Override
             public Set<Annotation> getQualifiers() {
                 Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
-                qualifiers.add(new ProtocolQualifier("tcp"));
+                qualifiers.add(new ProtocolQualifier(""));
                 return Collections.unmodifiableSet(qualifiers);
             }
         });
@@ -259,7 +264,7 @@ public class Fabric8Extension implements Extension {
             return false;
         }
     }
-    
+
 
     /**
      * Checks if the InjectionPoint is annotated with the @Service qualifier.
@@ -276,4 +281,5 @@ public class Fabric8Extension implements Extension {
         }
         return false;
     }
+
 }

@@ -27,6 +27,7 @@ import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenShiftMockClient;
+import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 
 import javax.enterprise.inject.Alternative;
@@ -188,6 +189,7 @@ public class ClientProducer {
         OpenShiftMockClient mock = new OpenShiftMockClient();
 
         mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
+        mock.routes().inNamespace("default").withName(EasyMock.<String>anyObject()).get().andReturn(null).anyTimes();
 
         return mock.replay();
     }

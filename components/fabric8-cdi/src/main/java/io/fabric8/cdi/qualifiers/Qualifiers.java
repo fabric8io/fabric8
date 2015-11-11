@@ -36,7 +36,10 @@ public final class Qualifiers {
         qualifiers.add(new ServiceNameQualifier(serviceId));
         if (!Strings.isNullOrBlank(protocol)) {
             qualifiers.add(new ProtocolQualifier(protocol));
+        } else {
+            qualifiers.add(new ProtocolQualifier(""));
         }
+
         if (!Strings.isNullOrBlank(port)) {
             qualifiers.add(new PortQualifier(port));
         } else {
