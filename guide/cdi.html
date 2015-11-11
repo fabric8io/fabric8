@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.4" data-chapter-title="CDI" data-filepath="cdi.md" data-basepath="." data-revision="Wed Nov 11 2015 16:30:01 GMT+0000 (UTC)">
+    <div class="book" data-level="6.4" data-chapter-title="CDI" data-filepath="cdi.md" data-basepath="." data-revision="Wed Nov 11 2015 16:40:22 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1206,6 +1206,19 @@ private String service.
     @PortName(&quot;my-port&quot;)
     private String service.
 </code></pre><p>If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.</p>
+<h3 id="the-endpoint-annotation"><a name="the-endpoint-annotation" class="plugin-anchor" href="#the-endpoint-annotation"><span class="fa fa-link"></span></a>The @Endpoint annotation</h3>
+<p>There are cases, where we don&apos;t want to access the Service IP but we want to access and endpoint to the service.
+A very good example are headless service, which doesn&apos;t have a Service IP. You can instruct the framework to use endpoints instead of the Service with the @Endpoint annotation.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;headless-service&quot;)
+    @Endpoint
+    private String service.
+</code></pre><p>If more than one endpoints are available for the service, the first found will be the one injected. But you can access them all by using a List or a Set.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;headless-service&quot;)
+    @Endpoint
+    private List&lt;String&gt; services.
+</code></pre><p>In case of Set or List injection the @Endpoint annotation can also be assumed.        </p>
 <h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
 <p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
 <p>If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
@@ -1226,7 +1239,10 @@ One could find and replace the transport protocol with the actual application pr
     @ServiceName(&quot;my-ftp-service&quot;)
     @Protocol(&quot;ftp&quot;)
     private String service.
-</code></pre><h3 id="using-factories"><a name="using-factories" class="plugin-anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
+</code></pre><h3 id="integration-with-openshift-routes"><a name="integration-with-openshift-routes" class="plugin-anchor" href="#integration-with-openshift-routes"><span class="fa fa-link"></span></a>Integration with OpenShift routes</h3>
+<p>In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
+Currently route will be used only if @Protocol or @PortName haven&apos;t been explicitly specified and only if OpenShift is available.</p>
+<h3 id="using-factories"><a name="using-factories" class="plugin-anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
 <p>The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
 To simplify the code Fabric8 provides the @Factory annotation.</p>
 <pre><code>   @Factory
@@ -1304,6 +1320,17 @@ The configuration of MyClient can be encapsulated like this:</p>
     @ServiceName(&quot;SERVICE_2&quot;)
     private MyClient cl2;        
 </code></pre><p>In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.</p>
+<p>Factories can also make use of the @Protocol and @PortName annotations to set default values for protocol and port name.</p>
+<pre><code>public class MyDataSourceFactory {
+    @Factory
+    @ServiceName
+    DataSource create(@ServiceName @Protocol(&quot;jdbc:mysql&quot;) @PortName(&quot;mysqld-port&quot;) String url, @Configuration MyConfig cfg) {
+        DataSource ds = null;
+        ...
+        return ds;  
+    }
+}
+</code></pre><p>If @Protocol or @PortName are present on the actual injection point to, they will take precedence over what&apos;s found here.    </p>
 <h4 id="injection-of-optional-services"><a name="injection-of-optional-services" class="plugin-anchor" href="#injection-of-optional-services"><span class="fa fa-link"></span></a>Injection of Optional Services</h4>
 <p>A common approach for treating with Optional services in CDI is to use Instance injection. For example:</p>
 <pre><code>@Inject
