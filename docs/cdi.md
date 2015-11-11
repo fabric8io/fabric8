@@ -32,6 +32,23 @@ In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier 
 
 If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.
 
+### The @Endpoint annotation
+There are cases, where we don't want to access the Service IP but we want to access and endpoint to the service.
+A very good example are headless service, which doesn't have a Service IP. You can instruct the framework to use endpoints instead of the Service with the @Endpoint annotation.
+
+        @Inject
+        @ServiceName("headless-service")
+        @Endpoint
+        private String service.
+
+If more than one endpoints are available for the service, the first found will be the one injected. But you can access them all by using a List or a Set.
+
+        @Inject
+        @ServiceName("headless-service")
+        @Endpoint
+        private List<String> services.
+        
+In case of Set or List injection the @Endpoint annotation can also be assumed.        
 
 ### Running inside and outside of Kubernetes
 
@@ -60,6 +77,10 @@ The CDI extension supports the @Protocol annotation which allows the user to spe
         @ServiceName("my-ftp-service")
         @Protocol("ftp")
         private String service.
+
+### Integration with OpenShift routes
+In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
+Currently route will be used only if @Protocol or @PortName haven't been explicitly specified and only if OpenShift is available.
 
 ### Using Factories
 The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
@@ -162,6 +183,20 @@ The you can directly inject the client:
         private MyClient cl2;        
         
 In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.
+
+Factories can also make use of the @Protocol and @PortName annotations to set default values for protocol and port name.
+
+    public class MyDataSourceFactory {
+        @Factory
+        @ServiceName
+        DataSource create(@ServiceName @Protocol("jdbc:mysql") @PortName("mysqld-port") String url, @Configuration MyConfig cfg) {
+            DataSource ds = null;
+            ...
+            return ds;  
+        }
+    }
+    
+If @Protocol or @PortName are present on the actual injection point to, they will take precedence over what's found here.    
 
 #### Injection of Optional Services
 
