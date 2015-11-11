@@ -157,7 +157,7 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
             int from = i * MAX_OPTIONS;
             int delta = Math.min(MAX_OPTIONS, size - from);
             int to = from + delta;
-            boolean last = i == pages -1;
+            boolean last = i == pages - 1;
             List<InputComponent> inputs = allInputs.subList(from, to);
             ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
                     camelComponentName, allInputs, inputs, last, i, pages);
