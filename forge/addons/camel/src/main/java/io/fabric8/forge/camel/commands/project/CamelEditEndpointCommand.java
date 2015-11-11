@@ -68,6 +68,9 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
+        attributeMap.remove("navigationResult");
+
         Project project = getSelectedProject(builder.getUIContext());
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
@@ -82,9 +85,13 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
-        if (navigationResult != null) {
-            return navigationResult;
+        // must be same component name to allow reusing existing navigation reuslt
+        String previous = (String) attributeMap.get("endpointUri");
+        if (previous != null && previous.equals(endpoints.getValue())) {
+            NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
+            if (navigationResult != null) {
+                return navigationResult;
+            }
         }
 
         String selectedUri = endpoints.getValue();
@@ -131,7 +138,7 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
             builder.add(step);
         }
 
-        navigationResult = builder.build();
+        NavigationResult navigationResult = builder.build();
         attributeMap.put("navigationResult", navigationResult);
         return navigationResult;
     }
