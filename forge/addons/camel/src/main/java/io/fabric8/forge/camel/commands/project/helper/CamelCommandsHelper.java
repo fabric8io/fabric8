@@ -37,10 +37,8 @@ import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
-import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
-import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
@@ -306,6 +304,10 @@ public final class CamelCommandsHelper {
         }
 
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
+
+        // TODO: Work around until Camel 2.16.1
+        uri = UnsafeUriCharactersEncoder.encode(uri, true);
+
         Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
 
         if (data != null) {

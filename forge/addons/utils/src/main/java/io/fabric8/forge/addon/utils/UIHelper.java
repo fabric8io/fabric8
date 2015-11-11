@@ -39,6 +39,13 @@ public final class UIHelper {
     public static InputComponent createUIInput(InputComponentFactory factory, ConverterFactory converterFactory, String name, Class inputClazz,
                                                String required, String currentValue, String defaultValue, String enums, String description) {
 
+        // is the current value a property placeholder, then we need to use a regular text based UI
+        if (currentValue != null && currentValue.startsWith("{{") && currentValue.endsWith("}}")) {
+            // switch over to plain string
+            inputClazz = String.class;
+            enums = null;
+        }
+
         InputComponent input;
         if (enums != null) {
             UISelectOne ui = factory.createSelectOne(name, inputClazz);
