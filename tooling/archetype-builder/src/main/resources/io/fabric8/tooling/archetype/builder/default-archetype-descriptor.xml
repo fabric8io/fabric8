@@ -99,6 +99,7 @@
       <includes>
         <include>*.md</include>
         <include>*.txt</include>
+        <include>*.json</include>
       </includes>
     </fileSet>
   </fileSets>
