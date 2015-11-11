@@ -1267,11 +1267,9 @@ public final class KubernetesHelper {
 
         if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            RouteList routeList = openShiftClient.routes().inNamespace(actualNamespace).list();
-            for (Route route : routeList.getItems()) {
-                if (route.getSpec().getTo().getName().equals(serviceName)) {
-                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
-                }
+            Route route = openShiftClient.routes().inNamespace(actualNamespace).withName(serviceName).get();
+            if (route != null) {
+                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
             }
         }
         ServicePort port = findServicePortByName(srv, servicePortName);
