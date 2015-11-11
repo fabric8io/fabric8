@@ -66,32 +66,34 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Inject
     private DependencyInstaller dependencyInstaller;
 
+    private final String componentName;
     private final List<InputComponent> allInputs;
     private final List<InputComponent> inputs;
     private final boolean last;
-
-    @Deprecated
-    public ConfigureEndpointPropertiesStep() {
-        this(null, null, null, null, false);
-    }
+    private final int index;
+    private final int total;
 
     public ConfigureEndpointPropertiesStep(ProjectFactory projectFactory,
                                            DependencyInstaller dependencyInstaller,
+                                           String componentName,
                                            List<InputComponent> allInputs,
                                            List<InputComponent> inputs,
-                                           boolean last) {
+                                           boolean last, int index, int total) {
         this.projectFactory = projectFactory;
         this.dependencyInstaller = dependencyInstaller;
+        this.componentName = componentName;
         this.allInputs = allInputs;
         this.inputs = inputs;
         this.last = last;
+        this.index = index;
+        this.total = total;
     }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConfigureEndpointPropertiesStep.class).name(
                 "Camel: Endpoint options").category(Categories.create(CATEGORY))
-                .description("Configure the endpoint options to use");
+                .description(String.format("Configure the %s endpoint options to use (%s of %s)", componentName, index, total));
     }
 
     @Override

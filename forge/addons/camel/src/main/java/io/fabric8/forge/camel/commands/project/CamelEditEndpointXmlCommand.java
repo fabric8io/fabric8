@@ -144,7 +144,7 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
             boolean last = i == pages -1;
             List<InputComponent> inputs = allInputs.subList(from, to);
             ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
-                    allInputs, inputs, last);
+                    camelComponentName, allInputs, inputs, last, i, pages);
             builder.add(step);
         }
 
