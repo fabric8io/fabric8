@@ -44,6 +44,10 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     private static final String INVOCATION_ERROR_FORMAT = "Failed to invoke @Factory annotated method: %s on bean: %s with arguments: %s";
     private static final String PARAMETER_ERROR_FORMAT = "Failed to process @Factory annotated method: %s on bean: %s. Error processing parameter at position: %d. Check method signature for superfluous arguments or missing annotations.";
 
+    private static final String SERVICE_LOOKUP_ERROR_FORMAT = "Failed to process @Factory annotated method: %s on bean: %s. Failed to lookup service %s. ";
+    private static final String BEAN_LOOKUP_ERROR_FORMAT = "Failed to process @Factory annotated method: %s on bean: %s. Failed to lookup bean of type: %s for service: %s. ";
+    private static final String CONF_LOOKUP_ERROR_FORMAT = "Failed to process @Factory annotated method: %s on bean: %s. Failed to lookup configuration for service: %s. ";
+
     private final Bean<T> bean;
     private final AnnotatedMethod<X> factoryMethod;
     private final String serviceId;
@@ -69,7 +73,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
         List<Object> arguments = new ArrayList<>();
 
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
-            try {
+
                 Type type = parameter.getBaseType();
                 ServiceName serviceName = parameter.getAnnotation(ServiceName.class);
                 Protocol protocol = parameter.getAnnotation(Protocol.class);
@@ -78,24 +82,47 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 String actualProtocol = (protocol != null && Strings.isNotBlank(protocol.value())) ? protocol.value() : serviceProtocol;
 
                 if (serviceName != null && String.class.equals(type)) {
-                    String serviceUrl = getServiceUrl(serviceId, actualProtocol, servicePort, ctx);
-                    arguments.add(serviceUrl);
+                    try {
+                        String serviceUrl = getServiceUrl(serviceId, actualProtocol, servicePort, ctx);
+                        arguments.add(serviceUrl);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                serviceId));
+                    }
                 } else if (serviceName != null && !String.class.equals(type)) {
-                    Object serviceBean = getServiceBean(serviceId, actualProtocol, servicePort, (Class<Object>) type, ctx);
-                    arguments.add(serviceBean);
+                    try {
+                        Object serviceBean = getServiceBean(serviceId, actualProtocol, servicePort, (Class<Object>) type, ctx);
+                        arguments.add(serviceBean);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(BEAN_LOOKUP_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                type,
+                                serviceId));
+                    }
                 } else if (configuration != null) {
-                    Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
-                    arguments.add(config);
+                    try {
+                        Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
+                        arguments.add(config);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(CONF_LOOKUP_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                serviceId));
+                    }
                 } else {
-                    Object other = BeanProvider.getContextualReferences((Class) type, true);
-                    arguments.add(other);
+                    try {
+                        Object other = BeanProvider.getContextualReferences((Class) type, true);
+                        arguments.add(other);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                parameter.getPosition()));
+                    }
                 }
-            } catch (Throwable t) {
-                throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
-                        factoryMethod.getJavaMember().getName(),
-                        factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                        parameter.getPosition()));
-            }
         }
 
         try {
