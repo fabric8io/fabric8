@@ -85,7 +85,8 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         this.allInputs = allInputs;
         this.inputs = inputs;
         this.last = last;
-        this.index = index;
+        // we want to 1-based
+        this.index = index + 1;
         this.total = total;
     }
 
