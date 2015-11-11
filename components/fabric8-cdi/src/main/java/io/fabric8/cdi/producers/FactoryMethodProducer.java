@@ -89,7 +89,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                         throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                                serviceId));
+                                serviceId), t);
                     }
                 } else if (serviceName != null && !String.class.equals(type)) {
                     try {
@@ -100,7 +100,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
                                 type,
-                                serviceId));
+                                serviceId), t);
                     }
                 } else if (configuration != null) {
                     try {
@@ -110,7 +110,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                         throw new RuntimeException(String.format(CONF_LOOKUP_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                                serviceId));
+                                serviceId), t);
                     }
                 } else {
                     try {
@@ -120,7 +120,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                         throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                                parameter.getPosition()));
+                                parameter.getPosition()), t);
                     }
                 }
         }
