@@ -136,7 +136,8 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         int size = allInputs.size();
 
         NavigationResultBuilder builder = Results.navigationBuilder();
-        int pages = size / 10 + 1;
+        // calculate the number of page we need when there is at most 10 options per page
+        int pages = size % 10 == 0 ? size / 10 : size / 10 + 1;
         for (int i = 0; i < pages; i++) {
             int from = i * 10;
             int delta = Math.min(10, size - from);
