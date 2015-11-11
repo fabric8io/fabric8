@@ -15,12 +15,12 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.connector.DevOpsConnector;
+//import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.letschat.LetsChatKubernetes;
+//import io.fabric8.letschat.LetsChatKubernetes;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
+//import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import java.io.File;
  * and an optional `fabric8.yml` file in the project to update the DevOps resources
  * like chat room, issue tracker, jenkins builds and Kubernetes/OpenShift resources.
  */
-@Mojo(name = "devops", requiresProject = false)
+//@Mojo(name = "devops", requiresProject = false)
 public class DevOpsMojo extends AbstractNamespacedMojo {
 
     /**
@@ -185,7 +185,9 @@ public class DevOpsMojo extends AbstractNamespacedMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         KubernetesClient kubernetes = getKubernetes();
-        DevOpsConnector connector = new DevOpsConnector();
+       /* THIS MOJO IS EXCLUDED FROM THE RELEASE. COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+
+       DevOpsConnector connector = new DevOpsConnector();
 
         connector.setKubernetes(kubernetes);
         connector.setUsername(username);
@@ -222,7 +224,7 @@ public class DevOpsMojo extends AbstractNamespacedMojo {
         } catch (Exception e) {
             getLog().error("Failed to update DevOps resources: " + e, e);
             throw new MojoExecutionException("Failed to update DevOps resources: " + e, e);
-        }
+        }*/
     }
 
 

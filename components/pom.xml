@@ -48,11 +48,11 @@
 
     <!-- apis -->
     <module>kubernetes-api</module>
-    <module>gerrit-api</module>
-    <module>gitrepo-api</module>
-    <module>hubot-api</module>
-    <module>letschat-api</module>
-    <module>taiga-api</module>
+    <!--<module>gerrit-api</module>-->
+    <!--<module>gitrepo-api</module>-->
+    <!--<module>hubot-api</module>-->
+    <!--<module>letschat-api</module>-->
+    <!--<module>taiga-api</module>-->
 
     <!-- fabric8 -->
     <!--<module>fabric8-agent</module>-->
@@ -61,8 +61,8 @@
     <module>fabric8-cxf</module>
     <module>fabric8-cxf-plugins</module>
     <!--<module>fabric8-cxf-registry</module>--> <!-- TODO: does not work yet -->
-    <module>fabric8-devops</module>
-    <module>fabric8-devops-connector</module>
+    <!--<module>fabric8-devops</module>-->
+    <!--<module>fabric8-devops-connector</module>-->
     <!--<module>fabric8-jgroups</module>-->
     <!--<module>fabric8-selenium</module>-->
     <!--<module>fabric8-spring-boot</module>-->

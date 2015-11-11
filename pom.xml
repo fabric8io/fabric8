@@ -1324,7 +1324,7 @@
         <module>fabric8-maven-plugin</module>
         <module>hawt-app-maven-plugin</module>
         <module>tooling</module>
-        <module>forge</module>
+        <!--module>forge</module-->
     </modules>
 
     <build>

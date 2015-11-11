@@ -15,11 +15,11 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectRepositories;
-import io.fabric8.devops.ProjectRepository;
-import io.fabric8.devops.connector.DevOpsConnector;
-import io.fabric8.devops.connector.DevOpsConnectors;
+//import io.fabric8.devops.ProjectConfig;
+//import io.fabric8.devops.ProjectRepositories;
+//import io.fabric8.devops.ProjectRepository;
+//import io.fabric8.devops.connector.DevOpsConnector;
+//import io.fabric8.devops.connector.DevOpsConnectors;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,7 +47,10 @@ public class ApplyProjectsMojo extends AbstractNamespacedMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         KubernetesClient kubernetes = getKubernetes();
 
-        List<ProjectRepository> projects;
+       /*
+
+       THIS MOJO IS EXCLUDED FROM THE RELEASE. COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+       List<ProjectRepository> projects;
         try {
             projects = ProjectRepositories.loadProjectRepositories(projectsFile);
         } catch (IOException e) {
@@ -72,6 +75,6 @@ public class ApplyProjectsMojo extends AbstractNamespacedMojo {
                 getLog().error("Failed to update DevOps resources: " + e, e);
                 throw new MojoExecutionException("Failed to update DevOps resources: " + e, e);
             }
-        }
+        }*/
     }
 }

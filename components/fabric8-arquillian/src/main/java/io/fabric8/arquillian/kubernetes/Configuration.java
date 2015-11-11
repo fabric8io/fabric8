@@ -15,8 +15,8 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
+//import io.fabric8.devops.ProjectConfig;
+//import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.utils.Utils;
@@ -154,7 +154,9 @@ public class Configuration {
      * namespace for the given environment or uses environment variables to resolve the environment name -> physical namespace
      * @return the namespace
      */
-    private static String findNamespaceForEnvironment(String environment, Map<String, String> map) {
+/*
+   COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+ private static String findNamespaceForEnvironment(String environment, Map<String, String> map) {
         String namespace = null;
         if (!Strings.isNullOrBlank(environment)) {
             String basedir = System.getProperty("basedir", ".");
@@ -176,7 +178,7 @@ public class Configuration {
             }
         }
         return namespace;
-    }
+    }*/
 
     public String getEnvironment() {
         return environment;
@@ -209,9 +211,11 @@ public class Configuration {
 
             configuration.namespaceLazyCreateEnabled = getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED);
 
-            String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
-            String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map);
-            configuration.namespaceToUse = selectNamespace(environmentNamespace, existingNamespace);
+            //
+            // String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+            //String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map);
+            //configuration.namespaceToUse = selectNamespace(environmentNamespace, existingNamespace);
+            configuration.namespaceToUse = getStringProperty(NAMESPACE_TO_USE, map, null);
 
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.namespaceToUse));

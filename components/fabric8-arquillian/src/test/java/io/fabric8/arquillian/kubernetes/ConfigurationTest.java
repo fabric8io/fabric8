@@ -19,6 +19,7 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.kubernetes.client.Config;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -259,6 +260,7 @@ public class ConfigurationTest {
     }
 
 
+    @Ignore("functionality not included in the release")
     @Test(expected = IllegalStateException.class)
     public void testNamespaceConflict() {
         Map<String, String> map = new HashMap<>();
@@ -268,6 +270,7 @@ public class ConfigurationTest {
         Configuration.fromMap(map);
     }
 
+    @Ignore("functionality not included in the release")
     @Test(expected = IllegalStateException.class)
     public void testMissingEnvironmentNamespace() {
         Map<String, String> map = new HashMap<>();

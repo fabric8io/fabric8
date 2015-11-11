@@ -16,8 +16,8 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
+//import io.fabric8.devops.ProjectConfig;
+//import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -74,7 +74,8 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     protected synchronized String getNamespace() {
         if (Strings.isNullOrBlank(namespace)) {
             if (Strings.isNotBlank(environment)) {
-                namespace = getNamespaceForEnvironment(environment);
+               // COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+               // namespace = getNamespaceForEnvironment(environment);
             }
         }
         if (Strings.isNullOrBlank(namespace)) {
@@ -87,6 +88,9 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
      * Lets look in the fabric8.yml file if it exists and find the environment name from it
      * otherwise lets look for environment variables or return null
      */
+/*
+COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+
     protected String getNamespaceForEnvironment(String environment) throws IllegalStateException {
         String namespace = null;
         ProjectConfig projectConfig = findProjectConfig();
@@ -109,12 +113,14 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
             getLog().info("Mapping environment `" + environment + "` to namespace `" + namespace + "`");
         }
         return namespace;
-    }
+    }*/
 
     /**
      * Returns the configuration of the project in the <code>fabric8.yml</code> file in the root project or current directory
      * or returns an empty configuraiton
      */
+/*
+    COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
     protected ProjectConfig findProjectConfig() {
         MavenProject rootProject = getRootProject();
         File basedir = null;
@@ -131,7 +137,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
             basedir = new File(System.getProperty("basedir", "."));
         }
         return ProjectConfigs.loadFromFolder(basedir);
-    }
+    }*/
 
     public String getRouteDomain() {
         return routeDomain;

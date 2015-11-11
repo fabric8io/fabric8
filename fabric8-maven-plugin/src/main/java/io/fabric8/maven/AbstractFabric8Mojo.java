@@ -43,9 +43,9 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
-import io.fabric8.devops.ProjectRepositories;
+//import io.fabric8.devops.ProjectConfig;
+//import io.fabric8.devops.ProjectConfigs;
+//import io.fabric8.devops.ProjectRepositories;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -416,6 +416,9 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
      * @return the value of the environment variable name if it can be found or calculated
      */
     protected String tryDefaultAnnotationEnvVar(String envVarName) {
+/*
+        COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+
         // only do this if enabled
         if (extendedMetadata != null && !extendedMetadata) {
             return null;
@@ -528,6 +531,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             } else {
                 warnIfInCDBuild("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
             }
+*/
 /*
             TODO this is the git clone url; while we could try convert from it to a browse URL its probably too flaky?
 
@@ -540,7 +544,8 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 // for gogs / github style repos we trim the .git suffix for browsing
                 return Strings.stripSuffix(url, ".git");
             }
-*/
+*//*
+
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
             return getGitCommitId(envVarName, basedir);
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
@@ -557,6 +562,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
         }
+*/
         return null;
     }
 
