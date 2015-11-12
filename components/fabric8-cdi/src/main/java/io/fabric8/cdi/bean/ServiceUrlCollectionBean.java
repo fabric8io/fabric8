@@ -18,6 +18,7 @@ package io.fabric8.cdi.bean;
 
 import io.fabric8.cdi.producers.ServiceEndpointsProducer;
 import io.fabric8.cdi.qualifiers.Qualifiers;
+import io.fabric8.utils.Objects;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -31,25 +32,29 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
     private static final String ENDPOINT_SUFFIX = "-endpoint-urls";
     private static final Map<Key, ServiceUrlCollectionBean> BEANS = new HashMap<>();
 
-    public static ServiceUrlCollectionBean getBean(String name, String protocol, String port, String alias, Boolean endpoint, Type collectionType) {
+    public static ServiceUrlCollectionBean getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external, Type collectionType) {
         String serviceAlias = alias != null ? alias : name + "-" + protocol + (endpoint ? ENDPOINT_SUFFIX : SUFFIX);
-        Key key = new Key(name, protocol, port, serviceAlias, endpoint, collectionType);
+        Key key = new Key(name, protocol, port, serviceAlias, endpoint, external, collectionType);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceUrlCollectionBean bean = new ServiceUrlCollectionBean(name, protocol, port, serviceAlias, endpoint, collectionType);
+        ServiceUrlCollectionBean bean = new ServiceUrlCollectionBean(name, protocol, port, serviceAlias, endpoint, external, collectionType);
         BEANS.put(key, bean);
         return bean;
     }
 
-    public static ServiceUrlCollectionBean anyBean(String id, String protocol, String port, Boolean endpoint, Type collectionType) {
+    public static ServiceUrlCollectionBean anyBean(String id, String protocol, String port, Boolean endpoint, Boolean external, Type collectionType) {
         for (Map.Entry<Key, ServiceUrlCollectionBean> entry : BEANS.entrySet()) {
            Key key = entry.getKey();
-           if (key.serviceId.equals(id) && key.serviceProtocol.equals(protocol)) {
+            if (Objects.equal(key.serviceId, id)
+                    && Objects.equal(key.serviceProtocol, protocol)
+                    && Objects.equal(key.servicePort, port)
+                    && Objects.equal(key.serviceEndpoint, endpoint)
+                    && Objects.equal(key.serviceExternal, external)) {
                return entry.getValue();
            }
         }
-        return getBean(id, protocol, port, null, endpoint, collectionType);
+        return getBean(id, protocol, port, null, endpoint, external, collectionType);
     }
 
     public static Collection<ServiceUrlCollectionBean> getBeans() {
@@ -61,15 +66,17 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
     private final String servicePort;
     private final String serviceAlias;
     private final Boolean serviceEndpoint;
+    private final Boolean serviceExternal;
     private final Type serviceCollectionType;
 
-    private ServiceUrlCollectionBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Type serviceCollectionType) {
+    private ServiceUrlCollectionBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal, Type serviceCollectionType) {
         super(serviceAlias, serviceCollectionType, new ServiceEndpointsProducer(serviceName, serviceProtocol, servicePort), Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, false));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.servicePort = servicePort;
         this.serviceAlias = serviceAlias;
         this.serviceEndpoint = serviceEndpoint;
+        this.serviceExternal = serviceExternal;
         this.serviceCollectionType = serviceCollectionType;
     }
 
@@ -112,14 +119,16 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
         private final String servicePort;
         private final String serviceAlias;
         private final Boolean serviceEndpoint;
+        private final Boolean serviceExternal;
         private final Type serviceCollectionType;
 
-        private Key(String serviceId, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Type serviceCollectionType) {
+        private Key(String serviceId, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal, Type serviceCollectionType) {
             this.serviceId = serviceId;
             this.serviceProtocol = serviceProtocol;
             this.servicePort = servicePort;
             this.serviceAlias = serviceAlias;
             this.serviceEndpoint = serviceEndpoint;
+            this.serviceExternal = serviceExternal;
             this.serviceCollectionType = serviceCollectionType;
         }
 
@@ -135,6 +144,7 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
             if (servicePort != null ? !servicePort.equals(key.servicePort) : key.servicePort != null) return false;
             if (serviceAlias != null ? !serviceAlias.equals(key.serviceProtocol) : key.serviceAlias != null) return false;
             if (serviceEndpoint != null ? !serviceEndpoint.equals(key.serviceEndpoint) : key.serviceEndpoint != null) return false;
+            if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
             if (serviceCollectionType != null ? !serviceCollectionType.equals(key.serviceCollectionType) : key.serviceCollectionType != null) return false;
             return true;
         }
@@ -146,6 +156,7 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
             result = 31 * result + (servicePort != null ? servicePort.hashCode() : 0);
             result = 31 * result + (serviceAlias != null ? serviceAlias.hashCode() : 0);
             result = 31 * result + (serviceEndpoint != null ? serviceEndpoint.hashCode() : 0);
+            result = 31 * result + (serviceExternal != null ? serviceExternal.hashCode() : 0);
             result = 31 * result + (serviceCollectionType != null ? serviceCollectionType.hashCode() : 0);
             return result;
         }

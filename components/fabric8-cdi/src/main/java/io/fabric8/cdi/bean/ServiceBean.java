@@ -17,6 +17,7 @@ package io.fabric8.cdi.bean;
 
 
 import io.fabric8.cdi.qualifiers.Qualifiers;
+import io.fabric8.utils.Objects;
 
 import javax.enterprise.inject.spi.Producer;
 import java.lang.reflect.Type;
@@ -33,31 +34,34 @@ public class ServiceBean<X> extends ProducerBean<X> {
     private final String serviceProtocol;
     private final String servicePort;
     private final String serviceAlias;
+    private final Boolean serviceEndpoint;
     private final Boolean serviceExternal;
     
-    public static <S> ServiceBean<S> getBean(String name, String protocol, String port, String alias, Boolean external, Class<S> type) {
+    public static <S> ServiceBean<S> getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external, Class<S> type) {
         String serviceAlias = alias != null ? alias :
                 (external ? "external-" : "") + name + "-" + type.getName() + "-" + protocol + SUFFIX;
-        Key key = new Key(name, protocol, port, serviceAlias, external, type, null);
+        Key key = new Key(name, protocol, port, serviceAlias, endpoint, external, type, null);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceBean bean = new ServiceBean(name, protocol, port, serviceAlias, type, null, external);
+        ServiceBean bean = new ServiceBean(name, protocol, port, serviceAlias, type, null, endpoint, external);
         BEANS.put(key, bean);
         return bean;
     }
 
-    public static <S> ServiceBean<S> anyBean(String id, String protocol, String port, Boolean external, Class<S> type) {
+    public static <S> ServiceBean<S> anyBean(String id, String protocol, String port, Boolean endpoint, Boolean external, Class<S> type) {
         for (Map.Entry<Key, ServiceBean> entry : BEANS.entrySet()) {
             Key key = entry.getKey();
-            if (key.serviceName.equals(id)
-                    && key.serviceProtocol.equals(protocol)
-                    && key.servicePort.equals(port)
-                    && key.type.equals(type)) {
+            if (Objects.equal(key.serviceName, id)
+                    && Objects.equal(key.serviceProtocol, protocol)
+                    && Objects.equal(key.servicePort, port)
+                    && Objects.equal(key.serviceEndpoint, endpoint)
+                    && Objects.equal(key.serviceExternal, external)
+                    && Objects.equal(key.type, type)) {
                 return entry.getValue();
             }
         }
-        return getBean(id, protocol, port, null, external, type);
+        return getBean(id, protocol, port, null, endpoint, external, type);
     }
     
     
@@ -70,23 +74,24 @@ public class ServiceBean<X> extends ProducerBean<X> {
             Key key = entry.getKey();
             if (type.equals(key.type)) {
                 ServiceBean newBean = callback.apply(BEANS.remove(key));
-                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServiceAlias(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
+                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServiceAlias(), newBean.getServiceEndpoint(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
                 BEANS.put(newKey, newBean);
             }
         }
     }
     
-    private ServiceBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Class type, Producer<X> producer, Boolean serviceExternal) {
+    private ServiceBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Class type, Producer<X> producer, Boolean serviceEndpoint, Boolean serviceExternal) {
         super(serviceAlias, type, producer, Qualifiers.create(serviceName, serviceProtocol, servicePort, false, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.servicePort = servicePort;
         this.serviceAlias = serviceAlias;
+        this.serviceEndpoint = serviceEndpoint;
         this.serviceExternal = serviceExternal;
     }
 
     public ServiceBean withProducer(Producer producer) {
-        return new ServiceBean(serviceName, serviceProtocol, servicePort, serviceAlias, getBeanClass(), producer, serviceExternal);
+        return new ServiceBean(serviceName, serviceProtocol, servicePort, serviceAlias, getBeanClass(), producer, serviceEndpoint, serviceExternal);
     }
 
     public String getServiceName() {
@@ -103,6 +108,10 @@ public class ServiceBean<X> extends ProducerBean<X> {
 
     public String getServicePort() {
         return servicePort;
+    }
+
+    public Boolean getServiceEndpoint() {
+        return serviceEndpoint;
     }
 
     public Boolean getServiceExternal() {
@@ -125,16 +134,18 @@ public class ServiceBean<X> extends ProducerBean<X> {
         private final String serviceProtocol;
         private final String servicePort;
         private final String serviceAlias;
+        private final Boolean serviceEndpoint;
         private final Boolean serviceExternal;
         private final Class type;
         private final Producer producer;
 
 
-        private Key(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceExternal, Class type, Producer producer) {
+        private Key(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal, Class type, Producer producer) {
             this.serviceName = serviceName;
             this.serviceProtocol = serviceProtocol;
             this.serviceAlias = serviceAlias;
             this.servicePort = servicePort;
+            this.serviceEndpoint = serviceEndpoint;
             this.serviceExternal = serviceExternal;
             this.type = type;
             this.producer = producer;
@@ -152,6 +163,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
             if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null) return false;
             if (servicePort != null ? !servicePort.equals(key.servicePort) : key.servicePort != null) return false;
             if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null) return false;
+            if (serviceEndpoint != null ? !serviceEndpoint.equals(key.serviceEndpoint) : key.serviceEndpoint != null) return false;
             if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
             if (type != null ? !type.equals(key.type) : key.type != null) return false;
 

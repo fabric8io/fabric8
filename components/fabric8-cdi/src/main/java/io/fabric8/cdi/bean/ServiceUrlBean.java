@@ -19,6 +19,7 @@ package io.fabric8.cdi.bean;
 import io.fabric8.cdi.producers.FirstEndpointProducer;
 import io.fabric8.cdi.producers.ServiceUrlProducer;
 import io.fabric8.cdi.qualifiers.Qualifiers;
+import io.fabric8.utils.Objects;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +45,11 @@ public class ServiceUrlBean extends ProducerBean<String> {
     public static ServiceUrlBean anyBean(String id, String protocol, String port, Boolean endpoint, Boolean external) {
         for (Map.Entry<Key, ServiceUrlBean> entry : BEANS.entrySet()) {
            Key key = entry.getKey();
-           if (key.serviceName.equals(id) && key.serviceProtocol.equals(protocol)) {
+           if (Objects.equal(key.serviceName, id)
+                   && Objects.equal(key.serviceProtocol, protocol)
+                   && Objects.equal(key.servicePort, port)
+                   && Objects.equal(key.serviceEndpoint, endpoint)
+                   && Objects.equal(key.serviceExternal, external)) {
                return entry.getValue();
            }
         }
