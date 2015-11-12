@@ -77,6 +77,21 @@ The CDI extension supports the @Protocol annotation which allows the user to spe
         @ServiceName("my-ftp-service")
         @Protocol("ftp")
         private String service.
+        
+### The @Path annotation
+In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.
+
+                @Inject
+                @ServiceName("mysqldb")
+                @Protocol("jdbc:mysql")
+                @Path("db1")
+                private String urlForDb1.
+                
+                @Inject
+                @ServiceName("mysqldb")
+                @Protocol("jdbc:mysql")
+                @Path("db2")
+                private String urlForDb2.                        
 
 ### Integration with OpenShift routes
 In any case if a Route is available that match the Service we need to inject, the route host will be used instead.

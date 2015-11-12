@@ -31,20 +31,20 @@ public class ServiceUrlBean extends ProducerBean<String> {
     private static final String SUFFIX = "url";
     private static final Map<Key, ServiceUrlBean> BEANS = new HashMap<>();
 
-    public static ServiceUrlBean getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external) {
+    public static ServiceUrlBean getBean(String name, String protocol, String port, String path, String alias, Boolean endpoint, Boolean external) {
         String serviceAlias = alias != null ? alias :
-                Utils.toAlias(name, protocol, port, endpoint, external, SUFFIX);
+                Utils.toAlias(name, protocol, port, path, endpoint, external, SUFFIX);
 
-        Key key = new Key(name, protocol, port, serviceAlias, endpoint, external);
+        Key key = new Key(name, protocol, port, path, serviceAlias, endpoint, external);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceUrlBean bean = new ServiceUrlBean(name, protocol, port, serviceAlias, endpoint, external);
+        ServiceUrlBean bean = new ServiceUrlBean(name, protocol, port, path, serviceAlias, endpoint, external);
         BEANS.put(key, bean);
         return bean;
     }
 
-    public static ServiceUrlBean anyBean(String id, String protocol, String port, Boolean endpoint, Boolean external) {
+    public static ServiceUrlBean anyBean(String id, String protocol, String port, String path, Boolean endpoint, Boolean external) {
         for (Map.Entry<Key, ServiceUrlBean> entry : BEANS.entrySet()) {
            Key key = entry.getKey();
            if (Objects.equal(key.serviceName, id)
@@ -55,7 +55,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
                return entry.getValue();
            }
         }
-        return getBean(id, protocol, port, null, endpoint, external);
+        return getBean(id, protocol, port, path, null, endpoint, external);
     }
 
     public static Collection<ServiceUrlBean> getBeans() {
@@ -64,17 +64,19 @@ public class ServiceUrlBean extends ProducerBean<String> {
     private final String serviceName;
     private final String serviceProtocol;
     private final String servicePort;
+    private final String servicePath;
     private final String serviceAlias;
     private final Boolean serviceEndpoint;
     private final Boolean serviceExternal;
 
-    private ServiceUrlBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal) {
+    private ServiceUrlBean(String serviceName, String serviceProtocol, String servicePort, String servicePath, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal) {
         super(serviceAlias, String.class,
                 serviceEndpoint ? new FirstEndpointProducer(serviceName, serviceProtocol, servicePort) : new ServiceUrlProducer(serviceName, serviceProtocol, servicePort, serviceExternal) ,
-                Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
+                Qualifiers.create(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.servicePort = servicePort;
+        this.servicePath = servicePath;
         this.serviceAlias = serviceAlias;
         this.serviceEndpoint = serviceEndpoint;
         this.serviceExternal = serviceExternal;
@@ -86,6 +88,14 @@ public class ServiceUrlBean extends ProducerBean<String> {
 
     public String getServiceProtocol() {
         return serviceProtocol;
+    }
+
+    public String getServicePort() {
+        return servicePort;
+    }
+
+    public String getServicePath() {
+        return servicePath;
     }
 
     public String getServiceAlias() {
@@ -113,14 +123,16 @@ public class ServiceUrlBean extends ProducerBean<String> {
         private final String serviceName;
         private final String serviceProtocol;
         private final String servicePort;
+        private final String servicePath;
         private final String serviceAlias;
         private final Boolean serviceEndpoint;
         private final Boolean serviceExternal;
 
-        private Key(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal) {
+        private Key(String serviceName, String serviceProtocol, String servicePort, String servicePath, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal) {
             this.serviceName = serviceName;
             this.serviceProtocol = serviceProtocol;
             this.servicePort = servicePort;
+            this.servicePath = servicePath;
             this.serviceAlias = serviceAlias;
             this.serviceEndpoint = serviceEndpoint;
             this.serviceExternal = serviceExternal;
@@ -136,6 +148,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
             if (serviceName != null ? !serviceName.equals(key.serviceName) : key.serviceName != null) return false;
             if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null) return false;
             if (servicePort != null ? !servicePort.equals(key.servicePort) : key.servicePort != null) return false;
+            if (servicePath != null ? !servicePath.equals(key.servicePath) : key.servicePath != null) return false;
             if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null) return false;
             if (serviceEndpoint != null ? !serviceEndpoint.equals(key.serviceEndpoint) : key.serviceEndpoint != null) return false;
             if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
@@ -147,6 +160,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
             int result = serviceName != null ? serviceName.hashCode() : 0;
             result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
             result = 31 * result + (servicePort != null ? servicePort.hashCode() : 0);
+            result = 31 * result + (servicePath != null ? servicePath.hashCode() : 0);
             result = 31 * result + (serviceAlias != null ? serviceAlias.hashCode() : 0);
             result = 31 * result + (serviceEndpoint != null ? serviceEndpoint.hashCode() : 0);
             result = 31 * result + (serviceExternal != null ? serviceExternal.hashCode() : 0);
