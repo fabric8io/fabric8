@@ -86,13 +86,14 @@ public class Fabric8Extension implements Extension {
                     String serviceProtocol = or(bean.getServiceProtocol(), getFactoryMethodProtocol(factoryMethodContext.getFactoryMethod().getJavaMember()), "tcp");
                     String servicePort = or(bean.getServicePort(), getFactoryMethodPort(factoryMethodContext.getFactoryMethod().getJavaMember()));
                     Boolean serviceExternal = bean.getServiceExternal();
+                    Boolean serviceEndpoint = bean.getServiceEndpoint();
 
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
-                        ServiceBean.getBean(serviceId, serviceProtocol, servicePort, null, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
+                        ServiceBean.getBean(serviceId, serviceProtocol, servicePort, null, serviceEndpoint, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
                     }
 
-                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, servicePort, serviceExternal));
+                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId));
                 }
             });
         }
@@ -147,15 +148,15 @@ public class Fabric8Extension implements Extension {
             if (type.equals(String.class)) {
                 ServiceUrlBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, serviceExternal);
             } else if (isGenericOf(type, List.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, Types.LIST_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, serviceExternal, Types.LIST_OF_STRINGS);
             } else if (isGenericOf(type, List.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (isGenericOf(type, Set.class, String.class)) {
-                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, Types.SET_OF_STRINGS);
+                ServiceUrlCollectionBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, serviceExternal, Types.SET_OF_STRINGS);
             } else if (isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (type instanceof Class) {
-                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceExternal, (Class) type);
+                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceExternal, serviceExternal, (Class) type);
             } else {
                 throw new RuntimeException(String.format(INJECTION_POINT_UNKNOWN_TYPE, injectionPoint.getBean().getBeanClass(), type));
             }
