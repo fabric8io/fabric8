@@ -252,7 +252,7 @@ public class RepositoryResource {
             commit = CommitUtils.getHead(r);
         }
         RevCommit baseCommit = null;
-        if (Strings.isNotBlank(baseObjectId)) {
+        if (Strings.isNotBlank(baseObjectId) && !Objects.equals(baseObjectId, objectId)) {
             baseCommit = CommitUtils.getCommit(r, baseObjectId);
         }
 
