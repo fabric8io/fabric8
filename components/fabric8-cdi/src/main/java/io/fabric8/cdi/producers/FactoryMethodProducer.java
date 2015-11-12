@@ -80,10 +80,10 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 External paramExternal = parameter.getAnnotation(External.class);
                 Configuration configuration = parameter.getAnnotation(Configuration.class);
 
-                String serviceProtocol = (paramterProtocol != null && Strings.isNotBlank(paramterProtocol.value())) ? paramterProtocol.value() : "tcp";
-                String servicePort = (parameterPortName != null && Strings.isNotBlank(parameterPortName.value())) ? parameterPortName.value() : "";
-                Boolean serviceEndpoint = paramEndpoint != null ? true : false;
-                Boolean serviceExternal = paramExternal != null ? true : false;
+                String serviceProtocol = paramterProtocol != null ? paramterProtocol.value() : null;
+                String servicePort = parameterPortName != null ? parameterPortName.value() : null;
+                Boolean serviceEndpoint = paramEndpoint != null ? paramEndpoint.value() : false;
+                Boolean serviceExternal = paramExternal != null ? paramExternal.value() : false;
 
                 //If the @ServiceName exists on the current String property
                 if (parameterServiceName != null && String.class.equals(type)) {
@@ -188,7 +188,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
         } catch (IllegalStateException e) {
 
-            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, false, serviceExternal, serviceType).getProducer();
+            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal, serviceType).getProducer();
             if (producer != null) {
                 return (S) producer.produce(context);
             } else {

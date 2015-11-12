@@ -22,4 +22,14 @@ import javax.enterprise.util.AnnotationLiteral;
 
 public class EndpointQualifier extends AnnotationLiteral<Endpoint> implements Endpoint {
 
+    private final boolean value;
+
+    public EndpointQualifier(boolean value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean value() {
+        return value;
+    }
 }

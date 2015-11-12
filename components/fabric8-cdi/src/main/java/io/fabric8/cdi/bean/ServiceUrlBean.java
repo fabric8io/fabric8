@@ -16,6 +16,7 @@
 package io.fabric8.cdi.bean;
 
 
+import io.fabric8.cdi.Utils;
 import io.fabric8.cdi.producers.FirstEndpointProducer;
 import io.fabric8.cdi.producers.ServiceUrlProducer;
 import io.fabric8.cdi.qualifiers.Qualifiers;
@@ -27,12 +28,13 @@ import java.util.Map;
 
 public class ServiceUrlBean extends ProducerBean<String> {
 
-    private static final String SUFFIX = "-url";
+    private static final String SUFFIX = "url";
     private static final Map<Key, ServiceUrlBean> BEANS = new HashMap<>();
 
     public static ServiceUrlBean getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external) {
         String serviceAlias = alias != null ? alias :
-                (external ? "external-" : "") + name + "-" + protocol + "-" + port + (endpoint ? "-endpoint" : "") + SUFFIX;
+                Utils.toAlias(name, protocol, port, endpoint, external, SUFFIX);
+
         Key key = new Key(name, protocol, port, serviceAlias, endpoint, external);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);

@@ -29,6 +29,7 @@ import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.producers.FactoryMethodProducer;
+import io.fabric8.cdi.qualifiers.EndpointQualifier;
 import io.fabric8.cdi.qualifiers.ExternalQualifier;
 import io.fabric8.cdi.qualifiers.PortQualifier;
 import io.fabric8.cdi.qualifiers.ProtocolQualifier;
@@ -83,7 +84,7 @@ public class Fabric8Extension implements Extension {
                 @Override
                 public ServiceBean apply(ServiceBean bean) {
                     String serviceId = bean.getServiceName();
-                    String serviceProtocol = or(bean.getServiceProtocol(), getFactoryMethodProtocol(factoryMethodContext.getFactoryMethod().getJavaMember()), "tcp");
+                    String serviceProtocol = or(bean.getServiceProtocol(), getFactoryMethodProtocol(factoryMethodContext.getFactoryMethod().getJavaMember()));
                     String servicePort = or(bean.getServicePort(), getFactoryMethodPort(factoryMethodContext.getFactoryMethod().getJavaMember()));
                     Boolean serviceExternal = bean.getServiceExternal();
                     Boolean serviceEndpoint = bean.getServiceEndpoint();
@@ -130,15 +131,17 @@ public class Fabric8Extension implements Extension {
             Protocol protocol = annotated.getAnnotation(Protocol.class);
             PortName port = annotated.getAnnotation(PortName.class);
             Alias alias = annotated.getAnnotation(Alias.class);
+            Endpoint endpoint = annotated.getAnnotation(Endpoint.class);
             External external = annotated.getAnnotation(External.class);
 
-            Boolean serviceEndpoint = annotated.getAnnotation(Endpoint.class) != null;
-
             String serviceName = name.value();
-            String serviceProtocol = protocol != null ? protocol.value() : "";
+            String serviceProtocol = protocol != null ? protocol.value() : null;
             String servicePort = port != null ? port.value() : null;
             String serviceAlias = alias != null ? alias.value() : null;
-            Boolean serviceExternal = external != null && external.value();
+            Boolean serviceExternal = external != null ? external.value() : false;
+            Boolean serviceEndpoint = endpoint != null ? endpoint.value() : false;
+
+
 
             Type type = annotated.getBaseType();
             if (type instanceof ParameterizedType && Instance.class.equals(((ParameterizedType) type).getRawType())) {
@@ -156,7 +159,7 @@ public class Fabric8Extension implements Extension {
             } else if (isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (type instanceof Class) {
-                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceExternal, serviceExternal, (Class) type);
+                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, serviceAlias, serviceEndpoint, serviceExternal, (Class) type);
             } else {
                 throw new RuntimeException(String.format(INJECTION_POINT_UNKNOWN_TYPE, injectionPoint.getBean().getBeanClass(), type));
             }
@@ -167,8 +170,11 @@ public class Fabric8Extension implements Extension {
             if (port == null) {
                 setDefaultPort(event);
             }
+            if (endpoint == null) {
+                setDefaultEndpoint(event);
+            }
             if (external == null) {
-                setExternalFalse(event);
+                setDefaultExternal(event);
             }
         } else if (isConfigurationInjectionPoint(injectionPoint)) {
             Annotated annotated = injectionPoint.getAnnotated();
@@ -240,13 +246,25 @@ public class Fabric8Extension implements Extension {
         });
     }
 
-    private <T, X> void setExternalFalse(ProcessInjectionPoint<T, X> event) {
-        //if protocol is not specified decorate injection point with "default" protocol.
+    private <T, X> void setDefaultExternal(ProcessInjectionPoint<T, X> event) {
+        //if external is not specified decorate injection point with "default" external=false.
         event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
             @Override
             public Set<Annotation> getQualifiers() {
                 Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
                 qualifiers.add(new ExternalQualifier(false));
+                return Collections.unmodifiableSet(qualifiers);
+            }
+        });
+    }
+
+    private <T, X> void setDefaultEndpoint(ProcessInjectionPoint<T, X> event) {
+        //if endpoint is not specified decorate injection point with "default" endpoint=false.
+        event.setInjectionPoint(new DelegatingInjectionPoint(event.getInjectionPoint()) {
+            @Override
+            public Set<Annotation> getQualifiers() {
+                Set<Annotation> qualifiers = new LinkedHashSet<>(super.getQualifiers());
+                qualifiers.add(new EndpointQualifier(false));
                 return Collections.unmodifiableSet(qualifiers);
             }
         });

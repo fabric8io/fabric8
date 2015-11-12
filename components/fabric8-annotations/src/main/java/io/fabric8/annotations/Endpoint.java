@@ -27,4 +27,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Documented
 public @interface Endpoint {
+    boolean value() default true;
 }
