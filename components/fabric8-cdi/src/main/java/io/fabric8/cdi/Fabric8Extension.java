@@ -98,7 +98,7 @@ public class Fabric8Extension implements Extension {
                         ServiceBean.getBean(serviceId, serviceProtocol, servicePort, servicePath, null, serviceEndpoint, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
                     }
 
-                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId));
+                    return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, servicePort, servicePath));
                 }
             });
         }

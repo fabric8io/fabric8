@@ -103,6 +103,11 @@ public class ExtensionExternalTest {
     }
 
     @Test
+    public void testWithPath() {
+        Assert.assertTrue(simpleBean.getTestUrlWithPath().endsWith("/somePath"));
+    }
+
+    @Test
     public void testConfigInjection() {
         Assert.assertNotNull(simpleBean);
         Assert.assertEquals("value1", simpleBean.getConfig1().getProperty());
@@ -115,7 +120,7 @@ public class ExtensionExternalTest {
         Assert.assertNotNull(urlBean);
         Assert.assertNotNull(urlBean.getService3());
         Assert.assertNotNull(urlBean.getService1());
-        Assert.assertTrue(urlBean.getService1().toString().startsWith("https"));
+        Assert.assertTrue(urlBean.getService1().toString().startsWith("http"));
         Assert.assertTrue(urlBean.getService3().toString().startsWith("http"));
     }
 

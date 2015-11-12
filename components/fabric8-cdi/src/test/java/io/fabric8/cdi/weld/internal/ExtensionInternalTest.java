@@ -116,7 +116,7 @@ public class ExtensionInternalTest {
         Assert.assertNotNull(urlBean);
         Assert.assertNotNull(urlBean.getService3());
         Assert.assertNotNull(urlBean.getService1());
-        Assert.assertTrue(urlBean.getService1().toString().startsWith("https"));
+        Assert.assertTrue(urlBean.getService1().toString().startsWith("http"));
         Assert.assertTrue(urlBean.getService3().toString().startsWith("http"));
     }
 

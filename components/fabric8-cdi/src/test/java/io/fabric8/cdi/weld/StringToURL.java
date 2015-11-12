@@ -31,12 +31,6 @@ public class StringToURL {
     @ServiceName
     public URL toUrl(@Protocol("http") @ServiceName String service, @Configuration ProtocolConfig  protocolConfig) throws MalformedURLException {
         //The protocol is specified by @Protocol annotation. ProtocolConfig is used just to test @Configuration inside @Factory. Its not actually required.
-        String sourceProtocol = protocolConfig.getSourceProtocol();
-        String targetProtocol = protocolConfig.getTargetProtocol();
-
-        if (sourceProtocol != null && targetProtocol != null && !sourceProtocol.equals(targetProtocol) && service.startsWith(sourceProtocol)) {
-            return new URL(service.replaceFirst(sourceProtocol, targetProtocol));
-        }
         return new URL(service);
     }
 }
