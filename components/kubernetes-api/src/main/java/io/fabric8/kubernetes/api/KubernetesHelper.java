@@ -1364,7 +1364,7 @@ public final class KubernetesHelper {
         }
 
         for (ServicePort servicePort : service.getSpec().getPorts()) {
-            if (servicePort.getName().equals(portName)) {
+            if (Objects.equal(servicePort.getName(), portName)) {
                 return servicePort;
             }
         }
