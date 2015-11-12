@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.4" data-chapter-title="CDI" data-filepath="cdi.md" data-basepath="." data-revision="Thu Nov 12 2015 17:51:35 GMT+0000 (UTC)">
+    <div class="book" data-level="6.4" data-chapter-title="CDI" data-filepath="cdi.md" data-basepath="." data-revision="Thu Nov 12 2015 18:21:31 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1239,6 +1239,19 @@ One could find and replace the transport protocol with the actual application pr
     @ServiceName(&quot;my-ftp-service&quot;)
     @Protocol(&quot;ftp&quot;)
     private String service.
+</code></pre><h3 id="the-path-annotation"><a name="the-path-annotation" class="plugin-anchor" href="#the-path-annotation"><span class="fa fa-link"></span></a>The @Path annotation</h3>
+<p>In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.</p>
+<pre><code>            @Inject
+            @ServiceName(&quot;mysqldb&quot;)
+            @Protocol(&quot;jdbc:mysql&quot;)
+            @Path(&quot;db1&quot;)
+            private String urlForDb1.
+
+            @Inject
+            @ServiceName(&quot;mysqldb&quot;)
+            @Protocol(&quot;jdbc:mysql&quot;)
+            @Path(&quot;db2&quot;)
+            private String urlForDb2.                        
 </code></pre><h3 id="integration-with-openshift-routes"><a name="integration-with-openshift-routes" class="plugin-anchor" href="#integration-with-openshift-routes"><span class="fa fa-link"></span></a>Integration with OpenShift routes</h3>
 <p>In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
 Currently route will be used only if @Protocol or @PortName haven&apos;t been explicitly specified and only if OpenShift is available.</p>
