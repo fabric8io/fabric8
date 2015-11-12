@@ -33,36 +33,38 @@ public class ServiceBean<X> extends ProducerBean<X> {
     private final String serviceName;
     private final String serviceProtocol;
     private final String servicePort;
+    private final String servicePath;
     private final String serviceAlias;
     private final Boolean serviceEndpoint;
     private final Boolean serviceExternal;
     
-    public static <S> ServiceBean<S> getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external, Class<S> type) {
+    public static <S> ServiceBean<S> getBean(String name, String protocol, String port, String path, String alias, Boolean endpoint, Boolean external, Class<S> type) {
         String serviceAlias = alias != null ? alias :
-                Utils.toAlias(name, protocol, port, endpoint, external, "bean-" + type.getName());
+                Utils.toAlias(name, protocol, port, path, endpoint, external, "bean-" + type.getName());
 
-        Key key = new Key(name, protocol, port, serviceAlias, endpoint, external, type, null);
+        Key key = new Key(name, protocol, port, path, serviceAlias, endpoint, external, type, null);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
         }
-        ServiceBean bean = new ServiceBean(name, protocol, port, serviceAlias, type, null, endpoint, external);
+        ServiceBean bean = new ServiceBean(name, protocol, port, path, serviceAlias, type, null, endpoint, external);
         BEANS.put(key, bean);
         return bean;
     }
 
-    public static <S> ServiceBean<S> anyBean(String id, String protocol, String port, Boolean endpoint, Boolean external, Class<S> type) {
+    public static <S> ServiceBean<S> anyBean(String id, String protocol, String port, String path, Boolean endpoint, Boolean external, Class<S> type) {
         for (Map.Entry<Key, ServiceBean> entry : BEANS.entrySet()) {
             Key key = entry.getKey();
             if (Objects.equal(key.serviceName, id)
                     && Objects.equal(key.serviceProtocol, protocol)
                     && Objects.equal(key.servicePort, port)
+                    && Objects.equal(key.servicePath, path)
                     && Objects.equal(key.serviceEndpoint, endpoint)
                     && Objects.equal(key.serviceExternal, external)
                     && Objects.equal(key.type, type)) {
                 return entry.getValue();
             }
         }
-        return getBean(id, protocol, port, null, endpoint, external, type);
+        return getBean(id, protocol, port, path, null, endpoint, external, type);
     }
     
     
@@ -75,24 +77,25 @@ public class ServiceBean<X> extends ProducerBean<X> {
             Key key = entry.getKey();
             if (type.equals(key.type)) {
                 ServiceBean newBean = callback.apply(BEANS.remove(key));
-                Key newKey = new Key(newBean.getServiceName(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServiceAlias(), newBean.getServiceEndpoint(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
+                Key newKey = new Key(newBean.getServiceName(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServicePath(), newBean.getServiceAlias(), newBean.getServiceEndpoint(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
                 BEANS.put(newKey, newBean);
             }
         }
     }
     
-    private ServiceBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Class type, Producer<X> producer, Boolean serviceEndpoint, Boolean serviceExternal) {
-        super(serviceAlias, type, producer, Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
+    private ServiceBean(String serviceName, String serviceProtocol, String servicePort, String servicePath, String serviceAlias, Class type, Producer<X> producer, Boolean serviceEndpoint, Boolean serviceExternal) {
+        super(serviceAlias, type, producer, Qualifiers.create(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.servicePort = servicePort;
+        this.servicePath = servicePath;
         this.serviceAlias = serviceAlias;
         this.serviceEndpoint = serviceEndpoint;
         this.serviceExternal = serviceExternal;
     }
 
     public ServiceBean withProducer(Producer producer) {
-        return new ServiceBean(serviceName, serviceProtocol, servicePort, serviceAlias, getBeanClass(), producer, serviceEndpoint, serviceExternal);
+        return new ServiceBean(serviceName, serviceProtocol, servicePort, servicePath, serviceAlias, getBeanClass(), producer, serviceEndpoint, serviceExternal);
     }
 
     public String getServiceName() {
@@ -109,6 +112,11 @@ public class ServiceBean<X> extends ProducerBean<X> {
 
     public String getServicePort() {
         return servicePort;
+    }
+
+
+    public String getServicePath() {
+        return servicePath;
     }
 
     public Boolean getServiceEndpoint() {
@@ -135,6 +143,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
         private final String serviceName;
         private final String serviceProtocol;
         private final String servicePort;
+        private final String servicePath;
         private final String serviceAlias;
         private final Boolean serviceEndpoint;
         private final Boolean serviceExternal;
@@ -142,9 +151,10 @@ public class ServiceBean<X> extends ProducerBean<X> {
         private final Producer producer;
 
 
-        private Key(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal, Class type, Producer producer) {
+        private Key(String serviceName, String serviceProtocol, String servicePort, String servicePath, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal, Class type, Producer producer) {
             this.serviceName = serviceName;
             this.serviceProtocol = serviceProtocol;
+            this.servicePath = servicePath;
             this.serviceAlias = serviceAlias;
             this.servicePort = servicePort;
             this.serviceEndpoint = serviceEndpoint;
@@ -164,6 +174,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
             if (serviceName != null ? !serviceName.equals(key.serviceName) : key.serviceName != null) return false;
             if (serviceProtocol != null ? !serviceProtocol.equals(key.serviceProtocol) : key.serviceProtocol != null) return false;
             if (servicePort != null ? !servicePort.equals(key.servicePort) : key.servicePort != null) return false;
+            if (servicePath != null ? !servicePath.equals(key.servicePath) : key.servicePath != null) return false;
             if (serviceAlias != null ? !serviceAlias.equals(key.serviceAlias) : key.serviceAlias != null) return false;
             if (serviceEndpoint != null ? !serviceEndpoint.equals(key.serviceEndpoint) : key.serviceEndpoint != null) return false;
             if (serviceExternal != null ? !serviceExternal.equals(key.serviceExternal) : key.serviceExternal != null) return false;
@@ -177,6 +188,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
             int result = serviceName != null ? serviceName.hashCode() : 0;
             result = 31 * result + (serviceProtocol != null ? serviceProtocol.hashCode() : 0);
             result = 31 * result + (servicePort != null ? servicePort.hashCode() : 0);
+            result = 31 * result + (servicePath != null ? servicePath.hashCode() : 0);
             result = 31 * result + (serviceAlias != null ? serviceAlias.hashCode() : 0);
             result = 31 * result + (serviceExternal != null ? serviceExternal.hashCode() : 0);
             result = 31 * result + (type != null ? type.hashCode() : 0);

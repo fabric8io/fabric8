@@ -19,6 +19,7 @@ package io.fabric8.cdi.producers;
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.External;
+import io.fabric8.annotations.Path;
 import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
@@ -27,7 +28,6 @@ import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 import io.fabric8.cdi.qualifiers.Qualifiers;
-import io.fabric8.utils.Strings;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -36,7 +36,6 @@ import javax.enterprise.inject.spi.AnnotatedParameter;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.Producer;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,19 +75,21 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 ServiceName parameterServiceName = parameter.getAnnotation(ServiceName.class);
                 Protocol paramterProtocol = parameter.getAnnotation(Protocol.class);
                 PortName parameterPortName = parameter.getAnnotation(PortName.class);
+                Path parameterPath = parameter.getAnnotation(Path.class);
                 Endpoint paramEndpoint = parameter.getAnnotation(Endpoint.class);
                 External paramExternal = parameter.getAnnotation(External.class);
                 Configuration configuration = parameter.getAnnotation(Configuration.class);
 
                 String serviceProtocol = paramterProtocol != null ? paramterProtocol.value() : null;
                 String servicePort = parameterPortName != null ? parameterPortName.value() : null;
+                String servicePath = parameterPath != null ? parameterPath.value() : null;
                 Boolean serviceEndpoint = paramEndpoint != null ? paramEndpoint.value() : false;
                 Boolean serviceExternal = paramExternal != null ? paramExternal.value() : false;
 
                 //If the @ServiceName exists on the current String property
                 if (parameterServiceName != null && String.class.equals(type)) {
                     try {
-                        String serviceUrl = getServiceUrl(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal, ctx);
+                        String serviceUrl = getServiceUrl(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, ctx);
                         arguments.add(serviceUrl);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
@@ -100,7 +101,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 // If the @ServiceName exists on the current property which is a non-String
                 else if (parameterServiceName != null && !String.class.equals(type)) {
                     try {
-                        Object serviceBean = getServiceBean(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal, (Class<Object>) type, ctx);
+                        Object serviceBean = getServiceBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, (Class<Object>) type, ctx);
                         arguments.add(serviceBean);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(BEAN_LOOKUP_ERROR_FORMAT,
@@ -162,14 +163,14 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param context
      * @return
      */
-    private static String getServiceUrl(String serviceId, String serviceProtocol, String servicePort, Boolean serviceEndpoint, Boolean serviceExternal, CreationalContext context) {
+    private static String getServiceUrl(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceEndpoint, Boolean serviceExternal, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, false, serviceExternal));
+            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal).getProducer();
+            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal).getProducer();
             if (producer != null) {
-                return ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal).getProducer().produce(context);
+                return ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal).getProducer().produce(context);
             } else {
                 throw new IllegalStateException("Could not find producer for service:" + serviceId + " protocol:" + serviceProtocol);
             }
@@ -183,12 +184,12 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param context
      * @return
      */
-    private static <S> S getServiceBean(String serviceId, String serviceProtocol, String servicePort, Boolean serviceExternal, Boolean serviceEndpoint, Class<S> serviceType, CreationalContext context) {
+    private static <S> S getServiceBean(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceExternal, Boolean serviceEndpoint, Class<S> serviceType, CreationalContext context) {
         try {
-            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
+            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         } catch (IllegalStateException e) {
 
-            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, serviceEndpoint, serviceExternal, serviceType).getProducer();
+            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, serviceType).getProducer();
             if (producer != null) {
                 return (S) producer.produce(context);
             } else {

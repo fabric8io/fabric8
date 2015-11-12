@@ -16,6 +16,7 @@
 
 package io.fabric8.cdi;
 
+import io.fabric8.annotations.Path;
 import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
@@ -27,7 +28,7 @@ import java.lang.reflect.Method;
 
 public class Utils {
 
-    public static final String toAlias(String serviceName, String serviceProtocol, String servicePort, Boolean endpoint, Boolean external, String suffix) {
+    public static final String toAlias(String serviceName, String serviceProtocol, String servicePort, String servicePath, Boolean endpoint, Boolean external, String suffix) {
         StringBuilder sb = new StringBuilder();
 
         if (external) {
@@ -57,6 +58,13 @@ public class Utils {
         } else {
             sb.append("-").append("single");
         }
+
+        if (Strings.isNotBlank(servicePath)) {
+            sb.append("-").append(servicePath);
+        } else {
+            sb.append("-").append("root");
+        }
+
         sb.append("-").append(suffix);
         return sb.toString();
     }
@@ -103,6 +111,25 @@ public class Utils {
 
                 if (hasServiceName && port != null) {
                     return port;
+                }
+            }
+        }
+        return null;
+    }
+
+    static String getFactoryMethodPath(Method method) {
+        for (Annotation[] annotations : method.getParameterAnnotations()) {
+            Boolean hasServiceName = false;
+            String path = null;
+            for (Annotation annotation : annotations) {
+                if (annotation.annotationType().equals(ServiceName.class)) {
+                    hasServiceName = true;
+                } else if (annotation.annotationType().equals(Path.class)) {
+                    path = readAnnotationValue(annotation.toString());
+                }
+
+                if (hasServiceName && path != null) {
+                    return path;
                 }
             }
         }
