@@ -18,6 +18,7 @@ package io.fabric8.cdi.weld;
 
 import io.fabric8.annotations.Configuration;
 import io.fabric8.annotations.Endpoint;
+import io.fabric8.annotations.Path;
 import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
@@ -38,6 +39,12 @@ public class SimpleBean {
     @ServiceName(value = "service1")
     @Protocol("tst")
     String testUrl;
+
+    @Inject
+    @ServiceName(value = "service1")
+    @Protocol("tst")
+    @Path("somePath")
+    String testUrlWithPath;
 
     @Inject
     @ServiceName("service1")
@@ -78,6 +85,9 @@ public class SimpleBean {
         return testUrl;
     }
 
+    public String getTestUrlWithPath() {
+        return testUrlWithPath;
+    }
 
     public String getOptionalUrl() {
         return optionalUrl.get();

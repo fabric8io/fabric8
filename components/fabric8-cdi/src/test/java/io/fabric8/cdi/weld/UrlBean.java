@@ -39,7 +39,7 @@ public class UrlBean {
 
     @Inject
     @ServiceName("service1")
-    @Protocol("tst")
+    @Protocol("http")
     URL service1WithProtocol;
 
     @Inject
@@ -49,7 +49,7 @@ public class UrlBean {
 
     @Inject
     @ServiceName("service1")
-    @Protocol("prtcl")
+    @Protocol("https")
     @Alias("cool-id")
     URL service1Alias;
     

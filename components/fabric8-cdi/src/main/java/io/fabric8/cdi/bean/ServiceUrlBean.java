@@ -50,6 +50,7 @@ public class ServiceUrlBean extends ProducerBean<String> {
            if (Objects.equal(key.serviceName, id)
                    && Objects.equal(key.serviceProtocol, protocol)
                    && Objects.equal(key.servicePort, port)
+                   && Objects.equal(key.servicePath, path)
                    && Objects.equal(key.serviceEndpoint, endpoint)
                    && Objects.equal(key.serviceExternal, external)) {
                return entry.getValue();
@@ -71,7 +72,8 @@ public class ServiceUrlBean extends ProducerBean<String> {
 
     private ServiceUrlBean(String serviceName, String serviceProtocol, String servicePort, String servicePath, String serviceAlias, Boolean serviceEndpoint, Boolean serviceExternal) {
         super(serviceAlias, String.class,
-                serviceEndpoint ? new FirstEndpointProducer(serviceName, serviceProtocol, servicePort) : new ServiceUrlProducer(serviceName, serviceProtocol, servicePort, serviceExternal) ,
+                serviceEndpoint ? new FirstEndpointProducer(serviceName, serviceProtocol, servicePort)
+                                : new ServiceUrlProducer(serviceName, serviceProtocol, servicePort, servicePath, serviceExternal),
                 Qualifiers.create(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;

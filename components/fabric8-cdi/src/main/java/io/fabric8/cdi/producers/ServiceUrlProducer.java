@@ -28,16 +28,14 @@ public class ServiceUrlProducer implements Producer<String> {
     private final String serviceId;
     private final String serviceProtocol;
     private final String servicePortName;
+    private final String servicePath;
     private final Boolean serviceExternal;
 
-    public ServiceUrlProducer(String serviceId) {
-        this(serviceId, Services.DEFAULT_PROTO, null, false);
-    }
-    
-    public ServiceUrlProducer(String serviceId, String serviceProtocol, String servicePortName, Boolean serviceExternal) {
+    public ServiceUrlProducer(String serviceId, String serviceProtocol, String servicePortName, String servicePath, Boolean serviceExternal) {
         this.serviceId = serviceId;
         this.serviceProtocol = serviceProtocol;
         this.servicePortName = servicePortName;
+        this.servicePath = servicePath;
         this.serviceExternal = serviceExternal;
     }
 
@@ -46,7 +44,7 @@ public class ServiceUrlProducer implements Producer<String> {
         if (serviceId == null) {
             throw new IllegalArgumentException("No service id has been specified.");
         }
-        return Services.toServiceUrl(serviceId, serviceProtocol, servicePortName, serviceExternal);
+        return Services.toServiceUrl(serviceId, serviceProtocol, servicePortName, servicePath, serviceExternal);
     }
 
     @Override

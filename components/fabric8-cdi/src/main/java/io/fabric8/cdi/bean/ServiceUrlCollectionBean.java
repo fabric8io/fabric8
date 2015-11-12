@@ -51,6 +51,7 @@ public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
             if (Objects.equal(key.serviceId, id)
                     && Objects.equal(key.serviceProtocol, protocol)
                     && Objects.equal(key.servicePort, port)
+                    && Objects.equal(key.servicePath, path)
                     && Objects.equal(key.serviceEndpoint, endpoint)
                     && Objects.equal(key.serviceExternal, external)) {
                return entry.getValue();

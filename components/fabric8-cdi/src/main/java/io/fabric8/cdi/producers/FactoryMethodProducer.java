@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Set;
 
 
+import static io.fabric8.cdi.Utils.or;
+
 public class FactoryMethodProducer<T, X> implements Producer<T> {
 
     private static final String INVOCATION_ERROR_FORMAT = "Failed to invoke @Factory annotated method: %s on bean: %s with arguments: %s";
@@ -56,13 +58,20 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
     private final AnnotatedMethod<X> factoryMethod;
 
     // The fields below refer to the injection point properties
-    private final String serviceId;
+    private final String pointName;
+    private final String pointProtocol;
+    private final String pointPort;
+    private final String pointPath;
+
     // end of injection point properties
 
-    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String serviceId) {
+    public FactoryMethodProducer(Bean<T> bean, AnnotatedMethod<X> factoryMethod, String pointName, String pointProtocol, String pointPort, String pointPath) {
         this.bean = bean;
         this.factoryMethod = factoryMethod;
-        this.serviceId = serviceId;
+        this.pointName = pointName;
+        this.pointProtocol = pointProtocol;
+        this.pointPort = pointPort;
+        this.pointPath = pointPath;
     }
 
     @Override
@@ -70,7 +79,6 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
         List<Object> arguments = new ArrayList<>();
 
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
-
                 Type type = parameter.getBaseType();
                 ServiceName parameterServiceName = parameter.getAnnotation(ServiceName.class);
                 Protocol paramterProtocol = parameter.getAnnotation(Protocol.class);
@@ -80,47 +88,50 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 External paramExternal = parameter.getAnnotation(External.class);
                 Configuration configuration = parameter.getAnnotation(Configuration.class);
 
-                String serviceProtocol = paramterProtocol != null ? paramterProtocol.value() : null;
-                String servicePort = parameterPortName != null ? parameterPortName.value() : null;
-                String servicePath = parameterPath != null ? parameterPath.value() : null;
+                //A point without @ServiceName is invalid.
+                // Even if method defines @ServiceName, the annotation on the injection point takes precedence
+                String serviceName = pointName;
+                String serviceProtocol = or(pointProtocol, paramterProtocol != null ? paramterProtocol.value() : null);
+                String servicePort = or(pointPort, parameterPortName != null ? parameterPortName.value() : null);
+                String servicePath = or(pointPath, parameterPath != null ? parameterPath.value() : null);
                 Boolean serviceEndpoint = paramEndpoint != null ? paramEndpoint.value() : false;
                 Boolean serviceExternal = paramExternal != null ? paramExternal.value() : false;
 
                 //If the @ServiceName exists on the current String property
                 if (parameterServiceName != null && String.class.equals(type)) {
                     try {
-                        String serviceUrl = getServiceUrl(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, ctx);
+                        String serviceUrl = getServiceUrl(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, ctx);
                         arguments.add(serviceUrl);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                                serviceId), t);
+                                serviceName), t);
                     }
                 }
                 // If the @ServiceName exists on the current property which is a non-String
                 else if (parameterServiceName != null && !String.class.equals(type)) {
                     try {
-                        Object serviceBean = getServiceBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, (Class<Object>) type, ctx);
+                        Object serviceBean = getServiceBean(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, (Class<Object>) type, ctx);
                         arguments.add(serviceBean);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(BEAN_LOOKUP_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
                                 type,
-                                serviceId), t);
+                                serviceName), t);
                     }
                 }
                 //If the current parameter is annotated with @Configuration
                 else if (configuration != null) {
                     try {
-                        Object config = getConfiguration(serviceId, (Class<Object>) type, ctx);
+                        Object config = getConfiguration(serviceName, (Class<Object>) type, ctx);
                         arguments.add(config);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(CONF_LOOKUP_ERROR_FORMAT,
                                 factoryMethod.getJavaMember().getName(),
                                 factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                                serviceId), t);
+                                serviceName), t);
                     }
                 } else {
                     try {
@@ -142,7 +153,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             throw new RuntimeException(String.format(INVOCATION_ERROR_FORMAT,
                     factoryMethod.getJavaMember().getName(),
                     factoryMethod.getJavaMember().getDeclaringClass().getName(),
-                    arguments));
+                    arguments), t);
         }
     }
 

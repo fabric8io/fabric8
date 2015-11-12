@@ -133,6 +133,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
                 "serviceName='" + serviceName + '\'' +
                 ", serviceProtocol='" + serviceProtocol + '\'' +
                 ", servicePort='" + servicePort + '\'' +
+                ", servicePath='" + servicePath + '\'' +
                 ", serviceAlias='" + serviceAlias + '\'' +
                 ", serviceEndpoint=" + serviceEndpoint +
                 ", serviceExternal=" + serviceExternal +
