@@ -16,6 +16,7 @@
 package io.fabric8.cdi.bean;
 
 
+import io.fabric8.cdi.Utils;
 import io.fabric8.cdi.producers.ServiceEndpointsProducer;
 import io.fabric8.cdi.qualifiers.Qualifiers;
 import io.fabric8.utils.Objects;
@@ -28,12 +29,13 @@ import java.util.Map;
 
 public class ServiceUrlCollectionBean extends ProducerBean<List<String>> {
 
-    private static final String SUFFIX = "-urls";
-    private static final String ENDPOINT_SUFFIX = "-endpoint-urls";
+    private static final String SUFFIX = "urls";
     private static final Map<Key, ServiceUrlCollectionBean> BEANS = new HashMap<>();
 
     public static ServiceUrlCollectionBean getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external, Type collectionType) {
-        String serviceAlias = alias != null ? alias : name + "-" + protocol + (endpoint ? ENDPOINT_SUFFIX : SUFFIX);
+        String serviceAlias = alias != null ? alias :
+                Utils.toAlias(name, protocol, port, endpoint, external, SUFFIX);
+
         Key key = new Key(name, protocol, port, serviceAlias, endpoint, external, collectionType);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);

@@ -16,6 +16,7 @@
 package io.fabric8.cdi.bean;
 
 
+import io.fabric8.cdi.Utils;
 import io.fabric8.cdi.qualifiers.Qualifiers;
 import io.fabric8.utils.Objects;
 
@@ -27,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceBean<X> extends ProducerBean<X> {
 
-    private static final String SUFFIX = "-service";
     private static final Map<Key, ServiceBean> BEANS = new ConcurrentHashMap<>();
     
     private final String serviceName;
@@ -39,7 +39,8 @@ public class ServiceBean<X> extends ProducerBean<X> {
     
     public static <S> ServiceBean<S> getBean(String name, String protocol, String port, String alias, Boolean endpoint, Boolean external, Class<S> type) {
         String serviceAlias = alias != null ? alias :
-                (external ? "external-" : "") + name + "-" + type.getName() + "-" + protocol + SUFFIX;
+                Utils.toAlias(name, protocol, port, endpoint, external, "bean-" + type.getName());
+
         Key key = new Key(name, protocol, port, serviceAlias, endpoint, external, type, null);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
@@ -74,14 +75,14 @@ public class ServiceBean<X> extends ProducerBean<X> {
             Key key = entry.getKey();
             if (type.equals(key.type)) {
                 ServiceBean newBean = callback.apply(BEANS.remove(key));
-                Key newKey = new Key(newBean.getId(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServiceAlias(), newBean.getServiceEndpoint(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
+                Key newKey = new Key(newBean.getServiceName(), newBean.getServiceProtocol(), newBean.getServicePort(), newBean.getServiceAlias(), newBean.getServiceEndpoint(), newBean.getServiceExternal(), newBean.getBeanClass(), newBean.getProducer());
                 BEANS.put(newKey, newBean);
             }
         }
     }
     
     private ServiceBean(String serviceName, String serviceProtocol, String servicePort, String serviceAlias, Class type, Producer<X> producer, Boolean serviceEndpoint, Boolean serviceExternal) {
-        super(serviceAlias, type, producer, Qualifiers.create(serviceName, serviceProtocol, servicePort, false, serviceExternal));
+        super(serviceAlias, type, producer, Qualifiers.create(serviceName, serviceProtocol, servicePort, serviceEndpoint, serviceExternal));
         this.serviceName = serviceName;
         this.serviceProtocol = serviceProtocol;
         this.servicePort = servicePort;
@@ -125,6 +126,7 @@ public class ServiceBean<X> extends ProducerBean<X> {
                 ", serviceProtocol='" + serviceProtocol + '\'' +
                 ", servicePort='" + servicePort + '\'' +
                 ", serviceAlias='" + serviceAlias + '\'' +
+                ", serviceEndpoint=" + serviceEndpoint +
                 ", serviceExternal=" + serviceExternal +
                 ']';
     }

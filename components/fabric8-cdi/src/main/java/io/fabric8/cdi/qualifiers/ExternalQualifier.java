@@ -20,7 +20,7 @@ import io.fabric8.annotations.External;
 import javax.enterprise.util.AnnotationLiteral;
 
 public class ExternalQualifier extends AnnotationLiteral<External> implements External {
-    
+
     private final boolean value;
 
     public ExternalQualifier(boolean value) {

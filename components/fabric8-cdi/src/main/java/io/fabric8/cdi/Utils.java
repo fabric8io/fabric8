@@ -27,6 +27,40 @@ import java.lang.reflect.Method;
 
 public class Utils {
 
+    public static final String toAlias(String serviceName, String serviceProtocol, String servicePort, Boolean endpoint, Boolean external, String suffix) {
+        StringBuilder sb = new StringBuilder();
+
+        if (external) {
+            sb.append("external");
+        } else {
+            sb.append("internal");
+        }
+
+        sb.append("-");
+
+        if (endpoint) {
+            sb.append("endpoint");
+        } else {
+            sb.append("service");
+        }
+
+        sb.append("-").append(serviceName);
+
+        if (Strings.isNotBlank(serviceProtocol)) {
+            sb.append("-").append(serviceProtocol);
+        } else {
+            sb.append("-").append("tcp");
+        }
+
+        if (Strings.isNotBlank(servicePort)) {
+            sb.append("-").append(serviceProtocol);
+        } else {
+            sb.append("-").append("single");
+        }
+        sb.append("-").append(suffix);
+        return sb.toString();
+    }
+
     public static String or(String ... candidates) {
         for (String candidate : candidates) {
             if (Strings.isNotBlank(candidate)) {

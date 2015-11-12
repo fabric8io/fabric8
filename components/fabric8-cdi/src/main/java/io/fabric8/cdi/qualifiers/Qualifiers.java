@@ -45,10 +45,8 @@ public final class Qualifiers {
         } else {
             qualifiers.add(new PortQualifier(""));
         }
-        if (endpoint) {
-            qualifiers.add(new EndpointQualifier());
-        }
-        
+
+        qualifiers.add(new EndpointQualifier(endpoint));
         qualifiers.add(new ExternalQualifier(external));
         return qualifiers.toArray(new Annotation[qualifiers.size()]);
     }
