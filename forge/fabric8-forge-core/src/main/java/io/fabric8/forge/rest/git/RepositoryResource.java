@@ -21,11 +21,14 @@ import io.fabric8.forge.rest.git.dto.CommitTreeInfo;
 import io.fabric8.forge.rest.git.dto.FileDTO;
 import io.fabric8.forge.rest.git.dto.StatusDTO;
 import io.fabric8.forge.rest.main.GitHelpers;
+import io.fabric8.forge.rest.main.MD5Util;
 import io.fabric8.forge.rest.main.ProjectFileSystem;
 import io.fabric8.forge.rest.main.UserDetails;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CommitCommand;
@@ -93,6 +96,8 @@ import static io.fabric8.forge.rest.main.GitHelpers.doAddCommitAndPushFiles;
  */
 public class RepositoryResource {
     private static final transient Logger LOG = LoggerFactory.getLogger(RepositoryResource.class);
+
+    protected static String gravatarUrl = Systems.getEnvVarOrSystemProperty("GRAVATAR_URL", "http://www.gravatar.com/avatar");
 
     private final File gitFolder;
     private final File basedir;
@@ -771,11 +776,33 @@ public class RepositoryResource {
 
     public CommitInfo createCommitInfo(RevCommit entry) {
         final Date date = GitHelpers.getCommitDate(entry);
-        String author = entry.getAuthorIdent().getName();
+        PersonIdent authorIdent = entry.getAuthorIdent();
+        String author = null;
+        String name = null;
+        String email = null;
+        String avatarUrl = null;
+        if (authorIdent != null) {
+            author = authorIdent.getName();
+            name = authorIdent.getName();
+            email = authorIdent.getEmailAddress();
+
+            // lets try default the avatar
+            if (Strings.isNotBlank(email)) {
+                avatarUrl = getAvatarUrl(email);
+            }
+        }
         boolean merge = entry.getParentCount() > 1;
         String shortMessage = entry.getShortMessage();
         String sha = entry.getName();
-        return new CommitInfo(sha, author, date, merge, shortMessage);
+        return new CommitInfo(sha, author, name, email, avatarUrl, date, merge, shortMessage);
+    }
+
+    protected String getAvatarUrl(String email) {
+        String hash = MD5Util.md5Hex(email);
+        if (Strings.isNotBlank(hash)) {
+            return URLUtils.pathJoin(gravatarUrl, hash);
+        }
+        return null;
     }
 
     protected String getHEAD(Git git) {
