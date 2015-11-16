@@ -16,8 +16,10 @@
  */
 package io.fabric8.forge.rest.git;
 
+import io.fabric8.forge.rest.git.dto.CommitDetail;
 import io.fabric8.forge.rest.git.dto.CommitInfo;
 import io.fabric8.forge.rest.git.dto.CommitTreeInfo;
+import io.fabric8.forge.rest.git.dto.DiffInfo;
 import io.fabric8.forge.rest.git.dto.FileDTO;
 import io.fabric8.forge.rest.git.dto.StatusDTO;
 import io.fabric8.forge.rest.main.GitHelpers;
@@ -42,6 +44,7 @@ import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -79,6 +82,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -262,12 +266,7 @@ public class RepositoryResource {
         }
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-        RawTextComparator cmp = RawTextComparator.DEFAULT;
-        DiffFormatter formatter = new DiffFormatter(buffer);
-        formatter.setRepository(r);
-        formatter.setDiffComparator(cmp);
-        formatter.setDetectRenames(true);
+        DiffFormatter formatter = createDiffFormatter(r, buffer);
 
         RevTree commitTree = commit.getTree();
         RevTree baseTree;
@@ -300,6 +299,14 @@ public class RepositoryResource {
         return buffer.toString();
     }
 
+    protected static DiffFormatter createDiffFormatter(Repository r, OutputStream buffer) {
+        DiffFormatter formatter = new DiffFormatter(buffer);
+        formatter.setRepository(r);
+        formatter.setDiffComparator(RawTextComparator.DEFAULT);
+        formatter.setDetectRenames(true);
+        return formatter;
+    }
+
     @GET
     @Path("commitInfo/{commitId}")
     public CommitInfo commitInfo(final @PathParam("commitId") String commitId) throws Exception {
@@ -311,14 +318,78 @@ public class RepositoryResource {
         });
     }
 
+    @GET
+    @Path("commitDetail/{commitId}")
+    public CommitDetail commitDetail(final @PathParam("commitId") String commitId) throws Exception {
+        return gitReadOperation(new GitOperation<CommitDetail>() {
+            @Override
+            public CommitDetail call(Git git, GitContext context) throws Exception {
+                return doCommitDetail(git, commitId);
+            }
+        });
+    }
+
+    protected CommitDetail doCommitDetail(Git git, String commitId) throws IOException {
+        RevCommit baseCommit = doGetCommit(git, commitId);
+        if (baseCommit == null) {
+            return null;
+        } else {
+            List<DiffInfo> diffs = new ArrayList<>();
+            
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            Repository r = git.getRepository();
+            DiffFormatter formatter = createDiffFormatter(r, buffer);
+
+            RevTree commitTree = baseCommit.getTree();
+            RevTree baseTree = null;
+            if (baseCommit.getParentCount() > 0) {
+                final RevWalk rw = new RevWalk(r);
+                RevCommit parent = rw.parseCommit(baseCommit.getParent(0).getId());
+                rw.dispose();
+                baseTree = parent.getTree();
+            } else {
+                // FIXME initial commit. no parent?!
+                baseTree = commitTree;
+            }
+            if (baseTree == null) {
+                baseTree = baseCommit.getTree();
+            }
+
+            List<DiffEntry> diffEntries = formatter.scan(baseTree, commitTree);
+            for (DiffEntry diffEntry : diffEntries) {
+                formatter.format(diffEntry);
+                formatter.flush();
+                String diff = buffer.toString();
+                buffer.reset();
+                DiffInfo diffInfo = createDiffInfo(diffEntry, diff);
+                diffs.add(diffInfo);
+            }
+            CommitInfo commitInfo = createCommitInfo(baseCommit);
+            return new CommitDetail(commitInfo, diffs);
+        }
+
+    }
+
+    protected DiffInfo createDiffInfo(DiffEntry diffEntry, String diff) {
+        return new DiffInfo(diffEntry.getChangeType(), diffEntry.getNewPath(), toInt(diffEntry.getNewMode()), diffEntry.getOldPath(), toInt(diffEntry.getOldMode()), diff);
+    }
+
+    protected static int toInt(FileMode fileMode) {
+        return fileMode != null ? fileMode.getBits() : 0;
+    }
+
     protected CommitInfo doCommitInfo(Git git, String commitId) {
-        Repository repository = git.getRepository();
-        RevCommit commit = CommitUtils.getCommit(repository, commitId);
+        RevCommit commit = doGetCommit(git, commitId);
         if (commit == null) {
             return null;
         } else {
             return createCommitInfo(commit);
         }
+    }
+
+    protected static RevCommit doGetCommit(Git git, String commitId) {
+        Repository repository = git.getRepository();
+        return CommitUtils.getCommit(repository, commitId);
     }
 
     /**
