@@ -32,6 +32,9 @@ import java.util.Set;
  */
 public class FileDTO extends GitDTOSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(FileDTO.class);
+    public static final String DEFAULT_ENCODING = "base64";
+    public static final String FILE_TYPE = "file";
+    public static final String DIR_TYPE = "dir";
 
     private final String type;
     private final long size;
@@ -55,6 +58,22 @@ public class FileDTO extends GitDTOSupport {
         this.path = path;
     }
 
+    public static FileDTO createFileDTO(String pathName, String objectId, String content) {
+        String type = "file";
+        byte[] bytes = content.getBytes();
+        long size = bytes.length;
+        String path = "";
+        String name = pathName;
+        int idx = pathName.lastIndexOf('/');
+        if (idx >= 0) {
+            name = pathName.substring(idx + 1);
+            path = pathName.substring(0, idx);
+        }
+        String encoding = DEFAULT_ENCODING;
+        String base64Content = toBase64(bytes);
+        return new FileDTO(type, size, name, path, encoding, base64Content);
+    }
+
     public static FileDTO createFileDTO(File file, String parentPath, boolean includeContent) {
         String content = null;
         String encoding = null;
@@ -62,13 +81,13 @@ public class FileDTO extends GitDTOSupport {
         if (includeContent && isFile) {
             try {
                 byte[] bytes = Files.readBytes(file);
-                content = new String(Base64Encoder.encode(bytes));
-                encoding = "base64";
+                content = toBase64(bytes);
+                encoding = DEFAULT_ENCODING;
             } catch (IOException e) {
                 LOG.warn("Failed to load: " + file.getPath() + ". " + e, e);
             }
         }
-        String type = file.isDirectory() ? "dir" : "file";
+        String type = file.isDirectory() ? DIR_TYPE : FILE_TYPE;
         long size = 0;
         if (isFile) {
             size = file.length();
@@ -93,6 +112,10 @@ public class FileDTO extends GitDTOSupport {
             }
         }
         return fileDTO;
+    }
+
+    protected static String toBase64(byte[] bytes) {
+        return new String(Base64Encoder.encode(bytes));
     }
 
     @Override

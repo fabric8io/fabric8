@@ -111,16 +111,18 @@ public class RepositoriesResource {
         UserDetails userDetails = gitUserHelper.createUserDetails(request);
         String origin = projectFileSystem.getRemote();
 
-        String branch = request.getParameter("ref");
+        String branch = request.getParameter("branch");
         if (Strings.isNullOrBlank(branch)) {
             branch = "master";
         }
+        String objectId = request.getParameter("ref");
+
         //File projectFolder = projectFileSystem.cloneOrPullProjectFolder(userId, repositoryName, userDetails);
         File projectFolder = projectFileSystem.getUserProjectFolder(userId, repositoryName);
         String cloneUrl = projectFileSystem.getCloneUrl(userId, repositoryName, userDetails);
         File gitFolder = new File(projectFolder, ".git");
         String remoteRepository = userId + "/" + repositoryName;
-        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl);
+        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl, objectId);
         try {
             String message = request.getParameter("message");
             if (Strings.isNotBlank(message)) {
@@ -139,10 +141,11 @@ public class RepositoriesResource {
 
         String remoteRepository = namespace + "/" + projectId;
 
-        String branch = request.getParameter("ref");
+        String branch = request.getParameter("branch");
         if (Strings.isNullOrBlank(branch)) {
             branch = "master";
         }
+        String objectId = request.getParameter("ref");
         File projectFolder = projectFileSystem.getNamespaceProjectFolder(namespace, projectId);
 
         // lets get the BuildConfig
@@ -175,7 +178,7 @@ public class RepositoriesResource {
         String cloneUrl = uri;
         File gitFolder = new File(projectFolder, ".git");
         LOG.debug("Cloning " + cloneUrl);
-        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl);
+        RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl, objectId);
         if (sourceSecretName != null) {
             try {
                 Secret secret = osClient.secrets().withName(sourceSecretName).get();

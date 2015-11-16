@@ -114,8 +114,9 @@ public class RepositoryResource {
     private final String branch;
     private final PersonIdent personIdent;
     private String message;
+    private String objectId;
 
-    public RepositoryResource(File basedir, File gitFolder, UserDetails userDetails, String origin, String branch, String remoteRepository, GitLockManager lockManager, ProjectFileSystem projectFileSystem, String cloneUrl) throws IOException, GitAPIException {
+    public RepositoryResource(File basedir, File gitFolder, UserDetails userDetails, String origin, String branch, String remoteRepository, GitLockManager lockManager, ProjectFileSystem projectFileSystem, String cloneUrl, String objectId) throws IOException, GitAPIException {
         this.basedir = basedir;
         this.gitFolder = gitFolder;
         this.userDetails = userDetails;
@@ -149,6 +150,13 @@ public class RepositoryResource {
         this.message = message;
     }
 
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
 
     @GET
     @Path("content/{path:.*}")
@@ -156,33 +164,41 @@ public class RepositoryResource {
         return gitReadOperation(new GitOperation<Response>() {
             @Override
             public Response call(Git git, GitContext context) throws Exception {
-                return doFileDetails(path);
+                return doFileDetails(git, path);
             }
         });
     }
 
-    protected Response doFileDetails(String path) {
-        final File file = getRelativeFile(path);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("reading file: " + file.getPath());
-        }
-        if (!file.exists() || file.isDirectory()) {
-            List<FileDTO> answer = new ArrayList<>();
-            if (file.exists()) {
-                File[] files = file.listFiles();
-                if (files != null) {
-                    for (File child : files) {
-                        FileDTO dto = createFileDTO(child, false);
-                        if (dto != null) {
-                            answer.add(dto);
+    protected Response doFileDetails(Git git, String path) {
+        if (Strings.isNotBlank(objectId)) {
+            Repository r = git.getRepository();
+            String blobPath = trimLeadingSlash(path);
+            String content = BlobUtils.getContent(r, objectId, blobPath);
+            FileDTO answer = FileDTO.createFileDTO(blobPath, objectId, content);
+            return Response.ok(answer).build();
+        } else {
+            final File file = getRelativeFile(path);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("reading file: " + file.getPath());
+            }
+            if (!file.exists() || file.isDirectory()) {
+                List<FileDTO> answer = new ArrayList<>();
+                if (file.exists()) {
+                    File[] files = file.listFiles();
+                    if (files != null) {
+                        for (File child : files) {
+                            FileDTO dto = createFileDTO(child, false);
+                            if (dto != null) {
+                                answer.add(dto);
+                            }
                         }
                     }
                 }
+                return Response.ok(answer).build();
+            } else {
+                FileDTO answer = createFileDTO(file, true);
+                return Response.ok(answer).build();
             }
-            return Response.ok(answer).build();
-        } else {
-            FileDTO answer = createFileDTO(file, true);
-            return Response.ok(answer).build();
         }
     }
 
@@ -776,7 +792,7 @@ public class RepositoryResource {
                     }
                 }
 
-                checkoutBranch(git);
+                checkoutBranch(git, context);
                 if (context.isRequirePull()) {
                     doPull(git, context);
                 }
@@ -932,11 +948,12 @@ public class RepositoryResource {
         }
     }
 
-    protected void checkoutBranch(Git git) throws GitAPIException {
+    protected void checkoutBranch(Git git, GitContext context) throws GitAPIException {
         String current = currentBranch(git);
         if (Objects.equals(current, branch)) {
             return;
         }
+        System.out.println("Checking out branch: " + branch);
         // lets check if the branch exists
         CheckoutCommand command = git.checkout().setName(branch);
         boolean exists = localBranchExists(git, branch);
@@ -1020,6 +1037,8 @@ public class RepositoryResource {
         // TODO generate the SHA
         return answer;
     }
+
+
 
     protected String toString(Collection<RemoteRefUpdate> updates) {
         StringBuilder builder = new StringBuilder();
