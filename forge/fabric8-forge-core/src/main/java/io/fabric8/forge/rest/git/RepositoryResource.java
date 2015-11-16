@@ -335,18 +335,22 @@ public class RepositoryResource {
             return null;
         } else {
             List<DiffInfo> diffs = new ArrayList<>();
-            
+
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             Repository r = git.getRepository();
             DiffFormatter formatter = createDiffFormatter(r, buffer);
 
+            //git.diff().setNewTree()
             RevTree commitTree = baseCommit.getTree();
             RevTree baseTree = null;
+            ObjectId parentId = null;
             if (baseCommit.getParentCount() > 0) {
                 final RevWalk rw = new RevWalk(r);
-                RevCommit parent = rw.parseCommit(baseCommit.getParent(0).getId());
-                rw.dispose();
+                parentId = baseCommit.getParent(0).getId();
+                RevCommit parent = rw.parseCommit(parentId);
                 baseTree = parent.getTree();
+                rw.dispose();
+
             } else {
                 // FIXME initial commit. no parent?!
                 baseTree = commitTree;
@@ -356,6 +360,21 @@ public class RepositoryResource {
             }
 
             List<DiffEntry> diffEntries = formatter.scan(baseTree, commitTree);
+            if (diffEntries.isEmpty()) {
+                // lets try get the previous commit
+                String previousCommit = commitId + "~1";
+                ObjectId resolve = r.resolve(previousCommit);
+                RevTree newTree = null;
+                if (resolve != null) {
+                    final RevWalk rw = new RevWalk(r);
+                    RevCommit parent = rw.parseCommit(resolve);
+                    newTree = parent.getTree();
+                    rw.dispose();
+                }
+                if (baseTree == null || newTree == null || !Objects.equals(baseTree.getId(), newTree.getId())) {
+                    diffEntries = formatter.scan(newTree, commitTree);
+                }
+            }
             for (DiffEntry diffEntry : diffEntries) {
                 formatter.format(diffEntry);
                 formatter.flush();
