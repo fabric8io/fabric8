@@ -289,10 +289,6 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     protected void createRoutes(KubernetesClient kubernetes, Collection<HasMetadata> collection) {
         String routeDomainPostfix = this.routeDomain;
         Log log = getLog();
-        if (Strings.isNullOrBlank(routeDomainPostfix)) {
-            log.warn("No fabric8.domain property or $KUBERNETES_DOMAIN environment variable so cannot create any OpenShift Routes");
-            return;
-        }
         String namespace = getNamespace();
         // lets get the routes first to see if we should bother
         try {
@@ -329,8 +325,12 @@ public class ApplyMojo extends AbstractFabric8Mojo {
             objectRef.setName(id);
             objectRef.setNamespace(namespace);
             routeSpec.setTo(objectRef);
-            String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
-            routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
+            if (!Strings.isNullOrBlank(routeDomainPostfix)) {
+                String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
+                routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
+            } else {
+                routeSpec.setHost("");
+            }
             route.setSpec(routeSpec);
             String json;
             try {
