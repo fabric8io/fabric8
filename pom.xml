@@ -356,16 +356,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf-plugins</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>gitrepo-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -426,11 +416,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>rest-utils</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-model</artifactId>
                 <version>${kubernetes-model.version}</version>
@@ -468,6 +453,21 @@
 
 
             <!-- Unsupported excluded from the release
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>rest-utils</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-cxf</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-cxf-plugins</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>swagger-model</artifactId>

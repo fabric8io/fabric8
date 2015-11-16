@@ -48,16 +48,6 @@
         <dependencies>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf-plugins</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
