@@ -65,7 +65,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.DigestScheme;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1368,8 +1370,8 @@ public class DevOpsConnector {
                     + namespace + " on Kubernetes address: " + kubernetes.getMasterUrl());
         }
 
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        DefaultHttpClient httpclientPost = new DefaultHttpClient();
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpClient httpclientPost = HttpClients.createDefault();
         String GERRIT_URL= gerritAddress + "/a/projects/" + repoName;
         HttpGet httpget = new HttpGet(GERRIT_URL);
         System.out.println("Requesting : " + httpget.getURI());
@@ -1424,8 +1426,8 @@ public class DevOpsConnector {
             System.out.println("Response from Gerrit Server : " + e.getMessage());
             throw new Exception("Repository " + repoName + " already exists !");
         } finally {
-            httpclient.getConnectionManager().shutdown();
-            httpclientPost.getConnectionManager().shutdown();
+            httpclient.close();
+            httpclientPost.close();
         }
     }
 
