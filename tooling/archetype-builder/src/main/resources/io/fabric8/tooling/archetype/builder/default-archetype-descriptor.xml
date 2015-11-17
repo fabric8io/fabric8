@@ -69,6 +69,7 @@
         <include>**/*.wsdl</include>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
+        <include>**/*.cfg</include>
       </includes>
       <excludes>
         <exclude>java/**</exclude>
