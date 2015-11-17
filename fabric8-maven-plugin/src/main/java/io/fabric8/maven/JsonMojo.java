@@ -582,8 +582,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             if (combinedJson instanceof Template) {
                 Template template = (Template) combinedJson;
-                setName(template, getProjectName());
+                String templateName = getProjectName();
+                setName(template, templateName);
                 configureTemplateDescriptionAndIcon(template, getIconUrl());
+
+                addLabelIntoObjects(template.getObjects(), "group", templateName);
 
                 if (pureKubernetes) {
                     combinedJson = applyTemplates(template);
@@ -598,6 +601,50 @@ public class JsonMojo extends AbstractFabric8Mojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
         }
+    }
+
+    protected void addLabelIntoObjects(List<HasMetadata> objects, String label, String value) {
+        for (HasMetadata object : objects) {
+            addLabelIfNotExist(object, label, value);
+            if (object instanceof ReplicationController) {
+                ReplicationController entity = (ReplicationController) object;
+                ReplicationControllerSpec spec = entity.getSpec();
+                if (spec != null) {
+                    final PodTemplateSpec template = spec.getTemplate();
+                    if (template != null) {
+                        // TODO hack until this is fixed https://github.com/fabric8io/kubernetes-model/issues/112
+                        HasMetadata hasMetadata = new HasMetadata() {
+                            @Override
+                            public ObjectMeta getMetadata() {
+                                return template.getMetadata();
+                            }
+
+                            @Override
+                            public void setMetadata(ObjectMeta objectMeta) {
+                                template.setMetadata(objectMeta);
+                            }
+
+                            @Override
+                            public String getKind() {
+                                return "PodTemplateSpec";
+                            }
+                        };
+                        addLabelIfNotExist(hasMetadata, label, value);
+                    }
+                }
+            }
+        }
+    }
+
+    protected boolean addLabelIfNotExist(HasMetadata object, String label, String value) {
+        if (object != null) {
+            Map<String, String> labels = KubernetesHelper.getOrCreateLabels(object);
+            if (labels.get(label) == null) {
+                labels.put(label, value);
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Object applyTemplates(Template template) throws IOException {
