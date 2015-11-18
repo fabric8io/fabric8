@@ -67,7 +67,7 @@ public class JolokiaHelpers {
             JSONObject jsonObject = (JSONObject) value;
             if (!JSONObject.class.isAssignableFrom(clazz)) {
                 String json = jsonObject.toJSONString();
-                return getObjectMapper().reader(clazz).readValue(json);
+                return getObjectMapper().readerFor(clazz).readValue(json);
             }
         }
         return value;
