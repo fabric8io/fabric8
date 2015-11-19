@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.EndpointPort;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.URLUtils;
+import io.fabric8.utils.Strings;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -35,18 +36,19 @@ public class Services {
     public static String toServiceUrl(String serviceName, String serviceProtocol, String servicePortName, String servicePath, boolean serviceExternal) {
         KubernetesClient client = KubernetesHolder.getClient();
         String serviceNamespace = client.getNamespace();
-        return URLUtils.pathJoin(KubernetesHelper.getServiceURL(client, serviceName, serviceNamespace, serviceProtocol, servicePortName, serviceExternal), servicePath);
+        String actualProtocol = Strings.isNullOrBlank(serviceProtocol) ? DEFAULT_PROTO : serviceProtocol;
+        return URLUtils.pathJoin(KubernetesHelper.getServiceURL(client, serviceName, serviceNamespace, actualProtocol, servicePortName, serviceExternal), servicePath);
     }
 
     public static List<String> toServiceEndpointUrl(String serviceId, String serviceProtocol, String servicePort) {
         List<String> endpoints = new ArrayList<>();
         KubernetesClient client = KubernetesHolder.getClient();
         String namespace = client.getNamespace();
-        String serviceProto = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
+        String actualProtocol = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
 
         try {
             for (String endpoint : KubernetesHelper.lookupServiceInDns(serviceId)) {
-                endpoints.add(serviceProto + "://" + endpoint);
+                endpoints.add(actualProtocol + "://" + endpoint);
             }
         } catch (UnknownHostException e) {
             //ignore and fallback to the api.
@@ -62,7 +64,7 @@ public class Services {
                     for (EndpointAddress address : subset.getAddresses()) {
                         for (EndpointPort endpointPort : subset.getPorts()) {
                             if (servicePort == null || servicePort.equals(endpointPort.getName())) {
-                                endpoints.add(serviceProto + "://" + address.getIp() + ":" + endpointPort.getPort());
+                                endpoints.add(actualProtocol + "://" + address.getIp() + ":" + endpointPort.getPort());
                             }
                         }
                     }

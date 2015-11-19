@@ -141,4 +141,11 @@ public class ExtensionInternalTest {
         Assert.assertNotNull(nestingFactoryBean.getService1());
         Assert.assertNotNull(nestingFactoryBean.getService2());
     }
+
+    @Test
+    public void testProtocol() {
+        Assert.assertNotNull(simpleBean);
+        Assert.assertTrue(simpleBean.getUrl().startsWith("tcp://"));
+        Assert.assertTrue(simpleBean.getTestUrl().startsWith("tst://"));
+    }
 }
