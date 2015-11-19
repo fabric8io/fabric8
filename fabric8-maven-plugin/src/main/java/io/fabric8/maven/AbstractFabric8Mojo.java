@@ -910,9 +910,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
         MavenProject project = getProject();
         if (parameters != null && project != null) {
-            Properties properties = project.getProperties();
-            properties.putAll(project.getProperties());
-            properties.putAll(System.getProperties());
+            Properties properties = getProjectAndFabric8Properties(project);
             boolean missingProperty = false;
             for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
                 String parameterName = parameter.getName();
@@ -930,5 +928,13 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 getLog().debug("Current properties " + new TreeSet<>(properties.keySet()));
             }
         }
+    }
+
+    protected Properties getProjectAndFabric8Properties(MavenProject project) {
+        Properties properties = project.getProperties();
+        properties.putAll(project.getProperties());
+        // let system properties override so we can read from the command line
+        properties.putAll(System.getProperties());
+        return properties;
     }
 }

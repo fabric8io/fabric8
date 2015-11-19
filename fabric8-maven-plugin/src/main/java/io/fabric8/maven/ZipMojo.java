@@ -452,7 +452,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setRecursive(false);
             request.setInteractive(false);
             request.setProfiles(activeProfileIds);
-            request.setProperties(getProject().getProperties());
+            request.setProperties(getProjectAndFabric8Properties(getProject()));
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);

@@ -928,7 +928,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     } else {
                         accessModes = "ReadWriteMany";
                     }
-                    Properties properties = getProject().getProperties();
+                    Properties properties = getProjectAndFabric8Properties(getProject());
                     String requestStorageProperty = String.format(VolumeType.VOLUME_PROPERTY, name, VolumeType.VOLUME_PVC_REQUEST_STORAGE);
                     String amount = properties.getProperty(requestStorageProperty);
                     if (Strings.isNullOrBlank(amount)) {
@@ -1263,7 +1263,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     protected Probe getProbe(String prefix) {
         Probe probe = new Probe();
-        Properties properties = getProject().getProperties();
+        Properties properties = getProjectAndFabric8Properties(getProject());
         Long initialDelaySeconds = getLong(properties, prefix + ".initialDelaySeconds");
         if (initialDelaySeconds != null) {
             probe.setInitialDelaySeconds(initialDelaySeconds);
@@ -1413,9 +1413,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (containerPorts.isEmpty()) {
             Map<String, ContainerPort> portMap = new HashMap<>();
-            Properties properties1 = getProject().getProperties();
+            Properties properties1 = getProjectAndFabric8Properties(getProject());
             Map<String, String> hostPorts = findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
-            Properties properties = getProject().getProperties();
+            Properties properties = getProjectAndFabric8Properties(getProject());
             Map<String, String> containerPortsMap = findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
 
             for (Map.Entry<String, String> entry : containerPortsMap.entrySet()) {
@@ -1466,7 +1466,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             servicePorts = new ArrayList<>();
         }
         if (servicePorts.isEmpty()) {
-            Properties properties1 = getProject().getProperties();
+            Properties properties1 = getProjectAndFabric8Properties(getProject());
             Map<String, String> servicePortProperties = findPropertiesWithPrefix(properties1, FABRIC8_PORT_SERVICE_PREFIX);
             Map<String, String> serviceContainerPortProperties = findPropertiesWithPrefix(properties1, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX);
             Map<String, String> serviceProtocolProperties = findPropertiesWithPrefix(properties1, FABRIC8_PROTOCOL_SERVICE_PREFIX);
@@ -1562,7 +1562,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labels = new HashMap<>();
         }
         if (labels.isEmpty()) {
-            labels = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.label.", Strings.toLowerCaseFunction());
+            labels = findPropertiesWithPrefix(getProjectAndFabric8Properties(getProject()), "fabric8.label.", Strings.toLowerCaseFunction());
         }
         return labels;
     }
@@ -1596,7 +1596,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected Map<String, String> loadAnnotations(File annotationsFile, String propertiesPrefix, String annotationsName) throws MojoExecutionException {
-        Map<String, String> answer = findPropertiesWithPrefix(getProject().getProperties(), propertiesPrefix, Strings.toLowerCaseFunction());
+        Map<String, String> answer = findPropertiesWithPrefix(getProjectAndFabric8Properties(getProject()), propertiesPrefix, Strings.toLowerCaseFunction());
         if (annotationsFile != null && annotationsFile.exists() && annotationsFile.isFile()) {
             try {
                 Properties properties = new Properties();
@@ -1699,7 +1699,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public List<VolumeMount> getVolumeMounts() {
         List<VolumeMount> volumeMount = new ArrayList<>();
         MavenProject project = getProject();
-        for (Map.Entry<Object, Object> entry : project.getProperties().entrySet()) {
+        for (Map.Entry<Object, Object> entry : getProjectAndFabric8Properties(project).entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
                 String s = (String) key;
@@ -1723,7 +1723,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public List<Volume> getVolumes() {
         List<Volume> volumes = new ArrayList<>();
         MavenProject project = getProject();
-        Properties properties = project.getProperties();
+        Properties properties = getProjectAndFabric8Properties(project);
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             Object key = entry.getKey();
@@ -1746,7 +1746,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public Template getTemplate() throws MojoExecutionException {
         List<io.fabric8.openshift.api.model.Parameter> parameters = new ArrayList<>();
         MavenProject project = getProject();
-        Properties projectProperties = project.getProperties();
+        Properties projectProperties = getProjectAndFabric8Properties(getProject());
         Set<String> paramNames = new HashSet<>();
         if (templateParametersPropertiesFile != null && templateParametersPropertiesFile.isFile() && templateParametersPropertiesFile.exists()) {
             final String valuePostfix = ".value";
