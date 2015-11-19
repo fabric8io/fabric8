@@ -16,6 +16,8 @@
 package io.fabric8.maven;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.dsl.Deletable;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,30 +40,39 @@ public class CleanMojo extends ApplyMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         KubernetesClient client = getKubernetes().inNamespace(getNamespace());
 
-        client.services().delete();
-        client.replicationControllers().delete();
-        client.pods().delete();
+        delete(client.services());
+        delete(client.replicationControllers());
+        delete(client.pods());
 
-        client.endpoints().delete();
-        client.events().delete();
+        delete(client.endpoints());
+        delete(client.events());
 
         if (deep) {
-            client.secrets().delete();
-            client.serviceAccounts().delete();
-            client.securityContextConstraints().delete();
+            delete(client.secrets());
+            delete(client.serviceAccounts());
+            delete(client.securityContextConstraints());
         }
 
         if (client.isAdaptable(OpenShiftClient.class)) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
 
-            openShiftClient.routes().delete();
-            openShiftClient.builds().delete();
-            openShiftClient.imageStreams().delete();
-            openShiftClient.buildConfigs().delete();
-            openShiftClient.deploymentConfigs().delete();
+            delete(openShiftClient.routes());
+            delete(openShiftClient.builds());
+            delete(openShiftClient.imageStreams());
+            delete(openShiftClient.buildConfigs());
+            delete(openShiftClient.deploymentConfigs());
             if (deep) {
-                openShiftClient.templates().delete();
+                delete(openShiftClient.templates());
             }
+        }
+    }
+
+    public Boolean delete(Deletable<Boolean> deletable) {
+        try {
+            return deletable.delete();
+        } catch (KubernetesClientException e) {
+            getLog().error(e.getMessage());
+            return false;
         }
     }
 }
