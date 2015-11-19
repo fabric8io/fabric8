@@ -50,6 +50,18 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-osgi</artifactId>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-collections</groupId>
+          <artifactId>commons-collections</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- for the security fix in commons-collections -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
