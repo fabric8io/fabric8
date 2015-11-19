@@ -127,10 +127,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             displayContainerPorts(containerPort);
             displayDockerRunCommand(dockerCommandPlainPrint);
 
-            Properties properties = getProject().getProperties();
-            if (properties == null) {
-                properties = new Properties();
-            }
+            Properties properties = getProjectAndFabric8Properties(getProject());
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -279,9 +276,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
 		String regex = "\\$\\{(.*?)\\}";
 		MavenProject project = getProject();
 		if (project != null) {
-			Properties properties = project.getProperties();
-			properties.putAll(project.getProperties());
-			properties.putAll(System.getProperties());
+			Properties properties = getProjectAndFabric8Properties(project);
 			for (Map.Entry<String, String> entry : env.entrySet()) {
 				String envValue = entry.getValue();
 				if (envValue != null && !envValue.isEmpty() && envValue.contains("${") && envValue.contains("}")) {
