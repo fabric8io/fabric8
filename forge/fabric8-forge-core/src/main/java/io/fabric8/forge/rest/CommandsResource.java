@@ -263,7 +263,7 @@ public class CommandsResource {
             }
             List<Map<String, String>> inputList = executionRequest.getInputList();
             CommandController controller = createController(context, command);
-            configureAttributeMaps(userDetails, controller);
+            configureAttributeMaps(userDetails, controller, executionRequest);
             ExecutionResult answer = null;
             if (controller instanceof WizardCommandController) {
                 WizardCommandController wizardCommandController = (WizardCommandController) controller;
@@ -340,7 +340,7 @@ public class CommandsResource {
         }
     }
 
-    protected void configureAttributeMaps(UserDetails userDetails, CommandController controller) {
+    protected void configureAttributeMaps(UserDetails userDetails, CommandController controller, ExecutionRequest executionRequest) {
         Map<Object, Object> attributeMap = controller.getContext().getAttributeMap();
         if (userDetails != null) {
             attributeMap.put("gitUser", userDetails.getUser());
@@ -348,6 +348,9 @@ public class CommandsResource {
             attributeMap.put("gitAuthorEmail", userDetails.getEmail());
             attributeMap.put("gitAddress", userDetails.getAddress());
             attributeMap.put("gitBranch", userDetails.getBranch());
+            attributeMap.put("projectName", executionRequest.getProjectName());
+            attributeMap.put("buildName", executionRequest.getProjectName());
+            attributeMap.put("namespace", executionRequest.getNamespace());
             attributeMap.put("jenkinsWorkflowFolder", projectFileSystem.getJenkinsWorkflowFolder());
             projectFileSystem.asyncCloneOrPullJenkinsWorkflows(userDetails);
         }
@@ -395,7 +398,7 @@ public class CommandsResource {
             }
             List<Map<String, String>> inputList = executionRequest.getInputList();
             CommandController controller = createController(context, command);
-            configureAttributeMaps(userDetails, controller);
+            configureAttributeMaps(userDetails, controller, executionRequest);
             ValidationResult answer = null;
             if (controller instanceof WizardCommandController) {
                 WizardCommandController wizardCommandController = (WizardCommandController) controller;

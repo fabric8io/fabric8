@@ -257,14 +257,16 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         String gitUrl = null;
         Object object = attributeMap.get(Project.class);
         String user = getStringAttribute(attributeMap, "gitUser");
-        String named = null;
+        String named = getStringAttribute(attributeMap, "projectName");;
         File basedir = CommandHelpers.getBaseDir(project);
 
         if (object instanceof Project) {
             Project newProject = (Project) object;
             MetadataFacet facet = newProject.getFacet(MetadataFacet.class);
             if (facet != null) {
-                named = facet.getProjectName();
+                if (Strings.isNullOrBlank(named)) {
+                    named = facet.getProjectName();
+                }
 
                 String email = getStringAttribute(attributeMap, "gitAuthorEmail");
                 String address = getStringAttribute(attributeMap, "gitAddress");
@@ -278,7 +280,9 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             // updating an existing project - so lets try find the git url from the current source code
             gitUrl = GitHelpers.extractGitUrl(basedir);
             if (basedir != null) {
-                named = basedir.getName();
+                if (Strings.isNullOrBlank(named)) {
+                    named = basedir.getName();
+                }
             }
         }
         ProjectConfigs.defaultEnvironments(config);
@@ -286,6 +290,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         String projectName = config.getBuildName();
         if (Strings.isNullOrBlank(projectName)) {
             projectName = named;
+            config.setBuildName(projectName);
         }
 
         LOG.info("Project name is: " + projectName);
