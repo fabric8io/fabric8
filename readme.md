@@ -12,7 +12,6 @@ fabric8
 [Fabric8](http://fabric8.io) is an open source set of microservices that run on top of [Kubernetes](http://kubernetes.io/) and [OpenShift V3](http://www.openshift.org/) to provide:
 
 * [Management](http://fabric8.io/guide/management.html) with centralised logging and metrics
-* [Continuous Delivery](http://fabric8.io/guide/cdelivery.html) based on Jenkins, Nexus and Sonarqube with integrated [Chat](http://fabric8.io/guide/chat.html)
 * [iPaaS](http://fabric8.io/guide/ipaas.html) - an Integration Platform as a Service with deep integration with Apache ActiveMQ, Camel and CXF
 * [Tooling](http://fabric8.io/guide/tools.html) for developers and devops
 
@@ -42,4 +41,3 @@ We love [contributions](Contributing.md) and you are very welcome to help.
 ### License
 
 This project is [Apache Licensed](license.txt)
-test 
