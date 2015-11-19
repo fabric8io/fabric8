@@ -124,6 +124,14 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-package-maven-plugin</artifactId>
         <version>${camel.version}</version>
+        <dependencies>
+          <!-- for the security fix in commons-collections -->
+          <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <goals>
@@ -135,15 +143,7 @@
       </plugin>
     </plugins>
   </build>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-package-maven-plugin</artifactId>
-        <version>${camel.version}</version>
-      </plugin>
-    </plugins>
-  </reporting>
+
   <profiles>
     <!-- enables the APT dependency so that it can be disabled in IDE builds -->
     <profile>
