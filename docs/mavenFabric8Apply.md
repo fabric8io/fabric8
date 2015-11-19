@@ -75,6 +75,22 @@ The above will apply the OpenShift template defined in `target/classes/kubernete
 
 The following maven property values are used to configure the behaviour of the apply goal:
 
+You define the maven properties in the `pom.xml` file using the `<properties>` tag such as:
+
+```
+    <properties>
+      <fabric8.label.container>java</fabric8.label.container>
+      <fabric8.label.group>myapp</fabric8.label.group>
+      <fabric8.iconRef>camel</fabric8.iconRef>
+    </properties>
+```
+
+If you wish to override or add a property from the command line, you can do this by using Java JVM system properties. A property from the command line will override any existing option configured in the `pom.xml` file.
+
+    mvn fabric8:apply -Dfabric8.recreate=true
+    
+There are many options as listed in the following table:
+
 <table class="table table-striped">
 <tr>
 <th>Parameter</th>
