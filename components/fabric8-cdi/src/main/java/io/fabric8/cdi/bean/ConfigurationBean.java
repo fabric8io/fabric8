@@ -15,9 +15,11 @@
  */
 package io.fabric8.cdi.bean;
 
+import io.fabric8.cdi.Types;
 import io.fabric8.cdi.producers.ConfigurationProducer;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,7 @@ public class ConfigurationBean<T> extends ProducerBean<T> {
 
     private final String configurationId;
 
-    public static ConfigurationBean getBean(String configurationId, Class type) {
+    public static ConfigurationBean getBean(String configurationId, Type type) {
         Key key = new Key(configurationId, type);
         if (BEANS.containsKey(key)) {
             return BEANS.get(key);
@@ -43,10 +45,10 @@ public class ConfigurationBean<T> extends ProducerBean<T> {
         return BEANS.values();
     }
 
-    private ConfigurationBean(String configurationId, Class<T> type) {
+    private ConfigurationBean(String configurationId, Type type) {
         super(configurationId + SUFFIX,
                 type,
-                new ConfigurationProducer<T>(configurationId, type),
+                new ConfigurationProducer(configurationId, Types.asClass(type)),
                 new ConfigurationQualifier(configurationId));
         this.configurationId = configurationId;
     }
@@ -55,11 +57,11 @@ public class ConfigurationBean<T> extends ProducerBean<T> {
         return configurationId;
     }
 
-    private static class Key<T> {
+    private static class Key {
         private final String configurationId;
-        private final Class<T> type;
+        private final Type type;
 
-        private Key(String configurationId, Class<T> type) {
+        private Key(String configurationId, Type type) {
             this.configurationId = configurationId;
             this.type = type;
         }
