@@ -77,7 +77,7 @@
         <cxf.version>3.0.4.redhat-621083</cxf.version>
         <cxf.plugin.version>3.0.4.redhat-621083</cxf.plugin.version>
 
-        <commons.collections.version>3.2.2</commons.collections.version>
+        <commons.collections.version>3.2.1.redhat-7</commons.collections.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
         <jboss.forge.version>2.20.1.Final</jboss.forge.version>
@@ -242,6 +242,24 @@
         <id>jboss.ea</id>
         <name>JBoss Community Early Access Release Repository</name>
         <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+      </repository>
+      <repository>
+        <id>redhat-product</id>
+        <name>Redhat Product Repository</name>
+        <url>https://maven.repository.redhat.com/ga</url>
+      </repository>
+      <!-- internal repo, needed for commons-collections 3.2.1.redhat-7 until it is released in https://maven.repository.redhat.com/ga -->
+      <repository>
+          <id>brewroot</id>
+          <name>Brew Repository</name>
+          <url>http://download.eng.bos.redhat.com/brewroot/repos/jb-fuse-6.2-build/latest/maven</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+          <releases>
+              <enabled>true</enabled>
+              <updatePolicy>never</updatePolicy>
+          </releases>
       </repository>
     </repositories>
     <pluginRepositories>
