@@ -77,6 +77,7 @@
         <cxf.version>3.0.4.redhat-621077</cxf.version>
         <cxf.plugin.version>3.0.4.redhat-621077</cxf.plugin.version>
 
+        <commons.collections.version>3.2.2</commons.collections.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.9</jansi.version>
         <jboss.forge.version>2.20.1.Final</jboss.forge.version>
