@@ -95,7 +95,7 @@ public class Fabric8Extension implements Extension {
 
                     //Ensure that there is a factory String -> sourceType before adding producer.
                     if (!String.class.equals(factoryMethodContext.getSourceType())) {
-                        ServiceBean.getBean(serviceId, serviceProtocol, servicePort, servicePath, null, serviceEndpoint, serviceExternal, (Class<Object>) factoryMethodContext.getSourceType());
+                        ServiceBean.getBean(serviceId, serviceProtocol, servicePort, servicePath, null, serviceEndpoint, serviceExternal, factoryMethodContext.getSourceType());
                     }
 
                     return bean.withProducer(new FactoryMethodProducer(factoryMethodContext.getBean(), factoryMethodContext.getFactoryMethod(), serviceId, serviceProtocol, servicePort, servicePath));
