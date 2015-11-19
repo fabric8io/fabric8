@@ -23,6 +23,7 @@ import io.fabric8.annotations.Path;
 import io.fabric8.annotations.PortName;
 import io.fabric8.annotations.Protocol;
 import io.fabric8.annotations.ServiceName;
+import io.fabric8.cdi.Types;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
@@ -41,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 
 import static io.fabric8.cdi.Utils.or;
 
@@ -135,7 +135,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                     }
                 } else {
                     try {
-                        Object other = BeanProvider.getContextualReferences((Class) type, true);
+                        Object other = BeanProvider.getContextualReferences(Types.asClass(type), true);
                         arguments.add(other);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
@@ -176,7 +176,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      */
     private static String getServiceUrl(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceEndpoint, Boolean serviceExternal, CreationalContext context) {
         try {
-            return (String) BeanProvider.getContextualReference((Class) String.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
+            return BeanProvider.getContextualReference(String.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
             Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal).getProducer();
@@ -195,14 +195,14 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param context
      * @return
      */
-    private static <S> S getServiceBean(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceExternal, Boolean serviceEndpoint, Class<S> serviceType, CreationalContext context) {
+    private static Object getServiceBean(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceExternal, Boolean serviceEndpoint, Type serviceType, CreationalContext context) {
         try {
-            return  BeanProvider.getContextualReference(serviceType, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
+            return  BeanProvider.getContextualReference(Types.asClass(serviceType), Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
         } catch (IllegalStateException e) {
 
-            Producer<S> producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, serviceType).getProducer();
+            Producer producer = ServiceBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, serviceType).getProducer();
             if (producer != null) {
-                return (S) producer.produce(context);
+                return  producer.produce(context);
             } else {
                 throw new IllegalStateException("Could not find producer for service:" + serviceId + " type:" + serviceType + " protocol:" + serviceProtocol);
             }
@@ -215,15 +215,14 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
      * @param serviceId
      * @param type
      * @param context
-     * @param <C>
      * @return
      */
-    private static <C> C getConfiguration(String serviceId, Class<C> type, CreationalContext context) {
+    private static Object getConfiguration(String serviceId, Type type, CreationalContext context) {
         try {
-            return (C) BeanProvider.getContextualReference((Class) type, new ConfigurationQualifier(serviceId));
+            return BeanProvider.getContextualReference(Types.asClass(type), new ConfigurationQualifier(serviceId));
         } catch (IllegalStateException e) {
             //Contextual Refernece not found, let's fallback to Configuration Producer.
-            return (C) ConfigurationBean.getBean(serviceId, type).getProducer().produce(context);
+            return ConfigurationBean.getBean(serviceId, type).getProducer().produce(context);
         }
     }
 }
