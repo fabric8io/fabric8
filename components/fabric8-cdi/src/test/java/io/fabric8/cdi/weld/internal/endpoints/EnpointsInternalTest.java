@@ -60,12 +60,18 @@ public class EnpointsInternalTest {
         Assert.assertEquals("http://172.30.17.2:8082", obj.getService());
     }
 
+    @Test
+    public void testServiceInstanceWithFactoryAndMultipleEndpoints() {
+        ServiceInstanceUsingFactoryAndEndpoints obj = createInstance(ServiceInstanceUsingFactoryAndEndpoints.class);
+        Assert.assertNotNull(obj.getService());
+    }
+
 
     <T> T createInstance(Class<T> type) {
         weld = new Weld()
                 .disableDiscovery()
                 .extensions(new Fabric8Extension())
-                .beanClasses(ClientProducer.class, type)
+                .beanClasses(ClientProducer.class, RandomEndpointToUrl.class, type)
                 .alternatives(ClientProducer.class)
                 .initialize();
 
