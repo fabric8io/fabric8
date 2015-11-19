@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.1.3" data-chapter-title="fabric8:apply" data-filepath="mavenFabric8Apply.md" data-basepath="." data-revision="Thu Nov 19 2015 16:36:27 GMT+0000 (UTC)">
+    <div class="book" data-level="6.1.3" data-chapter-title="fabric8:apply" data-filepath="mavenFabric8Apply.md" data-basepath="." data-revision="Thu Nov 19 2015 16:45:40 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1222,6 +1222,15 @@ mvn fabric8:apply
 </code></pre><p>The above will apply the OpenShift template defined in <code>target/classes/kubernetes.json</code> overriding the template parameter <code>FOO</code> with the value <code>bar</code> before processing the template and creating/updating the resources.</p>
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>The following maven property values are used to configure the behaviour of the apply goal:</p>
+<p>You define the maven properties in the <code>pom.xml</code> file using the <code>&lt;properties&gt;</code> tag such as:</p>
+<pre><code>    &lt;properties&gt;
+      &lt;fabric8.label.container&gt;java&lt;/fabric8.label.container&gt;
+      &lt;fabric8.label.group&gt;myapp&lt;/fabric8.label.group&gt;
+      &lt;fabric8.iconRef&gt;camel&lt;/fabric8.iconRef&gt;
+    &lt;/properties&gt;
+</code></pre><p>If you wish to override or add a property from the command line, you can do this by using Java JVM system properties. A property from the command line will override any existing option configured in the <code>pom.xml</code> file.</p>
+<pre><code>mvn fabric8:apply -Dfabric8.recreate=true
+</code></pre><p>There are many options as listed in the following table:</p>
 <table class="table table-striped">
 <tr>
 <th>Parameter</th>

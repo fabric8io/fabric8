@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="6.1.8" data-chapter-title="fabric8:json" data-filepath="mavenFabric8Json.md" data-basepath="." data-revision="Thu Nov 19 2015 16:36:27 GMT+0000 (UTC)">
+    <div class="book" data-level="6.1.8" data-chapter-title="fabric8:json" data-filepath="mavenFabric8Json.md" data-basepath="." data-revision="Thu Nov 19 2015 16:45:40 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1232,6 +1232,15 @@ ANOTHER = some ${CHEESE}
 <p>See <a href="https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35" target="_blank">this example</a> to see how we can configure this in a pom.xml.</p>
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>You can use maven properties to customize the generation of the JSON:</p>
+<p>You define the maven properties in the <code>pom.xml</code> file using the <code>&lt;properties&gt;</code> tag such as:</p>
+<pre><code>    &lt;properties&gt;
+      &lt;fabric8.label.container&gt;java&lt;/fabric8.label.container&gt;
+      &lt;fabric8.label.group&gt;myapp&lt;/fabric8.label.group&gt;
+      &lt;fabric8.iconRef&gt;camel&lt;/fabric8.iconRef&gt;
+    &lt;/properties&gt;
+</code></pre><p>If you wish to override or add a property from the command line, you can do this by using Java JVM system properties. A property from the command line will override any existing option configured in the <code>pom.xml</code> file. For example to add a 3rd label and change the icon, you can do:</p>
+<pre><code>mvn fabric8:json -Dfabric8.label.foo=bar -Dfabric8.iconRef=java
+</code></pre><p>There are many options as listed in the following table:</p>
 <table class="table table-striped">
 <tr>
 <th>Parameter</th>
