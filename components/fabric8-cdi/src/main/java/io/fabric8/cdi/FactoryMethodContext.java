@@ -17,17 +17,18 @@ package io.fabric8.cdi;
 
 import javax.enterprise.inject.spi.AnnotatedMethod;
 import javax.enterprise.inject.spi.Bean;
+import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FactoryMethodContext {
 
     private final Bean bean;
-    private final Class sourceType;
-    private final Class returnType;
+    private final Type sourceType;
+    private final Type returnType;
     private final AnnotatedMethod factoryMethod;
 
-    public FactoryMethodContext(Bean bean, Class sourceType, Class returnType, AnnotatedMethod factoryMethod) {
+    public FactoryMethodContext(Bean bean, Type sourceType, Type returnType, AnnotatedMethod factoryMethod) {
         this.bean = bean;
         this.sourceType = sourceType;
         this.returnType = returnType;
@@ -38,11 +39,11 @@ public class FactoryMethodContext {
         return bean;
     }
 
-    public Class getSourceType() {
+    public Type getSourceType() {
         return sourceType;
     }
 
-    public Class getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 

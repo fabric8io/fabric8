@@ -41,7 +41,7 @@ public class ConfigurationProducer<T> implements Producer<T> {
             throw new IllegalArgumentException("No service id has been specified.");
         }
         try {
-            T bean = (T) type.newInstance();
+            T bean = type.newInstance();
             for (Field f : type.getDeclaredFields()) {
                 ConfigProperty configProperty = f.getAnnotation(ConfigProperty.class);
                 if (configProperty != null) {

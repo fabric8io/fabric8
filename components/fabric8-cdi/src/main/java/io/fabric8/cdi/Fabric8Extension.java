@@ -147,8 +147,6 @@ public class Fabric8Extension implements Extension {
             Boolean serviceExternal = external != null ? external.value() : false;
             Boolean serviceEndpoint = endpoint != null ? endpoint.value() : false;
 
-
-
             Type type = annotated.getBaseType();
             if (type instanceof ParameterizedType && Instance.class.equals(((ParameterizedType) type).getRawType())) {
                 type = ((ParameterizedType) type).getActualTypeArguments()[0];
@@ -165,7 +163,7 @@ public class Fabric8Extension implements Extension {
             } else if (isGenericOf(type, Set.class, null)) {
                 //TODO: Integrate with Factories(?)
             } else if (type instanceof Class) {
-                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, servicePath, serviceAlias, serviceEndpoint, serviceExternal, (Class) type);
+                ServiceBean.getBean(serviceName, serviceProtocol, servicePort, servicePath, serviceAlias, serviceEndpoint, serviceExternal, type);
             } else {
                 throw new RuntimeException(String.format(INJECTION_POINT_UNKNOWN_TYPE, injectionPoint.getBean().getBeanClass(), type));
             }
@@ -190,7 +188,7 @@ public class Fabric8Extension implements Extension {
             Configuration configuration = annotated.getAnnotation(Configuration.class);
             Type type = injectionPoint.getType();
             String configurationId = configuration.value();
-            ConfigurationBean.getBean(configurationId, (Class) type);
+            ConfigurationBean.getBean(configurationId, type);
         }
     }
 
@@ -200,7 +198,7 @@ public class Fabric8Extension implements Extension {
             if (factory != null) {
                 final Type sourceType = getSourceType(method);
                 final Type returnType = method.getJavaMember().getReturnType();
-                factories.add(new FactoryMethodContext(event.getBean(), (Class) sourceType, (Class) returnType, method));
+                factories.add(new FactoryMethodContext(event.getBean(), sourceType, returnType, method));
             }
         }
     }
