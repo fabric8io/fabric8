@@ -116,6 +116,8 @@ import static io.fabric8.utils.Strings.isNullOrBlank;
  */
 public final class KubernetesHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesHelper.class);
+
     public static final String KUBERNETES_NAMESPACE_SYSTEM_PROPERTY = "kubernetes.namespace";
     public static final String KUBERNETES_NAMESPACE_ENV = "KUBERNETES_NAMESPACE";
     public static final String DEFAULT_NAMESPACE = "default";
@@ -1258,20 +1260,33 @@ public final class KubernetesHelper {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(actualNamespace)) {
-            srv = client.services().inNamespace(actualNamespace).withName(serviceName).get();
+            try {
+                srv = client.services().inNamespace(actualNamespace).withName(serviceName).get();
+            } catch (Exception e) {
+                LOGGER.warn("Could not lookup service:"+serviceName+" in namespace:"+actualNamespace+", due to: " + e.getMessage());
+            }
         }
 
         if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + actualNamespace);
         }
 
-        if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
-            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            Route route = openShiftClient.routes().inNamespace(actualNamespace).withName(serviceName).get();
-            if (route != null) {
-                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+        try {
+            if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
+                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                Route route = openShiftClient.routes().inNamespace(actualNamespace).withName(serviceName).get();
+                if (route != null) {
+                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+                }
+            }
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 403) {
+                LOGGER.warn("Could not lookup route:"+serviceName+" in namespace:"+actualNamespace+", due to: " + e.getMessage());
+            } else {
+                throw e;
             }
         }
+
         ServicePort port = findServicePortByName(srv, servicePortName);
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
