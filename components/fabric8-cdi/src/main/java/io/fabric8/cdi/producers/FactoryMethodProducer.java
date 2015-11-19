@@ -27,6 +27,7 @@ import io.fabric8.cdi.Types;
 import io.fabric8.cdi.bean.ConfigurationBean;
 import io.fabric8.cdi.bean.ServiceBean;
 import io.fabric8.cdi.bean.ServiceUrlBean;
+import io.fabric8.cdi.bean.ServiceUrlCollectionBean;
 import io.fabric8.cdi.qualifiers.ConfigurationQualifier;
 import io.fabric8.cdi.qualifiers.Qualifiers;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -40,6 +41,7 @@ import javax.enterprise.inject.spi.Producer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -81,7 +83,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
         for (AnnotatedParameter<X> parameter : factoryMethod.getParameters()) {
                 Type type = parameter.getBaseType();
                 ServiceName parameterServiceName = parameter.getAnnotation(ServiceName.class);
-                Protocol paramterProtocol = parameter.getAnnotation(Protocol.class);
+                Protocol parameterProtocol = parameter.getAnnotation(Protocol.class);
                 PortName parameterPortName = parameter.getAnnotation(PortName.class);
                 Path parameterPath = parameter.getAnnotation(Path.class);
                 Endpoint paramEndpoint = parameter.getAnnotation(Endpoint.class);
@@ -91,7 +93,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                 //A point without @ServiceName is invalid.
                 // Even if method defines @ServiceName, the annotation on the injection point takes precedence
                 String serviceName = pointName;
-                String serviceProtocol = or(pointProtocol, paramterProtocol != null ? paramterProtocol.value() : null);
+                String serviceProtocol = or(pointProtocol, parameterProtocol != null ? parameterProtocol.value() : null);
                 String servicePort = or(pointPort, parameterPortName != null ? parameterPortName.value() : null);
                 String servicePath = or(pointPath, parameterPath != null ? parameterPath.value() : null);
                 Boolean serviceEndpoint = paramEndpoint != null ? paramEndpoint.value() : false;
@@ -109,10 +111,35 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                                 serviceName), t);
                     }
                 }
+                //If the @ServiceName exists on the current List property
+                else if (parameterServiceName != null && List.class.equals(Types.asClass(type))) {
+                    try {
+                        List<String> endpointList = getEndpointList(serviceName, serviceProtocol, servicePort, servicePath, serviceExternal, ctx);
+                        arguments.add(endpointList);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                serviceName), t);
+                    }
+                }
+                //If the @ServiceName exists on the current List property
+                else if (parameterServiceName != null && Set.class.equals(Types.asClass(type))) {
+                    try {
+                        List<String> endpointList = getEndpointList(serviceName, serviceProtocol, servicePort, servicePath, serviceExternal, ctx);
+                        arguments.add(new HashSet<>(endpointList));
+                    } catch (Throwable t) {
+                        throw new RuntimeException(String.format(SERVICE_LOOKUP_ERROR_FORMAT,
+                                factoryMethod.getJavaMember().getName(),
+                                factoryMethod.getJavaMember().getDeclaringClass().getName(),
+                                serviceName), t);
+                    }
+                }
+
                 // If the @ServiceName exists on the current property which is a non-String
                 else if (parameterServiceName != null && !String.class.equals(type)) {
                     try {
-                        Object serviceBean = getServiceBean(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, (Class<Object>) type, ctx);
+                        Object serviceBean = getServiceBean(serviceName, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal,  type, ctx);
                         arguments.add(serviceBean);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(BEAN_LOOKUP_ERROR_FORMAT,
@@ -187,6 +214,30 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
             }
         }
     }
+
+
+    /**
+     * Get Endpoint URLs as List from the context or create a producer.
+     * @param serviceId
+     * @param serviceProtocol
+     * @param context
+     * @return
+     */
+    private static List<String> getEndpointList(String serviceId, String serviceProtocol, String servicePort, String servicePath, Boolean serviceExternal, CreationalContext context) {
+        final Boolean serviceEndpoint = true;
+        try {
+            return BeanProvider.getContextualReference(List.class, Qualifiers.create(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal));
+        } catch (IllegalStateException e) {
+            //Contextual Refernece not found, let's fallback to Configuration Producer.
+            Producer<String> producer = ServiceUrlBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal).getProducer();
+            if (producer != null) {
+                return ServiceUrlCollectionBean.anyBean(serviceId, serviceProtocol, servicePort, servicePath, serviceEndpoint, serviceExternal, Types.LIST_OF_STRINGS).getProducer().produce(context);
+            } else {
+                throw new IllegalStateException("Could not find producer for endpoints of service:" + serviceId + " protocol:" + serviceProtocol);
+            }
+        }
+    }
+
 
     /**
      * Get Service Bean from the context or create a producer.
