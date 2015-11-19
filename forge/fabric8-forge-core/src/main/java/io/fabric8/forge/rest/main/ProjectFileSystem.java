@@ -100,11 +100,14 @@ public class ProjectFileSystem {
         return dataFile;
     }
 
-    public File getNamespaceProjectFolder(String namespace, String projectId) {
-        File root = new File(rootProjectFolder);
-        File namespacesFolder = new File(root, "namespace");
-        File namespaceFolder = new File(namespacesFolder, namespace);
-        File projectFolder = new File(namespaceFolder, projectId);
+    public File getNamespaceProjectFolder(String namespace, String projectId, String secretNamespace, String secretName) {
+        if (Strings.isNullOrBlank(secretNamespace)) {
+            secretNamespace = namespace;
+        }
+        if (Strings.isNullOrBlank(secretName)) {
+            secretName = "_null";
+        }
+        File projectFolder = new File(new File(rootProjectFolder), "namespace/" + secretNamespace + "/" + secretName + "/" + namespace + "/" + projectId);
         projectFolder.mkdirs();
         return projectFolder;
     }

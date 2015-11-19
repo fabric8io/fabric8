@@ -60,6 +60,10 @@ public class RepositoriesResource {
     private static final transient Logger LOG = LoggerFactory.getLogger(RepositoriesResource.class);
     public static final String SSH_PRIVATE_KEY_DATA_KEY = "ssh-privatekey";
     public static final String SSH_PUBLIC_KEY_DATA_KEY = "ssh-publickey";
+    public static final String SSH_PRIVATE_KEY_DATA_KEY2 = "ssh-key";
+    public static final String SSH_PUBLIC_KEY_DATA_KEY2 = "ssh-key.pub";
+    public static final String USERNAME_DATA_KEY = "username";
+    public static final String PASSWORD_DATA_KEY = "password";
 
     private final GitUserHelper gitUserHelper;
     private final RepositoryCache repositoryCache;
@@ -146,7 +150,6 @@ public class RepositoriesResource {
             branch = "master";
         }
         String objectId = request.getParameter("ref");
-        File projectFolder = projectFileSystem.getNamespaceProjectFolder(namespace, projectId);
 
         // lets get the BuildConfig
         OpenShiftClient osClient = kubernetes.adapt(OpenShiftClient.class).inNamespace(namespace);
@@ -170,27 +173,54 @@ public class RepositoriesResource {
         if (Strings.isNullOrBlank(uri)) {
             throw new NotFoundException("No BuildConfig git URI for " + remoteRepository);
         }
-        String sourceSecretName = null;
-        LocalObjectReference sourceSecret = source.getSourceSecret();
-        if (sourceSecret != null) {
-            sourceSecretName = sourceSecret.getName();
+
+        String sourceSecretName = request.getParameter("secret");
+        String secretNamespace = request.getParameter("secretNamespace");
+        if (Strings.isNullOrBlank(secretNamespace)) {
+            secretNamespace = namespace;
         }
+        if (Strings.isNullOrBlank(sourceSecretName)) {
+            LocalObjectReference sourceSecret = source.getSourceSecret();
+            if (sourceSecret != null) {
+                sourceSecretName = sourceSecret.getName();
+            }
+        }
+        File projectFolder = projectFileSystem.getNamespaceProjectFolder(namespace, projectId, secretNamespace, sourceSecretName);
+
+
         String cloneUrl = uri;
         File gitFolder = new File(projectFolder, ".git");
         LOG.debug("Cloning " + cloneUrl);
         RepositoryResource resource = new RepositoryResource(projectFolder, gitFolder, userDetails, origin, branch, remoteRepository, lockManager, projectFileSystem, cloneUrl, objectId);
         if (sourceSecretName != null) {
             try {
-                Secret secret = osClient.secrets().withName(sourceSecretName).get();
+                Secret secret = osClient.secrets().inNamespace(secretNamespace).withName(sourceSecretName).get();
                 if (secret != null) {
                     Map<String, String> data = secret.getData();
                     File privateKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PRIVATE_KEY_DATA_KEY, data.get(SSH_PRIVATE_KEY_DATA_KEY));
+                    if (privateKeyFile == null) {
+                        privateKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PRIVATE_KEY_DATA_KEY2, data.get(SSH_PRIVATE_KEY_DATA_KEY2));
+                    }
                     userDetails.setSshPrivateKey(privateKeyFile);
                     if (privateKeyFile != null) {
                         privateKeyFile.setReadable(false, true);
                     }
                     File publicKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PUBLIC_KEY_DATA_KEY, data.get(SSH_PUBLIC_KEY_DATA_KEY));
+                    if (publicKeyFile == null) {
+                        publicKeyFile = createSshKeyFile(namespace, sourceSecretName, SSH_PUBLIC_KEY_DATA_KEY2, data.get(SSH_PUBLIC_KEY_DATA_KEY2));
+                    }
                     userDetails.setSshPublicKey(publicKeyFile);
+                    String username = decodeSecretData(data.get(USERNAME_DATA_KEY));
+                    String password = decodeSecretData(data.get(PASSWORD_DATA_KEY));
+                    if (Strings.isNotBlank(username)) {
+                        userDetails.setUser(username);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Using user: " + username);
+                        }
+                    }
+                    if (Strings.isNotBlank(password)) {
+                        userDetails.setPassword(password);
+                    }
                 }
             } catch (IOException e) {
                 LOG.error("Failed to load secret key " + sourceSecretName + ". " + e, e);
@@ -206,6 +236,14 @@ public class RepositoriesResource {
             LOG.warn("failed to load message parameter: " + e, e);
         }
         return resource;
+    }
+
+    protected String decodeSecretData(String text) {
+        if (Strings.isNotBlank(text)) {
+            return Base64Encoder.decode(text);
+        } else {
+            return text;
+        }
     }
 
     public HttpServletRequest getRequest() {

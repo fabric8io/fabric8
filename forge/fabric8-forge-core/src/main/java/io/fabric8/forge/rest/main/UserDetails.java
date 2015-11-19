@@ -33,8 +33,8 @@ public class UserDetails {
     private static final transient Logger LOG = LoggerFactory.getLogger(UserDetails.class);
 
     private final String internalAddress;
-    private final String user;
-    private final String password;
+    private String user;
+    private String password;
     private final String address;
     private final String email;
     private String branch = "master";
@@ -131,5 +131,13 @@ public class UserDetails {
 
     public void setSshPublicKey(File sshPublicKey) {
         this.sshPublicKey = sshPublicKey;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }
