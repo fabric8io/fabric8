@@ -51,6 +51,20 @@
       <artifactId>activemq-osgi</artifactId>
       <optional>true</optional>
       <exclusions>
+        <!-- exclude stuff not needed -->
+        <exclusion>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activemq-web</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activemq-http</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activemq-leveldb-store</artifactId>
+        </exclusion>
+        <!-- for the security fix in commons-collections -->
         <exclusion>
           <groupId>commons-collections</groupId>
           <artifactId>commons-collections</artifactId>
