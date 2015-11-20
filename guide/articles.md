@@ -3,6 +3,8 @@ For the latest and greatest articles on fabric8 check out the [fabric8 blog](htt
 
 ### Videos
 
+* [Automation of CD for Microservices](https://medium.com/fabric8-io/automation-for-microservices-5a8ed0ea100d#.ttymo1yv4) video by James Rawlings shows starting from zero right through to running everything that is required to build, test and release a new project. It shows how we can use automation without compromising on control.
+* [fabric8 - Java developer tools for Kubernetes and OpenShift](https://medium.com/fabric8-io/fabric8-java-developer-tools-for-kubernetes-and-openshift-by-roland-hu%C3%9F-devoxx-video-f0aa651d804#.i7pu9lnbg) video from Devoxx 2015 by Roland Huss, who gives a great overview of how fabric8, Kubernetes and OpenShift are all related.
 * [Getting started with fabric8](https://medium.com/fabric8-io/getting-started-with-fabric8-7bd7ff14958e) by [James Rawlings](https://medium.com/@jdrawlings) zero to running with fabric8 on OpenShift V3 with Vagrant
 * [Create and explore Continuous Delivery Pipelines with Fabric8 and Jenkins on OpenShift](https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a) by James Strachan
 * [Video recording of walk-through of the simple Java fat-jar fabric8 quickstart](https://medium.com/fabric8-io/cheers-video-recording-of-walk-through-of-the-simple-java-fat-jar-fabric8-quickstart-f4af9e58af76) by Claus Ibsen
