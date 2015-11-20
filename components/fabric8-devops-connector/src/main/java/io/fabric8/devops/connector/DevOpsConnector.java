@@ -74,6 +74,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
@@ -81,6 +82,7 @@ import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -179,6 +181,8 @@ public class DevOpsConnector {
     private TaigaClient taiga;
     private String jenkinsJobName;
     private String gitSourceSecretName;
+    private String jenkinsJobTemplate;
+    private boolean localJenkinsFlow;
 
 
     @Override
@@ -432,7 +436,7 @@ public class DevOpsConnector {
 
     public void registerWebHooks() {
         if (Strings.isNotBlank(jenkinsJobName)) {
-            createJenkinsJob(jenkinsJobName, jenkinsJobUrl);
+            jenkinsJobTemplate = createJenkinsJob(jenkinsJobName, jenkinsJobUrl);
             getLog().info("created jenkins job");
         }
         if (Strings.isNotBlank(jenkinsJobUrl) && Strings.isNotBlank(jenkinsJobName)) {
@@ -982,7 +986,8 @@ public class DevOpsConnector {
     }
 
 
-    protected void createJenkinsJob(String buildName, String jenkinsJobUrl) {
+    protected String createJenkinsJob(String buildName, String jenkinsJobUrl) {
+        String answer = null;
         if (projectConfig != null) {
             String flow = projectConfig.getPipeline();
             String flowGitUrlValue = null;
@@ -997,6 +1002,7 @@ public class DevOpsConnector {
             } else {
                 getLog().info("Not creating Jenkins job as no pipeline defined for project configuration!");
             }
+            this.localJenkinsFlow = localFlow;
             String versionPrefix = Systems.getSystemPropertyOrEnvVar("VERSION_PREFIX", "VERSION_PREFIX", "1.0");
             if (Strings.isNotBlank(flow) && Strings.isNotBlank(projectGitUrl) && Strings.isNotBlank(flowGitUrlValue)) {
                 String template = loadJenkinsBuildTemplate(getLog());
@@ -1012,11 +1018,51 @@ public class DevOpsConnector {
                         // lets remove the GIT_URL parameter
                         template = removeBuildParameter(getLog(), template, "GIT_URL");
                     }
-                    postJenkinsBuild(buildName, template);
+                    postJenkinsBuild(buildName, template, true);
+                    answer = template;
                 }
             }
         }
+        return answer;
     }
+
+    protected void addJenkinsScmTrigger(String jenkinsJobUrl) {
+        if (Strings.isNullOrBlank(jenkinsJobTemplate)) {
+            getLog().warn("Cannot add SCM trigger to jenkins job at " + jenkinsJobUrl + " as there is no cached template");
+        } else if (!localJenkinsFlow) {
+            getLog().info("Not adding an SCM trigger to jenkins job at " + jenkinsJobUrl + " as it is not using a local Jenkinsfile");
+        } else {
+            getLog().info("Adding adding an SCM trigger to jenkins job at " + jenkinsJobUrl);
+            String template = null;
+            try {
+                template = jenkinsJobTemplate;
+                Document doc = parseXmlText(template);
+                Element rootElement = doc.getDocumentElement();
+                Element triggerElement = null;
+                NodeList triggers = rootElement.getElementsByTagName("triggers");
+                if (triggers == null || triggers.getLength() == 0) {
+                    triggerElement = DomHelper.addChildElement(rootElement, "triggers");
+                } else {
+                    triggerElement = (Element) triggers.item(0);
+                }
+                Element scmTrigger = DomHelper.addChildElement(triggerElement, "hudson.triggers.SCMTrigger");
+                DomHelper.addChildElement(scmTrigger, "spec", "* * * * * ");
+                DomHelper.addChildElement(scmTrigger, "ignorePostCommitHooks", "false");
+                template = DomHelper.toXml(doc);
+            }
+            catch (Exception e) {
+                getLog().warn("Failed to add the SCM trigger to jenkins job at " + jenkinsJobUrl + ". Reason: " + e, e);
+                template = null;
+            }
+
+            if (Strings.isNotBlank(template)) {
+                postJenkinsBuild(jenkinsJobName, template, false);
+            }
+        }
+
+    }
+
+
 
     /**
      * Jenkins can't clone yet git URLs using openshift secrets so lets switch to https for now for CI builds
@@ -1051,8 +1097,7 @@ public class DevOpsConnector {
 
     public static String addBuildParameter(Logger log, String template, String parameterName, String parameterValue, String description) {
         try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = documentBuilder.parse(new InputSource(new StringReader(template)));
+            Document doc = parseXmlText(template);
             Element rootElement = doc.getDocumentElement();
             NodeList parameterDefs = rootElement.getElementsByTagName("parameterDefinitions");
             if (parameterDefs != null && parameterDefs.getLength() > 0) {
@@ -1065,6 +1110,7 @@ public class DevOpsConnector {
                 if (Strings.isNotBlank(description)) {
                     DomHelper.addChildElement(stringParamDef, "description", description);
                 }
+                return DomHelper.toXml(doc);
             } else {
                 log.warn("Could not find the <parameterDefinitions> to add the build parameter name " + parameterName + " with value: " + parameterValue);
             }
@@ -1074,10 +1120,14 @@ public class DevOpsConnector {
         return template;
     }
 
+    protected static Document parseXmlText(String template) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return documentBuilder.parse(new InputSource(new StringReader(template)));
+    }
+
     public static String removeBuildParameter(Logger log, String template, String parameterName) {
         try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = documentBuilder.parse(new InputSource(new StringReader(template)));
+            Document doc = parseXmlText(template);
             Element rootElement = doc.getDocumentElement();
             NodeList stringDefs = rootElement.getElementsByTagName("hudson.model.StringParameterDefinition");
             if (stringDefs != null) {
@@ -1112,10 +1162,15 @@ public class DevOpsConnector {
         return template;
     }
 
-    protected void postJenkinsBuild(String jobName, String xml) {
+    protected void postJenkinsBuild(String jobName, String xml, boolean create) {
         String address = getServiceUrl(ServiceNames.JENKINS, false, namespace, jenkinsNamespace);
         if (Strings.isNotBlank(address)) {
-            String jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
+            String jobUrl;
+            if (create) {
+                jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
+            } else {
+                jobUrl = URLUtils.pathJoin(address, "/job", jobName, "config.xml");
+            }
 
             getLog().info("POSTING the jenkins job to: " + jobUrl);
             getLog().debug("Jenkins XML: " + xml);
@@ -1166,6 +1221,11 @@ public class DevOpsConnector {
                 jenkinsWebHook += "WithParameters?" + postfix;
             }
             boolean created = createWebhook(jenkinsWebHook, this.secret);
+
+            if (!created) {
+                // lets try to update the Jenkins job to add a SCM polling trigger
+                addJenkinsScmTrigger(jenkinsJobUrl);
+            }
 
             // lets trigger the jenkins webhook URL on project creation if we couldn't register a webhook
             // e.g. if the project is hosted on github
