@@ -27,6 +27,7 @@ public class RestUIContext extends AbstractUIContext {
     private final RestUIProvider provider = new RestUIProvider();
     private String namespace;
     private String projectName;
+    private String cloneUrl;
     private String commitMessage;
 
     public RestUIContext() {
@@ -38,10 +39,11 @@ public class RestUIContext extends AbstractUIContext {
         this.selection = selection;
     }
 
-    public RestUIContext(Resource<?> selection, String namespace, String projectName) {
+    public RestUIContext(Resource<?> selection, String namespace, String projectName, String cloneUrl) {
         this(selection);
         this.namespace = namespace;
         this.projectName = projectName;
+        this.cloneUrl = cloneUrl;
     }
 
     public File getInitialSelectionFile() {
@@ -75,6 +77,10 @@ public class RestUIContext extends AbstractUIContext {
 
     public String getProjectName() {
         return projectName;
+    }
+
+    public String getCloneUrl() {
+        return cloneUrl;
     }
 
     public String getCommitMessage() {

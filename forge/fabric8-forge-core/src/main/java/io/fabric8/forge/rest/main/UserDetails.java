@@ -35,7 +35,7 @@ public class UserDetails {
     private final String internalAddress;
     private String user;
     private String password;
-    private final String address;
+    private String address;
     private final String email;
     private String branch = "master";
     private File sshPrivateKey;
@@ -67,6 +67,10 @@ public class UserDetails {
      */
     public String getAddress() {
         return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getInternalAddress() {

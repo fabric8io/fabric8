@@ -243,6 +243,7 @@ public class CommandsResource {
             return withUIContext(namespace, projectName, resourcePath, true, new RestUIFunction<Response>() {
                 @Override
                 public Response apply(RestUIContext uiContext) throws Exception {
+                    userDetails.setAddress(uiContext.getCloneUrl());
                     return doExecute(name, executionRequest, postProcessor, userDetails, uiContext);
                 }
             });
@@ -347,6 +348,7 @@ public class CommandsResource {
             attributeMap.put("gitPassword", userDetails.getPassword());
             attributeMap.put("gitAuthorEmail", userDetails.getEmail());
             attributeMap.put("gitAddress", userDetails.getAddress());
+            attributeMap.put("gitUrl", userDetails.getAddress());
             attributeMap.put("gitBranch", userDetails.getBranch());
             attributeMap.put("projectName", executionRequest.getProjectName());
             attributeMap.put("buildName", executionRequest.getProjectName());
@@ -509,7 +511,8 @@ public class CommandsResource {
                         File directory = gitDir.getParentFile();
                         LOG.debug("using repository directory: " + directory.getAbsolutePath());
                         Resource<?> selection = resourceFactory.create(directory);
-                        try (RestUIContext context = new RestUIContext(selection, namespace, projectName)) {
+                        String cloneUrl = projectResource.getCloneUrl();
+                        try (RestUIContext context = new RestUIContext(selection, namespace, projectName, cloneUrl)) {
                             T answer = function.apply(context);
                             String commitMessage = context.getCommitMessage();
                             if (Strings.isNotBlank(commitMessage)) {

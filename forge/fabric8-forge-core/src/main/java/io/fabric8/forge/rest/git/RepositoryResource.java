@@ -1057,4 +1057,7 @@ public class RepositoryResource {
         return command.setRemote(getRemote()).call();
     }
 
+    public String getCloneUrl() {
+        return cloneUrl;
+    }
 }

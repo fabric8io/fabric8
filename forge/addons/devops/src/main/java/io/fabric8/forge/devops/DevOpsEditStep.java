@@ -254,7 +254,11 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         UIContext uiContext = context.getUIContext();
         Map<Object, Object> attributeMap = uiContext.getAttributeMap();
 
-        String gitUrl = null;
+        String gitUrl =  getStringAttribute(attributeMap, "gitUrl");
+        if (Strings.isNullOrBlank(gitUrl)) {
+            gitUrl = getStringAttribute(attributeMap, "gitAddress");
+        }
+
         Object object = attributeMap.get(Project.class);
         String user = getStringAttribute(attributeMap, "gitUser");
         String named = getStringAttribute(attributeMap, "projectName");;
@@ -267,18 +271,18 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 if (Strings.isNullOrBlank(named)) {
                     named = facet.getProjectName();
                 }
-
-                String email = getStringAttribute(attributeMap, "gitAuthorEmail");
-                String address = getStringAttribute(attributeMap, "gitAddress");
-                String htmlUrl = address + user + "/" + named;
-                String fullName = user + "/" + named;
-                gitUrl = address + user + "/" + named + ".git";
+                if (Strings.isNullOrBlank(gitUrl)) {
+                    String address = getStringAttribute(attributeMap, "gitAddress");
+                    gitUrl = address + user + "/" + named + ".git";
+                }
             } else {
                 LOG.error("No MetadataFacet for newly created project " + newProject);
             }
         } else {
             // updating an existing project - so lets try find the git url from the current source code
-            gitUrl = GitHelpers.extractGitUrl(basedir);
+            if (Strings.isNullOrBlank(gitUrl)) {
+                gitUrl = GitHelpers.extractGitUrl(basedir);
+            }
             if (basedir != null) {
                 if (Strings.isNullOrBlank(named)) {
                     named = basedir.getName();
@@ -365,15 +369,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             }
         });
 */
-
-/*
-        TODO
-
-        results.setOutputProperty("fullName", fullName);
-        results.setOutputProperty("cloneUrl", remoteUrl);
-        results.setOutputProperty("htmlUrl", htmlUrl);
-*/
-
         try {
             connector.execute();
         } catch (Exception e) {
