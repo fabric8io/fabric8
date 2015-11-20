@@ -109,6 +109,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         final UIContext context = builder.getUIContext();
+        copyFlowToProject.setValue(Boolean.TRUE);
         pipeline.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
