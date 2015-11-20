@@ -58,6 +58,11 @@ public class ArchetypeBuilder {
 
     public static Logger LOG = LoggerFactory.getLogger(ArchetypeBuilder.class);
 
+    private static final String[] specialVersions = new String[]{
+            "camel.version", "cxf.version", "cxf.plugin.version", "activemq.version",
+            "karaf.version", "spring-boot.version", "weld.version"
+    };
+
     private static final Set<String> sourceFileExtensions = new HashSet<String>(Arrays.asList(
         "bpmn",
         "csv",
@@ -440,6 +445,16 @@ public class ArchetypeBuilder {
                                 propertyNameSet.put(name, value);
                             }
                         }
+                    } else {
+                        // pickup some special property names we want to be in the archetype as requiredProperty
+                        String cName = e.getNodeName();
+                        if (isValidRequiredPropertyName(cName) && isSpecialPropertyName(cName)) {
+                            String value = e.getTextContent();
+                            if (value != null) {
+                                value = value.trim();
+                                propertyNameSet.put(cName, value);
+                            }
+                        }
                     }
                 }
             }
@@ -726,6 +741,18 @@ public class ArchetypeBuilder {
      */
     protected boolean isValidRequiredPropertyName(String name) {
         return !name.equals("basedir") && !name.startsWith("project.") && !name.startsWith("pom.") && !name.equals("package");
+    }
+
+    /**
+     * Returns true if its a special property name such as Camel, ActiveMQ etc.
+     */
+    protected boolean isSpecialPropertyName(String name) {
+        for (String special : specialVersions) {
+            if (special.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Node findChild(Element parent, String n) {
