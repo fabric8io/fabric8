@@ -1165,9 +1165,11 @@ public class DevOpsConnector {
                 }
                 jenkinsWebHook += "WithParameters?" + postfix;
             }
-            createWebhook(jenkinsWebHook, this.secret);
+            boolean created = createWebhook(jenkinsWebHook, this.secret);
 
-            if (triggerJenkinsJob) {
+            // lets trigger the jenkins webhook URL on project creation if we couldn't register a webhook
+            // e.g. if the project is hosted on github
+            if (triggerJenkinsJob || !created) {
                 triggerJenkinsWebHook(jenkinsJobUrl, jenkinsWebHook, this.secret);
             }
         }
@@ -1415,14 +1417,16 @@ public class DevOpsConnector {
         }
     }
 
-    protected void createWebhook(String url, String webhookSecret) {
+    protected boolean createWebhook(String url, String webhookSecret) {
         // TODO we should only register a webhook if either git + other system is on premise or if its all online
         // e.g. we shouldn't try to register webhooks on public github with on premise services
         try {
             GitRepoClient gitRepoClient = getGitRepoClient();
             WebHooks.createGogsWebhook(gitRepoClient, getLog(), username, repoName, url, webhookSecret);
+            return true;
         } catch (Exception e) {
             getLog().error("Failed to create webhook " + url + " on repository " + repoName + ". Reason: " + e, e);
+            return false;
         }
     }
 
