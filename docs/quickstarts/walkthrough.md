@@ -2,6 +2,8 @@
 
 This is a guide that shows you from end to end how to try the fabric8 quickstarts.
 
+A [video of this walkthrough](https://vimeo.com/142658441) is also available.
+
 First, make sure you have followed the [Get Started Guide](../getStarted/index.md)
 so you should have things running and you have
 [setup your local machine](../getStarted/local.md).
