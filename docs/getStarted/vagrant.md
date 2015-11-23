@@ -71,8 +71,13 @@ machine you can increase the settings, by editing the
 `Vagrantfile`. The settings are defined in the bottom of the file:
 
 ```ruby
-v.memory = 4096
 v.cpus = 2
+```
+
+To update the RAM you can use an envirnment variable. For example to run the `cd-pipeline` application we recommend about 8Gb of RAM:
+
+```
+export FABRIC8_VM_MEMORY=8000
 ```
 
 Then follow the on screen instructions.
