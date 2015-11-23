@@ -305,11 +305,6 @@ public final class CamelCommandsHelper {
 
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
 
-        // TODO: Work around until Camel 2.16.1
-        if (uri != null) {
-            uri = UnsafeUriCharactersEncoder.encode(uri, true);
-        }
-
         Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
 
         if (data != null) {

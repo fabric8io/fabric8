@@ -199,7 +199,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUriXml(camelComponentName, options);
+        String uri = catalog.asEndpointUriXml(camelComponentName, options, false);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
@@ -365,7 +365,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
         }
 
         CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUri(camelComponentName, options);
+        String uri = catalog.asEndpointUri(camelComponentName, options, false);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
