@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-chapter-title="Fabric8 Vagrant Image" data-filepath="getStarted/vagrant.md" data-basepath=".." data-revision="Mon Nov 23 2015 10:12:44 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-chapter-title="Fabric8 Vagrant Image" data-filepath="getStarted/vagrant.md" data-basepath=".." data-revision="Mon Nov 23 2015 10:40:50 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1242,10 +1242,11 @@ X&apos;s resolver feature (see <code>man 5 resolver</code> for details). </p>
 machine&#x2019;s resources. In case you have plenty of resources on your
 machine you can increase the settings, by editing the
 <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
-<pre><code class="lang-ruby">v.memory = <span class="hljs-number">4096</span>
-v.cpus = <span class="hljs-number">2</span>
+<pre><code class="lang-ruby">v.cpus = <span class="hljs-number">2</span>
 </code></pre>
-<p>Then follow the on screen instructions.</p>
+<p>To update the RAM you can use an envirnment variable. For example to run the <code>cd-pipeline</code> application we recommend about 8Gb of RAM:</p>
+<pre><code>export FABRIC8_VM_MEMORY=8000
+</code></pre><p>Then follow the on screen instructions.</p>
 <ul>
 <li>You should now have a running vagrant image running at IP address
 <code>172.28.128.4</code> or at <code>vagrant.f8</code></li>
