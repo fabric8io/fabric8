@@ -112,7 +112,7 @@ public class RepositoryResource {
     private final String origin;
     private final String cloneUrl;
     private final String branch;
-    private final PersonIdent personIdent;
+    private PersonIdent personIdent;
     private String message;
     private String objectId;
 
@@ -125,10 +125,8 @@ public class RepositoryResource {
         this.projectFileSystem = projectFileSystem;
         this.origin = origin;
         this.cloneUrl = cloneUrl;
-        String user = userDetails.getUser();
-        String authorEmail = userDetails.getEmail();
-        this.personIdent = new PersonIdent(user, authorEmail);
         this.branch = branch;
+        createPersonIdent();
     }
 
     protected static String getFilePattern(String path) {
@@ -769,6 +767,7 @@ public class RepositoryResource {
                 }
 
                 CredentialsProvider credentials = userDetails.createCredentialsProvider();
+                createPersonIdent();
 
                 disableSslCertificateChecks();
                 LOG.info("Stashing local changes to the repo");
@@ -807,7 +806,14 @@ public class RepositoryResource {
                 }
                 return result;
             }
+
         });
+    }
+
+    protected void createPersonIdent() {
+        String user = userDetails.getUser();
+        String authorEmail = userDetails.getEmail();
+        this.personIdent = new PersonIdent(user, authorEmail);
     }
 
     protected void doPull(Git git, GitContext context) throws GitAPIException {
