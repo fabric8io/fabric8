@@ -406,7 +406,7 @@ public class Controller {
     }
 
     public void applySecret(Secret secret, String sourceName) throws Exception {
-        String namespace = getNamespace();
+        String namespace = getNamespace(secret);
         String id = getName(secret);
         Objects.notNull(id, "No name for " + secret + " " + sourceName);
         if (isServicesOnlyMode()) {
@@ -443,6 +443,7 @@ public class Controller {
             }
         }
     }
+
 
     protected void doCreateSecret(Secret secret, String namespace, String sourceName) {
         LOG.info("Creating a Secret from " + sourceName + " namespace " + namespace + " name " + getName(secret));
@@ -958,6 +959,20 @@ public class Controller {
 
     public String getNamespace() {
         return namesapce;
+    }
+
+
+    /**
+     * Returns the namespace defined in the entity or the configured namespace
+     */
+    protected String getNamespace(HasMetadata entity) {
+        String answer = KubernetesHelper.getNamespace(entity);
+        if (Strings.isNullOrBlank(answer)) {
+            answer = getNamespace();
+        }
+        // lest make sure the namespace exists
+        applyNamespace(answer);
+        return answer;
     }
 
     public void setNamespace(String namespace) {
