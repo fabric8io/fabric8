@@ -306,10 +306,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String replicationControllerName;
 
     /**
-     * The name label used in the generated Kubernetes JSON template
+     * The project label used in the generated Kubernetes JSON template
      */
     @Parameter(property = "fabric8.label.project", defaultValue = "${project.artifactId}")
     private String projectName;
+
+    /**
+     * The group label used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.label.group", defaultValue = "${project.groupId}")
+    private String groupName;
 
     /**
      * The name label used in the generated Kubernetes JSON template
@@ -586,7 +592,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 setName(template, templateName);
                 configureTemplateDescriptionAndIcon(template, getIconUrl());
 
-                addLabelIntoObjects(template.getObjects(), "group", templateName);
+                addLabelIntoObjects(template.getObjects(), "package", templateName);
 
                 if (pureKubernetes) {
                     combinedJson = applyTemplates(template);
@@ -827,12 +833,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
         MavenProject project = getProject();
         Map<String, String> labelMap = getLabels();
         String name = getProjectName();
+        String group = getGroupName();
         if (!labelMap.containsKey("version")) {
             labelMap.put("version", project.getVersion());
         }
         if (!labelMap.containsKey("project") && Strings.isNotBlank(name)) {
-            // lets add a project label
             labelMap.put("project", name);
+        }
+        if (!labelMap.containsKey("group") && Strings.isNotBlank(group)) {
+            labelMap.put("group", group);
         }
         if (!labelMap.containsKey("provider") && Strings.isNotBlank(provider)) {
             labelMap.put("provider", provider);
@@ -1453,6 +1462,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public Map<String, Integer> getDefaultContainerPortMap() {
