@@ -469,6 +469,11 @@ public final class KubernetesHelper {
         return mapper.readValue(data, clazz);
     }
 
+    public static void saveYaml(Object data, File file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.writeValue(file, data);
+    }
+
     /**
      * Loads the Kubernetes JSON and converts it to a list of entities
      */
