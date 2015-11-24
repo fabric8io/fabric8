@@ -15,9 +15,8 @@
  */
 package io.fabric8.mq.camel;
 
+import io.fabric8.mq.core.MQConnectionFactory;
 import io.fabric8.mq.core.MQs;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import org.apache.activemq.camel.component.ActiveMQConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +32,16 @@ public class AMQConfiguration extends ActiveMQConfiguration {
     private String failoverUrlParameters;
 
     public AMQConfiguration() {
+        // use MQConnectionFactory as the out of the box connection factory
+        // as it can lookup the ActiveMQ broker using kubernetes services and the ENV variables
+        setConnectionFactory(new MQConnectionFactory());
     }
 
     public AMQConfiguration(AMQComponent component) {
         super.setActiveMQComponent(component);
+        // use MQConnectionFactory as the out of the box connection factory
+        // as it can lookup the ActiveMQ broker using kubernetes services and the ENV variables
+        setConnectionFactory(new MQConnectionFactory());
     }
 
     @Override
