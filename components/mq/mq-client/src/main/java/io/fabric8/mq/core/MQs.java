@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 public class MQs {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQs.class);
 
-    public static final String SERVICE_NAME_ENV_VAR = "FABRIC8MQ_SERVICE_NAME";
-    public static final String DEFAULT_SERVICE_NAME = "FABRIC8MQ";
+    public static final String SERVICE_NAME_ENV_VAR = "A_MQ_SERVICE_NAME";
+    public static final String DEFAULT_SERVICE_NAME = "broker";
     public static final String DEFAULT_HOST = "127.0.0.1";
     public static final String DEFAULT_PORT = "61616";
 
