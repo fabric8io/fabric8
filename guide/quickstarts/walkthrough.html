@@ -52,7 +52,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3" data-chapter-title="Walk-through" data-filepath="quickstarts/walkthrough.md" data-basepath=".." data-revision="Mon Nov 23 2015 14:23:06 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3" data-chapter-title="Walk-through" data-filepath="quickstarts/walkthrough.md" data-basepath=".." data-revision="Tue Nov 24 2015 06:32:33 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1182,7 +1182,7 @@
                     <section class="normal" id="section-">
                     
                         <h3 id="walk-through-a-simple-quickstart"><a name="walk-through-a-simple-quickstart" class="plugin-anchor" href="#walk-through-a-simple-quickstart"><span class="fa fa-link"></span></a>Walk through a simple quickstart</h3>
-<p>This is a guide that shows you from end to end how to try the fabric8 quickstarts.</p>
+<p>This is a more detailed guide showing step by step how to try the fabric8 quickstarts.</p>
 <p>A <a href="https://vimeo.com/142658441" target="_blank">video of this walkthrough</a> is also available.</p>
 <p>First, make sure you have followed the <a href="../getStarted/index.html">Get Started Guide</a>
 so you should have things running and you have
@@ -1234,8 +1234,9 @@ pre-configured goal:</p>
 <pre><code>mvn -Pf8-build
 </code></pre><p>Please note that by default the Docker username is &quot;fabric8&quot; and the
 default registry is &quot;docker.io&quot;. This works by default when you are
-not pushing to a registry with <code>docker:push</code>. Please see below how you
-can customize this to your needs</p>
+not pushing to a registry with <code>docker:push</code>. Please see
+<a href="http://fabric8.io/guide/quickstarts/running.html#changing-docker-user-and-registry" target="_blank">changing Docker user and registry</a> for
+details how to push to a custom registry.</p>
 <h4 id="deploy-the-application-on-kubernetes--openshift"><a name="deploy-the-application-on-kubernetes--openshift" class="plugin-anchor" href="#deploy-the-application-on-kubernetes--openshift"><span class="fa fa-link"></span></a>Deploy the application on Kubernetes / OpenShift</h4>
 <p>Now let&apos;s deploy the image into the Kubernetes environment:</p>
 <pre><code>mvn fabric8:json fabric8:apply
