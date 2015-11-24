@@ -63,9 +63,9 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,11 +134,6 @@ public final class KubernetesHelper {
 
     public static final String defaultApiVersion = "v1";
     public static final String defaultOsApiVersion = "v1";
-
-    private static final String HOST_SUFFIX = "_SERVICE_HOST";
-    private static final String PORT_SUFFIX = "_SERVICE_PORT";
-    private static final String PROTO_SUFFIX = "_TCP_PROTO";
-    public static final String DEFAULT_PROTO = "tcp";
 
     private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
     private static final Config CONFIG = new ConfigBuilder().build();
@@ -1253,9 +1248,9 @@ public final class KubernetesHelper {
      */
     public static String getServiceURL(KubernetesClient client, String serviceName, String serviceNamespace, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         Service srv = null;
-        String serviceHost = serviceToHost(serviceName);
-        String servicePort = serviceToPort(serviceName, servicePortName);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+        String serviceHost = KubernetesServices.serviceToHostOrBlank(serviceName);
+        String servicePort = KubernetesServices.serviceToPortOrBlank(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesServices.serviceToProtocol(serviceName, servicePort);
 
         //Use specified or fallback namespace.
         String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
@@ -1310,9 +1305,9 @@ public final class KubernetesHelper {
      */
     public static String getServiceURLInCurrentNamespace(KubernetesClient client, String serviceName, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         Service srv = null;
-        String serviceHost = serviceToHost(serviceName);
-        String servicePort = serviceToPort(serviceName, servicePortName);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+        String serviceHost = KubernetesServices.serviceToHostOrBlank(serviceName);
+        String servicePort = KubernetesServices.serviceToPortOrBlank(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesServices.serviceToProtocol(serviceName, servicePort);
 
         //1. Inside Kubernetes: Services as ENV vars
         if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
@@ -1339,27 +1334,6 @@ public final class KubernetesHelper {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
         return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
-    }
-
-    public static String serviceToHost(String id) {
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + HOST_SUFFIX), "");
-    }
-
-    public static String serviceToPort(String serviceId) {
-        return serviceToPort(serviceId, null);
-    }
-
-    public static String serviceToPort(String serviceId, String portName) {
-        String name = serviceId + PORT_SUFFIX + (Strings.isNotBlank(portName) ? "_" + portName : "");
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(name), "");
-    }
-
-    public static String serviceToProtocol(String id, String servicePort) {
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + PORT_SUFFIX + "_" + servicePort + PROTO_SUFFIX), DEFAULT_PROTO);
-    }
-
-    public static String toEnvVariable(String str) {
-        return str.toUpperCase().replaceAll("-", "_");
     }
 
     /**
