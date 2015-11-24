@@ -46,7 +46,7 @@ public class AmqTest {
         Endpoint endpoint = camelContext.getEndpoint("amq:someQueue");
 
         // we can use JVM system properties
-        System.setProperty("FABRIC8MQ_SERVICE_NAME", "myBroker");
+        System.setProperty("A_MQ_SERVICE_NAME", "myBroker");
         System.setProperty("MYBROKER_SERVICE_HOST", "superbroker");
         System.setProperty("MYBROKER_SERVICE_PORT", "1234");
 
@@ -55,7 +55,7 @@ public class AmqTest {
         LOG.info("BrokerURL: " + amq.getConfiguration().getBrokerURL());
         Assert.assertEquals("failover:(tcp://superbroker:1234)", amq.getConfiguration().getBrokerURL());
 
-        System.clearProperty("FABRIC8MQ_SERVICE_NAME");
+        System.clearProperty("A_MQ_SERVICE_NAME");
         System.clearProperty("MYBROKER_SERVICE_HOST");
         System.clearProperty("MYBROKER_SERVICE_PORT");
     }
