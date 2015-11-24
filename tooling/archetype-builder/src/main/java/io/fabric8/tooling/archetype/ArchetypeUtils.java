@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -191,10 +192,6 @@ public class ArchetypeUtils {
 
     /**
      * Serializes the Document to a File.
-     *
-     * @param document
-     * @param file
-     * @throws IOException
      */
     public void writeXmlDocument(Document document, File file) throws IOException {
         try {
@@ -204,6 +201,24 @@ public class ArchetypeUtils {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
             tr.transform(new DOMSource(document), new StreamResult(fileOutputStream));
             fileOutputStream.close();
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Serializes the Document to a String.
+     */
+    public String writeXmlDocumentAsString(Document document) throws IOException {
+        try {
+            Transformer tr = transformerFactory.newTransformer();
+            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            tr.transform(new DOMSource(document), result);
+            return writer.toString();
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }
