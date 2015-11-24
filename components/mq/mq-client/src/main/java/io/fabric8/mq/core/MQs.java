@@ -52,7 +52,7 @@ public class MQs {
                 + " from $" + hostEnvVar + " and $" + portEnvVar
                 + ". To use a different broker service please specify $" + SERVICE_NAME_ENV_VAR + "=someBrokerServiceName where 'someBrokerServiceName' is a defined ActiveMQ broker service in Kubernetes");
         String answer = "failover:(tcp://" + host + ":" + port + ")" + parameters;
-        LOG.info("BrokerURL is: " + answer);
+        LOG.info("BrokerURL is: {}", answer);
         return answer;
     }
 

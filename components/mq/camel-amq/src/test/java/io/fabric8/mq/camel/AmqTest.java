@@ -18,6 +18,7 @@ package io.fabric8.mq.camel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,26 @@ public class AmqTest {
         LOG.info("Found endpoint: " + endpoint);
         AMQComponent amq = (AMQComponent) camelContext.getComponent("amq");
         LOG.info("BrokerURL: " + amq.getConfiguration().getBrokerURL());
+    }
+
+    @Test
+    public void testComponentWithEnv() throws Exception {
+        CamelContext camelContext = new DefaultCamelContext();
+        Endpoint endpoint = camelContext.getEndpoint("amq:someQueue");
+
+        // we can use JVM system properties
+        System.setProperty("FABRIC8MQ_SERVICE_NAME", "myBroker");
+        System.setProperty("MYBROKER_SERVICE_HOST", "superbroker");
+        System.setProperty("MYBROKER_SERVICE_PORT", "1234");
+
+        LOG.info("Found endpoint: " + endpoint);
+        AMQComponent amq = (AMQComponent) camelContext.getComponent("amq");
+        LOG.info("BrokerURL: " + amq.getConfiguration().getBrokerURL());
+        Assert.assertEquals("failover:(tcp://superbroker:1234)", amq.getConfiguration().getBrokerURL());
+
+        System.clearProperty("FABRIC8MQ_SERVICE_NAME");
+        System.clearProperty("MYBROKER_SERVICE_HOST");
+        System.clearProperty("MYBROKER_SERVICE_PORT");
     }
 
 }
