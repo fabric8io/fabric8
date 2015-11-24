@@ -7,7 +7,7 @@ either run directly by checking it out from the
 or run as an archetype.
 
 
-First time users of fabric8 may enjoy a [walk through](walkthrough.md) a simple quickstart to show you in detailed steps how to work with the quickstarts. A [video of the walkthrough](https://vimeo.com/142658441) is also available.
+First time users of fabric8 may enjoy a [walk through](walkthrough.md) a simple quickstart to show you step by step how to work with the quickstarts. A [video of the walkthrough](https://vimeo.com/142658441) is also available.
 
 
 The following quickstarts are available:

@@ -1,6 +1,6 @@
 ### Walk through a simple quickstart
 
-This is a guide that shows you from end to end how to try the fabric8 quickstarts.
+This is a more detailed guide showing step by step how to try the fabric8 quickstarts.
 
 A [video of this walkthrough](https://vimeo.com/142658441) is also available.
 
@@ -88,8 +88,9 @@ pre-configured goal:
 
 Please note that by default the Docker username is "fabric8" and the
 default registry is "docker.io". This works by default when you are
-not pushing to a registry with `docker:push`. Please see below how you
-can customize this to your needs
+not pushing to a registry with `docker:push`. Please see
+[changing Docker user and registry](http://fabric8.io/guide/quickstarts/running.html#changing-docker-user-and-registry) for
+details how to push to a custom registry.
 
 #### Deploy the application on Kubernetes / OpenShift
 
