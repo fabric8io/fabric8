@@ -428,7 +428,6 @@ public class ArchetypeBuilder {
             for (int cn = 0; cn < children.getLength(); cn++) {
                 Node e = children.item(cn);
                 if (e instanceof Element) {
-                    //val text = e.childrenText
                     String cText = e.getTextContent();
                     String prefix = "${";
                     if (cText.startsWith(prefix)) {
@@ -442,6 +441,8 @@ public class ArchetypeBuilder {
                                 if (value == null) {
                                     value = versionProperties.get(name);
                                 }
+                                // lets use dash instead of dot
+                                name = name.replace('.', '-');
                                 propertyNameSet.put(name, value);
                             }
                         }
@@ -452,7 +453,12 @@ public class ArchetypeBuilder {
                             String value = e.getTextContent();
                             if (value != null) {
                                 value = value.trim();
+                                // lets use dash instead of dot
+                                cName = cName.replace('.', '-');
                                 propertyNameSet.put(cName, value);
+                                // and use a placeholder token in its place, so we can allow to specify the version dynamically in the archetype
+                                String token = "${" + cName + "}";
+                                e.setTextContent(token);
                             }
                         }
                     }
