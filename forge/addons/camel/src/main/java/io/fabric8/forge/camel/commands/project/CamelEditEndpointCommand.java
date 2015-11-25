@@ -15,12 +15,14 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCompleter;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
+import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -120,23 +122,28 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
-        // TODO: sort the options by label, so we can group per label of MAX_OPTIONS.
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, componentFactory, converterFactory);
+        int size = groups.size();
 
-        // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
-        List<InputComponent> allInputs = createUIInputsForCamelComponent(camelComponentName, uri, componentFactory, converterFactory);
-        int size = allInputs.size();
+        // need all inputs in a list as well
+        List<InputComponent> allInputs = new ArrayList<>();
+        for (EndpointOptionByGroup group : groups) {
+            allInputs.addAll(group.getInputs());
+        }
 
         NavigationResultBuilder builder = Results.navigationBuilder();
         // calculate the number of page we need when there is at most MAX_OPTIONS options per page
-        int pages = size % MAX_OPTIONS == 0 ? size / MAX_OPTIONS : size / MAX_OPTIONS + 1;
+//        int pages = size % MAX_OPTIONS == 0 ? size / MAX_OPTIONS : size / MAX_OPTIONS + 1;
+        int pages = size;
         for (int i = 0; i < pages; i++) {
-            int from = i * MAX_OPTIONS;
-            int delta = Math.min(MAX_OPTIONS, size - from);
-            int to = from + delta;
-            boolean last = i == pages -1;
-            List<InputComponent> inputs = allInputs.subList(from, to);
+//            int from = i * MAX_OPTIONS;
+//            int delta = Math.min(MAX_OPTIONS, size - from);
+//            int to = from + delta;
+            boolean last = i == pages - 1;
+
+            EndpointOptionByGroup current = groups.get(i);
             ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
-                    camelComponentName, allInputs, inputs, last, i, pages);
+                    camelComponentName, current.getGroup(), allInputs, current.getInputs(), last, i, pages);
             builder.add(step);
         }
 

@@ -67,6 +67,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     private DependencyInstaller dependencyInstaller;
 
     private final String componentName;
+    private final String group;
     private final List<InputComponent> allInputs;
     private final List<InputComponent> inputs;
     private final boolean last;
@@ -75,13 +76,14 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
     public ConfigureEndpointPropertiesStep(ProjectFactory projectFactory,
                                            DependencyInstaller dependencyInstaller,
-                                           String componentName,
+                                           String componentName, String group,
                                            List<InputComponent> allInputs,
                                            List<InputComponent> inputs,
                                            boolean last, int index, int total) {
         this.projectFactory = projectFactory;
         this.dependencyInstaller = dependencyInstaller;
         this.componentName = componentName;
+        this.group = group;
         this.allInputs = allInputs;
         this.inputs = inputs;
         this.last = last;
@@ -94,7 +96,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConfigureEndpointPropertiesStep.class).name(
                 "Camel: Endpoint options").category(Categories.create(CATEGORY))
-                .description(String.format("Configure the %s endpoint options to use (%s of %s)", componentName, index, total));
+                .description(String.format("Configure %s options (%s of %s)", group, index, total));
     }
 
     @Override
