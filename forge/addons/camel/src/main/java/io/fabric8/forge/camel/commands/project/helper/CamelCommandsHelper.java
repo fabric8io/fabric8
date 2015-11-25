@@ -354,6 +354,8 @@ public final class CamelCommandsHelper {
 
                                 // if we hit max options then create a new group
                                 if (inputs.size() == maxOptionsPerPage) {
+                                    // this group is now done so add to answer
+                                    answer.add(current);
                                     // get ready for a new group
                                     inputs = new ArrayList<>();
                                     current = new EndpointOptionByGroup();
