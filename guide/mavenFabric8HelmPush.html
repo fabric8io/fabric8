@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Fabric8 iPaaS | Fabric8 Documentation</title>
+        <title>fabric8:helm-push | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.2">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="./apiRegistry.html" />
+    <link rel="next" href="./mavenFabric8Json.html" />
     
     
-    <link rel="prev" href="./metrics.html" />
+    <link rel="prev" href="./mavenFabric8Helm.html" />
     
 
         
@@ -53,9 +53,9 @@
         
         
     <div class="book"
-        data-level="5"
-        data-chapter-title="Fabric8 iPaaS"
-        data-filepath="ipaas.md"
+        data-level="6.1.9"
+        data-chapter-title="fabric8:helm-push"
+        data-filepath="mavenFabric8HelmPush.md"
         data-basepath="."
         data-revision="Wed Nov 25 2015 13:55:30 GMT+0000 (UTC)"
         data-innerlanguage="">
@@ -461,7 +461,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="5" data-path="ipaas.html">
+        <li class="chapter " data-level="5" data-path="ipaas.html">
             
                 
                     <a href="./ipaas.html">
@@ -775,7 +775,7 @@
             
         </li>
     
-        <li class="chapter " data-level="6.1.9" data-path="mavenFabric8HelmPush.html">
+        <li class="chapter active" data-level="6.1.9" data-path="mavenFabric8HelmPush.html">
             
                 
                     <a href="./mavenFabric8HelmPush.html">
@@ -1217,23 +1217,29 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h2>
-<p><strong>Fabric8 iPaaS</strong> provides an <em>Integration Platform As A Service</em> consisting of:</p>
-<ul>
-<li><a href="console.html">Console</a> provides a nice web console based on <a href="http://hawt.io/" target="_blank">hawtio</a> for working with your integration services</li>
-<li><a href="apiRegistry.html">API Registry</a> provides a global view of all of your RESTful and web service APIs that is displayed in the <a href="console.html">Console</a> allowing you to inspect and invoke all the endpoints</li>
-<li><a href="fabric8MQ.html">MQ</a> implements <em>Messaging As A Service</em> with <a href="http://activemq.apache.org/" target="_blank">Apache ActiveMQ</a> on Kubernetes.</li>
-<li><a href="fabric8MQAutoScaler.html">MQ AutoScaler</a> monitors and scales the <a href="http://activemq.apache.org/" target="_blank">Apache ActiveMQ</a> brokers running on Kubernetes</li>
-</ul>
-<p>Then to help you and your team provision and manage your integration services:</p>
-<ul>
-<li><a href="management.html">Management</a> consolidated <a href="logging.html">Logging</a> and  <a href="metrics.html">Metrics</a> to visualise and diagnose your integration solutions</li>
-<li><a href="cdelivery.html">Continuous Delivery</a> provides a development, building, releasing and provisioning pipeline</li>
-<li><a href="chat.html">Chat</a> provides a <a href="https://hubot.github.com/" target="_blank">hubot</a> <a href="apps.html">app</a> and a notification engine to post <a href="builds.html">build completion</a> events to a chat room (which defaults to one room per kubernetes namespace).</li>
-<li><a href="apiManagement.html">API Management</a> allows you to add governance and metrics to your integration services</li>
-</ul>
-<h3 id="installation"><a name="installation" class="plugin-anchor" href="#installation"><span class="fa fa-link"></span></a>Installation</h3>
-<p>To install this app please see the <a href="getStarted/apps.html">Install Fabric8 on OpenShift Guide</a></p>
+                        <h2 id="fabric8helmpush"><a name="fabric8helmpush" class="plugin-anchor" href="#fabric8helmpush"><span class="fa fa-link"></span></a>fabric8:helm-push</h2>
+<p>The maven <code>fabric8:helm-push</code> goal commits and pushes changes to <a href="http://helm.sh/" target="_blank">Helm Chart</a> repository after charts for your applications are created via the <a href="mavenFabric8Helm.html">mvn fabric8:helm</a> command.</p>
+<p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
+<h3 id="example-usage"><a name="example-usage" class="plugin-anchor" href="#example-usage"><span class="fa fa-link"></span></a>Example usage</h3>
+<p>Typically you create the Helm chart repository by performing <a href="mavenFabric8Helm.html">mvn fabric8:helm</a> on all your projects as part of the build process:</p>
+<pre><code>mvn fabric8:helm
+</code></pre><p>Then when the docker images are available for your release you can commit and push the changes in the local clone of the helm chart repository via:</p>
+<pre><code>mvn fabric8:helm-push
+</code></pre><h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
+<p>You can supply the following maven properties to the goal via system properties:</p>
+<pre><code>mvn fabric8:helm-push -Dfabric8.helm.push=false
+</code></pre><p>The following properties can be used:</p>
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>fabric8.helm.push</td>
+<td>Lets you disable the pushing of changes up to the remote repository.</td>
+</tr>
+</table>
+
 
                     
                     </section>
@@ -1244,10 +1250,10 @@
         </div>
 
         
-        <a href="./metrics.html" class="navigation navigation-prev " aria-label="Previous page: Metrics"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenFabric8Helm.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:helm"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./apiRegistry.html" class="navigation navigation-next " aria-label="Next page: API Registry"><i class="fa fa-angle-right"></i></a>
+        <a href="./mavenFabric8Json.html" class="navigation navigation-next " aria-label="Next page: fabric8:json"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

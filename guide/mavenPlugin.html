@@ -57,7 +57,7 @@
         data-chapter-title="Maven Plugin"
         data-filepath="mavenPlugin.md"
         data-basepath="."
-        data-revision="Wed Nov 25 2015 13:33:31 GMT+0000 (UTC)"
+        data-revision="Wed Nov 25 2015 13:55:30 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -760,14 +760,44 @@
             
         </li>
     
-        <li class="chapter " data-level="6.1.8" data-path="mavenFabric8Json.html">
+        <li class="chapter " data-level="6.1.8" data-path="mavenFabric8Helm.html">
+            
+                
+                    <a href="./mavenFabric8Helm.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.1.8.</b>
+                        
+                        fabric8:helm
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.1.9" data-path="mavenFabric8HelmPush.html">
+            
+                
+                    <a href="./mavenFabric8HelmPush.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.1.9.</b>
+                        
+                        fabric8:helm-push
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.1.10" data-path="mavenFabric8Json.html">
             
                 
                     <a href="./mavenFabric8Json.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>6.1.8.</b>
+                            <b>6.1.10.</b>
                         
                         fabric8:json
                     </a>
@@ -776,14 +806,14 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="6.1.8.1" data-path="annotationProcessors.html">
+        <li class="chapter " data-level="6.1.10.1" data-path="annotationProcessors.html">
             
                 
                     <a href="./annotationProcessors.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>6.1.8.1.</b>
+                            <b>6.1.10.1.</b>
                         
                         annotation processors
                     </a>
@@ -796,14 +826,14 @@
             
         </li>
     
-        <li class="chapter " data-level="6.1.9" data-path="mavenFabric8Recreate.html">
+        <li class="chapter " data-level="6.1.11" data-path="mavenFabric8Recreate.html">
             
                 
                     <a href="./mavenFabric8Recreate.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>6.1.9.</b>
+                            <b>6.1.11.</b>
                         
                         fabric8:recreate
                     </a>
@@ -811,14 +841,14 @@
             
         </li>
     
-        <li class="chapter " data-level="6.1.10" data-path="mavenFabric8Rolling.html">
+        <li class="chapter " data-level="6.1.12" data-path="mavenFabric8Rolling.html">
             
                 
                     <a href="./mavenFabric8Rolling.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>6.1.10.</b>
+                            <b>6.1.12.</b>
                         
                         fabric8:rolling
                     </a>
@@ -1202,13 +1232,18 @@
 <li><a href="mavenFabric8DRolling.html">fabric8:rolling</a> works like <a href="mavenFabric8Apply.html">fabric8:apply</a> but performs a <strong>rolling update</strong> on any <a href="replicationControllers.html">replication controllers</a> which already exist </li>
 <li><a href="mavenFabric8DRecreate.html">fabric8:recreate</a> works like <a href="mavenFabric8Apply.html">fabric8:apply</a> but forces all resources which exist to be recreated</li>
 </ul>
-<p>Helper goals for working with Kubernetes </p>
+<p>Goals for working with Kubernetes </p>
 <ul>
 <li><a href="mavenFabric8DevOps.html">fabric8:devops</a> uses the <a href="https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector" target="_blank">fabric8-devops-connector</a> to connect various DevOps services like git hosting, <a href="chat.html">chat</a>, issue tracking and <a href="cdelivery.html">CI / CD builds in jenkins</a> for a project reusing the optional project specific <code>fabric8.yml</code> configuration file</li>
 <li><a href="mavenFabric8CreateEnv.html">fabric8:create-env</a> generates environment variable scripts for Kubernetes <a href="services.html">services</a> so you can simulate running programs as if they were inside kubernetes</li>
 <li><a href="mavenFabric8CreateRoutes.html">fabric8:create-routes</a> generates any missing <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for the current services </li>
 <li><a href="mavenFabric8DeletePods.html">fabric8:delete-pods</a> deletes pods for the current projects docker image so that they get recreated by the <a href="replicationControllers.html">replication controllers</a> to use the latest image</li>
 <li><a href="mavenFabric8Clean.html">fabric8:clean</a> cleans up the namespace</li>
+</ul>
+<p>Goals for working with <a href="http://helm.sh/" target="_blank">Helm Chart repositories</a></p>
+<ul>
+<li><a href="mavenFabric8Helm.html">fabric8:helm</a> generates a <a href="http://helm.sh/" target="_blank">Helm Chart</a> for your application</li>
+<li><a href="mavenFabric8HelmPush.html">fabric8:helm-push</a> goal commits and pushes changes to the <a href="http://helm.sh/" target="_blank">Helm</a> chart repository to the remote git repository</li>
 </ul>
 <h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="plugin-anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
 <p>To enable this maven plugin and to automatically generate/copy and release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
