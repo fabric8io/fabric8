@@ -20,6 +20,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.maven.helm.Chart;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,6 +31,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.Git;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +48,7 @@ public class HelmMojo extends AbstractFabric8Mojo {
     // TODO when Helm supports this we should probably switch to ".yml"
     public static final String HELM_YAML_EXTENSION = ".yaml";
     public static final String PROPERTY_HELM_GIT_URL = "fabric8.helm.gitUrl";
-    public static final String PROPERTY_HELM_CHART_NAME = "fabric8.helm.chartName";
+    public static final String PROPERTY_HELM_CHART_NAME = "fabric8.helm.chart";
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -53,7 +56,7 @@ public class HelmMojo extends AbstractFabric8Mojo {
     /**
      * The artifact type for attaching the generated kubernetes json file to the project
      */
-    @Parameter(property = PROPERTY_HELM_GIT_URL, defaultValue = "json")
+    @Parameter(property = PROPERTY_HELM_GIT_URL, defaultValue = "git@github.com:fabric8io/charts.git")
     private String helmGitUrl;
 
     /**
@@ -163,12 +166,28 @@ public class HelmMojo extends AbstractFabric8Mojo {
         if (Strings.isNullOrBlank(helmGitUrl)) {
             getLog().warn("No git url so cannot clone a Helm repository. Please specify the `" + PROPERTY_HELM_GIT_URL + "` property");
         } else {
-            // TODO clone the git repo
+            cloneGitRepository(helmCloneDir, helmGitUrl);
         }
         if (Strings.isNullOrBlank(chartName)) {
             throw new MojoExecutionException("No Chart name defined! Please specify the `" + PROPERTY_HELM_CHART_NAME + "` property");
         }
         return new File(helmCloneDir, chartName);
+    }
+
+    protected void cloneGitRepository(File outputFolder, String gitUrl) {
+        File gitFolder = new File(outputFolder, ".git");
+        if (Files.isDirectory(gitFolder)) {
+            // we could do a pull here but then we'd be doing a pull per maven module
+            // so maybe its better to just use maven clean as a way to force a clean updated pull?
+        } else {
+            CloneCommand command = Git.cloneRepository();
+            command = command.setURI(gitUrl).setDirectory(outputFolder).setRemote("origin");
+            try {
+                Git git = command.call();
+            } catch (Throwable e) {
+                throw new RuntimeException("Failed to clone chart repo " + gitUrl + " due: " + e.getMessage());
+            }
+        }
     }
 
 
