@@ -29,6 +29,7 @@ import io.fabric8.forge.addon.utils.JavaHelper;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
+import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -289,9 +290,9 @@ public final class CamelCommandsHelper {
         return null;
     }
 
-    public static List<InputComponent> createUIInputsForCamelComponent(String camelComponentName, String uri,
-                                                                       InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
-        List<InputComponent> inputs = new ArrayList<>();
+    public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri,
+                                                                              InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
+        List<EndpointOptionByGroup> answer = new ArrayList<>();
 
         if (camelComponentName == null && uri != null) {
             camelComponentName = endpointComponentName(uri);
@@ -308,10 +309,17 @@ public final class CamelCommandsHelper {
         Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
 
         if (data != null) {
+            List<InputComponent> inputs = new ArrayList<>();
+            EndpointOptionByGroup current = new EndpointOptionByGroup();
+            current.setGroup(null);
+            current.setInputs(inputs);
+
             Set<String> namesAdded = new HashSet<>();
+
             for (Map<String, String> propertyMap : data) {
                 String name = propertyMap.get("name");
                 String kind = propertyMap.get("kind");
+                String group = propertyMap.get("group");
                 String type = propertyMap.get("type");
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
@@ -320,6 +328,21 @@ public final class CamelCommandsHelper {
                 String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
                 String enums = propertyMap.get("enum");
+
+                if (current.getGroup() == null) {
+                    current.setGroup(group);
+                }
+                // its a new group
+                if (group != null && !group.equals(current.getGroup())) {
+                    // this group is now done so add to answer
+                    answer.add(current);
+
+                    // get ready for a new group
+                    inputs = new ArrayList<>();
+                    current = new EndpointOptionByGroup();
+                    current.setGroup(group);
+                    current.setInputs(inputs);
+                }
 
                 if (!Strings.isNullOrEmpty(name)) {
                     Class<Object> inputClazz = CamelCommandsHelper.loadValidInputTypes(javaType, type);
@@ -333,9 +356,14 @@ public final class CamelCommandsHelper {
                     }
                 }
             }
+
+            // add last group if there was some new inputs
+            if (!inputs.isEmpty()) {
+                answer.add(current);
+            }
         }
 
-        return inputs;
+        return answer;
     }
 
 }
