@@ -57,7 +57,7 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
 public class CamelAddEndpointCommand extends AbstractCamelProjectCommand implements UIWizard {
 
-    private static final int MAX_OPTIONS = 15;
+    private static final int MAX_OPTIONS = 20;
 
     @Inject
     @WithAttributes(label = "Filter", required = false, description = "To filter components")
