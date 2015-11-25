@@ -15,12 +15,9 @@
  */
 package io.fabric8.maven;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.maven.helm.Chart;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,6 +74,13 @@ public class HelmMojo extends AbstractFabric8Mojo {
     @Parameter(property = PROPERTY_HELM_CHART_NAME, defaultValue = "${project.artifactId}")
     private String chartName;
 
+
+    /**
+     * The name of the git remote repo
+     */
+    @Parameter(property = "fabric8.helm.gitRemote", defaultValue = "origin")
+    protected String remoteRepoName;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File yaml = getKubernetesYaml();
@@ -124,6 +128,10 @@ public class HelmMojo extends AbstractFabric8Mojo {
         }
     }
 
+    public String getHelmGitUrl() {
+        return helmGitUrl;
+    }
+
     protected Chart createChart() {
         Chart answer = new Chart();
         answer.setName(chartName);
@@ -157,25 +165,30 @@ public class HelmMojo extends AbstractFabric8Mojo {
     }
 
     protected File getOutputDir() throws MojoExecutionException {
+        File helmRepoDir = getHelmRepoFolder();
+
+        if (helmRepoDir == null) {
+            return null;
+        }
+        if (Strings.isNullOrBlank(helmGitUrl)) {
+            getLog().warn("No git url so cannot clone a Helm repository. Please specify the `" + PROPERTY_HELM_GIT_URL + "` property");
+        } else {
+            cloneGitRepository(helmRepoDir, helmGitUrl);
+        }
+        if (Strings.isNullOrBlank(chartName)) {
+            throw new MojoExecutionException("No Chart name defined! Please specify the `" + PROPERTY_HELM_CHART_NAME + "` property");
+        }
+        return new File(helmRepoDir, chartName);
+    }
+
+    protected File getHelmRepoFolder() {
         if (helmCloneDir == null) {
             File rootProjectFolder = getRootProjectFolder();
             if (rootProjectFolder != null) {
                 helmCloneDir = new File(rootProjectFolder, "target/helm-repo");
             }
         }
-
-        if (helmCloneDir == null) {
-            return null;
-        }
-        if (Strings.isNullOrBlank(helmGitUrl)) {
-            getLog().warn("No git url so cannot clone a Helm repository. Please specify the `" + PROPERTY_HELM_GIT_URL + "` property");
-        } else {
-            cloneGitRepository(helmCloneDir, helmGitUrl);
-        }
-        if (Strings.isNullOrBlank(chartName)) {
-            throw new MojoExecutionException("No Chart name defined! Please specify the `" + PROPERTY_HELM_CHART_NAME + "` property");
-        }
-        return new File(helmCloneDir, chartName);
+        return helmCloneDir;
     }
 
     protected void cloneGitRepository(File outputFolder, String gitUrl) {
@@ -185,7 +198,7 @@ public class HelmMojo extends AbstractFabric8Mojo {
             // so maybe its better to just use maven clean as a way to force a clean updated pull?
         } else {
             CloneCommand command = Git.cloneRepository();
-            command = command.setURI(gitUrl).setDirectory(outputFolder).setRemote("origin");
+            command = command.setURI(gitUrl).setDirectory(outputFolder).setRemote(remoteRepoName);
             try {
                 Git git = command.call();
             } catch (Throwable e) {
