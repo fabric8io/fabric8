@@ -98,6 +98,20 @@ public class HelmMojo extends AbstractFabric8Mojo {
                 } catch (IOException e) {
                     throw new MojoExecutionException("Failed to save chart " + outputChartFile + ". Reason: " + e, e);
                 }
+
+                MavenProject project = getProject();
+                if (project != null) {
+                    File basedir = project.getBasedir();
+                    if (basedir != null) {
+                        String outputReadMeFileName = "README.md";
+                        try {
+                            copyReadMe(basedir, outputDir, outputReadMeFileName);
+                        } catch (IOException e) {
+                            throw new MojoExecutionException("Failed to save " + outputReadMeFileName + ". Reason: " + e, e);
+                        }
+                    }
+                }
+
                 getLog().info("Generated Helm Chart " + chartName + " at " + outputDir);
             }
         }

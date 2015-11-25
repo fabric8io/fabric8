@@ -214,6 +214,10 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     private Boolean extendedMetadata;
 
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {
+        return copyReadMe(src, appBuildDir, null);
+    }
+
+    protected static File copyReadMe(File src, File appBuildDir, String outputFileName) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -222,7 +226,10 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
         });
         if (files != null && files.length == 1) {
             File readme = files[0];
-            File outFile = new File(appBuildDir, readme.getName());
+            if (Strings.isNullOrBlank(outputFileName)) {
+                outputFileName = readme.getName();
+            }
+            File outFile = new File(appBuildDir, outputFileName);
             Files.copy(readme, outFile);
             return outFile;
         }
