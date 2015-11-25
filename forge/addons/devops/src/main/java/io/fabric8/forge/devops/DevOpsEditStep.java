@@ -71,7 +71,7 @@ import java.util.TreeSet;
 
 public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditStep.class);
-    private static final String DEFAULT_MAVEN_FLOW = "maven/CanaryReleaseStageAndApprovePromote.groovy";
+    private static final String DEFAULT_MAVEN_FLOW = "workflows/maven/CanaryReleaseStageAndApprovePromote.groovy";
 
     @Inject
     @WithAttributes(label = "pipeline", required = false, description = "The Jenkins workflow groovy script to use for defining the Continous Delivery pipeline")
