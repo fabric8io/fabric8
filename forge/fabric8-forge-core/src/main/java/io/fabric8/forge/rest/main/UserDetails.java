@@ -16,11 +16,9 @@
 package io.fabric8.forge.rest.main;
 
 import io.fabric8.repo.git.GitRepoClient;
-import org.eclipse.jgit.errors.UnsupportedCredentialItem;
+import io.fabric8.utils.Strings;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,30 +89,17 @@ public class UserDetails {
     }
 
     public CredentialsProvider createCredentialsProvider() {
-        if (sshPrivateKey != null) {
-            return new CredentialsProvider() {
-                @Override
-                public boolean isInteractive() {
-                    return false;
-                }
+        return new UsernamePasswordCredentialsProvider(user, password) {
+            @Override
+            public boolean isInteractive() {
+                return false;
+            }
 
-                @Override
-                public boolean supports(CredentialItem... items) {
-                    return true;
-                }
-
-                @Override
-                public boolean get(URIish uri, CredentialItem... items) throws UnsupportedCredentialItem {
-                        /*
-                        for (CredentialItem item : items) {
-                            ((CredentialItem.StringType) item).setValue("yourpassphrase");
-                        }
-                        */
-                    return true;
-                }
-            };
-        }
-        return new UsernamePasswordCredentialsProvider(user, password);
+            @Override
+            public String toString() {
+                return "UsernamePasswordCredentialsProvider{user: " + getUser() + ", password length: " + (Strings.isNotBlank(password) ? 0 : password.length()) + "}";
+            }
+        };
     }
 
     public PersonIdent createPersonIdent() {

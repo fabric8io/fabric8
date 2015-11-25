@@ -33,7 +33,6 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProviderUserInfo;
-import org.eclipse.jgit.transport.HttpTransport;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.PushResult;
@@ -41,7 +40,6 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.transport.http.HttpConnectionFactory;
 import org.eclipse.jgit.util.FS;
 import org.jboss.forge.furnace.util.Strings;
 import org.slf4j.Logger;
@@ -195,37 +193,38 @@ public class GitHelpers {
      * Configures the transport of the command to deal with things like SSH
      */
     public static <C extends GitCommand> void configureCommand(TransportCommand<C, ?> command, CredentialsProvider credentialsProvider, final File sshPrivateKey, final File sshPublicKey) {
+        LOG.info("Using " + credentialsProvider);
         if (sshPrivateKey != null) {
             final CredentialsProvider provider = credentialsProvider;
-            final SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-                @Override
-                protected void configure(OpenSshConfig.Host host, Session session) {
-                    session.setConfig("StrictHostKeyChecking", "no");
-                    UserInfo userInfo = new CredentialsProviderUserInfo(session, provider);
-                    session.setUserInfo(userInfo);
-                }
-
-                @Override
-                protected JSch createDefaultJSch(FS fs) throws JSchException {
-                    JSch jsch = super.createDefaultJSch(fs);
-                    jsch.removeAllIdentity();
-                    String absolutePath = sshPrivateKey.getAbsolutePath();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Adding identity privateKey: " + sshPrivateKey + " publicKey: " + sshPublicKey);
-                    }
-                    if (sshPublicKey != null) {
-                        jsch.addIdentity(absolutePath, sshPublicKey.getAbsolutePath(), null);
-                    } else {
-                        jsch.addIdentity(absolutePath);
-                    }
-                    return jsch;
-                }
-            };
             command.setTransportConfigCallback(new TransportConfigCallback() {
                 @Override
                 public void configure(Transport transport) {
                     if (transport instanceof SshTransport) {
                         SshTransport sshTransport = (SshTransport) transport;
+                        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
+                            @Override
+                            protected void configure(OpenSshConfig.Host host, Session session) {
+                                session.setConfig("StrictHostKeyChecking", "no");
+                                UserInfo userInfo = new CredentialsProviderUserInfo(session, provider);
+                                session.setUserInfo(userInfo);
+                            }
+
+                            @Override
+                            protected JSch createDefaultJSch(FS fs) throws JSchException {
+                                JSch jsch = super.createDefaultJSch(fs);
+                                jsch.removeAllIdentity();
+                                String absolutePath = sshPrivateKey.getAbsolutePath();
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Adding identity privateKey: " + sshPrivateKey + " publicKey: " + sshPublicKey);
+                                }
+                                if (sshPublicKey != null) {
+                                    jsch.addIdentity(absolutePath, sshPublicKey.getAbsolutePath(), null);
+                                } else {
+                                    jsch.addIdentity(absolutePath);
+                                }
+                                return jsch;
+                            }
+                        };
                         sshTransport.setSshSessionFactory(sshSessionFactory);
                     }
                 }
