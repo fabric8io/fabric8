@@ -159,8 +159,8 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
-        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, componentFactory, converterFactory);
-        int size = groups.size();
+        // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, componentFactory, converterFactory);
 
         // need all inputs in a list as well
         List<InputComponent> allInputs = new ArrayList<>();
@@ -169,15 +169,9 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         }
 
         NavigationResultBuilder builder = Results.navigationBuilder();
-        // calculate the number of page we need when there is at most MAX_OPTIONS options per page
-//        int pages = size % MAX_OPTIONS == 0 ? size / MAX_OPTIONS : size / MAX_OPTIONS + 1;
-        int pages = size;
+        int pages = groups.size();
         for (int i = 0; i < pages; i++) {
-//            int from = i * MAX_OPTIONS;
-//            int delta = Math.min(MAX_OPTIONS, size - from);
-//            int to = from + delta;
             boolean last = i == pages - 1;
-
             EndpointOptionByGroup current = groups.get(i);
             ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
                     camelComponentName, current.getGroup(), allInputs, current.getInputs(), last, i, pages);

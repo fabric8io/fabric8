@@ -290,7 +290,7 @@ public final class CamelCommandsHelper {
         return null;
     }
 
-    public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri,
+    public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri, int maxOptionsPerPage,
                                                                               InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
         List<EndpointOptionByGroup> answer = new ArrayList<>();
 
@@ -351,6 +351,15 @@ public final class CamelCommandsHelper {
                             InputComponent input = createUIInput(componentFactory, converterFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 inputs.add(input);
+
+                                // if we hit max options then create a new group
+                                if (inputs.size() == maxOptionsPerPage) {
+                                    // get ready for a new group
+                                    inputs = new ArrayList<>();
+                                    current = new EndpointOptionByGroup();
+                                    current.setGroup(group);
+                                    current.setInputs(inputs);
+                                }
                             }
                         }
                     }
