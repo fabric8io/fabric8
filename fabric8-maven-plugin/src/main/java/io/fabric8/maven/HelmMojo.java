@@ -86,6 +86,10 @@ public class HelmMojo extends AbstractFabric8Mojo {
             File outputDir = getOutputDir();
             if (outputDir != null) {
                 File manifestsDir = new File(outputDir, "manifests");
+                // lets delete all the manifests in case there are some existing ones with different names
+                if (Files.isDirectory(manifestsDir)) {
+                    Files.recursiveDelete(manifestsDir);
+                }
                 manifestsDir.mkdirs();
                 File outputYamlFile = new File(manifestsDir, chartName + HELM_YAML_EXTENSION);
                 try {
