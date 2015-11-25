@@ -57,6 +57,7 @@
         <developer>
             <id>geeks</id>
             <name>Fabric8 Development Team</name>
+            <email>fabric8@googlegroups.com</email>
             <organization>fabric8</organization>
             <organizationUrl>http://fabric8.io/</organizationUrl>
         </developer>
