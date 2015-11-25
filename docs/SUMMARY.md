@@ -40,6 +40,8 @@
       * [fabric8:create-routes](mavenFabric8CreateRoutes.md)
       * [fabric8:delete-pods](mavenFabric8DeletePods.md)
       * [fabric8:devops](mavenFabric8DevOps.md)
+      * [fabric8:helm](mavenFabric8Helm.md)
+      * [fabric8:helm-push](mavenFabric8HelmPush.md) 
       * [fabric8:json](mavenFabric8Json.md)
         * [annotation processors](annotationProcessors.md)
       * [fabric8:recreate](mavenFabric8Recreate.md)
