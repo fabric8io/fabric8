@@ -136,7 +136,6 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
-        // TODO: not all data becomes an UIInput (camel-yammer 27 vs 25)
         List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, MAX_OPTIONS, componentFactory, converterFactory);
 
         // need all inputs in a list as well

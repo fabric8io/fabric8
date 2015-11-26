@@ -182,6 +182,12 @@ public final class CamelCommandsHelper {
      * Converts a java type as a string to a valid input type and returns the class or null if its not supported
      */
     public static Class<Object> loadValidInputTypes(String javaType, String type) {
+        // we have generics in the javatype, if so remove it so its loadable from a classloader
+        int idx = javaType.indexOf('<');
+        if (idx > 0) {
+            javaType = javaType.substring(0, idx);
+        }
+
         try {
             Class<Object> clazz = getPrimitiveWrapperClassType(type);
             if (clazz == null) {
@@ -200,10 +206,19 @@ public final class CamelCommandsHelper {
                     }
                 }
             }
+
+            // favor specialized UI for these types
             if (clazz != null && (clazz.equals(String.class) || clazz.equals(Date.class) || clazz.equals(Boolean.class)
                     || clazz.isPrimitive() || Number.class.isAssignableFrom(clazz))) {
                 return clazz;
             }
+
+            // its a custom java type so use String as the input type, so you can refer to it using # lookup
+            if ("object".equals(type)) {
+                clazz = loadPrimitiveWrapperType("java.lang.String");
+                return clazz;
+            }
+
         } catch (Throwable e) {
             // ignore errors
         }
