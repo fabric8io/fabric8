@@ -116,6 +116,7 @@
         <curator.version>2.9.1</curator.version>
         <deltaspike.version>1.5.1</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
+	<docker.maven.plugin.version>0.13.6</docker.maven.plugin.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
@@ -160,7 +161,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.2.3.RELEASE</spring.version>
         <spring.boot.version>1.2.7.RELEASE</spring.boot.version>
-        <sundrio.version>0.1.19</sundrio.version>
+        <sundrio.version>0.1.20</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.6</zookeeper.version>
 
@@ -1323,6 +1324,11 @@
                     <additionalparam>${javadoc.opts}</additionalparam>
                 </configuration>
             </plugin>
+	    <plugin>
+		<groupId>org.jolokia</groupId>
+		<artifactId>docker-maven-plugin</artifactId>
+		<version>${docker.maven.plugin.version}</version>
+	    </plugin>
         </plugins>
       </pluginManagement>
       <plugins>
@@ -1341,9 +1347,16 @@
                                   <include>io.fabric8:openshift-*</include>
                               </includes>
                           </dependencies>
+                          <plugins>
+                              <includes>
+                                  <include>io.fabric8:*</include>
+                                  <include>org.jolokia:docker-maven-plugin</include>
+                              </includes>
+                          </plugins>
                           <properties>
                               <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                           </properties>
+                          <inheritPluginManagement>true</inheritPluginManagement>
                       </bom>
                       <bom>
                           <artifactId>fabric8-project-bom-with-deps</artifactId>
@@ -1353,9 +1366,17 @@
                                   <include>*:*</include>
                               </includes>
                           </dependencies>
+                          <plugins>
+                              <includes>
+                                  <include>io.fabric8:*</include>
+                                  <include>org.jolokia:docker-maven-plugin</include>
+                              </includes>
+                          </plugins>
                           <properties>
                               <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                           </properties>
+                          <inheritDependencyManagement>true</inheritDependencyManagement>
+                          <inheritPluginManagement>true</inheritPluginManagement>
                       </bom>
                   </boms>
               </configuration>
