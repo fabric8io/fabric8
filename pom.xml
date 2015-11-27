@@ -1374,8 +1374,37 @@
                           <inheritPluginManagement>true</inheritPluginManagement>
                       </bom>
                       <bom>
-                          <artifactId>fabric8-project-bom-with-deps</artifactId>
-                          <name>Fabric8 :: Project :: Bom with Dependencies</name>
+                          <artifactId>fabric8-project-bom-with-platform-deps</artifactId>
+                          <name>Fabric8 :: Project :: Bom with Platform Dependencies</name>
+                          <dependencies>
+                              <includes>
+                                  <include>javax*:*</include>
+                                  <!-- Core platform -->
+                                  <include>org.jboss.weld*:*</include>
+                                  <include>org.jboss.arquillian*:*</include>
+                                  <include>org.jboss.shrinkwrap*:*</include>
+                                  <include>org.apache.deltaspike*:*</include>
+                                  <!-- minor things that are easy to get wrong -->
+                                  <include>org.ops4j.pax.url:pax-url-aether</include>
+                                  <include>org.codehaus.plexus:plexus-utils</include>
+                                  <include>xml-apis:xml-apis</include>
+                              </includes>
+                          </dependencies>
+                          <plugins>
+                              <includes>
+                                  <include>io.fabric8:*</include>
+                                  <include>org.jolokia:docker-maven-plugin</include>
+                              </includes>
+                          </plugins>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                          <inheritDependencyManagement>true</inheritDependencyManagement>
+                          <inheritPluginManagement>true</inheritPluginManagement>
+                      </bom>
+                      <bom>
+                          <artifactId>fabric8-project-bom-full</artifactId>
+                          <name>Fabric8 :: Project :: Bom with Eveything</name>
                           <dependencies>
                               <includes>
                                   <include>*:*</include>
