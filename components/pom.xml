@@ -33,7 +33,7 @@
   <modules>
     <!-- utils -->
     <module>fabric8-utils</module>
-    <module>cxf-utils</module>
+    <!--<module>cxf-utils</module>-->
     <!--<module>rest-utils</module>-->
 
     <!-- kubernetes/jolokia -->
