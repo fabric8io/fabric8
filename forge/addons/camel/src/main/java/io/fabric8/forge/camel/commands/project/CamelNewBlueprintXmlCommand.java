@@ -92,9 +92,9 @@ public class CamelNewBlueprintXmlCommand extends AbstractCamelProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        directory.getFacet(HintsFacet.class).setInputType(InputType.DIRECTORY_PICKER);
         name.addValidator(new ResourceNameValidator("xml"));
         name.getFacet(HintsFacet.class).setInputType(InputType.FILE_PICKER);
-        directory.getFacet(HintsFacet.class).setInputType(InputType.DIRECTORY_PICKER);
         builder.add(directory).add(name);
     }
 

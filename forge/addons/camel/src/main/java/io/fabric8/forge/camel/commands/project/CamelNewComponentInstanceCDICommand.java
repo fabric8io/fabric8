@@ -35,6 +35,8 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.facets.HintsFacet;
+import org.jboss.forge.addon.ui.hints.InputType;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.input.ValueChangeListener;
@@ -62,7 +64,7 @@ public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCom
 
     @Inject
     @WithAttributes(label = "Instance Name", required = true, description = "Name of component instance to add")
-    private UISelectOne<String> instanceName;
+    private UIInput<String> instanceName;
 
     @Inject
     @WithAttributes(label = "Package Name", required = false, description = "The package name where this type will be created")
@@ -118,7 +120,7 @@ public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCom
 
         targetPackage.setCompleter(new PackageNameCompleter(facet));
         targetPackage.addValidator(new PackageNameValidator());
-        targetPackage.setDefaultValue("org.apache.camel.cdi.producers");
+        targetPackage.getFacet(HintsFacet.class).setInputType(InputType.JAVA_PACKAGE_PICKER);
 
         className.addValidator(new ClassNameValidator(false));
         className.setDefaultValue(new Callable<String>() {
@@ -127,6 +129,7 @@ public class CamelNewComponentInstanceCDICommand extends AbstractCamelProjectCom
                 return getDefaultProducerClassName();
             }
         });
+        className.getFacet(HintsFacet.class).setInputType(InputType.JAVA_CLASS_PICKER);
 
         builder.add(componentNameFilter).add(componentName).add(instanceName).add(targetPackage).add(className);
     }
