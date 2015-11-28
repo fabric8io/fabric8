@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
-import io.fabric8.forge.addon.utils.JavaHelper;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
@@ -51,9 +50,6 @@ import static io.fabric8.forge.addon.utils.UIHelper.createUIInput;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 
 public final class CamelCommandsHelper {
-
-    // to speed up performance on command line completion lets not perform a full classpath validation of the project until its being used on a command
-    private static final boolean validateClassPathForProjectValidation = false;
 
     public static Iterable<String> createComponentNameValues(Project project) {
         return new CamelComponentsLabelCompleter(project).getValueChoices();
@@ -115,13 +111,11 @@ public final class CamelCommandsHelper {
     }
 
     public static boolean isCdiProject(Project project) {
-        return (!validateClassPathForProjectValidation || JavaHelper.projectHasClassOnClassPath(project, "javax.enterprise.inject.Produces")) &&
-                CamelProjectHelper.findCamelCDIDependency(project) != null;
+        return CamelProjectHelper.findCamelCDIDependency(project) != null;
     }
 
     public static boolean isSpringProject(Project project) {
-        return (!validateClassPathForProjectValidation || JavaHelper.projectHasClassOnClassPath(project, "org.springframework.context.ApplicationContext")) &&
-                CamelProjectHelper.findCamelSpringDependency(project) != null;
+        return CamelProjectHelper.findCamelSpringDependency(project) != null;
     }
 
     public static boolean isBlueprintProject(Project project) {
