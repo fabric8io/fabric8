@@ -85,9 +85,8 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
             }
 
             // look for endpoints in the configure method
-            MethodSource<JavaClassSource> method = clazz.getMethod("configure");
-            // must be public void configure()
-            if (method != null && method.isPublic() && method.getParameters().isEmpty() && method.getReturnType().isType("void")) {
+            MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
+            if (method != null) {
                 List<String> uris = CamelJavaParserHelper.parseCamelUris(method);
                 for (String uri : uris) {
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();

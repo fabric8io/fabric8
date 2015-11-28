@@ -29,6 +29,16 @@ import org.jboss.forge.roaster.model.source.MethodSource;
 
 public class CamelJavaParserHelper {
 
+    public static MethodSource<JavaClassSource> findConfigureMethod(JavaClassSource clazz) {
+        MethodSource<JavaClassSource> method = clazz.getMethod("configure");
+        // must be public void configure()
+        if (method != null && method.isPublic() && method.getParameters().isEmpty() && method.getReturnType().isType("void")) {
+            return method;
+        }
+
+        return null;
+    }
+
     public static List<String> parseCamelUris(MethodSource<JavaClassSource> method) {
         List<String> answer = new ArrayList<String>();
 

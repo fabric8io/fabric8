@@ -18,11 +18,13 @@ package io.fabric8.forge.camel.commands.project;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.addon.utils.LineNumberHelper;
 import io.fabric8.forge.addon.utils.XmlLineNumberParser;
+import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
 import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import org.apache.camel.catalog.CamelCatalog;
@@ -51,6 +53,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.roaster.model.source.AnnotationSource;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
+import org.jboss.forge.roaster.model.source.MethodSource;
 import org.jboss.forge.roaster.model.util.Strings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -319,7 +322,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
     protected Result executeJava(UIExecutionContext context, Map<Object, Object> attributeMap) throws Exception {
         String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
-        String endpointInstanceName = mandatoryAttributeValue(attributeMap, "instanceName");
+        String endpointInstanceName = optionalAttributeValue(attributeMap, "instanceName");
         String routeBuilder = mandatoryAttributeValue(attributeMap, "routeBuilder");
 
         Project project = getSelectedProject(context);
@@ -379,50 +382,69 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
         JavaClassSource clazz = existing.getJavaType();
 
-        // add the endpoint as a field
-        // special for CDI as we use different set of annotations
         boolean updated = true;
-        boolean cdi = findCamelArtifactDependency(project, "camel-cdi") != null;
 
-        FieldSource field = clazz.getField(endpointInstanceName);
-        AnnotationSource annotation;
-        if (field == null) {
-            field = clazz.addField();
-            field.setName(endpointInstanceName);
-            field.setType("org.apache.camel.Endpoint");
-            field.setPrivate();
-            updated = false;
-        }
-        if (cdi) {
-            annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
-            if (annotation == null) {
-                if (!field.hasAnnotation("javax.inject.Inject")) {
-                    field.addAnnotation("javax.inject.Inject");
-                }
-                annotation = field.addAnnotation("org.apache.camel.cdi.Uri");
+        if (endpointInstanceName != null) {
+            // add the endpoint as a field
+            // special for CDI as we use different set of annotations
+            FieldSource field = clazz.getField(endpointInstanceName);
+            AnnotationSource annotation;
+            if (field == null) {
+                field = clazz.addField();
+                field.setName(endpointInstanceName);
+                field.setType("org.apache.camel.Endpoint");
+                field.setPrivate();
+                updated = false;
             }
-        } else {
-            annotation = field.getAnnotation("org.apache.camel.EndpointInject");
-        }
-        annotation.removeAllValues();
-        annotation.setStringValue(uri);
+            boolean cdi = findCamelArtifactDependency(project, "camel-cdi") != null;
+            if (cdi) {
+                annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
+                if (annotation == null) {
+                    if (!field.hasAnnotation("javax.inject.Inject")) {
+                        field.addAnnotation("javax.inject.Inject");
+                    }
+                    annotation = field.addAnnotation("org.apache.camel.cdi.Uri");
+                }
+            } else {
+                annotation = field.getAnnotation("org.apache.camel.EndpointInject");
+            }
+            annotation.removeAllValues();
+            annotation.setStringValue(uri);
 
-        // make sure to import what we use
-        clazz.addImport("org.apache.camel.Endpoint");
-        if (cdi) {
-            clazz.addImport("javax.inject.Inject");
-            clazz.addImport("org.apache.camel.cdi.Uri");
+            // make sure to import what we use
+            clazz.addImport("org.apache.camel.Endpoint");
+            if (cdi) {
+                clazz.addImport("javax.inject.Inject");
+                clazz.addImport("org.apache.camel.cdi.Uri");
+            } else {
+                clazz.addImport("org.apache.camel.EndpointInject");
+            }
+
+            facet.saveJavaSource(clazz);
+
+            if (updated) {
+                return Results.success("Updated endpoint " + endpointInstanceName + " in " + routeBuilder);
+            } else {
+                return Results.success("Added endpoint " + endpointInstanceName + " in " + routeBuilder);
+            }
+
         } else {
-            clazz.addImport("org.apache.camel.EndpointInject");
+            MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
+            if (method != null) {
+                String endpointUrl = mandatoryAttributeValue(attributeMap, "endpointUri");
+                String body = method.getBody();
+                // wonder if we should have better way, than a replaceFirst?
+                String find = Pattern.quote(endpointUrl);
+                body = body.replaceFirst(find, uri);
+                method.setBody(body);
+
+                facet.saveJavaSource(clazz);
+
+                return Results.success("Updated endpoint " + endpointUrl + " -> " + uri + " in " + routeBuilder);
+            }
         }
 
-        facet.saveJavaSource(clazz);
-
-        if (updated) {
-            return Results.success("Updated endpoint " + endpointInstanceName + " in " + routeBuilder);
-        } else {
-            return Results.success("Added endpoint " + endpointInstanceName + " in " + routeBuilder);
-        }
+        return Results.fail("Cannot update endpoint");
     }
 
     /**
