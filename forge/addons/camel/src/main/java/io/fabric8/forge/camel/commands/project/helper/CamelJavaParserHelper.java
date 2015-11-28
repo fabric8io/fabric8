@@ -16,6 +16,7 @@
 package io.fabric8.forge.camel.commands.project.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
@@ -29,16 +30,26 @@ import org.jboss.forge.roaster.model.source.MethodSource;
 public class CamelJavaParserHelper {
 
     public static List<String> parseCamelUris(MethodSource<JavaClassSource> method) {
-        List<String> uris = new ArrayList<String>();
+        List<String> answer = new ArrayList<String>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
         for (Object statement : md.getBody().statements()) {
-            ExpressionStatement es = (ExpressionStatement) statement;
-            Expression exp = es.getExpression();
-            parseExpression(exp, uris);
+            // must be a method call expression
+            if (statement instanceof ExpressionStatement) {
+                ExpressionStatement es = (ExpressionStatement) statement;
+                Expression exp = es.getExpression();
+
+                List<String> uris = new ArrayList<String>();
+                parseExpression(exp, uris);
+                if (!uris.isEmpty()) {
+                    // reverse the order as we will grab them from last->first
+                    Collections.reverse(uris);
+                    answer.addAll(uris);
+                }
+            }
         }
 
-        return uris;
+        return answer;
     }
 
     private static void parseExpression(Expression exp, List<String> uris) {
