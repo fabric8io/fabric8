@@ -68,17 +68,14 @@ public class CamelJavaParserHelper {
         }
         if (exp instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) exp;
-            String camelUri = getCamelUri(mi);
-            if (camelUri != null) {
-                uris.add(camelUri);
-            }
+            parseCamelUris(mi, uris);
             // if the method was called on another method, then recursive
             exp = mi.getExpression();
             parseExpression(exp, uris);
         }
     }
 
-    private static String getCamelUri(MethodInvocation mi) {
+    private static void parseCamelUris(MethodInvocation mi, List<String> uris) {
         // TODO: what if the string parameter value is
         // to("file:foo&delete=true"
         //       + "&recursive=true")
@@ -87,9 +84,10 @@ public class CamelJavaParserHelper {
             List args = mi.arguments();
             if (args != null) {
                 for (Object arg : args) {
-                    // only the string parameter is the uri, but it can be in any position, so return first found
+                    // all the string parameters are uris for these eips
                     if (arg instanceof StringLiteral) {
-                        return ((StringLiteral) arg).getLiteralValue();
+                        String uri = ((StringLiteral) arg).getLiteralValue();
+                        uris.add(uri);
                     }
                 }
             }
@@ -100,12 +98,11 @@ public class CamelJavaParserHelper {
                 // it is a String type
                 Object arg = args.get(0);
                 if (arg instanceof StringLiteral) {
-                    return ((StringLiteral) arg).getLiteralValue();
+                    String uri = ((StringLiteral) arg).getLiteralValue();
+                    uris.add(uri);
                 }
             }
         }
-
-        return null;
     }
 
 }
