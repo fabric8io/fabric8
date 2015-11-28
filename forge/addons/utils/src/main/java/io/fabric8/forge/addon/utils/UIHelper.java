@@ -49,6 +49,13 @@ public final class UIHelper {
         InputComponent input;
         if (enums != null) {
             UISelectOne ui = factory.createSelectOne(name, inputClazz);
+            // the enums are comma separated
+            List<String> enumValues = new ArrayList<>();
+            String[] values = enums.split(",");
+            for (String v : values) {
+                enumValues.add(v);
+            }
+            ui.setValueChoices(enumValues);
             if (defaultValue != null) {
                 Object value = defaultValue;
                 Converter converter = converterFactory.getConverter(String.class, inputClazz);
@@ -63,16 +70,15 @@ public final class UIHelper {
                 if (converter != null) {
                     value = converter.convert(currentValue);
                 }
+                // set the value from the enum choices so the UI can indicate this correctly in the UI
+                for (String v : enumValues) {
+                    if (v.equalsIgnoreCase((String) value)) {
+                        value = v;
+                        break;
+                    }
+                }
                 ui.setValue(value);
             }
-            // the enums are comma separated
-            List<String> list = new ArrayList<>();
-            String[] values = enums.split(",");
-            for (String v : values) {
-                list.add(v);
-            }
-            ui.setValueChoices(list);
-
             // This will always prompt, regardless if there is a value set
             Iterator it = ui.getFacets().iterator();
             while (it.hasNext()) {
