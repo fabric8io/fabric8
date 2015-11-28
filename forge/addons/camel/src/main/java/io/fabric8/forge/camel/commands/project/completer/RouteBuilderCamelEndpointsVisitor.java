@@ -19,7 +19,6 @@ import java.util.List;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
-import org.apache.camel.builder.RouteBuilder;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.parser.java.resources.JavaResourceVisitor;
@@ -46,10 +45,15 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
         try {
             JavaClassSource clazz = resource.getJavaType();
 
-            // must be a route builder class
+            // must be a route builder class (or from spring-boot)
+            // TODO: we should look up the type hierachy if possible
             String superType = clazz.getSuperType();
-            if (superType != null && !RouteBuilder.class.getName().equals(superType)) {
-                return;
+            if (superType != null) {
+                boolean valid = "org.apache.camel.builder.RouteBuilder".equals(superType)
+                        || "org.apache.camel.spring.boot.FatJarRouter".equals(superType);
+                if (!valid) {
+                    return;
+                }
             }
 
             // look for fields
