@@ -24,7 +24,8 @@ public class MyRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
         from("timer:foo")
             .log("I was here")
-            .to("log:a")
+            .toD("log:a")
+            .wireTap("mock:tap")
             .to("log:b");
     }
 }

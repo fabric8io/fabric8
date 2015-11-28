@@ -58,10 +58,24 @@ public class CamelJavaParserHelper {
     }
 
     private static String getCamelUri(MethodInvocation mi) {
+        // TODO: what if the string parameter value is
+        // to("file:foo&delete=true"
+        //       + "&recursive=true")
         String name = mi.getName().getIdentifier();
-        if ("to".equals(name) || "from".equals(name)) {
+        if ("to".equals(name) || "toD".equals(name) || "from".equals(name)) {
             List args = mi.arguments();
-            if (args != null && args.size() == 1) {
+            if (args != null) {
+                for (Object arg : args) {
+                    // only the string parameter is the uri, but it can be in any position, so return first found
+                    if (arg instanceof StringLiteral) {
+                        return ((StringLiteral) arg).getLiteralValue();
+                    }
+                }
+            }
+        } else if ("enrich".equals(name) || "pollEnrich".equals(name) || "wireTap".equals(name)) {
+            List args = mi.arguments();
+            // the first argument is a string parameter for the uri for these eips
+            if (args != null && args.size() >= 1) {
                 // it is a String type
                 Object arg = args.get(0);
                 if (arg instanceof StringLiteral) {
