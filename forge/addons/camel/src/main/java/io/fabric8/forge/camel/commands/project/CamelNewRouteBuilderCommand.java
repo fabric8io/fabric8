@@ -105,7 +105,7 @@ public class CamelNewRouteBuilderCommand extends AbstractCamelProjectCommand {
                 .setPublic()
                 .setReturnTypeVoid()
                 .setName("configure")
-                .addThrows(Exception.class);
+                .addThrows(Exception.class).setBody("");
 
         facet.saveJavaSource(javaClass);
 
