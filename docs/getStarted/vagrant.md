@@ -125,7 +125,7 @@ on your installation.
 * You can also install other OpenShift Templates or Kubernetes
   resources via the **oc** command line tool: 
 
-    oc create -f jsonOrYamlFileOrUrl
+    oc create -f jsonOr YamlFileOrUrl
 
 ### Setting up your local machine
 
