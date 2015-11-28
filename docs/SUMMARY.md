@@ -32,6 +32,7 @@
     * [Publish Service](apimanImportService.md)
     * [Consume a Service](apimanConsumeService.md)
 * [Fabric8 Tools](tools.md)
+    * [Helm](helm.md)
     * [Maven Plugin](mavenPlugin.md)
       * [docker:build](mavenDockerBuild.md)
       * [docker:push](mavenDockerPush.md)

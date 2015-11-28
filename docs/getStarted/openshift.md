@@ -92,6 +92,10 @@ You can also eagerly pull docker images for a Fabric8 template via the `pull` co
 gofabric8 pull cd-pipeline
 ```
 
+#### Install or upgrade applications using Helm
+
+You can install or upgrade application using the [helm command line tool](http://fabric8.io/guide/helm.html).
+
 
 #### Enable the OpenShift router and registry
 

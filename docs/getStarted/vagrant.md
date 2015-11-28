@@ -120,7 +120,8 @@ on your installation.
   [fabric8 templates 2.2.68 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.68/distro-2.2.68-templates.zip)
   unzip and drag the JSON files you want to install onto the
   [fabric8 console](http://fabric8.io/guide/console.html) and they
-  should appear on the `Run...` page   
+  should appear on the `Run...` page
+* You can install or upgrade application using the [helm command line tool](http://fabric8.io/guide/helm.html)     
 * You can also install other OpenShift Templates or Kubernetes
   resources via the **oc** command line tool: 
 
