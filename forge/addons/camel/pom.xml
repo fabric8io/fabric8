@@ -118,6 +118,12 @@
       <classifier>forge-addon</classifier>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.roaster</groupId>
+      <artifactId>roaster-jdt</artifactId>
+      <version>${jboss.roaster.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Camel commands and catalog -->
     <dependency>

@@ -17,6 +17,7 @@ package io.fabric8.forge.camel.commands.project.completer;
 
 import java.util.List;
 
+import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.apache.camel.builder.RouteBuilder;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -26,6 +27,7 @@ import org.jboss.forge.addon.resource.visit.VisitContext;
 import org.jboss.forge.roaster.model.Annotation;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
+import org.jboss.forge.roaster.model.source.MethodSource;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 
@@ -50,6 +52,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                 return;
             }
 
+            // look for fields
             for (FieldSource<JavaClassSource> field : clazz.getFields()) {
 
                 // is the field annotated with a Camel endpoint
@@ -63,7 +66,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                 }
 
                 if (uri != null) {
-                    // we only want the relative dir name from the resource directory, eg META-INF/spring/foo.xml
+                    // we only want the relative dir name from the
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
                     if (fileName.startsWith(baseDir)) {
@@ -80,7 +83,29 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     endpoints.add(detail);
                 }
             }
-        } catch (Exception e) {
+
+            // look for endpoints in the configure method
+            MethodSource<JavaClassSource> method = clazz.getMethod("configure");
+            // must be public void configure()
+            if (method != null && method.isPublic() && method.getParameters().isEmpty() && method.getReturnType() == null) {
+                List<String> uris = CamelJavaParserHelper.parseCamelUris(method);
+                for (String uri : uris) {
+                    String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
+                    String fileName = resource.getFullyQualifiedName();
+                    if (fileName.startsWith(baseDir)) {
+                        fileName = fileName.substring(baseDir.length() + 1);
+                    }
+
+                    CamelEndpointDetails detail = new CamelEndpointDetails();
+                    detail.setResource(resource);
+                    detail.setFileName(fileName);
+                    detail.setEndpointInstance(null);
+                    detail.setEndpointUri(uri);
+                    detail.setEndpointComponentName(endpointComponentName(uri));
+                    endpoints.add(detail);
+                }
+            }
+        } catch (Throwable e) {
             // ignore
         }
 
