@@ -39,6 +39,8 @@ import org.jboss.forge.addon.templates.freemarker.FreemarkerTemplate;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.facets.HintsFacet;
+import org.jboss.forge.addon.ui.hints.InputType;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -91,6 +93,8 @@ public class CamelNewBlueprintXmlCommand extends AbstractCamelProjectCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         name.addValidator(new ResourceNameValidator("xml"));
+        name.getFacet(HintsFacet.class).setInputType(InputType.FILE_PICKER);
+        directory.getFacet(HintsFacet.class).setInputType(InputType.DIRECTORY_PICKER);
         builder.add(directory).add(name);
     }
 

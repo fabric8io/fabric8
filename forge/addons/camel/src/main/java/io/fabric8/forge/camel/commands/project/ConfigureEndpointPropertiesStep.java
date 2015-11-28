@@ -438,6 +438,9 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 body = body.replaceFirst(find, uri);
                 method.setBody(body);
 
+                // TODO: avoid formatting source code
+
+
                 facet.saveJavaSource(clazz);
 
                 return Results.success("Updated endpoint " + endpointUrl + " -> " + uri + " in " + routeBuilder);
