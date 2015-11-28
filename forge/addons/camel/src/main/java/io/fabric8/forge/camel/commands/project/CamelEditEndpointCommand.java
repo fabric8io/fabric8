@@ -122,7 +122,10 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
-        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, MAX_OPTIONS, componentFactory, converterFactory);
+        boolean consumerOnly = detail.isConsumerOnly();
+        boolean producerOnly = detail.isProducerOnly();
+
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, MAX_OPTIONS, consumerOnly, producerOnly, componentFactory, converterFactory);
 
         // need all inputs in a list as well
         List<InputComponent> allInputs = new ArrayList<>();

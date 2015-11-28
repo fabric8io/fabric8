@@ -39,7 +39,15 @@ public class CamelJavaParserHelper {
         return null;
     }
 
-    public static List<String> parseCamelUris(MethodSource<JavaClassSource> method) {
+    public static List<String> parseCamelConsumerUris(MethodSource<JavaClassSource> method) {
+        return parseCamelUris(method, true, false);
+    }
+
+    public static List<String> parseCamelProducerUris(MethodSource<JavaClassSource> method) {
+        return parseCamelUris(method, false, true);
+    }
+
+    public static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers) {
         List<String> answer = new ArrayList<String>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
@@ -50,7 +58,7 @@ public class CamelJavaParserHelper {
                 Expression exp = es.getExpression();
 
                 List<String> uris = new ArrayList<String>();
-                parseExpression(exp, uris);
+                parseExpression(exp, uris, consumers, producers);
                 if (!uris.isEmpty()) {
                     // reverse the order as we will grab them from last->first
                     Collections.reverse(uris);
@@ -62,44 +70,72 @@ public class CamelJavaParserHelper {
         return answer;
     }
 
-    private static void parseExpression(Expression exp, List<String> uris) {
+    private static void parseExpression(Expression exp, List<String> uris, boolean consumers, boolean producers) {
         if (exp == null) {
             return;
         }
         if (exp instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) exp;
-            parseCamelUris(mi, uris);
+            parseCamelUris(mi, uris, consumers, producers);
             // if the method was called on another method, then recursive
             exp = mi.getExpression();
-            parseExpression(exp, uris);
+            parseExpression(exp, uris, consumers, producers);
         }
     }
 
-    private static void parseCamelUris(MethodInvocation mi, List<String> uris) {
-        // TODO: what if the string parameter value is
-        // to("file:foo&delete=true"
-        //       + "&recursive=true")
+    private static void parseCamelUris(MethodInvocation mi, List<String> uris, boolean consumers, boolean producers) {
         String name = mi.getName().getIdentifier();
-        if ("to".equals(name) || "toD".equals(name) || "from".equals(name)) {
-            List args = mi.arguments();
-            if (args != null) {
-                for (Object arg : args) {
-                    // all the string parameters are uris for these eips
+
+        if (consumers) {
+            if ("from".equals(name)) {
+                List args = mi.arguments();
+                if (args != null) {
+                    for (Object arg : args) {
+                        // all the string parameters are uris for these eips
+                        if (arg instanceof StringLiteral) {
+                            String uri = ((StringLiteral) arg).getLiteralValue();
+                            uris.add(uri);
+                        }
+                    }
+                }
+            }
+            if ("pollEnrich".equals(name)) {
+                List args = mi.arguments();
+                // the first argument is a string parameter for the uri for these eips
+                if (args != null && args.size() >= 1) {
+                    // it is a String type
+                    Object arg = args.get(0);
                     if (arg instanceof StringLiteral) {
                         String uri = ((StringLiteral) arg).getLiteralValue();
                         uris.add(uri);
                     }
                 }
             }
-        } else if ("enrich".equals(name) || "pollEnrich".equals(name) || "wireTap".equals(name)) {
-            List args = mi.arguments();
-            // the first argument is a string parameter for the uri for these eips
-            if (args != null && args.size() >= 1) {
-                // it is a String type
-                Object arg = args.get(0);
-                if (arg instanceof StringLiteral) {
-                    String uri = ((StringLiteral) arg).getLiteralValue();
-                    uris.add(uri);
+        }
+
+        if (producers) {
+            if ("to".equals(name) || "toD".equals(name)) {
+                List args = mi.arguments();
+                if (args != null) {
+                    for (Object arg : args) {
+                        // all the string parameters are uris for these eips
+                        if (arg instanceof StringLiteral) {
+                            String uri = ((StringLiteral) arg).getLiteralValue();
+                            uris.add(uri);
+                        }
+                    }
+                }
+            }
+            if ("enrich".equals(name) || "wireTap".equals(name)) {
+                List args = mi.arguments();
+                // the first argument is a string parameter for the uri for these eips
+                if (args != null && args.size() >= 1) {
+                    // it is a String type
+                    Object arg = args.get(0);
+                    if (arg instanceof StringLiteral) {
+                        String uri = ((StringLiteral) arg).getLiteralValue();
+                        uris.add(uri);
+                    }
                 }
             }
         }

@@ -25,6 +25,8 @@ public class CamelEndpointDetails {
     private String endpointComponentName;
     private String endpointInstance;
     private String endpointUri;
+    private boolean consumerOnly;
+    private boolean producerOnly;
 
     public Resource getResource() {
         return resource;
@@ -72,5 +74,21 @@ public class CamelEndpointDetails {
 
     public void setEndpointUri(String endpointUri) {
         this.endpointUri = endpointUri;
+    }
+
+    public boolean isConsumerOnly() {
+        return consumerOnly;
+    }
+
+    public void setConsumerOnly(boolean consumerOnly) {
+        this.consumerOnly = consumerOnly;
+    }
+
+    public boolean isProducerOnly() {
+        return producerOnly;
+    }
+
+    public void setProducerOnly(boolean producerOnly) {
+        this.producerOnly = producerOnly;
     }
 }

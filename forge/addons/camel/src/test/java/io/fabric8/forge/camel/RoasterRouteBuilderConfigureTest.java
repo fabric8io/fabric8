@@ -38,7 +38,7 @@ public class RoasterRouteBuilderConfigureTest {
         JavaClassSource clazz = (JavaClassSource) Roaster.parse(new File("src/test/java/io/fabric8/forge/camel/MyRouteBuilder.java"));
         MethodSource<JavaClassSource> method = clazz.getMethod("configure");
 
-        List<String> list = CamelJavaParserHelper.parseCamelUris(method);
+        List<String> list = CamelJavaParserHelper.parseCamelUris(method, false, false);
         for (String uri : list) {
             System.out.println(uri);
         }

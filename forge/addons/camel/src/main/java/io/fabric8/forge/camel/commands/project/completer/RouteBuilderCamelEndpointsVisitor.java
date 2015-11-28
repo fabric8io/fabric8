@@ -91,7 +91,8 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
             // look for endpoints in the configure method
             MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
             if (method != null) {
-                List<String> uris = CamelJavaParserHelper.parseCamelUris(method);
+                // consumers only
+                List<String> uris = CamelJavaParserHelper.parseCamelUris(method, true, false);
                 for (String uri : uris) {
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
@@ -105,6 +106,27 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     detail.setEndpointInstance(null);
                     detail.setEndpointUri(uri);
                     detail.setEndpointComponentName(endpointComponentName(uri));
+                    detail.setConsumerOnly(true);
+                    detail.setProducerOnly(false);
+                    endpoints.add(detail);
+                }
+                // producers only
+                uris = CamelJavaParserHelper.parseCamelUris(method, false, true);
+                for (String uri : uris) {
+                    String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
+                    String fileName = resource.getFullyQualifiedName();
+                    if (fileName.startsWith(baseDir)) {
+                        fileName = fileName.substring(baseDir.length() + 1);
+                    }
+
+                    CamelEndpointDetails detail = new CamelEndpointDetails();
+                    detail.setResource(resource);
+                    detail.setFileName(fileName);
+                    detail.setEndpointInstance(null);
+                    detail.setEndpointUri(uri);
+                    detail.setEndpointComponentName(endpointComponentName(uri));
+                    detail.setConsumerOnly(false);
+                    detail.setProducerOnly(true);
                     endpoints.add(detail);
                 }
             }

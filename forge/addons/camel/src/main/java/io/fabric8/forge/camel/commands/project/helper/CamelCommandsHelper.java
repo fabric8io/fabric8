@@ -299,7 +299,7 @@ public final class CamelCommandsHelper {
         return null;
     }
 
-    public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri, int maxOptionsPerPage,
+    public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri, int maxOptionsPerPage, boolean consumerOnly, boolean producerOnly,
                                                                               InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
         List<EndpointOptionByGroup> answer = new ArrayList<>();
 
@@ -329,6 +329,7 @@ public final class CamelCommandsHelper {
                 String name = propertyMap.get("name");
                 String kind = propertyMap.get("kind");
                 String group = propertyMap.get("group");
+                String label = propertyMap.get("label");
                 String type = propertyMap.get("type");
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
@@ -343,14 +344,28 @@ public final class CamelCommandsHelper {
                 }
                 // its a new group
                 if (group != null && !group.equals(current.getGroup())) {
-                    // this group is now done so add to answer
-                    answer.add(current);
+                    if (!current.getInputs().isEmpty()) {
+                        // this group is now done so add to answer
+                        answer.add(current);
+                    }
 
                     // get ready for a new group
                     inputs = new ArrayList<>();
                     current = new EndpointOptionByGroup();
                     current.setGroup(group);
                     current.setInputs(inputs);
+                }
+
+                // filter out options in case we should only include consumers or producers only
+                if (consumerOnly && label != null) {
+                    if (!label.contains("consumer")) {
+                        continue;
+                    }
+                }
+                if (producerOnly && label != null) {
+                    if (!label.contains("producer")) {
+                        continue;
+                    }
                 }
 
                 if (!Strings.isNullOrEmpty(name)) {
@@ -364,7 +379,9 @@ public final class CamelCommandsHelper {
                                 // if we hit max options then create a new group
                                 if (inputs.size() == maxOptionsPerPage) {
                                     // this group is now done so add to answer
-                                    answer.add(current);
+                                    if (!current.getInputs().isEmpty()) {
+                                        answer.add(current);
+                                    }
                                     // get ready for a new group
                                     inputs = new ArrayList<>();
                                     current = new EndpointOptionByGroup();
