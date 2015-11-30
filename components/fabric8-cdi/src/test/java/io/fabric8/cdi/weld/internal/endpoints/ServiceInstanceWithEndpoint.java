@@ -30,4 +30,7 @@ class ServiceInstanceWithEndpoint {
     @ServiceName("service1")
     private String service;
 
+    public String getService() {
+        return service;
+    }
 }

@@ -45,13 +45,26 @@ public class EnpointsInternalTest {
 
     @Test
     public void testServiceListWithoutEndpoint() {
-        createInstance(ServiceListWithoutEndpoint.class);
+        ServiceListWithoutEndpoint obj = createInstance(ServiceListWithoutEndpoint.class);
+        Assert.assertEquals(2, obj.getService().size());
+        Assert.assertTrue(obj.getService().contains("tcp://10.0.0.1:8080"));
+        Assert.assertTrue(obj.getService().contains("tcp://10.0.0.2:8080"));
     }
+
+    @Test
+    public void testServiceListInstanceWithEndpoint() {
+        ServiceListInstanceWithEndpoint obj = createInstance(ServiceListInstanceWithEndpoint.class);
+        Assert.assertEquals(2, obj.getService().get().size());
+        Assert.assertTrue(obj.getService().get().contains("tcp://10.0.0.1:8080"));
+        Assert.assertTrue(obj.getService().get().contains("tcp://10.0.0.2:8080"));
+    }
+
 
 
     @Test
     public void testServiceInstanceWithEndpoint() {
-        createInstance(ServiceInstanceWithEndpoint.class);
+        ServiceInstanceWithEndpoint obj = createInstance(ServiceInstanceWithEndpoint.class);
+        Assert.assertTrue(obj.getService().equals("tcp://10.0.0.1:8080") || obj.getService().contains("tcp://10.0.0.2:8080"));
     }
 
     @Test

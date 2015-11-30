@@ -145,7 +145,7 @@ public class ClientProducer {
                         .withPort(8080)
                     .endPort()
                     .addNewAddresse()
-                        .withIp("172.30.17.2")
+                        .withIp("10.0.0.1")
                     .endAddresse()
                 .endSubset()
                 .addNewSubset()
@@ -154,7 +154,7 @@ public class ClientProducer {
                         .withPort(8080)
                     .endPort()
                 .addNewAddresse()
-                    .withIp("172.30.17.3")
+                    .withIp("10.0.0.2")
                 .endAddresse()
                 .endSubset()
                 .build();
