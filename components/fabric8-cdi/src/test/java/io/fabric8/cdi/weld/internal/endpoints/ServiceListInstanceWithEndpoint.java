@@ -16,20 +16,23 @@
 
 package io.fabric8.cdi.weld.internal.endpoints;
 
+import io.fabric8.annotations.Endpoint;
 import io.fabric8.annotations.ServiceName;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-class ServiceListWithoutEndpoint {
+class ServiceListInstanceWithEndpoint {
 
     @Inject
+    @Endpoint
     @ServiceName("service1")
-    private List<String> service;
+    private Instance<List<String>> service;
 
-    public List<String> getService() {
+    public Instance<List<String>> getService() {
         return service;
     }
 }
