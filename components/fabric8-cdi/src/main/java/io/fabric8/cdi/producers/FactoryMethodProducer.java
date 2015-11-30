@@ -162,7 +162,7 @@ public class FactoryMethodProducer<T, X> implements Producer<T> {
                     }
                 } else {
                     try {
-                        Object other = BeanProvider.getContextualReferences(Types.asClass(type), true);
+                        Object other = BeanProvider.getContextualReference(Types.asClass(type), true);
                         arguments.add(other);
                     } catch (Throwable t) {
                         throw new RuntimeException(String.format(PARAMETER_ERROR_FORMAT,
