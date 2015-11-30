@@ -516,15 +516,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (shouldGenerateForThisProject()) {
             if (!isIgnoreProject() || combineDependencies) {
-                if (combineDependencies) {
-                    combineDependentJsonFiles(json);
-                } else if (generateJson) {
-                    generateKubernetesJson(json);
-
-                    if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
-                        combineJsonFiles(json, kubernetesExtraJson);
-                    }
-                }
+            	if (generateJson) {
+            		generateKubernetesJson(json);
+            		if (combineDependencies) {
+            			combineDependentJsonFiles(json);
+            		}
+            		if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
+            			combineJsonFiles(json, kubernetesExtraJson);
+            		}
+            	}
                 if (json.exists() && json.isFile()) {
                     if (useDeploymentConfig) {
                         wrapInDeploymentConfigs(json);
@@ -580,6 +580,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     return;
                 }
             }
+            addKubernetesJsonFileToList(jsonObjectList, json);
             Object combinedJson;
             if (jsonObjectList.size() == 1) {
                 combinedJson = jsonObjectList.get(0);
