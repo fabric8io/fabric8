@@ -10,7 +10,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
              <dependency>
                  <groupId>io.fabric8</groupId>
                  <artifactId>letschat-api</artifactId>
-                 <version>2.2.69</version>
+                 <version>2.2.70</version>
              </dependency>
 
 ### Environment variables
