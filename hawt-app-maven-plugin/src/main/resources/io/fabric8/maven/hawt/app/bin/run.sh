@@ -4,7 +4,7 @@
 # Simple startup script for flat classpath apps
 
 # Discover JAVA_APP_DIR from the script's location.
-if [ x"${JAVA_APP_DIR}" == x ] ; then
+if [ x"${JAVA_APP_DIR}" = x ] ; then
   script_dir=`dirname "$0"`
   JAVA_APP_DIR=`cd "$script_dir"/.. ; pwd`
   export JAVA_APP_DIR
