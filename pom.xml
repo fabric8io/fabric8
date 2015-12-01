@@ -335,11 +335,6 @@
             </dependency>
 
             <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-apt</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-annotations</artifactId>
                 <version>${project.version}</version>
@@ -407,6 +402,11 @@
             </dependency>
 
             <!-- Unsupported excluded from the release
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-apt</artifactId>
+              <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.fabric8.forge</groupId>
                 <artifactId>fabric8-forge-core</artifactId>
@@ -1316,7 +1316,7 @@
 
     <modules>
         <module>parent</module>
-        <module>fabric8-apt</module>
+        <!--module>fabric8-apt</module-->
         <module>components</module>
         <module>fabric8-maven-plugin</module>
         <module>hawt-app-maven-plugin</module>
