@@ -45,18 +45,6 @@ public class Services {
         KubernetesClient client = KubernetesHolder.getClient();
         String namespace = client.getNamespace();
         String actualProtocol = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
-
-        try {
-            for (String endpoint : KubernetesHelper.lookupServiceInDns(serviceId)) {
-                endpoints.add(actualProtocol + "://" + endpoint);
-            }
-        } catch (UnknownHostException e) {
-            //ignore and fallback to the api.
-        }
-        
-        if (!endpoints.isEmpty()) {
-            return endpoints;
-        }
         
         for (io.fabric8.kubernetes.api.model.Endpoints item : KubernetesHolder.getClient().endpoints().inNamespace(namespace).list().getItems()) {
             if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
