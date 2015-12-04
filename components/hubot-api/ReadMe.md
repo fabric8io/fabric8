@@ -31,7 +31,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
              <dependency>
                  <groupId>io.fabric8</groupId>
                  <artifactId>hubot-api</artifactId>
-                 <version>2.2.71</version>
+                 <version>2.2.72</version>
              </dependency>
 
 ### Building
