@@ -580,7 +580,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     return;
                 }
             }
-            addKubernetesJsonFileToList(jsonObjectList, json);
             Object combinedJson;
             if (jsonObjectList.size() == 1) {
                 combinedJson = jsonObjectList.get(0);
