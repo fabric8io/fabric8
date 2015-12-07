@@ -1,7 +1,7 @@
-== Camel Forge Addon
-:idprefix: id_ 
-The Camel Forge addon enables developers to edit Maven based source code projects with Camel. For example to add or edit endpoints.
-        
+== Camel Commands Forge Addon
+:idprefix: id_
+The Camel Commands Forge addon enables developers to manage/interact with running Camel applications, using the Apache Camel commands.
+
 === Depends on
 
 [options="header"]
@@ -45,7 +45,7 @@ The Camel Forge addon enables developers to edit Maven based source code project
 == Setup
 This Addon requires the following installation steps.
 
-=== Add configuration to pom.xml 
+=== Add configuration to pom.xml
 To use this addon, you must add it as a dependency in the *pom.xml* of your `forge-addon` classified artifact:
 [source,xml]
 ----
@@ -57,17 +57,11 @@ To use this addon, you must add it as a dependency in the *pom.xml* of your `for
 </dependency>
 ----
 == Features
-Add Camel Endpoint::
-To add a new Camel endpoint, just type
+Get Camel Project Info::
+To get information about Camel component, dataformat and language on a specific project (if it uses Camel off course!), just type
 +
 [source,java]
 ----
-camel-add-endpoint
+camel-info
 ----
 
-To edit any existing Camel endpoints type:
-+
-[source,java]
-----
-camel-edit-endpoint
-----

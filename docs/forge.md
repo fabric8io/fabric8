@@ -9,6 +9,7 @@ First [install Forge](http://forge.jboss.org/download) and run it:
 you can install the Forge add ons via:
 
     addon-install --coordinate io.fabric8.forge:camel,2.2.72
+    addon-install --coordinate io.fabric8.forge:camel-commands,2.2.72
     addon-install --coordinate io.fabric8.forge:devops,2.2.72
     addon-install --coordinate io.fabric8.forge:kubernetes,2.2.72
 
@@ -23,7 +24,30 @@ You have to be a little patient; first time you try tab complete it can take a f
 
 ### Camel
 
-The [Apache Camel](http://camel.apache.org/) commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.
+The Camel Forge addon enables developers to edit Maven based source code projects with Camel. For example to add or edit endpoints.
+
+To setup a Maven project for Apache Camel then use the command:
+
+    camel-setup
+
+To add a new Camel endpoint using a wizard to select the options then type:
+
+    camel-add-endpoint
+
+### Camel Commands
+
+The Camel Commands Forge addon enables developers to manage/interact with running Camel applications, using the Apache Camel commands.
+
+The running Camel application must have Jolokia included which is what is being used by the addon to communicate with the running Camel applications.
+
+To connect to a running Camel application type:
+
+    camel-connect
+
+After connection, then the management commands should be available such as to list all the Camel Context's in the JVM type:
+
+    camel-context-list
+    
 
 ### DevOps
 

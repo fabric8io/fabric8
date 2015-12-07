@@ -30,6 +30,7 @@
 
   <modules>
     <module>camel</module>
+    <module>camel-commands</module>
 <!--
     TODO disabled until this bug is fixed: https://issues.jboss.org/browse/FORGE-2312 as it breaks our CD process
     hopefully in 2.16.1 of forge...
