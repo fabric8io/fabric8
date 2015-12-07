@@ -57,7 +57,7 @@
         data-chapter-title="Forge Addons"
         data-filepath="forge.md"
         data-basepath="."
-        data-revision="Fri Dec 04 2015 22:21:34 GMT+0000 (UTC)"
+        data-revision="Mon Dec 07 2015 13:45:17 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1238,6 +1238,7 @@
 <pre><code>forge
 </code></pre><p>you can install the Forge add ons via:</p>
 <pre><code>addon-install --coordinate io.fabric8.forge:camel,2.2.72
+addon-install --coordinate io.fabric8.forge:camel-commands,2.2.72
 addon-install --coordinate io.fabric8.forge:devops,2.2.72
 addon-install --coordinate io.fabric8.forge:kubernetes,2.2.72
 </code></pre><p>You should be able to see the new commands that are installed via:</p>
@@ -1246,8 +1247,19 @@ devops&lt;TAB&gt;
 kubernetes&lt;TAB&gt;
 </code></pre><p>You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what&apos;s available.</p>
 <h3 id="camel"><a name="camel" class="plugin-anchor" href="#camel"><span class="fa fa-link"></span></a>Camel</h3>
-<p>The <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> commands allow you to do all kinds of things on Camel projects such as add new components, endpoints, routes, languages.</p>
-<h3 id="devops"><a name="devops" class="plugin-anchor" href="#devops"><span class="fa fa-link"></span></a>DevOps</h3>
+<p>The Camel Forge addon enables developers to edit Maven based source code projects with Camel. For example to add or edit endpoints.</p>
+<p>To setup a Maven project for Apache Camel then use the command:</p>
+<pre><code>camel-setup
+</code></pre><p>To add a new Camel endpoint using a wizard to select the options then type:</p>
+<pre><code>camel-add-endpoint
+</code></pre><h3 id="camel-commands"><a name="camel-commands" class="plugin-anchor" href="#camel-commands"><span class="fa fa-link"></span></a>Camel Commands</h3>
+<p>The Camel Commands Forge addon enables developers to manage/interact with running Camel applications, using the Apache Camel commands.</p>
+<p>The running Camel application must have Jolokia included which is what is being used by the addon to communicate with the running Camel applications.</p>
+<p>To connect to a running Camel application type:</p>
+<pre><code>camel-connect
+</code></pre><p>After connection, then the management commands should be available such as to list all the Camel Context&apos;s in the JVM type:</p>
+<pre><code>camel-context-list
+</code></pre><h3 id="devops"><a name="devops" class="plugin-anchor" href="#devops"><span class="fa fa-link"></span></a>DevOps</h3>
 <p>The <strong>DevOps</strong> commands help you to </p>
 <ul>
 <li>create new projects</li>
