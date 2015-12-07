@@ -65,6 +65,15 @@ public class XmlResourcesCamelEndpointsVisitor implements ResourceVisitor {
                                 fileName = fileName.substring(baseDir.length() + 1);
                             }
 
+                            boolean consumerOnly = false;
+                            boolean producerOnly = false;
+                            String nodeName = node.getNodeName();
+                            if ("from".equals(nodeName) || "pollEnrich".equals(nodeName)) {
+                                consumerOnly = true;
+                            } else if ("to".equals(nodeName) || "enrich".equals(nodeName) || "wireTap".equals(nodeName)) {
+                                producerOnly = true;
+                            }
+
                             CamelEndpointDetails detail = new CamelEndpointDetails();
                             detail.setResource(resource);
                             detail.setFileName(fileName);
@@ -72,6 +81,8 @@ public class XmlResourcesCamelEndpointsVisitor implements ResourceVisitor {
                             detail.setEndpointInstance(id);
                             detail.setEndpointUri(uri);
                             detail.setEndpointComponentName(endpointComponentName(uri));
+                            detail.setConsumerOnly(consumerOnly);
+                            detail.setProducerOnly(producerOnly);
                             endpoints.add(detail);
                         }
                     }
