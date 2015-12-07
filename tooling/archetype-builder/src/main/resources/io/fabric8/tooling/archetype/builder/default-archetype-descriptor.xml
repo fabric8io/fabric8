@@ -91,6 +91,12 @@
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
+      <directory>configuration</directory>
+      <includes>
+        <include>settings.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
       <directory/>
       <includes>
         <include>*.md</include>
