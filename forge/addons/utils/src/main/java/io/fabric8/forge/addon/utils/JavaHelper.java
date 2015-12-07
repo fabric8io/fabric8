@@ -15,10 +15,10 @@
  */
 package io.fabric8.forge.addon.utils;
 
+import java.net.URLClassLoader;
+
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.ClassLoaderFacet;
-
-import java.net.URLClassLoader;
 
 public final class JavaHelper {
 

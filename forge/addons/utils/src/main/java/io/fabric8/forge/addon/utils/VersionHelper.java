@@ -15,13 +15,13 @@
  */
 package io.fabric8.forge.addon.utils;
 
-import io.fabric8.utils.Strings;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
+
+import io.fabric8.utils.Strings;
 
 public final class VersionHelper {
 
