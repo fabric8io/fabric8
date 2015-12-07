@@ -676,15 +676,21 @@ public class ArchetypeBuilder {
     private void copyFile(File src, File dest, Replacement replaceFn) throws IOException {
         if (replaceFn != null && isSourceFile(src)) {
             String original = IOHelpers.readFully(src);
-            String escapeDollarSquiggly = original;
+            String escapedContent = original;
             if (original.contains("${")) {
-                String replaced = original.replaceAll(Pattern.quote("${"), "\\${D}{");
+                String replaced = escapedContent.replaceAll(Pattern.quote("${"), "\\${D}{");
                 // add Velocity expression at the beginning of the result file.
                 // Velocity is used by mvn archetype:generate
-                escapeDollarSquiggly = "#set( $D = '$' )\n" + replaced;
+                escapedContent = "#set( $D = '$' )\n" + replaced;
+            }
+            if (original.contains("##")) {
+                String replaced = escapedContent.replaceAll(Pattern.quote("##"), "\\${H}");
+                // add Velocity expression at the beginning of the result file.
+                // Velocity is used by mvn archetype:generate
+                escapedContent = "#set( $H = '##' )\n" + replaced;
             }
             // do additional replacement
-            String text = replaceFn.replace(escapeDollarSquiggly);
+            String text = replaceFn.replace(escapedContent);
             IOHelpers.writeFully(dest, text);
         } else {
             if (LOG.isDebugEnabled()) {
