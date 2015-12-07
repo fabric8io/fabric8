@@ -65,6 +65,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--forge addons -->
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>maven</artifactId>
+      <classifier>forge-addon</classifier>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
       <artifactId>cdi</artifactId>
@@ -83,16 +90,23 @@
       <classifier>forge-addon</classifier>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>parser-java</artifactId>
+      <classifier>forge-addon</classifier>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>parser-xml</artifactId>
+      <classifier>forge-addon</classifier>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Camel commands and catalog -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-commands-jolokia</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-catalog</artifactId>
       <version>${camel.version}</version>
     </dependency>
 

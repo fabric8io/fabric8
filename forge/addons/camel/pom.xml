@@ -125,10 +125,10 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Camel commands and catalog -->
+    <!-- camel core and catalog -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-commands-jolokia</artifactId>
+      <artifactId>camel-core</artifactId>
       <version>${camel.version}</version>
     </dependency>
     <dependency>
