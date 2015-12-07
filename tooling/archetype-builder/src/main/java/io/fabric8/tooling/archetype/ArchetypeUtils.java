@@ -51,7 +51,6 @@ public class ArchetypeUtils {
 
     public static final String[] sourceCodeDirNames = new String[] { "java", "groovy", "kotlin", "scala" };
     private static final Set<String> excludeExtensions = new HashSet<String>(Arrays.asList("iml", "iws", "ipr"));
-    private static final Set<String> includeNames = new HashSet<String>(Arrays.asList(".m2"));
     private static final Set<String> sourceCodeDirPaths = new HashSet<String>();
 
     private DocumentBuilder documentBuilder;
@@ -139,11 +138,11 @@ public class ArchetypeUtils {
 
     /**
      * Returns true if this file is a valid source file; so
-     * excluding things like .svn directories and whatnot, unless included in includeNames
+     * excluding things like .svn directories and whatnot
      */
     public boolean isValidSourceFileOrDir(File file) {
         String name = file.getName();
-        return (!name.startsWith(".") && !excludeExtensions.contains(Files.getExtension(file.getName()))) || includeNames.contains(name);
+        return !name.startsWith(".") && !excludeExtensions.contains(Files.getExtension(file.getName()));
     }
 
     /**
