@@ -29,7 +29,7 @@ Depending on your host operating system you need to install an
 additional vagrant plugin:
 
 * `vagrant plugin install landrush` for Linux and OS X
-* `vagrant plugin install vagrant-hostmanager-fabric8` for Windows
+* `vagrant plugin install vagrant-hostmanager` for Windows
 
 The next steps are needed for proper routing from the host to
 OpenShift services which are exposed via routes:
