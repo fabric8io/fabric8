@@ -21,7 +21,7 @@ In this guide we will start with one of the simplest which is the `java-simple-f
 To get started you can checkout the quickstart source code using the following git command:
 
     git clone https://github.com/fabric8io/ipaas-quickstarts.git
-    cd ipaas-quickstart
+    cd ipaas-quickstarts
 
 And then change directory to 
 
