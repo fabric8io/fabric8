@@ -408,8 +408,10 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             } else {
                 annotation = field.getAnnotation("org.apache.camel.EndpointInject");
             }
-            annotation.removeAllValues();
-            annotation.setStringValue(uri);
+            if (annotation != null) {
+                annotation.removeAllValues();
+                annotation.setStringValue(uri);
+            }
 
             // make sure to import what we use
             clazz.addImport("org.apache.camel.Endpoint");
