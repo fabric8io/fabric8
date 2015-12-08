@@ -81,7 +81,7 @@
         <commons.collections.version>3.2.2</commons.collections.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
-        <jboss.forge.version>2.20.1.Final</jboss.forge.version>
+        <jboss.forge.version>3.0.0.Alpha2</jboss.forge.version>
         <jboss.roaster.version>2.17.3.Final</jboss.roaster.version>
         <furnace.version>2.22.8.Final</furnace.version>
         <jolokia.version>1.3.2</jolokia.version>
