@@ -171,9 +171,10 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        // must be same component name to allow reusing existing navigation result
+        // must be same component name and endpoint type to allow reusing existing navigation result
         String previous = (String) attributeMap.get("componentName");
-        if (previous != null && previous.equals(componentName.getValue())) {
+        String previous2 = (String) attributeMap.get("endpointType");
+        if (previous != null && previous.equals(componentName.getValue()) && previous2 != null && previous2.equals(endpointType.getValue())) {
             NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
             if (navigationResult != null) {
                 return navigationResult;
@@ -181,6 +182,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         }
 
         attributeMap.put("componentName", componentName.getValue());
+        attributeMap.put("endpointType", endpointType.getValue());
         attributeMap.put("instanceName", instanceName.getValue());
         attributeMap.put("xml", xml.getValue());
         attributeMap.put("mode", "add");
