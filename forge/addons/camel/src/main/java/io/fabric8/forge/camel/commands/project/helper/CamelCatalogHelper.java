@@ -330,4 +330,50 @@ public final class CamelCatalogHelper {
         }
         return null;
     }
+
+    /**
+     * Whether the component is consumer only
+     */
+    public static boolean isComponentConsumerOnly(String scheme) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(scheme);
+        if (json == null) {
+            return false;
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String consumerOnly = propertyMap.get("consumerOnly");
+                if (consumerOnly != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether the component is consumer only
+     */
+    public static boolean isComponentProducerOnly(String scheme) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(scheme);
+        if (json == null) {
+            return false;
+        }
+
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+        if (data != null) {
+            for (Map<String, String> propertyMap : data) {
+                String consumerOnly = propertyMap.get("producerOnly");
+                if (consumerOnly != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

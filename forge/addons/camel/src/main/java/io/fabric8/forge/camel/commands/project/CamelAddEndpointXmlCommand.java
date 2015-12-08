@@ -16,6 +16,7 @@
 package io.fabric8.forge.camel.commands.project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -63,6 +64,10 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
     @Inject
     @WithAttributes(label = "Name", required = true, description = "Name of component to use for the endpoint")
     private UISelectOne<String> componentName;
+
+    @Inject
+    @WithAttributes(label = "Endpoint type", required = true, description = "Type of endpoint")
+    private UISelectOne<String> endpointType;
 
     @Inject
     @WithAttributes(label = "Instance Name", required = true, description = "Name of endpoint instance to add")
@@ -123,19 +128,50 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
                 } else {
                     componentName.setNote("");
                 }
+
+                // limit the endpoint types what is possible with this chosen component
+                if (component != null) {
+                    boolean consumerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
+                    boolean producerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
+                    if (consumerOnly) {
+                        String[] types = new String[]{"Consumer"};
+                        endpointType.setValueChoices(Arrays.asList(types));
+                        endpointType.setValue("Consumer");
+                        endpointType.setDefaultValue("Consumer");
+                    } else if (producerOnly) {
+                        String[] types = new String[]{"Producer"};
+                        endpointType.setValueChoices(Arrays.asList(types));
+                        endpointType.setValue("Producer");
+                        endpointType.setDefaultValue("Producer");
+                    } else {
+                        String[] types = new String[]{"<any>", "Consumer", "Producer"};
+                        endpointType.setValueChoices(Arrays.asList(types));
+                        endpointType.setValue("<any>");
+                        endpointType.setDefaultValue("<any>");
+                    }
+                } else {
+                    String[] types = new String[]{"<any>", "Consumer", "Producer"};
+                    endpointType.setValueChoices(Arrays.asList(types));
+                    endpointType.setValue("<any>");
+                    endpointType.setDefaultValue("<any>");
+                }
             }
         });
 
+        String[] types = new String[]{"<any>", "Consumer", "Producer"};
+        endpointType.setValueChoices(Arrays.asList(types));
+        endpointType.setDefaultValue("<any>");
+
         // use value choices instead of completer as that works better in web console
         xml.setValueChoices(new XmlFileCompleter(resourcesFacet, webResourcesFacet).getFiles());
-        builder.add(componentNameFilter).add(componentName).add(instanceName).add(xml);
+        builder.add(componentNameFilter).add(componentName).add(endpointType).add(instanceName).add(xml);
     }
 
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        // must be same component name to allow reusing existing navigation reuslt
+        // must be same component name to allow reusing existing navigation result
         String previous = (String) attributeMap.get("componentName");
         if (previous != null && previous.equals(componentName.getValue())) {
             NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
@@ -159,8 +195,15 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
+        // producer vs consumer only if selected
         boolean consumerOnly = false;
         boolean producerOnly = false;
+        String type = endpointType.getValue();
+        if ("Consumer".equals(type)) {
+            consumerOnly = true;
+        } else if ("Producer".equals(type)) {
+            producerOnly = true;
+        }
 
         List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, consumerOnly, producerOnly, componentFactory, converterFactory);
 

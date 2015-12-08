@@ -107,7 +107,7 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
 
-        // must be same component name to allow reusing existing navigation reuslt
+        // must be same component name to allow reusing existing navigation result
         String previous = (String) attributeMap.get("endpointUri");
         if (previous != null && previous.equals(endpoints.getValue())) {
             NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
