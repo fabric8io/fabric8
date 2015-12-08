@@ -34,7 +34,7 @@
     <!-- to include hawtio version in pom.xml which is needed by fabric8:setup command -->
     <hawtio.version>1.4.58</hawtio.version>
     <!-- docker maven plugin -->
-    <docker.version>0.13.6</docker.version>
+    <docker.version>0.13.7</docker.version>
   </properties>
 
   <dependencyManagement>
