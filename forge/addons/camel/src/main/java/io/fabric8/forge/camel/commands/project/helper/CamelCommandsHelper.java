@@ -334,6 +334,8 @@ public final class CamelCommandsHelper {
                 String javaType = propertyMap.get("javaType");
                 String deprecated = propertyMap.get("deprecated");
                 String required = propertyMap.get("required");
+                // TODO: fails in IDEA (https://github.com/fabric8io/fabric8/issues/5374)
+                required = "false";
                 String currentValue = currentValues.get(name);
                 String defaultValue = propertyMap.get("defaultValue");
                 String description = propertyMap.get("description");
