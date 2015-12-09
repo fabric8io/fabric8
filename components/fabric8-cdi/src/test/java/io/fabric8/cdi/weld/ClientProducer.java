@@ -159,6 +159,47 @@ public class ClientProducer {
                 .endSubset()
                 .build();
 
+        Endpoints service2EndpointsA = new EndpointsBuilder()
+                .withNewMetadata()
+                .withName("service2")
+                .withNamespace("default")
+                .endMetadata()
+                .addNewSubset()
+                .addNewPort()
+                .withName("port")
+                .withPort(8080)
+                .endPort()
+                .addNewAddresse()
+                .withIp("10.0.0.1")
+                .endAddresse()
+                .endSubset()
+                .addNewSubset()
+                .addNewPort()
+                .withName("port")
+                .withPort(8080)
+                .endPort()
+                .addNewAddresse()
+                .withIp("10.0.0.2")
+                .endAddresse()
+                .endSubset()
+                .build();
+
+        Endpoints service2EndpointsB = new EndpointsBuilder()
+                .withNewMetadata()
+                .withName("service2")
+                .withNamespace("default")
+                .endMetadata()
+                .addNewSubset()
+                .addNewPort()
+                .withName("port")
+                .withPort(8080)
+                .endPort()
+                .addNewAddresse()
+                .withIp("10.0.0.1")
+                .endAddresse()
+                .endSubset()
+                .build();
+
         Endpoints multiPortEndpoint = new EndpointsBuilder()
                 .withNewMetadata()
                     .withName("multiport")
@@ -179,7 +220,18 @@ public class ClientProducer {
                 service1Endpoints
         ).anyTimes();
 
-        mock.endpoints().inNamespace("default").list().andReturn(new EndpointsListBuilder().addToItems(multiPortEndpoint, service1Endpoints).build()).anyTimes();
+        mock.endpoints().inNamespace("default").withName("service2").get().andReturn(
+                service2EndpointsA
+        ).once();
+
+        mock.endpoints().inNamespace("default").withName("service2").get().andReturn(
+                service2EndpointsB
+        ).anyTimes();
+
+        mock.endpoints().inNamespace("default").withName("multiport").get().andReturn(
+                multiPortEndpoint
+        ).anyTimes();
+
         mock.adapt(OpenShiftClient.class).andReturn(getOpenShiftClient()).anyTimes();
 
         mock.getNamespace().andAnswer(new IAnswer<String>() {

@@ -21,6 +21,7 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.Producer;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class FirstEndpointProducer implements Producer<String> {
@@ -44,7 +45,13 @@ public class FirstEndpointProducer implements Producer<String> {
         if (serviceId == null) {
             throw new IllegalArgumentException("No service id has been specified.");
         }
-        return Services.toServiceEndpointUrl(serviceId, serviceProtocol, servicePort).iterator().next();
+
+        List<String> endpoints = Services.toServiceEndpointUrl(serviceId, serviceProtocol, servicePort);
+        if (endpoints == null || endpoints.isEmpty()) {
+            return null;
+        } else {
+            return endpoints.get(0);
+        }
     }
 
     @Override
