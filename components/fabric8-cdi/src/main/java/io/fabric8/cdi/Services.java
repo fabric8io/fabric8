@@ -20,11 +20,11 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointPort;
 import io.fabric8.kubernetes.api.model.EndpointSubset;
+import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.URLUtils;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,19 +45,17 @@ public class Services {
         KubernetesClient client = KubernetesHolder.getClient();
         String namespace = client.getNamespace();
         String actualProtocol = serviceProtocol != null ? serviceProtocol : DEFAULT_PROTO;
-        
-        for (io.fabric8.kubernetes.api.model.Endpoints item : KubernetesHolder.getClient().endpoints().inNamespace(namespace).list().getItems()) {
-            if (item.getMetadata().getName().equals(serviceId) && (namespace == null || namespace.equals(item.getMetadata().getNamespace()))) {
-                for (EndpointSubset subset : item.getSubsets()) {
-                    for (EndpointAddress address : subset.getAddresses()) {
-                        for (EndpointPort endpointPort : subset.getPorts()) {
-                            if (servicePort == null || servicePort.equals(endpointPort.getName())) {
-                                endpoints.add(actualProtocol + "://" + address.getIp() + ":" + endpointPort.getPort());
-                            }
+
+        Endpoints item = KubernetesHolder.getClient().endpoints().inNamespace(namespace).withName(serviceId).get();
+        if (item != null) {
+            for (EndpointSubset subset : item.getSubsets()) {
+                for (EndpointAddress address : subset.getAddresses()) {
+                    for (EndpointPort endpointPort : subset.getPorts()) {
+                        if (servicePort == null || servicePort.equals(endpointPort.getName())) {
+                            endpoints.add(actualProtocol + "://" + address.getIp() + ":" + endpointPort.getPort());
                         }
                     }
                 }
-                break;
             }
         }
         return endpoints;

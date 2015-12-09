@@ -28,6 +28,8 @@ import org.junit.rules.ExpectedException;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnpointsInternalTest {
 
@@ -77,6 +79,20 @@ public class EnpointsInternalTest {
     public void testServiceInstanceWithFactoryAndMultipleEndpoints() {
         ServiceInstanceUsingFactoryAndEndpoints obj = createInstance(ServiceInstanceUsingFactoryAndEndpoints.class);
         Assert.assertNotNull(obj.getService());
+    }
+
+    @Test
+    public void testChangingEndpoints() {
+        ServiceListInstanceWithEndpoint2 obj = createInstance(ServiceListInstanceWithEndpoint2.class);
+        List<String> endpoints = new ArrayList<>(obj.getService().get());
+
+        Assert.assertTrue(endpoints.contains("tcp://10.0.0.1:8080"));
+        Assert.assertTrue(endpoints.contains("tcp://10.0.0.2:8080"));
+
+        endpoints = new ArrayList<>(obj.getService().get());
+
+        Assert.assertTrue(endpoints.contains("tcp://10.0.0.1:8080"));
+        Assert.assertFalse(endpoints.contains("tcp://10.0.0.2:8080"));
     }
 
 

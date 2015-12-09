@@ -15,6 +15,7 @@
  */
 package io.fabric8.cdi.bean;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Producer;
 import javax.inject.Singleton;
@@ -49,7 +50,7 @@ public class ProducerBean<X> extends BaseBean<X> {
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return Singleton.class;
+        return Dependent.class;
     }
     
     @Override
