@@ -51,7 +51,8 @@ public class AMQConfiguration extends ActiveMQConfiguration {
 
     @Override
     public void setBrokerURL(String brokerURL) {
-        throw new UnsupportedOperationException("brokerURL property cannot be modified for this component. Please modify the serviceName instead!");
+        // noop
+        // the broker is using kubernetes services, so its always resolved in the getBrokerURL method
     }
 
     public String getServiceName() {
