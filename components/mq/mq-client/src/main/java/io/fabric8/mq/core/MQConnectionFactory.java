@@ -15,6 +15,9 @@
  */
 package io.fabric8.mq.core;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -41,9 +44,19 @@ public class MQConnectionFactory extends ActiveMQConnectionFactory {
     }
 
     @Override
-    public void setBrokerURL(String brokerURL) {
-        // noop
-        // the broker is using kubernetes services, so its always resolved in the getBrokerURL method
+    public Connection createConnection() throws JMSException {
+        // make sure brokerUrl is set because ActiveMQ expect its set using the setBrokerUrl method
+        String url = getBrokerURL();
+        setBrokerURL(url);
+        return super.createActiveMQConnection();
+    }
+
+    @Override
+    public Connection createConnection(String userName, String password) throws JMSException {
+        // make sure brokerUrl is set because ActiveMQ expect its set using the setBrokerUrl method
+        String url = getBrokerURL();
+        setBrokerURL(url);
+        return super.createActiveMQConnection(userName, password);
     }
 
     public String getServiceName() {
