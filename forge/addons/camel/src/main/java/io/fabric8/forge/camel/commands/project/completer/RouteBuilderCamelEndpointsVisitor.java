@@ -56,7 +56,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                 }
             }
 
-            // look for fields
+            // look for fields which are not used in the route
             for (FieldSource<JavaClassSource> field : clazz.getFields()) {
 
                 // is the field annotated with a Camel endpoint
@@ -69,7 +69,9 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     }
                 }
 
-                if (uri != null) {
+                // we only want to add fields which are not used in the route
+                if (uri != null && findEndpointByUri(uri) == null) {
+
                     // we only want the relative dir name from the
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
@@ -84,15 +86,44 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     detail.setEndpointInstance(id);
                     detail.setEndpointUri(uri);
                     detail.setEndpointComponentName(endpointComponentName(uri));
+                    // we do not know if this field is used as consumer or producer only, but we try
+                    // to find out by scanning the route in the configure method below
                     endpoints.add(detail);
                 }
             }
 
-            // look for endpoints in the configure method
+            // look if any of these fields are used in the route only as consumer or producer, as then we can
+            // determine this to ensure when we edit the endpoint we should only the options accordingly
             MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
             if (method != null) {
                 // consumers only
-                List<String> uris = CamelJavaParserHelper.parseCamelConsumerUris(method);
+                List<String> uris = CamelJavaParserHelper.parseCamelConsumerUris(method, false, true);
+                for (String uri : uris) {
+                    CamelEndpointDetails detail = findEndpointByUri(uri);
+                    if (detail != null) {
+                        // its a consumer only
+                        detail.setConsumerOnly(true);
+                    }
+                }
+                // producer only
+                uris = CamelJavaParserHelper.parseCamelProducerUris(method, false, true);
+                for (String uri : uris) {
+                    CamelEndpointDetails detail = findEndpointByUri(uri);
+                    if (detail != null) {
+                        if (detail.isConsumerOnly()) {
+                            // its both a consumer and producer
+                            detail.setConsumerOnly(false);
+                            detail.setProducerOnly(false);
+                        } else {
+                            // its a producer only
+                            detail.setProducerOnly(true);
+                        }
+                    }
+                }
+
+                // look for endpoints in the configure method that are string based
+                // consumers only
+                uris = CamelJavaParserHelper.parseCamelConsumerUris(method, true, false);
                 for (String uri : uris) {
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
@@ -110,29 +141,48 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     detail.setProducerOnly(false);
                     endpoints.add(detail);
                 }
-                // producers only
-                uris = CamelJavaParserHelper.parseCamelProducerUris(method);
+                uris = CamelJavaParserHelper.parseCamelProducerUris(method, true, false);
                 for (String uri : uris) {
-                    String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
-                    String fileName = resource.getFullyQualifiedName();
-                    if (fileName.startsWith(baseDir)) {
-                        fileName = fileName.substring(baseDir.length() + 1);
-                    }
+                    // the same uri may already have been used as consumer as well
+                    CamelEndpointDetails detail = findEndpointByUri(uri);
+                    if (detail == null) {
+                        // its a producer only uri
+                        String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
+                        String fileName = resource.getFullyQualifiedName();
+                        if (fileName.startsWith(baseDir)) {
+                            fileName = fileName.substring(baseDir.length() + 1);
+                        }
 
-                    CamelEndpointDetails detail = new CamelEndpointDetails();
-                    detail.setResource(resource);
-                    detail.setFileName(fileName);
-                    detail.setEndpointInstance(null);
-                    detail.setEndpointUri(uri);
-                    detail.setEndpointComponentName(endpointComponentName(uri));
-                    detail.setConsumerOnly(false);
-                    detail.setProducerOnly(true);
-                    endpoints.add(detail);
+                        detail = new CamelEndpointDetails();
+                        detail.setResource(resource);
+                        detail.setFileName(fileName);
+                        detail.setEndpointInstance(null);
+                        detail.setEndpointUri(uri);
+                        detail.setEndpointComponentName(endpointComponentName(uri));
+                        detail.setConsumerOnly(false);
+                        detail.setProducerOnly(true);
+
+                        endpoints.add(detail);
+                    } else {
+                        // we already have this uri as a consumer, then mark it as both consumer+producer
+                        detail.setConsumerOnly(false);
+                        detail.setProducerOnly(false);
+                    }
                 }
             }
+
         } catch (Throwable e) {
             // ignore
         }
 
+    }
+
+    private CamelEndpointDetails findEndpointByUri(String uri) {
+        for (CamelEndpointDetails detail : endpoints) {
+            if (uri.equals(detail.getEndpointUri())) {
+                return detail;
+            }
+        }
+        return null;
     }
 }
