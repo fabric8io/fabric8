@@ -55,7 +55,7 @@
         data-chapter-title="Kubernetes Questions"
         data-filepath="faqKubernetes.md"
         data-basepath="."
-        data-revision="Thu Dec 10 2015 09:39:07 GMT+0000 (UTC)"
+        data-revision="Thu Dec 10 2015 09:54:19 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1248,6 +1248,13 @@
 <p>See <a href="services.html#exposing-services-externally">Exposing services externally</a></p>
 <h4 id="how-to-discover-services-when-running-outside-of-kubernetes"><a name="how-to-discover-services-when-running-outside-of-kubernetes" class="plugin-anchor" href="#how-to-discover-services-when-running-outside-of-kubernetes"><span class="fa fa-link"></span></a>How to discover services when running outside of Kubernetes?</h4>
 <p>See <a href="services.html#discovery-when-outside-of-kubernetes">Discovery when outside of Kubernetes</a></p>
+<h4 id="how-many-namespaces-should-i-use"><a name="how-many-namespaces-should-i-use" class="plugin-anchor" href="#how-many-namespaces-should-i-use"><span class="fa fa-link"></span></a>How many namespaces should I use?</h4>
+<p>Namespaces are a great way in kubernetes to group related <a href="pods.html">pods</a> and <a href="services.html">services</a> together to get <a href="services.html#discovering-services-from-your-application">easy service discovery</a> without requiring environment-specific configuration or service linking. They also provide role based authentication (RBAC). </p>
+<p>The more related apps (<a href="pods.html">pods</a> and <a href="services.html">services</a>) are in the same namespace, the easier it is <a href="services.html#discovering-services-from-your-application">for service discovery</a> and the less configuration or service linking you need to do. The flip side is, the more namespaces you have, the easier it is to get finer grained RBAC policies on who can view or change apps in the namespace.</p>
+<p>So our recommendation is use a namespace for each environment (e.g. Dev, Test, Staging, Production) for each team. You can then define who has what roles in each team; then you can define the environments for each team. </p>
+<p>You may find that namespaces can be shared across teams (e.g. maybe Staging contains the apps from multiple teams) so use your best judgement. There&#x2019;s nothing stopping you just having, say, 1 namespace for all your production apps; but given companies often split &#x2018;all of production&#x2019; into separate teams who look after different parts; its probably a case where you refactor &#x201C;production&#x201D; into separate production teams and they each have their own namespace per environment (they may want a Staging and Production environment for example).</p>
+<p>In a pure microservice world, you may have 1 namespace per environment per microservice; though that might be a bit granular for every environment (you may wish to colocate multiple microservices in the same namespace). Though even a single microservice might be a collection of pods and services - whether its cassandra, kafka, riak, elasticsearch or whatever. Really a microservice just represents a &#x2018;chunk&#x2019; of a monolith thats built, released &amp; managed by a separate independent team. </p>
+<p>If you do go the direction of one microservice per namespace; you&#x2019;ll have all the Kubernetes Services you need for your app in your namespace; but they will be remote (implemented typically outside your namespace) so you&#x2019;ll use <a href="services.html#exposing-services-externally">external services or service linking</a> to point to the implementations you need (using <em>Endpoints</em> rather than using the usual <em>pod selectors</em> in <a href="service.html">Kubernetes services</a></p>
 <h4 id="how-do-i-browse-the-swagger-docs"><a name="how-do-i-browse-the-swagger-docs" class="plugin-anchor" href="#how-do-i-browse-the-swagger-docs"><span class="fa fa-link"></span></a>How do I browse the Swagger docs?</h4>
 <p>You can browse the Kubernetes REST API using the <a href="http://kubernetes.io/third_party/swagger-ui/" target="_blank">Swagger Site</a>.</p>
 <p>To browse the OpenShift Swagger docs for your installation:</p>
