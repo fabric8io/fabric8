@@ -92,7 +92,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
             MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
             if (method != null) {
                 // consumers only
-                List<String> uris = CamelJavaParserHelper.parseCamelUris(method, true, false);
+                List<String> uris = CamelJavaParserHelper.parseCamelConsumerUris(method);
                 for (String uri : uris) {
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
@@ -111,7 +111,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
                     endpoints.add(detail);
                 }
                 // producers only
-                uris = CamelJavaParserHelper.parseCamelUris(method, false, true);
+                uris = CamelJavaParserHelper.parseCamelProducerUris(method);
                 for (String uri : uris) {
                     String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
                     String fileName = resource.getFullyQualifiedName();
