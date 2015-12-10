@@ -9,7 +9,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-devops-connector</artifactId>
-                <version>2.2.72</version>
+                <version>2.2.73</version>
             </dependency>
 
 ### API Overview
