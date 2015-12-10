@@ -47,7 +47,7 @@ public class CamelJavaParserHelper {
         return parseCamelUris(method, false, true);
     }
 
-    public static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers) {
+    private static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers) {
         List<String> answer = new ArrayList<String>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
