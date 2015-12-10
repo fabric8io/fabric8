@@ -57,7 +57,7 @@
         data-chapter-title="Services"
         data-filepath="services.md"
         data-basepath="."
-        data-revision="Thu Dec 10 2015 10:47:10 GMT+0000 (UTC)"
+        data-revision="Thu Dec 10 2015 10:59:50 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1257,22 +1257,27 @@
 <p>Under the covers Kubernetes will load balance over all the service endpoints for you.</p>
 <p>Note a <a href="pod.html">pod</a> can terminate at any time; so its recommended that any network code should retry requests if a socket fails; then kubernetes will failover to a pod for you.</p>
 <h3 id="discovering-external-services"><a name="discovering-external-services" class="plugin-anchor" href="#discovering-external-services"><span class="fa fa-link"></span></a>Discovering external services</h3>
-<p>You can use the Kubernetes <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">service discovery mechanism</a> with environment variables to discover services which are internal and running inside Kubernetes or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.</p>
-<p>Basically you just need to create the Service metadata for external services; the difference is you list the physical external endpoints rather than letting Kubernetes discover them by using a selector and watching the running pods.</p>
+<p>You can use the Kubernetes <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">service discovery mechanism</a> with DNS or environment variables to discover services which are internal and running inside Kubernetes, running in a different namespace or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.</p>
+<p>Basically you just need to create the Service metadata for external services; the difference is you list the actual <code>Endpoints</code> rather than letting Kubernetes discover them by using a <code>pod selector</code> and watching the running pods.</p>
 <p>For more detail see <a href="http://docs.openshift.org/latest/dev_guide/integrating_external_services.html" target="_blank">integrating external services</a>.</p>
 <h3 id="exposing-services-externally"><a name="exposing-services-externally" class="plugin-anchor" href="#exposing-services-externally"><span class="fa fa-link"></span></a>Exposing services externally</h3>
 <p>Kubernetes service discovery is designed for containers running inside the Kubernetes cluster. The host/ports of services and pods typically are only visible to containers running inside the Kubernetes cluster. </p>
-<p>So for software running outside of a Kubernetes cluster - and for browsers to access the services and web applications you need to expose the services externally.</p>
-<p>With kubernetes you can do this via DNS. </p>
-<p>In addition OpenShift <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">supports Routes</a> which provides a haproxy based external load balancer to accessing services.</p>
-<p>To easily create OpenShift routes see these maven goals:</p>
+<p>So for software running outside of a Kubernetes cluster (such as web browsers) to access the services and web applications you need to expose the services externally.</p>
+<p>Using the command line you can use the Kubernetes or OpenShift commands:</p>
+<pre><code>kubectl expose service cheese
+oc expose service cheese
+</code></pre><p>When using <a href="helm.html">helm</a> to install or update applications then any service of <code>type = LoadBalancer</code> are automatically exposed.</p>
+<p>In addition in OpenShift you can <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">create Route resources directly</a> which provides a haproxy based external load balancer to accessing services.</p>
+<p>If you use Maven you can also use these goals:</p>
 <ul>
 <li><a href="mavenFabric8Apply.html">fabric8:apply</a> applies the kubernetes json into a namespace in a kubernetes cluster and by default automatically create any required routes for services</li>
 <li><a href="mavenFabric8CreateRoutes.html">fabric8:create-routes</a> generates any missing <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for the current services in the current namespace </li>
 </ul>
 <h3 id="discovery-when-outside-of-kubernetes"><a name="discovery-when-outside-of-kubernetes" class="plugin-anchor" href="#discovery-when-outside-of-kubernetes"><span class="fa fa-link"></span></a>Discovery when outside of Kubernetes</h3>
 <p>When in development its often handy to run your code directly; either inside a docker container or just as a native operating system process; but on your laptop and not inside the kubernetes cluster.</p>
-<p>Since Kubernetes service discovery is essentially about using environment variables, its very easy to setup environment variables so your code can discover services in a remote kubernetes cluster while running on your laptop.</p>
+<p>Though even when developing locally we highly recommend to always run your code in a docker image inside Kubernetes via a <a href="getStarted/vagrant.html">vagrant image</a> as then you can be sure you&apos;re really testing your application in docker on the same platform as production together with testing your kubernetes resources too!</p>
+<p>To mimick DNS service discovery inside Kubernetes you can just add entries in your <code>/etc/hosts</code> file pointing to the host/IP addresses of the services.</p>
+<p>For environment variables based discovery, its very easy to setup environment variables so your code can discover services in a remote kubernetes cluster while running on your laptop.</p>
 <p>To try this out see:</p>
 <ul>
 <li><a href="mavenFabric8CreateEnv.html">fabric8:create-env</a> generates environment variable scripts for Kubernetes <a href="services.html">services</a> so you can simulate running programs as if they were inside kubernetes</li>
