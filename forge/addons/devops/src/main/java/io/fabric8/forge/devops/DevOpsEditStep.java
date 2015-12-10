@@ -174,7 +174,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         // lets initialise the data from the current config if it exists
         ProjectConfig config = null;
         Project project = getCurrentSelectedProject(context);
-        File configFile = getProjectConfigFile(project);
+        File configFile = getProjectConfigFile(context, getSelectedProject(context));
         if (configFile != null && configFile.exists()) {
             config = ProjectConfigs.parseProjectConfig(configFile);
         }
@@ -220,9 +220,10 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
 
         String fileName = ProjectConfigs.FILE_NAME;
         Project project = getSelectedProject(context);
-        File configFile = getProjectConfigFile(project);
+        File configFile = getProjectConfigFile(context.getUIContext(), getSelectedProject(context));
         if (configFile == null) {
-            return Results.fail("This command requires a project");
+            // lets not fail as we typically want to execute SaveDevOpsStep next...
+            return Results.success();
         }
         ProjectConfig config = null;
         boolean hasFile = false;
@@ -264,6 +265,9 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         String user = getStringAttribute(attributeMap, "gitUser");
         String named = getStringAttribute(attributeMap, "projectName");;
         File basedir = CommandHelpers.getBaseDir(project);
+        if (basedir == null && configFile != null) {
+            basedir = configFile.getParentFile();
+        }
 
         if (object instanceof Project) {
             Project newProject = (Project) object;
@@ -299,7 +303,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         }
 
         LOG.info("Project name is: " + projectName);
-        if (Strings.isNotBlank(projectName)) {
+        if (Strings.isNotBlank(projectName) && project != null) {
             MavenFacet maven = project.getFacet(MavenFacet.class);
             Model pom = maven.getModel();
             if (pom != null) {
@@ -320,7 +324,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
 
         Boolean copyFlowToProjectValue = copyFlowToProject.getValue();
         if (copyFlowToProjectValue != null && copyFlowToProjectValue.booleanValue()) {
-            if (basedir == null && !basedir.isDirectory()) {
+            if (basedir == null || !basedir.isDirectory()) {
                 LOG.warn("Cannot copy the pipeline to the project as no basedir!");
             } else {
                 String flow = this.pipeline.getValue();
@@ -531,21 +535,6 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
 
     public void setTaiga(TaigaClient taiga) {
         this.taiga = taiga;
-    }
-
-    public static File getProjectConfigFile(Project project) {
-        if (project == null) {
-            return null;
-        }
-        Resource<?> root = project.getRoot();
-        if (root == null) {
-            return null;
-        }
-        Resource<?> configFileResource = root.getChild(ProjectConfigs.FILE_NAME);
-        if (configFileResource == null) {
-            return null;
-        }
-        return ResourceUtil.getContextFile(configFileResource);
     }
 
     protected void updateConfiguration(UIExecutionContext context, ProjectConfig config) {

@@ -17,9 +17,6 @@ package io.fabric8.forge.devops;
 
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.resource.Resource;
-import org.jboss.forge.addon.resource.util.ResourceUtil;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -58,27 +55,12 @@ public class SaveDevOpsStep extends AbstractDevOpsCommand implements UIWizardSte
         return null;
     }
 
-    public static File getProjectConfigFile(Project project) {
-        if (project == null) {
-            return null;
-        }
-        Resource<?> root = project.getRoot();
-        if (root == null) {
-            return null;
-        }
-        Resource<?> configFileResource = root.getChild(ProjectConfigs.FILE_NAME);
-        if (configFileResource == null) {
-            return null;
-        }
-        return ResourceUtil.getContextFile(configFileResource);
-    }
-
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String fileName = ProjectConfigs.FILE_NAME;
-        File configFile = getProjectConfigFile(getSelectedProject(context));
+        File configFile = getProjectConfigFile(context.getUIContext(), getSelectedProject(context));
         if (configFile == null) {
-            return Results.fail("This command requires a project");
+            return Results.fail("This command requires a project config file!");
         }
         ProjectConfig config = null;
         boolean hasFile = false;
