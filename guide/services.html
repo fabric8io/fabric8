@@ -57,7 +57,7 @@
         data-chapter-title="Services"
         data-filepath="services.md"
         data-basepath="."
-        data-revision="Thu Dec 10 2015 10:07:15 GMT+0000 (UTC)"
+        data-revision="Thu Dec 10 2015 10:35:23 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1238,6 +1238,13 @@
 <p>Each service is given its own IP address and port which remains constant for the lifetime of the service. So to access the service from inside your application or container you just bind to the IP address and port number for the service. </p>
 <p>Note make sure the services are created before any of your pods which use them; otherwise the service won&apos;t have its IP address defined and you&apos;ll have to restart those pods. </p>
 <h3 id="discovering-services-from-your-application"><a name="discovering-services-from-your-application" class="plugin-anchor" href="#discovering-services-from-your-application"><span class="fa fa-link"></span></a>Discovering services from your application</h3>
+<p>The simplest way to discover things inside Kubernetes is via DNS which does not require any custom client side code, dependency injection or magic libraries. It also benefits from working with all programming languages and frameworks!</p>
+<h4 id="service-discovery-via-dns"><a name="service-discovery-via-dns" class="plugin-anchor" href="#service-discovery-via-dns"><span class="fa fa-link"></span></a>Service discovery via DNS</h4>
+<p>For a service named <code>foo-bar</code> you can just hard code the host name <code>foo-bar</code> in your application code.</p>
+<p>e.g. to access a HTTP URL use <code>http://foo-bar/</code> or for HTTPS use  <code>https://foo-bar/</code> (assuming the service is using the port 80 or 443 respectively). </p>
+<p>If you use a non standard port number, say, 1234, then append that port number to your URL such as <code>http://foo-bar:1234/</code>.</p>
+<p>Note that DNS works in kubernetes by resolving to the service named <code>foo-bar</code> in the namespace of your pods so you don&apos;t have to worry about configuring your application with environment specific configuration or worry about accidentally talking to the production service when in a testing environment!  You can then move your application (its docker image and kubernetes metadata) into any environment and your application works without any changes!</p>
+<h4 id="service-discovery-via-environment-variables"><a name="service-discovery-via-environment-variables" class="plugin-anchor" href="#service-discovery-via-environment-variables"><span class="fa fa-link"></span></a>Service discovery via environment variables</h4>
 <p>Kubernetes uses 2 environment variables to expose the fixed IP address and port that you can use to access the service.</p>
 <p>So for a service named <code>foo-bar</code> you can use these 2 environment variables to access the service:</p>
 <ul>
