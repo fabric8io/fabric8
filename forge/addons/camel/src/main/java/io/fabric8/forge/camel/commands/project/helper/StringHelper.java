@@ -67,4 +67,21 @@ public final class StringHelper {
         return sb.toString();
     }
 
+    public static String removeLeadingAndEndingQuotes(String s) {
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+
+        String copy = s.trim();
+        if (copy.startsWith("'") && copy.endsWith("'")) {
+            return copy.substring(1, copy.length() - 1);
+        }
+        if (copy.startsWith("\"") && copy.endsWith("\"")) {
+            return copy.substring(1, copy.length() - 1);
+        }
+
+        // no quotes, so return as-is
+        return s;
+    }
+
 }

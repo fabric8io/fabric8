@@ -23,7 +23,10 @@ import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodInvocation;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleName;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.StringLiteral;
+import org.jboss.forge.roaster.model.source.AnnotationSource;
+import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 
@@ -39,15 +42,16 @@ public class CamelJavaParserHelper {
         return null;
     }
 
-    public static List<String> parseCamelConsumerUris(MethodSource<JavaClassSource> method) {
-        return parseCamelUris(method, true, false);
+    public static List<String> parseCamelConsumerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
+        return parseCamelUris(method, true, false, strings, fields);
     }
 
-    public static List<String> parseCamelProducerUris(MethodSource<JavaClassSource> method) {
-        return parseCamelUris(method, false, true);
+    public static List<String> parseCamelProducerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
+        return parseCamelUris(method, false, true, strings, fields);
     }
 
-    private static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers) {
+    private static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers,
+                                               boolean strings, boolean fields) {
         List<String> answer = new ArrayList<String>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
@@ -58,7 +62,7 @@ public class CamelJavaParserHelper {
                 Expression exp = es.getExpression();
 
                 List<String> uris = new ArrayList<String>();
-                parseExpression(exp, uris, consumers, producers);
+                parseExpression(method, exp, uris, consumers, producers, strings, fields);
                 if (!uris.isEmpty()) {
                     // reverse the order as we will grab them from last->first
                     Collections.reverse(uris);
@@ -70,20 +74,22 @@ public class CamelJavaParserHelper {
         return answer;
     }
 
-    private static void parseExpression(Expression exp, List<String> uris, boolean consumers, boolean producers) {
+    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<String> uris,
+                                        boolean consumers, boolean producers, boolean strings, boolean fields) {
         if (exp == null) {
             return;
         }
         if (exp instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) exp;
-            parseCamelUris(mi, uris, consumers, producers);
+            parseCamelUris(method, mi, uris, consumers, producers, strings, fields);
             // if the method was called on another method, then recursive
             exp = mi.getExpression();
-            parseExpression(exp, uris, consumers, producers);
+            parseExpression(method, exp, uris, consumers, producers, strings, fields);
         }
     }
 
-    private static void parseCamelUris(MethodInvocation mi, List<String> uris, boolean consumers, boolean producers) {
+    private static void parseCamelUris(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> uris,
+                                       boolean consumers, boolean producers, boolean strings, boolean fields) {
         String name = mi.getName().getIdentifier();
 
         if (consumers) {
@@ -91,11 +97,7 @@ public class CamelJavaParserHelper {
                 List args = mi.arguments();
                 if (args != null) {
                     for (Object arg : args) {
-                        // all the string parameters are uris for these eips
-                        if (arg instanceof StringLiteral) {
-                            String uri = ((StringLiteral) arg).getLiteralValue();
-                            uris.add(uri);
-                        }
+                        extractEndpointUriFromArgument(method, uris, arg, strings, fields);
                     }
                 }
             }
@@ -105,10 +107,7 @@ public class CamelJavaParserHelper {
                 if (args != null && args.size() >= 1) {
                     // it is a String type
                     Object arg = args.get(0);
-                    if (arg instanceof StringLiteral) {
-                        String uri = ((StringLiteral) arg).getLiteralValue();
-                        uris.add(uri);
-                    }
+                    extractEndpointUriFromArgument(method, uris, arg, strings, fields);
                 }
             }
         }
@@ -118,11 +117,7 @@ public class CamelJavaParserHelper {
                 List args = mi.arguments();
                 if (args != null) {
                     for (Object arg : args) {
-                        // all the string parameters are uris for these eips
-                        if (arg instanceof StringLiteral) {
-                            String uri = ((StringLiteral) arg).getLiteralValue();
-                            uris.add(uri);
-                        }
+                        extractEndpointUriFromArgument(method, uris, arg, strings, fields);
                     }
                 }
             }
@@ -132,8 +127,33 @@ public class CamelJavaParserHelper {
                 if (args != null && args.size() >= 1) {
                     // it is a String type
                     Object arg = args.get(0);
-                    if (arg instanceof StringLiteral) {
-                        String uri = ((StringLiteral) arg).getLiteralValue();
+                    extractEndpointUriFromArgument(method, uris, arg, strings, fields);
+                }
+            }
+        }
+    }
+
+    private static void extractEndpointUriFromArgument(MethodSource<JavaClassSource> method, List<String> uris, Object arg, boolean strings, boolean fields) {
+        if (strings && arg instanceof StringLiteral) {
+            String uri = ((StringLiteral) arg).getLiteralValue();
+            uris.add(uri);
+        } else if (fields && arg instanceof SimpleName) {
+            String fieldName = ((SimpleName) arg).getIdentifier();
+            if (fieldName != null) {
+                // find field
+                FieldSource field = method.getOrigin().getField(fieldName);
+                if (field != null) {
+                    String uri = null;
+                    // find the endpoint uri from the annotation
+                    AnnotationSource annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
+                    if (annotation != null) {
+                        uri = annotation.getStringValue();
+                    }
+                    annotation = field.getAnnotation("org.apache.camel.EndpointInject");
+                    if (annotation != null) {
+                        uri = annotation.getStringValue("uri");
+                    }
+                    if (uri != null) {
                         uris.add(uri);
                     }
                 }

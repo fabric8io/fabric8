@@ -137,6 +137,14 @@
       <version>${camel.version}</version>
     </dependency>
 
+    <!-- testing -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cdi</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

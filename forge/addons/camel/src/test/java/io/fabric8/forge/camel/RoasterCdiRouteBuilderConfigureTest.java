@@ -17,33 +17,31 @@ package io.fabric8.forge.camel;
 
 import java.io.File;
 import java.util.List;
-import java.util.ServiceLoader;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
-import org.jboss.forge.roaster.spi.JavaParser;
 import org.junit.Ignore;
 
 @Ignore
-public class RoasterRouteBuilderConfigureTest {
+public class RoasterCdiRouteBuilderConfigureTest {
 
     public static void main(String[] args) throws Exception {
-        RoasterRouteBuilderConfigureTest me = new RoasterRouteBuilderConfigureTest();
+        RoasterCdiRouteBuilderConfigureTest me = new RoasterCdiRouteBuilderConfigureTest();
         me.parse();
     }
 
     public void parse() throws Exception {
-        JavaClassSource clazz = (JavaClassSource) Roaster.parse(new File("src/test/java/io/fabric8/forge/camel/MyRouteBuilder.java"));
+        JavaClassSource clazz = (JavaClassSource) Roaster.parse(new File("src/test/java/io/fabric8/forge/camel/MyCdiRouteBuilder.java"));
         MethodSource<JavaClassSource> method = clazz.getMethod("configure");
 
-        List<String> list = CamelJavaParserHelper.parseCamelConsumerUris(method, true, false);
+        List<String> list = CamelJavaParserHelper.parseCamelConsumerUris(method, true, true);
         for (String uri : list) {
             System.out.println("Consumer: " + uri);
         }
 
-        list = CamelJavaParserHelper.parseCamelProducerUris(method, true, false);
+        list = CamelJavaParserHelper.parseCamelProducerUris(method, true, true);
         for (String uri : list) {
             System.out.println("Producer: " + uri);
         }
