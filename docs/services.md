@@ -10,6 +10,20 @@ Note make sure the services are created before any of your pods which use them; 
 
 ### Discovering services from your application
 
+The simplest way to discover things inside Kubernetes is via DNS which does not require any custom client side code, dependency injection or magic libraries. It also benefits from working with all programming languages and frameworks!
+
+#### Service discovery via DNS
+
+For a service named `foo-bar` you can just hard code the host name `foo-bar` in your application code.
+
+e.g. to access a HTTP URL use `http://foo-bar/` or for HTTPS use  `https://foo-bar/` (assuming the service is using the port 80 or 443 respectively). 
+
+If you use a non standard port number, say, 1234, then append that port number to your URL such as `http://foo-bar:1234/`.
+
+Note that DNS works in kubernetes by resolving to the service named `foo-bar` in the namespace of your pods so you don't have to worry about configuring your application with environment specific configuration or worry about accidentally talking to the production service when in a testing environment!  You can then move your application (its docker image and kubernetes metadata) into any environment and your application works without any changes!
+
+#### Service discovery via environment variables
+
 Kubernetes uses 2 environment variables to expose the fixed IP address and port that you can use to access the service.
 
 So for a service named `foo-bar` you can use these 2 environment variables to access the service:
