@@ -313,6 +313,15 @@ public final class CamelCommandsHelper {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
+        // is the component consumer or producer only, if so we do not need any kind of filter
+        boolean componentConsumerOnly = CamelCatalogHelper.isComponentConsumerOnly(camelComponentName);
+        boolean componentProducerOnly = CamelCatalogHelper.isComponentProducerOnly(camelComponentName);
+        if (componentConsumerOnly || componentProducerOnly) {
+            // reset the filters as the component can only be one of them anyway, so we should show all options
+            consumerOnly = false;
+            producerOnly = false;
+        }
+
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
 
         Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
