@@ -389,6 +389,17 @@ public final class CamelCommandsHelper {
                                 description = "";
                             }
 
+                            // if its an enum and its optional then make sure we have none as the 1st choice and as default value
+                            // otherwise the GUI makes us force to select an option which is not what we want
+                            if (enums != null && required == null || "false".equals(required)) {
+                                if (defaultValue == null || defaultValue.isEmpty()) {
+                                    defaultValue = "none";
+                                }
+                                if (!enums.startsWith("none,")) {
+                                    enums = "none," + enums;
+                                }
+                            }
+
                             InputComponent input = createUIInput(componentFactory, converterFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 inputs.add(input);
