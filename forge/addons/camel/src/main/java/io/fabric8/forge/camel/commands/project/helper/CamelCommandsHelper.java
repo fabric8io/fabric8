@@ -37,6 +37,7 @@ import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.InputComponentFactory;
 import org.jboss.forge.addon.ui.input.UISelectOne;
@@ -300,7 +301,7 @@ public final class CamelCommandsHelper {
     }
 
     public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri, int maxOptionsPerPage, boolean consumerOnly, boolean producerOnly,
-                                                                              InputComponentFactory componentFactory, ConverterFactory converterFactory) throws Exception {
+                                                                              InputComponentFactory componentFactory, ConverterFactory converterFactory, UIContext ui) throws Exception {
         List<EndpointOptionByGroup> answer = new ArrayList<>();
 
         if (camelComponentName == null && uri != null) {
@@ -381,6 +382,13 @@ public final class CamelCommandsHelper {
                     Class<Object> inputClazz = CamelCommandsHelper.loadValidInputTypes(javaType, type);
                     if (inputClazz != null) {
                         if (namesAdded.add(name)) {
+
+                            // we do not want descriptions in CLI mode as it makes the UI clutter
+                            boolean gui = ui.getProvider().isGUI();
+                            if (!gui) {
+                                description = "";
+                            }
+
                             InputComponent input = createUIInput(componentFactory, converterFactory, name, inputClazz, required, currentValue, defaultValue, enums, description);
                             if (input != null) {
                                 inputs.add(input);
