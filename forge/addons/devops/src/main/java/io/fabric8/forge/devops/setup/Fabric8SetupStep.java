@@ -69,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.fabric8.forge.addon.utils.MavenHelpers.ensureMavenDependencyAdded;
+import static io.fabric8.forge.devops.setup.DockerSetupHelper.getDockerFromImage;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.hasSpringBootMavenPlugin;
 import static io.fabric8.forge.devops.setup.DockerSetupHelper.setupDocker;
 import static io.fabric8.forge.devops.setup.SetupProjectHelper.findCamelArtifacts;
@@ -159,7 +160,12 @@ public class Fabric8SetupStep extends AbstractFabricProjectCommand implements UI
         // limit the choices depending on the project packaging
         final List<String> choices = new ArrayList<String>();
         if (packaging == null || springBoot || "jar".equals(packaging)) {
-            choices.addAll(Arrays.asList(jarImages));
+            String currentImage = getDockerFromImage(project);
+            if (currentImage != null) {
+                choices.add(currentImage);
+            } else {
+                choices.addAll(Arrays.asList(jarImages));
+            }
         }
         if (packaging == null || "bundle".equals(packaging)) {
             choices.add(bundleImages[0]);

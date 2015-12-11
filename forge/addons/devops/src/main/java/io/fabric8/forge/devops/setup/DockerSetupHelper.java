@@ -189,6 +189,21 @@ public class DockerSetupHelper {
         }
     }
 
+    public static String getDockerFromImage(Project project) {
+        if (project != null) {
+            // update properties section in pom.xml
+            MavenFacet maven = project.getFacet(MavenFacet.class);
+            if (maven != null) {
+                Model pom = maven.getModel();
+                if (pom != null) {
+                    Properties properties = pom.getProperties();
+                    return properties.getProperty("docker.from");
+                }
+            }
+        }
+        return null;
+    }
+
     public static boolean hasSpringBootMavenPlugin(Project project) {
         if (project != null) {
             MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
