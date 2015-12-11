@@ -55,9 +55,10 @@ public class HubotNotifier {
     private boolean initalised;
 
     @Inject
-    public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME", defaultValue = "") String username,
-                         @ConfigProperty(name = "HUBOT_PASSWORD", defaultValue = "") String password,
+    public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME") String username,
+                         @ConfigProperty(name = "HUBOT_PASSWORD") String password,
                          @ConfigProperty(name = "HUBOT_BUILD_ROOM", defaultValue = DEFAULT_ROOM_EXPRESSION) String roomExpression) {
+
         this.username = username;
         this.password = password;
         this.roomExpression = roomExpression;
