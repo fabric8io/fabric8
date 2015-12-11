@@ -265,12 +265,7 @@
                 <version>${kubernetes-client.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-client</artifactId>
-                <version>${kubernetes-client.version}</version>
-            </dependency>
-
+            
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>openshift-client</artifactId>
@@ -281,11 +276,6 @@
                 <artifactId>openshift-mock</artifactId>
                 <version>${kubernetes-client.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>openshift-client</artifactId>
-                <version>${kubernetes-client.version}</version>
             </dependency>
 
             <dependency>
@@ -1187,7 +1177,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.eclipse.aether</groupId>
                 <artifactId>aether-spi</artifactId>
