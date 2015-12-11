@@ -399,19 +399,21 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
             boolean cdi = findCamelArtifactDependency(project, "camel-cdi") != null;
             if (cdi) {
-                annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
-                if (annotation == null) {
-                    if (!field.hasAnnotation("javax.inject.Inject")) {
-                        field.addAnnotation("javax.inject.Inject");
-                    }
-                    annotation = field.addAnnotation("org.apache.camel.cdi.Uri");
+                // cdi uses @Inject @Uri
+                if (!field.hasAnnotation("javax.inject.Inject")) {
+                    field.addAnnotation("javax.inject.Inject");
                 }
-            } else {
-                annotation = field.getAnnotation("org.apache.camel.EndpointInject");
-            }
-            if (annotation != null) {
-                annotation.removeAllValues();
+                if (!field.hasAnnotation("org.apache.camel.cdi.Uri")) {
+                    field.addAnnotation("org.apache.camel.cdi.Uri");
+                }
+                annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
                 annotation.setStringValue(uri);
+            } else {
+                if (!field.hasAnnotation("org.apache.camel.EndpointInject")) {
+                    field.addAnnotation("org.apache.camel.EndpointInject");
+                }
+                annotation = field.getAnnotation("org.apache.camel.EndpointInject");
+                annotation.setStringValue("uri", uri);
             }
 
             // make sure to import what we use
