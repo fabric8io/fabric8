@@ -20,6 +20,8 @@ import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.connector.DevOpsConnector;
 import io.fabric8.forge.addon.utils.CommandHelpers;
 import io.fabric8.forge.addon.utils.MavenHelpers;
+import io.fabric8.forge.devops.dto.PipelineDTO;
+import io.fabric8.forge.devops.dto.PipelineMetadata;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.letschat.LetsChatClient;
 import io.fabric8.letschat.LetsChatKubernetes;
@@ -34,11 +36,10 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
-import org.jboss.forge.addon.resource.Resource;
-import org.jboss.forge.addon.resource.util.ResourceUtil;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -67,15 +68,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadYaml;
 
 public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardStep {
     private static final transient Logger LOG = LoggerFactory.getLogger(DevOpsEditStep.class);
     private static final String DEFAULT_MAVEN_FLOW = "workflows/maven/CanaryReleaseStageAndApprovePromote.groovy";
 
+    public static final String JENKINSFILE = "Jenkinsfile";
+
+    private String jenkinsFilePrefix = "workflows/";
+
     @Inject
     @WithAttributes(label = "pipeline", required = false, description = "The Jenkins workflow groovy script to use for defining the Continous Delivery pipeline")
-    private UIInput<String> pipeline;
+    private UIInput<PipelineDTO> pipeline;
 
     @Inject
     @WithAttributes(label = "copyFlowToProject", required = false, description = "Should we copy the Jenkins Workflow script into the project source code")
@@ -106,14 +114,21 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 .description("Configure the DevOps options for the new project");
     }
 
+
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         final UIContext context = builder.getUIContext();
         copyFlowToProject.setValue(Boolean.TRUE);
-        pipeline.setCompleter(new UICompleter<String>() {
+        pipeline.setCompleter(new UICompleter<PipelineDTO>() {
             @Override
-            public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                return filterCompletions(getFlowURIs(context), value);
+            public Iterable<PipelineDTO> getCompletionProposals(UIContext context, InputComponent<?, PipelineDTO> input, String value) {
+                return getPipelines(context);
+            }
+        });
+        pipeline.setValueConverter(new Converter<String, PipelineDTO>() {
+            @Override
+            public PipelineDTO convert(String text) {
+                return getPipelineForValue(context, text);
             }
         });
         pipeline.addValueChangeListener(new ValueChangeListener() {
@@ -131,8 +146,11 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             }
         });
         if (getCurrentSelectedProject(context) != null) {
-            pipeline.setDefaultValue(DEFAULT_MAVEN_FLOW);
-            pipeline.setValue(DEFAULT_MAVEN_FLOW);
+            PipelineDTO defaultValue = getPipelineForValue(context, DEFAULT_MAVEN_FLOW);
+            if (defaultValue != null) {
+                pipeline.setDefaultValue(defaultValue);
+                pipeline.setValue(defaultValue);
+            }
         }
         chatRoom.setCompleter(new UICompleter<String>() {
             @Override
@@ -179,8 +197,8 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             config = ProjectConfigs.parseProjectConfig(configFile);
         }
         if (config != null) {
-            String flow = config.getPipeline();
-            if (Strings.isNotBlank(flow)) {
+            PipelineDTO flow = getPipelineForValue(context, config.getPipeline());
+            if (flow != null) {
                 CommandHelpers.setInitialComponentValue(this.pipeline, flow);
             }
             CommandHelpers.setInitialComponentValue(chatRoom, config.getChatRoom());
@@ -327,7 +345,11 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
             if (basedir == null || !basedir.isDirectory()) {
                 LOG.warn("Cannot copy the pipeline to the project as no basedir!");
             } else {
-                String flow = this.pipeline.getValue();
+                String flow = null;
+                PipelineDTO pipelineDTO = pipeline.getValue();
+                if (pipelineDTO != null) {
+                    flow = pipelineDTO.getValue();
+                }
                 if (Strings.isNullOrBlank(flow)) {
                     LOG.warn("Cannot copy the pipeline to the project as no pipeline selected!");
                 } else {
@@ -416,29 +438,72 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         return null;
     }
 
+    protected PipelineDTO getPipelineForValue(UIContext context, String value) {
+        if (Strings.isNotBlank(value)) {
+            Iterable<PipelineDTO> pipelines = getPipelines(context);
+            for (PipelineDTO pipelineDTO : pipelines) {
+                if (pipelineDTO.getValue().equals(value)) {
+                    return pipelineDTO;
+                }
+            }
+        }
+        return null;
+    }
 
-    protected Iterable<String> getFlowURIs(UIContext context) {
+    protected Iterable<PipelineDTO> getPipelines(UIContext context) {
         File dir = getJenkinsWorkflowFolder(context);
         if (dir != null) {
             Filter<File> filter = new Filter<File>() {
                 @Override
                 public boolean matches(File file) {
-                    String extension = Files.getFileExtension(file);
-                    return file.isFile() && Objects.equal("groovy", extension);
+                    return file.isFile() && Objects.equal(JENKINSFILE, file.getName());
                 }
             };
             Set<File> files =  Files.findRecursive(dir, filter);
-            Set<String> names = new TreeSet<>();
+            Map<String,PipelineDTO> nameMap = new TreeMap<>();
             for (File file : files) {
                 try {
                     String relativePath = Files.getRelativePath(dir, file);
-                    String name = Strings.stripPrefix(relativePath, "/");
-                    names.add(name);
+                    String value = Strings.stripPrefix(relativePath, "/");
+                    String label = value;
+                    String postfix = "/" + JENKINSFILE;
+                    if (label.endsWith(postfix)) {
+                        label = label.substring(0, label.length() - postfix.length());
+                    }
+                    if (label.startsWith(jenkinsFilePrefix)) {
+                        label = label.substring(jenkinsFilePrefix.length());
+                    }
+                    String builder = null;
+                    int idx = label.indexOf("/");
+                    if (idx > 0) {
+                        builder = label.substring(0, idx);
+                    }
+                    String descriptionMarkdown = null;
+                    File markdownFile = new File(file.getParentFile(), "ReadMe.md");
+                    if (Files.isFile(markdownFile)) {
+                        descriptionMarkdown = IOHelpers.readFully(markdownFile);
+                    }
+                    PipelineDTO pipeline = new PipelineDTO(value, label, builder, descriptionMarkdown);
+
+                    File yamlFile = new File(file.getParentFile(), "metadata.yml");
+                    if (Files.isFile(yamlFile)) {
+                        PipelineMetadata metadata = null;
+                        try {
+                            metadata = loadYaml(yamlFile, PipelineMetadata.class);
+                        } catch (IOException e) {
+                            LOG.warn("Failed to parse yaml file " + yamlFile + ". " + e, e);
+                        }
+                        if (metadata != null) {
+                            metadata.configurePipeline(pipeline);
+                        }
+
+                    }
+                    nameMap.put(pipeline.getLabel(), pipeline);
                 } catch (IOException e) {
                     LOG.warn("Failed to find relative path for folder " + dir + " and file " + file + ". " + e, e);
                 }
             }
-            return new ArrayList<>(names);
+            return new ArrayList<>(nameMap.values());
         } else {
             LOG.warn("No jenkinsWorkflowFolder!");
             return new ArrayList<>();

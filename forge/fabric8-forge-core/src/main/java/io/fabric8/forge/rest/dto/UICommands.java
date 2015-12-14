@@ -35,6 +35,7 @@ import org.jboss.forge.addon.ui.result.CompositeResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.util.InputComponents;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -139,9 +140,14 @@ public class UICommands {
      */
     public static Object convertValueToSafeJson(Converter converter, Object value) {
         if (converter != null) {
-            Object converted = converter.convert(value);
-            if (converted != null) {
-                value = converted;
+            // TODO converters ususally go from String -> CustomType?
+            try {
+                Object converted = converter.convert(value);
+                if (converted != null) {
+                    value = converted;
+                }
+            } catch (Exception e) {
+                // ignore - invalid converter
             }
         }
         if (value != null) {
@@ -158,10 +164,7 @@ public class UICommands {
         if (value == null) {
             return null;
         } else {
-            if (value instanceof Boolean) {
-                return value;
-            }
-            if (value instanceof Number) {
+            if (value instanceof Boolean || value instanceof String || value instanceof Number) {
                 return value;
             }
             if (value instanceof ProjectProvider) {
@@ -171,6 +174,18 @@ public class UICommands {
             if (value instanceof ProjectType) {
                 ProjectType projectType = (ProjectType) value;
                 return projectType.getType();
+            }
+            Class<?> aClass = value.getClass();
+            Annotation[] annotations = aClass.getAnnotations();
+            if (annotations != null) {
+                for (Annotation annotation : annotations) {
+                    String text = annotation.toString();
+                    // because of the Forge proxying we can't just use the actual class here...
+                    if (text.indexOf("com.fasterxml.jackson.") >= 0) {
+                        // lets assume its a JSON DTO!
+                        return value;
+                    }
+                }
             }
             return value.toString();
         }
