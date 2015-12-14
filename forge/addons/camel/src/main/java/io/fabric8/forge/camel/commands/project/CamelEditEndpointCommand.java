@@ -80,7 +80,9 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
 
         // use value choices instead of completer as that works better in web console
         completer = new RouteBuilderEndpointsCompleter(facet);
-        endpoints.setValueChoices(completer.getEndpointUris());
+        List<String> uris = completer.getEndpointUris();
+        uris.add(0, "<select>");
+        endpoints.setValueChoices(uris);
 
         builder.add(endpoints);
     }
@@ -88,6 +90,13 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+
+        String selectedUri = endpoints.getValue();
+        if ("<select>".equals(selectedUri)) {
+            // no choice yet
+            attributeMap.remove("navigationResult");
+            return null;
+        }
 
         // must be same component name to allow reusing existing navigation result
         String previous = (String) attributeMap.get("endpointUri");
@@ -98,7 +107,6 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
             }
         }
 
-        String selectedUri = endpoints.getValue();
         CamelEndpointDetails detail = completer.getEndpointDetail(selectedUri);
         if (detail == null) {
             return null;
