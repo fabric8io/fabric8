@@ -98,7 +98,13 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
 
         // use value choices instead of completer as that works better in web console
         completer = new XmlEndpointsCompleter(resourcesFacet, webResourcesFacet);
-        endpoints.setValueChoices(completer.getEndpointUris());
+
+        // must add dummy <select> in the dropdown as otherwise there is problems with auto selecting
+        // the first element where its a different between its auto selected vs end user clicked and selected
+        // it, which also affects all this next() callback issue from forge
+        List<String> uris = completer.getEndpointUris();
+        uris.add(0, "<select>");
+        endpoints.setValueChoices(uris);
 
         builder.add(endpoints);
     }
@@ -106,6 +112,13 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     @Override
     public NavigationResult next(UINavigationContext context) throws Exception {
         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+
+        String selectedUri = endpoints.getValue();
+        if ("<select>".equals(selectedUri)) {
+            // no choice yet
+            attributeMap.remove("navigationResult");
+            return null;
+        }
 
         // must be same component name to allow reusing existing navigation result
         String previous = (String) attributeMap.get("endpointUri");
@@ -116,7 +129,6 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
             }
         }
 
-        String selectedUri = endpoints.getValue();
         CamelEndpointDetails detail = completer.getEndpointDetail(selectedUri);
         if (detail == null) {
             return null;
