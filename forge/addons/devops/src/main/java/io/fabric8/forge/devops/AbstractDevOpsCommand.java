@@ -15,7 +15,9 @@
  */
 package io.fabric8.forge.devops;
 
+import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.forge.devops.dto.PipelineDTO;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -255,5 +257,17 @@ public abstract class AbstractDevOpsCommand extends AbstractProjectCommand imple
             throw new IllegalArgumentException("Could not find git URL");
         }
         return gitUrlText;
+    }
+
+    protected void updateConfiguration(UIExecutionContext context, ProjectConfig config) {
+        Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+        ProjectConfigs.configureProperties(config, attributeMap);
+        Object pipelineValue = attributeMap.get("pipeline");
+        if (pipelineValue instanceof PipelineDTO) {
+            PipelineDTO pipeline = (PipelineDTO) pipelineValue;
+            if (pipeline != null) {
+                config.setPipeline(pipeline.getValue());
+            }
+        }
     }
 }

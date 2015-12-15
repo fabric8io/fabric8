@@ -602,8 +602,4 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         this.taiga = taiga;
     }
 
-    protected void updateConfiguration(UIExecutionContext context, ProjectConfig config) {
-        Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-        ProjectConfigs.configureProperties(config, attributeMap);
-    }
 }
