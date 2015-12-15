@@ -84,15 +84,6 @@ If you enable the `fabric8.combineDependencies` property then the `fabric8:json`
 
 See [this example](https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35) to see how we can configure this in a pom.xml.
 
-#### Scraping metrics for Prometheus
-
-When using [Prometheus](http://prometheus.io) to [collect metrics](metrics.html) for monitoring your containers you can enable
-scraping in the `pom.xml` file accordingly. For example to enable scraping and service enable this on port 9779, define the following in the `pom.xml` file:
-
-    <fabric8.metrics.scrape>true</fabric8.metrics.scrape>
-    <fabric8.metrics.port>9779</fabric8.metrics.port>
-    <fabric8.metrics.scheme>http</fabric8.metrics.scheme>
-
 ### Maven Properties
 
 You can use maven properties to customize the generation of the JSON:
@@ -212,7 +203,7 @@ There are many options as listed in the following table:
 </tr>
 <tr>
 <td>fabric8.metrics.scrape</td>
-<td>Enable/disable the export of metrics to Prometheus.</td>
+<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html>metrics</a></td>
 </tr>
 <tr>
 <td>fabric8.metrics.port</td>
