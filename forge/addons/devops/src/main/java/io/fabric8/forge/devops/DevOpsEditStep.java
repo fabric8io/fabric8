@@ -64,6 +64,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -274,14 +275,15 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
         UIContext uiContext = context.getUIContext();
         Map<Object, Object> attributeMap = uiContext.getAttributeMap();
 
-        String gitUrl =  getStringAttribute(attributeMap, "gitUrl");
+        String gitUrl = getStringAttribute(attributeMap, "gitUrl");
         if (Strings.isNullOrBlank(gitUrl)) {
             gitUrl = getStringAttribute(attributeMap, "gitAddress");
         }
 
         Object object = attributeMap.get(Project.class);
         String user = getStringAttribute(attributeMap, "gitUser");
-        String named = getStringAttribute(attributeMap, "projectName");;
+        String named = getStringAttribute(attributeMap, "projectName");
+        ;
         File basedir = CommandHelpers.getBaseDir(project);
         if (basedir == null && configFile != null) {
             basedir = configFile.getParentFile();
@@ -312,6 +314,28 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 }
             }
         }
+        // lets default the environments from the pipeline
+        PipelineDTO pipelineValue = pipeline.getValue();
+        String buildName = config.getBuildName();
+        if (Strings.isNotBlank(buildName)) {
+            if (pipelineValue != null) {
+                List<String> environments = pipelineValue.getEnvironments();
+                if (environments == null) {
+                    environments = new ArrayList<>();
+                }
+                LinkedHashMap<String, String> environmentMap = new LinkedHashMap<>();
+                if (environments.isEmpty()) {
+                    environmentMap.put("Current", namespace);
+                } else {
+                    for (String environment : environments) {
+                        String envNamespace = buildName + "-" + environment.toLowerCase();
+                        environmentMap.put(environment, envNamespace);
+                    }
+                }
+                config.setEnvironments(environmentMap);
+            }
+        }
+        LOG.info("Configured project " + buildName + " environments: " + config.getEnvironments());
         ProjectConfigs.defaultEnvironments(config);
 
         String projectName = config.getBuildName();
@@ -346,7 +370,7 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                 LOG.warn("Cannot copy the pipeline to the project as no basedir!");
             } else {
                 String flow = null;
-                PipelineDTO pipelineDTO = pipeline.getValue();
+                PipelineDTO pipelineDTO = pipelineValue;
                 if (pipelineDTO != null) {
                     flow = pipelineDTO.getValue();
                 }
