@@ -10,7 +10,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
              <dependency>
                  <groupId>io.fabric8</groupId>
                  <artifactId>taiga-api</artifactId>
-                 <version>2.2.77</version>
+                 <version>2.2.78</version>
              </dependency>
 
 ### Building
