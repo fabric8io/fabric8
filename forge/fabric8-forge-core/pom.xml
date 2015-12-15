@@ -24,7 +24,7 @@
     <version>2.2.78-SNAPSHOT</version>
   </parent>
   <artifactId>fabric8-forge-core</artifactId>
-  <name>Fabric8 :: Forge :: REST Service</name>
+  <name>Fabric8 :: Forge :: Core</name>
 
   <properties>
     <!-- enable to be able to run the sample -->

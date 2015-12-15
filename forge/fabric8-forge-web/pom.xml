@@ -25,7 +25,7 @@
   </parent>
   <artifactId>fabric8-forge-web</artifactId>
   <packaging>war</packaging>
-  <name>Fabric8 :: Forge :: REST Service</name>
+  <name>Fabric8 :: Forge :: Web</name>
 
   <properties>
     <!-- enable to be able to run the sample -->
