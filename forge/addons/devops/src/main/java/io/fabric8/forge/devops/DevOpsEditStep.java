@@ -473,6 +473,10 @@ public class DevOpsEditStep extends AbstractDevOpsCommand implements UIWizardSte
                     if (label.startsWith(jenkinsFilePrefix)) {
                         label = label.substring(jenkinsFilePrefix.length());
                     }
+                    // Lets ignore the fabric8 specific pipelines
+                    if (label.startsWith("fabric8-release/")) {
+                        continue;
+                    }
                     String builder = null;
                     int idx = label.indexOf("/");
                     if (idx > 0) {
