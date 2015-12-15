@@ -57,7 +57,7 @@
         data-chapter-title="Local OpenShift Client"
         data-filepath="getStarted/local.md"
         data-basepath=".."
-        data-revision="Tue Dec 15 2015 14:48:08 GMT+0000 (UTC)"
+        data-revision="Tue Dec 15 2015 20:06:00 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1294,7 +1294,7 @@ is kinda like a local registry anyway - provided you don&apos;t try to push or p
 <blockquote>
 <p><strong>NOTE</strong>  you need to make sure that your Kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> 
 (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that 
-isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.2.77 the default in 
+isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.2.78 the default in 
 <code>mvn fabric8:json</code> is to now omit this value which means it uses the Kubernetes default which is <code>PullIfAbsent</code>.</p>
 </blockquote>
 <p>You now should be able to <a href="../developLocally.html">build and use docker images locally</a>  without pushing or pulling.</p>
