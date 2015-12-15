@@ -42,7 +42,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     /**
      * The domain added to the service ID when creating OpenShift routes
      */
-    @Parameter(property = "fabric8.domain", defaultValue = "${env.KUBERNETES_DOMAIN}")
+    @Parameter(property = "fabric8.domain")
     protected String routeDomain;
 
     /**
