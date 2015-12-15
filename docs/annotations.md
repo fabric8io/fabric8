@@ -2,7 +2,7 @@
 
 <a href="http://kubernetes.io/">Kubernetes</a> supports annotations on any kubernetes resource such as on a [replication controller](replicationController.html) or [service](services.html) which are a great way to add arbitrary metadata. Note that annotation are limited in total to about 64Kb so any large metadata should be added via a URL rather than in place.
 
-### Continous Delivery Annotations
+### Continuous Delivery Annotations
 
 These annotations are to help support [Continuous Delivery](cdelivery.html) and to link deployments to the CI build which generated the image along with the source code changes and so forth.
 
