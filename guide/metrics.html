@@ -57,7 +57,7 @@
         data-chapter-title="Metrics"
         data-filepath="metrics.md"
         data-basepath="."
-        data-revision="Tue Dec 15 2015 14:00:40 GMT+0000 (UTC)"
+        data-revision="Tue Dec 15 2015 14:48:08 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1248,6 +1248,17 @@
 </ul>
 <p>You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you <a href="getStarted/openshift.html">use the bash script to install fabric8</a> with the <strong>-k</strong> command line option enabled. Hopefully one day we&apos;ll be able to turn cadvisor and jadvisor into <a href="apps.html">apps</a> you can easily run in the same way.</p>
 <p>Once the above is running, the <a href="console.html">Fabric8 Console</a> should have a <strong>Metrics</strong> tab letting you view and search the metrics via <a href="http://grafana.org/" target="_blank">Grafana</a>.</p>
+<h3 id="how-to-enable-metrics-scraping-in-your-applications"><a name="how-to-enable-metrics-scraping-in-your-applications" class="plugin-anchor" href="#how-to-enable-metrics-scraping-in-your-applications"><span class="fa fa-link"></span></a>How to enable metrics scraping in your applications</h3>
+<p>When using <a href="http://prometheus.io" target="_blank">Prometheus</a> to <a href="metrics.html">collect metrics</a> for monitoring your containers you can enable
+scraping in Java Maven projects in the <code>pom.xml</code> file accordingly. For example to enable scraping and service enable this on port 9779, define the following in the <code>pom.xml</code> file:</p>
+<pre><code>&lt;fabric8.metrics.scrape&gt;true&lt;/fabric8.metrics.scrape&gt;
+&lt;fabric8.metrics.port&gt;9779&lt;/fabric8.metrics.port&gt;
+&lt;fabric8.metrics.scheme&gt;http&lt;/fabric8.metrics.scheme&gt;
+</code></pre><p>There must be at least one service define in your application to ensure the metrics scaping is enabled. If no services has been defined,
+then a headless service must be configured to ensure the metrics scraping works. Add the following two lines to the <code>pom.xml</code> file:</p>
+<pre><code>&lt;fabric8.service.name&gt;${project.artifactId}&lt;/fabric8.service.name&gt;
+&lt;fabric8.service.headless&gt;true&lt;/fabric8.service.headless&gt;
+</code></pre><p>This headless service is used to collect application level metrics for ingestion into Prometheus.</p>
 
                     
                     </section>

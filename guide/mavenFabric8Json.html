@@ -57,7 +57,7 @@
         data-chapter-title="fabric8:json"
         data-filepath="mavenFabric8Json.md"
         data-basepath="."
-        data-revision="Tue Dec 15 2015 14:00:40 GMT+0000 (UTC)"
+        data-revision="Tue Dec 15 2015 14:48:08 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1390,12 +1390,24 @@ ANOTHER = some ${CHEESE}
 <td>Creates a TCP socket action liveness probe on specified port.</td>
 </tr>
 <tr>
-<td>fabric8.namespaceEnvVar</td>
-<td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
-</tr>
-<tr>
-<td>fabric8.parameter.FOO.description</td>
-<td>Defines the description of the <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
+<td>fabric8.metrics.scrape</td>
+<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html&gt;metrics&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fabric8.metrics.port&lt;/td&gt;
+&lt;td&gt;the request port to find metrics to export to Prometheus.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fabric8.metrics.scheme&lt;/td&gt;
+&lt;td&gt;the request scheme to find metrics to export to Prometheus.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fabric8.namespaceEnvVar&lt;/td&gt;
+&lt;td&gt;The name of the env var to add that will contain the namespace at container runtime. Defaults to &lt;code&gt;KUBERNETES_NAMESPACE&lt;/code&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fabric8.parameter.FOO.description&lt;/td&gt;
+&lt;td&gt;Defines the description of the &lt;a href=" http:="" docs.openshift.org="" latest="" dev_guide="" templates.html"="" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
 </tr>
 <tr>
 <td>fabric8.parameter.FOO.value</td>
