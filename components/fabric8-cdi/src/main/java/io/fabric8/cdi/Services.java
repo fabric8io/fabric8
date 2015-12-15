@@ -15,7 +15,6 @@
  */
 package io.fabric8.cdi;
 
-
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointPort;
@@ -27,7 +26,6 @@ import io.fabric8.utils.URLUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Services {
 
