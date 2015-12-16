@@ -34,9 +34,11 @@ import org.jboss.forge.addon.ui.output.UIMessage;
 import org.jboss.forge.addon.ui.result.CompositeResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.util.InputComponents;
+import org.jboss.forge.furnace.proxy.Proxies;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,8 +108,15 @@ public class UICommands {
             SelectComponent selectComponent = (SelectComponent) input;
             Iterable valueChoices = selectComponent.getValueChoices();
             Converter converter = selectComponent.getItemLabelConverter();
+
+            boolean isJson = isJsonDTO(javaType);
             for (Object valueChoice : valueChoices) {
-                Object jsonValue = convertValueToSafeJson(converter, valueChoice);
+                Object jsonValue;
+                if (isJson) {
+                    jsonValue = Proxies.unwrap(valueChoice);
+                } else {
+                    jsonValue = convertValueToSafeJson(converter, valueChoice);
+                }
                 enumValues.add(jsonValue);
             }
         }
@@ -133,6 +142,14 @@ public class UICommands {
             typeaheadData = null;
         }
         return new PropertyDTO(name, description, label, requiredMessage, value, javaType, type, enabled, required, enumValues, typeaheadData);
+    }
+
+    /**
+     * Returns true if the given <code>javaType</code> class name should be considered a JSON DTO to return to the UI
+     */
+    protected static boolean isJsonDTO(String javaType) {
+        Set<String> jsonJavatypes = new HashSet<>(Arrays.asList("org.apache.maven.archetype.catalog.Archetype"));
+        return javaType != null && jsonJavatypes.contains(javaType);
     }
 
     /**
