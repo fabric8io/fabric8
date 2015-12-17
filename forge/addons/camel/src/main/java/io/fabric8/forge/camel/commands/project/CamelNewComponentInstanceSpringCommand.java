@@ -101,7 +101,7 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         Project project = getSelectedProject(builder.getUIContext());
         final JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
-        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
         // show note about the chosen component

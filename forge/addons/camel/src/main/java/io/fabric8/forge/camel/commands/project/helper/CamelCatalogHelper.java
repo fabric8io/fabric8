@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -376,4 +377,40 @@ public final class CamelCatalogHelper {
         }
         return false;
     }
+
+    public static ComponentDto createComponentDto(String scheme) {
+        // use the camel catalog
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        String json = catalog.componentJSonSchema(scheme);
+        if (json == null) {
+            return null;
+        }
+
+
+        ComponentDto dto = new ComponentDto();
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+        for (Map<String, String> row : data) {
+            if (row.get("scheme") != null) {
+                dto.setScheme(row.get("scheme"));
+            } else if (row.get("syntax") != null) {
+                dto.setSyntax(row.get("syntax"));
+            } else if (row.get("title") != null) {
+                dto.setTitle(row.get("title"));
+            } else if (row.get("description") != null) {
+                dto.setDescription(row.get("description"));
+            } else if (row.get("label") != null) {
+                dto.setLabel(row.get("label"));
+            } else if (row.get("javaType") != null) {
+                dto.setJavaType(row.get("javaType"));
+            } else if (row.get("groupId") != null) {
+                dto.setGroupId(row.get("groupId"));
+            } else if (row.get("artifactId") != null) {
+                dto.setArtifactId(row.get("artifactId"));
+            } else if (row.get("version") != null) {
+                dto.setVersion(row.get("version"));
+            }
+        }
+        return dto;
+    }
+
 }

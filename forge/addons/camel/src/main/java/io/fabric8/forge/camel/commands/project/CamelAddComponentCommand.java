@@ -17,8 +17,10 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -36,7 +38,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findComponentArchetype;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
@@ -46,7 +48,7 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "Name", required = true, description = "Name of component type to add")
-    private UISelectOne<String> name;
+    private UISelectOne<ComponentDto> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -62,9 +64,16 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        filter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
+        filter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
         filter.setDefaultValue("<all>");
-        name.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, filter, false));
+
+        name.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, filter, false));
+        name.setValueConverter(new Converter<String, ComponentDto>() {
+            @Override
+            public ComponentDto convert(String name) {
+                return createComponentDto(name);
+            }
+        });
         // show note about the chosen component
         name.addValueChangeListener(new ValueChangeListener() {
             @Override
@@ -92,17 +101,18 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = findComponentArchetype(name.getValue());
-        if (artifactId == null) {
-            return Results.fail("Camel component " + name.getValue() + " is unknown.");
+        ComponentDto dto = name.getValue();
+        if (dto != null) {
+
+            DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
+                    .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
+
+            // install the component
+            dependencyInstaller.install(project, component);
+
+            return Results.success("Added Camel component " + dto.getScheme() + " (" + dto.getArtifactId() + ") to the project");
+        } else {
+            return Results.fail("Unknown Camel component");
         }
-
-        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
-
-        // install the component
-        dependencyInstaller.install(project, component);
-
-        return Results.success("Added Camel component " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }

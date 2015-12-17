@@ -26,7 +26,9 @@ import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
+import io.fabric8.forge.camel.commands.project.completer.CamelComponentsDtoCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.apache.camel.catalog.CamelCatalog;
@@ -52,8 +54,21 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 
 public final class CamelCommandsHelper {
 
-    public static Iterable<String> createComponentNameValues(Project project) {
+    public static Iterable<String> createComponentLabelValues(Project project) {
         return new CamelComponentsLabelCompleter(project).getValueChoices();
+    }
+
+    public static Callable<Iterable<ComponentDto>> createComponentDtoValues(final Project project,
+                                                                            final UISelectOne<String> componentCategoryFilter,
+                                                                            final boolean excludeComponentsOnClasspath) {
+        // use callable so we can live update the filter
+        return new Callable<Iterable<ComponentDto>>() {
+            @Override
+            public Iterable<ComponentDto> call() throws Exception {
+                String label = componentCategoryFilter.getValue();
+                return new CamelComponentsDtoCompleter(project, null, excludeComponentsOnClasspath).getValueChoices(label);
+            }
+        };
     }
 
     public static Callable<Iterable<String>> createComponentNameValues(final Project project,

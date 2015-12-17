@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -33,22 +34,22 @@ import org.jboss.forge.addon.ui.input.UIInput;
 
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
-@Deprecated
-public class CamelComponentsCompleter implements UICompleter<String> {
+public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
 
     private Project project;
     private UIInput<String> filter;
     private final boolean excludeComponentsOnClasspath;
 
-    public CamelComponentsCompleter(Project project, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
+    public CamelComponentsDtoCompleter(Project project, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
         this.project = project;
         this.filter = filter;
         this.excludeComponentsOnClasspath = excludeComponentsOnClasspath;
     }
 
     @Override
-    public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
+    public Iterable<ComponentDto> getCompletionProposals(UIContext context, InputComponent input, String value) {
         // find the version of Apache Camel we use
 
         // need to find camel-core so we known the camel version
@@ -72,10 +73,16 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         filtered = filterByName(filtered);
         filtered = filterByLabel(filtered, filter.getValue());
 
-        return filtered;
+        List<ComponentDto> answer = new ArrayList<>();
+        for (String filter : filtered) {
+            String json = catalog.componentJSonSchema(filter);
+            ComponentDto dto = createComponentDto(json);
+            answer.add(dto);
+        }
+        return answer;
     }
 
-    public Iterable<String> getValueChoices(String label) {
+    public Iterable<ComponentDto> getValueChoices(String label) {
         // need to find camel-core so we known the camel version
         Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
@@ -95,10 +102,16 @@ public class CamelComponentsCompleter implements UICompleter<String> {
             }
         }
 
-        if (label == null || "<all>".equals(label)) {
-            return names;
+        if (label != null && !"<all>".equals(label)) {
+            names = filterByLabel(names, label);
         }
-        return filterByLabel(names, label);
+
+        List<ComponentDto> answer = new ArrayList<>();
+        for (String filter : names) {
+            ComponentDto dto = createComponentDto(filter);
+            answer.add(dto);
+        }
+        return answer;
     }
 
     private List<String> filterByName(List<String> choices) {

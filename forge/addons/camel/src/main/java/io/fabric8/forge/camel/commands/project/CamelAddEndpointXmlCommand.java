@@ -114,7 +114,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             webResourcesFacet = project.getFacet(WebResourcesFacet.class);
         }
 
-        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentNameValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
         // show note about the chosen component
