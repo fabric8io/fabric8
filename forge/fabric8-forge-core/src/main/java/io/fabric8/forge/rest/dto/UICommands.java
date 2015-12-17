@@ -315,8 +315,10 @@ public class UICommands {
                 }
             }
             return buffer.toString();
-        } else {
+        } else if (result != null) {
             return result.getMessage();
+        } else {
+            return null;
         }
     }
 
