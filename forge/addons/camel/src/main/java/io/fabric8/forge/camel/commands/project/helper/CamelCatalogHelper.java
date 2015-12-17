@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
+import io.fabric8.forge.camel.commands.project.dto.DataFormatDto;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -54,36 +55,6 @@ public final class CamelCatalogHelper {
                 return uri.substring(0, idx);
             }
         }
-        return null;
-    }
-
-    /**
-     * Attempts to find the maven archetype name for the given Camel data format name.
-     *
-     * @param name the data format name, such as <tt>json-jackson</tt> which has the archetype name <tt>camel-jackson</tt>
-     * @return the archetype name, or <tt>null</tt> if not possible to find a valid archetype name
-     */
-    @Deprecated
-    public static String findDataFormatArchetype(String name) {
-        // return the name as-is if its already an archetype syntax
-        if (name == null || name.startsWith("camel-")) {
-            return name;
-        }
-
-        // use the camel catalog to lookup the dataformat name -> artifact id
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.dataFormatJSonSchema(name);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
-        for (Map<String, String> row : data) {
-            if (row.get("artifactId") != null) {
-                return row.get("artifactId");
-            }
-        }
-
         return null;
     }
 
@@ -329,7 +300,6 @@ public final class CamelCatalogHelper {
             return null;
         }
 
-
         ComponentDto dto = new ComponentDto();
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
         for (Map<String, String> row : data) {
@@ -345,6 +315,41 @@ public final class CamelCatalogHelper {
                 dto.setLabel(row.get("label"));
             } else if (row.get("javaType") != null) {
                 dto.setJavaType(row.get("javaType"));
+            } else if (row.get("groupId") != null) {
+                dto.setGroupId(row.get("groupId"));
+            } else if (row.get("artifactId") != null) {
+                dto.setArtifactId(row.get("artifactId"));
+            } else if (row.get("version") != null) {
+                dto.setVersion(row.get("version"));
+            }
+        }
+        return dto;
+    }
+
+    public static DataFormatDto createDataFormatDto(CamelCatalog camelCatalog, String name) {
+        // use the camel catalog
+        String json = camelCatalog.dataFormatJSonSchema(name);
+        if (json == null) {
+            return null;
+        }
+
+        DataFormatDto dto = new DataFormatDto();
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
+        for (Map<String, String> row : data) {
+            if (row.get("name") != null) {
+                dto.setName(row.get("name"));
+            } else if (row.get("modelName") != null) {
+                dto.setModelName(row.get("modelName"));
+            } else if (row.get("title") != null) {
+                dto.setTitle(row.get("title"));
+            } else if (row.get("description") != null) {
+                dto.setDescription(row.get("description"));
+            } else if (row.get("label") != null) {
+                dto.setLabel(row.get("label"));
+            } else if (row.get("javaType") != null) {
+                dto.setJavaType(row.get("javaType"));
+            } else if (row.get("modelJavaType") != null) {
+                dto.setModelJavaType(row.get("modelJavaType"));
             } else if (row.get("groupId") != null) {
                 dto.setGroupId(row.get("groupId"));
             } else if (row.get("artifactId") != null) {

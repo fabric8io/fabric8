@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.camel.commands.project.dto.DataFormatDto;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -30,9 +31,10 @@ import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createDataFormatDto;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.dataFormatsFromArtifact;
 
-public class CamelDataFormatsCompleter implements UICompleter<String> {
+public class CamelDataFormatsCompleter implements UICompleter<DataFormatDto> {
 
     private final Project project;
     private final CamelCatalog camelCatalog;
@@ -46,8 +48,8 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
     }
 
     @Override
-    public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        List<String> answer = new ArrayList<String>();
+    public Iterable<DataFormatDto> getCompletionProposals(UIContext context, InputComponent input, String value) {
+        List<DataFormatDto> answer = new ArrayList<>();
         // find the version of Apache Camel we use
 
         if (core == null) {
@@ -76,16 +78,16 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
                 already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
             }
             if (!already) {
-                answer.add(name);
+                DataFormatDto dto = createDataFormatDto(camelCatalog, json);
+                answer.add(dto);
             }
         }
 
         return answer;
     }
 
-    public Iterable<String> getValueChoices() {
+    public Iterable<DataFormatDto> getValueChoices() {
         // need to find camel-core so we known the camel version
-        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
             return null;
         }
@@ -100,7 +102,14 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
             names.removeAll(languages);
         }
 
-        return names;
+        List<DataFormatDto> answer = new ArrayList<>();
+        for (String name : names) {
+            String json = camelCatalog.dataFormatJSonSchema(name);
+            DataFormatDto dto = createDataFormatDto(camelCatalog, json);
+            answer.add(dto);
+        }
+
+        return answer;
     }
 
     private static String findArtifactId(String json) {

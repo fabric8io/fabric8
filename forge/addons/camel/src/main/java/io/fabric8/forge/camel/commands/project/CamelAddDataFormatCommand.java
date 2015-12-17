@@ -18,7 +18,7 @@ package io.fabric8.forge.camel.commands.project;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.CamelDataFormatsCompleter;
-import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
+import io.fabric8.forge.camel.commands.project.dto.DataFormatDto;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -36,13 +36,11 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findDataFormatArchetype;
-
 public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "Name", required = true, description = "Name of dataformat to add")
-    private UISelectOne<String> name;
+    private UISelectOne<DataFormatDto> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -63,9 +61,9 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         name.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                String dataFormat = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                DataFormatDto dataFormat = (DataFormatDto) event.getNewValue();
                 if (dataFormat != null) {
-                    String description = CamelCatalogHelper.getDataFormatDescription(dataFormat);
+                    String description = dataFormat.getDescription();
                     name.setNote(description != null ? description : "");
                 } else {
                     name.setNote("");
@@ -87,17 +85,19 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = findDataFormatArchetype(name.getValue());
-        if (artifactId == null) {
-            return Results.fail("Camel dataformat " + name.getValue() + " is unknown.");
+        // name -> artifactId
+        DataFormatDto dto = name.getValue();
+        if (dto != null) {
+
+            DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
+                    .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
+
+            // install the component
+            dependencyInstaller.install(project, component);
+
+            return Results.success("Added Camel dataformat " + name.getValue().getName() + " (" + dto.getArtifactId() + ") to the project");
+        } else {
+            return Results.fail("Unknown Camel dataformat");
         }
-
-        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
-
-        // install the component
-        dependencyInstaller.install(project, component);
-
-        return Results.success("Added Camel dataformat " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }
