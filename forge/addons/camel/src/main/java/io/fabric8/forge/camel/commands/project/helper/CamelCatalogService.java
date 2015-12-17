@@ -19,7 +19,6 @@ package io.fabric8.forge.camel.commands.project.helper;
 import javax.enterprise.inject.Produces;
 
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 
 public class CamelCatalogService {
 
@@ -28,7 +27,7 @@ public class CamelCatalogService {
     @Produces
     public CamelCatalog createCamelCatalog() {
         if (instance == null) {
-            instance = new DefaultCamelCatalog();
+            instance = new CachedCamelCatalog();
         }
         return instance;
     }

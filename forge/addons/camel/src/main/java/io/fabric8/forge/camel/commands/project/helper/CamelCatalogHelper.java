@@ -59,36 +59,6 @@ public final class CamelCatalogHelper {
         return null;
     }
 
-    /**
-     * Attempts to find the maven archetype name for the given Camel language name.
-     *
-     * @param name the language name, such as <tt>spel</tt> which has the archetype name <tt>camel-spring</tt>
-     * @return the archetype name, or <tt>null</tt> if not possible to find a valid archetype name
-     */
-    @Deprecated
-    public static String findLanguageArchetype(String name) {
-        // return the name as-is if its already an archetype syntax
-        if (name == null || name.startsWith("camel-")) {
-            return name;
-        }
-
-        // use the camel catalog to lookup the language name -> artifact id
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.languageJSonSchema(name);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
-        for (Map<String, String> row : data) {
-            if (row.get("artifactId") != null) {
-                return row.get("artifactId");
-            }
-        }
-
-        return null;
-    }
-
     public static Set<String> componentsFromArtifact(CamelCatalog camelCatalog, String artifactId) {
         Set<String> answer = new TreeSet<String>();
 
@@ -196,58 +166,6 @@ public final class CamelCatalogHelper {
             }
         }
         return false;
-    }
-
-    /**
-     * Gets the description for this data format.
-     *
-     * @param dataFormat the data format name
-     */
-    @Deprecated
-    public static String getDataFormatDescription(String dataFormat) {
-        // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.dataFormatJSonSchema(dataFormat);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
-        if (data != null) {
-            for (Map<String, String> propertyMap : data) {
-                String description = propertyMap.get("description");
-                if (description != null) {
-                    return description;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets the description for this language.
-     *
-     * @param language the language name
-     */
-    @Deprecated
-    public static String getLanguageDescription(String language) {
-        // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.languageJSonSchema(language);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
-        if (data != null) {
-            for (Map<String, String> propertyMap : data) {
-                String description = propertyMap.get("description");
-                if (description != null) {
-                    return description;
-                }
-            }
-        }
-        return null;
     }
 
     /**
