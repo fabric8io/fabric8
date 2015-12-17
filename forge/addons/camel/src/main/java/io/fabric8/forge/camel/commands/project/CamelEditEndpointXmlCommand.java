@@ -63,6 +63,9 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
     @Inject
     private DependencyInstaller dependencyInstaller;
 
+    @Inject
+    private CamelCatalog camelCatalog;
+
     private XmlEndpointsCompleter completer;
 
     @Override
@@ -146,8 +149,7 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         String camelComponentName = detail.getEndpointComponentName();
         String uri = detail.getEndpointUri();
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
+        String json = camelCatalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }

@@ -24,7 +24,6 @@ import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCo
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
@@ -60,6 +59,9 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
 
     @Inject
     private DependencyInstaller dependencyInstaller;
+
+    @Inject
+    private CamelCatalog camelCatalog;
 
     private RouteBuilderEndpointsCompleter completer;
 
@@ -127,8 +129,7 @@ public class CamelEditEndpointCommand extends AbstractCamelProjectCommand implem
         String camelComponentName = detail.getEndpointComponentName();
         String uri = detail.getEndpointUri();
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
+        String json = camelCatalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }

@@ -67,6 +67,9 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
     @Inject
     private DependencyResolver dependencyResolver;
 
+    @Inject
+    private CamelCatalog camelCatalog;
+
     private List<InputComponent> inputs = new ArrayList<>();
 
     @Override
@@ -82,8 +85,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
 
         Map<Object, Object> attributeMap = builder.getUIContext().getAttributeMap();
         String camelComponentName = mandatoryAttributeValue(attributeMap, "componentName");
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
+        String json = camelCatalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }

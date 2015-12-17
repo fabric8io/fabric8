@@ -70,6 +70,9 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
     @Inject
     private DependencyInstaller dependencyInstaller;
 
+    @Inject
+    private CamelCatalog camelCatalog;
+
     private final String componentName;
     private final String group;
     private final List<InputComponent> allInputs;
@@ -204,8 +207,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
         }
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUriXml(camelComponentName, options, false);
+        String uri = camelCatalog.asEndpointUriXml(camelComponentName, options, false);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }
