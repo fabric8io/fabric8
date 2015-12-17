@@ -162,7 +162,7 @@ public class DockerSetupHelper {
         boolean updated = false;
         if (Strings.isNotBlank(fromImage)) {
             String fullDockerFromName = fromImage;
-            if (!fromImage.startsWith(dockerFromImagePrefix)) {
+            if (!fromImage.startsWith(dockerFromImagePrefix) || fromImage.split("/").length <= 2) {
                 fullDockerFromName = dockerFromImagePrefix + fromImage;
             }
             updated = MavenHelpers.updatePomProperty(properties, "docker.from", fullDockerFromName, updated);
