@@ -23,7 +23,6 @@ import java.util.Set;
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -90,8 +89,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
         }
 
         // find all available component names
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        List<String> names = catalog.findComponentNames();
+        List<String> names = camelCatalog.findComponentNames();
 
         // filter out existing components we already have
         if (excludeComponentsOnClasspath) {
@@ -117,14 +115,12 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
     private List<String> filterByName(List<String> choices) {
         List<String> answer = new ArrayList<String>();
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-
         // filter names which are already on the classpath, or do not match the optional filter by label input
         for (String name : choices) {
             // skip if we already have the dependency
             boolean already = false;
             if (excludeComponentsOnClasspath) {
-                String json = catalog.componentJSonSchema(name);
+                String json = camelCatalog.componentJSonSchema(name);
                 String artifactId = findArtifactId(json);
                 if (artifactId != null) {
                     already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);

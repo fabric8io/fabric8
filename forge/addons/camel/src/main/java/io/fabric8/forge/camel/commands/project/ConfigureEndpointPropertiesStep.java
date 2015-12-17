@@ -29,7 +29,6 @@ import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
 import io.fabric8.forge.camel.commands.project.helper.StringHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
@@ -67,11 +66,8 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper
 
 public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand implements UIWizardStep {
 
-    @Inject
-    private DependencyInstaller dependencyInstaller;
-
-    @Inject
-    private CamelCatalog camelCatalog;
+    private final DependencyInstaller dependencyInstaller;
+    private final CamelCatalog camelCatalog;
 
     private final String componentName;
     private final String group;
@@ -83,12 +79,14 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
 
     public ConfigureEndpointPropertiesStep(ProjectFactory projectFactory,
                                            DependencyInstaller dependencyInstaller,
+                                           CamelCatalog camelCatalog,
                                            String componentName, String group,
                                            List<InputComponent> allInputs,
                                            List<InputComponent> inputs,
                                            boolean last, int index, int total) {
         this.projectFactory = projectFactory;
         this.dependencyInstaller = dependencyInstaller;
+        this.camelCatalog = camelCatalog;
         this.componentName = componentName;
         this.group = group;
         this.allInputs = allInputs;
@@ -372,8 +370,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
             }
         }
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String uri = catalog.asEndpointUri(camelComponentName, options, false);
+        String uri = camelCatalog.asEndpointUri(camelComponentName, options, false);
         if (uri == null) {
             return Results.fail("Cannot create endpoint uri");
         }

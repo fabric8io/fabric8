@@ -24,8 +24,6 @@ import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
-import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
