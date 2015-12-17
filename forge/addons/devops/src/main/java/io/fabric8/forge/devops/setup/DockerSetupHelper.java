@@ -161,7 +161,11 @@ public class DockerSetupHelper {
         Properties properties = pom.getProperties();
         boolean updated = false;
         if (Strings.isNotBlank(fromImage)) {
-            updated = MavenHelpers.updatePomProperty(properties, "docker.from", dockerFromImagePrefix + fromImage, updated);
+            String fullDockerFromName = fromImage;
+            if (!fromImage.startsWith(dockerFromImagePrefix)) {
+                fullDockerFromName = dockerFromImagePrefix + fromImage;
+            }
+            updated = MavenHelpers.updatePomProperty(properties, "docker.from", fullDockerFromName, updated);
         }
         updated = MavenHelpers.updatePomProperty(properties, "docker.image", organization + "/${project.artifactId}:${project.version}", updated);
         // jolokia is exposed on our docker images on port 8778
