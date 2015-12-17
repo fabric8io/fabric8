@@ -15,7 +15,7 @@
  */
 package io.fabric8.forge.camel;
 
-import io.fabric8.forge.camel.commands.project.helper.CachedCamelCatalog;
+import io.fabric8.forge.camel.commands.project.helper.CamelCatalogService;
 import org.apache.camel.catalog.CamelCatalog;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class CachedCamelCatalogTest {
 
     @Test
     public void testCachedCamelCatalog() {
-        CamelCatalog camelCatalog = new CachedCamelCatalog();
+        CamelCatalog camelCatalog = new CamelCatalogService().createCamelCatalog();
         String json = camelCatalog.componentJSonSchema("timer");
         String json2 = camelCatalog.componentJSonSchema("timer");
 
