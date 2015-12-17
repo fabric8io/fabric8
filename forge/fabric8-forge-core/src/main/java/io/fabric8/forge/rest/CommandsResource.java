@@ -138,6 +138,13 @@ public class CommandsResource {
     }
 
     @GET
+    @Path("/commands/{namespace}/{projectName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CommandInfoDTO> getCommands(@PathParam("namespace") String namespace, @PathParam("projectName") String projectName) throws Exception {
+        return getCommands(namespace, projectName, null);
+    }
+
+    @GET
     @Path("/commands/{namespace}/{projectName}/{path: .*}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<CommandInfoDTO> getCommands(@PathParam("namespace") String namespace, @PathParam("projectName") String projectName, @PathParam("path") String resourcePath) throws Exception {
