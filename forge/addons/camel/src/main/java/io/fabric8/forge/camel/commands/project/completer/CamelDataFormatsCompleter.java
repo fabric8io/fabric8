@@ -96,7 +96,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         // filter out existing dataformats we already have
         Set<Dependency> artifacts = findCamelArtifacts(project);
         for (Dependency dep : artifacts) {
-            Set<String> languages = dataFormatsFromArtifact(dep.getCoordinate().getArtifactId());
+            Set<String> languages = dataFormatsFromArtifact(camelCatalog, dep.getCoordinate().getArtifactId());
             names.removeAll(languages);
         }
 

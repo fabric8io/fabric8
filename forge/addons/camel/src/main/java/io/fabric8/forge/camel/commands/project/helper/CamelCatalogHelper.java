@@ -58,40 +58,12 @@ public final class CamelCatalogHelper {
     }
 
     /**
-     * Attempts to find the maven archetype name for the given Camel component name.
-     *
-     * @param name the component name, such as <tt>xquery</tt> which has the archetype name <tt>camel-saxon</tt>
-     * @return the archetype name, or <tt>null</tt> if not possible to find a valid archetype name
-     */
-    public static String findComponentArchetype(String name) {
-        // return the name as-is if its already an archetype syntax
-        if (name == null || name.startsWith("camel-")) {
-            return name;
-        }
-
-        // use the camel catalog to lookup the component name -> artifact id
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(name);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
-        for (Map<String, String> row : data) {
-            if (row.get("artifactId") != null) {
-                return row.get("artifactId");
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Attempts to find the maven archetype name for the given Camel data format name.
      *
      * @param name the data format name, such as <tt>json-jackson</tt> which has the archetype name <tt>camel-jackson</tt>
      * @return the archetype name, or <tt>null</tt> if not possible to find a valid archetype name
      */
+    @Deprecated
     public static String findDataFormatArchetype(String name) {
         // return the name as-is if its already an archetype syntax
         if (name == null || name.startsWith("camel-")) {
@@ -121,6 +93,7 @@ public final class CamelCatalogHelper {
      * @param name the language name, such as <tt>spel</tt> which has the archetype name <tt>camel-spring</tt>
      * @return the archetype name, or <tt>null</tt> if not possible to find a valid archetype name
      */
+    @Deprecated
     public static String findLanguageArchetype(String name) {
         // return the name as-is if its already an archetype syntax
         if (name == null || name.startsWith("camel-")) {
@@ -144,13 +117,12 @@ public final class CamelCatalogHelper {
         return null;
     }
 
-    public static Set<String> componentsFromArtifact(String artifactId) {
+    public static Set<String> componentsFromArtifact(CamelCatalog camelCatalog, String artifactId) {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        for (String name : catalog.findComponentNames()) {
-            String json = catalog.componentJSonSchema(name);
+        for (String name : camelCatalog.findComponentNames()) {
+            String json = camelCatalog.componentJSonSchema(name);
             if (json != null) {
                 List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
                 String scheme = null;
@@ -172,13 +144,12 @@ public final class CamelCatalogHelper {
         return answer;
     }
 
-    public static Set<String> dataFormatsFromArtifact(String artifactId) {
+    public static Set<String> dataFormatsFromArtifact(CamelCatalog camelCatalog, String artifactId) {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        for (String name : catalog.findDataFormatNames()) {
-            String json = catalog.dataFormatJSonSchema(name);
+        for (String name : camelCatalog.findDataFormatNames()) {
+            String json = camelCatalog.dataFormatJSonSchema(name);
             if (json != null) {
                 List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
                 String df = null;
@@ -200,13 +171,12 @@ public final class CamelCatalogHelper {
         return answer;
     }
 
-    public static Set<String> languagesFromArtifact(String artifactId) {
+    public static Set<String> languagesFromArtifact(CamelCatalog camelCatalog, String artifactId) {
         Set<String> answer = new TreeSet<String>();
 
         // use the camel catalog to find what components the artifact has
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        for (String name : catalog.findLanguageNames()) {
-            String json = catalog.languageJSonSchema(name);
+        for (String name : camelCatalog.findLanguageNames()) {
+            String json = camelCatalog.languageJSonSchema(name);
             if (json != null) {
                 List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
                 String lan = null;
@@ -236,10 +206,9 @@ public final class CamelCatalogHelper {
      * @param value  the option value
      * @return <tt>true</tt> if matching the default value, <tt>false</tt> otherwise
      */
-    public static boolean isDefaultValue(String scheme, String key, String value) {
+    public static boolean isDefaultValue(CamelCatalog camelCatalog, String scheme, String key, String value) {
         // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(scheme);
+        String json = camelCatalog.componentJSonSchema(scheme);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + scheme);
         }
@@ -258,35 +227,11 @@ public final class CamelCatalogHelper {
     }
 
     /**
-     * Gets the description for this component.
-     *
-     * @param scheme the component name
-     */
-    public static String getComponentDescription(String scheme) {
-        // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(scheme);
-        if (json == null) {
-            return null;
-        }
-
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
-        if (data != null) {
-            for (Map<String, String> propertyMap : data) {
-                String description = propertyMap.get("description");
-                if (description != null) {
-                    return description;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Gets the description for this data format.
      *
      * @param dataFormat the data format name
      */
+    @Deprecated
     public static String getDataFormatDescription(String dataFormat) {
         // use the camel catalog
         CamelCatalog catalog = new DefaultCamelCatalog();
@@ -312,6 +257,7 @@ public final class CamelCatalogHelper {
      *
      * @param language the language name
      */
+    @Deprecated
     public static String getLanguageDescription(String language) {
         // use the camel catalog
         CamelCatalog catalog = new DefaultCamelCatalog();
@@ -335,10 +281,9 @@ public final class CamelCatalogHelper {
     /**
      * Whether the component is consumer only
      */
-    public static boolean isComponentConsumerOnly(String scheme) {
+    public static boolean isComponentConsumerOnly(CamelCatalog camelCatalog, String scheme) {
         // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(scheme);
+        String json = camelCatalog.componentJSonSchema(scheme);
         if (json == null) {
             return false;
         }
@@ -358,10 +303,9 @@ public final class CamelCatalogHelper {
     /**
      * Whether the component is consumer only
      */
-    public static boolean isComponentProducerOnly(String scheme) {
+    public static boolean isComponentProducerOnly(CamelCatalog camelCatalog, String scheme) {
         // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(scheme);
+        String json = camelCatalog.componentJSonSchema(scheme);
         if (json == null) {
             return false;
         }

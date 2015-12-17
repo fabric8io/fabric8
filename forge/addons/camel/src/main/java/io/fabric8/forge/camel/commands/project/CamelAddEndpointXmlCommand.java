@@ -128,9 +128,9 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                String component = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                ComponentDto component = (ComponentDto) event.getNewValue();
                 if (component != null) {
-                    String description = CamelCatalogHelper.getComponentDescription(component);
+                    String description = component.getDescription();
                     componentName.setNote(description != null ? description : "");
                 } else {
                     componentName.setNote("");
@@ -138,8 +138,8 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
 
                 // limit the endpoint types what is possible with this chosen component
                 if (component != null) {
-                    boolean consumerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
-                    boolean producerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
+                    boolean consumerOnly = component.isConsumerOnly();
+                    boolean producerOnly = component.isProducerOnly();
                     if (consumerOnly) {
                         String[] types = new String[]{"Consumer"};
                         endpointType.setValueChoices(Arrays.asList(types));
@@ -211,7 +211,8 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         }
 
         UIContext ui = context.getUIContext();
-        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, consumerOnly, producerOnly, componentFactory, converterFactory, ui);
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, consumerOnly, producerOnly,
+                getCamelCatalog(), componentFactory, converterFactory, ui);
 
         // need all inputs in a list as well
         List<InputComponent> allInputs = new ArrayList<>();

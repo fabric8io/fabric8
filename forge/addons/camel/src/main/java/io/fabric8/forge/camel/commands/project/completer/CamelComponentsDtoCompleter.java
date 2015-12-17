@@ -95,7 +95,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
         if (excludeComponentsOnClasspath) {
             Set<Dependency> artifacts = findCamelArtifacts(project);
             for (Dependency dep : artifacts) {
-                Set<String> components = componentsFromArtifact(dep.getCoordinate().getArtifactId());
+                Set<String> components = componentsFromArtifact(camelCatalog, dep.getCoordinate().getArtifactId());
                 names.removeAll(components);
             }
         }

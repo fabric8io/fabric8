@@ -302,22 +302,21 @@ public final class CamelCommandsHelper {
     }
 
     public static List<EndpointOptionByGroup> createUIInputsForCamelComponent(String camelComponentName, String uri, int maxOptionsPerPage, boolean consumerOnly, boolean producerOnly,
-                                                                              InputComponentFactory componentFactory, ConverterFactory converterFactory, UIContext ui) throws Exception {
+                                                                              CamelCatalog camelCatalog, InputComponentFactory componentFactory, ConverterFactory converterFactory, UIContext ui) throws Exception {
         List<EndpointOptionByGroup> answer = new ArrayList<>();
 
         if (camelComponentName == null && uri != null) {
             camelComponentName = endpointComponentName(uri);
         }
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
+        String json = camelCatalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
         }
 
         // is the component consumer or producer only, if so we do not need any kind of filter
-        boolean componentConsumerOnly = CamelCatalogHelper.isComponentConsumerOnly(camelComponentName);
-        boolean componentProducerOnly = CamelCatalogHelper.isComponentProducerOnly(camelComponentName);
+        boolean componentConsumerOnly = CamelCatalogHelper.isComponentConsumerOnly(camelCatalog, camelComponentName);
+        boolean componentProducerOnly = CamelCatalogHelper.isComponentProducerOnly(camelCatalog, camelComponentName);
         if (componentConsumerOnly || componentProducerOnly) {
             // reset the filters as the component can only be one of them anyway, so we should show all options
             consumerOnly = false;
@@ -326,7 +325,7 @@ public final class CamelCommandsHelper {
 
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("properties", json, true);
 
-        Map<String, String> currentValues = uri != null ? catalog.endpointProperties(uri) : Collections.EMPTY_MAP;
+        Map<String, String> currentValues = uri != null ? camelCatalog.endpointProperties(uri) : Collections.EMPTY_MAP;
 
         if (data != null) {
             List<InputComponent> inputs = new ArrayList<>();

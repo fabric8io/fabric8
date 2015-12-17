@@ -191,7 +191,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 String value = input.getValue().toString();
                 if (value != null) {
                     // do not add the value if it match the default value
-                    boolean matchDefault = isDefaultValue(camelComponentName, key, value);
+                    boolean matchDefault = isDefaultValue(camelCatalog, camelComponentName, key, value);
                     if (!matchDefault) {
                         options.put(key, value);
                     }
@@ -356,7 +356,7 @@ public class ConfigureEndpointPropertiesStep extends AbstractCamelProjectCommand
                 String value = input.getValue().toString();
                 if (value != null) {
                     // do not add the value if it match the default value
-                    boolean matchDefault = isDefaultValue(camelComponentName, key, value);
+                    boolean matchDefault = isDefaultValue(camelCatalog, camelComponentName, key, value);
                     if (!matchDefault) {
                         options.put(key, value);
                     }

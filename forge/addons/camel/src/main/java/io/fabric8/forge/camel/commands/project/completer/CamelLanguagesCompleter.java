@@ -95,7 +95,7 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
         // filter out existing languages we already have
         Set<Dependency> artifacts = findCamelArtifacts(project);
         for (Dependency dep : artifacts) {
-            Set<String> languages = languagesFromArtifact(dep.getCoordinate().getArtifactId());
+            Set<String> languages = languagesFromArtifact(camelCatalog, dep.getCoordinate().getArtifactId());
             names.removeAll(languages);
         }
 

@@ -191,7 +191,8 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         }
 
         UIContext ui = context.getUIContext();
-        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, consumerOnly, producerOnly, componentFactory, converterFactory, ui);
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, null, MAX_OPTIONS, consumerOnly, producerOnly,
+                getCamelCatalog(), componentFactory, converterFactory, ui);
 
         // need all inputs in a list as well
         List<InputComponent> allInputs = new ArrayList<>();

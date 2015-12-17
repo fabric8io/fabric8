@@ -153,7 +153,8 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         boolean producerOnly = detail.isProducerOnly();
 
         UIContext ui = context.getUIContext();
-        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, MAX_OPTIONS, consumerOnly, producerOnly, componentFactory, converterFactory, ui);
+        List<EndpointOptionByGroup> groups = createUIInputsForCamelComponent(camelComponentName, uri, MAX_OPTIONS, consumerOnly, producerOnly,
+                getCamelCatalog(), componentFactory, converterFactory, ui);
 
         // need all inputs in a list as well
         List<InputComponent> allInputs = new ArrayList<>();
