@@ -118,9 +118,9 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                String component = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                ComponentDto component = (ComponentDto) event.getNewValue();
                 if (component != null) {
-                    String description = CamelCatalogHelper.getComponentDescription(component);
+                    String description = component.getDescription();
                     componentName.setNote(description != null ? description : "");
                 } else {
                     componentName.setNote("");

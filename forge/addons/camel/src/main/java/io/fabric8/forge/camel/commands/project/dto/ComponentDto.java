@@ -25,6 +25,8 @@ public class ComponentDto {
     private String title;
     private String description;
     private String label;
+    private boolean consumerOnly;
+    private boolean producerOnly;
     private String javaType;
     private String groupId;
     private String artifactId;
@@ -68,6 +70,22 @@ public class ComponentDto {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public boolean isConsumerOnly() {
+        return consumerOnly;
+    }
+
+    public void setConsumerOnly(boolean consumerOnly) {
+        this.consumerOnly = consumerOnly;
+    }
+
+    public boolean isProducerOnly() {
+        return producerOnly;
+    }
+
+    public void setProducerOnly(boolean producerOnly) {
+        this.producerOnly = producerOnly;
     }
 
     public String getJavaType() {

@@ -23,7 +23,6 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
-import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.jboss.forge.addon.convert.Converter;
@@ -115,9 +114,9 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                String component = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                ComponentDto component = (ComponentDto) event.getNewValue();
                 if (component != null) {
-                    String description = CamelCatalogHelper.getComponentDescription(component);
+                    String description = component.getDescription();
                     componentName.setNote(description != null ? description : "");
                 } else {
                     componentName.setNote("");
@@ -125,8 +124,8 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
 
                 // limit the endpoint types what is possible with this chosen component
                 if (component != null) {
-                    boolean consumerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
-                    boolean producerOnly = CamelCatalogHelper.isComponentConsumerOnly(component);
+                    boolean consumerOnly = component.isConsumerOnly();
+                    boolean producerOnly = component.isProducerOnly();
                     if (consumerOnly) {
                         String[] types = new String[]{"Consumer"};
                         endpointType.setValueChoices(Arrays.asList(types));
@@ -171,25 +170,27 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         attributeMap.put("mode", "add");
         attributeMap.put("kind", "java");
 
+        ComponentDto component = componentName.getValue();
+        String camelComponentName = component.getScheme();
+
         // must be same component name and endpoint type to allow reusing existing navigation result
         String previous = (String) attributeMap.get("componentName");
         String previous2 = (String) attributeMap.get("endpointType");
-        if (previous != null && previous.equals(componentName.getValue()) && previous2 != null && previous2.equals(endpointType.getValue())) {
+        if (previous != null && previous.equals(camelComponentName) && previous2 != null && previous2.equals(endpointType.getValue())) {
             NavigationResult navigationResult = (NavigationResult) attributeMap.get("navigationResult");
             if (navigationResult != null) {
                 return navigationResult;
             }
         }
 
-        attributeMap.put("componentName", componentName.getValue().getScheme());
+        attributeMap.put("componentName", camelComponentName);
         attributeMap.put("endpointType", endpointType.getValue());
 
         // we need to figure out how many options there is so we can as many steps we need
-        String camelComponentName = componentName.getValue().getScheme();
 
         // producer vs consumer only if selected
-        boolean consumerOnly = false;
-        boolean producerOnly = false;
+        boolean consumerOnly = component.isConsumerOnly();
+        boolean producerOnly = component.isProducerOnly();
         String type = endpointType.getValue();
         if ("Consumer".equals(type)) {
             consumerOnly = true;
