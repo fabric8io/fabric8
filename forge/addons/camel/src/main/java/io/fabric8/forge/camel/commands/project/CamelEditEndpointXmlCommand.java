@@ -166,7 +166,7 @@ public class CamelEditEndpointXmlCommand extends AbstractCamelProjectCommand imp
         for (int i = 0; i < pages; i++) {
             boolean last = i == pages - 1;
             EndpointOptionByGroup current = groups.get(i);
-            ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller,
+            ConfigureEndpointPropertiesStep step = new ConfigureEndpointPropertiesStep(projectFactory, dependencyInstaller, getCamelCatalog(),
                     camelComponentName, current.getGroup(), allInputs, current.getInputs(), last, i, pages);
             builder.add(step);
         }
