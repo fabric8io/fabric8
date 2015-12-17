@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsDtoCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
@@ -67,19 +66,6 @@ public final class CamelCommandsHelper {
             public Iterable<ComponentDto> call() throws Exception {
                 String label = componentCategoryFilter.getValue();
                 return new CamelComponentsDtoCompleter(project, null, excludeComponentsOnClasspath).getValueChoices(label);
-            }
-        };
-    }
-
-    public static Callable<Iterable<String>> createComponentNameValues(final Project project,
-                                                                       final UISelectOne<String> componentCategoryFilter,
-                                                                       final boolean excludeComponentsOnClasspath) {
-        // use callable so we can live update the filter
-        return new Callable<Iterable<String>>() {
-            @Override
-            public Iterable<String> call() throws Exception {
-                String label = componentCategoryFilter.getValue();
-                return new CamelComponentsCompleter(project, null, excludeComponentsOnClasspath).getValueChoices(label);
             }
         };
     }
