@@ -71,7 +71,7 @@ You can use `ctrl + c` to stop the application.
 
 As this quickstart is a _fat jar_ type of application you can also run it using `java -jar` as shown:
 
-    java -jar target/quickstart-java-simple-fatjar-2.2.79.jar
+    java -jar target/quickstart-java-simple-fatjar-2.2.80.jar
     
 Now lets try to build and deploy this application to docker and kubernetes.
 
