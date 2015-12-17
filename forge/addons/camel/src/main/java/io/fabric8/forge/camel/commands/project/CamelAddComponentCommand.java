@@ -68,12 +68,6 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         filter.setDefaultValue("<all>");
 
         name.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, filter, false));
-        name.setValueConverter(new Converter<String, ComponentDto>() {
-            @Override
-            public ComponentDto convert(String name) {
-                return createComponentDto(name);
-            }
-        });
         // show note about the chosen component
         name.addValueChangeListener(new ValueChangeListener() {
             @Override

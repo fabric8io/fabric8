@@ -108,12 +108,6 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, componentNameFilter, false));
-        componentName.setValueConverter(new Converter<String, ComponentDto>() {
-            @Override
-            public ComponentDto convert(String name) {
-                return createComponentDto(name);
-            }
-        });
         // show note about the chosen component
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override
