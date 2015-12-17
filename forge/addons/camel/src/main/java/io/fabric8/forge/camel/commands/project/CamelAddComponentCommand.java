@@ -90,10 +90,10 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // name -> artifactId
         ComponentDto dto = name.getValue();
         if (dto != null) {
 
+            // we want to use same version as camel-core
             DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
                     .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
 

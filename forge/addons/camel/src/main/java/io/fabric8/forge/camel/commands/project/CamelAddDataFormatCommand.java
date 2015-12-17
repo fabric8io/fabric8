@@ -84,18 +84,17 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // name -> artifactId
-        // name -> artifactId
         DataFormatDto dto = name.getValue();
         if (dto != null) {
 
+            // we want to use same version as camel-core
             DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
                     .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
 
             // install the component
             dependencyInstaller.install(project, component);
 
-            return Results.success("Added Camel dataformat " + name.getValue().getName() + " (" + dto.getArtifactId() + ") to the project");
+            return Results.success("Added Camel dataformat " + dto.getName() + " (" + dto.getArtifactId() + ") to the project");
         } else {
             return Results.fail("Unknown Camel dataformat");
         }

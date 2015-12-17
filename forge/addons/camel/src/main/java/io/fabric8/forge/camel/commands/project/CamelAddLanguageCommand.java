@@ -18,7 +18,7 @@ package io.fabric8.forge.camel.commands.project;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.CamelLanguagesCompleter;
-import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
+import io.fabric8.forge.camel.commands.project.dto.LanguageDto;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -36,13 +36,11 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.findLanguageArchetype;
-
 public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "Name", required = true, description = "Name of language to add")
-    private UISelectOne<String> name;
+    private UISelectOne<LanguageDto> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -63,9 +61,9 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
         name.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChanged(ValueChangeEvent event) {
-                String language = event.getNewValue() != null ? event.getNewValue().toString() : null;
+                LanguageDto language = (LanguageDto) event.getNewValue();
                 if (language != null) {
-                    String description = CamelCatalogHelper.getLanguageDescription(language);
+                    String description = language.getDescription();
                     name.setNote(description != null ? description : "");
                 } else {
                     name.setNote("");
@@ -86,18 +84,19 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
             return Results.fail("The project does not include camel-core");
         }
 
-        // name -> artifactId
-        String artifactId = findLanguageArchetype(name.getValue());
-        if (artifactId == null) {
-            return Results.fail("Camel language " + name.getValue() + " is unknown.");
+        LanguageDto dto = name.getValue();
+        if (dto != null) {
+
+            // we want to use same version as camel-core
+            DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
+                    .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
+
+            // install the component
+            dependencyInstaller.install(project, component);
+
+            return Results.success("Added Camel language " + dto.getName() + " (" + dto.getArtifactId() + ") to the project");
+        } else {
+            return Results.fail("Unknown Camel language");
         }
-
-        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
-
-        // install the component
-        dependencyInstaller.install(project, component);
-
-        return Results.success("Added Camel language " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }

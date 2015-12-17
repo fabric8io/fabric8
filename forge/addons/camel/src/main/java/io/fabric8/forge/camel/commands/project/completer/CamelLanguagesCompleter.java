@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
+import io.fabric8.forge.camel.commands.project.dto.LanguageDto;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -30,9 +31,10 @@ import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
 import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts;
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createLanguageDto;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.languagesFromArtifact;
 
-public class CamelLanguagesCompleter implements UICompleter<String> {
+public class CamelLanguagesCompleter implements UICompleter<LanguageDto> {
 
     private final Project project;
     private final CamelCatalog camelCatalog;
@@ -46,13 +48,12 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
     }
 
     @Override
-    public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        List<String> answer = new ArrayList<String>();
-        // find the version of Apache Camel we use
-
+    public Iterable<LanguageDto> getCompletionProposals(UIContext context, InputComponent input, String value) {
         if (core == null) {
             return null;
         }
+
+        List<LanguageDto> answer = new ArrayList<>();
 
         // find all available language names
         List<String> names = camelCatalog.findLanguageNames();
@@ -76,16 +77,15 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
                 already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
             }
             if (!already) {
-                answer.add(name);
+                LanguageDto dto = createLanguageDto(camelCatalog, json);
+                answer.add(dto);
             }
         }
 
         return answer;
     }
 
-    public Iterable<String> getValueChoices() {
-        // need to find camel-core so we known the camel version
-        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
+    public Iterable<LanguageDto> getValueChoices() {
         if (core == null) {
             return null;
         }
@@ -99,7 +99,14 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
             names.removeAll(languages);
         }
 
-        return names;
+        List<LanguageDto> answer = new ArrayList<>();
+        for (String name : names) {
+            String json = camelCatalog.languageJSonSchema(name);
+            LanguageDto dto = createLanguageDto(camelCatalog, json);
+            answer.add(dto);
+        }
+
+        return answer;
     }
 
     private static String findArtifactId(String json) {

@@ -49,12 +49,11 @@ public class CamelDataFormatsCompleter implements UICompleter<DataFormatDto> {
 
     @Override
     public Iterable<DataFormatDto> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        List<DataFormatDto> answer = new ArrayList<>();
-        // find the version of Apache Camel we use
-
         if (core == null) {
             return null;
         }
+
+        List<DataFormatDto> answer = new ArrayList<>();
 
         // find all available dataformat names
         List<String> names = camelCatalog.findDataFormatNames();
@@ -87,12 +86,10 @@ public class CamelDataFormatsCompleter implements UICompleter<DataFormatDto> {
     }
 
     public Iterable<DataFormatDto> getValueChoices() {
-        // need to find camel-core so we known the camel version
         if (core == null) {
             return null;
         }
 
-        // find all available component names
         List<String> names = camelCatalog.findDataFormatNames();
 
         // filter out existing dataformats we already have
