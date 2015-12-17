@@ -75,7 +75,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
         List<ComponentDto> answer = new ArrayList<>();
         for (String filter : filtered) {
             String json = camelCatalog.componentJSonSchema(filter);
-            ComponentDto dto = createComponentDto(json);
+            ComponentDto dto = createComponentDto(camelCatalog, json);
             answer.add(dto);
         }
         return answer;
@@ -106,7 +106,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
 
         List<ComponentDto> answer = new ArrayList<>();
         for (String filter : names) {
-            ComponentDto dto = createComponentDto(filter);
+            ComponentDto dto = createComponentDto(camelCatalog, filter);
             answer.add(dto);
         }
         return answer;

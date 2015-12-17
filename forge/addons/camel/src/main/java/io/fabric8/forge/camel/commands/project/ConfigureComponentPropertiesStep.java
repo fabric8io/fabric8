@@ -146,7 +146,7 @@ public class ConfigureComponentPropertiesStep extends AbstractCamelProjectComman
             // lets find the camel component class
 
             CamelComponentDetails details = new CamelComponentDetails();
-            Result result = loadCamelComponentDetails(camelComponentName, details);
+            Result result = loadCamelComponentDetails(camelCatalog, camelComponentName, details);
             if (result != null) {
                 return result;
             }

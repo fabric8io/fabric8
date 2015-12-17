@@ -73,9 +73,8 @@ public final class CamelCommandsHelper {
     /**
      * Populates the details for the given component, returning a Result if it fails.
      */
-    public static Result loadCamelComponentDetails(String camelComponentName, CamelComponentDetails details) {
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
+    public static Result loadCamelComponentDetails(CamelCatalog camelCatalog, String camelComponentName, CamelComponentDetails details) {
+        String json = camelCatalog.componentJSonSchema(camelComponentName);
         if (json == null) {
             return Results.fail("Could not find catalog entry for component name: " + camelComponentName);
         }

@@ -322,10 +322,9 @@ public final class CamelCatalogHelper {
         return false;
     }
 
-    public static ComponentDto createComponentDto(String scheme) {
+    public static ComponentDto createComponentDto(CamelCatalog camelCatalog, String scheme) {
         // use the camel catalog
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(scheme);
+        String json = camelCatalog.componentJSonSchema(scheme);
         if (json == null) {
             return null;
         }

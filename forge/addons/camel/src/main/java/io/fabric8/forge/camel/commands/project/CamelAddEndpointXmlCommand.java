@@ -121,7 +121,7 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         componentName.setValueConverter(new Converter<String, ComponentDto>() {
             @Override
             public ComponentDto convert(String name) {
-                return createComponentDto(name);
+                return createComponentDto(getCamelCatalog(), name);
             }
         });
         // show note about the chosen component
