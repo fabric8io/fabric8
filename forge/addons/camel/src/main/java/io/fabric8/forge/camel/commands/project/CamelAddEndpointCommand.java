@@ -22,11 +22,11 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
-import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -53,6 +53,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.createUIInputsForCamelComponent;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
@@ -66,7 +67,7 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
 
     @Inject
     @WithAttributes(label = "Name", required = true, description = "Name of component to use for the endpoint")
-    private UISelectOne<String> componentName;
+    private UISelectOne<ComponentDto> componentName;
 
     @Inject
     @WithAttributes(label = "Endpoint type", required = true, description = "Type of endpoint")
@@ -103,7 +104,13 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
 
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommandsHelper.createComponentNameValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, componentNameFilter, false));
+        componentName.setValueConverter(new Converter<String, ComponentDto>() {
+            @Override
+            public ComponentDto convert(String name) {
+                return createComponentDto(name);
+            }
+        });
         // show note about the chosen component
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override
@@ -174,17 +181,11 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
             }
         }
 
-        attributeMap.put("componentName", componentName.getValue());
+        attributeMap.put("componentName", componentName.getValue().getScheme());
         attributeMap.put("endpointType", endpointType.getValue());
 
         // we need to figure out how many options there is so we can as many steps we need
-        String camelComponentName = componentName.getValue();
-
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        String json = catalog.componentJSonSchema(camelComponentName);
-        if (json == null) {
-            throw new IllegalArgumentException("Could not find catalog entry for component name: " + camelComponentName);
-        }
+        String camelComponentName = componentName.getValue().getScheme();
 
         // producer vs consumer only if selected
         boolean consumerOnly = false;
