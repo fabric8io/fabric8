@@ -101,8 +101,7 @@ public class CamelDataFormatsCompleter implements UICompleter<DataFormatDto> {
 
         List<DataFormatDto> answer = new ArrayList<>();
         for (String name : names) {
-            String json = camelCatalog.dataFormatJSonSchema(name);
-            DataFormatDto dto = createDataFormatDto(camelCatalog, json);
+            DataFormatDto dto = createDataFormatDto(camelCatalog, name);
             answer.add(dto);
         }
 

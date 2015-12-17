@@ -35,7 +35,7 @@ import static io.fabric8.forge.addon.utils.CamelProjectHelper.findCamelArtifacts
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.componentsFromArtifact;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
-public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
+public class CamelComponentsCompleter implements UICompleter<ComponentDto> {
 
     private final Project project;
     private final CamelCatalog camelCatalog;
@@ -43,7 +43,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
     private final boolean excludeComponentsOnClasspath;
     private final Dependency core;
 
-    public CamelComponentsDtoCompleter(Project project, CamelCatalog camelCatalog, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
+    public CamelComponentsCompleter(Project project, CamelCatalog camelCatalog, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
         this.project = project;
         this.camelCatalog = camelCatalog;
         this.filter = filter;
@@ -74,8 +74,7 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
 
         List<ComponentDto> answer = new ArrayList<>();
         for (String filter : filtered) {
-            String json = camelCatalog.componentJSonSchema(filter);
-            ComponentDto dto = createComponentDto(camelCatalog, json);
+            ComponentDto dto = createComponentDto(camelCatalog, filter);
             answer.add(dto);
         }
         return answer;

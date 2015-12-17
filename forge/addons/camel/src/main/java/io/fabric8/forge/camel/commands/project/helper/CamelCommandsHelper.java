@@ -25,13 +25,12 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
-import io.fabric8.forge.camel.commands.project.completer.CamelComponentsDtoCompleter;
+import io.fabric8.forge.camel.commands.project.completer.CamelComponentsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.CamelComponentsLabelCompleter;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.model.CamelComponentDetails;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.convert.ConverterFactory;
 import org.jboss.forge.addon.dependencies.Dependency;
@@ -65,7 +64,7 @@ public final class CamelCommandsHelper {
             @Override
             public Iterable<ComponentDto> call() throws Exception {
                 String label = componentCategoryFilter.getValue();
-                return new CamelComponentsDtoCompleter(project, camelCatalog, null, excludeComponentsOnClasspath).getValueChoices(label);
+                return new CamelComponentsCompleter(project, camelCatalog, null, excludeComponentsOnClasspath).getValueChoices(label);
             }
         };
     }

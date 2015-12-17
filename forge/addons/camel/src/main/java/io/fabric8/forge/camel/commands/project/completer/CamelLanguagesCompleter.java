@@ -101,8 +101,7 @@ public class CamelLanguagesCompleter implements UICompleter<LanguageDto> {
 
         List<LanguageDto> answer = new ArrayList<>();
         for (String name : names) {
-            String json = camelCatalog.languageJSonSchema(name);
-            LanguageDto dto = createLanguageDto(camelCatalog, json);
+            LanguageDto dto = createLanguageDto(camelCatalog, name);
             answer.add(dto);
         }
 
