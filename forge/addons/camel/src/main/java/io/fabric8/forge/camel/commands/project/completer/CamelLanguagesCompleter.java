@@ -22,7 +22,6 @@ import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -35,10 +34,15 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 
 public class CamelLanguagesCompleter implements UICompleter<String> {
 
-    private Project project;
+    private final Project project;
+    private final CamelCatalog camelCatalog;
+    private final Dependency core;
 
-    public CamelLanguagesCompleter(Project project) {
+    public CamelLanguagesCompleter(Project project, CamelCatalog camelCatalog) {
         this.project = project;
+        this.camelCatalog = camelCatalog;
+        // need to find camel-core so we known the camel version
+        core = CamelProjectHelper.findCamelCoreDependency(project);
     }
 
     @Override
@@ -46,15 +50,12 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
         List<String> answer = new ArrayList<String>();
         // find the version of Apache Camel we use
 
-        // need to find camel-core so we known the camel version
-        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
             return null;
         }
 
         // find all available language names
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        List<String> names = catalog.findLanguageNames();
+        List<String> names = camelCatalog.findLanguageNames();
 
         // filter non matching names first
         List<String> filtered = new ArrayList<String>();
@@ -66,7 +67,7 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
 
         // filter names which are already on the classpath
         for (String name : filtered) {
-            String json = catalog.languageJSonSchema(name);
+            String json = camelCatalog.languageJSonSchema(name);
             String artifactId = findArtifactId(json);
 
             // skip if we already have the dependency
@@ -89,8 +90,7 @@ public class CamelLanguagesCompleter implements UICompleter<String> {
             return null;
         }
 
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        List<String> names = catalog.findLanguageNames();
+        List<String> names = camelCatalog.findLanguageNames();
 
         // filter out existing languages we already have
         Set<Dependency> artifacts = findCamelArtifacts(project);

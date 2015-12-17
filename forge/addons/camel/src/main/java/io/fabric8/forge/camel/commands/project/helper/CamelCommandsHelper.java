@@ -53,11 +53,11 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 
 public final class CamelCommandsHelper {
 
-    public static Iterable<String> createComponentLabelValues(Project project) {
-        return new CamelComponentsLabelCompleter(project).getValueChoices();
+    public static Iterable<String> createComponentLabelValues(Project project, CamelCatalog camelCatalog) {
+        return new CamelComponentsLabelCompleter(project, camelCatalog).getValueChoices();
     }
 
-    public static Callable<Iterable<ComponentDto>> createComponentDtoValues(final Project project,
+    public static Callable<Iterable<ComponentDto>> createComponentDtoValues(final Project project, final CamelCatalog camelCatalog,
                                                                             final UISelectOne<String> componentCategoryFilter,
                                                                             final boolean excludeComponentsOnClasspath) {
         // use callable so we can live update the filter
@@ -65,7 +65,7 @@ public final class CamelCommandsHelper {
             @Override
             public Iterable<ComponentDto> call() throws Exception {
                 String label = componentCategoryFilter.getValue();
-                return new CamelComponentsDtoCompleter(project, null, excludeComponentsOnClasspath).getValueChoices(label);
+                return new CamelComponentsDtoCompleter(project, camelCatalog, null, excludeComponentsOnClasspath).getValueChoices(label);
             }
         };
     }

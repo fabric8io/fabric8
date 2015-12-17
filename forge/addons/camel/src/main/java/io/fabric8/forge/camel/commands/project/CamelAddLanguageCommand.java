@@ -58,7 +58,7 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         Project project = getSelectedProject(builder);
         // use value choices instead of completer as that works better in web console
-        name.setValueChoices(new CamelLanguagesCompleter(project).getValueChoices());
+        name.setValueChoices(new CamelLanguagesCompleter(project, getCamelCatalog()).getValueChoices());
         // show note about the chosen language
         name.addValueChangeListener(new ValueChangeListener() {
             @Override

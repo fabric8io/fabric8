@@ -25,7 +25,6 @@ import io.fabric8.forge.camel.commands.project.completer.RouteBuilderCompleter;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.model.EndpointOptionByGroup;
-import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
@@ -52,7 +51,6 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper.createUIInputsForCamelComponent;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
@@ -101,9 +99,9 @@ public class CamelAddEndpointCommand extends AbstractCamelProjectCommand impleme
         Project project = getSelectedProject(builder.getUIContext());
         JavaSourceFacet facet = project.getFacet(JavaSourceFacet.class);
 
-        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), componentNameFilter, false));
         // show note about the chosen component
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override

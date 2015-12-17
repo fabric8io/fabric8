@@ -21,7 +21,6 @@ import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -30,16 +29,19 @@ import org.jboss.forge.addon.ui.input.UICompleter;
 
 public class CamelComponentsLabelCompleter implements UICompleter<String> {
 
-    private Project project;
+    private final Project project;
+    private final CamelCatalog camelCatalog;
+    private final Dependency core;
 
-    public CamelComponentsLabelCompleter(Project project) {
+    public CamelComponentsLabelCompleter(Project project, CamelCatalog camelCatalog) {
         this.project = project;
+        this.camelCatalog = camelCatalog;
+        // need to find camel-core so we known the camel version
+        this.core = CamelProjectHelper.findCamelCoreDependency(project);
     }
 
     @Override
     public Iterable<String> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        // need to find camel-core so we known the camel version
-        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
             return null;
         }
@@ -59,8 +61,7 @@ public class CamelComponentsLabelCompleter implements UICompleter<String> {
 
     public Iterable<String> getValueChoices() {
         // find all available component labels
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        Set<String> names = catalog.findComponentLabels();
+        Set<String> names = camelCatalog.findComponentLabels();
         names.add("<all>");
         return names;
     }

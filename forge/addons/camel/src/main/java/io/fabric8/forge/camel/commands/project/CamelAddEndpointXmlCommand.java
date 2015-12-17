@@ -115,9 +115,9 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
             webResourcesFacet = project.getFacet(WebResourcesFacet.class);
         }
 
-        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
+        componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         componentNameFilter.setDefaultValue("<all>");
-        componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, componentNameFilter, false));
+        componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), componentNameFilter, false));
         componentName.setValueConverter(new Converter<String, ComponentDto>() {
             @Override
             public ComponentDto convert(String name) {

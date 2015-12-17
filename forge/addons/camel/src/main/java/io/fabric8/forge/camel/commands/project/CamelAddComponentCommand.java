@@ -18,9 +18,7 @@ package io.fabric8.forge.camel.commands.project;
 import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
-import io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
-import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -37,8 +35,6 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
-
-import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
@@ -64,10 +60,10 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
     public void initializeUI(UIBuilder builder) throws Exception {
         final Project project = getSelectedProject(builder);
 
-        filter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project));
+        filter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         filter.setDefaultValue("<all>");
 
-        name.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, filter, false));
+        name.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, false));
         // show note about the chosen component
         name.addValueChangeListener(new ValueChangeListener() {
             @Override

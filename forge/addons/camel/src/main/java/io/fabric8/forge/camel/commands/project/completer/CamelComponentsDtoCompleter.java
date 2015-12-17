@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
@@ -39,16 +38,15 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 
 public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
 
-    @Inject
-    private CamelCatalog camelCatalog;
-
-    private Project project;
-    private UIInput<String> filter;
+    private final Project project;
+    private final CamelCatalog camelCatalog;
+    private final UIInput<String> filter;
     private final boolean excludeComponentsOnClasspath;
     private final Dependency core;
 
-    public CamelComponentsDtoCompleter(Project project, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
+    public CamelComponentsDtoCompleter(Project project, CamelCatalog camelCatalog, UIInput<String> filter, boolean excludeComponentsOnClasspath) {
         this.project = project;
+        this.camelCatalog = camelCatalog;
         this.filter = filter;
         this.excludeComponentsOnClasspath = excludeComponentsOnClasspath;
 
@@ -58,8 +56,6 @@ public class CamelComponentsDtoCompleter implements UICompleter<ComponentDto> {
 
     @Override
     public Iterable<ComponentDto> getCompletionProposals(UIContext context, InputComponent input, String value) {
-        // find the version of Apache Camel we use
-
         if (core == null) {
             return null;
         }

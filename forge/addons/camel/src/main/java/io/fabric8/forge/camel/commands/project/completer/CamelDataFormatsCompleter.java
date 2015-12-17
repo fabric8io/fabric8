@@ -22,7 +22,6 @@ import java.util.Set;
 
 import io.fabric8.forge.addon.utils.CamelProjectHelper;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -35,10 +34,15 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.
 
 public class CamelDataFormatsCompleter implements UICompleter<String> {
 
-    private Project project;
+    private final Project project;
+    private final CamelCatalog camelCatalog;
+    private final Dependency core;
 
-    public CamelDataFormatsCompleter(Project project) {
+    public CamelDataFormatsCompleter(Project project, CamelCatalog camelCatalog) {
         this.project = project;
+        this.camelCatalog = camelCatalog;
+        // need to find camel-core so we known the camel version
+        core = CamelProjectHelper.findCamelCoreDependency(project);
     }
 
     @Override
@@ -46,15 +50,12 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         List<String> answer = new ArrayList<String>();
         // find the version of Apache Camel we use
 
-        // need to find camel-core so we known the camel version
-        Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
             return null;
         }
 
         // find all available dataformat names
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        List<String> names = catalog.findDataFormatNames();
+        List<String> names = camelCatalog.findDataFormatNames();
 
         // filter non matching names first
         List<String> filtered = new ArrayList<String>();
@@ -66,7 +67,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
 
         // filter names which are already on the classpath
         for (String name : filtered) {
-            String json = catalog.dataFormatJSonSchema(name);
+            String json = camelCatalog.dataFormatJSonSchema(name);
             String artifactId = findArtifactId(json);
 
             // skip if we already have the dependency
@@ -90,8 +91,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         }
 
         // find all available component names
-        CamelCatalog catalog = new DefaultCamelCatalog();
-        List<String> names = catalog.findDataFormatNames();
+        List<String> names = camelCatalog.findDataFormatNames();
 
         // filter out existing dataformats we already have
         Set<Dependency> artifacts = findCamelArtifacts(project);
