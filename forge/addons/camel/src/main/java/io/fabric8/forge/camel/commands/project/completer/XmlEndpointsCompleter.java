@@ -45,6 +45,10 @@ public class XmlEndpointsCompleter implements UICompleter<String> {
         }
     }
 
+    public List<CamelEndpointDetails> getEndpoints() {
+        return endpoints;
+    }
+
     public List<String> getEndpointUris() {
         List<String> uris = new ArrayList<>();
         for (CamelEndpointDetails detail : endpoints) {
