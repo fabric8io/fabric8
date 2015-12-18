@@ -125,4 +125,19 @@ public class ComponentDto {
         // show scheme as the value
         return scheme;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComponentDto that = (ComponentDto) o;
+
+        return scheme.equals(that.scheme);
+    }
+
+    @Override
+    public int hashCode() {
+        return scheme.hashCode();
+    }
 }
