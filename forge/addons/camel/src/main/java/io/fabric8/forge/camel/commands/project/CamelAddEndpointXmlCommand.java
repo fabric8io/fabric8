@@ -118,6 +118,13 @@ public class CamelAddEndpointXmlCommand extends AbstractCamelProjectCommand impl
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), componentNameFilter, false));
+        // include converter from string->dto
+        componentName.setValueConverter(new Converter<String, ComponentDto>() {
+            @Override
+            public ComponentDto convert(String text) {
+                return createComponentDto(getCamelCatalog(), text);
+            }
+        });
         componentName.setValueConverter(new Converter<String, ComponentDto>() {
             @Override
             public ComponentDto convert(String name) {

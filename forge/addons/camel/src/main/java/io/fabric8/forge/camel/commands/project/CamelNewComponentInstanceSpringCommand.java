@@ -24,6 +24,7 @@ import io.fabric8.forge.addon.utils.validator.ClassNameValidator;
 import io.fabric8.forge.addon.utils.validator.PackageNameValidator;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.facets.constraints.FacetConstraint;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -50,6 +51,8 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.jboss.forge.roaster.model.util.Strings;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
 @FacetConstraint({JavaSourceFacet.class, ResourcesFacet.class, ClassLoaderFacet.class})
 public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProjectCommand implements UIWizard {
@@ -104,6 +107,13 @@ public class CamelNewComponentInstanceSpringCommand extends AbstractCamelProject
         componentNameFilter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         componentNameFilter.setDefaultValue("<all>");
         componentName.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), componentNameFilter, false));
+        // include converter from string->dto
+        componentName.setValueConverter(new Converter<String, ComponentDto>() {
+            @Override
+            public ComponentDto convert(String text) {
+                return createComponentDto(getCamelCatalog(), text);
+            }
+        });
         // show note about the chosen component
         componentName.addValueChangeListener(new ValueChangeListener() {
             @Override

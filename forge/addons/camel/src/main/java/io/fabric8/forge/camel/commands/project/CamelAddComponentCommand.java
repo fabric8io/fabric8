@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -35,6 +36,8 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createComponentDto;
 
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
@@ -64,6 +67,13 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         filter.setDefaultValue("<all>");
 
         name.setValueChoices(CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, false));
+        // include converter from string->dto
+        name.setValueConverter(new Converter<String, ComponentDto>() {
+            @Override
+            public ComponentDto convert(String text) {
+                return createComponentDto(getCamelCatalog(), text);
+            }
+        });
         // show note about the chosen component
         name.addValueChangeListener(new ValueChangeListener() {
             @Override

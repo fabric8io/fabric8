@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import io.fabric8.forge.camel.commands.project.completer.CamelLanguagesCompleter;
 import io.fabric8.forge.camel.commands.project.dto.LanguageDto;
+import org.jboss.forge.addon.convert.Converter;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.projects.Project;
@@ -35,6 +36,8 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+
+import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.createLanguageDto;
 
 public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
@@ -57,6 +60,13 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
         Project project = getSelectedProject(builder);
         // use value choices instead of completer as that works better in web console
         name.setValueChoices(new CamelLanguagesCompleter(project, getCamelCatalog()).getValueChoices());
+        // include converter from string->dto
+        name.setValueConverter(new Converter<String, LanguageDto>() {
+            @Override
+            public LanguageDto convert(String text) {
+                return createLanguageDto(getCamelCatalog(), text);
+            }
+        });
         // show note about the chosen language
         name.addValueChangeListener(new ValueChangeListener() {
             @Override
