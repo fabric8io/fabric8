@@ -94,4 +94,20 @@ public class PipelineDTO {
     public void setStages(List<String> stages) {
         this.stages = stages;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PipelineDTO that = (PipelineDTO) o;
+
+        return value.equals(that.value);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }
