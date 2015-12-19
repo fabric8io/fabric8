@@ -40,6 +40,7 @@
     <module>kubernetes</module>
     <module>devops</module>
     <module>utils</module>
+    <module>camel-maven-plugin</module>
   </modules>
 
 </project>
