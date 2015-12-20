@@ -25,6 +25,7 @@ import io.fabric8.utils.TablePrinter;
  * Helper class for commands which output text or other formats
  */
 public class OutputFormatHelper {
+
     public static void addTableTextOutput(StringBuilder buffer, String title, TablePrinter table) {
         buffer.append(title);
         buffer.append(":\n\n");

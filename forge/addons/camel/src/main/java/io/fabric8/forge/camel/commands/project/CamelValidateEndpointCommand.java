@@ -16,54 +16,47 @@
 package io.fabric8.forge.camel.commands.project;
 
 import java.util.List;
-import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
-import io.fabric8.forge.camel.commands.project.dto.EndpointDto;
-import io.fabric8.forge.camel.commands.project.dto.OutputFormat;
-import io.fabric8.forge.camel.commands.project.dto.ProjectDto;
-import io.fabric8.utils.TablePrinter;
+import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.projects.facets.WebResourcesFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
-import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import static io.fabric8.forge.camel.commands.project.helper.OutputFormatHelper.addTableTextOutput;
-import static io.fabric8.forge.camel.commands.project.helper.OutputFormatHelper.toJson;
+public class CamelValidateEndpointCommand extends AbstractCamelProjectCommand {
 
-public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
-
-    @Inject
-    @WithAttributes(label = "Name", defaultValue = "Text", description = "Name of dataformat to add")
-    private UISelectOne<OutputFormat> format;
-
-    @Inject
-    private DependencyInstaller dependencyInstaller;
+    @Override
+    public boolean isEnabled(UIContext context) {
+        Project project = getSelectedProjectOrNull(context);
+        // only enable if we do not have Camel yet
+        if (project == null) {
+            // must have a project
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelGetOverviewCommand.class).name(
-                "Camel: Get Overview").category(Categories.create(CATEGORY))
-                .description("Gets the overview of the project from a camel perspective");
+        return Metadata.forCommand(CamelValidateEndpointCommand.class).name(
+                "Camel: Validate Endpoint").category(Categories.create(CATEGORY))
+                .description("Validate Camel Endpoints in the project");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(format);
     }
 
     @Override
@@ -73,10 +66,8 @@ public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
         // does the project already have camel?
         Dependency core = findCamelCoreDependency(project);
         if (core == null) {
-            return Results.fail("The project does not include camel-core");
+            return Results.success("Cannot find Apache Camel");
         }
-
-        ProjectDto camelProject = new ProjectDto();
 
         ResourcesFacet resourcesFacet = project.getFacet(ResourcesFacet.class);
         WebResourcesFacet webResourcesFacet = null;
@@ -91,36 +82,41 @@ public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
         // use value choices instead of completer as that works better in web console
         RouteBuilderEndpointsCompleter javaEndpointsCompleter = new RouteBuilderEndpointsCompleter(javaSourceFacet);
 
-        camelProject.addEndpoints(javaEndpointsCompleter.getEndpoints());
-        camelProject.addEndpoints(xmlEndpointCompleter.getEndpoints());
+        List<CamelEndpointDetails> javaEndpoints = javaEndpointsCompleter.getEndpoints();
+        List<CamelEndpointDetails> xmlEndpoints = xmlEndpointCompleter.getEndpoints();
 
-        String result = formatResult(camelProject);
-        return Results.success(result);
-    }
+        StringBuilder sb = new StringBuilder();
 
-    protected String formatResult(ProjectDto result) throws JsonProcessingException {
-        OutputFormat outputFormat = format.getValue();
-        switch (outputFormat) {
-            case JSON:
-                return toJson(result);
-            default:
-                return textResult(result);
+        int count = 0;
+
+        for (CamelEndpointDetails detail : javaEndpoints) {
+            String uri = detail.getEndpointUri();
+            // TODO: requires Camel 2.16.2+
+            // TODO: add detail about where the file is located (maybe we can grab the source code lines +2/-2 and print that)
+            String msg = null;
+            //String msg = getCamelCatalog().validateProperties(uri).summaryErrorMessage();
+            //if (msg != null) {
+            //    sb.append(msg);
+            //}
+            count++;
         }
-    }
-
-    protected String textResult(ProjectDto camelProject) {
-        StringBuilder buffer = new StringBuilder();
-
-        List<EndpointDto> endpoints = camelProject.getEndpoints();
-        if (!endpoints.isEmpty()) {
-            TablePrinter table = new TablePrinter();
-            table.columns("uri", "instance name", "file name");
-            for (EndpointDto endpoint : endpoints) {
-                table.row(endpoint.getEndpointComponentName(), endpoint.getEndpointInstance(), endpoint.getFileName());
-            }
-            addTableTextOutput(buffer, "Endpoints", table);
+        for (CamelEndpointDetails detail : xmlEndpoints) {
+            String uri = detail.getEndpointUri();
+            // TODO: requires Camel 2.16.2+
+            // TODO: add detail about where the file is located  (maybe we can grab the source code lines +2/-2 and print that)
+            String msg = null;
+            //String msg = getCamelCatalog().validateProperties(uri).summaryErrorMessage();
+            //if (msg != null) {
+            //    sb.append(msg);
+            //}
+            count++;
         }
-        return buffer.toString();
+
+        if (sb.length() > 0) {
+            return Results.fail("Camel endpoint validation failed\n" + sb.toString());
+        } else {
+            return Results.success("Camel endpoint validation success");
+        }
     }
 
 }
