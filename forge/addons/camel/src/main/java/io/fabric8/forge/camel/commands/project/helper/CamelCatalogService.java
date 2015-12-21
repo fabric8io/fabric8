@@ -16,6 +16,9 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +27,7 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.Vetoed;
 
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.CatalogHelper;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 
 public class CamelCatalogService {
@@ -80,6 +84,9 @@ public class CamelCatalogService {
         public List<String> findComponentNames() {
             if (findComponentNames == null) {
                 findComponentNames = super.findComponentNames();
+                // special for activemq, and we need to re-sort after adding
+                findComponentNames.add("activemq");
+                Collections.sort(findComponentNames);
             }
             return findComponentNames;
         }
@@ -104,7 +111,22 @@ public class CamelCatalogService {
         public String componentJSonSchema(String name) {
             String answer = componentJSonSchema.get(name);
             if (answer == null) {
-                answer = super.componentJSonSchema(name);
+                // special for activemq to load from activemq-camel classpath
+                if ("activemq".equals(name)) {
+                    String file = "org/apache/activemq/camel/component/activemq.json";
+                    InputStream is = DefaultCamelCatalog.class.getClassLoader().getResourceAsStream(file);
+                    if (is != null) {
+                        try {
+                            answer = CatalogHelper.loadText(is);
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
+                } else {
+                    answer = super.componentJSonSchema(name);
+                }
+            }
+            if (answer != null) {
                 componentJSonSchema.put(name, answer);
             }
             return answer;

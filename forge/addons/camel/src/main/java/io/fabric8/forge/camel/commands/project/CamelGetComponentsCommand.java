@@ -15,6 +15,10 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.dto.OutputFormat;
@@ -36,10 +40,6 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-
 public class CamelGetComponentsCommand extends AbstractCamelProjectCommand {
 
     @Inject
@@ -47,7 +47,7 @@ public class CamelGetComponentsCommand extends AbstractCamelProjectCommand {
     private UISelectOne<String> filter;
 
     @Inject
-    @WithAttributes(label = "Name", defaultValue = "Text", description = "Name of dataformat to add")
+    @WithAttributes(label = "Format", defaultValue = "Text", description = "Format output as text or json")
     private UISelectOne<OutputFormat> format;
 
     @Inject
@@ -76,7 +76,6 @@ public class CamelGetComponentsCommand extends AbstractCamelProjectCommand {
         filter.setDefaultValue("<all>");
 
         builder.add(filter).add(format).add(verbose).add(excludeProject);
-
     }
 
     @Override
@@ -127,7 +126,7 @@ public class CamelGetComponentsCommand extends AbstractCamelProjectCommand {
 
     protected static boolean isValueTrue(UIInput<Boolean> value) {
         Boolean verboseValue = value.getValue();
-        return verboseValue != null && verboseValue.booleanValue();
+        return verboseValue != null && verboseValue;
     }
 
 }

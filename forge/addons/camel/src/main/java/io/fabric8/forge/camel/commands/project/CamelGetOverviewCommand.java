@@ -48,7 +48,7 @@ import static io.fabric8.forge.camel.commands.project.helper.OutputFormatHelper.
 public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "Name", defaultValue = "Text", description = "Name of dataformat to add")
+    @WithAttributes(label = "Format", defaultValue = "Text", description = "Format output as text or json")
     private UISelectOne<OutputFormat> format;
 
     @Inject

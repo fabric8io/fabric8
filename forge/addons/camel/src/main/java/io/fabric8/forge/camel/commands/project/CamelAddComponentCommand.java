@@ -103,9 +103,16 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         ComponentDto dto = name.getValue();
         if (dto != null) {
 
-            // we want to use same version as camel-core
+            // we want to use same version as camel-core if its a camel component
+            // otherwise use the version from the dto
+            String version;
+            if ("org.apache.camel".equals(dto.getGroupId())) {
+                version = core.getCoordinate().getVersion();
+            } else {
+                version = dto.getVersion();
+            }
             DependencyBuilder component = DependencyBuilder.create().setGroupId(dto.getGroupId())
-                    .setArtifactId(dto.getArtifactId()).setVersion(core.getCoordinate().getVersion());
+                    .setArtifactId(dto.getArtifactId()).setVersion(version);
 
             // install the component
             dependencyInstaller.install(project, component);

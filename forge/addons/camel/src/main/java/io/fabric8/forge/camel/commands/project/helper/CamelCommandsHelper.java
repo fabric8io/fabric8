@@ -84,9 +84,17 @@ public final class CamelCommandsHelper {
             if (!Strings.isNullOrEmpty(javaType)) {
                 details.setComponentClassQName(javaType);
             }
+            String groupId = row.get("groupId");
+            if (!Strings.isNullOrEmpty(groupId)) {
+                details.setGroupId(groupId);
+            }
             String artifactId = row.get("artifactId");
             if (!Strings.isNullOrEmpty(artifactId)) {
                 details.setArtifactId(artifactId);
+            }
+            String version = row.get("version");
+            if (!Strings.isNullOrEmpty(version)) {
+                details.setVersion(version);
             }
         }
         if (Strings.isNullOrEmpty(details.getComponentClassQName())) {
@@ -96,14 +104,23 @@ public final class CamelCommandsHelper {
     }
 
     public static Result ensureCamelArtifactIdAdded(Project project, CamelComponentDetails details, DependencyInstaller dependencyInstaller) {
+        String groupId = details.getGroupId();
         String artifactId = details.getArtifactId();
         Dependency core = CamelProjectHelper.findCamelCoreDependency(project);
         if (core == null) {
             return Results.fail("The project does not include camel-core");
         }
 
-        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
-                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
+        // we want to use same version as camel-core if its a camel component
+        // otherwise use the version from the dto
+        String version;
+        if ("org.apache.camel".equals(groupId)) {
+            version = core.getCoordinate().getVersion();
+        } else {
+            version = details.getVersion();
+        }
+        DependencyBuilder component = DependencyBuilder.create().setGroupId(groupId)
+                .setArtifactId(artifactId).setVersion(version);
 
         // install the component
         dependencyInstaller.install(project, component);

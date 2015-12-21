@@ -20,7 +20,9 @@ import io.fabric8.forge.addon.utils.JavaHelper;
 public class CamelComponentDetails {
     private String componentClassQName;
     private String componentClassName;
+    private String groupId;
     private String artifactId;
+    private String version;
 
     public void setComponentClassQName(String componentClassQName) {
         this.componentClassQName = componentClassQName;
@@ -41,5 +43,21 @@ public class CamelComponentDetails {
 
     public String getArtifactId() {
         return artifactId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }
