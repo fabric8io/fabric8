@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.NotFoundException;
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  */
+@Singleton
 public class ProjectFileSystem {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectFileSystem.class);
 
@@ -59,6 +61,7 @@ public class ProjectFileSystem {
         this.rootProjectFolder = rootProjectFolder;
         this.remote = remote;
         this.jenkinsWorkflowGitUrl = jenkinsWorkflowGitUrl;
+        LOG.info("Using jenkins workflow library: " + this.jenkinsWorkflowGitUrl);
     }
 
     public String getRemote() {
@@ -124,8 +127,13 @@ public class ProjectFileSystem {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    LOG.debug("Cloning or pulling jenkins workflow repo from " + jenkinsWorkflowGitUrl + " to " + folder);
-                    cloneOrPullRepo(userDetails, folder, jenkinsWorkflowGitUrl, null, null);
+                    try {
+                        LOG.debug("Cloning or pulling jenkins workflow repo from " + jenkinsWorkflowGitUrl + " to " + folder);
+                        UserDetails anonymous = userDetails.createAnonymousDetails();
+                        cloneOrPullRepo(anonymous, folder, jenkinsWorkflowGitUrl, null, null);
+                    } catch (Exception e) {
+                        LOG.error("Failed to clone jenkins workflow repo from : " + jenkinsWorkflowGitUrl + ". " + e, e);
+                    }
                 }
             });
         } else {
@@ -166,7 +174,6 @@ public class ProjectFileSystem {
         if (!Files.isDirectory(gitFolder) || !Files.isDirectory(projectFolder)) {
             // lets clone the git repository!
             cloneRepo(projectFolder, cloneUrl, credentialsProvider, sshPrivateKey, sshPublicKey, this.remote);
-
         } else {
             doPull(gitFolder, credentialsProvider, userDetails.getBranch(), userDetails.createPersonIdent(), userDetails);
         }

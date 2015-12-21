@@ -47,6 +47,10 @@ public class UserDetails {
         this.email = email;
     }
 
+    public UserDetails createAnonymousDetails() {
+        String dummyPassword = "";
+        return new UserDetails(address, internalAddress, user, dummyPassword, email);
+    }
 
     public String getEmail() {
         return email;
@@ -129,4 +133,5 @@ public class UserDetails {
     public void setUser(String user) {
         this.user = user;
     }
+
 }
