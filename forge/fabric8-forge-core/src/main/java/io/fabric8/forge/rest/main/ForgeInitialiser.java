@@ -51,6 +51,9 @@ public class ForgeInitialiser {
      */
     @Inject
     public ForgeInitialiser(@ConfigProperty(name = "FORGE_ADDON_DIRECTORY", defaultValue = "./addon-repository") String addOnDir, FurnaceProducer furnaceProducer) {
+        java.util.logging.Logger out = java.util.logging.Logger.getLogger(this.getClass().getName());
+        out.info("Logging to JUL to test the configuration");
+
         // lets ensure that the addons folder is initialised
         File repoDir = new File(addOnDir);
         repoDir.mkdirs();
