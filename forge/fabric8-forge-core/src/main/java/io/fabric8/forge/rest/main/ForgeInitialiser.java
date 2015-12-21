@@ -87,55 +87,58 @@ public class ForgeInitialiser {
         }
         LOG.info("Preloaded archetypes!");
 
-        ExecutionRequest executionRequest = new ExecutionRequest();
-        Map<String, String> step1Inputs = new HashMap<>();
-        step1Inputs.put("buildSystem", "Maven");
-        String projectName = "dummy";
-        step1Inputs.put("named", projectName);
-        step1Inputs.put("targetLocation", tempDir);
-        step1Inputs.put("topLevelPackage", "org.example");
-        step1Inputs.put("type", "From Archetype Catalog");
-        step1Inputs.put("version", "1.0.0-SNAPSHOT");
+        boolean precreateProjects = false;
+        if (precreateProjects) {
+            ExecutionRequest executionRequest = new ExecutionRequest();
+            Map<String, String> step1Inputs = new HashMap<>();
+            step1Inputs.put("buildSystem", "Maven");
+            String projectName = "dummy";
+            step1Inputs.put("named", projectName);
+            step1Inputs.put("targetLocation", tempDir);
+            step1Inputs.put("topLevelPackage", "org.example");
+            step1Inputs.put("type", "From Archetype Catalog");
+            step1Inputs.put("version", "1.0.0-SNAPSHOT");
 
 
-        Map<String, String> step2Inputs = new HashMap<>();
-        step2Inputs.put("catalog", "fabric8");
-        step2Inputs.put("archetype", "io.fabric8.archetypes:java-camel-cdi-archetype:" + getArchetypesVersion());
+            Map<String, String> step2Inputs = new HashMap<>();
+            step2Inputs.put("catalog", "fabric8");
+            step2Inputs.put("archetype", "io.fabric8.archetypes:java-camel-cdi-archetype:" + getArchetypesVersion());
 
-        List<Map<String, String>> inputList = new ArrayList<>();
-        inputList.add(step1Inputs);
-        inputList.add(step2Inputs);
-        executionRequest.setInputList(inputList);
-        executionRequest.setWizardStep(2);
-        UserDetails userDetails = new UserDetails("someAddress", "someInternalAddress", "dummyUser", "dummyPassword", "dummy@doesNotExist.com");
-        try {
-            LOG.info("Now trying to create a new project in: " + tempDir);
-            CommandCompletePostProcessor postProcessor = null;
-            dumpResult(commandsResource.doExecute("project-new", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir))));
+            List<Map<String, String>> inputList = new ArrayList<>();
+            inputList.add(step1Inputs);
+            inputList.add(step2Inputs);
+            executionRequest.setInputList(inputList);
+            executionRequest.setWizardStep(2);
+            UserDetails userDetails = new UserDetails("someAddress", "someInternalAddress", "dummyUser", "dummyPassword", "dummy@doesNotExist.com");
+            try {
+                LOG.info("Now trying to create a new project in: " + tempDir);
+                CommandCompletePostProcessor postProcessor = null;
+                dumpResult(commandsResource.doExecute("project-new", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir))));
 
-            LOG.info("Created project!");
-            LOG.info("Now lets try validate the devops-edit command");
-            executionRequest = new ExecutionRequest();
-            step1Inputs = new HashMap<>();
-            step1Inputs.put("from", "fabric8/java");
-            step1Inputs.put("main", "org.apache.camel.cdi.Main");
-            //step1Inputs.put("test", "true");
+                LOG.info("Created project!");
+                LOG.info("Now lets try validate the devops-edit command");
+                executionRequest = new ExecutionRequest();
+                step1Inputs = new HashMap<>();
+                step1Inputs.put("from", "fabric8/java");
+                step1Inputs.put("main", "org.apache.camel.cdi.Main");
+                //step1Inputs.put("test", "true");
 
 /*
             step2Inputs = new HashMap<>();
             step2Inputs.put("pipeline", "maven/Deploy.groovy");
 */
 
-            inputList = new ArrayList<>();
-            inputList.add(step1Inputs);
-            //inputList.add(step2Inputs);
-            executionRequest.setInputList(inputList);
-            executionRequest.setWizardStep(1);
+                inputList = new ArrayList<>();
+                inputList.add(step1Inputs);
+                //inputList.add(step2Inputs);
+                executionRequest.setInputList(inputList);
+                executionRequest.setWizardStep(1);
 
-            dumpResult(commandsResource.doExecute("devops-edit", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir, projectName))));
-            LOG.info("Dev-Ops!");
-        } catch (Exception e) {
-            LOG.error("Failed to execute command: " + e, e);
+                dumpResult(commandsResource.doExecute("devops-edit", executionRequest, postProcessor, userDetails, commandsResource.createUIContext(new File(tempDir, projectName))));
+                LOG.info("Dev-Ops!");
+            } catch (Exception e) {
+                LOG.error("Failed to execute command: " + e, e);
+            }
         }
     }
 
