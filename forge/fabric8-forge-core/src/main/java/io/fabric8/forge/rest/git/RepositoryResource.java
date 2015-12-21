@@ -38,6 +38,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -87,6 +88,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -800,13 +802,27 @@ public class RepositoryResource {
                 if (Strings.isNullOrBlank(message)) {
                     message = "";
                 }
-                if (context.isRequireCommit()) {
+                if (context.isRequireCommit() && hasGitChanges(git)) {
                     doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, isPushOnCommit());
                 }
                 return result;
             }
 
         });
+    }
+
+    protected boolean hasGitChanges(Git git) throws GitAPIException {
+        Status status = git.status().call();
+        return anySetsNotEmpty(status.getAdded(), status.getChanged(), status.getModified(), status.getRemoved());
+    }
+
+    protected boolean anySetsNotEmpty(Set<String>... sets) {
+        for (Set<String> set : sets) {
+            if (!set.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void createPersonIdent() {
@@ -821,6 +837,7 @@ public class RepositoryResource {
         PullCommand command = git.pull();
         configureCommand(command, userDetails);
         command.setCredentialsProvider(cp).setRebase(true).call();
+        LOG.info("Completed pull in git repository " + this.gitFolder + " on remote URL: " + this.remoteRepository);
     }
 
     protected Response uploadFile(final String path, final String message, final InputStream body) throws Exception {
