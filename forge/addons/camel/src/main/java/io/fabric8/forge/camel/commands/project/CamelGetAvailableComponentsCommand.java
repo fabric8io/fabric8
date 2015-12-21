@@ -53,13 +53,17 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
     private UIInput<Boolean> verbose;
 
     @Inject
+    @WithAttributes(label = "Exclude Project", defaultValue = "true", description = "Whether to exclude components in the current project")
+    private UIInput<Boolean> excludeProject;
+
+    @Inject
     private DependencyInstaller dependencyInstaller;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(CamelGetAvailableComponentsCommand.class).name(
-                "Camel: Get Available Components").category(Categories.create(CATEGORY))
-                .description("Gets the available components that could be added to the current project");
+                "Camel: Get Components").category(Categories.create(CATEGORY))
+                .description("Gets the components available in the camel catalog and/or in the current project");
     }
 
     @Override
@@ -76,7 +80,7 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Project project = getSelectedProject(context);
-        Callable<Iterable<ComponentDto>> callable = CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, true);
+        Callable<Iterable<ComponentDto>> callable = CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, isValueTrue(excludeProject));
         Iterable<ComponentDto> results = callable.call();
         String result = formatResult(results);
         return Results.success(result);
@@ -97,8 +101,7 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
 
         TablePrinter table = new TablePrinter();
 
-        Boolean verboseValue = verbose.getValue();
-        if (verboseValue != null && verboseValue.booleanValue()) {
+        if (isValueTrue(this.verbose)) {
             table.columns("name", "description", "tags", "syntax", "artifact");
             for (ComponentDto component : components) {
                 table.row(component.getScheme(), component.getDescription(), component.getLabel(), component.getSyntax(),
@@ -112,6 +115,11 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
         }
         OutputFormatHelper.addTableTextOutput(buffer, "Components", table);
         return buffer.toString();
+    }
+
+    protected static boolean isValueTrue(UIInput<Boolean> value) {
+        Boolean verboseValue = value.getValue();
+        return verboseValue != null && verboseValue.booleanValue();
     }
 
 }
