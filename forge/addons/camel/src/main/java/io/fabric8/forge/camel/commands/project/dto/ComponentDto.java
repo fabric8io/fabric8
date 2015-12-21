@@ -24,13 +24,17 @@ public class ComponentDto {
     private String syntax;
     private String title;
     private String description;
-    private String label;
+    private String[] tags;
     private boolean consumerOnly;
     private boolean producerOnly;
     private String javaType;
     private String groupId;
     private String artifactId;
     private String version;
+
+    public String getLabel() {
+        return scheme;
+    }
 
     public String getScheme() {
         return scheme;
@@ -62,14 +66,6 @@ public class ComponentDto {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     public boolean isConsumerOnly() {
@@ -118,6 +114,14 @@ public class ComponentDto {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
     }
 
     @Override

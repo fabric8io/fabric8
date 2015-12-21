@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.dto.DataFormatDto;
 import io.fabric8.forge.camel.commands.project.dto.LanguageDto;
+import io.fabric8.utils.Strings;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
@@ -231,7 +232,10 @@ public final class CamelCatalogHelper {
             } else if (row.get("description") != null) {
                 dto.setDescription(row.get("description"));
             } else if (row.get("label") != null) {
-                dto.setLabel(row.get("label"));
+                String labelText = row.get("label");
+                if (Strings.isNotBlank(labelText)) {
+                    dto.setTags(labelText.split(","));
+                }
             } else if (row.get("javaType") != null) {
                 dto.setJavaType(row.get("javaType"));
             } else if (row.get("groupId") != null) {
