@@ -31,7 +31,7 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- to include hawtio version in pom.xml which is needed by camel setup command -->
-    <hawtio.version>1.4.58</hawtio.version>
+    <hawtio.version>1.4.59</hawtio.version>
   </properties>
 
   <dependencyManagement>
