@@ -71,13 +71,33 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Path("/api/forge")
 @Stateless
 public class CommandsResource {
     private static final transient Logger LOG = LoggerFactory.getLogger(CommandsResource.class);
+
+    protected static final Set<String> ignoreCommands = new HashSet<>(Arrays.asList(
+            "devops-edit",
+            "devops-new-build",
+
+            // forge commands
+            "build-and-install-an-addon",
+            "install-an-addon",
+            "install-an-addon-from-git",
+            "remove-an-addon",
+            "update-an-addon",
+
+            // project commands
+            "build",
+            "project-new"
+    ));
+    protected static final List<String> ignoreCommandPrefixes = Arrays.asList("addon-", "archetype-", "fabric8-", "git-", "camel-get-");
 
     @Inject
     private Furnace furnace;
@@ -477,12 +497,31 @@ public class CommandsResource {
     }
 
     protected CommandInfoDTO createCommandInfoDTO(RestUIContext context, String name) {
-        UICommand command = getCommandByName(context, name);
         CommandInfoDTO answer = null;
-        if (command != null) {
-            answer = UICommands.createCommandInfoDTO(context, command);
+        if (isValidCommandName(name)) {
+            UICommand command = getCommandByName(context, name);
+            if (command != null) {
+                answer = UICommands.createCommandInfoDTO(context, command);
+            }
         }
         return answer;
+            
+    }
+
+
+    /**
+     * Returns true if the name is valid. Lets filter out commands which are not suitable to run inside fabric8-forge
+     */
+    protected boolean isValidCommandName(String name) {
+        if (Strings.isNullOrBlank(name) || ignoreCommands.contains(name)) {
+            return false;
+        }
+        for (String prefix : ignoreCommandPrefixes) {
+            if (name.startsWith(prefix)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected UICommand getCommandByName(RestUIContext context, String name) {
