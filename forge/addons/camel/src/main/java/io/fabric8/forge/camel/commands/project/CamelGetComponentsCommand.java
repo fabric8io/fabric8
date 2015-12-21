@@ -20,6 +20,7 @@ import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.dto.OutputFormat;
 import io.fabric8.forge.camel.commands.project.helper.CamelCommandsHelper;
 import io.fabric8.forge.camel.commands.project.helper.OutputFormatHelper;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
@@ -36,9 +37,10 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectCommand {
+public class CamelGetComponentsCommand extends AbstractCamelProjectCommand {
 
     @Inject
     @WithAttributes(label = "Filter", required = false, description = "To filter components")
@@ -61,7 +63,7 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelGetAvailableComponentsCommand.class).name(
+        return Metadata.forCommand(CamelGetComponentsCommand.class).name(
                 "Camel: Get Components").category(Categories.create(CATEGORY))
                 .description("Gets the components available in the camel catalog and/or in the current project");
     }
@@ -73,14 +75,15 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
         filter.setValueChoices(CamelCommandsHelper.createComponentLabelValues(project, getCamelCatalog()));
         filter.setDefaultValue("<all>");
 
-        builder.add(filter).add(format).add(verbose);
+        builder.add(filter).add(format).add(verbose).add(excludeProject);
 
     }
 
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         Project project = getSelectedProject(context);
-        Callable<Iterable<ComponentDto>> callable = CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, isValueTrue(excludeProject));
+        boolean excludeProjectComponents = isValueTrue(excludeProject);
+        Callable<Iterable<ComponentDto>> callable = CamelCommandsHelper.createComponentDtoValues(project, getCamelCatalog(), filter, excludeProjectComponents);
         Iterable<ComponentDto> results = callable.call();
         String result = formatResult(results);
         return Results.success(result);
@@ -104,7 +107,12 @@ public class CamelGetAvailableComponentsCommand extends AbstractCamelProjectComm
         if (isValueTrue(this.verbose)) {
             table.columns("name", "description", "tags", "syntax", "artifact");
             for (ComponentDto component : components) {
-                table.row(component.getScheme(), component.getDescription(), component.getLabel(), component.getSyntax(),
+                String tags = "";
+                String[] tagArray = component.getTags();
+                if (tagArray != null) {
+                    tags = Strings.join(Arrays.asList(tagArray), ", ");
+                }
+                table.row(component.getScheme(), component.getDescription(), tags, component.getSyntax(),
                         component.getGroupId() + ":" + component.getArtifactId() + ":" + component.getVersion());
             }
         } else {
