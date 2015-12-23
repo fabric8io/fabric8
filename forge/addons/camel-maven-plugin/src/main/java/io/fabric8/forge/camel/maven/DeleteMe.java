@@ -36,6 +36,8 @@ import org.jboss.forge.furnace.se.FurnaceFactory;
 import org.jboss.forge.furnace.util.Addons;
 import org.jboss.forge.furnace.util.OperatingSystemUtils;
 
+// TODO: This is using furnance which is not easy to run outside forge
+
 public class DeleteMe {
 
     private Furnace furnace;

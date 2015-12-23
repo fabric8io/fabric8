@@ -29,8 +29,8 @@ import javax.enterprise.inject.Vetoed;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.CatalogHelper;
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.SuggestionStrategy;
-import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
+//import org.apache.camel.catalog.SuggestionStrategy;
+//import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
 
 public class CamelCatalogService {
 
@@ -40,7 +40,8 @@ public class CamelCatalogService {
     public CamelCatalog createCamelCatalog() {
         if (instance == null) {
             instance = new CachedCamelCatalog();
-            instance.setSuggestionStrategy(new LuceneSuggestionStrategy());
+            // Camel 2.16.2
+            // instance.setSuggestionStrategy(new LuceneSuggestionStrategy());
         }
         return instance;
     }
@@ -52,6 +53,7 @@ public class CamelCatalogService {
     private static class CachedCamelCatalog extends DefaultCamelCatalog {
 
         // TODO: currently only what camel-forge is using (there is also the EIP model to be cached)
+        // TODO: when upgrading to Camel 2.16.2 we can drop this as the catalog can cache now
 
         private List<String> findComponentNames;
         private List<String> findDataFormatNames;

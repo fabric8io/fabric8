@@ -39,11 +39,12 @@
       <artifactId>camel-catalog</artifactId>
       <version>${camel.version}</version>
     </dependency>
+    <!-- TODO Camel 2.16.2
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-catalog-lucene</artifactId>
       <version>${camel.version}</version>
-    </dependency>
+    </dependency> -->
 
     <dependency>
       <groupId>io.fabric8.forge</groupId>
