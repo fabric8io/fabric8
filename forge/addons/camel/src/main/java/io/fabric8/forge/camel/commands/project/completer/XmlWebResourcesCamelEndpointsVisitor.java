@@ -75,7 +75,6 @@ public class XmlWebResourcesCamelEndpointsVisitor implements ResourceVisitor {
                             }
 
                             CamelEndpointDetails detail = new CamelEndpointDetails();
-                            detail.setResource(resource);
                             detail.setFileName(fileName);
                             detail.setLineNumber(lineNumber);
                             detail.setEndpointInstance(id);

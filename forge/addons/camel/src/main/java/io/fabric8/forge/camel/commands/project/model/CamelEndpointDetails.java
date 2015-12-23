@@ -15,11 +15,8 @@
  */
 package io.fabric8.forge.camel.commands.project.model;
 
-import org.jboss.forge.addon.resource.Resource;
-
 public class CamelEndpointDetails {
 
-    private Resource resource;
     private String fileName;
     private String lineNumber;
     private String endpointComponentName;
@@ -27,14 +24,6 @@ public class CamelEndpointDetails {
     private String endpointUri;
     private boolean consumerOnly;
     private boolean producerOnly;
-
-    public Resource getResource() {
-        return resource;
-    }
-
-    public void setResource(Resource resource) {
-        this.resource = resource;
-    }
 
     public String getFileName() {
         return fileName;
@@ -90,5 +79,10 @@ public class CamelEndpointDetails {
 
     public void setProducerOnly(boolean producerOnly) {
         this.producerOnly = producerOnly;
+    }
+
+    @Override
+    public String toString() {
+        return endpointUri;
     }
 }

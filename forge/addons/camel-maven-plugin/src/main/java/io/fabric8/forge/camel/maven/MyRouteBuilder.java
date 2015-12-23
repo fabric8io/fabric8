@@ -23,6 +23,6 @@ public class MyRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("timer:foo")
-            .to("log:bar");
+            .to("log:bar?showCaugtExeption=true&level=fatal");
     }
 }
