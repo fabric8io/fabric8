@@ -88,16 +88,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_PORT_CONTAINER_PREFIX = "docker.port.container.";
     public static final String FABRIC8_PORT_SERVICE = "fabric8.service.port";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE = "fabric8.service.containerPort";
+    public static final String FABRIC8_NODE_PORT_SERVICE = "fabric8.service.nodePort";
     public static final String FABRIC8_PROTOCOL_SERVICE = "fabric8.service.protocol";
     public static final String FABRIC8_METRICS_PREFIX = "fabric8.metrics.";
     public static final String FABRIC8_METRICS_SCRAPE = FABRIC8_METRICS_PREFIX + "scrape";
     public static final String FABRIC8_METRICS_SCRAPE_ANNOTATION = FABRIC8_METRICS_SCRAPE + ".annotation";
-    public static final String FABRIC8_METRICS_PORT = FABRIC8_METRICS_PREFIX + "port" ;
-    public static final String FABRIC8_METRICS_PORT_ANNOTATION = FABRIC8_METRICS_PORT + ".annotation" ;
-    public static final String FABRIC8_METRICS_SCHEME = FABRIC8_METRICS_PREFIX + "scheme" ;
-    public static final String FABRIC8_METRICS_SCHEME_ANNOTATION = FABRIC8_METRICS_SCHEME + ".annotation" ;
+    public static final String FABRIC8_METRICS_PORT = FABRIC8_METRICS_PREFIX + "port";
+    public static final String FABRIC8_METRICS_PORT_ANNOTATION = FABRIC8_METRICS_PORT + ".annotation";
+    public static final String FABRIC8_METRICS_SCHEME = FABRIC8_METRICS_PREFIX + "scheme";
+    public static final String FABRIC8_METRICS_SCHEME_ANNOTATION = FABRIC8_METRICS_SCHEME + ".annotation";
     public static final String FABRIC8_PORT_SERVICE_PREFIX = FABRIC8_PORT_SERVICE + ".";
     public static final String FABRIC8_CONTAINER_PORT_SERVICE_PREFIX = FABRIC8_CONTAINER_PORT_SERVICE + ".";
+    public static final String FABRIC8_NODE_PORT_SERVICE_PREFIX = FABRIC8_NODE_PORT_SERVICE + ".";
     public static final String FABRIC8_PROTOCOL_SERVICE_PREFIX = FABRIC8_PROTOCOL_SERVICE + ".";
 
     private static final String NAME = "name";
@@ -392,6 +394,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = FABRIC8_CONTAINER_PORT_SERVICE)
     private String serviceContainerPort;
+
+    /**
+     * The service node port
+     */
+    @Parameter(property = FABRIC8_NODE_PORT_SERVICE)
+    private Integer serviceNodePort;
 
     /**
      * The service protocol
@@ -1545,6 +1553,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             Properties properties1 = getProjectAndFabric8Properties(getProject());
             Map<String, String> servicePortProperties = findPropertiesWithPrefix(properties1, FABRIC8_PORT_SERVICE_PREFIX);
             Map<String, String> serviceContainerPortProperties = findPropertiesWithPrefix(properties1, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX);
+            Map<String, String> serviceNodePortProperties = findPropertiesWithPrefix(properties1, FABRIC8_NODE_PORT_SERVICE_PREFIX);
             Map<String, String> serviceProtocolProperties = findPropertiesWithPrefix(properties1, FABRIC8_PROTOCOL_SERVICE_PREFIX);
 
             for (Map.Entry<String, String> entry : servicePortProperties.entrySet()) {
@@ -1560,14 +1569,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         servicePort.setName(name);
                         servicePort.setPort(servicePortNumber);
 
-                        IntOrString containerPortSpec = new IntOrString();
-                        Integer containerPortNumber = parsePort(containerPort, FABRIC8_CONTAINER_PORT_SERVICE_PREFIX + name);
-                        if (containerPortNumber != null) {
-                            containerPortSpec.setIntVal(containerPortNumber);
-                        } else {
-                            containerPortSpec.setStrVal(containerPort);
-                        }
+                        IntOrString containerPortSpec = getPortSpec(containerPort, FABRIC8_CONTAINER_PORT_SERVICE, name);
                         servicePort.setTargetPort(containerPortSpec);
+
+                        String nodePort = serviceNodePortProperties.get(name);
+                        if (nodePort != null) {
+                            IntOrString nodePortSpec = getPortSpec(nodePort, FABRIC8_NODE_PORT_SERVICE, name);
+                            Integer nodePortInt = nodePortSpec.getIntVal();
+                            if (nodePortInt != null) {
+                                servicePort.setNodePort(nodePortInt);
+                            }
+                        }
 
                         String portProtocol = serviceProtocolProperties.get(name);
                         if (portProtocol != null) {
@@ -1586,15 +1598,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 }
 
                 ServicePort actualServicePort = new ServicePort();
-                Integer containerPortNumber = parsePort(serviceContainerPort, FABRIC8_CONTAINER_PORT_SERVICE);
-                IntOrString containerPort = new IntOrString();
-                if (containerPortNumber != null) {
-                    containerPort.setIntVal(containerPortNumber);
-                } else {
-                    containerPort.setStrVal(serviceContainerPort);
-                }
+
+                IntOrString containerPort = getPortSpec(serviceContainerPort, FABRIC8_CONTAINER_PORT_SERVICE, null);
+
                 actualServicePort.setTargetPort(containerPort);
                 actualServicePort.setPort(servicePort);
+                if (serviceNodePort != null) {
+                    actualServicePort.setNodePort(serviceNodePort);
+                }
                 if (serviceProtocol != null) {
                     actualServicePort.setProtocol(serviceProtocol);
                     servicePorts.add(actualServicePort);
@@ -1603,6 +1614,22 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         }
         return servicePorts;
+    }
+
+    private IntOrString getPortSpec(String portText, String portServicePrefix, String name) {
+        IntOrString portSpec = new IntOrString();
+        String portServiceName = portServicePrefix;
+        if (name != null) {
+            portServiceName = portServicePrefix + name;
+        }
+        Integer portNumber = parsePort(portText, portServiceName);
+        if (portNumber != null) {
+            portSpec.setIntVal(portNumber);
+        } else {
+            portSpec.setStrVal(portText);
+        }
+
+        return portSpec;
     }
 
     protected static EnvVar getOrCreateEnv(Map<String, EnvVar> envMap, String name) {
