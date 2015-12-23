@@ -24,16 +24,18 @@ import io.fabric8.forge.camel.commands.project.helper.RouteBuilderParser;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.EndpointValidationResult;
-import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
+//import org.apache.camel.catalog.EndpointValidationResult;
+//import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
+
+// TODO: This works with just roaster
 
 public class DeleteMe2 {
 
     public static void main(String[] args) throws Exception {
         CamelCatalog catalog = new DefaultCamelCatalog();
-        catalog.setSuggestionStrategy(new LuceneSuggestionStrategy());
+        //catalog.setSuggestionStrategy(new LuceneSuggestionStrategy());
 
         JavaClassSource clazz = (JavaClassSource) Roaster.parse(new File("src/main/java/io/fabric8/forge/camel/maven/MyRouteBuilder.java"));
         List<CamelEndpointDetails> endpoints = new ArrayList<>();
@@ -42,13 +44,14 @@ public class DeleteMe2 {
         String baseDir = ".";
         RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
 
+        // TODO: requires Camel 2.16.2+
         System.out.println(endpoints);
-        for (CamelEndpointDetails detail : endpoints) {
+        /*for (CamelEndpointDetails detail : endpoints) {
             EndpointValidationResult result = catalog.validateEndpointProperties(detail.getEndpointUri());
             if (!result.isSuccess()) {
                 String out = result.summaryErrorMessage();
                 System.out.println(out);
             }
-        }
+        }*/
     }
 }
