@@ -24,7 +24,7 @@
   <parent>
     <groupId>io.fabric8.forge</groupId>
     <artifactId>forge-addons</artifactId>
-    <version>2.2.81-SNAPSHOT</version>
+    <version>2.2.83-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-maven-plugin</artifactId>
@@ -34,11 +34,11 @@
 
   <dependencies>
 
-    <!--<dependency>-->
-      <!--<groupId>io.fabric8.forge</groupId>-->
-      <!--<artifactId>camel</artifactId>-->
-      <!--<version>${project.version}</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>io.fabric8.forge</groupId>
+      <artifactId>camel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.forge.furnace</groupId>
@@ -71,6 +71,18 @@
       <artifactId>projects-api</artifactId>
       <version>${jboss.forge.version}</version>
     </dependency>
+
+    <!-- java parser -->
+    <!--<dependency>-->
+      <!--<groupId>org.jboss.forge.roaster</groupId>-->
+      <!--<artifactId>roaster-api</artifactId>-->
+      <!--<version>${jboss.roaster.version}</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.jboss.forge.roaster</groupId>-->
+      <!--<artifactId>roaster-jdt</artifactId>-->
+      <!--<version>${jboss.roaster.version}</version>-->
+    <!--</dependency>-->
 
 <!--
     <dependency>
