@@ -19,8 +19,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.fabric8.forge.camel.commands.project.completer.CamelCurrentComponentsFinder;
 import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCompleter;
 import io.fabric8.forge.camel.commands.project.completer.XmlEndpointsCompleter;
+import io.fabric8.forge.camel.commands.project.dto.ComponentDto;
 import io.fabric8.forge.camel.commands.project.dto.EndpointDto;
 import io.fabric8.forge.camel.commands.project.dto.OutputFormat;
 import io.fabric8.forge.camel.commands.project.dto.ProjectDto;
@@ -94,6 +96,10 @@ public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
         camelProject.addEndpoints(javaEndpointsCompleter.getEndpoints());
         camelProject.addEndpoints(xmlEndpointCompleter.getEndpoints());
 
+        CamelCurrentComponentsFinder componentsFinder = new CamelCurrentComponentsFinder(getCamelCatalog(), project);
+        List<ComponentDto> currentComponents = componentsFinder.findCurrentComponents();
+        camelProject.setComponents(currentComponents);
+
         String result = formatResult(camelProject);
         return Results.success(result);
     }
@@ -109,7 +115,17 @@ public class CamelGetOverviewCommand extends AbstractCamelProjectCommand {
     }
 
     protected String textResult(ProjectDto camelProject) {
-        StringBuilder buffer = new StringBuilder();
+        StringBuilder buffer = new StringBuilder("\n\n");
+
+        List<ComponentDto> components = camelProject.getComponents();
+        if (!components.isEmpty()) {
+            TablePrinter table = new TablePrinter();
+            table.columns("scheme", "syntax", "description");
+            for (ComponentDto component : components) {
+                table.row(component.getScheme(), component.getSyntax(), component.getDescription());
+            }
+            addTableTextOutput(buffer, "Components", table);
+        }
 
         List<EndpointDto> endpoints = camelProject.getEndpoints();
         if (!endpoints.isEmpty()) {
