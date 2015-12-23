@@ -25,7 +25,6 @@ import io.fabric8.forge.camel.commands.project.dto.DataFormatDto;
 import io.fabric8.forge.camel.commands.project.dto.LanguageDto;
 import io.fabric8.utils.Strings;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.JSonSchemaHelper;
 
 public final class CamelCatalogHelper {
