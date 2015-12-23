@@ -29,6 +29,8 @@ import javax.enterprise.inject.Vetoed;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.CatalogHelper;
 import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.SuggestionStrategy;
+import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
 
 public class CamelCatalogService {
 
@@ -38,6 +40,7 @@ public class CamelCatalogService {
     public CamelCatalog createCamelCatalog() {
         if (instance == null) {
             instance = new CachedCamelCatalog();
+            instance.setSuggestionStrategy(new LuceneSuggestionStrategy());
         }
         return instance;
     }

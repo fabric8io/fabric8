@@ -150,6 +150,11 @@
       <artifactId>camel-catalog</artifactId>
       <version>${camel.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-catalog-lucene</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
 
     <!-- special for adding activemq-camel to the catalog -->
     <!-- we just need the single JAR and not dependencies -->
