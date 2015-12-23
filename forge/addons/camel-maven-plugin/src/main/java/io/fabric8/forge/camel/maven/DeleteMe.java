@@ -17,7 +17,10 @@
 package io.fabric8.forge.camel.maven;
 
 import java.io.File;
+import java.util.List;
 
+import io.fabric8.forge.camel.commands.project.completer.RouteBuilderEndpointsCompleter;
+import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.resource.Resource;
@@ -53,13 +56,16 @@ public class DeleteMe {
 
         AddonId projects = AddonId.from("org.jboss.forge.addon:projects", "2.20.1.Final");
         AddonId maven = AddonId.from("org.jboss.forge.addon:maven", "2.20.1.Final");
+        AddonId parser = AddonId.from("org.jboss.forge.addon:parser-java", "2.20.1.Final");
 
         manager.install(projects).perform();
         manager.install(maven).perform();
+        manager.install(parser).perform();
 
         AddonRegistry registry = furnace.getAddonRegistry();
         Addons.waitUntilStarted(registry.getAddon(projects));
         Addons.waitUntilStarted(registry.getAddon(maven));
+        Addons.waitUntilStarted(registry.getAddon(parser));
 
         resourceFactory = registry.getServices(ResourceFactory.class).get();
         projectFactory = registry.getServices(ProjectFactory.class).get();
@@ -67,5 +73,10 @@ public class DeleteMe {
         Resource<File> root = resourceFactory.create(new File("."));
         Project project = projectFactory.findProject(root);
         System.out.println("Found Maven Project " + project);
+
+        JavaSourceFacet js = project.getFacet(JavaSourceFacet.class);
+        RouteBuilderEndpointsCompleter completer = new RouteBuilderEndpointsCompleter(js);
+        List<String> uris = completer.getEndpointUris();
+        System.out.println(uris);
     }
 }
