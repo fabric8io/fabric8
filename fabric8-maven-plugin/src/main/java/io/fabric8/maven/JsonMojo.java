@@ -1235,10 +1235,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         int base64SizeK = Math.round(encoded.length / 1024);
 
-        getLog().info("found icon file: " + iconFile +
-                " which is " + sizeK + "K" +
-                " base64 encoded " + base64SizeK + "K");
-
         if (base64SizeK < maximumDataUrlSizeK) {
             String mimeType = guessMediaType(iconFile);
             return "data:" + mimeType + ";charset=UTF-8;base64," + new String(encoded);
@@ -1273,7 +1269,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
                         getLog().warn("No iconUrlPrefix defined or could be found via SCM in the pom.xml so cannot add an icon URL!");
                     } else {
                         String answer = URLUtils.pathJoin(urlPrefix, iconBranch, relativePath);
-                        getLog().info("icon url is: " + answer);
                         return answer;
                     }
                 }
