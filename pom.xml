@@ -149,7 +149,7 @@
         <mvel.version>2.2.7.Final</mvel.version>
         <osgi.version>4.3.1</osgi.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
-        <pax.url.version>2.4.4</pax.url.version>
+        <pax.url.version>2.4.5</pax.url.version>
         <plexus-utils.version>3.0.22</plexus-utils.version>
         <phantomjsdriver.version>1.2.0</phantomjsdriver.version>
         <reflections.version>0.9.10</reflections.version>
