@@ -299,6 +299,10 @@ There are many options as listed in the following table:
 <td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
+<td>fabric8.service.nodePort.&lt;portName&gt;</td>
+<td>The node port of this service to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
 <td>fabric8.service.protocol.&lt;portName&gt;</td>
 <td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
