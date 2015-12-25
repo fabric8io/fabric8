@@ -82,8 +82,8 @@
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jboss.forge.version>2.20.1.Final</jboss.forge.version>
-        <jboss.roaster.version>2.17.3.Final</jboss.roaster.version>
-        <furnace.version>2.22.9.Final</furnace.version>
+        <jboss.roaster.version>2.17.4.Final</jboss.roaster.version>
+        <furnace.version>2.22.10.Final</furnace.version>
         <jolokia.version>1.3.2</jolokia.version>
         <jgroups.version>3.6.6.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.18</jsonschema2pojo.version>
