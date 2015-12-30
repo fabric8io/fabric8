@@ -40,5 +40,17 @@ The following properties can be used:
 <td>fabric8.helm.gitUrl</td>
 <td>Specify the git URL of the helm chart repository to clone, commit to and push.</td>
 </tr>
+<tr>
+<td>fabric8.helm.cloneDir</td>
+<td>Location on disk where the helm chars repo should be cloned to</td>
+</tr>
+<tr>
+<td>fabric8.helm.privateKeyPath</td>
+<td>Specify the location of a specific private key for SSH connections to github</td>
+</tr>
+<tr>
+<td>fabric8.helm.privateKeyPassphrase</td>
+<td>Specify the passphrase for a specific SSH private key (can be blank if there is no passphrase)</td>
+</tr>
 </table>
 

@@ -15,6 +15,9 @@
  */
 package io.fabric8.maven;
 
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.maven.helm.Chart;
 import io.fabric8.utils.Files;
@@ -30,6 +33,12 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig;
+import org.eclipse.jgit.transport.SshTransport;
+import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.util.FS;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,6 +76,12 @@ public class HelmMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.helm.cloneDir")
     private File helmCloneDir;
+
+    @Parameter(property = "fabric8.helm.privateKeyPath")
+    private String privateKeyPath;
+
+    @Parameter(property = "fabric8.helm.privateKeyPassphrase")
+    private String privateKeyPassphrase;
 
     /**
      * The kubernetes YAML file
@@ -199,12 +214,43 @@ public class HelmMojo extends AbstractFabric8Mojo {
         } else {
             CloneCommand command = Git.cloneRepository();
             command = command.setURI(gitUrl).setDirectory(outputFolder).setRemote(remoteRepoName);
+
+            if (!Strings.isNullOrBlank(privateKeyPath)) {
+                addSpecificPrivateKey(command);
+            }
             try {
                 Git git = command.call();
             } catch (Throwable e) {
-                throw new RuntimeException("Failed to clone chart repo " + gitUrl + " due: " + e.getMessage());
+                throw new RuntimeException("Failed to clone chart repo " + gitUrl + " due: ", e);
             }
         }
+    }
+
+    private void addSpecificPrivateKey(CloneCommand command) {
+        command.setTransportConfigCallback(new TransportConfigCallback() {
+            @Override
+            public void configure(Transport transport) {
+                SshTransport sshTransport = (SshTransport) transport;
+                sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
+                    @Override
+                    protected void configure(OpenSshConfig.Host host, Session session) {
+                    }
+
+                    @Override
+                    protected JSch createDefaultJSch(FS fs) throws JSchException {
+                        JSch rc =  super.createDefaultJSch(fs);
+                        rc.removeAllIdentity();
+                        if (!Strings.isNullOrBlank(privateKeyPassphrase)) {
+                            rc.addIdentity(privateKeyPath, privateKeyPassphrase);
+                        }else {
+                            rc.addIdentity(privateKeyPath);
+                        }
+                        return rc;
+                    }
+                });
+            }
+
+        });
     }
 
 
