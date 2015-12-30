@@ -1,5 +1,5 @@
 
-For the latest and greatest articles on fabric8 check out the [fabric8 blog](https://medium.com/fabric8-io) and the [fabric8 video stream](https://vimeo.com/tag:fabric8)
+For the latest and greatest articles on fabric8 check out the [fabric8 blog](https://blog.fabric8.io) and the [fabric8 video stream](https://vimeo.com/tag:fabric8)
 
 ### Videos
 
