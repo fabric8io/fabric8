@@ -29,6 +29,7 @@ import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.EndpointValidationResult;
+import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -78,6 +79,8 @@ public class EndpointMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         CamelCatalog catalog = new DefaultCamelCatalog();
+        // enable did you mean
+        catalog.setSuggestionStrategy(new LuceneSuggestionStrategy());
 
         List<CamelEndpointDetails> endpoints = new ArrayList<>();
         Set<File> javaFiles = new LinkedHashSet<File>();
