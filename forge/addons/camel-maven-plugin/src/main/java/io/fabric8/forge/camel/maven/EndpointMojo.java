@@ -45,8 +45,14 @@ import org.jboss.forge.roaster.model.source.JavaClassSource;
         requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class EndpointMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = false)
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+
+    /**
+     * Whether to include test source code
+     */
+    @Parameter(defaultValue = "false", readonly = true, required = false)
+    private boolean includeTest;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -59,6 +65,11 @@ public class EndpointMojo extends AbstractMojo {
         final Set<File> javaFiles = new LinkedHashSet<File>();
         for (String dir : project.getCompileSourceRoots()) {
             findJavaFiles(new File(dir), javaFiles);
+        }
+        if (includeTest) {
+            for (String dir : project.getTestCompileSourceRoots()) {
+                findJavaFiles(new File(dir), javaFiles);
+            }
         }
 
         for (File file : javaFiles) {
