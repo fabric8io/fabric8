@@ -142,7 +142,7 @@ public class EndpointMojo extends AbstractMojo {
                 allOk = false;
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("Camel endpoint validation error: ").append(detail.getFileName());
+                sb.append("Camel endpoint validation error: ").append(asRelativeFile(detail.getFileName()));
                 if (detail.getLineNumber() != null) {
                     sb.append(" at line: ").append(detail.getLineNumber());
                 }
@@ -187,6 +187,20 @@ public class EndpointMojo extends AbstractMojo {
                 }
             }
         }
+    }
+
+    private String asRelativeFile(String name) {
+        String answer = name;
+
+        String base = project.getBasedir().getAbsolutePath();
+        if (name.startsWith(base)) {
+            answer = name.substring(base.length());
+            // skip leading slash for relative path
+            if (answer.startsWith(File.separator)) {
+                answer = answer.substring(1);
+            }
+        }
+        return answer;
     }
 
 }
