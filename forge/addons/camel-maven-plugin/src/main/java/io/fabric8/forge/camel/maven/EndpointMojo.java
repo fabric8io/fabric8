@@ -17,16 +17,20 @@
 package io.fabric8.forge.camel.maven;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import io.fabric8.forge.camel.commands.project.helper.RouteBuilderParser;
+import io.fabric8.forge.camel.commands.project.helper.XmlRouteParser;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.EndpointValidationResult;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -61,7 +65,7 @@ public class EndpointMojo extends AbstractMojo {
         // find all endpoints
         final List<CamelEndpointDetails> endpoints = new ArrayList<>();
 
-        // find all route builder classes
+        // find all java route builder classes
         final Set<File> javaFiles = new LinkedHashSet<File>();
         for (String dir : project.getCompileSourceRoots()) {
             findJavaFiles(new File(dir), javaFiles);
@@ -69,6 +73,16 @@ public class EndpointMojo extends AbstractMojo {
         if (includeTest) {
             for (String dir : project.getTestCompileSourceRoots()) {
                 findJavaFiles(new File(dir), javaFiles);
+            }
+        }
+        // find all xml routes
+        final Set<File> xmlFiles = new LinkedHashSet<File>();
+        for (Resource dir : project.getResources()) {
+            findXmlFiles(new File(dir.getDirectory()), xmlFiles);
+        }
+        if (includeTest) {
+            for (Resource dir : project.getTestResources()) {
+                findXmlFiles(new File(dir.getDirectory()), xmlFiles);
             }
         }
 
@@ -83,6 +97,18 @@ public class EndpointMojo extends AbstractMojo {
                 }
             } catch (Exception e) {
                 getLog().warn("Error parsing java file " + file + " code due " + e.getMessage());
+            }
+        }
+        for (File file : xmlFiles) {
+            try {
+                // parse the xml source code and find Camel routes
+                String fqn = file.getPath();
+                String baseDir = ".";
+                InputStream is = new FileInputStream(file);
+                XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
+                is.close();
+            } catch (Exception e) {
+                getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage());
             }
         }
 
@@ -110,6 +136,19 @@ public class EndpointMojo extends AbstractMojo {
                     javaFiles.add(file);
                 } else if (file.isDirectory()) {
                     findJavaFiles(file, javaFiles);
+                }
+            }
+        }
+    }
+
+    private void findXmlFiles(File dir, Set<File> xmlFiles) {
+        File[] files = dir.isDirectory() ? dir.listFiles() : null;
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().endsWith(".xml")) {
+                    xmlFiles.add(file);
+                } else if (file.isDirectory()) {
+                    findXmlFiles(file, xmlFiles);
                 }
             }
         }
