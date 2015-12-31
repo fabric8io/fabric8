@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jboss.forge.roaster.Roaster;
+import org.jboss.forge.roaster.model.JavaType;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 
 /**
@@ -55,39 +56,39 @@ public class EndpointMojo extends AbstractMojo {
     /**
      * Whether to fail if invalid Camel endpoints was found. By default the plugin logs the errors at WARN level
      */
-    @Parameter(defaultValue = "false", readonly = true, required = false)
+    @Parameter(property = "camel.failOnError", defaultValue = "false", readonly = true, required = false)
     private boolean failOnError;
 
     /**
      * Whether to include Java files to be validated for invalid Camel endpoints
      */
-    @Parameter(defaultValue = "true", readonly = true, required = false)
+    @Parameter(property = "camel.includeJava", defaultValue = "true", readonly = true, required = false)
     private boolean includeJava;
 
     /**
      * Whether to include XML files to be validated for invalid Camel endpoints
      */
-    @Parameter(defaultValue = "true", readonly = true, required = false)
+    @Parameter(property = "camel.includeXml", defaultValue = "true", readonly = true, required = false)
     private boolean includeXml;
 
     /**
      * Whether to include test source code
      */
-    @Parameter(defaultValue = "false", readonly = true, required = false)
+    @Parameter(property = "camel.includeTest", defaultValue = "false", readonly = true, required = false)
     private boolean includeTest;
 
     /**
      * To filter the names of java and xml files to only include files matching any of the given list of patterns (wildcard and regular expression).
      * Multiple values can be separated by comma.
      */
-    @Parameter(readonly = true, required = false)
+    @Parameter(property = "camel.includes", readonly = true, required = false)
     private String includes;
 
     /**
      * To filter the names of java and xml files to exclude files matching any of the given list of patterns (wildcard and regular expression).
      * Multiple values can be separated by comma.
      */
-    @Parameter(readonly = true, required = false)
+    @Parameter(property = "camel.excludes", readonly = true, required = false)
     private String excludes;
 
     @Override
@@ -129,12 +130,14 @@ public class EndpointMojo extends AbstractMojo {
                     // parse the java source code and find Camel RouteBuilder classes
                     String fqn = file.getPath();
                     String baseDir = ".";
-                    JavaClassSource clazz = (JavaClassSource) Roaster.parse(file);
-                    if (clazz != null) {
+                    JavaType out = Roaster.parse(file);
+                    // we should only parse java classes (not interfaces and enums etc)
+                    if (out != null && out instanceof JavaClassSource) {
+                        JavaClassSource clazz = (JavaClassSource) out;
                         RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
                     }
                 } catch (Exception e) {
-                    getLog().warn("Error parsing java file " + file + " code due " + e.getMessage());
+                    getLog().warn("Error parsing java file " + file + " code due " + e.getMessage(), e);
                 }
             }
         }
@@ -148,19 +151,19 @@ public class EndpointMojo extends AbstractMojo {
                     XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
                     is.close();
                 } catch (Exception e) {
-                    getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage());
+                    getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage(), e);
                 }
             }
         }
 
-        boolean allOk = true;
+        int errors = 0;
         for (CamelEndpointDetails detail : endpoints) {
             EndpointValidationResult result = catalog.validateEndpointProperties(detail.getEndpointUri());
             if (!result.isSuccess()) {
-                allOk = false;
+                errors++;
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("Camel endpoint validation error: ").append(asRelativeFile(detail.getFileName()));
+                sb.append("Endpoint validation error in file: ").append(asRelativeFile(detail.getFileName()));
                 if (detail.getLineNumber() != null) {
                     sb.append(" at line: ").append(detail.getLineNumber());
                 }
@@ -173,11 +176,22 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
 
-        if (failOnError && !allOk) {
-            throw new MojoExecutionException("Camel endpoint validation failed");
+        String summary;
+        if (errors == 0) {
+            int ok = endpoints.size() - errors;
+            summary = String.format("Endpoint validation success: (%s = passed, %s = invalid)", ok, errors);
+        } else {
+            int ok = endpoints.size() - errors;
+            summary = String.format("Endpoint validation error: (%s = passed, %s = invalid)", ok, errors);
         }
-        if (allOk) {
-            getLog().info("Camel endpoint validation successful");
+        if (failOnError && errors > 0) {
+            throw new MojoExecutionException(summary);
+        }
+
+        if (errors > 0) {
+            getLog().warn(summary);
+        } else {
+            getLog().info(summary);
         }
     }
 
