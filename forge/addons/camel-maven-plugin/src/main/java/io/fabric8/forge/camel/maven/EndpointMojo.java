@@ -59,13 +59,10 @@ public class EndpointMojo extends AbstractMojo {
         final Set<File> javaFiles = new LinkedHashSet<File>();
         for (String dir : project.getCompileSourceRoots()) {
             findJavaFiles(new File(dir), javaFiles);
-            getLog().info("Found " + javaFiles.size() + " .java files");
         }
 
         for (File file : javaFiles) {
             try {
-                getLog().info("Inspecting " + file + " .java file");
-
                 // parse the java source code and find Camel RouteBuilder classes
                 String fqn = file.getPath();
                 String baseDir = ".";
@@ -78,14 +75,19 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
 
-        getLog().info("Found " + endpoints.size() + " Camel endpoints");
-
+        boolean allOk = true;
         for (CamelEndpointDetails detail : endpoints) {
             EndpointValidationResult result = catalog.validateEndpointProperties(detail.getEndpointUri());
             if (!result.isSuccess()) {
+                allOk = false;
+                String source = String.format("File: %s", detail.getFileName());
                 String out = result.summaryErrorMessage();
-                getLog().warn(out);
+                getLog().warn(source + "\n" + out);
             }
+        }
+
+        if (allOk) {
+            getLog().info("Camel endpoint validation successful");
         }
     }
 
