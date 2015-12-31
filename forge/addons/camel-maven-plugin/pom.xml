@@ -29,8 +29,12 @@
 
   <artifactId>camel-maven-plugin</artifactId>
   <name>Fabric8 :: Forge Addons :: Camel Maven Plugin</name>
-  <!--<packaging>maven-plugin</packaging>-->
-  <packaging>jar</packaging>
+  <packaging>maven-plugin</packaging>
+  <!--<packaging>jar</packaging>-->
+
+  <properties>
+    <camel.version>2.17-SNAPSHOT</camel.version>
+  </properties>
 
   <dependencies>
 
@@ -39,12 +43,12 @@
       <artifactId>camel-catalog</artifactId>
       <version>${camel.version}</version>
     </dependency>
-    <!-- TODO Camel 2.16.2
+    <!-- TODO Camel 2.16.2 -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-catalog-lucene</artifactId>
       <version>${camel.version}</version>
-    </dependency> -->
+    </dependency>
 
     <dependency>
       <groupId>io.fabric8.forge</groupId>
@@ -103,7 +107,7 @@
       <version>${jboss.roaster.version}</version>
     </dependency>
 
-<!--
+    <!-- TODO: reduce the mvn deps -->
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
@@ -149,7 +153,7 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
       <version>2.0.11</version>
-    </dependency> -->
+    </dependency>
 
     <!-- help mojo has a dependency to plexus-utils -->
     <!--<dependency>-->
@@ -180,33 +184,33 @@
       </testResource>
     </testResources>
     <plugins>
-      <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-compiler-plugin</artifactId>-->
-      <!--</plugin>-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
 
-      <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-plugin-plugin</artifactId>-->
-        <!--<version>${maven-plugin-plugin.version}</version>-->
-        <!--<configuration>-->
-          <!--<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>-->
-        <!--</configuration>-->
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>mojo-descriptor</id>-->
-            <!--<goals>-->
-              <!--<goal>descriptor</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-          <!--<execution>-->
-            <!--<id>help-goal</id>-->
-            <!--<goals>-->
-              <!--<goal>helpmojo</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
-      <!--</plugin>-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>${maven-plugin-plugin.version}</version>
+        <configuration>
+          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+        </configuration>
+        <executions>
+          <execution>
+            <id>mojo-descriptor</id>
+            <goals>
+              <goal>descriptor</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>help-goal</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

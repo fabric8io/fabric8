@@ -40,7 +40,9 @@
     <module>kubernetes</module>
     <module>devops</module>
     <module>utils</module>
+<!-- TODO: disabled until Camel 2.16.2
     <module>camel-maven-plugin</module>
+-->
   </modules>
 
 </project>
