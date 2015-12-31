@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Copyright 2005-2015 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
 package io.fabric8.forge.camel.maven;
 
@@ -53,6 +52,18 @@ public class EndpointMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     * Whether to include Java files to be validated for invalid Camel endpoints
+     */
+    @Parameter(defaultValue = "true", readonly = true, required = false)
+    private boolean includeJava;
+
+    /**
+     * Whether to include XML files to be validated for invalid Camel endpoints
+     */
+    @Parameter(defaultValue = "true", readonly = true, required = false)
+    private boolean includeXml;
+
+    /**
      * Whether to include test source code
      */
     @Parameter(defaultValue = "false", readonly = true, required = false)
@@ -62,27 +73,30 @@ public class EndpointMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         CamelCatalog catalog = new DefaultCamelCatalog();
 
-        // find all endpoints
-        final List<CamelEndpointDetails> endpoints = new ArrayList<>();
+        List<CamelEndpointDetails> endpoints = new ArrayList<>();
+        Set<File> javaFiles = new LinkedHashSet<File>();
+        Set<File> xmlFiles = new LinkedHashSet<File>();
 
         // find all java route builder classes
-        final Set<File> javaFiles = new LinkedHashSet<File>();
-        for (String dir : project.getCompileSourceRoots()) {
-            findJavaFiles(new File(dir), javaFiles);
-        }
-        if (includeTest) {
-            for (String dir : project.getTestCompileSourceRoots()) {
+        if (includeJava) {
+            for (String dir : project.getCompileSourceRoots()) {
                 findJavaFiles(new File(dir), javaFiles);
+            }
+            if (includeTest) {
+                for (String dir : project.getTestCompileSourceRoots()) {
+                    findJavaFiles(new File(dir), javaFiles);
+                }
             }
         }
         // find all xml routes
-        final Set<File> xmlFiles = new LinkedHashSet<File>();
-        for (Resource dir : project.getResources()) {
-            findXmlFiles(new File(dir.getDirectory()), xmlFiles);
-        }
-        if (includeTest) {
-            for (Resource dir : project.getTestResources()) {
+        if (includeXml) {
+            for (Resource dir : project.getResources()) {
                 findXmlFiles(new File(dir.getDirectory()), xmlFiles);
+            }
+            if (includeTest) {
+                for (Resource dir : project.getTestResources()) {
+                    findXmlFiles(new File(dir.getDirectory()), xmlFiles);
+                }
             }
         }
 
@@ -117,9 +131,18 @@ public class EndpointMojo extends AbstractMojo {
             EndpointValidationResult result = catalog.validateEndpointProperties(detail.getEndpointUri());
             if (!result.isSuccess()) {
                 allOk = false;
-                String source = String.format("File: %s", detail.getFileName());
-                String out = result.summaryErrorMessage();
-                getLog().warn(source + "\n" + out);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Camel endpoint validation error: ").append(detail.getFileName());
+                if (detail.getLineNumber() != null) {
+                    sb.append(" at line: ").append(detail.getLineNumber());
+                }
+                sb.append("\n\n");
+                String out = result.summaryErrorMessage(false);
+                sb.append(out);
+                sb.append("\n\n");
+
+                getLog().warn(sb.toString());
             }
         }
 
@@ -153,4 +176,5 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
     }
+
 }
