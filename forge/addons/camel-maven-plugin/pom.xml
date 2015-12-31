@@ -30,7 +30,6 @@
   <artifactId>camel-maven-plugin</artifactId>
   <name>Fabric8 :: Forge Addons :: Camel Maven Plugin</name>
   <packaging>maven-plugin</packaging>
-  <!--<packaging>jar</packaging>-->
 
   <properties>
     <camel.version>2.17-SNAPSHOT</camel.version>
@@ -38,64 +37,26 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-catalog</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-    <!-- TODO Camel 2.16.2 -->
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-catalog-lucene</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-
+    <!-- fabric8 -->
     <dependency>
       <groupId>io.fabric8.forge</groupId>
       <artifactId>camel</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <!-- camel -->
     <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-se</artifactId>
-      <version>${furnace.version}</version>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-catalog</artifactId>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-manager</artifactId>
-      <version>${furnace.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.furnace</groupId>
-      <artifactId>furnace-manager-resolver-maven</artifactId>
-      <version>${furnace.version}</version>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-catalog-lucene</artifactId>
+      <version>${camel.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>resources-api</artifactId>
-      <version>${jboss.forge.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>dependencies-api</artifactId>
-      <version>${jboss.forge.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>projects-api</artifactId>
-      <version>${jboss.forge.version}</version>
-    </dependency>
-
-    <!--<dependency>-->
-      <!--<groupId>org.jboss.forge.addon</groupId>-->
-      <!--<artifactId>parser-java</artifactId>-->
-      <!--<classifier>forge-addon</classifier>-->
-      <!--<version>${jboss.forge.version}</version>-->
-    <!--</dependency>-->
-
-    <!-- java parser -->
+    <!-- roaster java parser -->
     <dependency>
       <groupId>org.jboss.forge.roaster</groupId>
       <artifactId>roaster-api</artifactId>
@@ -116,22 +77,22 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-artifact</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-compat</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-settings</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
@@ -139,50 +100,11 @@
       <version>3.2</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-dependency-analyzer</artifactId>
-      <version>1.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-dependency-tree</artifactId>
-      <version>2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-invoker</artifactId>
-      <version>2.0.11</version>
-    </dependency>
-
-    <!-- help mojo has a dependency to plexus-utils -->
-    <!--<dependency>-->
-      <!--<groupId>org.codehaus.plexus</groupId>-->
-      <!--<artifactId>plexus-utils</artifactId>-->
-      <!--<version>3.0.1</version>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-      <!--<groupId>org.apache.maven</groupId>-->
-      <!--<artifactId>maven-project</artifactId>-->
-      <!--<version>2.0</version>-->
-    <!--</dependency>-->
 
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test/fabric8</directory>
-        <filtering>true</filtering>
-      </testResource>
-    </testResources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
