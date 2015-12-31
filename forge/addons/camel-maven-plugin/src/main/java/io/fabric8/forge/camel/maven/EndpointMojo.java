@@ -52,6 +52,12 @@ public class EndpointMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     * Whether to fail if invalid Camel endpoints was found. By default the plugin logs the errors at WARN level
+     */
+    @Parameter(defaultValue = "false", readonly = true, required = false)
+    private boolean failOnError;
+
+    /**
      * Whether to include Java files to be validated for invalid Camel endpoints
      */
     @Parameter(defaultValue = "true", readonly = true, required = false)
@@ -146,6 +152,9 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
 
+        if (failOnError && !allOk) {
+            throw new MojoExecutionException("Camel endpoint validation failed");
+        }
         if (allOk) {
             getLog().info("Camel endpoint validation successful");
         }
