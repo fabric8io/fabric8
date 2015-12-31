@@ -1,17 +1,17 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Copyright 2005-2015 Red Hat, Inc.
+ * <p/>
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 package io.fabric8.forge.camel.maven;
 
@@ -45,7 +45,7 @@ import org.jboss.forge.roaster.model.source.JavaClassSource;
 /**
  * Analyses the project source code for Camel routes, and validates the endpoint uris whether there may be invalid uris.
  */
-@Mojo(name = "validate", defaultPhase = LifecyclePhase.PROCESS_CLASSES,
+@Mojo(name = "validate", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES,
         requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class EndpointMojo extends AbstractMojo {
 
@@ -75,6 +75,20 @@ public class EndpointMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false", readonly = true, required = false)
     private boolean includeTest;
+
+    /**
+     * To filter the names of java and xml files to only include files matching any of the given list of patterns (wildcard and regular expression).
+     * Multiple values can be separated by comma.
+     */
+    @Parameter(readonly = true, required = false)
+    private String includes;
+
+    /**
+     * To filter the names of java and xml files to exclude files matching any of the given list of patterns (wildcard and regular expression).
+     * Multiple values can be separated by comma.
+     */
+    @Parameter(readonly = true, required = false)
+    private String excludes;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -110,28 +124,32 @@ public class EndpointMojo extends AbstractMojo {
         }
 
         for (File file : javaFiles) {
-            try {
-                // parse the java source code and find Camel RouteBuilder classes
-                String fqn = file.getPath();
-                String baseDir = ".";
-                JavaClassSource clazz = (JavaClassSource) Roaster.parse(file);
-                if (clazz != null) {
-                    RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
+            if (matchFile(file)) {
+                try {
+                    // parse the java source code and find Camel RouteBuilder classes
+                    String fqn = file.getPath();
+                    String baseDir = ".";
+                    JavaClassSource clazz = (JavaClassSource) Roaster.parse(file);
+                    if (clazz != null) {
+                        RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
+                    }
+                } catch (Exception e) {
+                    getLog().warn("Error parsing java file " + file + " code due " + e.getMessage());
                 }
-            } catch (Exception e) {
-                getLog().warn("Error parsing java file " + file + " code due " + e.getMessage());
             }
         }
         for (File file : xmlFiles) {
-            try {
-                // parse the xml source code and find Camel routes
-                String fqn = file.getPath();
-                String baseDir = ".";
-                InputStream is = new FileInputStream(file);
-                XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
-                is.close();
-            } catch (Exception e) {
-                getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage());
+            if (matchFile(file)) {
+                try {
+                    // parse the xml source code and find Camel routes
+                    String fqn = file.getPath();
+                    String baseDir = ".";
+                    InputStream is = new FileInputStream(file);
+                    XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
+                    is.close();
+                } catch (Exception e) {
+                    getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage());
+                }
             }
         }
 
@@ -189,6 +207,43 @@ public class EndpointMojo extends AbstractMojo {
         }
     }
 
+    private boolean matchFile(File file) {
+        if (excludes == null && includes == null) {
+            return true;
+        }
+
+        // exclude take precedence
+        if (excludes != null) {
+            for (String exclude : excludes.split(",")) {
+                exclude = exclude.trim();
+                // try both with and without directory in the name
+                String fqn = asPackageName(asRelativeFile(file.getAbsolutePath()));
+                boolean match = EndpointHelper.matchPattern(fqn, exclude) || EndpointHelper.matchPattern(file.getName(), exclude);
+                if (match) {
+                    return false;
+                }
+            }
+        }
+
+        // include
+        if (includes != null) {
+            for (String include : includes.split(",")) {
+                include = include.trim();
+                // try both with and without directory in the name
+                String fqn = asPackageName(asRelativeFile(file.getAbsolutePath()));
+                boolean match = EndpointHelper.matchPattern(fqn, include) || EndpointHelper.matchPattern(file.getName(), include);
+                if (match) {
+                    return true;
+                }
+            }
+            // did not match any includes
+            return false;
+        }
+
+        // was not excluded nor failed include so its accepted
+        return true;
+    }
+
     private String asRelativeFile(String name) {
         String answer = name;
 
@@ -201,6 +256,37 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
         return answer;
+    }
+
+    private String asPackageName(String name) {
+        // strip out any leading source / resource directory
+
+        for (String dir : project.getCompileSourceRoots()) {
+            dir = asRelativeFile(dir);
+            if (name.startsWith(dir)) {
+                return name.substring(dir.length() + 1);
+            }
+        }
+        for (String dir : project.getTestCompileSourceRoots()) {
+            dir = asRelativeFile(dir);
+            if (name.startsWith(dir)) {
+                return name.substring(dir.length() + 1);
+            }
+        }
+        for (Resource resource : project.getResources()) {
+            String dir = asRelativeFile(resource.getDirectory());
+            if (name.startsWith(dir)) {
+                return name.substring(dir.length() + 1);
+            }
+        }
+        for (Resource resource : project.getTestResources()) {
+            String dir = asRelativeFile(resource.getDirectory());
+            if (name.startsWith(dir)) {
+                return name.substring(dir.length() + 1);
+            }
+        }
+
+        return name;
     }
 
 }
