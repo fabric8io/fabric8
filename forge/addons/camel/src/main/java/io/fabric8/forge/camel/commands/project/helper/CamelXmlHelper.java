@@ -94,7 +94,7 @@ public final class CamelXmlHelper {
 
     private static void findAllSimpleExpressionsRecursive(Node node, List<Node> nodes) {
         // okay its a route so grab if its <simple>
-        if ("simple".equals(node.getLocalName())) {
+        if ("simple".equals(node.getNodeName())) {
             nodes.add(node);
         }
 
@@ -103,7 +103,7 @@ public final class CamelXmlHelper {
             for (int i = 0; i < children.getLength(); i++) {
                 Node child = children.item(i);
                 if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    findAllUrisRecursive(child, nodes);
+                    findAllSimpleExpressionsRecursive(child, nodes);
                 }
             }
         }

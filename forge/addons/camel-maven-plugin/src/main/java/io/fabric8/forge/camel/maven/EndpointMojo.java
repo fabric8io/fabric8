@@ -26,9 +26,11 @@ import java.util.Set;
 import io.fabric8.forge.camel.commands.project.helper.RouteBuilderParser;
 import io.fabric8.forge.camel.commands.project.helper.XmlRouteParser;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
+import io.fabric8.forge.camel.commands.project.model.CamelSimpleDetails;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.EndpointValidationResult;
+import org.apache.camel.catalog.SimpleValidationResult;
 import org.apache.camel.catalog.lucene.LuceneSuggestionStrategy;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -44,7 +46,7 @@ import org.jboss.forge.roaster.model.JavaType;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 
 /**
- * Analyses the project source code for Camel routes, and validates the endpoint uris whether there may be invalid uris.
+ * Analyses the project source code for Camel routes, and validates the endpoint uris and simple expressions.
  */
 @Mojo(name = "validate", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES,
         requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
@@ -98,6 +100,7 @@ public class EndpointMojo extends AbstractMojo {
         catalog.setSuggestionStrategy(new LuceneSuggestionStrategy());
 
         List<CamelEndpointDetails> endpoints = new ArrayList<>();
+        List<CamelSimpleDetails> simpleExpressions = new ArrayList<>();
         Set<File> javaFiles = new LinkedHashSet<File>();
         Set<File> xmlFiles = new LinkedHashSet<File>();
 
@@ -134,7 +137,8 @@ public class EndpointMojo extends AbstractMojo {
                     // we should only parse java classes (not interfaces and enums etc)
                     if (out != null && out instanceof JavaClassSource) {
                         JavaClassSource clazz = (JavaClassSource) out;
-                        RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
+                        RouteBuilderParser.parseRouteBuilderEndpoints(clazz, baseDir, fqn, endpoints);
+                        RouteBuilderParser.parseRouteBuilderSimpleExpressions(clazz, baseDir, fqn, simpleExpressions);
                     }
                 } catch (Exception e) {
                     getLog().warn("Error parsing java file " + file + " code due " + e.getMessage(), e);
@@ -147,8 +151,13 @@ public class EndpointMojo extends AbstractMojo {
                     // parse the xml source code and find Camel routes
                     String fqn = file.getPath();
                     String baseDir = ".";
+
                     InputStream is = new FileInputStream(file);
-                    XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
+                    XmlRouteParser.parseXmlRouteEndpoints(is, baseDir, fqn, endpoints);
+                    is.close();
+                    // need a new stream
+                    is = new FileInputStream(file);
+                    XmlRouteParser.parseXmlRouteSimpleExpressions(is, baseDir, fqn, simpleExpressions);
                     is.close();
                 } catch (Exception e) {
                     getLog().warn("Error parsing xml file " + file + " code due " + e.getMessage(), e);
@@ -156,11 +165,11 @@ public class EndpointMojo extends AbstractMojo {
             }
         }
 
-        int errors = 0;
+        int endpointErrors = 0;
         for (CamelEndpointDetails detail : endpoints) {
             EndpointValidationResult result = catalog.validateEndpointProperties(detail.getEndpointUri());
             if (!result.isSuccess()) {
-                errors++;
+                endpointErrors++;
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("Endpoint validation error in file: ").append(asRelativeFile(detail.getFileName()));
@@ -175,23 +184,60 @@ public class EndpointMojo extends AbstractMojo {
                 getLog().warn(sb.toString());
             }
         }
-
-        String summary;
-        if (errors == 0) {
-            int ok = endpoints.size() - errors;
-            summary = String.format("Endpoint validation success: (%s = passed, %s = invalid)", ok, errors);
+        String endpointSummary;
+        if (endpointErrors == 0) {
+            int ok = simpleExpressions.size() - endpointErrors;
+            endpointSummary = String.format("Endpoint validation success: (%s = passed, %s = invalid)", ok, endpointErrors);
         } else {
-            int ok = endpoints.size() - errors;
-            summary = String.format("Endpoint validation error: (%s = passed, %s = invalid)", ok, errors);
-        }
-        if (failOnError && errors > 0) {
-            throw new MojoExecutionException(summary);
+            int ok = simpleExpressions.size() - endpointErrors;
+            endpointSummary = String.format("Endpoint validation error: (%s = passed, %s = invalid)", ok, endpointErrors);
         }
 
-        if (errors > 0) {
-            getLog().warn(summary);
+        if (endpointErrors > 0) {
+            getLog().warn(endpointSummary);
         } else {
-            getLog().info(summary);
+            getLog().info(endpointSummary);
+        }
+
+        int simpleErrors = 0;
+        for (CamelSimpleDetails detail : simpleExpressions) {
+            SimpleValidationResult result = catalog.validateSimpleExpression(detail.getSimple());
+            if (!result.isSuccess()) {
+                simpleErrors++;
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Simple validation error in file: ").append(asRelativeFile(detail.getFileName()));
+                if (detail.getLineNumber() != null) {
+                    sb.append(" at line: ").append(detail.getLineNumber());
+                }
+                sb.append("\n");
+                String[] lines = result.getError().split("\n");
+                for (String line : lines) {
+                    sb.append("\n\t").append(line);
+                }
+                sb.append("\n");
+
+                getLog().warn(sb.toString());
+            }
+        }
+
+        String simpleSummary;
+        if (simpleErrors == 0) {
+            int ok = simpleExpressions.size() - simpleErrors;
+            simpleSummary = String.format("Simple validation success: (%s = passed, %s = invalid)", ok, simpleErrors);
+        } else {
+            int ok = simpleExpressions.size() - simpleErrors;
+            simpleSummary = String.format("Simple validation error: (%s = passed, %s = invalid)", ok, simpleErrors);
+        }
+
+        if (failOnError && (endpointErrors > 0 || simpleErrors > 0)) {
+            throw new MojoExecutionException(endpointSummary + "\n" + simpleSummary);
+        }
+
+        if (simpleErrors > 0) {
+            getLog().warn(simpleSummary);
+        } else {
+            getLog().info(simpleSummary);
         }
     }
 
