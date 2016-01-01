@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 
 import io.fabric8.forge.camel.commands.project.helper.CamelJavaParserHelper;
+import io.fabric8.forge.camel.commands.project.helper.ParserResult;
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
@@ -36,14 +37,14 @@ public class RoasterCdiRouteBuilderConfigureTest {
         JavaClassSource clazz = (JavaClassSource) Roaster.parse(new File("src/test/java/io/fabric8/forge/camel/MyCdiRouteBuilder.java"));
         MethodSource<JavaClassSource> method = clazz.getMethod("configure");
 
-        List<String> list = CamelJavaParserHelper.parseCamelConsumerUris(method, true, true);
-        for (String uri : list) {
-            System.out.println("Consumer: " + uri);
+        List<ParserResult> list = CamelJavaParserHelper.parseCamelConsumerUris(method, true, true);
+        for (ParserResult result : list) {
+            System.out.println("Consumer: " + result.getElement());
         }
 
         list = CamelJavaParserHelper.parseCamelProducerUris(method, true, true);
-        for (String uri : list) {
-            System.out.println("Producer: " + uri);
+        for (ParserResult result : list) {
+            System.out.println("Producer: " + result.getElement());
         }
     }
 

@@ -15,6 +15,9 @@
  */
 package io.fabric8.forge.camel.commands.project.helper;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
 
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
@@ -80,9 +83,9 @@ public class RouteBuilderParser {
         MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
         if (method != null) {
             // consumers only
-            List<String> uris = CamelJavaParserHelper.parseCamelConsumerUris(method, false, true);
-            for (String uri : uris) {
-                CamelEndpointDetails detail = findEndpointByUri(endpoints, uri);
+            List<ParserResult> uris = CamelJavaParserHelper.parseCamelConsumerUris(method, false, true);
+            for (ParserResult uri : uris) {
+                CamelEndpointDetails detail = findEndpointByUri(endpoints, uri.getElement());
                 if (detail != null) {
                     // its a consumer only
                     detail.setConsumerOnly(true);
@@ -90,8 +93,8 @@ public class RouteBuilderParser {
             }
             // producer only
             uris = CamelJavaParserHelper.parseCamelProducerUris(method, false, true);
-            for (String uri : uris) {
-                CamelEndpointDetails detail = findEndpointByUri(endpoints, uri);
+            for (ParserResult result : uris) {
+                CamelEndpointDetails detail = findEndpointByUri(endpoints, result.getElement());
                 if (detail != null) {
                     if (detail.isConsumerOnly()) {
                         // its both a consumer and producer
@@ -107,7 +110,7 @@ public class RouteBuilderParser {
             // look for endpoints in the configure method that are string based
             // consumers only
             uris = CamelJavaParserHelper.parseCamelConsumerUris(method, true, false);
-            for (String uri : uris) {
+            for (ParserResult result : uris) {
                 String fileName = fullyQualifiedFileName;
                 if (fileName.startsWith(baseDir)) {
                     fileName = fileName.substring(baseDir.length() + 1);
@@ -116,16 +119,20 @@ public class RouteBuilderParser {
                 CamelEndpointDetails detail = new CamelEndpointDetails();
                 detail.setFileName(fileName);
                 detail.setEndpointInstance(null);
-                detail.setEndpointUri(uri);
-                detail.setEndpointComponentName(endpointComponentName(uri));
+                detail.setEndpointUri(result.getElement());
+                int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                if (line > -1) {
+                    detail.setLineNumber("" + line);
+                }
+                detail.setEndpointComponentName(endpointComponentName(result.getElement()));
                 detail.setConsumerOnly(true);
                 detail.setProducerOnly(false);
                 endpoints.add(detail);
             }
             uris = CamelJavaParserHelper.parseCamelProducerUris(method, true, false);
-            for (String uri : uris) {
+            for (ParserResult result : uris) {
                 // the same uri may already have been used as consumer as well
-                CamelEndpointDetails detail = findEndpointByUri(endpoints, uri);
+                CamelEndpointDetails detail = findEndpointByUri(endpoints, result.getElement());
                 if (detail == null) {
                     // its a producer only uri
                     String fileName = fullyQualifiedFileName;
@@ -136,8 +143,12 @@ public class RouteBuilderParser {
                     detail = new CamelEndpointDetails();
                     detail.setFileName(fileName);
                     detail.setEndpointInstance(null);
-                    detail.setEndpointUri(uri);
-                    detail.setEndpointComponentName(endpointComponentName(uri));
+                    detail.setEndpointUri(result.getElement());
+                    int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                    if (line > -1) {
+                        detail.setLineNumber("" + line);
+                    }
+                    detail.setEndpointComponentName(endpointComponentName(result.getElement()));
                     detail.setConsumerOnly(false);
                     detail.setProducerOnly(true);
 
@@ -176,8 +187,8 @@ public class RouteBuilderParser {
 
         MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
         if (method != null) {
-            List<String> expressions = CamelJavaParserHelper.parseCamelSimpleExpressions(method);
-            for (String simple : expressions) {
+            List<ParserResult> expressions = CamelJavaParserHelper.parseCamelSimpleExpressions(method);
+            for (ParserResult result : expressions) {
 
                 String fileName = fullyQualifiedFileName;
                 if (fileName.startsWith(baseDir)) {
@@ -185,12 +196,40 @@ public class RouteBuilderParser {
                 }
 
                 CamelSimpleDetails details = new CamelSimpleDetails();
-                details.setSimple(simple);
+                int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                if (line > -1) {
+                    details.setLineNumber("" + line);
+                }
+                details.setSimple(result.getElement());
                 details.setFileName(fileName);
 
                 simpleExpressions.add(details);
             }
         }
+    }
+
+    private static int findLineNumber(String fullyQualifiedFileName, int position) {
+        // TODO: we should likely use scanner for \n \r or \n\r so we know if it was 1 or 2 bytes
+        int lines = 0;
+
+        try {
+            int current = 0;
+            try (BufferedReader br = new BufferedReader(new FileReader(new File(fullyQualifiedFileName)))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines++;
+                    current += line.length() + 1; // add 1 for line feed
+                    if (current >= position) {
+                        return lines;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // ignore
+            return -1;
+        }
+
+        return lines;
     }
 
 }

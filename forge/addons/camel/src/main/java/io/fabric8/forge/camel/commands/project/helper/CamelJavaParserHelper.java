@@ -42,17 +42,17 @@ public class CamelJavaParserHelper {
         return null;
     }
 
-    public static List<String> parseCamelConsumerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
+    public static List<ParserResult> parseCamelConsumerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
         return doParseCamelUris(method, true, false, strings, fields);
     }
 
-    public static List<String> parseCamelProducerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
+    public static List<ParserResult> parseCamelProducerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
         return doParseCamelUris(method, false, true, strings, fields);
     }
 
-    private static List<String> doParseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers,
+    private static List<ParserResult> doParseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers,
                                                  boolean strings, boolean fields) {
-        List<String> answer = new ArrayList<String>();
+        List<ParserResult> answer = new ArrayList<ParserResult>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
         for (Object statement : md.getBody().statements()) {
@@ -61,7 +61,7 @@ public class CamelJavaParserHelper {
                 ExpressionStatement es = (ExpressionStatement) statement;
                 Expression exp = es.getExpression();
 
-                List<String> uris = new ArrayList<String>();
+                List<ParserResult> uris = new ArrayList<ParserResult>();
                 parseExpression(method, exp, uris, consumers, producers, strings, fields);
                 if (!uris.isEmpty()) {
                     // reverse the order as we will grab them from last->first
@@ -75,7 +75,7 @@ public class CamelJavaParserHelper {
     }
 
 
-    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<String> uris,
+    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<ParserResult> uris,
                                         boolean consumers, boolean producers, boolean strings, boolean fields) {
         if (exp == null) {
             return;
@@ -89,7 +89,7 @@ public class CamelJavaParserHelper {
         }
     }
 
-    private static void doParseCamelUris(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> uris,
+    private static void doParseCamelUris(MethodSource<JavaClassSource> method, MethodInvocation mi, List<ParserResult> uris,
                                          boolean consumers, boolean producers, boolean strings, boolean fields) {
         String name = mi.getName().getIdentifier();
 
@@ -134,10 +134,11 @@ public class CamelJavaParserHelper {
         }
     }
 
-    private static void extractEndpointUriFromArgument(MethodSource<JavaClassSource> method, List<String> uris, Object arg, boolean strings, boolean fields) {
+    private static void extractEndpointUriFromArgument(MethodSource<JavaClassSource> method, List<ParserResult> uris, Object arg, boolean strings, boolean fields) {
         if (strings && arg instanceof StringLiteral) {
+            int position = ((StringLiteral) arg).getStartPosition();
             String uri = ((StringLiteral) arg).getLiteralValue();
-            uris.add(uri);
+            uris.add(new ParserResult(position, uri));
         } else if (fields && arg instanceof SimpleName) {
             String fieldName = ((SimpleName) arg).getIdentifier();
             if (fieldName != null) {
@@ -155,15 +156,16 @@ public class CamelJavaParserHelper {
                         uri = annotation.getStringValue("uri");
                     }
                     if (uri != null) {
-                        uris.add(uri);
+                        int position = ((SimpleName) arg).getStartPosition();
+                        uris.add(new ParserResult(position, uri));
                     }
                 }
             }
         }
     }
 
-    public static List<String> parseCamelSimpleExpressions(MethodSource<JavaClassSource> method) {
-        List<String> answer = new ArrayList<String>();
+    public static List<ParserResult> parseCamelSimpleExpressions(MethodSource<JavaClassSource> method) {
+        List<ParserResult> answer = new ArrayList<ParserResult>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
         for (Object statement : md.getBody().statements()) {
@@ -172,7 +174,7 @@ public class CamelJavaParserHelper {
                 ExpressionStatement es = (ExpressionStatement) statement;
                 Expression exp = es.getExpression();
 
-                List<String> expressions = new ArrayList<String>();
+                List<ParserResult> expressions = new ArrayList<ParserResult>();
                 parseExpression(method, exp, expressions);
                 if (!expressions.isEmpty()) {
                     // reverse the order as we will grab them from last->first
@@ -185,7 +187,7 @@ public class CamelJavaParserHelper {
         return answer;
     }
 
-    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<String> expressions) {
+    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<ParserResult> expressions) {
         if (exp == null) {
             return;
         }
@@ -198,7 +200,7 @@ public class CamelJavaParserHelper {
         }
     }
 
-    private static void doParseCamelSimple(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> expressions) {
+    private static void doParseCamelSimple(MethodSource<JavaClassSource> method, MethodInvocation mi, List<ParserResult> expressions) {
         String name = mi.getName().getIdentifier();
 
         if ("simple".equals(name)) {
@@ -209,7 +211,8 @@ public class CamelJavaParserHelper {
                 Object arg = args.get(0);
                 if (arg instanceof StringLiteral) {
                     String simple = ((StringLiteral) arg).getLiteralValue();
-                    expressions.add(simple);
+                    int position = ((StringLiteral) arg).getStartPosition();
+                    expressions.add(new ParserResult(position, simple));
                 }
             }
         }

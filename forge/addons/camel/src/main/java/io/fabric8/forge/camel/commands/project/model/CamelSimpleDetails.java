@@ -20,6 +20,8 @@ public class CamelSimpleDetails {
     private String fileName;
     private String lineNumber;
     private String simple;
+    private boolean predicate;
+    private boolean expression;
 
     public String getFileName() {
         return fileName;
@@ -43,6 +45,22 @@ public class CamelSimpleDetails {
 
     public void setSimple(String simple) {
         this.simple = simple;
+    }
+
+    public boolean isPredicate() {
+        return predicate;
+    }
+
+    public void setPredicate(boolean predicate) {
+        this.predicate = predicate;
+    }
+
+    public boolean isExpression() {
+        return expression;
+    }
+
+    public void setExpression(boolean expression) {
+        this.expression = expression;
     }
 
     @Override
