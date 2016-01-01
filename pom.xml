@@ -88,7 +88,7 @@
         <jgroups.version>3.6.6.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.18</jsonschema2pojo.version>
         <snakeyaml.version>1.16</snakeyaml.version>
-        <swagger.jaxrs.version>1.5.4</swagger.jaxrs.version>
+        <swagger.jaxrs.version>1.5.5</swagger.jaxrs.version>
         <vertx.version>2.1.6</vertx.version>
         <weld.version>2.3.2.Final</weld.version>
 
