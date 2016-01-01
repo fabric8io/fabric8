@@ -43,15 +43,15 @@ public class CamelJavaParserHelper {
     }
 
     public static List<String> parseCamelConsumerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
-        return parseCamelUris(method, true, false, strings, fields);
+        return doParseCamelUris(method, true, false, strings, fields);
     }
 
     public static List<String> parseCamelProducerUris(MethodSource<JavaClassSource> method, boolean strings, boolean fields) {
-        return parseCamelUris(method, false, true, strings, fields);
+        return doParseCamelUris(method, false, true, strings, fields);
     }
 
-    private static List<String> parseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers,
-                                               boolean strings, boolean fields) {
+    private static List<String> doParseCamelUris(MethodSource<JavaClassSource> method, boolean consumers, boolean producers,
+                                                 boolean strings, boolean fields) {
         List<String> answer = new ArrayList<String>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
@@ -74,6 +74,7 @@ public class CamelJavaParserHelper {
         return answer;
     }
 
+
     private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<String> uris,
                                         boolean consumers, boolean producers, boolean strings, boolean fields) {
         if (exp == null) {
@@ -81,15 +82,15 @@ public class CamelJavaParserHelper {
         }
         if (exp instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) exp;
-            parseCamelUris(method, mi, uris, consumers, producers, strings, fields);
+            doParseCamelUris(method, mi, uris, consumers, producers, strings, fields);
             // if the method was called on another method, then recursive
             exp = mi.getExpression();
             parseExpression(method, exp, uris, consumers, producers, strings, fields);
         }
     }
 
-    private static void parseCamelUris(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> uris,
-                                       boolean consumers, boolean producers, boolean strings, boolean fields) {
+    private static void doParseCamelUris(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> uris,
+                                         boolean consumers, boolean producers, boolean strings, boolean fields) {
         String name = mi.getName().getIdentifier();
 
         if (consumers) {
@@ -156,6 +157,70 @@ public class CamelJavaParserHelper {
                     if (uri != null) {
                         uris.add(uri);
                     }
+                }
+            }
+        }
+    }
+
+    public static List<String> parseCamelSimpleExpressions(MethodSource<JavaClassSource> method) {
+        List<String> answer = new ArrayList<String>();
+
+        MethodDeclaration md = (MethodDeclaration) method.getInternal();
+        for (Object statement : md.getBody().statements()) {
+            // must be a method call expression
+            if (statement instanceof ExpressionStatement) {
+                ExpressionStatement es = (ExpressionStatement) statement;
+                Expression exp = es.getExpression();
+
+                List<String> expressions = new ArrayList<String>();
+                parseExpression(method, exp, expressions);
+                if (!expressions.isEmpty()) {
+                    // reverse the order as we will grab them from last->first
+                    Collections.reverse(expressions);
+                    answer.addAll(expressions);
+                }
+            }
+        }
+
+        return answer;
+    }
+
+    private static void parseExpression(MethodSource<JavaClassSource> method, Expression exp, List<String> expressions) {
+        if (exp == null) {
+            return;
+        }
+        if (exp instanceof MethodInvocation) {
+            MethodInvocation mi = (MethodInvocation) exp;
+            doParseCamelSimple(method, mi, expressions);
+            // if the method was called on another method, then recursive
+            exp = mi.getExpression();
+            parseExpression(method, exp, expressions);
+        }
+    }
+
+    private static void doParseCamelSimple(MethodSource<JavaClassSource> method, MethodInvocation mi, List<String> expressions) {
+        String name = mi.getName().getIdentifier();
+
+        if ("simple".equals(name)) {
+            List args = mi.arguments();
+            // the first argument is a string parameter for the simple expression
+            if (args != null && args.size() >= 1) {
+                // it is a String type
+                Object arg = args.get(0);
+                if (arg instanceof StringLiteral) {
+                    String simple = ((StringLiteral) arg).getLiteralValue();
+                    expressions.add(simple);
+                }
+            }
+        }
+
+        // simple maybe be passed in as an argument
+        List args = mi.arguments();
+        if (args != null) {
+            for (Object arg : args) {
+                if (arg instanceof MethodInvocation) {
+                    MethodInvocation ami = (MethodInvocation) arg;
+                    doParseCamelSimple(method, ami, expressions);
                 }
             }
         }
