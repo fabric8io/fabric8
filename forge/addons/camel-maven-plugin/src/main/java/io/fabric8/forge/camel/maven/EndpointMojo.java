@@ -172,9 +172,27 @@ public class EndpointMojo extends AbstractMojo {
                 endpointErrors++;
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("Endpoint validation error in file: ").append(asRelativeFile(detail.getFileName()));
-                if (detail.getLineNumber() != null) {
-                    sb.append(" at line: ").append(detail.getLineNumber());
+                sb.append("Endpoint validation error at: ");
+                if (detail.getClassName() != null && detail.getLineNumber() != null) {
+                    // this is from java code
+                    sb.append(detail.getClassName());
+                    if (detail.getMethodName() != null) {
+                        sb.append(".").append(detail.getMethodName());
+                    }
+                    sb.append("(").append(asSimpleClassName(detail.getClassName())).append(".java:");
+                    sb.append(detail.getLineNumber()).append(")");
+                } else if (detail.getLineNumber() != null) {
+                    // this is from xml
+                    String fqn = stripRootPath(asRelativeFile(detail.getFileName()));
+                    if (fqn.endsWith(".xml")) {
+                        fqn = fqn.substring(0, fqn.length() - 4);
+                        fqn = asPackageName(fqn);
+                    }
+                    sb.append(fqn);
+                    sb.append("(").append(asSimpleClassName(fqn)).append(".xml:");
+                    sb.append(detail.getLineNumber()).append(")");
+                } else {
+                    sb.append(detail.getFileName());
                 }
                 sb.append("\n\n");
                 String out = result.summaryErrorMessage(false);
@@ -206,9 +224,27 @@ public class EndpointMojo extends AbstractMojo {
                 simpleErrors++;
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("Simple validation error in file: ").append(asRelativeFile(detail.getFileName()));
-                if (detail.getLineNumber() != null) {
-                    sb.append(" at line: ").append(detail.getLineNumber());
+                sb.append("Simple validation error at: ");
+                if (detail.getClassName() != null && detail.getLineNumber() != null) {
+                    // this is from java code
+                    sb.append(detail.getClassName());
+                    if (detail.getMethodName() != null) {
+                        sb.append(".").append(detail.getMethodName());
+                    }
+                    sb.append("(").append(asSimpleClassName(detail.getClassName())).append(".java:");
+                    sb.append(detail.getLineNumber()).append(")");
+                } else if (detail.getLineNumber() != null) {
+                    // this is from xml
+                    String fqn = stripRootPath(asRelativeFile(detail.getFileName()));
+                    if (fqn.endsWith(".xml")) {
+                        fqn = fqn.substring(0, fqn.length() - 4);
+                        fqn = asPackageName(fqn);
+                    }
+                    sb.append(fqn);
+                    sb.append("(").append(asSimpleClassName(fqn)).append(".xml:");
+                    sb.append(detail.getLineNumber()).append(")");
+                } else {
+                    sb.append(detail.getFileName());
                 }
                 sb.append("\n");
                 String[] lines = result.getError().split("\n");
@@ -277,7 +313,7 @@ public class EndpointMojo extends AbstractMojo {
             for (String exclude : excludes.split(",")) {
                 exclude = exclude.trim();
                 // try both with and without directory in the name
-                String fqn = asPackageName(asRelativeFile(file.getAbsolutePath()));
+                String fqn = stripRootPath(asRelativeFile(file.getAbsolutePath()));
                 boolean match = EndpointHelper.matchPattern(fqn, exclude) || EndpointHelper.matchPattern(file.getName(), exclude);
                 if (match) {
                     return false;
@@ -290,7 +326,7 @@ public class EndpointMojo extends AbstractMojo {
             for (String include : includes.split(",")) {
                 include = include.trim();
                 // try both with and without directory in the name
-                String fqn = asPackageName(asRelativeFile(file.getAbsolutePath()));
+                String fqn = stripRootPath(asRelativeFile(file.getAbsolutePath()));
                 boolean match = EndpointHelper.matchPattern(fqn, include) || EndpointHelper.matchPattern(file.getName(), include);
                 if (match) {
                     return true;
@@ -318,7 +354,7 @@ public class EndpointMojo extends AbstractMojo {
         return answer;
     }
 
-    private String asPackageName(String name) {
+    private String stripRootPath(String name) {
         // strip out any leading source / resource directory
 
         for (String dir : project.getCompileSourceRoots()) {
@@ -347,6 +383,19 @@ public class EndpointMojo extends AbstractMojo {
         }
 
         return name;
+    }
+
+    private static String asPackageName(String name) {
+        return name.replace(File.separator, ".");
+    }
+
+    private static String asSimpleClassName(String className) {
+        int dot = className.lastIndexOf('.');
+        if (dot > 0) {
+            return className.substring(dot + 1);
+        } else {
+            return className;
+        }
     }
 
 }

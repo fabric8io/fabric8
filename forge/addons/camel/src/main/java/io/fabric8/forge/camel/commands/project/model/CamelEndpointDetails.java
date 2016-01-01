@@ -19,6 +19,8 @@ public class CamelEndpointDetails {
 
     private String fileName;
     private String lineNumber;
+    private String className;
+    private String methodName;
     private String endpointComponentName;
     private String endpointInstance;
     private String endpointUri;
@@ -39,6 +41,22 @@ public class CamelEndpointDetails {
 
     public void setLineNumber(String lineNumber) {
         this.lineNumber = lineNumber;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public String getEndpointComponentName() {

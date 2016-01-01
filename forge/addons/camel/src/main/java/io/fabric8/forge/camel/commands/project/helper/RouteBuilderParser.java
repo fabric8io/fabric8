@@ -69,6 +69,7 @@ public class RouteBuilderParser {
 
                 CamelEndpointDetails detail = new CamelEndpointDetails();
                 detail.setFileName(fileName);
+                detail.setClassName(clazz.getQualifiedName());
                 detail.setEndpointInstance(id);
                 detail.setEndpointUri(uri);
                 detail.setEndpointComponentName(endpointComponentName(uri));
@@ -118,6 +119,8 @@ public class RouteBuilderParser {
 
                 CamelEndpointDetails detail = new CamelEndpointDetails();
                 detail.setFileName(fileName);
+                detail.setClassName(clazz.getQualifiedName());
+                detail.setMethodName("configure");
                 detail.setEndpointInstance(null);
                 detail.setEndpointUri(result.getElement());
                 int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
@@ -142,6 +145,8 @@ public class RouteBuilderParser {
 
                     detail = new CamelEndpointDetails();
                     detail.setFileName(fileName);
+                    detail.setClassName(clazz.getQualifiedName());
+                    detail.setMethodName("configure");
                     detail.setEndpointInstance(null);
                     detail.setEndpointUri(result.getElement());
                     int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
@@ -196,12 +201,14 @@ public class RouteBuilderParser {
                 }
 
                 CamelSimpleDetails details = new CamelSimpleDetails();
+                details.setFileName(fileName);
+                details.setClassName(clazz.getQualifiedName());
+                details.setMethodName("configure");
                 int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
                 if (line > -1) {
                     details.setLineNumber("" + line);
                 }
                 details.setSimple(result.getElement());
-                details.setFileName(fileName);
 
                 simpleExpressions.add(details);
             }
@@ -209,7 +216,6 @@ public class RouteBuilderParser {
     }
 
     private static int findLineNumber(String fullyQualifiedFileName, int position) {
-        // TODO: we should likely use scanner for \n \r or \n\r so we know if it was 1 or 2 bytes
         int lines = 0;
 
         try {

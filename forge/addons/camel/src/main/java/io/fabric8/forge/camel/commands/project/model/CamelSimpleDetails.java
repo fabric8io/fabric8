@@ -19,6 +19,8 @@ public class CamelSimpleDetails {
 
     private String fileName;
     private String lineNumber;
+    private String className;
+    private String methodName;
     private String simple;
     private boolean predicate;
     private boolean expression;
@@ -37,6 +39,22 @@ public class CamelSimpleDetails {
 
     public void setLineNumber(String lineNumber) {
         this.lineNumber = lineNumber;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public String getSimple() {
