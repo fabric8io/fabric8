@@ -44,6 +44,8 @@ import org.jboss.forge.addon.ui.util.Metadata;
 
 public class CamelValidateEndpointCommand extends AbstractCamelProjectCommand {
 
+    // TODO: add validation of simple expression
+
     @Inject
     @WithAttributes(label = "Format", defaultValue = "Text", description = "Format output as text or json")
     private UISelectOne<OutputFormat> format;
