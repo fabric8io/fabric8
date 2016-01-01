@@ -47,7 +47,7 @@ public class XmlResourcesCamelEndpointsVisitor implements ResourceVisitor {
                     InputStream is = resource.getResourceInputStream();
                     String fqn = resource.getFullyQualifiedName();
                     String baseDir = facet.getResourceDirectory().getFullyQualifiedName();
-                    XmlRouteParser.parseXmlRoute(is, baseDir, fqn, endpoints);
+                    XmlRouteParser.parseXmlRouteEndpoints(is, baseDir, fqn, endpoints);
                 } catch (Throwable e) {
                     // ignore
                 }
