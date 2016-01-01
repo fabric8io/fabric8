@@ -78,6 +78,37 @@ public final class CamelXmlHelper {
         }
     }
 
+    public static List<Node> findAllSimpleExpressions(Document dom) {
+        List<Node> nodes = new ArrayList<>();
+
+        NodeList list = dom.getElementsByTagName("route");
+        for (int i = 0; i < list.getLength(); i++) {
+            Node child = list.item(i);
+            if ("route".equals(child.getNodeName())) {
+                findAllSimpleExpressionsRecursive(child, nodes);
+            }
+        }
+
+        return nodes;
+    }
+
+    private static void findAllSimpleExpressionsRecursive(Node node, List<Node> nodes) {
+        // okay its a route so grab if its <simple>
+        if ("simple".equals(node.getLocalName())) {
+            nodes.add(node);
+        }
+
+        NodeList children = node.getChildNodes();
+        if (children != null) {
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    findAllUrisRecursive(child, nodes);
+                }
+            }
+        }
+    }
+
     public static String getSafeAttribute(Node node, String key) {
         if (node != null) {
             Node attr = node.getAttributes().getNamedItem(key);

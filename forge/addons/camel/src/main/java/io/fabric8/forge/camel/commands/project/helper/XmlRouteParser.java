@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.fabric8.forge.addon.utils.XmlLineNumberParser;
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
+import io.fabric8.forge.camel.commands.project.model.CamelSimpleDetails;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -28,8 +29,8 @@ import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.getS
 
 public class XmlRouteParser {
 
-    public static void parseXmlRoute(InputStream xml, String baseDir, String fullyQualifiedFileName,
-                                     List<CamelEndpointDetails> endpoints) throws Exception {
+    public static void parseXmlRouteEndpoints(InputStream xml, String baseDir, String fullyQualifiedFileName,
+                                              List<CamelEndpointDetails> endpoints) throws Exception {
 
         // find all the endpoints (currently only <endpoint> and within <route>)
         // try parse it as dom
@@ -65,6 +66,33 @@ public class XmlRouteParser {
                 detail.setConsumerOnly(consumerOnly);
                 detail.setProducerOnly(producerOnly);
                 endpoints.add(detail);
+            }
+        }
+    }
+
+    public static void parseXmlRouteSimpleExpressions(InputStream xml, String baseDir, String fullyQualifiedFileName,
+                                                      List<CamelSimpleDetails> simpleExpressions) throws Exception {
+
+        // find all the simple expressions
+        // try parse it as dom
+        Document dom = XmlLineNumberParser.parseXml(xml);
+        if (dom != null) {
+            List<Node> nodes = CamelXmlHelper.findAllSimpleExpressions(dom);
+            for (Node node : nodes) {
+                String simple = node.getTextContent();
+                String lineNumber = (String) node.getUserData(XmlLineNumberParser.LINE_NUMBER);
+
+                // we only want the relative dir name from the resource directory, eg META-INF/spring/foo.xml
+                String fileName = fullyQualifiedFileName;
+                if (fileName.startsWith(baseDir)) {
+                    fileName = fileName.substring(baseDir.length() + 1);
+                }
+
+                CamelSimpleDetails detail = new CamelSimpleDetails();
+                detail.setFileName(fileName);
+                detail.setLineNumber(lineNumber);
+                detail.setSimple(simple);
+                simpleExpressions.add(detail);
             }
         }
     }

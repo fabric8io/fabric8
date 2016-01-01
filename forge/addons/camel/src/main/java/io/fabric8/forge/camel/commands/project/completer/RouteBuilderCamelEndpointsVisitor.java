@@ -41,7 +41,7 @@ public class RouteBuilderCamelEndpointsVisitor extends JavaResourceVisitor {
             JavaClassSource clazz = resource.getJavaType();
             String fqn = resource.getFullyQualifiedName();
             String baseDir = facet.getSourceDirectory().getFullyQualifiedName();
-            RouteBuilderParser.parseRouteBuilder(clazz, baseDir, fqn, endpoints);
+            RouteBuilderParser.parseRouteBuilderEndpoints(clazz, baseDir, fqn, endpoints);
         } catch (Throwable e) {
             // ignore
         }
