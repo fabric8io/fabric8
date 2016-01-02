@@ -110,18 +110,20 @@ public class CamelJavaParserHelper {
         List<ParserResult> answer = new ArrayList<ParserResult>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
-        for (Object statement : md.getBody().statements()) {
-            // must be a method call expression
-            if (statement instanceof ExpressionStatement) {
-                ExpressionStatement es = (ExpressionStatement) statement;
-                Expression exp = es.getExpression();
+        if (md.getBody() != null) {
+            for (Object statement : md.getBody().statements()) {
+                // must be a method call expression
+                if (statement instanceof ExpressionStatement) {
+                    ExpressionStatement es = (ExpressionStatement) statement;
+                    Expression exp = es.getExpression();
 
-                List<ParserResult> uris = new ArrayList<ParserResult>();
-                parseExpression(method.getOrigin(), exp, uris, consumers, producers, strings, fields);
-                if (!uris.isEmpty()) {
-                    // reverse the order as we will grab them from last->first
-                    Collections.reverse(uris);
-                    answer.addAll(uris);
+                    List<ParserResult> uris = new ArrayList<ParserResult>();
+                    parseExpression(method.getOrigin(), exp, uris, consumers, producers, strings, fields);
+                    if (!uris.isEmpty()) {
+                        // reverse the order as we will grab them from last->first
+                        Collections.reverse(uris);
+                        answer.addAll(uris);
+                    }
                 }
             }
         }
@@ -234,18 +236,20 @@ public class CamelJavaParserHelper {
         List<ParserResult> answer = new ArrayList<ParserResult>();
 
         MethodDeclaration md = (MethodDeclaration) method.getInternal();
-        for (Object statement : md.getBody().statements()) {
-            // must be a method call expression
-            if (statement instanceof ExpressionStatement) {
-                ExpressionStatement es = (ExpressionStatement) statement;
-                Expression exp = es.getExpression();
+        if (md.getBody() != null) {
+            for (Object statement : md.getBody().statements()) {
+                // must be a method call expression
+                if (statement instanceof ExpressionStatement) {
+                    ExpressionStatement es = (ExpressionStatement) statement;
+                    Expression exp = es.getExpression();
 
-                List<ParserResult> expressions = new ArrayList<ParserResult>();
-                parseExpression(method.getOrigin(), exp, expressions);
-                if (!expressions.isEmpty()) {
-                    // reverse the order as we will grab them from last->first
-                    Collections.reverse(expressions);
-                    answer.addAll(expressions);
+                    List<ParserResult> expressions = new ArrayList<ParserResult>();
+                    parseExpression(method.getOrigin(), exp, expressions);
+                    if (!expressions.isEmpty()) {
+                        // reverse the order as we will grab them from last->first
+                        Collections.reverse(expressions);
+                        answer.addAll(expressions);
+                    }
                 }
             }
         }
