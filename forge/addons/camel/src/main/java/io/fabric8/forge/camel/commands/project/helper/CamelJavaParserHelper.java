@@ -188,45 +188,38 @@ public class CamelJavaParserHelper {
             // is it a string that is concat together?
             InfixExpression ie = (InfixExpression) arg;
             if (InfixExpression.Operator.PLUS.equals(ie.getOperator())) {
-                Expression left = ie.getLeftOperand();
-                Expression right = ie.getRightOperand();
-                if (left instanceof StringLiteral && right instanceof StringLiteral) {
-                    String uri = ((StringLiteral) left).getLiteralValue() + ((StringLiteral) right).getLiteralValue();
+                String val1 = getLiteralValue(method, ie.getLeftOperand());
+                String val2 = getLiteralValue(method, ie.getRightOperand());
+                String uri = (val1 != null ? val1 : "") + (val2 != null ? val2 : "");
+                if (!uri.isEmpty()) {
                     int position = ie.getStartPosition();
                     // include extended when we concat on 2 or more lines
                     List extended = ie.extendedOperands();
                     if (extended != null) {
-                        for (int i = 0; i < extended.size(); i++) {
-                            Object ext = extended.get(i);
-                            if (ext instanceof StringLiteral) {
-                                uri += ((StringLiteral) ext).getLiteralValue();
-                            }
+                        for (Object ext : extended) {
+                            String val3 = getLiteralValue(method, (Expression) ext);
+                            uri += val3 != null ? val3 : "";
                         }
                     }
                     uris.add(new ParserResult(position, uri));
                 }
             }
-
         } else if (fields && arg instanceof SimpleName) {
-            String fieldName = ((SimpleName) arg).getIdentifier();
-            if (fieldName != null) {
-                // find field
-                FieldSource field = method.getOrigin() != null ? method.getOrigin().getField(fieldName) : null;
-                if (field != null) {
-                    String uri = null;
-                    // find the endpoint uri from the annotation
-                    AnnotationSource annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
-                    if (annotation != null) {
-                        uri = annotation.getStringValue();
-                    }
-                    annotation = field.getAnnotation("org.apache.camel.EndpointInject");
-                    if (annotation != null) {
-                        uri = annotation.getStringValue("uri");
-                    }
-                    if (uri != null) {
-                        int position = ((SimpleName) arg).getStartPosition();
-                        uris.add(new ParserResult(position, uri));
-                    }
+            FieldSource field = getField(method, (SimpleName) arg);
+            if (field != null) {
+                String uri = null;
+                // find the endpoint uri from the annotation
+                AnnotationSource annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
+                if (annotation != null) {
+                    uri = annotation.getStringValue();
+                }
+                annotation = field.getAnnotation("org.apache.camel.EndpointInject");
+                if (annotation != null) {
+                    uri = annotation.getStringValue("uri");
+                }
+                if (uri != null) {
+                    int position = ((SimpleName) arg).getStartPosition();
+                    uris.add(new ParserResult(position, uri));
                 }
             }
         }
@@ -277,9 +270,9 @@ public class CamelJavaParserHelper {
             if (args != null && args.size() >= 1) {
                 // it is a String type
                 Object arg = args.get(0);
-                if (arg instanceof StringLiteral) {
-                    String simple = ((StringLiteral) arg).getLiteralValue();
-                    int position = ((StringLiteral) arg).getStartPosition();
+                String simple = getLiteralValue(method, (Expression) arg);
+                if (simple != null && !simple.isEmpty()) {
+                    int position = ((Expression) arg).getStartPosition();
                     expressions.add(new ParserResult(position, simple));
                 }
             }
@@ -295,6 +288,28 @@ public class CamelJavaParserHelper {
                 }
             }
         }
+    }
+
+    private static FieldSource getField(MethodSource<JavaClassSource> method, SimpleName ref) {
+        String fieldName = ref.getIdentifier();
+        if (fieldName != null) {
+            // find field
+            FieldSource field = method.getOrigin() != null ? method.getOrigin().getField(fieldName) : null;
+            return field;
+        }
+        return null;
+    }
+
+    private static String getLiteralValue(MethodSource<JavaClassSource> method, Expression expression) {
+        if (expression instanceof StringLiteral) {
+            return ((StringLiteral) expression).getLiteralValue();
+        } else if (expression instanceof SimpleName) {
+            FieldSource field = getField(method, (SimpleName) expression);
+            if (field != null) {
+                return field.getStringInitializer();
+            }
+        }
+        return null;
     }
 
 }
