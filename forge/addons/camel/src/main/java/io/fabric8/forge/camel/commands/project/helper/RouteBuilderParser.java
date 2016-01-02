@@ -42,17 +42,6 @@ public class RouteBuilderParser {
 
     public static void parseRouteBuilderEndpoints(JavaClassSource clazz, String baseDir, String fullyQualifiedFileName,
                                                   List<CamelEndpointDetails> endpoints) {
-        // must be a route builder class (or from spring-boot)
-        // TODO: we should look up the type hierachy if possible
-        String superType = clazz.getSuperType();
-        if (superType != null) {
-            boolean valid = "org.apache.camel.builder.RouteBuilder".equals(superType)
-                    || "org.apache.camel.spring.boot.FatJarRouter".equals(superType)
-                    || "org.apache.camel.test.junit4.CamelTestSupport".equals(superType);
-            if (!valid) {
-                return;
-            }
-        }
 
         // look for fields which are not used in the route
         for (FieldSource<JavaClassSource> field : clazz.getFields()) {
@@ -200,17 +189,6 @@ public class RouteBuilderParser {
 
     public static void parseRouteBuilderSimpleExpressions(JavaClassSource clazz, String baseDir, String fullyQualifiedFileName,
                                                           List<CamelSimpleDetails> simpleExpressions) {
-
-        // must be a route builder class (or from spring-boot)
-        // TODO: we should look up the type hierachy if possible
-        String superType = clazz.getSuperType();
-        if (superType != null) {
-            boolean valid = "org.apache.camel.builder.RouteBuilder".equals(superType)
-                    || "org.apache.camel.spring.boot.FatJarRouter".equals(superType);
-            if (!valid) {
-                return;
-            }
-        }
 
         MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
         if (method != null) {

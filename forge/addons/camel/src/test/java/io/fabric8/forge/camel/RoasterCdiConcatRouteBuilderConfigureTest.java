@@ -49,12 +49,6 @@ public class RoasterCdiConcatRouteBuilderConfigureTest {
         for (ParserResult result : list) {
             System.out.println("Producer: " + result.getElement());
         }
-
-        List<CamelEndpointDetails> details = new ArrayList<CamelEndpointDetails>();
-        RouteBuilderParser.parseRouteBuilderEndpoints(clazz, ".", "src/test/java/io/fabric8/forge/camel/MyCdiConcatRouteBuilder.java", details);
-        for (CamelEndpointDetails detail : details) {
-            System.out.println("Endpoint: " + detail);
-        }
     }
 
 }
