@@ -23,6 +23,7 @@ import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Block;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.InfixExpression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodInvocation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ReturnStatement;
@@ -183,6 +184,29 @@ public class CamelJavaParserHelper {
             int position = ((StringLiteral) arg).getStartPosition();
             String uri = ((StringLiteral) arg).getLiteralValue();
             uris.add(new ParserResult(position, uri));
+        } else if (strings && arg instanceof InfixExpression) {
+            // is it a string that is concat together?
+            InfixExpression ie = (InfixExpression) arg;
+            if (InfixExpression.Operator.PLUS.equals(ie.getOperator())) {
+                Expression left = ie.getLeftOperand();
+                Expression right = ie.getRightOperand();
+                if (left instanceof StringLiteral && right instanceof StringLiteral) {
+                    String uri = ((StringLiteral) left).getLiteralValue() + ((StringLiteral) right).getLiteralValue();
+                    int position = ie.getStartPosition();
+                    // include extended when we concat on 2 or more lines
+                    List extended = ie.extendedOperands();
+                    if (extended != null) {
+                        for (int i = 0; i < extended.size(); i++) {
+                            Object ext = extended.get(i);
+                            if (ext instanceof StringLiteral) {
+                                uri += ((StringLiteral) ext).getLiteralValue();
+                            }
+                        }
+                    }
+                    uris.add(new ParserResult(position, uri));
+                }
+            }
+
         } else if (fields && arg instanceof SimpleName) {
             String fieldName = ((SimpleName) arg).getIdentifier();
             if (fieldName != null) {
