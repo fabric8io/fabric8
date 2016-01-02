@@ -22,6 +22,10 @@ import java.util.List;
 
 import io.fabric8.forge.camel.commands.project.model.CamelEndpointDetails;
 import io.fabric8.forge.camel.commands.project.model.CamelSimpleDetails;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MemberValuePair;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.jboss.forge.roaster.model.Annotation;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
@@ -30,6 +34,8 @@ import org.jboss.forge.roaster.model.source.MethodSource;
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 
 public class RouteBuilderParser {
+
+
 
     public static void parseRouteBuilderEndpoints(JavaClassSource clazz, String baseDir, String fullyQualifiedFileName,
                                                   List<CamelEndpointDetails> endpoints) {
@@ -51,10 +57,22 @@ public class RouteBuilderParser {
             // is the field annotated with a Camel endpoint
             String uri = null;
             for (Annotation ann : field.getAnnotations()) {
-                if ("org.apache.camel.EndpointInject".equals(ann.getQualifiedName())) {
-                    uri = ann.getStringValue();
-                } else if ("org.apache.camel.cdi.Uri".equals(ann.getQualifiedName())) {
-                    uri = ann.getStringValue();
+                boolean valid = "org.apache.camel.EndpointInject".equals(ann.getQualifiedName()) || "org.apache.camel.cdi.Uri".equals(ann.getQualifiedName());
+                if (valid) {
+                    Expression exp = (Expression) ann.getInternal();
+                    if (exp instanceof SingleMemberAnnotation) {
+                        exp = ((SingleMemberAnnotation) exp).getValue();
+                    } else if (exp instanceof NormalAnnotation) {
+                        List values = ((NormalAnnotation) exp).values();
+                        for (Object value : values) {
+                            MemberValuePair pair = (MemberValuePair) value;
+                            if ("uri".equals(pair.getName().toString())) {
+                                exp = pair.getValue();
+                                break;
+                            }
+                        }
+                    }
+                    uri = CamelJavaParserHelper.getLiteralValue(clazz, exp);
                 }
             }
 
