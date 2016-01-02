@@ -204,10 +204,10 @@ public class EndpointMojo extends AbstractMojo {
         }
         String endpointSummary;
         if (endpointErrors == 0) {
-            int ok = simpleExpressions.size() - endpointErrors;
+            int ok = endpoints.size() - endpointErrors;
             endpointSummary = String.format("Endpoint validation success: (%s = passed, %s = invalid)", ok, endpointErrors);
         } else {
-            int ok = simpleExpressions.size() - endpointErrors;
+            int ok = endpoints.size() - endpointErrors;
             endpointSummary = String.format("Endpoint validation error: (%s = passed, %s = invalid)", ok, endpointErrors);
         }
 

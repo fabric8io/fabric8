@@ -38,7 +38,8 @@ public class RouteBuilderParser {
         String superType = clazz.getSuperType();
         if (superType != null) {
             boolean valid = "org.apache.camel.builder.RouteBuilder".equals(superType)
-                    || "org.apache.camel.spring.boot.FatJarRouter".equals(superType);
+                    || "org.apache.camel.spring.boot.FatJarRouter".equals(superType)
+                    || "org.apache.camel.test.junit4.CamelTestSupport".equals(superType);
             if (!valid) {
                 return;
             }

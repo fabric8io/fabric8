@@ -19,11 +19,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Block;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodInvocation;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ReturnStatement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleName;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleType;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Statement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.StringLiteral;
 import org.jboss.forge.roaster.model.source.AnnotationSource;
 import org.jboss.forge.roaster.model.source.FieldSource;
@@ -37,6 +42,45 @@ public class CamelJavaParserHelper {
         // must be public void configure()
         if (method != null && method.isPublic() && method.getParameters().isEmpty() && method.getReturnType().isType("void")) {
             return method;
+        }
+
+        // maybe the route builder is from unit testing with camel-test as an anonymous inner class
+        // there is a bit of code to dig out this using the eclipse jdt api
+        method = clazz.getMethod("createRouteBuilder");
+        if (method != null && (method.isPublic() || method.isProtected()) && method.getParameters().isEmpty()) {
+            // find configure inside the code
+            MethodDeclaration md = (MethodDeclaration) method.getInternal();
+            Block block = md.getBody();
+            if (block != null) {
+                List statements = block.statements();
+                for (int i = 0; i < statements.size(); i++) {
+                    Statement stmt = (Statement) statements.get(i);
+                    if (stmt instanceof ReturnStatement) {
+                        ReturnStatement rs = (ReturnStatement) stmt;
+                        Expression exp = rs.getExpression();
+                        if (exp != null && exp instanceof ClassInstanceCreation) {
+                            ClassInstanceCreation cic = (ClassInstanceCreation) exp;
+                            boolean isRouteBuilder = false;
+                            if (cic.getType() instanceof SimpleType) {
+                                SimpleType st = (SimpleType) cic.getType();
+                                isRouteBuilder = "RouteBuilder".equals(st.getName().toString());
+                            }
+                            if (isRouteBuilder && cic.getAnonymousClassDeclaration() != null) {
+                                List body = cic.getAnonymousClassDeclaration().bodyDeclarations();
+                                for (int j = 0; j < body.size(); j++) {
+                                    Object line = body.get(j);
+                                    if (line instanceof MethodDeclaration) {
+                                        MethodDeclaration amd = (MethodDeclaration) line;
+                                        if ("configure".equals(amd.getName().toString())) {
+                                            return new AnonymousMethodSource(clazz, amd);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return null;
@@ -143,7 +187,7 @@ public class CamelJavaParserHelper {
             String fieldName = ((SimpleName) arg).getIdentifier();
             if (fieldName != null) {
                 // find field
-                FieldSource field = method.getOrigin().getField(fieldName);
+                FieldSource field = method.getOrigin() != null ? method.getOrigin().getField(fieldName) : null;
                 if (field != null) {
                     String uri = null;
                     // find the endpoint uri from the annotation
