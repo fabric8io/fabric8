@@ -28,6 +28,8 @@ import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MemberValuePair;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.MethodInvocation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.NumberLiteral;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ReturnStatement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleName;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleType;
@@ -39,6 +41,11 @@ import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
 
+/**
+ * A Camel Java parser that only depends on the Roaster API.
+ * <p/>
+ * This implementation is lower level details. For a higher level parser see {@link RouteBuilderParser}.
+ */
 public class CamelJavaParserHelper {
 
     public static MethodSource<JavaClassSource> findConfigureMethod(JavaClassSource clazz) {
@@ -299,8 +306,15 @@ public class CamelJavaParserHelper {
     }
 
     public static String getLiteralValue(JavaClassSource clazz, Expression expression) {
+        // unwrap paranthesis
+        if (expression instanceof ParenthesizedExpression) {
+            expression = ((ParenthesizedExpression) expression).getExpression();
+        }
+
         if (expression instanceof StringLiteral) {
             return ((StringLiteral) expression).getLiteralValue();
+        } else if (expression instanceof NumberLiteral) {
+            return ((NumberLiteral) expression).getToken();
         } else if (expression instanceof SimpleName) {
             FieldSource field = getField(clazz, (SimpleName) expression);
             if (field != null) {
@@ -311,24 +325,54 @@ public class CamelJavaParserHelper {
             // is it a string that is concat together?
             InfixExpression ie = (InfixExpression) expression;
             if (InfixExpression.Operator.PLUS.equals(ie.getOperator())) {
+
                 String val1 = getLiteralValue(clazz, ie.getLeftOperand());
                 String val2 = getLiteralValue(clazz, ie.getRightOperand());
-                answer = (val1 != null ? val1 : "") + (val2 != null ? val2 : "");
+
+                // if numeric then we plus the values, otherwise we string concat
+                boolean numeric = isNumericOperator(clazz, ie.getLeftOperand()) && isNumericOperator(clazz, ie.getRightOperand());
+                if (numeric) {
+                    Long num1 = (val1 != null ? Long.valueOf(val1) : 0);
+                    Long num2 = (val2 != null ? Long.valueOf(val2) : 0);
+                    answer = "" + (num1 + num2);
+                } else {
+                    answer = (val1 != null ? val1 : "") + (val2 != null ? val2 : "");
+                }
+
                 if (!answer.isEmpty()) {
-                    int position = ie.getStartPosition();
                     // include extended when we concat on 2 or more lines
                     List extended = ie.extendedOperands();
                     if (extended != null) {
                         for (Object ext : extended) {
                             String val3 = getLiteralValue(clazz, (Expression) ext);
-                            answer += val3 != null ? val3 : "";
+                            if (numeric) {
+                                Long num3 = (val3 != null ? Long.valueOf(val3) : 0);
+                                Long num = Long.valueOf(answer);
+                                answer = "" + (num + num3);
+                            } else {
+                                answer += val3 != null ? val3 : "";
+                            }
                         }
                     }
                 }
             }
             return answer;
         }
+
         return null;
+    }
+
+    private static boolean isNumericOperator(JavaClassSource clazz, Expression expression) {
+        if (expression instanceof NumberLiteral) {
+            return true;
+        } else if (expression instanceof SimpleName) {
+            FieldSource field = getField(clazz, (SimpleName) expression);
+            if (field != null) {
+                return field.getType().isType("int") || field.getType().isType("long")
+                        || field.getType().isType("Integer") || field.getType().isType("Long");
+            }
+        }
+        return false;
     }
 
 }

@@ -33,9 +33,12 @@ import org.jboss.forge.roaster.model.source.MethodSource;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 
+/**
+ * A Camel RouteBuilder parser that uses forge and roaster.
+ * <p/>
+ * This implementation is higher level details, and uses the lower level parser {@link CamelJavaParserHelper}.
+ */
 public class RouteBuilderParser {
-
-
 
     public static void parseRouteBuilderEndpoints(JavaClassSource clazz, String baseDir, String fullyQualifiedFileName,
                                                   List<CamelEndpointDetails> endpoints) {
@@ -235,6 +238,7 @@ public class RouteBuilderParser {
     }
 
     private static int findLineNumber(String fullyQualifiedFileName, int position) {
+        // TODO: Next version of roaster has this out of the box (LocationCapable)
         int lines = 0;
 
         try {

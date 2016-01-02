@@ -20,13 +20,13 @@ import org.apache.camel.builder.RouteBuilder;
 public class MyNewLineConstRouteBuilder extends RouteBuilder {
 
     private static final String EXISTS = "Append";
-    private static final int MOD = 777;
+    private static final int MOD = 770;
 
     @Override
     public void configure() throws Exception {
         from("timer:foo")
             .toD("file:output?fileExist=" + EXISTS
-                    + "&chmod=" + MOD
+                    + "&chmod=" + (MOD + 6 + 1)
                     + "&allowNullBody=true")
             .to("log:b");
     }
