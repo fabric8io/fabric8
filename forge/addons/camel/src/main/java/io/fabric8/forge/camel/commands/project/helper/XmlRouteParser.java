@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 
 import static io.fabric8.forge.camel.commands.project.helper.CamelCatalogHelper.endpointComponentName;
 import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.getSafeAttribute;
+import static io.fabric8.forge.camel.commands.project.helper.CamelXmlHelper.trimEndpointUri;
 
 public class XmlRouteParser {
 
@@ -39,6 +40,8 @@ public class XmlRouteParser {
             List<Node> nodes = CamelXmlHelper.findAllEndpoints(dom);
             for (Node node : nodes) {
                 String uri = getSafeAttribute(node, "uri");
+                // trim and remove whitespace noise
+                uri = trimEndpointUri(uri);
                 String id = getSafeAttribute(node, "id");
                 String lineNumber = (String) node.getUserData(XmlLineNumberParser.LINE_NUMBER);
 

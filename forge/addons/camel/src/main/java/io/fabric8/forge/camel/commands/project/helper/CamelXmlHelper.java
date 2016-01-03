@@ -118,4 +118,13 @@ public final class CamelXmlHelper {
         }
         return null;
     }
+
+    public static String trimEndpointUri(String uri) {
+        uri = uri.trim();
+        // if the uri is using new-lines then remove whitespace noise before & and ? separator
+        uri = uri.replaceAll("(\\s+)(\\&)", "$2");
+        uri = uri.replaceAll("(\\&)(\\s+)", "$1");
+        uri = uri.replaceAll("(\\?)(\\s+)", "$1");
+        return uri;
+    }
 }
