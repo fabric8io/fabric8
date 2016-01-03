@@ -203,7 +203,6 @@ public class CamelJavaParserHelper {
         if (fields && arg instanceof SimpleName) {
             FieldSource field = getField(clazz, (SimpleName) arg);
             if (field != null) {
-                String uri = null;
                 // find the endpoint uri from the annotation
                 AnnotationSource annotation = field.getAnnotation("org.apache.camel.cdi.Uri");
                 if (annotation == null) {
@@ -223,18 +222,23 @@ public class CamelJavaParserHelper {
                             }
                         }
                     }
-                    uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                    String uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                    if (uri != null) {
+                        int position = ((SimpleName) arg).getStartPosition();
+                        uris.add(new ParserResult(position, uri));
+                    }
                 } else {
                     // the field may be initialized using variables, so we need to evaluate those expressions
                     Object fi = field.getInternal();
                     if (fi instanceof VariableDeclaration) {
                         Expression exp = ((VariableDeclaration) fi).getInitializer();
-                        uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                        String uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                        if (uri != null) {
+                            // we want the position of the field, and not in the route
+                            int position = ((VariableDeclaration) fi).getStartPosition();
+                            uris.add(new ParserResult(position, uri));
+                        }
                     }
-                }
-                if (uri != null) {
-                    int position = ((SimpleName) arg).getStartPosition();
-                    uris.add(new ParserResult(position, uri));
                 }
             }
         }
