@@ -36,6 +36,7 @@ import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SimpleType;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Statement;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.StringLiteral;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.jboss.forge.roaster.model.source.AnnotationSource;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
@@ -193,7 +194,7 @@ public class CamelJavaParserHelper {
 
     private static void extractEndpointUriFromArgument(JavaClassSource clazz, List<ParserResult> uris, Object arg, boolean strings, boolean fields) {
         if (strings) {
-            String uri = getLiteralValue(clazz, (Expression) arg);
+            String uri = getLiteralValue(clazz, (Expression) arg, true);
             if (uri != null) {
                 int position = ((Expression) arg).getStartPosition();
                 uris.add(new ParserResult(position, uri));
@@ -222,7 +223,14 @@ public class CamelJavaParserHelper {
                             }
                         }
                     }
-                    uri = CamelJavaParserHelper.getLiteralValue(clazz, exp);
+                    uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                } else {
+                    // the field may be initialized using variables, so we need to evaluate those expressions
+                    Object fi = field.getInternal();
+                    if (fi instanceof VariableDeclaration) {
+                        Expression exp = ((VariableDeclaration) fi).getInitializer();
+                        uri = CamelJavaParserHelper.getLiteralValue(clazz, exp, false);
+                    }
                 }
                 if (uri != null) {
                     int position = ((SimpleName) arg).getStartPosition();
@@ -279,7 +287,7 @@ public class CamelJavaParserHelper {
             if (args != null && args.size() >= 1) {
                 // it is a String type
                 Object arg = args.get(0);
-                String simple = getLiteralValue(clazz, (Expression) arg);
+                String simple = getLiteralValue(clazz, (Expression) arg, false);
                 if (simple != null && !simple.isEmpty()) {
                     int position = ((Expression) arg).getStartPosition();
                     expressions.add(new ParserResult(position, simple));
@@ -309,7 +317,7 @@ public class CamelJavaParserHelper {
         return null;
     }
 
-    public static String getLiteralValue(JavaClassSource clazz, Expression expression) {
+    public static String getLiteralValue(JavaClassSource clazz, Expression expression, boolean literalOnly) {
         // unwrap paranthesis
         if (expression instanceof ParenthesizedExpression) {
             expression = ((ParenthesizedExpression) expression).getExpression();
@@ -319,10 +327,21 @@ public class CamelJavaParserHelper {
             return ((StringLiteral) expression).getLiteralValue();
         } else if (expression instanceof NumberLiteral) {
             return ((NumberLiteral) expression).getToken();
-        } else if (expression instanceof SimpleName) {
+        }
+
+        // store hee we only do literals
+        if (literalOnly) {
+            return null;
+        }
+
+        if (expression instanceof SimpleName) {
             FieldSource field = getField(clazz, (SimpleName) expression);
             if (field != null) {
-                return field.getStringInitializer();
+                Object fi = field.getInternal();
+                if (fi instanceof VariableDeclaration) {
+                    Expression exp = ((VariableDeclaration) fi).getInitializer();
+                    return getLiteralValue(clazz, exp, literalOnly);
+                }
             }
         } else if (expression instanceof InfixExpression) {
             String answer = null;
@@ -330,8 +349,8 @@ public class CamelJavaParserHelper {
             InfixExpression ie = (InfixExpression) expression;
             if (InfixExpression.Operator.PLUS.equals(ie.getOperator())) {
 
-                String val1 = getLiteralValue(clazz, ie.getLeftOperand());
-                String val2 = getLiteralValue(clazz, ie.getRightOperand());
+                String val1 = getLiteralValue(clazz, ie.getLeftOperand(), literalOnly);
+                String val2 = getLiteralValue(clazz, ie.getRightOperand(), literalOnly);
 
                 // if numeric then we plus the values, otherwise we string concat
                 boolean numeric = isNumericOperator(clazz, ie.getLeftOperand()) && isNumericOperator(clazz, ie.getRightOperand());
@@ -348,7 +367,7 @@ public class CamelJavaParserHelper {
                     List extended = ie.extendedOperands();
                     if (extended != null) {
                         for (Object ext : extended) {
-                            String val3 = getLiteralValue(clazz, (Expression) ext);
+                            String val3 = getLiteralValue(clazz, (Expression) ext, literalOnly);
                             if (numeric) {
                                 Long num3 = (val3 != null ? Long.valueOf(val3) : 0);
                                 Long num = Long.valueOf(answer);
