@@ -34,6 +34,9 @@
     <hawtio.version>1.4.59</hawtio.version>
     <!-- docker maven plugin -->
     <docker.version>0.13.6</docker.version>
+    <!-- TODO:  Requires Camel 2.16.2+
+    <came.version>2.17-SNAPSHOT</came.version>
+    -->
   </properties>
 
   <dependencyManagement>
