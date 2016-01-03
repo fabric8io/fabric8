@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Block;
+import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.Expression;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -329,6 +330,8 @@ public class CamelJavaParserHelper {
 
         if (expression instanceof StringLiteral) {
             return ((StringLiteral) expression).getLiteralValue();
+        } else if (expression instanceof BooleanLiteral) {
+            return "" + ((BooleanLiteral) expression).booleanValue();
         } else if (expression instanceof NumberLiteral) {
             return ((NumberLiteral) expression).getToken();
         }
