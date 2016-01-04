@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Secret Annotations | Fabric8 Documentation</title>
+        <title>Source Code | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.6">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="./architecture.html" />
+    <link rel="next" href="./v2-changes.html" />
     
     
-    <link rel="prev" href="./annotations.html" />
+    <link rel="prev" href="./builds.html" />
     
 
         
@@ -53,9 +53,9 @@
         
         
     <div class="book"
-        data-level="7.1"
-        data-chapter-title="Secret Annotations"
-        data-filepath="secretAnnotations.md"
+        data-level="9"
+        data-chapter-title="Source Code"
+        data-filepath="projects.md"
         data-basepath="."
         data-revision="Mon Jan 04 2016 16:16:39 GMT+0000 (UTC)"
         data-innerlanguage="">
@@ -957,7 +957,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="7.1" data-path="secretAnnotations.html">
+        <li class="chapter " data-level="7.1" data-path="secretAnnotations.html">
             
                 
                     <a href="./secretAnnotations.html">
@@ -1103,7 +1103,7 @@
             
         </li>
     
-        <li class="chapter " data-level="9" data-path="projects.html">
+        <li class="chapter active" data-level="9" data-path="projects.html">
             
                 
                     <a href="./projects.html">
@@ -1247,66 +1247,54 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="secret-annotations"><a name="secret-annotations" class="plugin-anchor" href="#secret-annotations"><span class="fa fa-link"></span></a>Secret Annotations</h2>
-<p>Pods (and PodSpecs) can reference secrets via volumes in kubernetes and if the secrets are not yet created, Kubernetes will wait to instantiate the pod.</p>
-<p>Secret Annotations provide a way to annotate a PodTemplate with the kind of secret that is required when mounting secrets into volumes so that tools such as the <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> command line installer can automatically generate ssh or gpg keys for you or let you import them at install time.</p>
-<p>e.g. so that run a secret install step after you create Templates or ReplicationControllers to install/create any required secrets automatically.</p>
-<p>This means that Kubernetes <code>List</code> or OpenShift <code>Template</code> resources can refer to secrets and be installed; but then pods which need secrets won&apos;t activate until a user or tool creates the associated secrets. It also means any mechanism can be used to install/create the secrets. Hopefully over time more tools cna support these annotation too.</p>
-<p>Longer term this metadata should really be encoded concretely in the SecretVolume directly in the PodTemplate.</p>
-<h3 id="annotations"><a name="annotations" class="plugin-anchor" href="#annotations"><span class="fa fa-link"></span></a>Annotations</h3>
-<p>We use different annotations for different kinds of secrets</p>
-<h3 id="ssh-keys"><a name="ssh-keys" class="plugin-anchor" href="#ssh-keys"><span class="fa fa-link"></span></a>SSH keys</h3>
-<p>Use an annotation with the key <code>fabric8.io/secret-ssh-key</code></p>
-<pre><code>fabric8.io/secret-ssh-key = mysecretname
-</code></pre><p>This will indicate that the secret called <code>mysecretname</code> needs to be created as an SSH public and private key pair</p>
-<p>If you need multiple ssh key secrets then use a comma separated list</p>
-<pre><code>fabric8.io/secret-ssh-key = secret1,secret2,anothersecret
-</code></pre><p>This will generate/import 3 secrets which all contain public/private keys.</p>
-<h4 id="ssh-public-keys"><a name="ssh-public-keys" class="plugin-anchor" href="#ssh-public-keys"><span class="fa fa-link"></span></a>SSH public keys</h4>
-<p>Use an annotation with the key <code>fabric8.io/secret-ssh-public-key</code></p>
-<p>Often you need to create secrets that only contain the public key; so that the private key is not visible in a pod.</p>
-<p>To do this name your secret with <code>.pub</code> on the end.</p>
-<pre><code>fabric8.io/secret-ssh-public-key = mysecretname.pub
-</code></pre><p>This will indicate that the secret called <code>mysecretname.pub</code> needs to be created as secret which only contains the SSH public key from the secret <code>mysecretname</code> which has the private and public key.</p>
-<p>i.e. there will be 2 secrets created</p>
+                        <h2 id="projects"><a name="projects" class="plugin-anchor" href="#projects"><span class="fa fa-link"></span></a>Projects</h2>
+<p>Fabric8 is made up of a number of different modular open source repositories:</p>
+<h3 id="core"><a name="core" class="plugin-anchor" href="#core"><span class="fa fa-link"></span></a>Core</h3>
 <ul>
-<li>mysecretname contains a public and private ssh key</li>
-<li>mysecretname.pub contains <em>just</em> the public ssh key</li>
+<li><a href="https://github.com/fabric8io/kubernetes-model" target="_blank">fabric8io/kubernetes-model</a> the Java DTOs for working with <a href="http://kubernetes.io/" target="_blank">kubernetes</a> which are generated from the go source code in kubernetes</li>
+<li><a href="https://github.com/fabric8io/kubernetes-client" target="_blank">fabric8io/kubernetes-client</a> the minimal <a href="https://github.com/fabric8io/kubernetes-client/blob/master/README.md" target="_blank">Kubernetes Java client</a> for working with the <a href="http://kubernetes.io/" target="_blank">kubernetes REST API</a></li>
+<li><a href="https://github.com/fabric8io/fabric8" target="_blank">fabric8io/fabric8</a> the main java libraries</li>
 </ul>
-<h5 id="folders-of-public-keys"><a name="folders-of-public-keys" class="plugin-anchor" href="#folders-of-public-keys"><span class="fa fa-link"></span></a>folders of public keys</h5>
-<p>Its common to want to create a single secret that contains a number of public keys inside the same secret that is then mounted to single volume.</p>
-<p>To do this name your secret appending <code>[secret1.pub,secret2,secret3]</code> on the end of the secret name.</p>
-<pre><code>fabric8.io/secret-ssh-public-key = mybagofsecrets[cheese.pub,beer.pub]
-</code></pre><p>This will create a secret called <code>mybagofsecrets</code> which contains files <code>cheese.pub</code> and <code>beer.pub</code> for the public keys of the SSH key secrets <code>cheese</code> and <code>beer</code></p>
-<p>i.e. there will be 3 secrets created</p>
+<h3 id="devops"><a name="devops" class="plugin-anchor" href="#devops"><span class="fa fa-link"></span></a>DevOps</h3>
+<p>The following projects are for <a href="http://fabric8.io/guide/fabric8DevOps.html" target="_blank">Fabric8 DevOps</a>:</p>
 <ul>
-<li>cheese contains a public and private ssh key</li>
-<li>beer contains a public and private ssh key</li>
-<li>mybagofsecrets contains the public keys <code>cheese.pub</code> and <code>beer.pub</code> </li>
+<li><a href="https://github.com/fabric8io/fabric8-devops" target="_blank">fabric8io/fabric8-devops</a> contains the main <a href="http://fabric8.io/guide/fabric8DevOps.html" target="_blank">Fabric8 DevOps</a> applications</li>
+<li><a href="https://github.com/fabric8io/fabric8-console" target="_blank">fabric8io/fabric8-console</a> the web console for fabric8</li>
+<li><a href="https://github.com/fabric8io/fabric8-forge" target="_blank">fabric8io/fabric8-forge</a> contains the main <a href="http://fabric8.io/guide/forge.html" target="_blank">JBoss Forge addons and REST service</a> </li>
+<li><a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">fabric8io/jenkins-workflow-library</a> the reusable <a href="http://fabric8.io/guide/jenkinsWorkflowLibrary.html" target="_blank">Jenkins Workflow library</a></li>
+<li><a href="https://github.com/fabric8io/fabric8-jenkins-workflow-steps" target="_blank">fabric8io/fabric8-jenkins-workflow-steps</a> the Jenkins Workflow steps for working with <a href="http://fabric8.io/guide/fabric8DevOps.html" target="_blank">Fabric8 DevOps</a></li>
 </ul>
-<h4 id="gpg"><a name="gpg" class="plugin-anchor" href="#gpg"><span class="fa fa-link"></span></a>GPG</h4>
-<p>Use an annotation of the form</p>
-<pre><code>fabric8.io/secret-gpg-key = mysecretname
-</code></pre><h3 id="mounting-ssh-keys"><a name="mounting-ssh-keys" class="plugin-anchor" href="#mounting-ssh-keys"><span class="fa fa-link"></span></a>Mounting SSH keys</h3>
-<p>Mounting all secretes end up being a volume with a file for each data entry inside the secret.</p>
-<table>
-<thead>
-<tr>
-<th>Annotation</th>
-<th>Files in the secret volume folder</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>fabric8.io/secret-ssh-key</td>
-<td>id_rsa.pub id_rsa</td>
-</tr>
-<tr>
-<td>fabric8.io/secret-ssh-public-key</td>
-<td>id_rsa.pub</td>
-</tr>
-</tbody>
-</table>
+<h3 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h3>
+<p>The following projects are for <a href="http://fabric8.io/guide/ipaas.html" target="_blank">Fabric8 iPaaS</a>:</p>
+<ul>
+<li><a href="https://github.com/fabric8io/fabric8-ipaas" target="_blank">fabric8io/fabric8-ipaas</a> contains the main <a href="http://fabric8.io/guide/ipaas.html" target="_blank">iPaaS</a> applications</li>
+<li><a href="https://github.com/fabric8io/ipaas-quickstarts" target="_blank">fabric8io/ipaas-quickstarts</a> contains the <a href="http://fabric8.io/guide/quickstarts/index.html" target="_blank">quickstarts</a> and <a href="http://fabric8.io/guide/quickstarts/archetypes.html" target="_blank">archetypes</a> for the <a href="http://fabric8.io/guide/ipaas.html" target="_blank">iPaaS</a></li>
+</ul>
+<h3 id="tools"><a name="tools" class="plugin-anchor" href="#tools"><span class="fa fa-link"></span></a>Tools</h3>
+<ul>
+<li><a href="https://github.com/fabric8io/gofabric8" target="_blank">fabric8io/gofabric8</a> is a go based CLI tool for deploying fabric8</li>
+<li><a href="https://github.com/fabric8io/helm" target="_blank">fabric8io/helm</a> is a fork of <a href="http://helm.sh/" target="_blank">helm</a> for working with OpenShift and Fabric8</li>
+</ul>
+<h3 id="additional-projects"><a name="additional-projects" class="plugin-anchor" href="#additional-projects"><span class="fa fa-link"></span></a>Additional projects</h3>
+<p>The web console uses many different <a href="http://hawt.io/overview/index.html" target="_blank">hawtio 2 modules</a>. In particular the main dependency of is <a href="https://github.com/hawtio/hawtio-kubernetes" target="_blank">hawtio-kubernetes</a></p>
+<h3 id="docker-images"><a name="docker-images" class="plugin-anchor" href="#docker-images"><span class="fa fa-link"></span></a>Docker images</h3>
+<p>There are numerous docker images created via separate github repositories such as the following:</p>
+<ul>
+<li><a href="https://github.com/fabric8io/docker-gerrit" target="_blank">fabric8io/docker-gerrit</a></li>
+<li><a href="https://github.com/fabric8io/docker-grafana" target="_blank">fabric8io/docker-grafana</a></li>
+<li><a href="https://github.com/fabric8io/docker-gogs" target="_blank">fabric8io/docker-gogs</a></li>
+<li><a href="https://github.com/fabric8io/docker-prometheus" target="_blank">fabric8io/docker-prometheus</a></li>
+<li><a href="https://github.com/fabric8io/nexus-docker" target="_blank">fabric8io/nexus-docker</a></li>
+<li><a href="https://github.com/fabric8io/hubot-irc" target="_blank">fabric8io/hubot-irc</a></li>
+<li><a href="https://github.com/fabric8io/hubot-lets-chat" target="_blank">fabric8io/hubot-lets-chat</a></li>
+<li><a href="https://github.com/fabric8io/hubot-slack" target="_blank">fabric8io/hubot-slack</a></li>
+<li><a href="https://github.com/fabric8io/fabric8-eclipse-orion" target="_blank">fabric8io/fabric8-eclipse-orion</a></li>
+<li><a href="https://github.com/fabric8io/fabric8-kiwiirc" target="_blank">fabric8io/fabric8-kiwiirc</a></li>
+<li><a href="https://github.com/fabric8io/jenkins-docker" target="_blank">fabric8io/jenkins-docker</a></li>
+<li><a href="https://github.com/fabric8io/lets-chat" target="_blank">fabric8io/lets-chat</a></li>
+<li><a href="https://github.com/fabric8io/taiga-docker" target="_blank">fabric8io/taiga-docker</a></li>
+<li><a href="https://github.com/fabric8io/openshift-auth-proxy" target="_blank">fabric8io/openshift-auth-proxy</a></li>
+</ul>
 
                     
                     </section>
@@ -1317,10 +1305,10 @@
         </div>
 
         
-        <a href="./annotations.html" class="navigation navigation-prev " aria-label="Previous page: Annotations"><i class="fa fa-angle-left"></i></a>
+        <a href="./builds.html" class="navigation navigation-prev " aria-label="Previous page: Builds"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./architecture.html" class="navigation navigation-next " aria-label="Next page: Architecture"><i class="fa fa-angle-right"></i></a>
+        <a href="./v2-changes.html" class="navigation navigation-next " aria-label="Next page: Changes from V1"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
