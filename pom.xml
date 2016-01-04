@@ -81,9 +81,6 @@
         <commons.collections.version>3.2.2</commons.collections.version>
         <hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
-        <jboss.forge.version>2.20.1.Final</jboss.forge.version>
-        <jboss.roaster.version>2.17.4.Final</jboss.roaster.version>
-        <furnace.version>2.22.10.Final</furnace.version>
         <jolokia.version>1.3.2</jolokia.version>
         <jgroups.version>3.6.6.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.18</jsonschema2pojo.version>
@@ -103,8 +100,6 @@
         -->
         <maven.compiler.argument.target>${maven.compiler.target}</maven.compiler.argument.target>
         <maven.compiler.argument.source>${maven.compiler.source}</maven.compiler.argument.source>
-
-        <fabric8.release.version>2.2.54</fabric8.release.version>
 
         <aether.version>1.0.0.v20140518</aether.version>
         <archetype-packaging.version>2.4</archetype-packaging.version>
@@ -316,11 +311,6 @@
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-devops-connector</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8.forge</groupId>
-              <artifactId>fabric8-forge-core</artifactId>
               <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1300,7 +1290,6 @@
         <module>fabric8-maven-plugin</module>
         <module>hawt-app-maven-plugin</module>
         <module>tooling</module>
-        <module>forge</module>
     </modules>
 
     <build>
@@ -1548,8 +1537,6 @@
         <profile>
             <id>release</id>
             <properties>
-              <!-- when releasing lets use the release version -->
-              <fabric8.release.version>${project.version}</fabric8.release.version>
             </properties>
             <build>
                 <plugins>
