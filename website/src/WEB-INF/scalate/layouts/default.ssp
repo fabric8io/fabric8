@@ -106,6 +106,7 @@
               <li title="Get started with fabric8 now!"><a href="/guide/getStarted/index.html">Get Started</a></li>
               <li title="Check out the documentation"><a href="/docs/index.html">Documentation</a></li>
               <li title="Join the fabric8 community"><a href="/community/index.html">Community</a></li>
+              <li title="Check the latest news on fabric8"><a href="http://blog.fabric8.io/">Blog</a></li>
               <li title="View articles, demos and videos on using fabric8"><a href="/articles/index.html">Articles</a></li>
               <li title="Fork or browse fabric8 on github"><a href="https://github.com/fabric8io/fabric8">github</a></li>
             </ul>
