@@ -22,6 +22,6 @@ To enable the fabric8 API tool then add the following to your [Apache Maven](htt
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-apt</artifactId>
         <scope>provided</scope>
-        <version>2.2.82</version>
+        <version>2.2.83</version>
     </dependency>
 
