@@ -6,17 +6,13 @@ fabric8 uses the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0
 
 #### What is it?
 
-fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Hawtio and others.
+Fabric8 is an integrated open source [DevOps](fabric8DevOps.html) and [Integration Platform](ipaas.html) which works out of the box on any [Kubernetes](http://kubernetes.io/) or [OpenShift](http://www.openshift.org/) environment and provides [Continuous Delivery](cdelivery.html), [Management](management.html), [ChatOps](chat.html) and a [Chaos Monkey](chaosMonkey.html).
 
-It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.
 
-Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to see a more detailed treatment.
 
 #### What does fabric8 do?
 
-fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.
-
-Try reading the [overview](/guide/overview.html) to see if that helps give you an idea what fabric8 is.
+Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/). 
 
 #### What value does fabric8 add over OpenShift?
 
@@ -42,6 +38,10 @@ See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html)
 #### What Java versions are supported?
 
 fabric8 runs on Java 7 and 8.
+
+#### Where do I look for the source code?
+
+Fabric8 is comprised of a collection of projects written in Java and Golang and packaged up as Docker containers. The git repos for each of these projects/containers can be found in detail in the [project documentation pages](projects.md) 
 
 #### Are Docker and Kubernetes required to run Fabric8?
 
