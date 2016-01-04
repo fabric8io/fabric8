@@ -57,7 +57,7 @@
         data-chapter-title="Archetypes"
         data-filepath="quickstarts/archetypes.md"
         data-basepath=".."
-        data-revision="Mon Jan 04 2016 18:58:22 GMT+0000 (UTC)"
+        data-revision="Mon Jan 04 2016 22:13:09 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1253,12 +1253,12 @@ a new project based on the archetype easily:</p>
 <pre><code>mvn archetype:generate \
       -DarchetypeGroupId=io.fabric8.archetypes \
       -DarchetypeArtifactId=cdi-camel-archetype \
-      -DarchetypeVersion=2.2.83
+      -DarchetypeVersion=2.2.84
 </code></pre><p>You will be asked for some project parameters like the <code>groupId</code> or
 the <code>artifactId</code>:</p>
 <pre><code>[INFO] --- maven-archetype-plugin:2.3:generate (default-cli) @ standalone-pom ---
 [INFO] Generating project in Interactive mode
-[INFO] Archetype repository not defined. Using the one from [io.fabric8.archetypes:cdi-camel-archetype:2.2.83] found in catalog remote
+[INFO] Archetype repository not defined. Using the one from [io.fabric8.archetypes:cdi-camel-archetype:2.2.84] found in catalog remote
 Define value for property &apos;groupId&apos;: : myf8
 Define value for property &apos;artifactId&apos;: : cdi-demo
 Define value for property &apos;version&apos;:  1.0-SNAPSHOT: :
@@ -1277,7 +1277,7 @@ parameters as Maven properties:</p>
       -DarchetypeArtifactId=cdi-camel-archetype \
       -DgroupId=myf8 \
       -DartifactId=d2 \
-      -DarchetypeVersion=2.2.83
+      -DarchetypeVersion=2.2.84
 </code></pre><p>The name of the <code>archetypeArtifactId</code> consists of the category
 (<code>cdi</code>,<code>java</code>,<code>karaf</code>,<code>spring-boot</code> or <code>war</code>), the subproject
 within it (e.g. <code>camel</code> for <code>cdi</code> but see also the
