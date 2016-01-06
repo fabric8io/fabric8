@@ -38,8 +38,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import io.fabric8.tooling.archetype.ArchetypeUtils;
+import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -518,6 +520,21 @@ public class ArchetypeBuilder {
             Document pomDocument = archetypeUtils.parseXml(new InputSource(new StringReader(sw.toString())));
 
             List<String> emptyList = Collections.emptyList();
+
+            // lets replace the parent pom's version
+            String projectVersion = System.getProperty("project.version");
+            if (Strings.isNotBlank(projectVersion)) {
+                Element parent = DomHelper.firstChild(pomDocument.getDocumentElement(), "parent");
+                if (parent != null) {
+                    Element version = DomHelper.firstChild(parent, "version");
+                    if (version != null) {
+                        if (!Objects.equal(version.getTextContent(), projectVersion)) {
+                            version.setTextContent(projectVersion);
+                        }
+                    }
+                }
+            }
+
 
             // artifactId = original artifactId with "-archetype"
             Element artifactId = replaceOrAddElement(pomDocument, pomDocument.getDocumentElement(), "artifactId", emptyList);
