@@ -313,9 +313,11 @@ case, flushing the DNS cache helps:
 
 #### Updating: tear down fabric8 and re-install after a new fabric8 release
 
-If you want to avoid performing a `vagrant destroy && vagrant up` when a new release is available you should be able to follow these commands..
+If you want to avoid performing a `vagrant destroy && vagrant up` when a new release is available you should be able to follow these commands from within the fabric8-installer dir..
 
-        vagrant reload
+        git pull
+        cd vagrant/openshift
+        vagrant provision
         vagrant ssh
         sudo su
         oc login --username=admin --password=any
