@@ -57,7 +57,7 @@
         data-chapter-title="Fabric8 Vagrant Image"
         data-filepath="getStarted/vagrant.md"
         data-basepath=".."
-        data-revision="Tue Jan 05 2016 11:53:01 GMT+0000 (UTC)"
+        data-revision="Wed Jan 06 2016 12:32:08 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1297,7 +1297,7 @@ new services look for the following line and add your new routes
 </code></pre></li>
 <li><p><strong>OS X</strong>: Nothing has to be done. OS X will automatically resolve
 all routes to <code>*.vagrant.f8</code> to your Vagrant VM. This is done via OS
-X&apos;s resolver feature (see <code>man 5 resolver</code> for details). </p>
+X&apos;s resolver feature (see <code>man 5 resolver</code> for details).</p>
 </li>
 </ul>
 <p>Now startup the Vagrant VM.</p>
@@ -1340,11 +1340,11 @@ the <a href="../console.html">fabric8 console</a> should appear at
 on your installation.</p>
 <ul>
 <li>To Run any of the installed templates just click the <code>Run</code> button
-(the green play button). </li>
+(the green play button).</li>
 <li>To install any new
 <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a>
 or other Kubernetes resources just drag and drop the JSON file onto
-the <code>Apps</code> tab! </li>
+the <code>Apps</code> tab!</li>
 <li>You can download the
 <a href="http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.84/distro-2.2.84-templates.zip" target="_blank">fabric8 templates 2.2.84 distribution</a>
 unzip and drag the JSON files you want to install onto the
@@ -1352,13 +1352,13 @@ unzip and drag the JSON files you want to install onto the
 should appear on the <code>Run...</code> page</li>
 <li>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" target="_blank">helm command line tool</a>     </li>
 <li><p>You can also install other OpenShift Templates or Kubernetes
-resources via the <strong>oc</strong> command line tool: </p>
+resources via the <strong>oc</strong> command line tool:</p>
 <p>  oc create -f jsonOr YamlFileOrUrl</p>
 </li>
 </ul>
 <h3 id="setting-up-your-local-machine"><a name="setting-up-your-local-machine" class="plugin-anchor" href="#setting-up-your-local-machine"><span class="fa fa-link"></span></a>Setting up your local machine</h3>
 <p>In order to communicate with the Vagrant VM from you localhost it is
-recommended to install the OpenShift client 
+recommended to install the OpenShift client
 tools. This is explained in an extra <a href="local.html">document</a>.</p>
 <p>This is also useful using the
 <a href="../mavenPlugin.html">fabric8 maven tooling</a> or reusing the docker
@@ -1473,7 +1473,18 @@ X will refuse to resolve host addresses like <code>vagrant.f8</code>. In that
 case, flushing the DNS cache helps:</p>
 <pre><code>    sudo dscacheutil -flushcache
     sudo killall -HUP mDNSResponder
-</code></pre>
+</code></pre><h4 id="updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release"><a name="updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release" class="plugin-anchor" href="#updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release"><span class="fa fa-link"></span></a>Updating: tear down fabric8 and re-install after a new fabric8 release</h4>
+<p>If you want to avoid performing a <code>vagrant destroy &amp;&amp; vagrant up</code> when a new release is available you should be able to follow these commands..</p>
+<pre><code>    vagrant reload
+    vagrant ssh
+    sudo su
+    oc login --username=admin --password=any
+    oc delete all -l provider=fabric8
+    oc delete templates --all
+    gofabric8 deploy -y
+    gofabric8 secrets -y
+</code></pre><p><strong>NOTE</strong> after a <code>vagrant reload</code> you may run into the DNS cache <a href="#Can+not+find+%2F+ping+%22vagrat.f8%22+from+OS+X">issue above</a></p>
+
                     
                     </section>
                 
