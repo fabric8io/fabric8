@@ -57,7 +57,7 @@
         data-chapter-title="Fabric8 Vagrant Image"
         data-filepath="getStarted/vagrant.md"
         data-basepath=".."
-        data-revision="Wed Jan 06 2016 13:30:49 GMT+0000 (UTC)"
+        data-revision="Wed Jan 06 2016 15:52:47 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1474,8 +1474,10 @@ case, flushing the DNS cache helps:</p>
 <pre><code>    sudo dscacheutil -flushcache
     sudo killall -HUP mDNSResponder
 </code></pre><h4 id="updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release"><a name="updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release" class="plugin-anchor" href="#updating-tear-down-fabric8-and-reinstall-after-a-new-fabric8-release"><span class="fa fa-link"></span></a>Updating: tear down fabric8 and re-install after a new fabric8 release</h4>
-<p>If you want to avoid performing a <code>vagrant destroy &amp;&amp; vagrant up</code> when a new release is available you should be able to follow these commands..</p>
-<pre><code>    vagrant reload
+<p>If you want to avoid performing a <code>vagrant destroy &amp;&amp; vagrant up</code> when a new release is available you should be able to follow these commands from within the fabric8-installer dir..</p>
+<pre><code>    git pull
+    cd vagrant/openshift
+    vagrant provision
     vagrant ssh
     sudo su
     oc login --username=admin --password=any
