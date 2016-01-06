@@ -56,7 +56,7 @@ OpenShift services which are exposed via routes:
 
 * **OS X**: Nothing has to be done. OS X will automatically resolve
   all routes to `*.vagrant.f8` to your Vagrant VM. This is done via OS
-  X's resolver feature (see `man 5 resolver` for details). 
+  X's resolver feature (see `man 5 resolver` for details).
 
 Now startup the Vagrant VM.
 
@@ -111,11 +111,11 @@ This will list all of the installed [OpenShift Templates](http://docs.openshift.
 on your installation.
 
 * To Run any of the installed templates just click the `Run` button
-  (the green play button). 
+  (the green play button).
 * To install any new
   [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html)
   or other Kubernetes resources just drag and drop the JSON file onto
-  the `Apps` tab! 
+  the `Apps` tab!
 * You can download the
   [fabric8 templates 2.2.84 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.84/distro-2.2.84-templates.zip)
   unzip and drag the JSON files you want to install onto the
@@ -123,14 +123,14 @@ on your installation.
   should appear on the `Run...` page
 * You can install or upgrade application using the [helm command line tool](http://fabric8.io/guide/helm.html)     
 * You can also install other OpenShift Templates or Kubernetes
-  resources via the **oc** command line tool: 
+  resources via the **oc** command line tool:
 
     oc create -f jsonOr YamlFileOrUrl
 
 ### Setting up your local machine
 
 In order to communicate with the Vagrant VM from you localhost it is
-recommended to install the OpenShift client 
+recommended to install the OpenShift client
 tools. This is explained in an extra [document](local.html).
 
 This is also useful using the
@@ -310,3 +310,18 @@ case, flushing the DNS cache helps:
         sudo dscacheutil -flushcache
         sudo killall -HUP mDNSResponder
 
+
+#### Updating: tear down fabric8 and re-install after a new fabric8 release
+
+If you want to avoid performing a `vagrant destroy && vagrant up` when a new release is available you should be able to follow these commands..
+
+        vagrant reload
+        vagrant ssh
+        sudo su
+        oc login --username=admin --password=any
+        oc delete all -l provider=fabric8
+        oc delete templates --all
+        gofabric8 deploy -y
+        gofabric8 secrets -y
+
+__NOTE__ after a `vagrant reload` you may run into the DNS cache [issue above](#Can+not+find+%2F+ping+%22vagrat.f8%22+from+OS+X)
