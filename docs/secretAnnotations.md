@@ -53,14 +53,14 @@ Its common to want to create a single secret that contains a number of public ke
 To do this name your secret appending `[secret1.pub,secret2,secret3]` on the end of the secret name.
 
     fabric8.io/secret-ssh-public-key = mybagofsecrets[cheese.pub,beer.pub]
-    
+
 This will create a secret called `mybagofsecrets` which contains files `cheese.pub` and `beer.pub` for the public keys of the SSH key secrets `cheese` and `beer`
- 
+
 i.e. there will be 3 secrets created
 
 * cheese contains a public and private ssh key
 * beer contains a public and private ssh key
-* mybagofsecrets contains the public keys `cheese.pub` and `beer.pub` 
+* mybagofsecrets contains the public keys `cheese.pub` and `beer.pub`
 
 
 #### GPG
@@ -68,7 +68,31 @@ i.e. there will be 3 secrets created
 Use an annotation of the form
 
     fabric8.io/secret-gpg-key = mysecretname
-    
+
+#### Maven settings
+
+Use an annotation of the form
+
+    fabric8.io/secret-maven-settings = jenkins-maven-settings
+
+This will import a `settings.xml` from folder jenkins-maven-settings, if the folder is not found it will use the default maven settings.xml [here](https://github.com/fabric8io/gofabric8/blob/master/default-secrets/mvnsettings.xml)
+
+#### Docker auth config
+
+Use an annotation of the form
+
+    fabric8.io/secret-docker-cfg = jenkins-docker-cfg
+
+This will import a `config.json` from folder jenkins-docker-cfg, if none is found an empty secret is generated.
+
+#### GitHub API token
+
+Use an annotation of the form
+
+    fabric8.io/secret-github-api-token = jenkins-github-api-token
+
+This will import a file name of `apitoken` from folder jenkins-github-api-token, if none is found an empty secret is generated.
+
 ### Mounting SSH keys
 
 Mounting all secretes end up being a volume with a file for each data entry inside the secret.
@@ -78,3 +102,45 @@ Mounting all secretes end up being a volume with a file for each data entry insi
 | fabric8.io/secret-ssh-key | id_rsa.pub id_rsa  |    
 | fabric8.io/secret-ssh-public-key | id_rsa.pub  |    
 
+### Example
+
+This is an example folder structure that the fabric8 release uses itslef when creating its CD environment.  
+
+Running `gofabric8 secrets` from the root folder..
+
+    (root)
+     +- jenkins-git-ssh                    
+     |   +- ssh-key
+     |   +- ssh-key.pub
+
+     +- jenkins-release-gpg
+     |   +- pubring.gpg
+     |   +- secring.gpg
+     |   +- trustdb.gpg
+
+     +- jenkins-docker-cfg
+     |   +- config.json
+
+     +- jenkins-github-api-token
+     |   +- apitoken
+
+     +- jenkins-maven-settings
+     |   +- settings.xml
+
+Once secrets have been added in the example of Jenkins we can mount those secrets using [kubernetes-workflow](https://github.com/fabric8io/kubernetes-workflow#using-secrets) into pods that run our workflows..
+
+
+    node('kubernetes'){
+        echo 'worked'
+        kubernetes.pod('buildpod')
+          .withImage('fabric8/builder-openshift-client')
+          .withSecret('jenkins-docker-cfg','/home/jenkins/.docker')
+          .withSecret('jenkins-maven-settings','/home/jenkins/.m2')
+          .inside {
+
+            checkout scm
+            sh "cat `/home/jenkins/.docker/config.json`"
+            sh 'mvn clean install deploy'
+
+        }
+    }

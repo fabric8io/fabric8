@@ -324,4 +324,4 @@ If you want to avoid performing a `vagrant destroy && vagrant up` when a new rel
         gofabric8 deploy -y
         gofabric8 secrets -y
 
-__NOTE__ after a `vagrant reload` you may run into the DNS cache [issue above](##can-not-find--ping-vagratf8-from-os-x)
+__NOTE__ after a `vagrant reload` you may run into the DNS cache [issue above](#can-not-find--ping-vagratf8-from-os-x)
