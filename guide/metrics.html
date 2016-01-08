@@ -57,7 +57,7 @@
         data-chapter-title="Metrics"
         data-filepath="metrics.md"
         data-basepath="."
-        data-revision="Wed Jan 06 2016 16:39:59 GMT+0000 (UTC)"
+        data-revision="Fri Jan 08 2016 08:56:53 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1251,17 +1251,17 @@
 <p>Capturing historical metrics an extremely useful tool to help diagnose your running system.</p>
 <p>With fabric8 we recommend using:</p>
 <ul>
-<li><a href="http://influxdb.com/" target="_blank">InfluxDB</a> or <a href="https://github.com/rhq-project/rhq-metrics" target="_blank">RHQ Metrics</a> as the back end storage of historical metric data as they are both easy to scale, provide replicated data for resilience and are very easy to query</li>
-<li><a href="http://grafana.org/" target="_blank">Grafana</a> as the console to view, query and analyze metrics</li>
-<li>to collect the metrics we use <a href="https://github.com/google/cadvisor" target="_blank">cAdvisor</a> for collecting metrics from docker containers and <a href="https://github.com/jimmidyson/jadvisor" target="_blank">jAdvisor</a> for collecting metrics from JMX using <a href="http://jolokia.org/" target="_blank">jolokia</a></li>
+<li><a href="http://prometheus.io/" target="_blank">Prometheus</a> or <a href="http://hawkular.org" target="_blank">Hawkular</a> as the back end storage of historical metric data as they are both easy to scale, provide options for resilience and are very easy to query.</li>
+<li><a href="http://grafana.org/" target="_blank">Grafana</a> as the console to view, query and analyze metrics.</li>
+<li>to collect the metrics we use <a href="https://github.com/google/cadvisor" target="_blank">cAdvisor</a> for collecting metrics from docker containers and Prometheus for collecting metrics from JMX.</li>
 </ul>
 <h3 id="how-to-use-metrics-in-fabric8"><a name="how-to-use-metrics-in-fabric8" class="plugin-anchor" href="#how-to-use-metrics-in-fabric8"><span class="fa fa-link"></span></a>How to use Metrics in fabric8</h3>
 <p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab.</p>
 <ul>
-<li>click the <strong>Run...</strong> button and select the <strong>InfluxDB</strong> app to and run it.</li>
+<li>click the <strong>Run...</strong> button and select the <strong>Prometheus</strong> app to and run it.</li>
 <li>click the <strong>Run...</strong> button and select the <strong>Grafana</strong> app to and run it.</li>
 </ul>
-<p>You will also need to run the cadvisor/jadvisor containers on each node to ensure the metrics are collected. This is done automatically if you <a href="getStarted/openshift.html">use the bash script to install fabric8</a> with the <strong>-k</strong> command line option enabled. Hopefully one day we&apos;ll be able to turn cadvisor and jadvisor into <a href="apps.html">apps</a> you can easily run in the same way.</p>
+<p>Cadvisor runs embedded in the kubelet on each node to ensure the metrics are collected.</p>
 <p>Once the above is running, the <a href="console.html">Fabric8 Console</a> should have a <strong>Metrics</strong> tab letting you view and search the metrics via <a href="http://grafana.org/" target="_blank">Grafana</a>.</p>
 <h3 id="how-to-enable-metrics-scraping-in-your-applications"><a name="how-to-enable-metrics-scraping-in-your-applications" class="plugin-anchor" href="#how-to-enable-metrics-scraping-in-your-applications"><span class="fa fa-link"></span></a>How to enable metrics scraping in your applications</h3>
 <p>When using <a href="http://prometheus.io" target="_blank">Prometheus</a> to <a href="metrics.html">collect metrics</a> for monitoring your containers you can enable
