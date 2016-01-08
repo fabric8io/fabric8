@@ -307,6 +307,39 @@ There are many options as listed in the following table:
 <td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
+<td>fabric8.service.&lt;name&gt;.port</td>
+<td>The port of the Service to generate for service &lt;name&gt;.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.type</td>
+<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
+  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.protocol</td>
+<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.port.&lt;portName&gt;</td>
+<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort.&lt;portName&gt;</td>
+<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.nodePort.&lt;portName&gt;</td>
+<td>The node port of this service to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.protocol.&lt;portName&gt;</td>
+<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
 <td>fabric8.volume.FOO.emptyDir = somemedium</td>
 <td>Defines the emtpy volume with name FOO and medium somemedium.</td>
 </tr>
