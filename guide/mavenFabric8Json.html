@@ -57,7 +57,7 @@
         data-chapter-title="fabric8:json"
         data-filepath="mavenFabric8Json.md"
         data-basepath="."
-        data-revision="Fri Jan 08 2016 08:56:53 GMT+0000 (UTC)"
+        data-revision="Fri Jan 08 2016 16:54:32 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1507,6 +1507,39 @@ ANOTHER = some ${CHEESE}
 </tr>
 <tr>
 <td>fabric8.service.protocol.&lt;portName&gt;</td>
+<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.port</td>
+<td>The port of the Service to generate for service &lt;name&gt;.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.type</td>
+<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
+  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.protocol</td>
+<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.port.&lt;portName&gt;</td>
+<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort.&lt;portName&gt;</td>
+<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.nodePort.&lt;portName&gt;</td>
+<td>The node port of this service to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.protocol.&lt;portName&gt;</td>
 <td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
