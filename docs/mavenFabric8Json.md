@@ -273,6 +273,10 @@ There are many options as listed in the following table:
 <td>fabric8.service.name</td>
 <td>The name of the Service to generate. Defaults to <code>${project.artifactId}</code> (the artifact Id of the project)</td>
 </tr>
+<td>fabric8.service.headless</td>
+<td>Whether or not we should generate headless services (services with no ports exposed, no cluster IPs, and are not managed my the Kube Proxy)</td>
+</tr>
+<tr>
 <tr>
 <td>fabric8.service.port</td>
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
