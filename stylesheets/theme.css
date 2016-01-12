@@ -51,8 +51,7 @@ h2:first-child {
 
 .top-banner {
   height: 312px;
-  background-image: url(../images/banner.png);
-  background-position: left;
+  background: url(../images/banner.jpg) left;
   position: relative;
 }
 
