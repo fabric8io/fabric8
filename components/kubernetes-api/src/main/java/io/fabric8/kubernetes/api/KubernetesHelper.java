@@ -33,6 +33,7 @@ import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodStatus;
@@ -1428,6 +1429,34 @@ public final class KubernetesHelper {
     public static boolean isPodRunning(Pod pod) {
         PodStatusType status = getPodStatus(pod);
         return Objects.equal(status, PodStatusType.OK);
+    }
+
+    /**
+     * Returns true if the pod is running and ready
+     */
+    public static boolean isPodReady(Pod pod) {
+        if (!isPodRunning(pod)) {
+            return false;
+        }
+
+        PodStatus podStatus = pod.getStatus();
+        if (podStatus == null) {
+            return true;
+        }
+
+        List<PodCondition> conditions = podStatus.getConditions();
+        if (conditions == null || conditions.isEmpty()) {
+            return true;
+        }
+
+        // Check "ready" condition
+        for (PodCondition condition : conditions) {
+            if ("ready".equalsIgnoreCase(condition.getType())) {
+                return Boolean.parseBoolean(condition.getStatus());
+            }
+        }
+
+        return true;
     }
 
     public static String getPodStatusText(Pod pod) {
