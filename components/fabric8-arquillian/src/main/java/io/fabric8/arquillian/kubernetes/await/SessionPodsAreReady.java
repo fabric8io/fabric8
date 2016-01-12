@@ -50,7 +50,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         }
 
         for (Pod pod : pods) {
-            result = result && Objects.equal(PodStatusType.OK, KubernetesHelper.getPodStatus(pod));
+            result = result && KubernetesHelper.isPodReady(pod);
             if (!result) {
                 PodStatus podStatus = pod.getStatus();
                 if (podStatus != null) {
@@ -59,9 +59,11 @@ public class SessionPodsAreReady implements Callable<Boolean> {
                         ContainerState state = containerStatus.getState();
                         if (state != null) {
                             ContainerStateWaiting waiting = state.getWaiting();
+                            String containerName = containerStatus.getName();
                             if (waiting != null) {
-                                String containerName = containerStatus.getName();
                                 session.getLogger().warn("Waiting for container:" + containerName + ". Reason:" + waiting.getReason());
+                            } else {
+                                session.getLogger().warn("Waiting for container:" + containerName + ".");
                             }
                         }
                     }
