@@ -165,3 +165,20 @@ h2:first-child {
   padding-left: 30px;
   padding-right: 30px;
 }
+
+img.logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+  vertical-align: top;
+}
+
+td.icon-column {
+  width: 190px;
+}
+
+td.icon-desc-column {
+  width: 380px;
+  padding-right: 25px !important;
+}
+
