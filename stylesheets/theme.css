@@ -166,6 +166,14 @@ h2:first-child {
   padding-right: 30px;
 }
 
+table.services {
+  background-color: #f9f9f9;
+}
+
+table.services td {
+  border-bottom: 1px solid #ddd;
+}
+
 img.logo {
   width: 48px;
   height: 48px;
