@@ -148,7 +148,7 @@
         <plexus-utils.version>3.0.22</plexus-utils.version>
         <phantomjsdriver.version>1.2.0</phantomjsdriver.version>
         <reflections.version>0.9.10</reflections.version>
-        <selenium.version>2.48.2</selenium.version>
+        <selenium.version>2.49.0</selenium.version>
         <selenium.firefox.driver.version>2.28.0</selenium.firefox.driver.version>
         <servlet-api.version>2.5</servlet-api.version>
         <servlet30-api.version>3.0.1</servlet30-api.version>
