@@ -120,7 +120,7 @@
         <mockwebserver.version>20130706</mockwebserver.version>
         <guava.version>19.0</guava.version>
         <httpclient.version>4.5.1</httpclient.version>
-        <jackson2.version>2.7.0</jackson2.version>
+        <jackson2.version>2.6.4</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.el-version>2.2.5</javax.el-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
