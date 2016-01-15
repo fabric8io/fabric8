@@ -50,8 +50,8 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         }
 
         for (Pod pod : pods) {
-            result = result && KubernetesHelper.isPodReady(pod);
-            if (!result) {
+            if (!KubernetesHelper.isPodReady(pod)) {
+                result = false;
                 PodStatus podStatus = pod.getStatus();
                 if (podStatus != null) {
                     List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
