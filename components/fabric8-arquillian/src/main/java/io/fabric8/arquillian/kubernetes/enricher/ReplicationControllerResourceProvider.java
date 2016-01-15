@@ -49,6 +49,6 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
         String name = getReplicationControllerName(qualifiers);
-        return client.pods().inNamespace(session.getNamespace()).withName(name).get();
+        return client.replicationControllers().inNamespace(session.getNamespace()).withName(name).get();
     }
 }
