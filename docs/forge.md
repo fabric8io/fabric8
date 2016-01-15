@@ -8,10 +8,10 @@ First [install Forge](http://forge.jboss.org/download) and run it:
 
 you can install the Forge add ons via:
 
-    addon-install --coordinate io.fabric8.forge:camel,2.2.85
-    addon-install --coordinate io.fabric8.forge:camel-commands,2.2.85
-    addon-install --coordinate io.fabric8.forge:devops,2.2.85
-    addon-install --coordinate io.fabric8.forge:kubernetes,2.2.85
+    addon-install --coordinate io.fabric8.forge:camel,2.2.86
+    addon-install --coordinate io.fabric8.forge:camel-commands,2.2.86
+    addon-install --coordinate io.fabric8.forge:devops,2.2.86
+    addon-install --coordinate io.fabric8.forge:kubernetes,2.2.86
 
 You should be able to see the new commands that are installed via:
 
