@@ -49,6 +49,6 @@ public class ServiceResourceProvider implements ResourceProvider {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
         String name = getServiceName(qualifiers);
-        return client.pods().inNamespace(session.getNamespace()).withName(name).get();
+        return client.services().inNamespace(session.getNamespace()).withName(name).get();
     }
 }
