@@ -23,7 +23,7 @@ Usage
 You can use it on any maven module which contains a class that can be run from the CLI.  You just need to let it know
 which main class to use.  For example:
 
-    mvn package io.fabric8:hawt-app-maven-plugin:2.2.87:build -Dhawt-app.javaMainClass=org.apache.camel.cdi.Main
+    mvn package io.fabric8:hawt-app-maven-plugin:2.2.88:build -Dhawt-app.javaMainClass=org.apache.camel.cdi.Main
     
 (replace the version number with the current version). To create the app as part of you default build for the module, 
 add the a plugin configuration similar to the following in your maven module:
@@ -31,7 +31,7 @@ add the a plugin configuration similar to the following in your maven module:
     <plugin>
       <groupId>io.fabric8</groupId>
       <artifactId>hawt-app-maven-plugin</artifactId>
-      <version>2.2.87</version>
+      <version>2.2.88</version>
       <executions>
         <execution>
           <goals>
