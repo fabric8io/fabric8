@@ -33,7 +33,7 @@ You can also enable the plugin to automatic run as part of the build to catch th
         <version>${fabric8.forge.version}</version>
         <executions>
           <execution>
-            <id>validate</id>
+            <phase>process-classes</phase>      
             <goals>
               <goal>validate</goal>
             </goals>
@@ -41,7 +41,79 @@ You can also enable the plugin to automatic run as part of the build to catch th
         </executions>
       </plugin>
 
-TODO: Add the phase stuff
+The phase determines when the plugin runs. In the sample above the phase is `process-classes` which runs after the compilation of the main source code.
+
+The maven plugin can also be configured to validate the test source code , which means that the phase should be changed accordingly to `process-test-classes` as shown below:
+
+      <plugin>
+        <groupId>io.fabric8.forge</groupId>
+        <artifactId>fabric8-camel-maven-plugin</artifactId>
+        <version>${fabric8.forge.version}</version>
+        <executions>
+          <execution>
+            <configuration>
+              <includeTest>true</includeTest>
+            </configuration>
+            <phase>process-test-classes</phase>      
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+
+### Running the goal on any Maven project
+
+You can also run the validate goal on any Maven project without having to add the plugin to the `pom.xml` file. Doing so requires to specify the plugin using its fully qualified name. For example to run the goal on the camel-example-cdi from Apache Camel you can run
+
+    $cd camel-example-cdi
+    $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.114:validate
+
+which then runs and outputs the following:
+
+```
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
+[INFO] Endpoint validation success: (4 = passed, 0 = invalid, 0 = incapable, 0 = unknown components)
+[INFO] Simple validation success: (0 = passed, 0 = invalid)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+The validation passed, and 4 endpoints was validated. Now suppose we made a typo in one of the Camel endpoint uris in the source code, such as:
+
+    @Uri("timer:foo?period=5000")
+
+is changed to include a typo error in the `period` option
+
+    @Uri("timer:foo?perid=5000")
+
+And when running the validate goal again reports the following:
+
+```
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
+[WARNING] Endpoint validation error at: org.apache.camel.example.cdi.MyRoutes(MyRoutes.java:32)
+
+	timer:foo?perid=5000
+
+	                   perid    Unknown option. Did you mean: [period]
+
+
+[WARNING] Endpoint validation error: (3 = passed, 1 = invalid, 0 = incapable, 0 = unknown components)
+[INFO] Simple validation success: (0 = passed, 0 = invalid)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
 
 
 ### Options
