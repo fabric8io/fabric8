@@ -34,6 +34,7 @@
 * [Fabric8 Tools](tools.md)
     * [Helm](helm.md)
     * [Forge](forge.md)
+      * [Camel Maven Plugin](camelMavenPlugin.md)
     * [Testing](testing.md)
     * [Maven Plugin](mavenPlugin.md)
       * [docker:build](mavenDockerBuild.md)
