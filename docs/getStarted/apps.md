@@ -68,12 +68,15 @@ Or to install from the central repository then choose the commands below to suit
 
 ##### Console
 
-Provides the base [fabric8 console](../console.html) at the `vagrant.f8` domain:
+Provides the base [fabric8 console](../console.html) at the `vagrant.f8` domain. On OpenShift run the following command:
 
 		export KUBERNETES_DOMAIN=vagrant.f8
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/apps/console/2.2.88/console-2.2.88-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/devops/apps/console/2.2.84/console-2.2.84-kubernetes.json \
 		| oc create -f -
+
+If you are using kubernetes run:
+		kubectl create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
 
 Then [setup the OpenShift Routes](#creating-routes)
 

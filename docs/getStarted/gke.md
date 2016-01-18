@@ -27,7 +27,7 @@ Now that you have created your cluster you should be able to use your `kc` alias
 
 Now there wont be anything running yet so lets install the fabric8 console, run as a [replication controller](https://cloud.google.com/container-engine/docs/replicationcontrollers/) and include a [service](https://cloud.google.com/container-engine/docs/services/).  We will also install another pod that includes a base set of template apps that we can run later.  So now run..
 
-    kc create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.28/console-kubernetes-2.2.28-kubernetes.json
+    kc create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
 
 To explain what just happened a little, we downloaded a kubernetes.json configuration file which describes a [replication controller](https://cloud.google.com/container-engine/docs/replicationcontrollers/) for the fabric8-console docker image.  This file is generated as part of the fabric8 release process.  The kubernetes CLI created this replication controller called fabric8 which then instructed the API server to schedule a pod on a node in our cluster.  The image may take a little while to download from docker hub.  If you want to build and push the image to your Google registry then see the relevant section below.
 
