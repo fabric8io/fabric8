@@ -34,6 +34,10 @@ To add a new Camel endpoint using a wizard to select the options then type:
 
     camel-add-endpoint
 
+### Fabric8 Camel Maven Plugin
+
+The Camel forge addon provides a command to validate the Camel endpoints in the source code (both Java and XML). We provide a [Camel Maven Plugin](camelMavenPlugin.md) that is able to run this command from Maven command line, and report invalidate Camel endpoints. You can enable this plugin in your Maven projects as part of the build process, to catch invalid uris before you run the application.
+
 ### Camel Commands
 
 The Camel Commands Forge addon enables developers to manage/interact with running Camel applications, using the Apache Camel commands.
