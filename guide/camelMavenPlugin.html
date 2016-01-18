@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>General Questions | Fabric8 Documentation</title>
+        <title>Camel Maven Plugin | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="./faqFuse.html" />
+    <link rel="next" href="./testing.html" />
     
     
-    <link rel="prev" href="./FAQ.html" />
+    <link rel="prev" href="./forge.html" />
     
 
         
@@ -53,9 +53,9 @@
         
         
     <div class="book"
-        data-level="11.1"
-        data-chapter-title="General Questions"
-        data-filepath="faqGeneral.md"
+        data-level="6.2.1"
+        data-chapter-title="Camel Maven Plugin"
+        data-filepath="camelMavenPlugin.md"
         data-basepath="."
         data-revision="Mon Jan 18 2016 11:09:17 GMT+0000 (UTC)"
         data-innerlanguage="">
@@ -670,7 +670,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="6.2.1" data-path="camelMavenPlugin.html">
+        <li class="chapter active" data-level="6.2.1" data-path="camelMavenPlugin.html">
             
                 
                     <a href="./camelMavenPlugin.html">
@@ -1170,7 +1170,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="11.1" data-path="faqGeneral.html">
+        <li class="chapter " data-level="11.1" data-path="faqGeneral.html">
             
                 
                     <a href="./faqGeneral.html">
@@ -1268,90 +1268,151 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="general-questions"><a name="general-questions" class="plugin-anchor" href="#general-questions"><span class="fa fa-link"></span></a>General Questions</h3>
-<h4 id="what-is-the-license"><a name="what-is-the-license" class="plugin-anchor" href="#what-is-the-license"><span class="fa fa-link"></span></a>What is the license?</h4>
-<p>fabric8 uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank">Apache 2.0 License</a>.</p>
-<h4 id="what-is-it"><a name="what-is-it" class="plugin-anchor" href="#what-is-it"><span class="fa fa-link"></span></a>What is it?</h4>
-<p>Fabric8 is an integrated open source <a href="fabric8DevOps.html">DevOps</a> and <a href="ipaas.html">Integration Platform</a> which works out of the box on any <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> or <a href="http://www.openshift.org/" target="_blank">OpenShift</a> environment and provides <a href="cdelivery.html">Continuous Delivery</a>, <a href="management.html">Management</a>, <a href="chat.html">ChatOps</a> and a <a href="chaosMonkey.html">Chaos Monkey</a>.</p>
-<h4 id="what-does-fabric8-do"><a name="what-does-fabric8-do" class="plugin-anchor" href="#what-does-fabric8-do"><span class="fa fa-link"></span></a>What does fabric8 do?</h4>
-<p>Fabric8 (pronounced <em>fabricate</em>) gives you out of the box services that assist you when building microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. </p>
-<h4 id="what-value-does-fabric8-add-over-openshift"><a name="what-value-does-fabric8-add-over-openshift" class="plugin-anchor" href="#what-value-does-fabric8-add-over-openshift"><span class="fa fa-link"></span></a>What value does fabric8 add over OpenShift?</h4>
+                        <h2 id="fabric8-camel-maven-plugin"><a name="fabric8-camel-maven-plugin" class="plugin-anchor" href="#fabric8-camel-maven-plugin"><span class="fa fa-link"></span></a>Fabric8 Camel Maven Plugin</h2>
+<p>This maven plugin makes it possible to run some of the <a href="forge.html">Forge</a> commands from Maven command line.</p>
+<h3 id="goals"><a name="goals" class="plugin-anchor" href="#goals"><span class="fa fa-link"></span></a>Goals</h3>
+<p>For building and pushing docker images</p>
 <ul>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> based <em>Container As A Service</em> (orchestrates docker containers)</li>
-<li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full <em>Platform As A Service</em><ul>
-<li>hosting source code in git repositories</li>
-<li>performing builds and hosting private docker images</li>
-<li>supporting the git-push style model of kicking off new builds</li>
+<li><code>fabric8-camel:validate</code> validates the Maven project source code to identify invalid Camel endpoint uris</li>
 </ul>
-</li>
-<li>Fabric8 is focused on:<ul>
-<li>providing a great <a href="console.html">Kubernetes Console</a> based on <a href="http://hawt.io/" target="_blank">hawtio</a> so you can view all of the kubernetes resources, understand whats going on and see the big picture or zoom inside inside individual containers and link to logs and metrics</li>
-<li>being an <strong>Integration Platform As A Service</strong> and a <strong>Java Application Platform As A Service</strong></li>
-<li>adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:<ul>
-<li><a href="fabric8Apps.html">Fabric8 Apps</a> to provide reusable <a href="logging.html">logging</a>, <a href="metrics.html">metrics</a> and make it easier to consume integration and messaging services</li>
-<li>deep and rich <a href="http://fabric8.io/guide/tools.html" target="_blank">tooling</a> to make it easy to develop Java applications on Kubernetes/OpenShift such as the <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">Maven Plugin</a> and <a href="http://fabric8.io/guide/forge.html" target="_blank">Forge Addons</a></li>
-<li><a href="javaLibraries.html">Java libraries</a> for working with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes</a> along with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes and jolokia</a> so its easier to develop Java based tools and services which work well with Kubernetes</li>
-<li><a href="testing.html">Testing with Arquillian</a> helps you perform integration tests of your <a href="apps.html">apps</a></li>
-<li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="is-fabric8-java-centric"><a name="is-fabric8-java-centric" class="plugin-anchor" href="#is-fabric8-java-centric"><span class="fa fa-link"></span></a>Is Fabric8 Java centric?</h4>
-<p>The short answer is no ;).</p>
-<ul>
-<li><a href="management.html">Fabric8 Management</a> works with any Docker images on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> - so its completely language, framework and runtime agnostic. The <a href="console.html">console</a> has added extra introspection and visualisation for Java docker containers which contain a <a href="http://jolokia.org/" target="_blank">Jolokia</a> but we hope to add more deep introspection tools for other languages. Certainly you can always use any language, framework or runtime specific diagnostic or visualiation tools on Kubernetes directly</li>
-<li><a href="fabric8DevOps.html">Fabric8 DevOps</a> focusses on working with any project with any build mechanism running Docker images on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift&apos;s <a href="https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build" target="_blank">Source to image build mechanism</a>, or our preferred <a href="cdelivery.html">Continuous Delivery</a> using <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow</a>. </li>
-<li><a href="ipaas.html">Fabric8 iPaaS (Integration Platform</a> is more Java centric in the sense that integration flows tend to be implemented using <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> which runs inside a Java virtual machine (JVM) but the services that Camel integrates with can be any technology, language, runtime, on premise or SaaS etc.</li>
-<li><a href="apiManagement.html">Fabric8 API Management</a> works with any API implemented in any language or runtime; currently only HTTP based APIs are supported though.</li>
-</ul>
-<p>Having said all that; with the  <a href="ipaas.html">Fabric8 iPaaS)</a> focus, we have optimised Fabric8 so that folks who do use Java have an optimised experience of working with Docker, Kubernetes, OpenShift and Fabric8. Though we hope to continue to improve tooling, management and visualisation for other languages and runtimes too.</p>
-<h4 id="is-jenkins-workflow-java-centric"><a name="is-jenkins-workflow-java-centric" class="plugin-anchor" href="#is-jenkins-workflow-java-centric"><span class="fa fa-link"></span></a>Is Jenkins Workflow Java centric?</h4>
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins-ci.org/" target="_blank">Jenkins</a>.</p>
-<p>Jenkins Workflow provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the <a href="http://groovy-lang.org/" target="_blank">Groovy programming language</a>.</p>
-<p>The preferred approach to using Jenkins Workflow is to reuse docker images for all your build and testing tools; so that most of the details in your <strong>Jenkinsfile</strong> tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.</p>
-<h4 id="can-fabric8-devops-work-with-my-ci-server"><a name="can-fabric8-devops-work-with-my-ci-server" class="plugin-anchor" href="#can-fabric8-devops-work-with-my-ci-server"><span class="fa fa-link"></span></a>Can Fabric8 DevOps work with my CI server?</h4>
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins-ci.org/" target="_blank">Jenkins</a>.</p>
-<p>However this is for <em>orchestrating delivery pipelines</em> which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.</p>
-<p>For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Workflow pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.</p>
-<p>Our preferred approach is to use Jenkins Workflow pipelines as the core orchestration layer when trying to implement  <a href="cdelivery.html">Continuous Delivery, Continous Deployment or Continous Improvement</a> then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift <a href="https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build" target="_blank">Source to Image builds</a> or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.</p>
-<h4 id="where-do-i-look-for-the-source-code"><a name="where-do-i-look-for-the-source-code" class="plugin-anchor" href="#where-do-i-look-for-the-source-code"><span class="fa fa-link"></span></a>Where do I look for the source code?</h4>
-<p>Fabric8 is comprised of a collection of projects written in Java and Golang and packaged up as Docker containers. The git repos for each of these projects/containers can be found in detail in the <a href="projects.html">project documentation pages</a> </p>
-<h4 id="are-docker-and-kubernetes-required-to-run-fabric8"><a name="are-docker-and-kubernetes-required-to-run-fabric8" class="plugin-anchor" href="#are-docker-and-kubernetes-required-to-run-fabric8"><span class="fa fa-link"></span></a>Are Docker and Kubernetes required to run Fabric8?</h4>
-<p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
-<h4 id="is-windows-supported"><a name="is-windows-supported" class="plugin-anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
-<p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
-<p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
-<h4 id="what-maven-plugin-goals-are-available"><a name="what-maven-plugin-goals-are-available" class="plugin-anchor" href="#what-maven-plugin-goals-are-available"><span class="fa fa-link"></span></a>What maven plugin goals are available?</h4>
-<p>See the <a href="http://fabric8.io/guide/mavenPlugin.html" target="_blank">list of maven plugin goals</a> </p>
-<h4 id="what-java-versions-are-supported"><a name="what-java-versions-are-supported" class="plugin-anchor" href="#what-java-versions-are-supported"><span class="fa fa-link"></span></a>What Java versions are supported?</h4>
-<p>fabric8&apos;s Java code uses Java 8 but any docker image can use any version of any language, runtime or framework it wishes</p>
-<h4 id="does-fabric8-use-zookeeper-runtime-registry"><a name="does-fabric8-use-zookeeper-runtime-registry" class="plugin-anchor" href="#does-fabric8-use-zookeeper-runtime-registry"><span class="fa fa-link"></span></a>Does Fabric8 use ZooKeeper runtime registry?</h4>
-<p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn&apos;t need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
-<p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> or <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
-<h4 id="does-fabric8-still-use-profiles-to-configure-application-deployment"><a name="does-fabric8-still-use-profiles-to-configure-application-deployment" class="plugin-anchor" href="#does-fabric8-still-use-profiles-to-configure-application-deployment"><span class="fa fa-link"></span></a>Does Fabric8 still use profiles to configure application deployment?</h4>
-<p>No, not anymore. Starting from v2 Fabric8 uses <a href="apps.html">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
-to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
-added to the file system of the application&apos;s Docker image.</p>
-<h4 id="is-git-repository-still-used-to-store-the-applications-configuration"><a name="is-git-repository-still-used-to-store-the-applications-configuration" class="plugin-anchor" href="#is-git-repository-still-used-to-store-the-applications-configuration"><span class="fa fa-link"></span></a>Is Git repository still used to store the applications&apos; configuration?</h4>
-<p>Applications&apos; configuration isn&apos;t stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn&apos;t use 
-profiles (but app templates instead), the Git repository is not needed anymore. You can just store application&apos;s configuration (app file)
-in the Maven project and use the <a href="mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes
-without keeping the configuration in any central repository (like Git).</p>
-<p>However keeping app files in Git for easier configuration management is recommended. That&apos;s why fabric8 has integrated with <a href="http://gogs.io/" target="_blank">Gogs</a> for on premise git repository hosting.  This comes from the <a href="fabric8DevOps.html">fabric8 DevOps</a> features.</p>
-<h4 id="is-fabric8-server-required-to-provision-applications"><a name="is-fabric8-server-required-to-provision-applications" class="plugin-anchor" href="#is-fabric8-server-required-to-provision-applications"><span class="fa fa-link"></span></a>Is Fabric8 server required to provision applications?</h4>
-<p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
-managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like 
-<a href="mavenPlugin.html">Fabric8 Maven plugin</a>
-or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
-<h4 id="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><a name="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell" class="plugin-anchor" href="#if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell"><span class="fa fa-link"></span></a>If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
-<p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> with the <a href="forge.html">Fabric8 add-on</a>.</p>
-<p>For provisioning purposes (like creating containers/services or changing the replica sizes) you can use the <a href="forge.html">Fabric8 add-on</a> or use the shell from OpenShift/Kubernetes.</p>
-<p>Kubernetes will be included in <a href="http://www.redhat.com/en/technologies/linux-platforms/enterprise-linux" target="_blank">Red Hat Enterprise Linux</a> and OpenShift V3 and is the standard shell for provisioning any kind of the container.</p>
-<h4 id="deprecations"><a name="deprecations" class="plugin-anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.</p>
+<h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="plugin-anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
+<p>To enable this plugin add the following to your pom.xml:</p>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+  &lt;/plugin&gt;
+</code></pre><p>Notice the version of the maven plugin is the fabric8-forge version, and not the fabric8 version. These two projects have different release numbers.</p>
+<p>Then you can run the validate goal from the command line or from within your Java editor such as IDEA or Eclipse.</p>
+<pre><code> mvn fabric8-camel:validate
+</code></pre><p>You can also enable the plugin to automatic run as part of the build to catch these errors.</p>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+    &lt;executions&gt;
+      &lt;execution&gt;
+        &lt;phase&gt;process-classes&lt;/phase&gt;      
+        &lt;goals&gt;
+          &lt;goal&gt;validate&lt;/goal&gt;
+        &lt;/goals&gt;
+      &lt;/execution&gt;
+    &lt;/executions&gt;
+  &lt;/plugin&gt;
+</code></pre><p>The phase determines when the plugin runs. In the sample above the phase is <code>process-classes</code> which runs after the compilation of the main source code.</p>
+<p>The maven plugin can also be configured to validate the test source code , which means that the phase should be changed accordingly to <code>process-test-classes</code> as shown below:</p>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+    &lt;executions&gt;
+      &lt;execution&gt;
+        &lt;configuration&gt;
+          &lt;includeTest&gt;true&lt;/includeTest&gt;
+        &lt;/configuration&gt;
+        &lt;phase&gt;process-test-classes&lt;/phase&gt;      
+        &lt;goals&gt;
+          &lt;goal&gt;validate&lt;/goal&gt;
+        &lt;/goals&gt;
+      &lt;/execution&gt;
+    &lt;/executions&gt;
+  &lt;/plugin&gt;
+</code></pre><h3 id="running-the-goal-on-any-maven-project"><a name="running-the-goal-on-any-maven-project" class="plugin-anchor" href="#running-the-goal-on-any-maven-project"><span class="fa fa-link"></span></a>Running the goal on any Maven project</h3>
+<p>You can also run the validate goal on any Maven project without having to add the plugin to the <code>pom.xml</code> file. Doing so requires to specify the plugin using its fully qualified name. For example to run the goal on the camel-example-cdi from Apache Camel you can run</p>
+<pre><code>$cd camel-example-cdi
+$mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.114:validate
+</code></pre><p>which then runs and outputs the following:</p>
+<pre><code>[INFO] ------------------------------------------------------------------------
+[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
+[INFO] Endpoint validation success: (4 = passed, 0 = invalid, 0 = incapable, 0 = unknown components)
+[INFO] Simple validation success: (0 = passed, 0 = invalid)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+</code></pre><p>The validation passed, and 4 endpoints was validated. Now suppose we made a typo in one of the Camel endpoint uris in the source code, such as:</p>
+<pre><code>@Uri(&quot;timer:foo?period=5000&quot;)
+</code></pre><p>is changed to include a typo error in the <code>period</code> option</p>
+<pre><code>@Uri(&quot;timer:foo?perid=5000&quot;)
+</code></pre><p>And when running the validate goal again reports the following:</p>
+<pre><code>[INFO] ------------------------------------------------------------------------
+[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
+[WARNING] Endpoint validation error at: org.apache.camel.example.cdi.MyRoutes(MyRoutes.java:32)
 
+    timer:foo?perid=5000
+
+                       perid    Unknown option. Did you mean: [period]
+
+
+[WARNING] Endpoint validation error: (3 = passed, 1 = invalid, 0 = incapable, 0 = unknown components)
+[INFO] Simple validation success: (0 = passed, 0 = invalid)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+</code></pre><h3 id="options"><a name="options" class="plugin-anchor" href="#options"><span class="fa fa-link"></span></a>Options</h3>
+<p>The maven plugin supports the following options which can be configured from the command line, or defined in the <code>pom.xml</code> file in the <code>&lt;configuration&gt;</code> tag.</p>
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Default Value</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>failOnError</td>
+<td>false</td>
+<td>Whether to fail if invalid Camel endpoints was found. By default the plugin logs the errors at WARN level</td>
+</tr>
+<tr>
+<td>logUnparseable</td>
+<td>false</td>
+<td>Whether to log endpoint URIs which was un-parsable and therefore not possible to validate</td>
+</tr>
+<tr>
+<td>includeJava</td>
+<td>true</td>
+<td>Whether to include Java files to be validated for invalid Camel endpoints</td>
+</tr>
+<tr>
+<td>includeXml</td>
+<td>true</td>
+<td>Whether to include XML files to be validated for invalid Camel endpoints</td>
+</tr>
+<tr>
+<td>includeTest</td>
+<td>false</td>
+<td>Whether to include test source code</td>
+</tr>
+<tr>
+<td>includes</td>
+<td></td>
+<td>To filter the names of java and xml files to only include files matching any of the given list of patterns (wildcard and regular expression). Multiple values can be separated by comma.</td>
+</tr>
+<tr>
+<td>excludes</td>
+<td></td>
+<td>To filter the names of java and xml files to exclude files matching any of the given list of patterns (wildcard and regular expression). Multiple values can be separated by comma.</td>
+</tr>
+<tr>
+<td>ignoreUnknownComponent</td>
+<td>true</td>
+<td>Whether to ignore unknown components</td>
+</tr>
+<tr>
+<td>ignoreIncapable</td>
+<td>true</td>
+<td>Whether to ignore incapable of parsing the endpoint uri</td>
+</tr>
+<tr>
+<td>ignoreLenientProperties</td>
+<td>true</td>
+<td>Whether to ignore components that uses lenient properties. When this is true, then the uri validation is stricter but would fail on properties that are not part of the component but in the uri because of using lenient properties. For example using the HTTP components to provide query parameters in the endpoint uri.</td>
+</tr>
+</table>
                     
                     </section>
                 
@@ -1361,10 +1422,10 @@ or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to 
         </div>
 
         
-        <a href="./FAQ.html" class="navigation navigation-prev " aria-label="Previous page: FAQ"><i class="fa fa-angle-left"></i></a>
+        <a href="./forge.html" class="navigation navigation-prev " aria-label="Previous page: Forge"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqFuse.html" class="navigation navigation-next " aria-label="Next page: JBoss Fuse Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./testing.html" class="navigation navigation-next " aria-label="Next page: Testing"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
