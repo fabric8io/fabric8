@@ -57,7 +57,7 @@
         data-chapter-title="Native Kubernetes on GKE"
         data-filepath="getStarted/gke.md"
         data-basepath=".."
-        data-revision="Mon Jan 18 2016 12:49:43 GMT+0000 (UTC)"
+        data-revision="Tue Jan 19 2016 08:04:05 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1283,7 +1283,7 @@
 <pre><code>kc get pods
 </code></pre><h3 id="install-the-fabric8-console"><a name="install-the-fabric8-console" class="plugin-anchor" href="#install-the-fabric8-console"><span class="fa fa-link"></span></a>Install the fabric8 console</h3>
 <p>Now there wont be anything running yet so lets install the fabric8 console, run as a <a href="https://cloud.google.com/container-engine/docs/replicationcontrollers/" target="_blank">replication controller</a> and include a <a href="https://cloud.google.com/container-engine/docs/services/" target="_blank">service</a>.  We will also install another pod that includes a base set of template apps that we can run later.  So now run..</p>
-<pre><code>kc create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.28/console-kubernetes-2.2.28-kubernetes.json
+<pre><code>kc create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
 </code></pre><p>To explain what just happened a little, we downloaded a kubernetes.json configuration file which describes a <a href="https://cloud.google.com/container-engine/docs/replicationcontrollers/" target="_blank">replication controller</a> for the fabric8-console docker image.  This file is generated as part of the fabric8 release process.  The kubernetes CLI created this replication controller called fabric8 which then instructed the API server to schedule a pod on a node in our cluster.  The image may take a little while to download from docker hub.  If you want to build and push the image to your Google registry then see the relevant section below.</p>
 <h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
 <p>Here is a <a href="https://vimeo.com/134408470" target="_blank">video showing you what you can do with the console on GKE</a></p>

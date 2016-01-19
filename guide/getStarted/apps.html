@@ -57,7 +57,7 @@
         data-chapter-title="Install on OpenShift"
         data-filepath="getStarted/apps.md"
         data-basepath=".."
-        data-revision="Mon Jan 18 2016 12:49:43 GMT+0000 (UTC)"
+        data-revision="Tue Jan 19 2016 08:04:05 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1315,12 +1315,14 @@ cd main
 </code></pre><h4 id="download-templates-individually"><a name="download-templates-individually" class="plugin-anchor" href="#download-templates-individually"><span class="fa fa-link"></span></a>Download templates individually</h4>
 <p>Or to install from the central repository then choose the commands below to suit the application you wish to install:</p>
 <h5 id="console"><a name="console" class="plugin-anchor" href="#console"><span class="fa fa-link"></span></a>Console</h5>
-<p>Provides the base <a href="../console.html">fabric8 console</a> at the <code>vagrant.f8</code> domain:</p>
+<p>Provides the base <a href="../console.html">fabric8 console</a> at the <code>vagrant.f8</code> domain. On OpenShift run the following command:</p>
 <pre><code>    export KUBERNETES_DOMAIN=vagrant.f8
     oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://repo1.maven.org/maven2/io/fabric8/devops/apps/console/2.2.88/console-2.2.88-kubernetes.json \
+    http://repo1.maven.org/maven2/io/fabric8/devops/apps/console/2.2.84/console-2.2.84-kubernetes.json \
     | oc create -f -
-</code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
+</code></pre><p>If you are using kubernetes run:
+        kubectl create -f <a href="http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json" target="_blank">http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json</a></p>
+<p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h5>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
