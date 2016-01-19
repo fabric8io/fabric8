@@ -57,7 +57,7 @@
         data-chapter-title="Camel Maven Plugin"
         data-filepath="camelMavenPlugin.md"
         data-basepath="."
-        data-revision="Tue Jan 19 2016 08:04:05 GMT+0000 (UTC)"
+        data-revision="Tue Jan 19 2016 10:59:47 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1271,7 +1271,7 @@
                         <h2 id="fabric8-camel-maven-plugin"><a name="fabric8-camel-maven-plugin" class="plugin-anchor" href="#fabric8-camel-maven-plugin"><span class="fa fa-link"></span></a>Fabric8 Camel Maven Plugin</h2>
 <p>This maven plugin makes it possible to run some of the <a href="forge.html">Forge</a> commands from Maven command line.</p>
 <h3 id="goals"><a name="goals" class="plugin-anchor" href="#goals"><span class="fa fa-link"></span></a>Goals</h3>
-<p>For building and pushing docker images</p>
+<p>For validating Camel endpoints in the source code:</p>
 <ul>
 <li><code>fabric8-camel:validate</code> validates the Maven project source code to identify invalid Camel endpoint uris</li>
 </ul>
@@ -1280,16 +1280,16 @@
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+    &lt;version&gt;2.2.114&lt;/version&gt;
   &lt;/plugin&gt;
-</code></pre><p>Notice the version of the maven plugin is the fabric8-forge version, and not the fabric8 version. These two projects have different release numbers.</p>
+</code></pre><p>Notice the version number (current 2.2.114) is the fabric8-forge release. You can find the <a href="https://github.com/fabric8io/fabric8-forge/releases" target="_blank">latest release number</a> on github. </p>
 <p>Then you can run the validate goal from the command line or from within your Java editor such as IDEA or Eclipse.</p>
 <pre><code> mvn fabric8-camel:validate
 </code></pre><p>You can also enable the plugin to automatic run as part of the build to catch these errors.</p>
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+    &lt;version&gt;2.2.114&lt;/version&gt;
     &lt;executions&gt;
       &lt;execution&gt;
         &lt;phase&gt;process-classes&lt;/phase&gt;      
@@ -1304,7 +1304,7 @@
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;${fabric8.forge.version}&lt;/version&gt;
+    &lt;version&gt;2.2.114&lt;/version&gt;
     &lt;executions&gt;
       &lt;execution&gt;
         &lt;configuration&gt;
