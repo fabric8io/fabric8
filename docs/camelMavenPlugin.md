@@ -5,7 +5,7 @@ This maven plugin makes it possible to run some of the [Forge](forge.md) command
 
 ### Goals
 
-For building and pushing docker images
+For validating Camel endpoints in the source code:
 
 * `fabric8-camel:validate` validates the Maven project source code to identify invalid Camel endpoint uris
 
@@ -16,10 +16,10 @@ To enable this plugin add the following to your pom.xml:
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>${fabric8.forge.version}</version>
+        <version>2.2.114</version>
       </plugin>
 
-Notice the version of the maven plugin is the fabric8-forge version, and not the fabric8 version. These two projects have different release numbers.
+Notice the version number (current 2.2.114) is the fabric8-forge release. You can find the [latest release number](https://github.com/fabric8io/fabric8-forge/releases) on github. 
 
 Then you can run the validate goal from the command line or from within your Java editor such as IDEA or Eclipse.
 
@@ -30,7 +30,7 @@ You can also enable the plugin to automatic run as part of the build to catch th
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>${fabric8.forge.version}</version>
+        <version>2.2.114</version>
         <executions>
           <execution>
             <phase>process-classes</phase>      
@@ -48,7 +48,7 @@ The maven plugin can also be configured to validate the test source code , which
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>${fabric8.forge.version}</version>
+        <version>2.2.114</version>
         <executions>
           <execution>
             <configuration>
