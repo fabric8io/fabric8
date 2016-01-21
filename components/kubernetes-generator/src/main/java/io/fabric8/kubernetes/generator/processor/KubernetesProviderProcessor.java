@@ -15,13 +15,7 @@
  */
 package io.fabric8.kubernetes.generator.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
 import io.fabric8.utils.Strings;
@@ -34,19 +28,17 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
-
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 
 @SupportedAnnotationTypes("io.fabric8.kubernetes.generator.annotation.KubernetesProvider")
 public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationProcessor {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<HasMetadata> provided = new LinkedHashSet<>();
+        Set provided = new LinkedHashSet<>();
 
         CompilationTaskFactory compilationTaskFactory = new CompilationTaskFactory(processingEnv);
         Set<TypeElement> providers = new HashSet<>();
@@ -81,8 +73,6 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesProvider.class)) {
             try {
                 if (element instanceof ExecutableElement) {
-                    KubernetesProvider provider = element.getAnnotation(KubernetesProvider.class);
-
                     ExecutableElement methodElement = (ExecutableElement) element;
                     String methodName = methodElement.getSimpleName().toString();
                     TypeElement classElement = getClassElement(element);
@@ -91,10 +81,8 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
                     Method providerMethod = instance.getClass().getDeclaredMethod(methodName);
                     if (providerMethod != null) {
-                        Object obj = providerMethod.invoke(instance);
-                        if (obj instanceof HasMetadata) {
-                            provided.add((HasMetadata) obj);
-                        }
+                        providerMethod.setAccessible(true);
+                        provided.add(providerMethod.invoke(instance));
                     }
                 }
             } catch (Exception ex) {
@@ -104,8 +92,7 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
         KubernetesResource answer = null;
         try {
-            answer = (KubernetesResource)KubernetesHelper.combineJson(provided);
-
+            answer = (KubernetesResource)KubernetesHelper.combineJson(provided.toArray());
         } catch (Exception e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
             return false;
@@ -113,25 +100,5 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
         generateJson(answer);
         return true;
-    }
-
-    private KubernetesList createList(Iterable<HasMetadata> objects) {
-        StringBuilder sb = new StringBuilder();
-        List<HasMetadata> allItems = new ArrayList<>();
-        boolean first = true;
-        for (HasMetadata obj : objects) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append("-");
-            }
-            
-            sb.append(getName(obj));
-            allItems.add(obj);
-        }
-        return new KubernetesListBuilder().
-                // TODO KubernetesList no longer has an id/name
-                //withName(sb.toString()).
-                withItems(allItems).build();
     }
 }
