@@ -38,14 +38,14 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
     private static final String KUBERNETES_JSON = "kubernetes.json";
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    KubernetesResource readJson() {
+    KubernetesResource readJson(String fileName) {
         try {
-            FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
+            FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", (fileName == null ? KUBERNETES_JSON : fileName));
             try (Reader reader = fileObject.openReader(false)) {
                 return MAPPER.readValue(reader, KubernetesResource.class);
             }
         } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Kubernetes JSON not found.");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, fileName + " JSON not found.");
         }
         return null;
     }
@@ -59,14 +59,14 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
             Path path = Paths.get(fileObject.toUri());
             File file = path.toFile();
             if (file.exists() && !file.delete()) {
-                throw new IOException("Failed to delete old kubernetes json.");
+                throw new IOException("Failed to delete old kubernetes json file: " + fileName);
             }
             fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", fileName);
             try (Writer writer = fileObject.openWriter()) {
                 MAPPER.writeValue(writer, json);
             }
         } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json.");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json " + fileName);
         }
     }
 

@@ -82,7 +82,9 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
 
         //2nd pass generate json.
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesModelProcessor.class)) {
-            KubernetesResource json = readJson();
+            KubernetesModelProcessor annotation = element.getAnnotation(KubernetesModelProcessor.class);
+            String kubernetesJsonFileName = annotation.value();
+            KubernetesResource json = readJson(kubernetesJsonFileName);
 
             Builder<? extends KubernetesResource> builder;
             if (json instanceof KubernetesList) {
@@ -136,7 +138,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
                     }
                 }
                 json = builder.build();
-                generateJson(json);
+                generateJson(kubernetesJsonFileName, json);
             } catch (Exception ex) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error creating Kubernetes configuration:" + ex.getMessage());
             }
