@@ -57,7 +57,7 @@
         data-chapter-title="Walk-through"
         data-filepath="quickstarts/walkthrough.md"
         data-basepath=".."
-        data-revision="Fri Jan 22 2016 07:32:47 GMT+0000 (UTC)"
+        data-revision="Fri Jan 22 2016 08:35:33 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1297,9 +1297,10 @@ details. </p>
 <p>In this guide we assume you have setup the <code>DOCKER_HOST</code> environment, such as: </p>
 <pre><code>DOCKER_HOST=&quot;tcp://vagrant.f8:2375&quot;
 </code></pre><p>.. and using the OpenShift Client we can login to OpenShift with</p>
-<pre><code>oc login      // (use admin/admin if using the default credentials)
+<pre><code># Use admin/admin if using the default credentials
+oc login      
 </code></pre><h4 id="build-the-application-and-run-locally"><a name="build-the-application-and-run-locally" class="plugin-anchor" href="#build-the-application-and-run-locally"><span class="fa fa-link"></span></a>Build the application and run locally</h4>
-<p>Almost every quickstarts can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven</p>
+<p>Almost every quickstart can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven</p>
 <pre><code>mvn clean install
 </code></pre><p>We can then run the quickstart locally using:</p>
 <pre><code>mvn exec:java

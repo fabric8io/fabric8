@@ -57,7 +57,7 @@
         data-chapter-title="Running"
         data-filepath="quickstarts/running.md"
         data-basepath=".."
-        data-revision="Fri Jan 22 2016 07:32:47 GMT+0000 (UTC)"
+        data-revision="Fri Jan 22 2016 08:35:33 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1329,27 +1329,24 @@ push this image to <code>index.docker.io</code> because this must be done with
 permissions for the account <code>fabric8</code>.</p>
 <p>If you want to push the image to you own account on Docker hub, use
 the option <code>-Dfabric8.dockerUser</code> to specify your username:</p>
-<pre><code>mvn clean install docker:build docker:push -Dfabric8.dockerUser=morlock
-</code></pre><p>Authentication for this user <em>morlock</em> must be done as described in
-the
-<a href="https://github.com/rhuss/docker-maven-plugin" target="_blank">manual for the docker-maven-plugin</a>. E.g. you
-can use <code>-Ddocker.username</code> and <code>-Ddocker.password</code> for specifying the
-credentials or you can set this up in yout <code>~/.m2/settings.xml</code>.</p>
+<pre><code>mvn clean install docker:build docker:push -Dfabric8.dockerUser=morlock/
+</code></pre><p>(Pleade note the trailing <code>/</code> after the username). Authentication for this user <em>morlock</em> must 
+be done as described in the <a href="https://github.com/rhuss/docker-maven-plugin" target="_blank">manual for the docker-maven-plugin</a>. 
+E.g. you can use <code>-Ddocker.push.username</code> and <code>-Ddocker.push.password</code> for specifying the
+credentials or you can set this up in your <code>~/.m2/settings.xml</code>.</p>
 <p>Alternatively you can push the image also to another registry, like
 the OpenShift internal registry. Assuming that you use the
 <a href="../getStarted/vagrant.html">fabric8 Vagrant image</a>
 and have set up the routes properly, the OpenShift registry is
-available as <code>docker-registry.vagrant.f8:80</code>. If your OpenShift user
+available as <code>docker-registry.vagrant.f8</code>. If your OpenShift user
 is authenticated against Docker as desribed in the
 <a href="https://docs.openshift.com/enterprise/3.0/install_config/install/docker_registry.html#access" target="_blank">OpenShift Documentation</a>
 and a project <strong>fabric8</strong> exists (<code>oc new-project fabric8</code> if
 required), then you can push to this registry with</p>
-<pre><code>mvn clean install docker:build docker:push -Dfabric8.dockerPrefix=&quot;docker-registry.vagrant.f8:80/&quot; \
-                                           -Ddocker.username=$(oc whoami) \
-                                           -Ddocker.password=$(oc whoami -t)
-</code></pre><p>Please note the trailing <code>/</code> at the end of the prefix. This is mandatory.</p>
-<p>These properties can be used also with the shortcut profiles
-<code>f8-build</code>, <code>f8-deploy</code> and <code>f8-local-deploy</code></p>
+<pre><code>mvn clean install docker:build docker:push -Ddocker.push.registry=docker-registry.vagrant.f8 \
+                                           -Ddocker.push.useOpenShiftAuth
+</code></pre><p>These properties can be used also with the shortcut profiles <code>f8-build</code>, <code>f8-deploy</code> and 
+<code>f8-local-deploy</code>.</p>
 
                     
                     </section>
