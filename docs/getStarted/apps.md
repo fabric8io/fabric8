@@ -76,6 +76,7 @@ Provides the base [fabric8 console](../console.html) at the `vagrant.f8` domain.
 		| oc create -f -
 
 If you are using kubernetes run:
+
 		kubectl create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
 
 Then [setup the OpenShift Routes](#creating-routes)
