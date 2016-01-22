@@ -45,12 +45,13 @@ In this guide we assume you have setup the `DOCKER_HOST` environment, such as:
 
 .. and using the OpenShift Client we can login to OpenShift with
 
-    oc login      // (use admin/admin if using the default credentials)
+    # Use admin/admin if using the default credentials
+    oc login      
     
 
 #### Build the application and run locally
 
-Almost every quickstarts can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven
+Almost every quickstart can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven
 
     mvn clean install
     
@@ -219,4 +220,3 @@ Another easy way would be to use the fabric8 web console to delete the quickstat
 #### Closing remarks
 
 Yay you made through this first walk through of the most simple quickstart we have. For the next walk lets up the game a bit and use Camel and Kubernetes services.
-
