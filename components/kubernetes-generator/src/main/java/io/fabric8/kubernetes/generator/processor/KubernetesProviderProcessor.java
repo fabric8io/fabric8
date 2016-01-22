@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.generator.processor;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -26,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.io.File;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -97,7 +99,7 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
             KubernetesResource answer;
             try {
                 answer = (KubernetesResource)KubernetesHelper.combineJson(entry.getValue().toArray());
-                generateJson(entry.getKey(), answer);
+                generateKubernetesManifest(entry.getKey(), answer);
             } catch (Exception e) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
                 return false;
@@ -107,6 +109,21 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         }
 
         return true;
+    }
+
+    private void generateKubernetesManifest(String fileName, KubernetesResource resource) {
+        FileExtension ext = FileExtension.determineExtension(Files.getFileExtension(new File(fileName)));
+        switch (ext) {
+            case JSON:
+                generateJson(fileName, resource);
+                break;
+            case YAML:
+                generateYaml(fileName, resource);
+                break;
+            case UNDEFINED:
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "could not determine file extension for " + fileName + ". Is it .json, .yaml, or .yml?");
+
+        }
     }
 
     private Set getProvidedSet(Map<String, Set> providedMap, Element element) {

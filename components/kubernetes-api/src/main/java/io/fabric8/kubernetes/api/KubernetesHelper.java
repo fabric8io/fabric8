@@ -83,10 +83,8 @@ import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.tools.FileObject;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -468,6 +466,13 @@ public final class KubernetesHelper {
     public static void saveYaml(Object data, File file) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.writeValue(file, data);
+    }
+
+    public static void saveYaml(Object data, FileObject fileObject) throws IOException{
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try (Writer writer = fileObject.openWriter()) {
+            mapper.writeValue(writer, data);
+        }
     }
 
     /**

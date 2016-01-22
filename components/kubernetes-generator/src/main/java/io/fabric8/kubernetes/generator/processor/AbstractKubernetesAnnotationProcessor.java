@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.generator.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -36,7 +37,26 @@ import java.nio.file.Paths;
 public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProcessor {
 
     private static final String KUBERNETES_JSON = "kubernetes.json";
+    private static final String KUBERNETES_YAML = "kubernetes.yml";
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+    enum FileExtension {
+        JSON,
+        YAML,
+        UNDEFINED;
+
+        public static FileExtension determineExtension(String extension) {
+            if ("json" .equals(extension)) {
+                return JSON;
+            }
+            else if ("yaml" .equals(extension) || "yml" .equals(extension)) {
+                return YAML;
+            }
+            else {
+                return UNDEFINED;
+            }
+        }
+    }
 
     KubernetesResource readJson(String fileName) {
         try {
@@ -50,24 +70,41 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
         return null;
     }
 
-    void generateJson(KubernetesResource json){
-        generateJson(KUBERNETES_JSON, json);
+    void generateJson(KubernetesResource resource){
+        generateJson(KUBERNETES_JSON, resource);
     }
-    void generateJson(String fileName, KubernetesResource json ) {
+    void generateJson(String fileName, KubernetesResource resource ) {
         try {
-            FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", fileName);
-            Path path = Paths.get(fileObject.toUri());
-            File file = path.toFile();
-            if (file.exists() && !file.delete()) {
-                throw new IOException("Failed to delete old kubernetes json file: " + fileName);
-            }
-            fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", fileName);
+            FileObject fileObject = getFileObject(fileName);
             try (Writer writer = fileObject.openWriter()) {
-                MAPPER.writeValue(writer, json);
+                MAPPER.writeValue(writer, resource);
             }
         } catch (IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json " + fileName);
         }
+    }
+
+    void generateYaml(KubernetesResource resource) {
+        generateYaml(KUBERNETES_YAML, resource);
+    }
+    void generateYaml(String fileName, KubernetesResource resource) {
+        try {
+            FileObject fileObject = getFileObject(fileName);
+            KubernetesHelper.saveYaml(resource, fileObject);
+        } catch (IOException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error generating json " + fileName);
+        }
+    }
+
+    private FileObject getFileObject(String fileName) throws IOException {
+        FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", fileName);
+        Path path = Paths.get(fileObject.toUri());
+        File file = path.toFile();
+        if (file.exists() && !file.delete()) {
+            throw new IOException("Failed to delete old kubernetes json file: " + fileName);
+        }
+        fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", fileName);
+        return fileObject;
     }
 
     TypeElement getClassElement(Element element) {
