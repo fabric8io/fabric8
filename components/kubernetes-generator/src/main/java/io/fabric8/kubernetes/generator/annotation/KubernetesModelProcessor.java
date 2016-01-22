@@ -25,5 +25,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Documented
 public @interface KubernetesModelProcessor {
-    String value() default "[kubernetes.json]";
+    String value() default "kubernetes.json";
 }
