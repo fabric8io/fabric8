@@ -57,7 +57,7 @@
         data-chapter-title="annotation processors"
         data-filepath="annotationProcessors.md"
         data-basepath="."
-        data-revision="Fri Jan 22 2016 09:55:19 GMT+0000 (UTC)"
+        data-revision="Fri Jan 22 2016 13:01:21 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1371,7 +1371,9 @@ public KubernetesList create() {
             .endReplicationControllerItem()
             .build();
 }    
-</code></pre><p>So what is the benefit of using java instead of json? The most noteworthy are:</p>
+</code></pre><p><code>@KubernetesProvider</code> annotation can also generate YAML files. When you give the file a name as in above, and you use an
+extension of <code>.yaml</code> or <code>.yml</code>, the processor will automatically generate YAML for you. </p>
+<p>So what is the benefit of using java instead of json? The most noteworthy are:</p>
 <ul>
 <li>Type Safety</li>
 <li>Dynamic generation of JSON</li>
