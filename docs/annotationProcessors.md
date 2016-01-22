@@ -112,6 +112,9 @@ wish to generate. For example, `@KubernetesProvider("foo.json")` will generate t
                 .endReplicationControllerItem()
                 .build();
     }    
+    
+`@KubernetesProvider` annotation can also generate YAML files. When you give the file a name as in above, and you use an
+extension of `.yaml` or `.yml`, the processor will automatically generate YAML for you. 
 
 So what is the benefit of using java instead of json? The most noteworthy are:
 
