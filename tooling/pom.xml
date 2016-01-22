@@ -32,20 +32,10 @@
     <name>Fabric8 :: Tooling</name>
 
     <modules>
-<!--
-        <module>archetypes</module>
--->
-        <module>archetype-builder</module>
-<!--
-        TODO
-        <module>archetype-commands</module>
--->
-<!--
-        <module>examples</module>
--->
     </modules>
 
     <profiles>
+<!--
         <profile>
             <id>ts.all</id>
             <activation>
@@ -57,6 +47,7 @@
                 <module>archetype-itests</module>
             </modules>
         </profile>
+-->
         <profile>
             <id>profiles</id>
             <modules>
