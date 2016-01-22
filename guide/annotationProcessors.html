@@ -57,7 +57,7 @@
         data-chapter-title="annotation processors"
         data-filepath="annotationProcessors.md"
         data-basepath="."
-        data-revision="Fri Jan 22 2016 01:43:39 GMT+0000 (UTC)"
+        data-revision="Fri Jan 22 2016 01:51:51 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1286,24 +1286,24 @@ The processors are meant to be used as a supplement or an alternative to the <a 
 For example:</p>
 <pre><code>@KubernetesProvider
 public KubernetesList create() {
-    return new KubernetesBuilder()
-            .withNewReplicationController()
+    return new KubernetesListBuilder()
+            .addNewReplicationControllerItem()
                 .withNewMetadata()
                     .withName(&quot;Hello-Controller&quot;)
-                .endNewMetadata()
-             .withNewSpec()
-                .withReplicas(1)
-                .addToSelector(&quot;component&quot;, &quot;my-component&quot;)
-                .withNewTemplate()
-                    .withNewSpec()
-                        .addNewContainer()
-                            .withName(&quot;my-container)
-                            .withImage(&quot;my/image&quot;)
-                        .endContainer()
-                    .endSpec()
-                .endTemplate()
-            .endSpec()
-            .endReplicationController()
+                .endMetadata()
+                .withNewSpec()
+                    .withReplicas(1)
+                    .addToSelector(&quot;component&quot;, &quot;my-component&quot;)
+                    .withNewTemplate()
+                        .withNewSpec()
+                            .addNewContainer()
+                                .withName(&quot;my-container&quot;)
+                                .withImage(&quot;my/image&quot;)
+                            .endContainer()
+                        .endSpec()
+                    .endTemplate()
+                .endSpec()
+            .endReplicationControllerItem()
             .build();
 }
 </code></pre><p>When a class that contains a method like this gets compiled, it will generate a kubernetes.json file in the build output folder.
@@ -1347,6 +1347,30 @@ The particular method will generate a json file that will look like:</p>
         }
       ]
     }
+</code></pre><p>You can also have multiple methods annotated with <code>@KubernetesProvider</code> and specify specific kubernetes.json files you
+wish to generate. For example, <code>@KubernetesProvider(&quot;foo.json&quot;)</code> will generate the previous manifest as <code>target/classes/foo.json</code>:</p>
+<pre><code>@KubernetesProvider(&quot;foo.json&quot;)
+public KubernetesList create() {
+    return new KubernetesListBuilder()
+            .addNewReplicationControllerItem()
+                .withNewMetadata()
+                    .withName(&quot;Hello-Controller&quot;)
+                .endMetadata()
+                .withNewSpec()
+                    .withReplicas(1)
+                    .addToSelector(&quot;component&quot;, &quot;my-component&quot;)
+                    .withNewTemplate()
+                        .withNewSpec()
+                            .addNewContainer()
+                                .withName(&quot;my-container&quot;)
+                                .withImage(&quot;my/image&quot;)
+                            .endContainer()
+                        .endSpec()
+                    .endTemplate()
+                .endSpec()
+            .endReplicationControllerItem()
+            .build();
+}    
 </code></pre><p>So what is the benefit of using java instead of json? The most noteworthy are:</p>
 <ul>
 <li>Type Safety</li>
@@ -1381,6 +1405,19 @@ public class ManipulationExample {
 }
 </code></pre><p>An other example can be &quot;Add a container to all pods&quot;</p>
 <pre><code>@KubernetesModelProcessor
+public class ManipulationExample {
+    public void on(PodTemplateSpecBuilder builder) {
+        builder.withNewSpec()
+                .addNewContainer()
+                    .withName(&quot;my-container)
+                    .withImage(&quot;my/image&quot;)
+                .endContainer()
+        .endSpec();
+    }
+}
+</code></pre><p>You can also manipulate existing kubernetes resources with a specific file name by passing in the file name to the <code>@KubernetesModelProcessor</code>
+annotation like this:</p>
+<pre><code>@KubernetesModelProcessor(&quot;foo.json&quot;)
 public class ManipulationExample {
     public void on(PodTemplateSpecBuilder builder) {
         builder.withNewSpec()
