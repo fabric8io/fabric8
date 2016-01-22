@@ -50,15 +50,18 @@ public abstract class AbstractKubernetesAnnotationProcessor extends AbstractProc
         return null;
     }
 
-    void generateJson(KubernetesResource json) {
+    void generateJson(KubernetesResource json){
+        generateJson(KUBERNETES_JSON, json);
+    }
+    void generateJson(String fileName, KubernetesResource json ) {
         try {
-            FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
+            FileObject fileObject = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", fileName);
             Path path = Paths.get(fileObject.toUri());
             File file = path.toFile();
             if (file.exists() && !file.delete()) {
                 throw new IOException("Failed to delete old kubernetes json.");
             }
-            fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", KUBERNETES_JSON);
+            fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", fileName);
             try (Writer writer = fileObject.openWriter()) {
                 MAPPER.writeValue(writer, json);
             }
