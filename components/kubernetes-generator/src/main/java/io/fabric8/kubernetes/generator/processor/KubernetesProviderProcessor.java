@@ -28,9 +28,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 @SupportedAnnotationTypes("io.fabric8.kubernetes.generator.annotation.KubernetesProvider")
@@ -38,7 +36,7 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set provided = new LinkedHashSet<>();
+
 
         CompilationTaskFactory compilationTaskFactory = new CompilationTaskFactory(processingEnv);
         Set<TypeElement> providers = new HashSet<>();
@@ -70,9 +68,13 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         }
 
         //2nd pass generate json.
+        Map<String, Set> providedMap = new HashMap<>();
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesProvider.class)) {
             try {
                 if (element instanceof ExecutableElement) {
+
+                    Set provided = getProvidedSet(providedMap, element);
+
                     ExecutableElement methodElement = (ExecutableElement) element;
                     String methodName = methodElement.getSimpleName().toString();
                     TypeElement classElement = getClassElement(element);
@@ -90,15 +92,31 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
             }
         }
 
-        KubernetesResource answer = null;
-        try {
-            answer = (KubernetesResource)KubernetesHelper.combineJson(provided.toArray());
-        } catch (Exception e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
-            return false;
+        for (Map.Entry<String, Set> entry : providedMap.entrySet()) {
+
+            KubernetesResource answer;
+            try {
+                answer = (KubernetesResource)KubernetesHelper.combineJson(entry.getValue().toArray());
+                generateJson(entry.getKey(), answer);
+            } catch (Exception e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
+                return false;
+            }
+
+
         }
 
-        generateJson(answer);
         return true;
+    }
+
+    private Set getProvidedSet(Map<String, Set> providedMap, Element element) {
+        KubernetesProvider providerAnnotation = element.getAnnotation(KubernetesProvider.class);
+        String kubernetesFile = providerAnnotation.value().trim();
+        if (providedMap.containsKey(kubernetesFile)) {
+            return providedMap.get(kubernetesFile);
+        }
+        LinkedHashSet rc = new LinkedHashSet();
+        providedMap.put(kubernetesFile, rc);
+        return rc;
     }
 }

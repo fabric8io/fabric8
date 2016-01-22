@@ -25,4 +25,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Documented
 public @interface KubernetesProvider {
+    String value() default "[kubernetes.json]";
 }
