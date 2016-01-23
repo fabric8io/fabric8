@@ -57,7 +57,7 @@
         data-chapter-title="Install on OpenShift"
         data-filepath="getStarted/apps.md"
         data-basepath=".."
-        data-revision="Fri Jan 22 2016 14:59:42 GMT+0000 (UTC)"
+        data-revision="Sat Jan 23 2016 10:36:46 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1320,9 +1320,9 @@ cd main
     oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/devops/apps/console/2.2.84/console-2.2.84-kubernetes.json \
     | oc create -f -
-</code></pre><p>If you are using kubernetes run:
-        kubectl create -f <a href="http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json" target="_blank">http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json</a></p>
-<p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
+</code></pre><p>If you are using kubernetes run:</p>
+<pre><code>    kubectl create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
+</code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h5>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
