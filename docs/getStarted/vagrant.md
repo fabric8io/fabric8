@@ -34,8 +34,8 @@ additional vagrant plugin:
 The next steps are needed for proper routing from the host to
 OpenShift services which are exposed via routes:
 
-* **Linux**: Setup up once a `dnsmasq` DNS proxy locally. The detailed
-  procedure depend on the Linux distribution used.  Here is the
+* **Linux**: Setup a `dnsmasq` DNS proxy locally. The detailed
+  procedure depends on the Linux distribution used.  Here is the
   example for Ubuntu:
 
         sudo apt-get install -y resolvconf dnsmasq
@@ -64,17 +64,17 @@ Now startup the Vagrant VM.
 vagrant up
 ```
 
-Note the vagrant image is by default configured with 2 cpu cores and
+Note the vagrant image is by default configured with 2 CPU cores and
 4 gigs of memory. It is recommended to not exceed about half of your
 machine’s resources. In case you have plenty of resources on your
-machine you can increase the settings, by editing the
+machine you can increase the settings by editing the
 `Vagrantfile`. The settings are defined in the bottom of the file:
 
 ```ruby
 v.cpus = 2
 ```
 
-To update the RAM you can use an envirnment variable. For example to run the `cd-pipeline` application we recommend about 8Gb of RAM:
+To update the RAM you can use an environment variable. For example to run the `cd-pipeline` application we recommend about 8Gb of RAM:
 
 ```
 export FABRIC8_VM_MEMORY=8000
