@@ -57,7 +57,7 @@
         data-chapter-title="Fabric8 Vagrant Image"
         data-filepath="getStarted/vagrant.md"
         data-basepath=".."
-        data-revision="Sun Jan 24 2016 08:30:14 GMT+0000 (UTC)"
+        data-revision="Sun Jan 24 2016 20:28:19 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1298,8 +1298,8 @@ additional vagrant plugin:</p>
 <p>The next steps are needed for proper routing from the host to
 OpenShift services which are exposed via routes:</p>
 <ul>
-<li><p><strong>Linux</strong>: Setup up once a <code>dnsmasq</code> DNS proxy locally. The detailed
-procedure depend on the Linux distribution used.  Here is the
+<li><p><strong>Linux</strong>: Setup a <code>dnsmasq</code> DNS proxy locally. The detailed
+procedure depends on the Linux distribution used.  Here is the
 example for Ubuntu:</p>
 <pre><code>  sudo apt-get install -y resolvconf dnsmasq
   sudo sh -c &apos;echo &quot;server=/vagrant.f8/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;
@@ -1324,14 +1324,14 @@ X&apos;s resolver feature (see <code>man 5 resolver</code> for details).</p>
 <p>Now startup the Vagrant VM.</p>
 <pre><code class="lang-sh">vagrant up
 </code></pre>
-<p>Note the vagrant image is by default configured with 2 cpu cores and
+<p>Note the vagrant image is by default configured with 2 CPU cores and
 4 gigs of memory. It is recommended to not exceed about half of your
 machine&#x2019;s resources. In case you have plenty of resources on your
-machine you can increase the settings, by editing the
+machine you can increase the settings by editing the
 <code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
 <pre><code class="lang-ruby">v.cpus = <span class="hljs-number">2</span>
 </code></pre>
-<p>To update the RAM you can use an envirnment variable. For example to run the <code>cd-pipeline</code> application we recommend about 8Gb of RAM:</p>
+<p>To update the RAM you can use an environment variable. For example to run the <code>cd-pipeline</code> application we recommend about 8Gb of RAM:</p>
 <pre><code>export FABRIC8_VM_MEMORY=8000
 </code></pre><p>Then follow the on screen instructions.</p>
 <ul>

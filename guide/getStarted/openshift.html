@@ -57,7 +57,7 @@
         data-chapter-title="Native OpenShift"
         data-filepath="getStarted/openshift.md"
         data-basepath=".."
-        data-revision="Sun Jan 24 2016 08:30:14 GMT+0000 (UTC)"
+        data-revision="Sun Jan 24 2016 20:28:19 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1270,28 +1270,29 @@
                     
                         <h2 id="getting-started-with-native-openshift"><a name="getting-started-with-native-openshift" class="plugin-anchor" href="#getting-started-with-native-openshift"><span class="fa fa-link"></span></a>Getting Started with native OpenShift</h2>
 <p>As an alternative to the all-in-one <a href="vagrant.html">Vagrant image</a>, fabric8 can be installed on top of a
-native <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a> Linux installation. </p>
+native <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a> Linux installation.</p>
 <h3 id="install-openshift-on-linux"><a name="install-openshift-on-linux" class="plugin-anchor" href="#install-openshift-on-linux"><span class="fa fa-link"></span></a>Install OpenShift on Linux</h3>
-<p>The following steps work on a Linux box. If you are on OS X or Windows then check out how to use 
+<p>The following steps work on a Linux box. If you are on OS X or Windows then check out how to use
 <a href="vagrant.html">the Fabric8 Vagrant box</a> which contains a full feature OpenShift V3 installation.</p>
-<h4 id="openshift-openshift-installation"><a name="openshift-openshift-installation" class="plugin-anchor" href="#openshift-openshift-installation"><span class="fa fa-link"></span></a>OpenShift OpenShift installation</h4>
-<p>We recommend you check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" target="_blank">OpenShift Origin Installation documentation</a> 
-as the default way to install <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a> before trying the alternative approach. Be sure that you 
-install the router and registry and described <a href="#openshift-configuration">below</a> which has to be done in any case. </p>
+<h4 id="openshift-origin-installation"><a name="openshift-origin-installation" class="plugin-anchor" href="#openshift-origin-installation"><span class="fa fa-link"></span></a>OpenShift Origin installation</h4>
+<p>We recommend you check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" target="_blank">OpenShift Origin Installation documentation</a>
+as the default way to install <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a> before trying the alternative approach. Be sure that you
+install the router and registry as described <a href="#openshift-configuration">below</a> which has to be done in any case.</p>
 <h4 id="alternative-installation-route"><a name="alternative-installation-route" class="plugin-anchor" href="#alternative-installation-route"><span class="fa fa-link"></span></a>Alternative Installation route</h4>
-<p>Here&apos;s an alternative installation approach which could be tried if the guide in the previous section doesn&apos;t work 
+<p>Here&apos;s an alternative installation approach which could be tried if the guide in the previous section doesn&apos;t work
 for you.</p>
 <ul>
-<li>You should have installed <a href="https://docs.docker.com/installation/#installation" target="_blank">Docker 1.6 or later</a> and have 
-the docker daemon running (see instructions for <a href="https://docs.docker.com/installation/centos/" target="_blank">CentOs</a>, 
+<li>You should have installed <a href="https://docs.docker.com/installation/#installation" target="_blank">Docker 1.6 or later</a> and have
+the docker daemon running (see instructions for <a href="https://docs.docker.com/installation/centos/" target="_blank">CentOs</a>,
 <a href="https://docs.docker.com/installation/fedora/" target="_blank">Fedora</a> or <a href="https://docs.docker.com/installation/ubuntulinux/" target="_blank">Ubuntu</a>)</li>
 <li>Download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 1.0 or later</a>:</li>
 </ul>
-<pre><code class="lang-sh">curl -L https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">0.0</span>/openshift-origin-v1.<span class="hljs-number">0.0</span>-<span class="hljs-number">67617</span>dd-linux-amd64.tar.gz | tar xzv
+<pre><code class="lang-sh">curl -L https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">1.1</span>/openshift-origin-server-v1.<span class="hljs-number">1.1</span><span class="hljs-operator">-e</span>1d9873-linux-<span class="hljs-number">64</span>bit.tar.gz | tar xzv
 </code></pre>
 <p>Now setup <code>$OPENSHIFT_MASTER</code> to point to the IP address or host name of the OpenShift master:</p>
 <pre><code class="lang-sh"><span class="hljs-built_in">export</span> OPENSHIFT_MASTER=https://localhost:<span class="hljs-number">8443</span>
 </code></pre>
+<p>Move the extracted folder to be <code>/var/lib/openshift/</code> and cd into that directory.</p>
 <p>Then start OpenShift:</p>
 <pre><code class="lang-sh">nohup ./openshift start \
         --cors-allowed-origins=<span class="hljs-string">&apos;.*&apos;</span> \
@@ -1304,23 +1305,30 @@ the docker daemon running (see instructions for <a href="https://docs.docker.com
 <pre><code class="lang-sh">mkdir -p ~/.kube
 ln <span class="hljs-operator">-s</span> `<span class="hljs-built_in">pwd</span>`/openshift.local.config/master/admin.kubeconfig ~/.kube/config
 </code></pre>
+<p>In order to be able to run <code>oadm</code> command add <code>/var/lib/openshift</code> to your <code>$PATH</code>:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> PATH=<span class="hljs-string">&quot;<span class="hljs-variable">$PATH</span>:/var/lib/openshift&quot;</span>
+</code></pre>
 <h3 id="openshift-configuration"><a name="openshift-configuration" class="plugin-anchor" href="#openshift-configuration"><span class="fa fa-link"></span></a>OpenShift configuration</h3>
-<p>OpenShift needs some extra installation steps in order to be able to run all the <a href="apps.html">Fabric8 apps</a>. 
-Various apps (like <a href="../cdelivery.html">Continuous Delivery</a> and <a href="../fabric8MQ.html">MQ</a> requires secrets and service accounts to be setup). </p>
+<p>OpenShift needs some extra installation steps in order to be able to run all the <a href="apps.html">Fabric8 apps</a>.
+Various apps (like <a href="../cdelivery.html">Continuous Delivery</a> and <a href="../fabric8MQ.html">MQ</a> requires secrets and service accounts to be setup).</p>
 <h4 id="add-roles"><a name="add-roles" class="plugin-anchor" href="#add-roles"><span class="fa fa-link"></span></a>Add roles</h4>
 <p>The following commands assume you are on the OpenShift master machine :</p>
 <ul>
 <li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
 </ul>
-<pre><code>oadm policy add-cluster-role-to-user cluster-admin admin
-</code></pre><h4 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h4>
-<p><a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> is a useful installer for fabric8. </p>
-<p><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary</a> and add it to your <code>$PATH</code> </p>
+<pre><code class="lang-sh">oadm policy add-cluster-role-to-user cluster-admin admin
+</code></pre>
+<h4 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h4>
+<p><a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> is a useful installer for fabric8.</p>
+<p><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary</a>, extract it and add it to your <code>$PATH</code></p>
 <p>Now type the following:</p>
 <pre><code class="lang-sh">gofabric8 deploy -y
 gofabric8 secrets -y
 </code></pre>
-<p>At any point you can validate your installation via:</p>
+<p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
+<pre><code>gofabric8-deploy -d mydomain.com -y
+gofabric8 secrets -y
+</code></pre><p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
 </code></pre>
 <p>You can also eagerly pull docker images for a Fabric8 template via the <code>pull</code> command</p>
@@ -1329,28 +1337,28 @@ gofabric8 secrets -y
 <h4 id="install-or-upgrade-applications-using-helm"><a name="install-or-upgrade-applications-using-helm" class="plugin-anchor" href="#install-or-upgrade-applications-using-helm"><span class="fa fa-link"></span></a>Install or upgrade applications using Helm</h4>
 <p>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" target="_blank">helm command line tool</a>.</p>
 <h4 id="enable-the-openshift-router-and-registry"><a name="enable-the-openshift-router-and-registry" class="plugin-anchor" href="#enable-the-openshift-router-and-registry"><span class="fa fa-link"></span></a>Enable the OpenShift router and registry</h4>
-<p>The <a href="https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router" target="_blank">OpenShift Router</a> enables 
-external access to services inside a Kubernetes cluster using <a href="http://www.haproxy.org/" target="_blank">HAProxy</a>; e.g. so you can access web apps 
+<p>The <a href="https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router" target="_blank">OpenShift Router</a> enables
+external access to services inside a Kubernetes cluster using <a href="http://www.haproxy.org/" target="_blank">HAProxy</a>; e.g. so you can access web apps
 from your browser for apps running inside Kubernetes.</p>
-<p>The <a href="https://docs.openshift.org/latest/architecture/infrastructure_components/image_registry.html" target="_blank">OpenShift Registry</a> is used 
+<p>The <a href="https://docs.openshift.org/latest/architecture/infrastructure_components/image_registry.html" target="_blank">OpenShift Registry</a> is used
 as an internal registry for holding Docker images for Kubernetes.</p>
-<p>The detailed instructions for installing these components can be found in the 
+<p>The detailed instructions for installing these components can be found in the
 <a href="https://docs.openshift.org/latest/admin_guide/install/deploy_router.html" target="_blank">Router installation documentation</a> and
-the <a href="https://docs.openshift.org/latest/admin_guide/install/docker_registry.html" target="_blank">Registry installation documentation</a>. In short it 
+the <a href="https://docs.openshift.org/latest/admin_guide/install/docker_registry.html" target="_blank">Registry installation documentation</a>. In short it
 boils down to these two commands:</p>
-<pre><code>oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
-oadm registry --create --credentials=openshift.local.config/master/openshift-registry.kubeconfig
+<pre><code>oadm router --create --service-account=router --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
+oadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
 </code></pre><h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
-<p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install 
+<p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install
 the <a href="apps.html">fabric8 applications</a></p>
 <h2 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
-<p>If you are having issues logging into th econsole, ensure you&apos;ve enabled <code>cors-allowed</code> as shown above in the <code>./openshift start</code> command. </p>
-<p>Another way to do that is to edit the <code>/etc/openshift/master/master-config.yaml</code> file <a href="https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441" target="_blank">and add en entry like the following</a>:</p>
+<p>If you are having issues logging into the console, ensure you&apos;ve enabled <code>cors-allowed</code> as shown above in the <code>./openshift start</code> command.</p>
+<p>Another way to do that is to edit the <code>/etc/openshift/master/master-config.yaml</code> file <a href="https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441" target="_blank">and add an entry like the following</a>:</p>
 <pre><code>$vi /etc/openshift/master/master-config.yaml
 </code></pre><p>then add:</p>
 <pre><code>corsAllowedOrigins:
   - .*
-</code></pre><p>After making a change then run:</p>
+</code></pre><p>After making a change run:</p>
 <pre><code>$ restart master
 systemctl restart openshift-master
 </code></pre><p>Also <a href="https://github.com/fabric8io/fabric8/issues/4866#issue-109652169" target="_blank">make sure your user has a login via web console</a> e.g. if using HTPasswdPasswordIdentityProvider in OSEv3</p>
@@ -1363,7 +1371,7 @@ systemctl restart openshift-master
 gofabric8 deploy -y -d my-new-domain.com
 gofabric8 secrets -y
 oc get oauthclient fabric8
-</code></pre><p>Though there&apos;s a pending issue to do this automatically whenever you run gofabric8 deploy </p>
+</code></pre><p>Though there&apos;s a pending issue to do this automatically whenever you run gofabric8 deploy</p>
 
                     
                     </section>
