@@ -108,7 +108,7 @@
         <assertj.core.version>1.7.0</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
 
-        <compiler.plugin.version>3.3</compiler.plugin.version>
+        <compiler.plugin.version>3.5</compiler.plugin.version>
         <curator.version>2.9.1</curator.version>
         <deltaspike.version>1.5.2</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
