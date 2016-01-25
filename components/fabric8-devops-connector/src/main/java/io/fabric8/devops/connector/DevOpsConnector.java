@@ -319,6 +319,9 @@ public class DevOpsConnector {
                 }
             }
         }
+
+        addLink("Git", getGitUrl());
+
         Controller controller = createController();
         OpenShiftClient openShiftClient = getKubernetes().adapt(OpenShiftClient.class);
         BuildConfig buildConfig = null;
@@ -396,7 +399,7 @@ public class DevOpsConnector {
     }
 
     protected String getJenkinsServiceUrl() {
-        return getServiceUrl(ServiceNames.JENKINS, namespace, jenkinsNamespace);
+        return getServiceUrl(ServiceNames.JENKINS, false, namespace, jenkinsNamespace);
     }
 
 
@@ -404,7 +407,7 @@ public class DevOpsConnector {
      * Looks in the given namespaces for the given service or returns null if it could not be found
      */
     protected String getServiceUrl(String serviceName, String... namespaces) {
-        return getServiceUrl(serviceName, true, namespaces);
+        return getServiceUrl(serviceName, false, namespaces);
     }
 
     private String getServiceUrl(String serviceName, boolean serviceExternal, String... namespaces) {
