@@ -57,7 +57,7 @@
         data-chapter-title="Camel Maven Plugin"
         data-filepath="camelMavenPlugin.md"
         data-basepath="."
-        data-revision="Sun Jan 24 2016 20:28:19 GMT+0000 (UTC)"
+        data-revision="Mon Jan 25 2016 09:26:47 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1411,6 +1411,11 @@ $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.114:validate
 <td>ignoreLenientProperties</td>
 <td>true</td>
 <td>Whether to ignore components that uses lenient properties. When this is true, then the uri validation is stricter but would fail on properties that are not part of the component but in the uri because of using lenient properties. For example using the HTTP components to provide query parameters in the endpoint uri.</td>
+</tr>
+<tr>
+<td>showAll</td>
+<td>false</td>
+<td>Whether to show all endpoints and simple expressions (both invalid and valid).</td>
 </tr>
 </table>
                     
