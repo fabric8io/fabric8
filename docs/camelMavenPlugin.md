@@ -176,4 +176,9 @@ The maven plugin supports the following options which can be configured from the
 <td>true</td>
 <td>Whether to ignore components that uses lenient properties. When this is true, then the uri validation is stricter but would fail on properties that are not part of the component but in the uri because of using lenient properties. For example using the HTTP components to provide query parameters in the endpoint uri.</td>
 </tr>
+<tr>
+<td>showAll</td>
+<td>false</td>
+<td>Whether to show all endpoints and simple expressions (both invalid and valid).</td>
+</tr>
 </table>
