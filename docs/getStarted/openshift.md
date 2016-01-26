@@ -31,8 +31,10 @@ curl -L https://github.com/openshift/origin/releases/download/v1.1.1/openshift-o
 Now setup `$OPENSHIFT_MASTER` to point to the IP address or host name of the OpenShift master:
 
 ```sh
-export OPENSHIFT_MASTER=https://localhost:8443
+export OPENSHIFT_MASTER=https://$HOST_IP:8443
 ```
+
+**Note** Be sure to use the host ip instead of localhost or 127.0.0.1. This ip will be used from inside a container to connect to the openshift api. Therefor localhost would point to the container itself and it won't be able to connect.
 
 Move the extracted folder to be ```/var/lib/openshift/``` and cd into that directory.
 
@@ -91,7 +93,7 @@ gofabric8 secrets -y
 **Note:** If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:
 
 ```
-gofabric8-deploy -d mydomain.com -y
+gofabric8 deploy -d mydomain.com -y
 gofabric8 secrets -y
 ```
 
