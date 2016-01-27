@@ -74,7 +74,7 @@ which then runs and outputs the following:
 
 ```
 [INFO] ------------------------------------------------------------------------
-[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
 [INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
@@ -97,7 +97,7 @@ And when running the validate goal again reports the following:
 
 ```
 [INFO] ------------------------------------------------------------------------
-[INFO] Building Camel :: Example :: CDI 2.16.1
+[INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
 [INFO] --- fabric8-camel-maven-plugin:2.2.114:validate (default-cli) @ camel-example-cdi ---
