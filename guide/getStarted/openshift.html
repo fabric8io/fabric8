@@ -57,7 +57,7 @@
         data-chapter-title="Native OpenShift"
         data-filepath="getStarted/openshift.md"
         data-basepath=".."
-        data-revision="Tue Jan 26 2016 16:40:15 GMT+0000 (UTC)"
+        data-revision="Wed Jan 27 2016 07:33:10 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1290,8 +1290,9 @@ the docker daemon running (see instructions for <a href="https://docs.docker.com
 <pre><code class="lang-sh">curl -L https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">1.1</span>/openshift-origin-server-v1.<span class="hljs-number">1.1</span><span class="hljs-operator">-e</span>1d9873-linux-<span class="hljs-number">64</span>bit.tar.gz | tar xzv
 </code></pre>
 <p>Now setup <code>$OPENSHIFT_MASTER</code> to point to the IP address or host name of the OpenShift master:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> OPENSHIFT_MASTER=https://localhost:<span class="hljs-number">8443</span>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> OPENSHIFT_MASTER=https://<span class="hljs-variable">$HOST_IP</span>:<span class="hljs-number">8443</span>
 </code></pre>
+<p><strong>Note</strong> Be sure to use the host ip instead of localhost or 127.0.0.1. This ip will be used from inside a container to connect to the openshift api. Therefor localhost would point to the container itself and it won&apos;t be able to connect.</p>
 <p>Move the extracted folder to be <code>/var/lib/openshift/</code> and cd into that directory.</p>
 <p>Then start OpenShift:</p>
 <pre><code class="lang-sh">nohup ./openshift start \
@@ -1326,7 +1327,7 @@ Various apps (like <a href="../cdelivery.html">Continuous Delivery</a> and <a hr
 gofabric8 secrets -y
 </code></pre>
 <p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
-<pre><code>gofabric8-deploy -d mydomain.com -y
+<pre><code>gofabric8 deploy -d mydomain.com -y
 gofabric8 secrets -y
 </code></pre><p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
