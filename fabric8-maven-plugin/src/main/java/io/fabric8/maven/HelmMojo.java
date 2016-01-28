@@ -235,25 +235,27 @@ public class HelmMojo extends AbstractFabric8Mojo {
                     @Override
                     protected JSch createDefaultJSch(FS fs) throws JSchException {
                         JSch jsch = super.createDefaultJSch(fs);
-                        try {
-                            // Try using an ssh-agent first
-                            ConnectorFactory cf = ConnectorFactory.getDefault();
-                            Connector con = cf.createConnector();
-                            IdentityRepository irepo = new RemoteIdentityRepository(con);
-                            jsch.setIdentityRepository(irepo);
-                            getLog().debug("helm: Using ssh-agent");
-                        } catch (AgentProxyException e) {
-                            getLog().debug("helm: No ssh-agent available");
 
-                            // If private key path is set, use this
-                            if (!Strings.isNullOrBlank(privateKeyPath)) {
-                                getLog().debug("helm: Using SSH private key from " + privateKeyPath);
-                                jsch.removeAllIdentity();
-                                if (!Strings.isNullOrBlank(privateKeyPassphrase)) {
-                                    jsch.addIdentity(privateKeyPath, privateKeyPassphrase);
-                                } else {
-                                    jsch.addIdentity(privateKeyPath);
-                                }
+                        // If private key path is set, use this
+                        if (!Strings.isNullOrBlank(privateKeyPath)) {
+                            getLog().debug("helm: Using SSH private key from " + privateKeyPath);
+                            jsch.removeAllIdentity();
+                            if (!Strings.isNullOrBlank(privateKeyPassphrase)) {
+                                jsch.addIdentity(privateKeyPath, privateKeyPassphrase);
+                            } else {
+                                jsch.addIdentity(privateKeyPath);
+                            }
+                        } else {
+                            try {
+                                // Try using an ssh-agent first
+                                ConnectorFactory cf = ConnectorFactory.getDefault();
+                                Connector con = cf.createConnector();
+                                IdentityRepository irepo = new RemoteIdentityRepository(con);
+                                jsch.setIdentityRepository(irepo);
+                                getLog().debug("helm: Using ssh-agent");
+                            } catch (AgentProxyException e) {
+                                // No special handling
+                                getLog().debug("helm: No ssh-agent available");
                             }
                         }
                         return jsch;
