@@ -15,9 +15,8 @@
  */
 package io.fabric8.maven;
 
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.*;
+import com.jcraft.jsch.agentproxy.*;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.maven.helm.Chart;
 import io.fabric8.utils.Files;
@@ -88,7 +87,6 @@ public class HelmMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = PROPERTY_HELM_CHART_NAME, defaultValue = "${project.artifactId}")
     private String chartName;
-
 
     /**
      * The name of the git remote repo
@@ -215,9 +213,8 @@ public class HelmMojo extends AbstractFabric8Mojo {
             CloneCommand command = Git.cloneRepository();
             command = command.setURI(gitUrl).setDirectory(outputFolder).setRemote(remoteRepoName);
 
-            if (!Strings.isNullOrBlank(privateKeyPath)) {
-                addSpecificPrivateKey(command);
-            }
+            setupCredentials(command);
+
             try {
                 Git git = command.call();
             } catch (Throwable e) {
@@ -226,33 +223,45 @@ public class HelmMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private void addSpecificPrivateKey(CloneCommand command) {
+    private void setupCredentials(CloneCommand command) {
         command.setTransportConfigCallback(new TransportConfigCallback() {
             @Override
             public void configure(Transport transport) {
                 SshTransport sshTransport = (SshTransport) transport;
                 sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
                     @Override
-                    protected void configure(OpenSshConfig.Host host, Session session) {
-                    }
+                    protected void configure(OpenSshConfig.Host host, Session session) { }
 
                     @Override
                     protected JSch createDefaultJSch(FS fs) throws JSchException {
-                        JSch rc =  super.createDefaultJSch(fs);
-                        rc.removeAllIdentity();
-                        if (!Strings.isNullOrBlank(privateKeyPassphrase)) {
-                            rc.addIdentity(privateKeyPath, privateKeyPassphrase);
-                        }else {
-                            rc.addIdentity(privateKeyPath);
+                        JSch jsch = super.createDefaultJSch(fs);
+                        try {
+                            // Try using an ssh-agent first
+                            ConnectorFactory cf = ConnectorFactory.getDefault();
+                            Connector con = cf.createConnector();
+                            IdentityRepository irepo = new RemoteIdentityRepository(con);
+                            jsch.setIdentityRepository(irepo);
+                            getLog().debug("helm: Using ssh-agent");
+                        } catch (AgentProxyException e) {
+                            getLog().debug("helm: No ssh-agent available");
+
+                            // If private key path is set, use this
+                            if (!Strings.isNullOrBlank(privateKeyPath)) {
+                                getLog().debug("helm: Using SSH private key from " + privateKeyPath);
+                                jsch.removeAllIdentity();
+                                if (!Strings.isNullOrBlank(privateKeyPassphrase)) {
+                                    jsch.addIdentity(privateKeyPath, privateKeyPassphrase);
+                                } else {
+                                    jsch.addIdentity(privateKeyPath);
+                                }
+                            }
                         }
-                        return rc;
+                        return jsch;
                     }
                 });
             }
-
         });
     }
-
 
     public File getKubernetesYaml() {
         return kubernetesYaml;
