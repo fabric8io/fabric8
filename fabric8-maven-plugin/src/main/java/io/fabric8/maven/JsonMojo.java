@@ -342,6 +342,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private String projectName;
 
     /**
+     * The project label used in the generated Kubernetes JSON dependencies template
+     */
+    @Parameter(property = "fabric8.combineJson.project", defaultValue = "${project.artifactId}")
+    private String combineProjectName;
+
+    /**
      * The group label used in the generated Kubernetes JSON template
      */
     @Parameter(property = "fabric8.label.group", defaultValue = "${project.groupId}")
@@ -624,7 +630,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             if (combinedJson instanceof Template) {
                 Template template = (Template) combinedJson;
-                String templateName = getProjectName();
+                String templateName = getCombineProjectName();
                 setName(template, templateName);
                 configureTemplateDescriptionAndIcon(template, getIconUrl());
 
@@ -1559,6 +1565,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getCombineProjectName() {
+        return combineProjectName;
+    }
+
+    public void setCombineProjectName(String combineProjectName) {
+        this.combineProjectName = combineProjectName;
     }
 
     public String getGroupName() {
