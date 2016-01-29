@@ -555,7 +555,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             	if (generateJson) {
             		generateKubernetesJson(json);
             		if (combineDependencies) {
-            			combineDependentJsonFiles(json);
+            			combineDependentJsonFiles(getKubernetesCombineJson() == null ? json : getKubernetesCombineJson());
             		}
             		if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
             			combineJsonFiles(json, kubernetesExtraJson);

@@ -132,6 +132,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     @Parameter(property = "fabric8.combineDependencies", defaultValue = "false")
     protected boolean combineDependencies;
 
+    /**
+     * The generated kubernetes JSON file dependencies on the classpath
+     */
+    @Parameter(property = "fabric8.combineJson.target")
+    private File kubernetesCombineJson;
+
 
     /**
      * Should we exclude OpenShift templates and any extensions like OAuthConfigs in the generated or combined JSON?
@@ -256,6 +262,10 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
 
     public File getKubernetesJson() {
         return kubernetesJson;
+    }
+
+    public File getKubernetesCombineJson() {
+        return kubernetesCombineJson;
     }
 
 
