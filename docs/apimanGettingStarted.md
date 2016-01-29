@@ -26,5 +26,4 @@ _APIManGateway_
 
 In the apiman gateway screen you can click the **Test Gateway** button to check that apiman can interact with the apiman gateway.
 
-Note that there is a known issue where apiman can come up before elasticsearch which can lead to the apiman not being able to find elasticsearch. This leads to the apiman console not being available. Killing the apiman pod(s) so they restart will usually clear this.
-
+The apiman gateway is implemented as a kubernetes service itself. This means that all configuration options for a kubernetes service apply to the gateway as well. If you require loadbalancing you should set '-Dhttp.keepAlive=false' or else it will try to keep connections alive. This in effect means that it only switches on failover.
