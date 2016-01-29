@@ -103,6 +103,10 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             
             Object config = loadKubernetesJson();
             List<HasMetadata> list = KubernetesHelper.toItemList(config);
+            name = getDockerImage();
+            if (name == null) {
+                name = findFirstImageName(list);
+            }
             Map<String, String> env = getEnvFromConfig(list);
             String namespace = getNamespace();
             env.putAll(getNamespaceServiceEnv(namespace));
@@ -110,10 +114,6 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
             expandEnvironmentVariable(env);
             displayEnv(env);
 
-            name = getDockerImage();
-            if (name == null) {
-                name = findFirstImageName(list);
-            }
             StringBuilder sb = new StringBuilder();
             List<VolumeMount> volumeMount = getVolumeMountsFromConfig(list);
             List<ContainerPort> containerPort = getContainerPortsFromConfig(list);
