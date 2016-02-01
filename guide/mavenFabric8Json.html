@@ -57,7 +57,7 @@
         data-chapter-title="fabric8:json"
         data-filepath="mavenFabric8Json.md"
         data-basepath="."
-        data-revision="Mon Feb 01 2016 08:11:34 GMT+0000 (UTC)"
+        data-revision="Mon Feb 01 2016 17:35:10 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1313,6 +1313,7 @@ ANOTHER = some ${CHEESE}
 <p>The <code>fabric8:json</code> goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you&apos;ll have lots of fine grained generated <code>kubernetes.json</code> files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume. </p>
 <p>Another advantage of combining the JSON files together is that the <code>fabric8:json</code> goal automatically moves <code>Service</code> objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).</p>
 <p>By default a <code>List</code> of items is created; unless the pom.xml defines any <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameters (see <a href="##creating-openshift-templates">Creating OpenShift Templates</a> for more detail) or any of the dependent JSON files are <code>Template</code>. The <code>fabric8:json</code> goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined <code>Template</code>.</p>
+<p>You can generate a separate JSON file with the dependencies of the current project, use <code>fabric8.combineJson.target</code> property for that. If you want to create a Template of the current project and its dependencies, you can set <code>fabric8.extra.json</code> property to <code>${fabric8.combineJson.target}</code>, and don&#x2019;t forget to change the name of the Template (because &quot;Combining JSON files&quot; feature uses the names of templates for filtering duplicate), for example: <code>&lt;fabric8.combineJson.project&gt;${project.artifactId}Combine&lt;/fabric8.combineJson.project&gt;</code></p>
 <h4 id="examples"><a name="examples" class="plugin-anchor" href="#examples"><span class="fa fa-link"></span></a>Examples</h4>
 <p>The fabric8 project defines a number of different <a href="https://github.com/fabric8io/quickstarts/tree/master/app-groups" target="_blank">application modules</a> for all the various parts of fabric8.</p>
 <p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> and combine them into the resulting JSON. </p>
@@ -1338,8 +1339,24 @@ ANOTHER = some ${CHEESE}
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md" target="_blank">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>
+<td>fabric8.json.target</td>
+<td>The generated kubernetes JSON file. Defaults to using the file <code>target/classes/kubernetes.json</code></td>
+</tr>
+<tr>
+<td>fabric8.pureKubernetes</td>
+<td>Should we exclude OpenShift templates and any extensions like OAuthConfigs in the generated or combined JSON? This defaults to <code>false</code></td>
+</tr>
+<tr>
 <td>fabric8.combineDependencies</td>
 <td>If enabled then the maven dependencies will be scanned for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> which are then combined into the resulting generated JSON file. See <a href="#combining-json-files">Combining JSON files</a></td>
+</tr>
+<tr>
+<td>fabric8.combineJson.target</td>
+<td>The generated kubernetes JSON file dependencies on the classpath. See <a href="#combining-json-files">Combining JSON files</a>. Defaults to using the property <code>fabric8.json.target</code></td>
+</tr>
+<tr>
+<td>fabric8.combineJson.project</td>
+<td>The project label used in the generated Kubernetes JSON dependencies template. See <a href="#combining-json-files">Combining JSON files</a>. This defaults to <code>${project.artifactId}</code></td>
 </tr>
 <tr>
 <td>fabric8.container.name</td>
@@ -1348,6 +1365,10 @@ ANOTHER = some ${CHEESE}
 <tr>
 <td>fabric8.containerPrivileged</td>
 <td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
+</tr>
+<tr>
+<td>fabric8.envProperties</td>
+<td>The properties file used to specify environment variables which allows ${FOO_BAR} expressions to be used without any Maven property expansion. Defaults to using the file <code>src/main/fabric8/env.properties</code></td>
 </tr>
 <tr>
 <td>fabric8.env.FOO = BAR</td>
