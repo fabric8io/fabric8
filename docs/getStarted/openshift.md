@@ -97,10 +97,10 @@ gofabric8 deploy -d mydomain.com -y
 gofabric8 secrets -y
 ```
 
-**Note:** If your router lives on another domain/host then your openshift api, you will need to provide the --apidomain parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:
+**Note:** If your router lives on another domain/host then your openshift api, you will need to provide the --api-server parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:
 
 ```
-gofabric8 deploy -d mydomain.com --apidomain=master.mydomain.com -y
+gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
 gofabric8 secrets -y
 ```
 
