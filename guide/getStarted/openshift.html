@@ -57,7 +57,7 @@
         data-chapter-title="Native OpenShift"
         data-filepath="getStarted/openshift.md"
         data-basepath=".."
-        data-revision="Mon Feb 08 2016 08:18:37 GMT+0000 (UTC)"
+        data-revision="Mon Feb 08 2016 08:24:26 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1328,6 +1328,9 @@ gofabric8 secrets -y
 </code></pre>
 <p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
 <pre><code>gofabric8 deploy -d mydomain.com -y
+gofabric8 secrets -y
+</code></pre><p><strong>Note:</strong> If your router lives on another domain/host then your openshift api, you will need to provide the --api-server parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:</p>
+<pre><code>gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
 gofabric8 secrets -y
 </code></pre><p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
