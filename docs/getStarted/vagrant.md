@@ -300,7 +300,7 @@ For further information see:
 and
 [ioquatix/rubydns#55](https://github.com/ioquatix/rubydns/issues/55).
 
-#### Can not find / ping "vagrat.f8" from OS X
+#### Can not find / ping "vagrant.f8" from OS X
 
 In some rare case the DNS cache can get stale when you are updating
 your Vagrant or when doing restarts of the VM on OS X. In that case OS
