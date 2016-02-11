@@ -1317,10 +1317,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         if (Strings.isNullOrBlank(answer)) {
-            // maybe its a common icon
-            String commonRef = asCommonIconRef(iconRef);
-            if (commonRef != null) {
-                answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8", iconBranch, "/fabric8-maven-plugin/src/main/resources/", commonRef);
+            // maybe its a common icon that is embedded in fabric8-console
+            String embeddedIcon = embeddedIconsInConsole(iconRef, "img/icons/");
+            if (embeddedIcon != null) {
+                return embeddedIcon;
             }
         }
 
@@ -1381,10 +1381,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     }
                 }
             } else {
-                String commonRef = asCommonIconRef(iconRef);
-                if (commonRef != null) {
-                    String answer = URLUtils.pathJoin("https://cdn.rawgit.com/fabric8io/fabric8", iconBranch, "/fabric8-maven-plugin/src/main/resources/", commonRef);
-                    return answer;
+                String embeddedIcon = embeddedIconsInConsole(iconRef, "img/icons/");
+                if (embeddedIcon != null) {
+                    return embeddedIcon;
                 } else {
                     getLog().warn("Cannot find url for icon to use " + iconUrl);
                 }
@@ -1393,7 +1392,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return null;
     }
 
-    protected String asCommonIconRef(String iconRef) {
+    /**
+     * To use embedded icons provided by the fabric8-console
+     *
+     * @param iconRef  name of icon file
+     * @param prefix   prefix location for the icons in the fabric8-console
+     * @return the embedded icon ref, or <tt>null</tt> if no embedded icon found to be used
+     */
+    protected String embeddedIconsInConsole(String iconRef, String prefix) {
         if (iconRef == null) {
             return null;
         }
@@ -1403,27 +1409,27 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         if (iconRef.contains("activemq")) {
-            return "icons/activemq.svg";
+            return prefix + "activemq.svg";
         } else if (iconRef.contains("camel")) {
-            return "icons/camel.svg";
+            return prefix + "camel.svg";
         } else if (iconRef.contains("java")) {
-            return "icons/java.svg";
+            return prefix + "java.svg";
         } else if (iconRef.contains("jetty")) {
-            return "icons/jetty.svg";
+            return prefix + "jetty.svg";
         } else if (iconRef.contains("karaf")) {
-            return "icons/karaf.svg";
+            return prefix + "karaf.svg";
         } else if (iconRef.contains("mule")) {
-            return "icons/mule.svg";
+            return prefix + "mule.svg";
         } else if (iconRef.contains("spring-boot")) {
-            return "icons/spring-boot.svg";
+            return prefix + "spring-boot.svg";
         } else if (iconRef.contains("tomcat")) {
-            return "icons/tomcat.svg";
+            return prefix + "tomcat.svg";
         } else if (iconRef.contains("tomee")) {
-            return "icons/tomee.svg";
+            return prefix + "tomee.svg";
         } else if (iconRef.contains("weld")) {
-            return "icons/weld.svg";
+            return prefix + "weld.svg";
         } else if (iconRef.contains("wildfly")) {
-            return "icons/wildfly.svg";
+            return prefix + "wildfly.svg";
         }
 
         return null;
