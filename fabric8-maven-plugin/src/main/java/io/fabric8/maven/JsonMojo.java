@@ -1410,26 +1410,76 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         if (iconRef.contains("activemq")) {
             return prefix + "activemq.svg";
+        } else if (iconRef.contains("apiman")) {
+            return prefix + "apiman.png";
+        } else if (iconRef.contains("api-registry")) {
+            return prefix + "api-registry.svg";
+        } else if (iconRef.contains("brackets")) {
+            return prefix + "brackets.svg";
         } else if (iconRef.contains("camel")) {
             return prefix + "camel.svg";
+        } else if (iconRef.contains("chaos-monkey")) {
+            return prefix + "chaos-monkey.png";
+        } else if (iconRef.contains("docker-registry")) {
+            return prefix + "docker-registry.png";
+        } else if (iconRef.contains("elasticsearch")) {
+            return prefix + "elasticsearch.png";
+        } else if (iconRef.contains("fluentd")) {
+            return prefix + "fluentd.png";
+        } else if (iconRef.contains("gerrit")) {
+            return prefix + "gerrit.png";
+        } else if (iconRef.contains("gitlab")) {
+            return prefix + "gitlab.svg";
+        } else if (iconRef.contains("gogs")) {
+            return prefix + "gogs.png";
+        } else if (iconRef.contains("grafana")) {
+            return prefix + "grafana.png";
+        } else if (iconRef.contains("hubot-irc")) {
+            return prefix + "hubot-irc.png";
+        } else if (iconRef.contains("hubot-letschat")) {
+            return prefix + "hubot-letschat.png";
+        } else if (iconRef.contains("hubot-notifier")) {
+            return prefix + "hubot-notifier.png";
+        } else if (iconRef.contains("hubot-slack")) {
+            return prefix + "hubot-slack.png";
+        } else if (iconRef.contains("image-linker")) {
+            return prefix + "image-linker.svg";
         } else if (iconRef.contains("java")) {
             return prefix + "java.svg";
+        } else if (iconRef.contains("jenkins")) {
+            return prefix + "jenkins.svg";
         } else if (iconRef.contains("jetty")) {
             return prefix + "jetty.svg";
         } else if (iconRef.contains("karaf")) {
             return prefix + "karaf.svg";
+        } else if (iconRef.contains("keycloak")) {
+            return prefix + "keycloak.svg";
+        } else if (iconRef.contains("kibana")) {
+            return prefix + "kibana.svg";
+        } else if (iconRef.contains("kiwiirc")) {
+            return prefix + "kiwiirc.png";
+        } else if (iconRef.contains("letschat")) {
+            return prefix + "letschat.png";
         } else if (iconRef.contains("mule")) {
             return prefix + "mule.svg";
+        } else if (iconRef.contains("nexus")) {
+            return prefix + "nexus.png";
+        } else if (iconRef.contains("orion")) {
+            return prefix + "orion.png";
+        } else if (iconRef.contains("prometheus")) {
+            return prefix + "prometheus.png";
         } else if (iconRef.contains("spring-boot")) {
             return prefix + "spring-boot.svg";
+        } else if (iconRef.contains("taiga")) {
+            return prefix + "taiga.png";
         } else if (iconRef.contains("tomcat")) {
             return prefix + "tomcat.svg";
         } else if (iconRef.contains("tomee")) {
             return prefix + "tomee.svg";
-        } else if (iconRef.contains("weld")) {
-            return prefix + "weld.svg";
         } else if (iconRef.contains("wildfly")) {
             return prefix + "wildfly.svg";
+        } else if (iconRef.contains("weld")) {
+            return prefix + "weld.svg";
         }
 
         return null;
