@@ -15,6 +15,8 @@
  */
 package io.fabric8.profiles;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,10 +27,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 
+import static io.fabric8.profiles.ProfilesHelpers.readJsonFile;
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
-import static io.fabric8.profiles.ProfilesHelpers.merge;
+import static io.fabric8.profiles.ProfilesHelpers.readYamlFile;
 import static io.fabric8.profiles.ProfilesHelpers.recusivelyCollectFileListing;
 import static io.fabric8.profiles.ProfilesHelpers.toBytes;
+import static io.fabric8.profiles.ProfilesHelpers.toJsonBytes;
+import static io.fabric8.profiles.ProfilesHelpers.toYamlBytes;
 
 public class Profiles {
 
@@ -56,8 +61,8 @@ public class Profiles {
             files.addAll(listFiles(profileName));
         }
 
-        System.out.println("profile search order"+ profileSearchOrder);
-        System.out.println("files: "+files);
+        System.out.println("profile search order" + profileSearchOrder);
+        System.out.println("files: " + files);
         for (String file : files) {
             try (InputStream is = materializeFile(file, profileSearchOrder)) {
                 Files.copy(is, target.resolve(file), StandardCopyOption.REPLACE_EXISTING);
@@ -75,10 +80,28 @@ public class Profiles {
             for (String profile : profileSearchOrder) {
                 Path path = getProfilePath(profile).resolve(fileName);
                 if (Files.exists(path)) {
-                    merge(properties, readPropertiesFile(path));
+                    ProfilesHelpers.merge(properties, readPropertiesFile(path));
                 }
             }
             return new ByteArrayInputStream(toBytes(properties));
+        } else if (fileName.endsWith(".json")) {
+            JsonNode node = null;
+            for (String profile : profileSearchOrder) {
+                Path path = getProfilePath(profile).resolve(fileName);
+                if (Files.exists(path)) {
+                    node = ProfilesHelpers.merge(node, readJsonFile(path));
+                }
+            }
+            return new ByteArrayInputStream(toJsonBytes(node));
+        } else if (fileName.endsWith(".yml")) {
+            JsonNode node = null;
+            for (String profile : profileSearchOrder) {
+                Path path = getProfilePath(profile).resolve(fileName);
+                if (Files.exists(path)) {
+                    node = ProfilesHelpers.merge(node, readYamlFile(path));
+                }
+            }
+            return new ByteArrayInputStream(toYamlBytes(node));
         } else {
             // Last profile in list wins, since we cant merge these types of files.
             Path last = null;
@@ -100,7 +123,7 @@ public class Profiles {
     }
 
     private void collectProfileNames(ArrayList<String> target, String profileName) throws IOException {
-        if( target.contains(profileName) ) {
+        if (target.contains(profileName)) {
             return;
         }
 
@@ -108,7 +131,7 @@ public class Profiles {
         if (!Files.exists(path)) {
             throw new IOException("Profile directory does not exists: " + path);
         }
-        Properties props  = new Properties();
+        Properties props = new Properties();
         Path agentProperties = path.resolve("io.fabric8.agent.properties");
         if (Files.exists(agentProperties)) {
             props = readPropertiesFile(agentProperties);

@@ -15,6 +15,7 @@
  */
 package io.fabric8.profiles;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
+import static io.fabric8.profiles.ProfilesHelpers.readYamlFile;
 import static io.fabric8.profiles.TestHelpers.PROJECT_BASE_DIR;
 import static io.fabric8.profiles.TestHelpers.readTextFile;
 import static io.fabric8.profiles.TestHelpers.recusiveDeleteIfExists;
@@ -48,6 +50,12 @@ public class ProfilesTest {
         Assert.assertEquals("b", readTextFile(target.resolve("b.txt")));
         Assert.assertEquals("c", readTextFile(target.resolve("c.txt")));
         Assert.assertEquals("d", readTextFile(target.resolve("d.txt")));
+
+
+        JsonNode jsonNode = readYamlFile(target.resolve("test.yml"));
+        Assert.assertEquals("d", jsonNode.get("name").textValue());
+        Assert.assertEquals("maybe", jsonNode.get("attributes").get("awesome").textValue());
+        Assert.assertEquals(4, jsonNode.get("pods").size());
 
     }
 
