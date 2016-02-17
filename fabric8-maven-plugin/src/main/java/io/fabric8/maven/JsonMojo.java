@@ -1444,6 +1444,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             return prefix + "hubot-slack.png";
         } else if (iconRef.contains("image-linker")) {
             return prefix + "image-linker.svg";
+        } else if (iconRef.contains("javascript")) {
+            return prefix + "javascript.png";
         } else if (iconRef.contains("java")) {
             return prefix + "java.svg";
         } else if (iconRef.contains("jenkins")) {
@@ -1464,6 +1466,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             return prefix + "mule.svg";
         } else if (iconRef.contains("nexus")) {
             return prefix + "nexus.png";
+        } else if (iconRef.contains("node")) {
+            return prefix + "node.svg";
         } else if (iconRef.contains("orion")) {
             return prefix + "orion.png";
         } else if (iconRef.contains("prometheus")) {
