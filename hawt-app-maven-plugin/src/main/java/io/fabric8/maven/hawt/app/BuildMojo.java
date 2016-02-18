@@ -92,7 +92,7 @@ public class BuildMojo extends AbstractMojo {
     protected File assembly;
 
     @Parameter(property = "hawt-app.archive",
-            defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.tar.gz")
+            defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
     protected File archive;
 
     @Parameter(property = "hawt-app.archiveClassifier",
