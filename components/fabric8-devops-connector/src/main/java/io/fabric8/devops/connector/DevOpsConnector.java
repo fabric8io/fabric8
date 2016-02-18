@@ -1027,8 +1027,12 @@ public class DevOpsConnector {
                     answer = template;
                 }
             }
+            addProjectSecret();
         }
         return answer;
+    }
+
+    private void addProjectSecret() {
     }
 
     protected void addJenkinsScmTrigger(String jenkinsJobUrl) {
