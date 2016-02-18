@@ -75,7 +75,7 @@
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.12.1</activemq.version>
         <camel.version>2.16.2</camel.version>
-        <cxf.version>3.1.4</cxf.version>
+        <cxf.version>3.1.5</cxf.version>
         <cxf.plugin.version>3.1.5</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
@@ -85,7 +85,7 @@
         <jgroups.version>3.6.7.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.18</jsonschema2pojo.version>
         <snakeyaml.version>1.16</snakeyaml.version>
-        <swagger.jaxrs.version>1.5.7</swagger.jaxrs.version>
+        <swagger.jaxrs.version>1.5.5</swagger.jaxrs.version>
         <vertx.version>2.1.6</vertx.version>
         <weld.version>2.3.3.Final</weld.version>
 
