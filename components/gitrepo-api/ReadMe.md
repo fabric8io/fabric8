@@ -10,7 +10,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
              <dependency>
                  <groupId>io.fabric8</groupId>
                  <artifactId>gitrepo-api</artifactId>
-                 <version>2.2.92</version>
+                 <version>2.2.93</version>
              </dependency>
 
 ### Building
