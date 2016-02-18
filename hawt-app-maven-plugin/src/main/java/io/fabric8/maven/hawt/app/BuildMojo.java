@@ -110,7 +110,10 @@ public class BuildMojo extends AbstractMojo {
     protected String javaMainClass;
 
     @Component(role = Archiver.class, hint = "tar")
-    protected Archiver archiver;
+    protected Archiver tarArchiver;
+
+    @Component(role = Archiver.class, hint = "zip")
+    protected Archiver zipArchiver;
 
     // Used for attaching the archive to this artefact
     @Component
@@ -203,7 +206,22 @@ public class BuildMojo extends AbstractMojo {
             }
         }
 
-        ((TarArchiver) archiver).setCompression(TarArchiver.TarCompressionMethod.gzip);
+        Archiver archiver;
+        String archiveExtension;
+        if( archive.getName().endsWith(".tar") ) {
+            archiver = tarArchiver;
+            archiveExtension = "tar";
+        } else if( archive.getName().endsWith(".tar.gz") ) {
+            ((TarArchiver) tarArchiver).setCompression(TarArchiver.TarCompressionMethod.gzip);
+            archiver = tarArchiver;
+            archiveExtension = "tar.gz";
+        } else if(  archive.getName().endsWith(".zip") ) {
+            archiver = zipArchiver;
+            archiveExtension = "zip";
+        } else {
+            throw new MojoExecutionException("Invalid archive extension.  Should be zip | tar | tar.gz");
+        }
+
         archiver.setDestFile(archive);
         archiver.addFileSet(fileSet(assembly).prefixed(archivePrefix).includeExclude(null, new String[]{"bin/*"}).includeEmptyDirs(true));
         archiver.setFileMode(0755);
@@ -213,7 +231,8 @@ public class BuildMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Could not create the " + archive + " file", e);
         }
-        projectHelper.attachArtifact(project, "tar.gz", archiveClassifier, archive);
+        projectHelper.attachArtifact(project, archiveExtension, archiveClassifier, archive);
+
     }
 
     private void chmodExecutable(File file) {
