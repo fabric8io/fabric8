@@ -11,7 +11,7 @@ set "JAVA_APP_DIR=%CD%"
 :CHECK_SETENV
 if EXIST %JAVA_APP_DIR%\bin\setenv.cmd call %JAVA_APP_DIR%\bin\setenv.cmd
 
-if NOT "%JAVA_MAIN_CLASS%"=="" (
+if "%JAVA_MAIN_CLASS%"=="" (
 	if "${hawtapp.mvn.main.property}"=="" (
 	  echo "No JAVA_MAIN_CLASS specified"
   	  goto :EOF
@@ -50,6 +50,6 @@ echo Launching application in folder: %JAVA_APP_DIR%
 cd %JAVA_APP_DIR%
 
 echo Running java %arg_list%
-rem java %arg_list%
+java %arg_list%
 
 :EOF

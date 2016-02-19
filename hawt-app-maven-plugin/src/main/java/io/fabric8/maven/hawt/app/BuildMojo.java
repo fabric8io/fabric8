@@ -195,11 +195,11 @@ public class BuildMojo extends AbstractMojo {
         interpolations.put("hawtapp.mvn.main.property", javaMainClass != null ? javaMainClass : "");
 
         File targetRun = new File(binDir, "run.sh");
-        copyResource("bin/run.sh", targetRun, interpolations);
+        copyResource("bin/run.sh", targetRun, interpolations, true);
         chmodExecutable(targetRun);
 
         File targetRunCmd = new File(binDir, "run.cmd");
-        copyResource("bin/run.cmd", targetRunCmd, interpolations);
+        copyResource("bin/run.cmd", targetRunCmd, interpolations, false);
 
         if (source != null && source.exists()) {
             try {
@@ -246,7 +246,7 @@ public class BuildMojo extends AbstractMojo {
         }
     }
 
-    private void copyResource(String source, File target, HashMap<String, String> interpolations) throws MojoExecutionException {
+    private void copyResource(String source, File target, HashMap<String, String> interpolations, boolean unixLinedEndings) throws MojoExecutionException {
 
         try {
             String content = loadTextResource(getClass().getResource(source));
@@ -254,7 +254,12 @@ public class BuildMojo extends AbstractMojo {
                 content = StringUtils.interpolate(content, interpolations);
             }
             // Safety check
-            content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement("\n"));
+            if( unixLinedEndings ) {
+                content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement("\n"));
+            } else {
+                content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement("\r\n"));
+            }
+
             FileUtils.fileWrite(target, content);
         } catch (IOException e) {
             throw new MojoExecutionException("Could create the " + target + " file", e);
