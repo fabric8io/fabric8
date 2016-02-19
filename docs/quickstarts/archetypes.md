@@ -6,7 +6,7 @@ a new project based on the archetype easily:
     mvn archetype:generate \
           -DarchetypeGroupId=io.fabric8.archetypes \
           -DarchetypeArtifactId=cdi-camel-archetype \
-          -DarchetypeVersion=2.2.94
+          -DarchetypeVersion=2.2.95
 
 You will be asked for some project parameters like the `groupId` or
 the `artifactId`:
@@ -14,7 +14,7 @@ the `artifactId`:
 ```
 [INFO] --- maven-archetype-plugin:2.3:generate (default-cli) @ standalone-pom ---
 [INFO] Generating project in Interactive mode
-[INFO] Archetype repository not defined. Using the one from [io.fabric8.archetypes:cdi-camel-archetype:2.2.94] found in catalog remote
+[INFO] Archetype repository not defined. Using the one from [io.fabric8.archetypes:cdi-camel-archetype:2.2.95] found in catalog remote
 Define value for property 'groupId': : myf8
 Define value for property 'artifactId': : cdi-demo
 Define value for property 'version':  1.0-SNAPSHOT: :
@@ -37,7 +37,7 @@ parameters as Maven properties:
           -DarchetypeArtifactId=cdi-camel-archetype \
           -DgroupId=myf8 \
           -DartifactId=d2 \
-          -DarchetypeVersion=2.2.94
+          -DarchetypeVersion=2.2.95
 
 The name of the `archetypeArtifactId` consists of the category
 (`cdi`,`java`,`karaf`,`spring-boot` or `war`), the subproject
