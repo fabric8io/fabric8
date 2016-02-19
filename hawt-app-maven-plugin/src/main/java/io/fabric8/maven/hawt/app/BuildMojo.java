@@ -198,6 +198,9 @@ public class BuildMojo extends AbstractMojo {
         copyResource("bin/run.sh", targetRun, interpolations);
         chmodExecutable(targetRun);
 
+        File targetRunCmd = new File(binDir, "run.cmd");
+        copyResource("bin/run.cmd", targetRunCmd, interpolations);
+
         if (source != null && source.exists()) {
             try {
                 FileUtils.copyDirectoryStructure(source, assembly);
