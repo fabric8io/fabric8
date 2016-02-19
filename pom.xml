@@ -79,7 +79,7 @@
         <cxf.plugin.version>3.1.5</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
-        <hibernate-validator.version>5.2.3.Final</hibernate-validator.version>
+        <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jolokia.version>1.3.3</jolokia.version>
         <jgroups.version>3.6.7.Final</jgroups.version>
