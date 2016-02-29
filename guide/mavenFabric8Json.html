@@ -57,7 +57,7 @@
         data-chapter-title="fabric8:json"
         data-filepath="mavenFabric8Json.md"
         data-basepath="."
-        data-revision="Mon Feb 29 2016 16:35:48 GMT+0000 (UTC)"
+        data-revision="Mon Feb 29 2016 16:55:42 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1427,20 +1427,28 @@ ANOTHER = some ${CHEESE}
 <td>Defines the kubernetes label FOO and value BAR.</td>
 </tr>
 <tr>
+<td>fabric8.livenessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.livenessProbe.exec</td>
 <td>Creates a exec action liveness probe with this command.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action liveness probe on with this path.</td>
+<td>fabric8.livenessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action liveness probe on this host. To use liveness probe with HTTP you must configure at least the host and path options.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.httpGet.port</td>
 <td>Creates a HTTP GET action liveness probe on this port.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action liveness probe on this host.</td>
+<td>fabric8.livenessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action liveness probe on with this path.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.port</td>
@@ -1448,23 +1456,23 @@ ANOTHER = some ${CHEESE}
 </tr>
 <tr>
 <td>fabric8.metrics.scrape</td>
-<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html&gt;metrics&lt;/a&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;fabric8.metrics.port&lt;/td&gt;
-&lt;td&gt;the request port to find metrics to export to Prometheus.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;fabric8.metrics.scheme&lt;/td&gt;
-&lt;td&gt;the request scheme to find metrics to export to Prometheus.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;fabric8.namespaceEnvVar&lt;/td&gt;
-&lt;td&gt;The name of the env var to add that will contain the namespace at container runtime. Defaults to &lt;code&gt;KUBERNETES_NAMESPACE&lt;/code&gt;.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;fabric8.parameter.FOO.description&lt;/td&gt;
-&lt;td&gt;Defines the description of the &lt;a href=" http:="" docs.openshift.org="" latest="" dev_guide="" templates.html"="" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
+<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html" target="_blank">metrics</a></td>
+</tr>
+<tr>
+<td>fabric8.metrics.port</td>
+<td>the request port to find metrics to export to Prometheus.</td>
+</tr>
+<tr>
+<td>fabric8.metrics.scheme</td>
+<td>the request scheme to find metrics to export to Prometheus.</td>
+</tr>
+<tr>
+<td>fabric8.namespaceEnvVar</td>
+<td>The name of the env var to add that will contain the namespace at container runtime. Defaults to <code>KUBERNETES_NAMESPACE</code>.</td>
+</tr>
+<tr>
+<td>fabric8.parameter.FOO.description</td>
+<td>Defines the description of the <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameter <code>FOO</code>.</td>
 </tr>
 <tr>
 <td>fabric8.parameter.FOO.value</td>
@@ -1483,20 +1491,28 @@ ANOTHER = some ${CHEESE}
 <td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
 </tr>
 <tr>
+<td>fabric8.readinessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.readinessProbe.exec</td>
 <td>Creates a exec action readiness probe with this command.</td>
 </tr>
 <tr>
-<td>fabric8.readinessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action readiness probe on with this path.</td>
+<td>fabric8.readinessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action readiness probe on this host. To use readiness probe with HTTP you must configure at least the host and path options.</td>
 </tr>
 <tr>
 <td>fabric8.readinessProbe.httpGet.port</td>
-<td>Creates a HTTP GET action readiness probe on this port.</td>
+<td>Creates a HTTP GET action readiness probe on this port. The default value is 80.</td>
 </tr>
 <tr>
-<td>fabric8.readinessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action readiness probe on this host.</td>
+<td>fabric8.readinessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action readiness probe on with this path.</td>
 </tr>
 <tr>
 <td>fabric8.readinessProbe.port</td>
