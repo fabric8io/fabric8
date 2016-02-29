@@ -204,20 +204,28 @@ There are many options as listed in the following table:
 <td>Defines the kubernetes label FOO and value BAR.</td>
 </tr>
 <tr>
+<td>fabric8.livenessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.livenessProbe.exec</td>
 <td>Creates a exec action liveness probe with this command.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action liveness probe on with this path.</td>
+<td>fabric8.livenessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action liveness probe on this host. To use liveness probe with HTTP you must configure at least the host and path options.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.httpGet.port</td>
 <td>Creates a HTTP GET action liveness probe on this port.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action liveness probe on this host.</td>
+<td>fabric8.livenessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action liveness probe on with this path.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.port</td>
@@ -225,7 +233,7 @@ There are many options as listed in the following table:
 </tr>
 <tr>
 <td>fabric8.metrics.scrape</td>
-<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html>metrics</a></td>
+<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html">metrics</a></td>
 </tr>
 <tr>
 <td>fabric8.metrics.port</td>
@@ -260,20 +268,28 @@ There are many options as listed in the following table:
 <td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
 </tr>
 <tr>
+<td>fabric8.readinessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.readinessProbe.exec</td>
 <td>Creates a exec action readiness probe with this command.</td>
 </tr>
 <tr>
-<td>fabric8.readinessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action readiness probe on with this path.</td>
+<td>fabric8.readinessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action readiness probe on this host. To use readiness probe with HTTP you must configure at least the host and path options.</td>
 </tr>
 <tr>
 <td>fabric8.readinessProbe.httpGet.port</td>
-<td>Creates a HTTP GET action readiness probe on this port.</td>
+<td>Creates a HTTP GET action readiness probe on this port. The default value is 80.</td>
 </tr>
 <tr>
-<td>fabric8.readinessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action readiness probe on this host.</td>
+<td>fabric8.readinessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action readiness probe on with this path.</td>
 </tr>
 <tr>
 <td>fabric8.readinessProbe.port</td>
