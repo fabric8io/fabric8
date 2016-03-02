@@ -77,7 +77,7 @@ v.cpus = 2
 To update the RAM you can use an environment variable. For example to run the `cd-pipeline` application we recommend about 8Gb of RAM:
 
 ```
-export FABRIC8_VM_MEMORY=8000
+export FABRIC8_VM_MEMORY=8192
 ```
 
 Then follow the on screen instructions.
