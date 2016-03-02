@@ -137,7 +137,7 @@ public class BuildMojo extends AbstractMojo {
         } catch (DependencyGraphBuilderException e) {
             throw new MojoExecutionException("Could not get classpath", e);
         }
-        System.out.println(artifacts);
+        getLog().debug("Classpath for " + scope + ":\n" + artifactsToString(artifacts));
 
         // Lets first copy this project's artifact.
         if (project.getArtifact().getFile() != null) {
@@ -294,4 +294,11 @@ public class BuildMojo extends AbstractMojo {
         return artifacts;
     }
 
+    private String artifactsToString(List<Artifact> artifacts) {
+        StringBuilder sb = new StringBuilder();
+        for (Artifact art : artifacts) {
+            sb.append("    ").append(art.toString()).append(System.getProperty("line.separator"));
+        }
+        return sb.toString();
+    }
 }
