@@ -16,13 +16,16 @@
 package io.fabric8.maven.hawt.app;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
@@ -43,7 +46,11 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
@@ -151,16 +158,22 @@ public class BuildMojo extends AbstractMojo {
         }
 
         // Artifacts in this map point to resolved files.
-        Map artifactMap = project.getArtifactMap();
+        // project.getArtifactMap() doesn't include type or classifier in map key so we need to roll our own...
+        Map artifactMap = getArtifactMap();
 
         // Lets then copy the it's dependencies.
         for (Artifact x : artifacts) {
 
             // x is not resolved, so lets look it up in the map.
-            Artifact artifact = (Artifact) artifactMap.get(ArtifactUtils.versionlessKey(x));
-            if( artifact==null || artifact.getFile() == null ) {
+            Artifact artifact = (Artifact) artifactMap.get(versionlessKey(x));
+
+            // DefaultArtifact.equals(..) doesn't handle classifier with empty string & null
+            // which should be treated as equivalent so we have to roll our own equals...
+            if( artifact==null || artifact.getFile() == null || !artifactEquals(artifact, x)) {
                 continue;
             }
+
+            getLog().debug("Copying " + artifact.toString());
             File file = artifact.getFile().getAbsoluteFile();
             try {
 
@@ -301,4 +314,61 @@ public class BuildMojo extends AbstractMojo {
         }
         return sb.toString();
     }
+
+    private String versionlessKey(Artifact artifact) {
+        String groupId = artifact.getGroupId();
+        String artifactId = artifact.getArtifactId();
+        String type = artifact.getType();
+        String classifier = artifact.getClassifier();
+        if (groupId == null) {
+            throw new NullPointerException("groupId is null");
+        } else if (artifactId == null) {
+            throw new NullPointerException("artifactId is null");
+        } else if (type == null) {
+            throw new NullPointerException("type is null");
+        }
+
+        if (classifier == null || classifier.isEmpty()) {
+            return groupId + ":" + artifactId + ":" + type;
+        }
+
+        return groupId + ":" + artifactId + ":" + type + ":" + classifier;
+    }
+
+    private Map getArtifactMap() {
+        Set<Artifact> artifacts = project.getArtifacts();
+        LinkedHashMap artifactMap = new LinkedHashMap();
+        if (project.getArtifacts() != null) {
+            Iterator i$ = artifacts.iterator();
+
+            while (i$.hasNext()) {
+                Artifact artifact = (Artifact) i$.next();
+                artifactMap.put(versionlessKey(artifact), artifact);
+            }
+        }
+
+        return artifactMap;
+    }
+
+    private boolean artifactEquals(Artifact a1, Artifact a2) {
+        if (a1 == a2) {
+            return true;
+        }
+
+        if (!a1.getGroupId().equals(a2.getGroupId())) {
+            return false;
+        } else if (!a1.getArtifactId().equals(a2.getArtifactId())) {
+            return false;
+        } else if (!a1.getVersion().equals(a2.getVersion())) {
+            return false;
+        } else if (!a1.getType().equals(a2.getType())) {
+            return false;
+        }
+
+        if (a1.getClassifier() == null || a1.getClassifier().isEmpty()) {
+            return a2.getClassifier() == null || a2.getClassifier().isEmpty();
+        }
+        return a1.getClassifier().equals(a2.getClassifier());
+    }
+
 }
