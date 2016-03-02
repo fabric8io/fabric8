@@ -1,6 +1,7 @@
 fabric8
 =======
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-project/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/docker-maven-plugin/)
 ![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)
 
 <p align="center">
