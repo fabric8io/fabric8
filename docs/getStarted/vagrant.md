@@ -124,8 +124,10 @@ on your installation.
 * You can install or upgrade application using the [helm command line tool](http://fabric8.io/guide/helm.html)     
 * You can also install other OpenShift Templates or Kubernetes
   resources via the **oc** command line tool:
-
+```
     oc create -f jsonOr YamlFileOrUrl
+```
+ * Typically the default username/password for various applications is `admin/admin` or `gogsadmin/RedHat$1`.  Try these espcially for  secrets to get the pipeline to work with GOGS. 
 
 ### Setting up your local machine
 
