@@ -57,7 +57,7 @@
         data-chapter-title="Fabric8 Vagrant Image"
         data-filepath="getStarted/vagrant.md"
         data-basepath=".."
-        data-revision="Thu Mar 03 2016 09:40:40 GMT+0000 (UTC)"
+        data-revision="Sat Mar 05 2016 08:30:26 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1372,9 +1372,11 @@ unzip and drag the JSON files you want to install onto the
 <a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> and they
 should appear on the <code>Run...</code> page</li>
 <li>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" target="_blank">helm command line tool</a>     </li>
-<li><p>You can also install other OpenShift Templates or Kubernetes
-resources via the <strong>oc</strong> command line tool:</p>
-<p>  oc create -f jsonOr YamlFileOrUrl</p>
+<li>You can also install other OpenShift Templates or Kubernetes
+resources via the <strong>oc</strong> command line tool:<pre><code>  oc create -f jsonOr YamlFileOrUrl
+</code></pre><ul>
+<li>Typically the default username/password for various applications is <code>admin/admin</code> or <code>gogsadmin/RedHat$1</code>.  Try these espcially for  secrets to get the pipeline to work with GOGS. </li>
+</ul>
 </li>
 </ul>
 <h3 id="setting-up-your-local-machine"><a name="setting-up-your-local-machine" class="plugin-anchor" href="#setting-up-your-local-machine"><span class="fa fa-link"></span></a>Setting up your local machine</h3>

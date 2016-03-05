@@ -57,7 +57,7 @@
         data-chapter-title="CDI"
         data-filepath="cdi.md"
         data-basepath="."
-        data-revision="Thu Mar 03 2016 09:40:40 GMT+0000 (UTC)"
+        data-revision="Sat Mar 05 2016 08:30:26 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1286,6 +1286,14 @@ can lookup for services using their environment variables. Application that live
 <pre><code>@Inject
 @ServiceName(&quot;my-service&quot;)
 private String service.
+</code></pre><h3 id="the-protocol-annotation"><a name="the-protocol-annotation" class="plugin-anchor" href="#the-protocol-annotation"><span class="fa fa-link"></span></a>The @Protocol annotation</h3>
+<p>Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that its really smelly.</p>
+<p>The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;my-ftp-service&quot;)
+    @Protocol(&quot;ftp&quot;)
+    private String service.
 </code></pre><h3 id="the-portname-annotation"><a name="the-portname-annotation" class="plugin-anchor" href="#the-portname-annotation"><span class="fa fa-link"></span></a>The @PortName annotation</h3>
 <p>In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.</p>
 <pre><code>    @Inject
@@ -1293,7 +1301,20 @@ private String service.
     @PortName(&quot;my-port&quot;)
     private String service.
 </code></pre><p>If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.</p>
-<h3 id="the-endpoint-annotation"><a name="the-endpoint-annotation" class="plugin-anchor" href="#the-endpoint-annotation"><span class="fa fa-link"></span></a>The @Endpoint annotation</h3>
+<h3 id="the-path-annotation"><a name="the-path-annotation" class="plugin-anchor" href="#the-path-annotation"><span class="fa fa-link"></span></a>The @Path annotation</h3>
+<p>In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.</p>
+<pre><code>            @Inject
+            @ServiceName(&quot;mysqldb&quot;)
+            @Protocol(&quot;jdbc:mysql&quot;)
+            @Path(&quot;db1&quot;)
+            private String urlForDb1.
+
+            @Inject
+            @ServiceName(&quot;mysqldb&quot;)
+            @Protocol(&quot;jdbc:mysql&quot;)
+            @Path(&quot;db2&quot;)
+            private String urlForDb2.                        
+</code></pre><h3 id="the-endpoint-annotation"><a name="the-endpoint-annotation" class="plugin-anchor" href="#the-endpoint-annotation"><span class="fa fa-link"></span></a>The @Endpoint annotation</h3>
 <p>There are cases, where we don&apos;t want to access the Service IP but we want to access and endpoint to the service.
 A very good example are headless service, which doesn&apos;t have a Service IP. You can instruct the framework to use endpoints instead of the Service with the @Endpoint annotation.</p>
 <pre><code>    @Inject
@@ -1309,8 +1330,11 @@ A very good example are headless service, which doesn&apos;t have a Service IP. 
 <h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
 <p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
 <p>If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
+<h3 id="integration-with-openshift-routes"><a name="integration-with-openshift-routes" class="plugin-anchor" href="#integration-with-openshift-routes"><span class="fa fa-link"></span></a>Integration with OpenShift routes</h3>
+<p>In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
+Currently route will be used only if @Protocol or @PortName haven&apos;t been explicitly specified and only if OpenShift is available.</p>
 <h3 id="creating-custom-objects"><a name="creating-custom-objects" class="plugin-anchor" href="#creating-custom-objects"><span class="fa fa-link"></span></a>Creating custom objects</h3>
-<p>In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.</p>
+<p>In most of the cases the user will create a client so that it can consume the service. This can be easily done using the injection point and a manual kubernetes service lookup.</p>
 <pre><code>@Produces
 @ServiceName
 public MyClient create(InjectionPoint ip) {
@@ -1318,32 +1342,8 @@ public MyClient create(InjectionPoint ip) {
     String url = Services.toServiceUrl(service.getId(), service.getProtocol());
     return new MyClient(url);
 }
-</code></pre><h3 id="the-protocol-annotation"><a name="the-protocol-annotation" class="plugin-anchor" href="#the-protocol-annotation"><span class="fa fa-link"></span></a>The @Protocol annotation</h3>
-<p>Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
-One could find and replace the transport protocol with the actual application protocol but that its really smelly.</p>
-<p>The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.</p>
-<pre><code>    @Inject
-    @ServiceName(&quot;my-ftp-service&quot;)
-    @Protocol(&quot;ftp&quot;)
-    private String service.
-</code></pre><h3 id="the-path-annotation"><a name="the-path-annotation" class="plugin-anchor" href="#the-path-annotation"><span class="fa fa-link"></span></a>The @Path annotation</h3>
-<p>In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.</p>
-<pre><code>            @Inject
-            @ServiceName(&quot;mysqldb&quot;)
-            @Protocol(&quot;jdbc:mysql&quot;)
-            @Path(&quot;db1&quot;)
-            private String urlForDb1.
-
-            @Inject
-            @ServiceName(&quot;mysqldb&quot;)
-            @Protocol(&quot;jdbc:mysql&quot;)
-            @Path(&quot;db2&quot;)
-            private String urlForDb2.                        
-</code></pre><h3 id="integration-with-openshift-routes"><a name="integration-with-openshift-routes" class="plugin-anchor" href="#integration-with-openshift-routes"><span class="fa fa-link"></span></a>Integration with OpenShift routes</h3>
-<p>In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
-Currently route will be used only if @Protocol or @PortName haven&apos;t been explicitly specified and only if OpenShift is available.</p>
-<h3 id="using-factories"><a name="using-factories" class="plugin-anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
-<p>The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
+</code></pre><h3 id="using-factories"><a name="using-factories" class="plugin-anchor" href="#using-factories"><span class="fa fa-link"></span></a>Using Factories</h3>
+<p>The example above is something that works but it does require boilerplate.
 To simplify the code Fabric8 provides the @Factory annotation.</p>
 <pre><code>   @Factory
    @ServiceName
