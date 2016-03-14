@@ -106,7 +106,6 @@ public class KindToClassMapping {
         map.put("NamedContext", NamedContext.class);
         map.put("NamedExtension", NamedExtension.class);
         map.put("NamedTagEventList", NamedTagEventList.class);
-        map.put("NamedTagReference", NamedTagReference.class);
         map.put("Namespace", Namespace.class);
         map.put("NamespaceList", NamespaceList.class);
         map.put("NamespaceSpec", NamespaceSpec.class);

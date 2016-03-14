@@ -52,6 +52,33 @@ public class PropertiesHelper {
         return getLong(properties, key, defaultValue);
     }
 
+    public static Integer getInteger(Properties properties, String key) {
+        return getInteger(properties, key, null);
+    }
+
+    public static Integer getInteger(Properties properties, String key, Integer defaultValue) {
+        Object value = properties.get(key);
+        if (value instanceof String) {
+            return Integer.parseInt(value.toString());
+        } else if (value instanceof Long) {
+            return (Integer) value;
+        } else if (value instanceof Number) {
+            Number number = (Number)value;
+            return number.intValue();
+        }
+        return defaultValue;
+    }
+
+    public static int getIntegerValue(Properties properties, String key, int defaultValue) {
+        return getInteger(properties, key, defaultValue);
+    }
+
+    public static int getIntegerValue(Map<String, String> map, String key, int defaultValue) {
+        Properties properties = new Properties();
+        properties.putAll(map);
+        return getInteger(properties, key, defaultValue);
+    }
+
     /**
      * Returns the map of entries in the properties object which have keys starting with the given prefix, removing the prefix
      * from the returned map.

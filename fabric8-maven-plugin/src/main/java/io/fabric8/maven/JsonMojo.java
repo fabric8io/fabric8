@@ -104,7 +104,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.utils.Files.guessMediaType;
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
-import static io.fabric8.utils.PropertiesHelper.getLong;
+import static io.fabric8.utils.PropertiesHelper.getInteger;
 
 /**
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its
@@ -1504,11 +1504,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected Probe getProbe(String prefix) {
         Probe probe = new Probe();
         Properties properties = getProjectAndFabric8Properties(getProject());
-        Long initialDelaySeconds = getLong(properties, prefix + ".initialDelaySeconds");
+        Integer initialDelaySeconds = getInteger(properties, prefix + ".initialDelaySeconds");
         if (initialDelaySeconds != null) {
             probe.setInitialDelaySeconds(initialDelaySeconds);
         }
-        Long timeoutSeconds = getLong(properties, prefix + ".timeoutSeconds");
+        Integer timeoutSeconds = getInteger(properties, prefix + ".timeoutSeconds");
         if (timeoutSeconds != null) {
             probe.setTimeoutSeconds(timeoutSeconds);
         }

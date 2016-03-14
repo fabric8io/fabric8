@@ -1,27 +1,21 @@
 /*
- * Copyright 2005-2015 Red Hat, Inc.                                    
- *                                                                      
- * Red Hat licenses this file to you under the Apache License, version  
- * 2.0 (the "License"); you may not use this file except in compliance  
- * with the License.  You may obtain a copy of the License at           
- *                                                                      
- *    http://www.apache.org/licenses/LICENSE-2.0                        
- *                                                                      
- * Unless required by applicable law or agreed to in writing, software  
- * distributed under the License is distributed on an "AS IS" BASIS,    
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      
- * implied.  See the License for the specific language governing        
+ * Copyright 2005-2015 Red Hat, Inc.
+ *
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
 
 package io.fabric8.maven.support;
 
-import io.fabric8.kubernetes.api.model.EmptyDirVolumeSource;
-import io.fabric8.kubernetes.api.model.GCEPersistentDiskVolumeSource;
-import io.fabric8.kubernetes.api.model.GitRepoVolumeSource;
-import io.fabric8.kubernetes.api.model.GlusterfsVolumeSource;
-import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
-import io.fabric8.kubernetes.api.model.NFSVolumeSource;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 
@@ -51,11 +45,11 @@ public enum VolumeType {
         }
     }, GIT_REPO("gitRepo") {
         public Volume fromProperties(String name, Properties properties) {
-            String repositroy = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
+            String repository = properties.getProperty(String.format(VOLUME_PROPERTY, name, getType()));
             String revision = properties.getProperty(String.format(VOLUME_PROPERTY, name, VOLUME_GIT_REV));
             return new VolumeBuilder()
                     .withName(name)
-                    .withNewGitRepo(repositroy, revision)
+                    .withNewGitRepo().withRepository(repository).withRevision(revision).endGitRepo()
                     .build();
         }
     }, SECRET("secret") {
@@ -129,11 +123,11 @@ public enum VolumeType {
 
 
     private static final Map<String, VolumeType> VOLUME_TYPES = new HashMap<>();
-    
+
     private static final String VOLUME_PREFIX = "fabric8.volume";
     private static final String VOLUME_NAME_PREFIX = VOLUME_PREFIX + ".%s";
     public static final String VOLUME_PROPERTY = VOLUME_NAME_PREFIX + ".%s";
-    
+
     private static final String VOLUME_GIT_REV = "revision";
     private static final String VOLUME_SECRET_NAME = "secret";
 
@@ -143,14 +137,14 @@ public enum VolumeType {
     public static final String VOLUME_PVC_REQUEST_STORAGE = "requestStorage";
 
     private static final String READONLY = "readOnly";
-    
-    
+
+
     static {
         for (VolumeType volumeType : VolumeType.values()) {
             VOLUME_TYPES.put(volumeType.getType(), volumeType);
         }
     }
-    
+
     public static final VolumeType typeFor(String type) {
         return VOLUME_TYPES.get(type);
     }

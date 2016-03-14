@@ -16,7 +16,6 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -33,6 +32,7 @@ import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.extensions.DaemonSet;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ClientOperation;
@@ -239,6 +239,8 @@ public class Controller {
             applyServiceAccount((ServiceAccount) dto, sourceName);
         } else if (dto instanceof Secret) {
             applySecret((Secret) dto, sourceName);
+        } else if (dto instanceof DaemonSet) {
+            applyResource((DaemonSet) dto, sourceName, kubernetesClient.extensions().daemonSets());
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
