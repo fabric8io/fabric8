@@ -181,8 +181,18 @@ public class URLUtils {
             if (string == null) {
                 continue;
             }
-            if (buffer.length() > 0 && !buffer.toString().endsWith("/") && !string.startsWith("/")) {
-                buffer.append("/");
+            if (buffer.length() > 0) {
+              boolean bufferEndsWithSeparator = buffer.toString().endsWith("/");
+              boolean stringStartsWithSeparator = string.startsWith("/");
+              if (bufferEndsWithSeparator) {
+                if (stringStartsWithSeparator) {
+                  string = string.substring(1);
+                }
+              } else {
+                if (!stringStartsWithSeparator) {
+                  buffer.append("/");
+                }
+              }
             }
             buffer.append(string);
         }
