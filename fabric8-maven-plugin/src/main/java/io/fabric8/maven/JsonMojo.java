@@ -1408,6 +1408,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
             iconRef = iconRef.substring(6);
         }
 
+        // special for fabric8 as its in a different dir
+        if (iconRef.contains("fabric8")) {
+            return "img/fabric8_icon.svg";
+        }
+
         if (iconRef.contains("activemq")) {
             return prefix + "activemq.svg";
         } else if (iconRef.contains("apiman")) {
@@ -1426,6 +1431,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             return prefix + "elasticsearch.png";
         } else if (iconRef.contains("fluentd")) {
             return prefix + "fluentd.png";
+        } else if (iconRef.contains("forge")) {
+            return prefix + "forge.svg";
         } else if (iconRef.contains("gerrit")) {
             return prefix + "gerrit.png";
         } else if (iconRef.contains("gitlab")) {
