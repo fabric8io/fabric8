@@ -49,7 +49,6 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.test.spi.TestResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -234,6 +233,7 @@ public class SessionListener {
             }
         });
 
+        boolean isOpenshift = client.isAdaptable(OpenShiftClient.class);
         String namespace = session.getNamespace();
         String routePrefix = namespace + "." + configuration.getKubernetesDomain();
 
@@ -258,11 +258,13 @@ public class SessionListener {
                 controller.applyService(service, session.getId());
                 conditions.put(2, servicesReady);
 
-                Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
-                if (route != null) {
-                    log.status("Applying route for:" + serviceName);
-                    controller.applyRoute(route, "route for " + serviceName);
-                    extraEntities.add(route);
+                if (isOpenshift) {
+                    Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
+                    if (route != null) {
+                        log.status("Applying route for:" + serviceName);
+                        controller.applyRoute(route, "route for " + serviceName);
+                        extraEntities.add(route);
+                    }
                 }
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
@@ -279,33 +281,35 @@ public class SessionListener {
                 // these are global so lets create a custom one for the new namespace
                 ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(oc);
                 String name = metadata.getName();
-                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-                OAuthClient current = openShiftClient.oAuthClients().withName(name).get();
-                boolean create = false;
-                if (current == null) {
-                    current = oc;
-                    create = true;
-                }
-                boolean updated = false;
-                // lets add a new redirect entry
-                List<String> redirectURIs = current.getRedirectURIs();
-                String redirectUri = "http://" + name + "." + routePrefix;
-                if (!redirectURIs.contains(redirectUri)) {
-                    redirectURIs.add(redirectUri);
-                    updated = true;
-                }
-                current.setRedirectURIs(redirectURIs);
-                log.status("Applying OAuthClient:" + name);
-                controller.setSupportOAuthClients(true);
-                if (create) {
-                    openShiftClient.oAuthClients().create(current);
-                } else {
-                    if (updated) {
-                        // TODO this should work!
-                        // openShiftClient.oAuthClients().withName(name).replace(current);
-                        openShiftClient.oAuthClients().withName(name).delete();
-                        current.getMetadata().setResourceVersion(null);
+                if (isOpenshift) {
+                    OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                    OAuthClient current = openShiftClient.oAuthClients().withName(name).get();
+                    boolean create = false;
+                    if (current == null) {
+                        current = oc;
+                        create = true;
+                    }
+                    boolean updated = false;
+                    // lets add a new redirect entry
+                    List<String> redirectURIs = current.getRedirectURIs();
+                    String redirectUri = "http://" + name + "." + routePrefix;
+                    if (!redirectURIs.contains(redirectUri)) {
+                        redirectURIs.add(redirectUri);
+                        updated = true;
+                    }
+                    current.setRedirectURIs(redirectURIs);
+                    log.status("Applying OAuthClient:" + name);
+                    controller.setSupportOAuthClients(true);
+                    if (create) {
                         openShiftClient.oAuthClients().create(current);
+                    } else {
+                        if (updated) {
+                            // TODO this should work!
+                            // openShiftClient.oAuthClients().withName(name).replace(current);
+                            openShiftClient.oAuthClients().withName(name).delete();
+                            current.getMetadata().setResourceVersion(null);
+                            openShiftClient.oAuthClients().create(current);
+                        }
                     }
                 }
             } else if (entity instanceof HasMetadata) {
