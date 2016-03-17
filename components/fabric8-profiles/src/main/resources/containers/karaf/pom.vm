@@ -175,8 +175,8 @@
           </blacklistedBundles>
           <!-- Karaf properties -->
           <property-edits xmlns="http://karaf.apache.org/tools/property-edits/1.0.0">
-             <edits>
              <!-- config properties -->
+             <edits>
 #foreach ( $configProperty in $configProperties )
               <edit>
                 <file>config.properties</file>
@@ -187,6 +187,7 @@
 #end
              </edits>
              <!-- system properties -->
+             <edits>
 #foreach ( $systemProperty in $systemProperties )
               <edit>
                 <file>system.properties</file>
