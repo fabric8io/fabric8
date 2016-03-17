@@ -1,7 +1,7 @@
 ## Install Fabric8 on OpenShift
 
 [Fabric8 apps](../fabric8Apps.html) have been
-[packaged](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.97/distro-2.2.97-templates.zip) to make them easy
+[packaged](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.136/distro-2.2.136-templates.zip) to make them easy
 to install on Kubernetes or OpenShift.
 
 ### Install via the console
@@ -10,7 +10,7 @@ If you are already running the [fabric8 console](../console.html) you can use it
 other [Fabric8 apps](../fabric8Apps.html) and quickstarts. If you are not yet running the
 fabric8 console then try [install it via the CLI below](#console).
 
-When you open the fabric8 console select the `Apps` tab then click on the `Run...` button (top right green butotn).
+When you open the fabric8 console select the `Apps` tab then click on the `Run...` button (top right green button).
 
 This will list all of the installed [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html)
 on your installation.
@@ -18,7 +18,7 @@ on your installation.
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or
   other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab!
-* You can download the [fabric8 templates 2.2.97 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.97/distro-2.2.97-templates.zip)
+* You can download the [fabric8 templates 2.2.136 distribution](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.136/distro-2.2.136-templates.zip)
   unzip and drag the JSON files you want to install onto the [fabric8 console](../console.html)
   and they should appear on the `Run...` page  
 * You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
