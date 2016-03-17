@@ -1,0 +1,1 @@
+Secure SOAP example using JAXWS with WS-Security

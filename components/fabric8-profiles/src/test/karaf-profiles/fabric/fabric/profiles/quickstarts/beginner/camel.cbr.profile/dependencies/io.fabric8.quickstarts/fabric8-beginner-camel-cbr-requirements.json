@@ -1,0 +1,69 @@
+{
+  "profileId" : "quickstarts-beginner-camel.cbr",
+  "abstractProfile" : false,
+  "description" : "Camel Content-Based Router Example",
+  "parentProfiles" : [ "feature-camel" ],
+  "bundles" : [ "mvn:io.fabric8.quickstarts/fabric8-beginner-camel-cbr/1.2.0.redhat-621084" ],
+  "minimumInstances" : 1,
+  "rootDependency" : {
+    "groupId" : "io.fabric8.quickstarts",
+    "artifactId" : "fabric8-beginner-camel-cbr",
+    "version" : "1.2.0.redhat-621084",
+    "type" : "bundle",
+    "optional" : false,
+    "children" : [ {
+      "groupId" : "org.apache.camel",
+      "artifactId" : "camel-blueprint",
+      "version" : "2.15.1.redhat-621084",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.slf4j",
+          "artifactId" : "slf4j-api",
+          "version" : "1.7.7",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-xml",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-osgi",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-core",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-impl",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    } ]
+  },
+  "webContextPath" : "fabric8-beginner-camel-cbr",
+  "useResolver" : true
+}

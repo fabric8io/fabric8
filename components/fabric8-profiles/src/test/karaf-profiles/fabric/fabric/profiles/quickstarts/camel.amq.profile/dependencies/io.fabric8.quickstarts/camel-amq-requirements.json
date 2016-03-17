@@ -1,0 +1,820 @@
+{
+  "profileId" : "quickstarts-camel.amq",
+  "abstractProfile" : false,
+  "description" : "ActiveMQ and Camel Example",
+  "parentProfiles" : [ "feature-camel" ],
+  "features" : [ "camel-amq" ],
+  "bundles" : [ "mvn:io.fabric8.quickstarts/camel-amq/1.2.0.redhat-621084" ],
+  "minimumInstances" : 1,
+  "rootDependency" : {
+    "groupId" : "io.fabric8.quickstarts",
+    "artifactId" : "camel-amq",
+    "version" : "1.2.0.redhat-621084",
+    "type" : "bundle",
+    "optional" : false,
+    "children" : [ {
+      "groupId" : "org.apache.camel",
+      "artifactId" : "camel-blueprint",
+      "version" : "2.15.1.redhat-621084",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-xml",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-osgi",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-core",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-impl",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    }, {
+      "groupId" : "org.apache.activemq",
+      "artifactId" : "activemq-osgi",
+      "version" : "5.11.0.redhat-621084",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-broker",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.activemq",
+          "artifactId" : "activemq-client",
+          "version" : "5.11.0.redhat-621084",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.activemq",
+          "artifactId" : "activemq-openwire-legacy",
+          "version" : "5.11.0.redhat-621084",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-kahadb-store",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.activemq.protobuf",
+          "artifactId" : "activemq-protobuf",
+          "version" : "1.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.geronimo.specs",
+          "artifactId" : "geronimo-j2ee-management_1.1_spec",
+          "version" : "1.0.1",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "commons-net",
+          "artifactId" : "commons-net",
+          "version" : "3.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-jdbc-store",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-leveldb-store",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.scala-lang",
+          "artifactId" : "scala-library",
+          "version" : "2.11.5",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.fusesource.hawtbuf",
+          "artifactId" : "hawtbuf-proto",
+          "version" : "1.11",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.fusesource.hawtdispatch",
+          "artifactId" : "hawtdispatch-scala-2.11",
+          "version" : "1.21",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.fusesource.hawtdispatch",
+            "artifactId" : "hawtdispatch",
+            "version" : "1.21",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "org.iq80.leveldb",
+          "artifactId" : "leveldb-api",
+          "version" : "0.6",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.iq80.leveldb",
+          "artifactId" : "leveldb",
+          "version" : "0.6",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "com.google.guava",
+            "artifactId" : "guava",
+            "version" : "17.0",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "org.fusesource.leveldbjni",
+          "artifactId" : "leveldbjni-all",
+          "version" : "1.8-redhat.002",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.xerial.snappy",
+          "artifactId" : "snappy-java",
+          "version" : "1.1.0.1-redhat.001",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.iq80.snappy",
+          "artifactId" : "snappy",
+          "version" : "0.2",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "com.fasterxml.jackson.core",
+          "artifactId" : "jackson-core",
+          "version" : "2.4.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "com.fasterxml.jackson.core",
+          "artifactId" : "jackson-annotations",
+          "version" : "2.4.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "com.fasterxml.jackson.core",
+          "artifactId" : "jackson-databind",
+          "version" : "2.4.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.hadoop",
+          "artifactId" : "hadoop-core",
+          "version" : "1.2.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "com.sun.jersey",
+            "artifactId" : "jersey-core",
+            "version" : "1.8",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "com.sun.jersey",
+            "artifactId" : "jersey-json",
+            "version" : "1.8",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false,
+            "children" : [ {
+              "groupId" : "org.codehaus.jettison",
+              "artifactId" : "jettison",
+              "version" : "1.3.7",
+              "type" : "bundle",
+              "scope" : "compile",
+              "optional" : false,
+              "children" : [ {
+                "groupId" : "stax",
+                "artifactId" : "stax-api",
+                "version" : "1.0.1",
+                "type" : "jar",
+                "scope" : "compile",
+                "optional" : false
+              } ]
+            }, {
+              "groupId" : "org.codehaus.jackson",
+              "artifactId" : "jackson-core-asl",
+              "version" : "1.7.1",
+              "type" : "bundle",
+              "scope" : "compile",
+              "optional" : false
+            }, {
+              "groupId" : "org.codehaus.jackson",
+              "artifactId" : "jackson-jaxrs",
+              "version" : "1.7.1",
+              "type" : "bundle",
+              "scope" : "compile",
+              "optional" : false
+            }, {
+              "groupId" : "org.codehaus.jackson",
+              "artifactId" : "jackson-xc",
+              "version" : "1.7.1",
+              "type" : "bundle",
+              "scope" : "compile",
+              "optional" : false
+            } ]
+          }, {
+            "groupId" : "com.sun.jersey",
+            "artifactId" : "jersey-server",
+            "version" : "1.8",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "commons-io",
+            "artifactId" : "commons-io",
+            "version" : "2.4",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "commons-configuration",
+            "artifactId" : "commons-configuration",
+            "version" : "1.9",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-stomp",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-amqp",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.qpid",
+          "artifactId" : "proton-j",
+          "version" : "0.9.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.fusesource.hawtbuf",
+          "artifactId" : "hawtbuf",
+          "version" : "1.11",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-mqtt",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.fusesource.mqtt-client",
+          "artifactId" : "mqtt-client",
+          "version" : "1.12",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.fusesource.hawtdispatch",
+          "artifactId" : "hawtdispatch-transport",
+          "version" : "1.21",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-http",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.springframework",
+          "artifactId" : "spring-context",
+          "version" : "3.2.12.RELEASE",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.springframework",
+            "artifactId" : "spring-aop",
+            "version" : "3.2.12.RELEASE",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false,
+            "children" : [ {
+              "groupId" : "aopalliance",
+              "artifactId" : "aopalliance",
+              "version" : "1.0",
+              "type" : "jar",
+              "scope" : "compile",
+              "optional" : false
+            } ]
+          }, {
+            "groupId" : "org.springframework",
+            "artifactId" : "spring-core",
+            "version" : "3.2.12.RELEASE",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "org.springframework",
+            "artifactId" : "spring-expression",
+            "version" : "4.1.6.RELEASE",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "org.apache.httpcomponents",
+          "artifactId" : "httpclient",
+          "version" : "4.3.6",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.apache.httpcomponents",
+            "artifactId" : "httpcore",
+            "version" : "4.3.3",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "commons-logging",
+            "artifactId" : "commons-logging",
+            "version" : "1.1.3",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "commons-codec",
+            "artifactId" : "commons-codec",
+            "version" : "1.10",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "com.thoughtworks.xstream",
+          "artifactId" : "xstream",
+          "version" : "1.4.7",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "xmlpull",
+            "artifactId" : "xmlpull",
+            "version" : "1.1.3.1",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "xpp3",
+            "artifactId" : "xpp3_min",
+            "version" : "1.1.4c",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-partition",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.linkedin",
+          "artifactId" : "org.linkedin.zookeeper-impl",
+          "version" : "1.4.0",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.linkedin",
+            "artifactId" : "org.linkedin.util-groovy",
+            "version" : "1.7.1",
+            "type" : "jar",
+            "scope" : "compile",
+            "optional" : false,
+            "children" : [ {
+              "groupId" : "org.apache.ant",
+              "artifactId" : "ant",
+              "version" : "1.8.1",
+              "type" : "jar",
+              "scope" : "compile",
+              "optional" : false,
+              "children" : [ {
+                "groupId" : "org.apache.ant",
+                "artifactId" : "ant-launcher",
+                "version" : "1.8.1",
+                "type" : "jar",
+                "scope" : "compile",
+                "optional" : false
+              } ]
+            }, {
+              "groupId" : "org.json",
+              "artifactId" : "json",
+              "version" : "20140107",
+              "type" : "jar",
+              "scope" : "compile",
+              "optional" : false
+            } ]
+          } ]
+        }, {
+          "groupId" : "org.linkedin",
+          "artifactId" : "org.linkedin.util-core",
+          "version" : "1.4.0",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.zookeeper",
+          "artifactId" : "zookeeper",
+          "version" : "3.4.6",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-jaas",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-console",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.activemq",
+          "artifactId" : "activeio-core",
+          "version" : "3.1.4",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.geronimo.specs",
+          "artifactId" : "geronimo-jms_1.1_spec",
+          "version" : "1.1.1",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "commons-pool",
+          "artifactId" : "commons-pool",
+          "version" : "1.6",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.xbean",
+          "artifactId" : "xbean-spring",
+          "version" : "3.18",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.velocity",
+          "artifactId" : "velocity",
+          "version" : "1.7",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "commons-collections",
+          "artifactId" : "commons-collections",
+          "version" : "3.2.1.redhat-7",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "commons-lang",
+          "artifactId" : "commons-lang",
+          "version" : "2.6",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.servicemix.bundles",
+          "artifactId" : "org.apache.servicemix.bundles.josql",
+          "version" : "1.5_5",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.jasypt",
+          "artifactId" : "jasypt",
+          "version" : "1.9.3.redhat_3",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "commons-daemon",
+          "artifactId" : "commons-daemon",
+          "version" : "1.0.15",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-ra",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.geronimo.specs",
+          "artifactId" : "geronimo-j2ee-connector_1.5_spec",
+          "version" : "2.0.0",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-web",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.activemq",
+          "artifactId" : "activemq-all",
+          "version" : "5.11.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.apache.activemq",
+          "artifactId" : "activemq-pool",
+          "version" : "5.11.0.redhat-621084",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.apache.activemq",
+            "artifactId" : "activemq-jms-pool",
+            "version" : "5.11.0.redhat-621084",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "org.eclipse.jetty",
+          "artifactId" : "jetty-websocket",
+          "version" : "8.1.16.v20140903",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false,
+          "children" : [ {
+            "groupId" : "org.eclipse.jetty",
+            "artifactId" : "jetty-util",
+            "version" : "8.1.17.v20150415",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "org.eclipse.jetty",
+            "artifactId" : "jetty-io",
+            "version" : "8.1.17.v20150415",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          }, {
+            "groupId" : "org.eclipse.jetty",
+            "artifactId" : "jetty-http",
+            "version" : "8.1.17.v20150415",
+            "type" : "bundle",
+            "scope" : "compile",
+            "optional" : false
+          } ]
+        }, {
+          "groupId" : "org.eclipse.jetty",
+          "artifactId" : "jetty-continuation",
+          "version" : "8.1.17.v20150415",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "rome",
+          "artifactId" : "rome",
+          "version" : "1.0",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "jdom",
+          "artifactId" : "jdom",
+          "version" : "1.0",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.springframework",
+          "artifactId" : "spring-webmvc",
+          "version" : "3.2.12.RELEASE",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.springframework",
+          "artifactId" : "spring-web",
+          "version" : "3.2.12.RELEASE",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "xpp3",
+          "artifactId" : "xpp3",
+          "version" : "1.1.4c",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-spring",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.apache.geronimo.specs",
+          "artifactId" : "geronimo-jta_1.0.1B_spec",
+          "version" : "1.0.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.springframework.osgi",
+        "artifactId" : "spring-osgi-core",
+        "version" : "1.2.1",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.springframework.osgi",
+          "artifactId" : "spring-osgi-io",
+          "version" : "1.2.1",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.apache.activemq",
+        "artifactId" : "activemq-runtime-config",
+        "version" : "5.11.0.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.springframework",
+          "artifactId" : "spring-beans",
+          "version" : "3.2.12.RELEASE",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.jvnet.jaxb2_commons",
+          "artifactId" : "jaxb2-basics-runtime",
+          "version" : "0.6.4",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      } ]
+    }, {
+      "groupId" : "org.ow2.asm",
+      "artifactId" : "asm-all",
+      "version" : "5.0.3",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false
+    }, {
+      "groupId" : "org.slf4j",
+      "artifactId" : "slf4j-log4j12",
+      "version" : "1.7.7",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.slf4j",
+        "artifactId" : "slf4j-api",
+        "version" : "1.7.7",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "log4j",
+        "artifactId" : "log4j",
+        "version" : "1.2.17",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    }, {
+      "groupId" : "jline",
+      "artifactId" : "jline",
+      "version" : "2.12.1.redhat-001",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false
+    }, {
+      "groupId" : "org.eclipse.jetty.aggregate",
+      "artifactId" : "jetty-all",
+      "version" : "8.1.17.v20150415",
+      "type" : "jar",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.eclipse.jetty.orbit",
+        "artifactId" : "javax.servlet",
+        "version" : "3.0.0.v201112011016",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    } ]
+  },
+  "webContextPath" : "camel-amq",
+  "useResolver" : true
+}

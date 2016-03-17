@@ -1,0 +1,26 @@
+{
+  "profileId" : "quickstarts-cxf-soap",
+  "abstractProfile" : false,
+  "description" : "SOAP example using JAXWS",
+  "parentProfiles" : [ "feature-cxf" ],
+  "features" : [ "fabric-cxf", "cxf-jaxws" ],
+  "bundles" : [ "mvn:io.fabric8.quickstarts/cxf-soap/1.2.0.redhat-621084" ],
+  "minimumInstances" : 1,
+  "rootDependency" : {
+    "groupId" : "io.fabric8.quickstarts",
+    "artifactId" : "cxf-soap",
+    "version" : "1.2.0.redhat-621084",
+    "type" : "bundle",
+    "optional" : false,
+    "children" : [ {
+      "groupId" : "org.slf4j",
+      "artifactId" : "slf4j-api",
+      "version" : "1.7.7",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false
+    } ]
+  },
+  "webContextPath" : "cxf-soap",
+  "useResolver" : true
+}

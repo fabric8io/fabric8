@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+           http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
+
+    <bean id="fabric-camel" class="io.fabric8.camel.FabricComponent">
+        <property name="curator" ref="curator"/>
+    </bean>
+
+    <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://camel.apache.org/schema/blueprint ">
+
+        <errorHandler id="errorHandler" redeliveryPolicyRef="redeliveryPolicy"/>
+        <redeliveryPolicyProfile id="redeliveryPolicy" maximumRedeliveries="3" redeliveryDelay="5000"
+                                 retryAttemptedLogLevel="WARN"/>
+
+        <route id="fabric-client" errorHandlerRef="errorHandler">
+            <from uri="timer://foo?fixedRate=true&amp;period=1000"/>
+            <setBody>
+                <simple>Hello from Fabric Client to group "Cluster"</simple>
+            </setBody>
+            <to uri="fabric-camel:cluster"/>
+            <log message=">>> ${body} : ${header.runtime.id}"/>
+        </route>
+
+    </camelContext>
+
+    <reference interface="org.apache.camel.spi.ComponentResolver" filter="(component=jetty)"/>
+
+</blueprint>

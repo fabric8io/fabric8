@@ -1,0 +1,1 @@
+Test messages to send to the [camel quickstart cbr](/fabric/profiles/example/quickstarts/cbr.profile) or [camel quickstart cbr.wiki](/fabric/profiles/example/quickstarts/cbr.wiki.profile) when using the autotest profile.
