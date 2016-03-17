@@ -19,8 +19,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -142,4 +145,47 @@ public class ProfilesHelpers {
 
     }
 
+    public static void deleteDirectory(Path tempDirectory) throws IOException {
+        if (Files.exists(tempDirectory)) {
+            Files.walkFileTree(tempDirectory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    public static void copyDirectory(final Path source, final Path target) throws IOException {
+        copyDirectory(source, target, true);
+    }
+
+    private static void copyDirectory(final Path source, final Path target, boolean deleteIfExists) throws IOException {
+        if (deleteIfExists) {
+            deleteDirectory(target);
+        }
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, target.resolve(source.relativize(file)));
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                final Path copy = target.resolve(source.relativize(dir));
+                if (Files.notExists(copy)) {
+                    Files.createDirectory(copy);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
 }

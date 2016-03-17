@@ -5,11 +5,11 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import io.fabric8.profiles.Profiles;
+import io.fabric8.profiles.ProfilesHelpers;
 
 import org.junit.Test;
 
 import static io.fabric8.profiles.TestHelpers.PROJECT_BASE_DIR;
-import static io.fabric8.profiles.TestHelpers.recusiveDeleteIfExists;
 
 /**
  * Test Karaf reifier.
@@ -20,7 +20,7 @@ public class KarafReifierTest {
     public void testReify() throws Exception {
 
         Path target = PROJECT_BASE_DIR.resolve("target/test-data/karaf1");
-        recusiveDeleteIfExists(target);
+        ProfilesHelpers.deleteDirectory(target);
         Files.createDirectories(target);
         Path repository = PROJECT_BASE_DIR.resolve("src/test/karaf-profiles/fabric/fabric/profiles");
 

@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,17 +37,6 @@ public class TestHelpers {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void recusiveDeleteIfExists(Path p) throws IOException {
-        if( Files.isDirectory(p) ) {
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(p)) {
-                for (Path path : directoryStream) {
-                    recusiveDeleteIfExists(path);
-                }
-            }
-        }
-        Files.deleteIfExists(p);
     }
 
     public static String readTextFile(Path p) throws IOException {

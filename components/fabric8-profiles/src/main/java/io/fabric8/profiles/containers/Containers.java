@@ -22,8 +22,14 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import io.fabric8.profiles.Profiles;
+import io.fabric8.profiles.ProfilesHelpers;
+
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class Containers {
 
@@ -39,16 +45,17 @@ public class Containers {
 
     private final Path repository;
     private Map<String, ProjectReifier> reifierMap;
-    private Profiles profiles;
+    private String remoteUri;
 
     /**
      * @param repository container configuration directory, exported from ZK repository.
      * @param reifierMap map from container types to reifiers.
+     * @param remoteUri  uri for remote profile git repo.
      */
-    public Containers(Path repository, Map<String, ProjectReifier> reifierMap, Profiles profiles) {
+    public Containers(Path repository, Map<String, ProjectReifier> reifierMap, String remoteUri) {
         this.repository = repository;
         this.reifierMap = reifierMap;
-        this.profiles = profiles;
+        this.remoteUri = remoteUri;
     }
 
     /**
@@ -75,7 +82,33 @@ public class Containers {
         final String containerType = config.getProperty("container-type", DEFAULT_CONTAINER_TYPE);
         final ProjectReifier reifier = reifierMap.get(containerType);
 
-        reifier.reify(target, config, profiles, containerProfiles);
+        // clone the Profiles repo and checkout required branch in a temp dir
+        final Path tempRepo = Files.createTempDirectory(target, "profile-repo-");
+        try (Git clonedRepo = new CloneCommand()
+                .setURI(this.remoteUri)
+                .setBranch(version)
+                .setCloneAllBranches(false)
+                .setDirectory(tempRepo.toFile())
+                .call()) {
+
+            // validate repo
+            if (Files.list(tempRepo).filter(new Predicate<Path>() {
+                @Override
+                public boolean test(Path file) {
+                    return !".git".matches(file.getFileName().toString());
+                }
+            }).count() == 0) {
+                throw new IOException("Missing version branch " + version + " in profiles repo " + remoteUri);
+            }
+
+            // reify
+            reifier.reify(target, config, new Profiles(tempRepo), containerProfiles);
+
+        } catch (GitAPIException e) {
+            throw new IOException("Error cloning Profile version " + version + ": " + e.getMessage(), e);
+        } finally {
+            ProfilesHelpers.deleteDirectory(tempRepo);
+        }
     }
 
     private String getDefaultVersion() throws IOException {

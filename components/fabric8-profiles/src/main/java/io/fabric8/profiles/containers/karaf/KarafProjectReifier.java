@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.fabric8.profiles.Profiles;
+import io.fabric8.profiles.ProfilesHelpers;
 import io.fabric8.profiles.containers.ProjectReifier;
 
 import org.apache.velocity.Template;
@@ -73,24 +74,28 @@ public class KarafProjectReifier implements ProjectReifier {
     @Override
     public void reify(Path target, Properties config, Profiles profiles, String... profileNames) throws IOException {
         // temp dir for materialized profile
-        final Path profilesDir = Files.createTempDirectory(target, "profiles");
-        profilesDir.toFile().deleteOnExit();
+        final Path profilesDir = Files.createTempDirectory(target, "profiles-");
 
-        // materialize profile
-        // remove ensemble profiles fabric-ensemble-*
-        profileNames = Arrays.stream(profileNames).filter(new Predicate<String>() {
-            @Override
-            public boolean test(String p) {
-                return !p.matches("fabric\\-ensemble\\-.*");
-            }
-        }).collect(Collectors.toList()).toArray(new String[0]);
-        profiles.materialize(profilesDir, profileNames);
+        try {
+            // materialize profile
+            // remove ensemble profiles fabric-ensemble-*
+            profileNames = Arrays.stream(profileNames).filter(new Predicate<String>() {
+                @Override
+                public boolean test(String p) {
+                    return !p.matches("fabric\\-ensemble\\-.*");
+                }
+            }).collect(Collectors.toList()).toArray(new String[0]);
+            profiles.materialize(profilesDir, profileNames);
 
-        // reify maven project using template
-        final Properties containerProperties = new Properties();
-        containerProperties.putAll(defaultProperties);
-        containerProperties.putAll(config);
-        reifyProject(target, profilesDir, containerProperties);
+            // reify maven project using template
+            final Properties containerProperties = new Properties();
+            containerProperties.putAll(defaultProperties);
+            containerProperties.putAll(config);
+            reifyProject(target, profilesDir, containerProperties);
+
+        } finally {
+            ProfilesHelpers.deleteDirectory(profilesDir);
+        }
     }
 
     private void reifyProject(Path target, final Path profilesDir, Properties properties) throws IOException {
