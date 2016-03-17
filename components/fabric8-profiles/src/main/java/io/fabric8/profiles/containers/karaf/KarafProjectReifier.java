@@ -87,7 +87,8 @@ public class KarafProjectReifier implements ProjectReifier {
         profiles.materialize(profilesDir, profileNames);
 
         // reify maven project using template
-        final Properties containerProperties = new Properties(defaultProperties);
+        final Properties containerProperties = new Properties();
+        containerProperties.putAll(defaultProperties);
         containerProperties.putAll(config);
         reifyProject(target, profilesDir, containerProperties);
     }
