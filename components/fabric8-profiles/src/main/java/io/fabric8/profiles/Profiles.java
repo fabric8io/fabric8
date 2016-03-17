@@ -15,8 +15,6 @@
  */
 package io.fabric8.profiles;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +24,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import static io.fabric8.profiles.ProfilesHelpers.readJsonFile;
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
@@ -37,6 +37,7 @@ import static io.fabric8.profiles.ProfilesHelpers.toYamlBytes;
 
 public class Profiles {
 
+    private static final String DEFAULT_PROFILE = "default";
     private final Path repository;
 
     /**
@@ -137,8 +138,9 @@ public class Profiles {
             props = readPropertiesFile(agentProperties);
         }
 
-        String parents = props.getProperty("attribute.parents", "default".equals(profileName) ? "" : "default");
-        for (String parent : parents.split(",")) {
+        String parents = props.getProperty("attribute.parents",
+            DEFAULT_PROFILE.equals(profileName) ? "" : DEFAULT_PROFILE);
+        for (String parent : parents.split(" ")) {
             parent = parent.trim();
             if (!parent.isEmpty()) {
                 collectProfileNames(target, parent);
@@ -152,6 +154,5 @@ public class Profiles {
     private Path getProfilePath(String profileName) {
         return repository.resolve(profileName.replaceAll("-", "/") + ".profile");
     }
-
 
 }

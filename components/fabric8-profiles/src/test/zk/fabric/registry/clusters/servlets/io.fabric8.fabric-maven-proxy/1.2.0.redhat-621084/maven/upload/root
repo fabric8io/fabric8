@@ -1,0 +1,1 @@
+{"id":"root","services":["${zk:root/http}/maven/upload"],"container":"root","bundleName":"io.fabric8.fabric-maven-proxy","bundleVersion":"1.2.0.redhat-621084","version":"1.0"}

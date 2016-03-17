@@ -1,0 +1,1 @@
+{"id":"root","services":["${zk:root/http}/hawtio-karaf-terminal"],"version":"1.0","bundleName":"io.hawt.hawtio-karaf-terminal","bundleVersion":"1.4.0.redhat-621084","container":"root"}

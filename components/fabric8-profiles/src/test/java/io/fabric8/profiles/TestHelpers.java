@@ -40,7 +40,7 @@ public class TestHelpers {
         }
     }
 
-    static void recusiveDeleteIfExists(Path p) throws IOException {
+    public static void recusiveDeleteIfExists(Path p) throws IOException {
         if( Files.isDirectory(p) ) {
             try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(p)) {
                 for (Path path : directoryStream) {
