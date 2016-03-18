@@ -466,6 +466,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     protected String serviceAccount;
 
     /**
+     * Should we create the ServiceAccount resource as part of the build
+     */
+    @Parameter(property = "fabric8.serviceAccountCreate")
+    private boolean createServiceAccount;
+
+    /**
      * The properties file used to specify the OpenShift Template parameter values and descriptions. The properties file should be of the form
      * <code>
      *     <pre>
@@ -1157,7 +1163,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             secrets.add(secretRef);
         }
 
-        if (!secrets.isEmpty()) {
+        if (!secrets.isEmpty() || createServiceAccount) {
             if (Strings.isNullOrBlank(serviceAccount)) {
                 serviceAccount = getProject().getArtifactId();
             }
