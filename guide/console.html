@@ -57,7 +57,7 @@
         data-chapter-title="Console"
         data-filepath="console.md"
         data-basepath="."
-        data-revision="Thu Mar 17 2016 08:11:48 GMT+0000 (UTC)"
+        data-revision="Fri Mar 18 2016 06:15:07 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1272,6 +1272,9 @@
 <p>The Fabric8 Console provides a rich HTML5 web application for working with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. The front end code is based on the <a href="http://hawt.io/" target="_blank">hawtio project</a> which supports Kubernetes and reuses the various <a href="http://hawt.io/plugins/index.html" target="_blank">hawtio plugins</a>.</p>
 <h3 id="installing"><a name="installing" class="plugin-anchor" href="#installing"><span class="fa fa-link"></span></a>Installing</h3>
 <p>Here is <a href="getStarted/apps.html#console">how to install the Console on Kubernetes / OpenShift</a></p>
+<h3 id="authentication"><a name="authentication" class="plugin-anchor" href="#authentication"><span class="fa fa-link"></span></a>Authentication</h3>
+<p>The fabric8 console uses the authentication of the underlying system. Therefor you need to adjust the authentication on your base platform.</p>
+<p>So if you are on openshift have a look how to <a href="https://docs.openshift.org/latest/install_config/configuring_authentication.html" target="_blank">configure authentication</a>.</p>
 <h3 id="getting-started"><a name="getting-started" class="plugin-anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting Started</h3>
 <p>The console has a number of tabs that let you work with the various Kubernetes resources. We&apos;ll highlight the main ones you&apos;ll need to use:</p>
 <h4 id="controllers"><a name="controllers" class="plugin-anchor" href="#controllers"><span class="fa fa-link"></span></a>Controllers</h4>
@@ -1288,7 +1291,7 @@
 <h3 id="using-kubernetesopenshift"><a name="using-kubernetesopenshift" class="plugin-anchor" href="#using-kubernetesopenshift"><span class="fa fa-link"></span></a>Using Kubernetes/OpenShift</h3>
 <p>If you are using Kubernetes or OpenShift you need to find the URL for the console service. From there you should be able to navigate to the tabs for <a href="pods.html">pods</a>, [replication controllers] and <a href="services.html">services</a>.</p>
 <p>If you use the <a href="getStarted/vagrant.html">Fabric8 Vagrant</a> approach then the URL is <code>http://fabric8.vagrant.f8/</code>.</p>
-<p>Otherwise you need to find the host name to use. </p>
+<p>Otherwise you need to find the host name to use.</p>
 <p>e.g. on OpenShift V3 you can find it via:</p>
 <pre><code>oc get route fabric8
 </code></pre><h3 id="using-jube"><a name="using-jube" class="plugin-anchor" href="#using-jube"><span class="fa fa-link"></span></a>Using Jube</h3>
