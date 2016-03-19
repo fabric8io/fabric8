@@ -302,7 +302,7 @@ public class DevOpsConnector {
 
         annotationLink(annotations, "fabric8.link.repository.browse/", repositoryBrowseLink, repositoryBrowseLabel);
 
-        ProjectConfigs.defaultEnvironments(projectConfig);
+        ProjectConfigs.defaultEnvironments(projectConfig, namespace);
 
         String consoleUrl = getServiceUrl(ServiceNames.FABRIC8_CONSOLE, namespace, fabric8ConsoleNamespace);
         if (Strings.isNotBlank(consoleUrl) && projectConfig != null) {

@@ -272,13 +272,14 @@ public class ProjectConfigs {
     /**
      * If no environments have been configured lets default them from the `FABRIC8_DEFAULT_ENVIRONMENTS` environment variable
      */
-    public static void defaultEnvironments(ProjectConfig config) {
+    public static void defaultEnvironments(ProjectConfig config, String namespace) {
         if (config != null) {
             String buildName = config.getBuildName();
             if (Strings.isNotBlank(buildName) && Maps.isNullOrEmpty(config.getEnvironments())) {
                 // lets default the environments from env var
-                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Testing=${buildName}-testing,Staging=${buildName}-staging,Production=${buildName}-prod");
+                String defaultEnvironmentsText = Systems.getEnvVarOrSystemProperty("FABRIC8_DEFAULT_ENVIRONMENTS", "Testing=${namespace}-testing,Staging=${namespace}-staging,Production=${namespace}-prod");
                 String text = Strings.replaceAllWithoutRegex(defaultEnvironmentsText, "${buildName}", buildName);
+                text = Strings.replaceAllWithoutRegex(text, "${namespace}", namespace);
                 LinkedHashMap<String,String> environments = Maps.parseMap(text);
                 config.setEnvironments(environments);
             }
