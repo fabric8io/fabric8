@@ -44,12 +44,12 @@ export KUBERNETES_DOMAIN=vagrant.f8
 
 #### Downloading all templates
 
-Download and unzip the [fabric8 templates 2.2.98 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.98/distro-2.2.98-templates.zip).
+Download and unzip the [fabric8 templates 2.2.99 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.99/distro-2.2.99-templates.zip).
 
 e.g.
 
 ```
-curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.98/distro-2.2.98-templates.zip
+curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.99/distro-2.2.99-templates.zip
 unzip fabric8.zip
 cd main
 ```
@@ -60,7 +60,7 @@ Once you have found the `kubernetes.json` file for the [app](fabric8Apps.html) y
 
 For example to install the [fabric8 console](console.html) then type:
 
-		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.98.json | oc create -f -
+		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.99.json | oc create -f -
 
 #### Download templates individually
 
@@ -86,7 +86,7 @@ gofabric8 secrets -y
 Provides centralised [Logging](logging.html) and [Metrics](metrics.html)
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.98/management-2.2.98-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.99/management-2.2.99-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
@@ -96,7 +96,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 Provides just the centralised [Logging](../logging.html)
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.98/logging-2.2.98-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.99/logging-2.2.99-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
@@ -106,7 +106,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 Provides just the centralised [Metrics](../metrics.html)
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.98/metrics-2.2.98-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.99/metrics-2.2.99-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
@@ -116,7 +116,7 @@ Then [setup the OpenShift Routes](#creating-routes)
 Provides the [fabric8 console](../console.html) and the [Integration Platform As A Service](../ipaas.html)
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.2.98/ipaas-2.2.98-kubernetes.json \
+		http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.2.99/ipaas-2.2.99-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
@@ -128,7 +128,7 @@ Provides a Continuous Integration and [Continuous Delivery](../cdelivery.html) s
 The complete [Continuous Delivery](../cdelivery.html) installation.
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/packages/cd-pipeline/2.2.98/cd-pipeline-2.2.98-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/devops/packages/cd-pipeline/2.2.99/cd-pipeline-2.2.99-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
@@ -148,11 +148,11 @@ and setup the environment variables etc.
 
 If you have defined the [$KUBERNETES_DOMAIN](#setup-domain) environment variable then you can use the following command:
 
-    mvn io.fabric8:fabric8-maven-plugin:2.2.98:create-routes
+    mvn io.fabric8:fabric8-maven-plugin:2.2.99:create-routes
 
 Otherwise you can be specific and specify the domain you wish to use:
 
-    mvn io.fabric8:fabric8-maven-plugin:2.2.98:create-routes -Dfabric8.domain=my.acme.com
+    mvn io.fabric8:fabric8-maven-plugin:2.2.99:create-routes -Dfabric8.domain=my.acme.com
 
 You could then setup a wildcard DNS rule on `*.$KUBERNETES_DOMAIN` to point to the IP address of your OpenShift
 master or HAProxy installation. Or you could add custom entries to your `/etc/hosts` file for each service.
