@@ -135,9 +135,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.mockwebserver</groupId>
+            <groupId>com.squareup.okhttp</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>${mockwebserver.version}</version>
+            <version>${okhttp.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
