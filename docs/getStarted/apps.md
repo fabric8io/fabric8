@@ -1,7 +1,7 @@
 ## Install Fabric8 on OpenShift
 
 [Fabric8 apps](../fabric8Apps.html) have been
-[packaged](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.136/distro-2.2.136-templates.zip) to make them easy
+[packaged](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip) to make them easy
 to install on Kubernetes or OpenShift.
 
 ### Install via the console
@@ -18,7 +18,7 @@ on your installation.
 * To Run any of the installed templates just click the `Run` button (the green play button).
 * To install any new [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html) or
   other Kubernetes resources just drag and drop the JSON file onto the `Apps` tab!
-* You can download the [fabric8 templates 2.2.136 distribution](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.136/distro-2.2.136-templates.zip)
+* You can download the [fabric8 templates 2.2.148 distribution](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip)
   unzip and drag the JSON files you want to install onto the [fabric8 console](../console.html)
   and they should appear on the `Run...` page  
 * You can also install other OpenShift Templates or Kubernetes resources via the **oc** command line tool:
@@ -44,12 +44,12 @@ export KUBERNETES_DOMAIN=vagrant.f8
 
 #### Downloading all templates
 
-Download and unzip the [fabric8 templates 2.2.100 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.100/distro-2.2.100-templates.zip).
+Download and unzip the [fabric8 templates 2.2.148 distribution](http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip).
 
 e.g.
 
 ```
-curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.100/distro-2.2.100-templates.zip
+curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip
 unzip fabric8.zip
 cd main
 ```
@@ -115,9 +115,18 @@ Then [setup the OpenShift Routes](#creating-routes)
 
 Provides the [fabric8 console](../console.html) and the [Integration Platform As A Service](../ipaas.html)
 
-		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://central.maven.org/maven2/io/fabric8/apps/ipaas/2.2.100/ipaas-2.2.100-kubernetes.json \
-		| oc create -f -
+Download and unzip the [fabric8 templates 2.2.94 distribution](http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip).
+
+e.g.
+
+```
+curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip
+unzip fabric8.zip
+cd main
+
+Then run whatever templates you want to run from the ipaas:
+
+		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f apiman-2.2.94.json | oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
 
@@ -128,7 +137,7 @@ Provides a Continuous Integration and [Continuous Delivery](../cdelivery.html) s
 The complete [Continuous Delivery](../cdelivery.html) installation.
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-		http://repo1.maven.org/maven2/io/fabric8/devops/packages/cd-pipeline/2.2.100/cd-pipeline-2.2.100-kubernetes.json \
+		http://repo1.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.2.148/cd-pipeline-2.2.148-kubernetes.json \
 		| oc create -f -
 
 Then [setup the OpenShift Routes](#creating-routes)
