@@ -57,7 +57,7 @@
         data-chapter-title="Fabric8 Messaging"
         data-filepath="fabric8MQ.md"
         data-basepath="."
-        data-revision="Wed Mar 30 2016 14:42:43 GMT+0000 (UTC)"
+        data-revision="Wed Mar 30 2016 14:47:49 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1255,11 +1255,11 @@
                     
                         <h2 id="fabric8-messaging"><a name="fabric8-messaging" class="plugin-anchor" href="#fabric8-messaging"><span class="fa fa-link"></span></a>Fabric8 Messaging</h2>
 <p>Fabric8 Messaging provides a scalable and elastic <em>Messaging as a Service</em> built on top of Kubernetes.</p>
-<p>Fabric8 Messaging comprises of:</p>
+<p>Fabric8 Messaging comprises of the following microservices:</p>
 <ul>
-<li>Message Broker is an elastic pool of messaging pods based on <a href="https://activemq.apache.org/artemis/" target="_blank">Apache ActiveMQ Artemis</a> which supports JMS 2.0 and various protocols like AMQP, OpenWire, MQTT and STOMP on a single port, 61616 so its easier to work with Kubernetes external services (e.g. OpenShift&apos;s haproxy)</li>
-<li>Message Gateway performs discovery, load balancing and sharding of message Destinations across the pool of message brokers to provide linear scalability of messaging.</li>
-<li>ZooKeeper is used by the Message Gateway so that the Message Gateway pods can coordinate to share destinations across Message Broker pods</li>
+<li><strong>Message Broker</strong> is an elastic pool of messaging pods based on <a href="https://activemq.apache.org/artemis/" target="_blank">Apache ActiveMQ Artemis</a> which supports JMS 2.0 and various protocols like AMQP, OpenWire, MQTT and STOMP on a single port, 61616 so its easier to work with Kubernetes external services (e.g. OpenShift&apos;s haproxy)</li>
+<li><strong>Message Gateway</strong> performs discovery, load balancing and sharding of message Destinations across the pool of message brokers to provide linear scalability of messaging.</li>
+<li><strong>ZooKeeper</strong> is used by the Message Gateway so that the Message Gateway pods can coordinate to share destinations across Message Broker pods</li>
 </ul>
 <p>For more background see the <a href="#architecture">Architecture</a>.</p>
 <h3 id="running-fabric8-messaging"><a name="running-fabric8-messaging" class="plugin-anchor" href="#running-fabric8-messaging"><span class="fa fa-link"></span></a>Running Fabric8 Messaging</h3>
