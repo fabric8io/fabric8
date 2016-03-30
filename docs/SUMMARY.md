@@ -7,6 +7,7 @@
   * [Install on OpenShift](getStarted/apps.md)
   * [Develop locally](getStarted/develop.md)
   * [Accept self-signed certs](getStarted/browserCertificates.md)
+  * [Troubleshooting](getStarted/troubleshooting.md)
 * [Fabric8 Quickstarts](quickstarts/index.md)
   * [Archetypes](quickstarts/archetypes.md)
   * [Running](quickstarts/running.md)

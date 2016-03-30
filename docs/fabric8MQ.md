@@ -1,64 +1,66 @@
-## Fabric8 MQ
+## Fabric8 Messaging
 
-Fabric8MQ isn’t a new message broker, its a smart messaging proxy that utilises Fabric8/Kubernetes to create Messaging as a Service out of automatically sharded ActiveMQ brokers. It sits on top of a Vert.x core to provide highly scalable asynchronous connection handling:
+Fabric8 Messaging provides a scalable and elastic _Messaging as a Service_ built on top of Kubernetes.
 
-![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mq.png "Fabric8MQ core")
+Fabric8 Messaging comprises of:
 
-Its best explained by following what happens to messages as they flow through Fabric8MQ:
+* Message Broker is an elastic pool of messaging pods based on [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis/) which supports JMS 2.0 and various protocols like AMQP, OpenWire, MQTT and STOMP on a single port, 61616 so its easier to work with Kubernetes external services (e.g. OpenShift's haproxy)
+* Message Gateway performs discovery, load balancing and sharding of message Destinations across the pool of message brokers to provide linear scalability of messaging.
+* ZooKeeper is used by the Message Gateway so that the Message Gateway pods can coordinate to share destinations across Message Broker pods
 
-![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqflow.png "Fabric8MQ message flow")
+For more background see the [Architecture](#architecture).
 
-1. Protocol Conversion — by moving MQTT,STOMP,AMQP protocol conversion outside of the ActiveMQ broker reduces the amount of work the broker needs to do: As ActiveMQ isn’t well designed for modern, asynchronous tasks, the less work the broker does, the better.
+### Running Fabric8 Messaging
 
-2. Camel Routing is built right into the router — so we can easily convert on the fly between, say Topics (Publish/Subscribe) and Queues (point-2-point).
+* In the [Console](console.html) click on the **Runtime** tab and select the Project you wish to run things inside
+* Click on the **Run** button on the top right to run the **Messaging** application
+* Now run the **Example Message Producer** and **Example Message Consumer** apps to produce and consume messages
+* You could try any of the Message or ActiveMQ based [Quickstarts](quickstart.html)
 
-3. API Management — utlizing API Man, so you can apply security and rate limiting policies to destinations
+### Using Fabric8 Messaging
 
-4. Multiplexer — reducing the amount of physical connections an ActiveMQ broker has, increases the throughput of the overall system.
+The Message Gateway implements a service, `activemq` on port 61616 so any messaging application can just connect to `tcp://activemq:61616` and use any of the messaging protocols supported. 
 
-5. Destination Sharding — this is where a lot of the magic pixie dust is used, to shard connections across many different backend ActiveMQ brokers. Its also where messages and clients are moved between brokers, as brokers are spun up and down, depending on load
+#### Using JMS
 
-6. Broker Control — this monitors the brokers under Fabric8MQ’s control and monitors load — and it decides if more ActiveMQ brokers are needed, or less — depending on load. An embedded rules engine is used to make the decisions.
+If you are using JMS then if you use the [mq-client](https://github.com/fabric8io/fabric8-ipaas/tree/master/mq-client) library the **io.fabric8.mq.core.MQConnectionFactory** class will automatically default to using the `activemq` message service for scalable messaging.
 
+#### Using Camel amq component
 
-Fabric8MQ utilises Fabric8 and Kubernetes and its individual components are all independently scalable:
-
-![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqscalable.png "Fabric8MQ scales")
-
+If you use the [camel-amq](https://github.com/fabric8io/fabric8-ipaas/tree/master/camel-amq) library and `amq:` component it will automatically default to using the `activemq` message service for scalable messaging.
 
 
-The Fabric8 MQ [App](apps.html) creates a [service](services.html) using a [replication controller](replicationControllers.html) for using [Apache ActiveMQ](http://activemq.apache.org/) effectively within Fabric8 or Kubernetes.
+#### Use a Message Gateway Sidecar
 
-### Running Fabric8 MQ
+If your application wishes to avoid a network hop between your container and the Message Gateway you can just add the Message Gateway container into your Pod; then your container can connect on `tcp://localhost:61616` to perform messaging with the gateway taking care of communicating with the correct broker pods based on the destinations you use.
 
-* In the [Console](console.html) click on the **Library** tab and then navigate into **apps** and then click on **Fabric8 MQ**
-* Click on the **Run** button on the top right to run the **Fabric8 MQ** service
-* Now run any ActiveMQ based [Quickstart](quickstart.html) or you could try running the **Fabric8 MQ Producer** and **Fabric8 MQ Consumer** apps in the **apps** folder of the **Library**
-* Once the MQ broker is up, if you navigate to the **Pods** tab and click the connect icon you should be able to look inside the broker and see its Queues / Topics and metrics.
 
-### Connecting to Fabric8 MQ
+#### Enviornment variables
 
-There are various ways to discover and connect to Fabric8 MQ depending on your requirements:
+If you wish to connect to a different messaging service other than `activemq` then use the `$ACTIVEMQ_SERVICE_NAME` environment variable. 
 
-#### MQConnectionFactory
 
-The **io.fabric8.mq.core.MQConnectionFactory** is a JMS ConnectionFactory which connects to ActiveMQ using the [Kubernetes Service](services.html) discovery mechanism described below.
+### Fabric8 Messaging Architecture
 
-Just create the MQConnectionFactory and it will use the environment variables of the current process to discover the ActiveMQ brokers.
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mq.png "Fabric8 Messaging core")
 
-#### Camel amq component
+Its best explained by following what happens to messages as they flow through Fabric8 Messaging:
 
-The Camel **amq:** component uses the [Kubernetes Service](services.html) discovery mechanism described below to discover and connect to the ActiveMQ brokers. So you can just use the endpoint directly; no configuration is required.
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqflow.png "Fabric8 Messaging message flow")
+ 
+ 1. Protocol Conversion — by moving MQTT,STOMP,AMQP protocol conversion outside of the ActiveMQ broker reduces the amount of work the broker needs to do: As ActiveMQ isn’t well designed for modern, asynchronous tasks, the less work the broker does, the better.
+ 
+ 2. Camel Routing is built right into the router — so we can easily convert on the fly between, say Topics (Publish/Subscribe) and Queues (point-2-point).
+ 
+ 3. API Management — utlizing API Man, so you can apply security and rate limiting policies to destinations
+ 
+ 4. Multiplexer — reducing the amount of physical connections an ActiveMQ broker has, increases the throughput of the overall system.
+ 
+ 5. Destination Sharding — this is where a lot of the magic pixie dust is used, to shard connections across many different backend ActiveMQ brokers. Its also where messages and clients are moved between brokers, as brokers are spun up and down, depending on load
+ 
+ 6. Broker Control — this monitors the brokers under Fabric8 Messaging’s control and monitors load — and it decides if more ActiveMQ brokers are needed, or less — depending on load. An embedded rules engine is used to make the decisions.
+  
+Fabric8 Messaging utilises Fabric8 and Kubernetes and its individual components are all independently scalable:
 
-e.g. just use the camel endpoint **"amq:Cheese"** to access the Cheese queue in ActiveMQ; no configuration required!
-
-The Camel **amq:** is used in the example **Fabric8 MQ Producer** and **Fabric8 MQ Consumer** apps mentioned above.
-
-#### Environment variables
-
-* You can use the usual [Kubernetes Service](services.html) mechanism to connect to the Fabric8 MQ service; namely using the environment variables:
-  * **FABRIC8MQ_SERVICE_HOST** as the host to connect to ActiveMQ
-  * **FABRIC8MQ_SERVICE_PORT** as the port to connect to ActiveMQ
-
-Then your application does not need any special Java code or discovery logic; it connects to a fixed host and port which is constant for a given environment. Then [Kubernetes Service](services.html) takes care of the load balancing and discovery; out of your process (but on the same host).
+![alt text](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric8mqscalable.png "Fabric8 Messaging scales")
 
