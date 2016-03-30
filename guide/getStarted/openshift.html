@@ -57,7 +57,7 @@
         data-chapter-title="Native OpenShift"
         data-filepath="getStarted/openshift.md"
         data-basepath=".."
-        data-revision="Wed Mar 30 2016 12:09:06 GMT+0000 (UTC)"
+        data-revision="Wed Mar 30 2016 14:31:11 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -217,6 +217,21 @@
                             <b>2.7.</b>
                         
                         Accept self-signed certs
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" data-path="getStarted/troubleshooting.html">
+            
+                
+                    <a href="../getStarted/troubleshooting.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.8.</b>
+                        
+                        Troubleshooting
                     </a>
             
             
@@ -1356,6 +1371,7 @@ oadm registry --create --credentials=/var/lib/openshift/openshift.local.config/m
 <p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install
 the <a href="apps.html">fabric8 applications</a></p>
 <h2 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
+<p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
 <p>If you are having issues logging into the console, ensure you&apos;ve enabled <code>cors-allowed</code> as shown above in the <code>./openshift start</code> command.</p>
 <p>Another way to do that is to edit the <code>/etc/openshift/master/master-config.yaml</code> file <a href="https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441" target="_blank">and add an entry like the following</a>:</p>
 <pre><code>$vi /etc/openshift/master/master-config.yaml
