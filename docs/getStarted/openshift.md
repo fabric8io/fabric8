@@ -147,6 +147,8 @@ the [fabric8 applications](apps.html)
 
 ## Troubleshooting
 
+Check out the [troubleshooting guide](troubleshooting.html) for more help.
+
 If you are having issues logging into the console, ensure you've enabled ```cors-allowed``` as shown above in the ```./openshift start``` command.
 
 Another way to do that is to edit the ```/etc/openshift/master/master-config.yaml``` file [and add an entry like the following](https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441):

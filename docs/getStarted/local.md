@@ -88,24 +88,6 @@ is kinda like a local registry anyway - provided you don't try to push or pull t
 You now should be able to [build and use docker images locally](../developLocally.html)  without pushing or pulling.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Follow these steps:
 
 * [Download the recent OpenShift release binaries for your platform](https://github.com/openshift/origin/releases/)
@@ -151,4 +133,8 @@ oc get pods --watch
 ```
 
 Have fun! We [love feedback](http://fabric8.io/community/)
+
+## Troubleshooting
+
+Check out the [troubleshooting guide](troubleshooting.html) for more help.
 
