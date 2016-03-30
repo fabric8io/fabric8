@@ -89,7 +89,12 @@ public class CompilationTaskFactory {
         }
 
         for (TypeElement element : elements) {
-            javaFileObjects.add(fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, element.getQualifiedName().toString(), JavaFileObject.Kind.SOURCE));
+            JavaFileObject source = fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, element.getQualifiedName().toString(), JavaFileObject.Kind.SOURCE);
+            if (source == null) {
+                throw new IOException("Unable to find class: " + element.getQualifiedName().toString());
+            }
+
+            javaFileObjects.add(source);
         }
         return compiler.getTask(writer, fileManager, diagnosticListener, options, new ArrayList<String>(), javaFileObjects);
     }
