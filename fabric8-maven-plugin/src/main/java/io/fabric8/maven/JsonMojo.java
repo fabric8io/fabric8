@@ -662,8 +662,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
         for (HasMetadata object : objects) {
             addLabelIfNotExist(object, label, value);
             if (object instanceof ReplicationController) {
-                ReplicationController entity = (ReplicationController) object;
-                ReplicationControllerSpec spec = entity.getSpec();
+                final ReplicationController entity = (ReplicationController) object;
+                final ReplicationControllerSpec spec = entity.getSpec();
                 if (spec != null) {
                     final PodTemplateSpec template = spec.getTemplate();
                     if (template != null) {
@@ -682,6 +682,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
                             @Override
                             public String getKind() {
                                 return "PodTemplateSpec";
+                            }
+
+                            @Override
+                            public String getApiVersion() {
+                                return entity.getApiVersion();
                             }
                         };
                         addLabelIfNotExist(hasMetadata, label, value);
