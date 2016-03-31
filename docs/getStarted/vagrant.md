@@ -117,7 +117,7 @@ on your installation.
   or other Kubernetes resources just drag and drop the JSON file onto
   the `Apps` tab!
 * You can download the
-  [fabric8 templates 2.2.100 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.100/distro-2.2.100-templates.zip)
+  [fabric8 templates 2.2.101 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.101/distro-2.2.101-templates.zip)
   unzip and drag the JSON files you want to install onto the
   [fabric8 console](http://fabric8.io/guide/console.html) and they
   should appear on the `Run...` page
