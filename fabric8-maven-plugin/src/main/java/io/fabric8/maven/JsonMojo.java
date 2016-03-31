@@ -50,6 +50,7 @@ import io.fabric8.kubernetes.api.model.TCPSocketAction;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
 import io.fabric8.maven.support.JsonSchemaProperty;
@@ -909,41 +910,43 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (addedServiceAcount) {
             addServiceConstraints(builder, volumes, containerPrivileged != null && containerPrivileged.booleanValue());
         }
-        builder
-                .addNewReplicationControllerItem()
-                .withNewMetadata()
-                .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
-                .withLabels(labelMap)
-                .withAnnotations(rcAnnotations)
-                .endMetadata()
-                .withNewSpec()
-                .withReplicas(replicaCount)
-                .withSelector(labelMap)
-                .withNewTemplate()
-                .withNewMetadata()
-                .withLabels(labelMap)
-                .withAnnotations(podSpecAnnotations)
-                .endMetadata()
-                .withNewSpec()
-                .withServiceAccountName(serviceAccount)
-                .addNewContainer()
-                .withName(getKubernetesContainerName())
-                .withImage(getDockerImage())
-                .withImagePullPolicy(getImagePullPolicy())
-                .withEnv(getEnvironmentVariables())
-                .withNewSecurityContext()
-                .withPrivileged(containerPrivileged)
-                .endSecurityContext()
-                .withPorts(getContainerPorts())
-                .withVolumeMounts(volumeMounts)
-                .withLivenessProbe(getLivenessProbe())
-                .withReadinessProbe(getReadinessProbe())
-                .endContainer()
-                .withVolumes(volumes)
-                .endSpec()
-                .endTemplate()
-                .endSpec()
-                .endReplicationControllerItem();
+
+        if (Utils.isNotNullOrEmpty(getDockerImage())) {
+            builder.addNewReplicationControllerItem()
+                    .withNewMetadata()
+                    .withName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"))
+                    .withLabels(labelMap)
+                    .withAnnotations(rcAnnotations)
+                    .endMetadata()
+                    .withNewSpec()
+                    .withReplicas(replicaCount)
+                    .withSelector(labelMap)
+                    .withNewTemplate()
+                    .withNewMetadata()
+                    .withLabels(labelMap)
+                    .withAnnotations(podSpecAnnotations)
+                    .endMetadata()
+                    .withNewSpec()
+                    .withServiceAccountName(serviceAccount)
+                    .addNewContainer()
+                    .withName(getKubernetesContainerName())
+                    .withImage(getDockerImage())
+                    .withImagePullPolicy(getImagePullPolicy())
+                    .withEnv(getEnvironmentVariables())
+                    .withNewSecurityContext()
+                    .withPrivileged(containerPrivileged)
+                    .endSecurityContext()
+                    .withPorts(getContainerPorts())
+                    .withVolumeMounts(volumeMounts)
+                    .withLivenessProbe(getLivenessProbe())
+                    .withReadinessProbe(getReadinessProbe())
+                    .endContainer()
+                    .withVolumes(volumes)
+                    .endSpec()
+                    .endTemplate()
+                    .endSpec()
+                    .endReplicationControllerItem();
+        }
 
         addPersistentVolumeClaims(builder, volumes);
 
@@ -957,6 +960,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         KubernetesList kubernetesList = builder.build();
+        if (kubernetesList.getItems().isEmpty()) {
+            getLog().warn("No Kubernetes resources found! Skipping...");
+        }
 
         Object result = Templates.combineTemplates(kubernetesList);
         if (result instanceof Template) {
