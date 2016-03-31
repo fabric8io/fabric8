@@ -57,7 +57,7 @@
         data-chapter-title="Install on OpenShift"
         data-filepath="getStarted/apps.md"
         data-basepath=".."
-        data-revision="Thu Mar 31 2016 17:56:37 GMT+0000 (UTC)"
+        data-revision="Thu Mar 31 2016 18:16:07 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1296,7 +1296,7 @@ cd main
 </code></pre><p>Once you have found the <code>kubernetes.json</code> file for the <a href="fabric8Apps.html">app</a> you wish to install type the following using the <code>oc</code> command from OpenShift:</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | oc create -f -
 </code></pre><p>For example to install the <a href="console.html">fabric8 console</a> then type:</p>
-<pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.100.json | oc create -f -
+<pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.101.json | oc create -f -
 </code></pre><h4 id="download-templates-individually"><a name="download-templates-individually" class="plugin-anchor" href="#download-templates-individually"><span class="fa fa-link"></span></a>Download templates individually</h4>
 <p>Or to install from the central repository then choose the commands below to suit the application you wish to install:</p>
 <h5 id="console"><a name="console" class="plugin-anchor" href="#console"><span class="fa fa-link"></span></a>Console</h5>
@@ -1309,19 +1309,19 @@ gofabric8 secrets -y
 </code></pre><h5 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h5>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.100/management-2.2.100-kubernetes.json \
+    http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.101/management-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h6 id="logging"><a name="logging" class="plugin-anchor" href="#logging"><span class="fa fa-link"></span></a>Logging</h6>
 <p>Provides just the centralised <a href="../logging.html">Logging</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://repo1.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.100/logging-2.2.100-kubernetes.json \
+    http://repo1.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.101/logging-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h6 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h6>
 <p>Provides just the centralised <a href="../metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://repo1.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.100/metrics-2.2.100-kubernetes.json \
+    http://repo1.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.101/metrics-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h5 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h5>
@@ -1351,9 +1351,9 @@ you created. Note that this is done automatically if you create applications via
 <p>Before you start make sure you have <a href="local.html">setup your local machine</a> have logged in
 and setup the environment variables etc.</p>
 <p>If you have defined the <a href="#setup-domain">$KUBERNETES_DOMAIN</a> environment variable then you can use the following command:</p>
-<pre><code>mvn io.fabric8:fabric8-maven-plugin:2.2.100:create-routes
+<pre><code>mvn io.fabric8:fabric8-maven-plugin:2.2.101:create-routes
 </code></pre><p>Otherwise you can be specific and specify the domain you wish to use:</p>
-<pre><code>mvn io.fabric8:fabric8-maven-plugin:2.2.100:create-routes -Dfabric8.domain=my.acme.com
+<pre><code>mvn io.fabric8:fabric8-maven-plugin:2.2.101:create-routes -Dfabric8.domain=my.acme.com
 </code></pre><p>You could then setup a wildcard DNS rule on <code>*.$KUBERNETES_DOMAIN</code> to point to the IP address of your OpenShift
 master or HAProxy installation. Or you could add custom entries to your <code>/etc/hosts</code> file for each service.</p>
 <p>If you are using the Vagrant image with Linux or OSX you already have wildcard DNS resoultion. For Windows you have to
