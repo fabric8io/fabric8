@@ -43,6 +43,7 @@ public class Constants {
     public static final String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
     public static final String GOFABRIC8_ENABLED = "gofabric8.enabled";
     public static final String CLIENT_CREATOR_CLASS_NAME = "kubernetes.client.creator.class.name";
+    public static final String KUBERNETES_MODEL_PROCESSOR_CLASS = "kubernetes.model.processor.class.name";
 
     // Non-config constants
     public static final String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
