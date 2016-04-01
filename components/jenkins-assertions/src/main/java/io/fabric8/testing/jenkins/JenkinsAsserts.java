@@ -80,6 +80,42 @@ public class JenkinsAsserts {
         return lastBuild;
     }
 
+    public static void assertCreateJenkinsJob(JenkinsServer jenkinsServer, String xml, String jobName)  {
+      try {
+        jenkinsServer.createJob(jobName, xml);
+      } catch (IOException e) {
+        fail("Failed to create Jenkins job " + jobName + " for XML `" + xml + "`. " + e, e);
+      }
+    }
+
+    /**
+     * Asserts that the Job exists and returns its XML
+     */
+    public static String assertJobXml(JenkinsServer jenkinsServer, String jobName) {
+      try {
+        return jenkinsServer.getJobXml(jobName);
+      } catch (IOException e) {
+        fail("Failed to find XML for Jenkins job " + jobName + ". " + e, e);
+        return null;
+      }
+    }
+
+    /**
+     * Returns the Job XML for a Pipeline job for the inline jenkinsfile
+     */
+    public static String createJenkinsPipelineJobXml(String jenkinsfile) {
+      return
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><org.jenkinsci.plugins.workflow.job.WorkflowJob plugin=\"workflow-job@1.15\">\n" +
+        "  <keepDependencies>false</keepDependencies>\n" +
+        "  <properties/>\n" +
+        "  <definition class=\"org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition\" plugin=\"workflow-cps@1.15\">\n" +
+        "    <script>" + jenkinsfile + "</script>\n" +
+        "    <sandbox>false</sandbox>\n" +
+        "  </definition>\n" +
+        "  <triggers/>\n" +
+        "</org.jenkinsci.plugins.workflow.job.WorkflowJob>";
+    }
+
     protected static JobWithDetails tryFindJob(JenkinsServer jenkins, String jobName) {
         for (int i = 0; i < 15; i++) {
             try {
