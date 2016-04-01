@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodAssert;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Asserts;
 import io.fabric8.utils.Strings;
@@ -38,31 +39,12 @@ import static io.fabric8.kubernetes.assertions.Conditions.podNamespace;
 /**
  * Adds some extra assertion operations
  */
-public class PodsAssert extends ListAssert<Pod> {
-
+public class PodsAssert extends HasMetadatasAssert<Pod, PodsAssert> {
     private final KubernetesClient client;
 
     public PodsAssert(List<Pod> actual, KubernetesClient client) {
         super(actual);
         this.client = client;
-    }
-
-    public PodsAssert filter(Condition<Pod> condition) {
-        return assertThat(Filters.filter(actual).having(condition).get(), client);
-    }
-
-    /**
-     * Returns an assertion on the size of the list
-     */
-    public IntegerAssert assertSize() {
-        return (IntegerAssert) org.assertj.core.api.Assertions.assertThat(get().size()).as("size");
-    }
-
-    /**
-     * Returns the underlying actual value
-     */
-    public List<Pod> get() {
-        return actual;
     }
 
     /**
@@ -97,19 +79,6 @@ public class PodsAssert extends ListAssert<Pod> {
     }
 
     /**
-     * Filters the pods using the given label key and value
-     */
-    public PodsAssert filterLabel(String key, String value) {
-        return filter(podLabel(key, value));
-    }
-
-    /**
-     * Filters the pods using the given namespace
-     */
-    public PodsAssert filterNamespace(String namespace) {
-        return filter(podNamespace(namespace));
-    }
-    /**
      * Returns the filtered list of pods which have running status
      */
     public PodsAssert runningStatus() {
@@ -130,9 +99,8 @@ public class PodsAssert extends ListAssert<Pod> {
         return filter(Conditions.errorStatus());
     }
 
-    protected static PodsAssert assertThat(Iterable<Pod> result, KubernetesClient client) {
-        List<Pod> list = Lists.newArrayList(result);
+    @Override
+    protected PodsAssert createListAssert(List<Pod> list) {
         return new PodsAssert(list, client);
     }
-
 }
