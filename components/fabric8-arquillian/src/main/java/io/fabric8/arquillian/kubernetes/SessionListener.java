@@ -26,6 +26,7 @@ import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
+import io.fabric8.arquillian.utils.URLs;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -52,6 +53,7 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +106,7 @@ public class SessionListener {
 
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
+
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -168,7 +171,7 @@ public class SessionListener {
         }
     }
 
-    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws IOException {
+    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws Exception {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
@@ -176,8 +179,17 @@ public class SessionListener {
         if (file.exists()) {
             loadDependency(log, kubeConfigs, file, controller, configuration, log, namespace);
         } else {
-            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))), controller, configuration, log, namespace, dependency);
+            addConfig(kubeConfigs, loadJson(readAsString(createURL(dependency))), controller, configuration, log, namespace, dependency);
         }
+    }
+
+    protected URL createURL(final String dependency) throws Exception {
+        return URLs.doWithMavenURLHandlerFactory(new Callable<URL>() {
+            @Override
+            public URL call() throws Exception {
+                return new URL(dependency);
+            }
+        });
     }
 
     protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file, Controller controller, Configuration configuration, Logger logger, String namespace) throws IOException {
