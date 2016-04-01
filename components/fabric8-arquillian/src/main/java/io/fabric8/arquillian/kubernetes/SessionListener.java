@@ -105,11 +105,14 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        if (Strings.isNullOrBlank(configuration.getNamespaceToUse())) {
+        String namespaceToUse = configuration.getNamespaceToUse();
+        if (Strings.isNullOrBlank(namespaceToUse)) {
             createNamespace(client, session);
         } else {
             checkNamespace(client, session, configuration);
             updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
+            namespace = namespaceToUse;
+            controller.setNamespace(namespace);
         }
 
         shutdownHook = new ShutdownHook(client, configuration, session);
