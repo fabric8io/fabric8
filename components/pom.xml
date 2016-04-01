@@ -36,10 +36,11 @@
     <module>cxf-utils</module>
     <module>rest-utils</module>
 
-    <!-- kubernetes/jolokia -->
+    <!-- kubernetes/jolokia/testing -->
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-generator</module>
+    <module>jenkins-assertions</module>
     <module>jolokia-assertions</module>
 
     <!-- fabric8 base -->
