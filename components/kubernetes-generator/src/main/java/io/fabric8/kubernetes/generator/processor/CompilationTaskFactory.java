@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.generator.processor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -34,6 +35,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CompilationTaskFactory {
@@ -111,5 +113,9 @@ public class CompilationTaskFactory {
             sb.append(url.toExternalForm().replaceFirst(FILE_URL_PREFIX, ""));
         }
         return sb.toString();
-    } 
+    }
+
+    public List<Diagnostic> getCompileDiagnostics() {
+        return ((DiagnosticCollector)diagnosticListener).getDiagnostics();
+    }
 }

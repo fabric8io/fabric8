@@ -67,6 +67,8 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             Callable<Boolean> compileTask = compilationTaskFactory.create(processors, writer);
             if (!compileTask.call()) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to compile provider classes. See output below.");
+
+                printCompileErrors(compilationTaskFactory);
                 return false;
             }
         } catch (Exception e) {
@@ -147,6 +149,13 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
         return true;
     }
 
+    private void printCompileErrors(CompilationTaskFactory compilationTaskFactory) {
+        if (compilationTaskFactory.getCompileDiagnostics().size() > 0) {
+            for (Diagnostic diag : compilationTaskFactory.getCompileDiagnostics()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Compile error: " + diag.toString());
+            }
+        }
+    }
 
     private static Set<Method> findMethods(Object instance, String methodName, Class argumentType) {
         Set<Method> result = new LinkedHashSet<>();
