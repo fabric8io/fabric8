@@ -34,3 +34,5 @@ How this is done is described in this [recipe](local.html).
 ### Troubleshooting
 
 Hopefully that will get you started quickly; if you hit any issues check out the [FAQ](http://fabric8.io/guide/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)
+
+Also check out the [troubleshooting guide](troubleshooting.html)

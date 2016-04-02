@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-     Copyright 2005-2015 Red Hat, Inc.
+     Copyright 2005-2016 Red Hat, Inc.
 
      Red Hat licenses this file to you under the Apache License, version
      2.0 (the "License"); you may not use this file except in compliance
@@ -20,7 +20,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>2.2.101-SNAPSHOT</version>
+    <version>2.2.102-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -36,10 +36,11 @@
     <module>cxf-utils</module>
     <module>rest-utils</module>
 
-    <!-- kubernetes/jolokia -->
+    <!-- kubernetes/jolokia/testing -->
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-generator</module>
+    <module>jenkins-assertions</module>
     <module>jolokia-assertions</module>
 
     <!-- fabric8 base -->
@@ -58,7 +59,6 @@
     <module>fabric8-agent</module>
     <module>fabric8-apm</module>
     <module>fabric8-arquillian</module>
-    <module>fabric8-camel</module>
     <module>fabric8-cxf</module>
     <module>fabric8-cxf-plugins</module>
     <!--<module>fabric8-cxf-registry</module>--> <!-- TODO: does not work yet -->
@@ -69,9 +69,6 @@
     <module>fabric8-selenium</module>
     <module>fabric8-spring-boot</module>
     <module>fabric8-vertx</module>
-
-    <!-- misc -->
-    <module>mq</module> <!-- TODO: should this not be named fabric8-mq -->
 
     <!-- swagger -->
     <module>swagger-annotator</module>

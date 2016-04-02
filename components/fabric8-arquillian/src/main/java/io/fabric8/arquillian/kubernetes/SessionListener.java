@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -26,11 +26,15 @@ import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
+import io.fabric8.arquillian.utils.URLs;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.builder.Visitable;
+import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
@@ -50,14 +54,19 @@ import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +80,8 @@ import static io.fabric8.arquillian.utils.Namespaces.updateNamespaceStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
@@ -95,15 +105,19 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        if (Strings.isNullOrBlank(configuration.getNamespaceToUse())) {
+        String namespaceToUse = configuration.getNamespaceToUse();
+        if (Strings.isNullOrBlank(namespaceToUse)) {
             createNamespace(client, session);
         } else {
             checkNamespace(client, session, configuration);
             updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
+            namespace = namespaceToUse;
+            controller.setNamespace(namespace);
         }
 
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
+
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -168,7 +182,7 @@ public class SessionListener {
         }
     }
 
-    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws IOException {
+    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws Exception {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
@@ -176,8 +190,17 @@ public class SessionListener {
         if (file.exists()) {
             loadDependency(log, kubeConfigs, file, controller, configuration, log, namespace);
         } else {
-            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))), controller, configuration, log, namespace, dependency);
+            addConfig(kubeConfigs, loadJson(readAsString(createURL(dependency))), controller, configuration, log, namespace, dependency);
         }
+    }
+
+    protected URL createURL(final String dependency) throws Exception {
+        return URLs.doWithMavenURLHandlerFactory(new Callable<URL>() {
+            @Override
+            public URL call() throws Exception {
+                return new URL(dependency);
+            }
+        });
     }
 
     protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file, Controller controller, Configuration configuration, Logger logger, String namespace) throws IOException {
@@ -216,7 +239,7 @@ public class SessionListener {
 
         List<Object> entities = new ArrayList<>();
         for (KubernetesList c : kubeConfigs) {
-            entities.addAll(c.getItems());
+            entities.addAll(enhance(session, configuration ,c).getItems());
         }
 
         //Ensure services are processed first.
@@ -238,7 +261,7 @@ public class SessionListener {
         String routePrefix = namespace + "." + configuration.getKubernetesDomain();
 
         preprocessEnvironment(client, controller, configuration, session);
-        
+
         List<Object> extraEntities = new ArrayList<>();
         for (Object entity : entities) {
             if (entity instanceof Pod) {
@@ -408,7 +431,7 @@ public class SessionListener {
     private Set<Secret> generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
         Set<Secret> secrets = new HashSet<>();
         Map<String, String> annotations = meta.getAnnotations();
-        if ( annotations != null && !annotations.isEmpty()) {
+        if (annotations != null && !annotations.isEmpty()) {
             for (Map.Entry<String, String> entry : annotations.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -442,5 +465,58 @@ public class SessionListener {
             }
         }
         return secrets;
+    }
+
+    private KubernetesList enhance(final Session session, Configuration configuration, KubernetesList kubernetesList) {
+        if (configuration == null || configuration.getProperties() == null || !configuration.getProperties().containsKey(Constants.KUBERNETES_MODEL_PROCESSOR_CLASS)) {
+            return kubernetesList;
+        }
+
+        String processorClassName = configuration.getProperties().get(Constants.KUBERNETES_MODEL_PROCESSOR_CLASS);
+        try {
+            final Object instance = SessionListener.class.getClassLoader().loadClass(processorClassName).newInstance();
+
+            KubernetesListBuilder builder = new KubernetesListBuilder(kubernetesList);
+
+            ((Visitable) builder).accept(new Visitor() {
+                @Override
+                public void visit(Object o) {
+                    for (Method m : findMethods(instance, o.getClass())) {
+                        Named named = m.getAnnotation(Named.class);
+                        if (named != null && !Strings.isNullOrBlank(named.value())) {
+                            String objectName = o instanceof ObjectMeta ? getName((ObjectMeta) o) : getName((HasMetadata) o);
+                            //If a name has been explicitly specified check if there is a match
+                            if (!named.value().equals(objectName)) {
+                                session.getLogger().warn("Named method:" + m.getName() + " with name:" + named.value() + " doesn't match: " + objectName + ", ignoring");
+                                return;
+                            }
+                        }
+                        try {
+                            m.invoke(instance, o);
+                        } catch (IllegalAccessException e) {
+
+                        } catch (InvocationTargetException e) {
+                            session.getLogger().error("Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
+                        }
+                    }
+                }
+            });
+
+            return builder.build();
+        } catch (Exception e) {
+            session.getLogger().warn("Failed to load processor class:" + processorClassName + ". Ignoring");
+            return kubernetesList;
+        }
+    }
+
+    private static Set<Method> findMethods(Object instance, Class argumentType) {
+        Set<Method> result = new LinkedHashSet<>();
+
+        for (Method m : instance.getClass().getDeclaredMethods()) {
+            if (m.getParameterTypes().length == 1 && m.getParameterTypes()[0].isAssignableFrom(argumentType)) {
+                result.add(m);
+            }
+        }
+        return result;
     }
 }

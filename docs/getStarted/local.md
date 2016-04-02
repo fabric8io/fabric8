@@ -82,28 +82,10 @@ is kinda like a local registry anyway - provided you don't try to push or pull t
 
 > **NOTE**  you need to make sure that your Kubernetes JSON uses the imagePullPolicy of `PullIfAbsent` 
 > (via the maven property `fabric8.imagePullPolicy`); as any attempt to pull an image just built locally that 
-> isn't pushed to a docker registry won't work; since the image isn't public yet. In fabric8 2.2.100 the default in 
+> isn't pushed to a docker registry won't work; since the image isn't public yet. In fabric8 2.2.101 the default in 
 > `mvn fabric8:json` is to now omit this value which means it uses the Kubernetes default which is `PullIfAbsent`.
 
 You now should be able to [build and use docker images locally](../developLocally.html)  without pushing or pulling.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 Follow these steps:
@@ -151,4 +133,8 @@ oc get pods --watch
 ```
 
 Have fun! We [love feedback](http://fabric8.io/community/)
+
+## Troubleshooting
+
+Check out the [troubleshooting guide](troubleshooting.html) for more help.
 
