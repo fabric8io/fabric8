@@ -57,7 +57,7 @@
         data-chapter-title="Install on OpenShift"
         data-filepath="getStarted/apps.md"
         data-basepath=".."
-        data-revision="Fri Apr 01 2016 13:55:26 GMT+0000 (UTC)"
+        data-revision="Mon Apr 04 2016 07:41:25 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1255,7 +1255,7 @@
                     
                         <h2 id="install-fabric8-on-openshift"><a name="install-fabric8-on-openshift" class="plugin-anchor" href="#install-fabric8-on-openshift"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
 <p><a href="../fabric8Apps.html">Fabric8 apps</a> have been
-<a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip" target="_blank">packaged</a> to make them easy
+<a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">packaged</a> to make them easy
 to install on Kubernetes or OpenShift.</p>
 <h3 id="install-via-the-console"><a name="install-via-the-console" class="plugin-anchor" href="#install-via-the-console"><span class="fa fa-link"></span></a>Install via the console</h3>
 <p>If you are already running the <a href="../console.html">fabric8 console</a> you can use it to install all the
@@ -1268,7 +1268,7 @@ on your installation.</p>
 <li>To Run any of the installed templates just click the <code>Run</code> button (the green play button).</li>
 <li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or
 other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab!</li>
-<li>You can download the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip" target="_blank">fabric8 templates 2.2.148 distribution</a>
+<li>You can download the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">fabric8 templates 2.2.153 distribution</a>
 unzip and drag the JSON files you want to install onto the <a href="../console.html">fabric8 console</a>
 and they should appear on the <code>Run...</code> page  </li>
 <li><p>You can also install other OpenShift Templates or Kubernetes resources via the <strong>oc</strong> command line tool:</p>
@@ -1288,9 +1288,9 @@ and they should appear on the <code>Run...</code> page  </li>
 <p>e.g. if you are using the fabric8 Vagrant image then use</p>
 <pre><code>export KUBERNETES_DOMAIN=vagrant.f8
 </code></pre><h4 id="downloading-all-templates"><a name="downloading-all-templates" class="plugin-anchor" href="#downloading-all-templates"><span class="fa fa-link"></span></a>Downloading all templates</h4>
-<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip" target="_blank">fabric8 templates 2.2.148 distribution</a>.</p>
+<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">fabric8 templates 2.2.153 distribution</a>.</p>
 <p>e.g.</p>
-<pre><code>curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.148/distro-2.2.148-templates.zip
+<pre><code>curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip
 unzip fabric8.zip
 cd main
 </code></pre><p>Once you have found the <code>kubernetes.json</code> file for the <a href="fabric8Apps.html">app</a> you wish to install type the following using the <code>oc</code> command from OpenShift:</p>
@@ -1339,7 +1339,7 @@ cd main</p>
 <p>Provides a Continuous Integration and <a href="../cdelivery.html">Continuous Delivery</a> system.</p>
 <p>The complete <a href="../cdelivery.html">Continuous Delivery</a> installation.</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
-    http://repo1.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.2.148/cd-pipeline-2.2.148-kubernetes.json \
+    http://repo1.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.2.153/cd-pipeline-2.2.153-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
 <h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
