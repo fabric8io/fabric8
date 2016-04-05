@@ -22,7 +22,15 @@ public class KarafReifierTest {
         Path target = PROJECT_BASE_DIR.resolve("target/test-data/karaf1");
         ProfilesHelpers.deleteDirectory(target);
         Files.createDirectories(target);
-        Path repository = PROJECT_BASE_DIR.resolve("src/test/karaf-profiles/fabric/fabric/profiles");
+
+        Path repository = PROJECT_BASE_DIR.resolve("src/test/it-repo/profiles");
+        final Path materialized = PROJECT_BASE_DIR.resolve("target/test-data/karaf-profiles-materialized");
+        ProfilesHelpers.deleteDirectory(materialized);
+        Files.createDirectories(materialized);
+
+        final Path containerConfig = PROJECT_BASE_DIR.resolve("src/test/it-repo/configs/containers/root.cfg");
+        String[] profileNames = ProfilesHelpers.readPropertiesFile(containerConfig).getProperty("profiles").replaceAll(" ?fabric-ensemble-\\S+", "").split(" ");
+        new Profiles(repository).materialize(materialized, profileNames);
 
         final Properties containerProperties = new Properties();
         containerProperties.put("groupId", "io.fabric8.quickstarts");
@@ -32,6 +40,6 @@ public class KarafReifierTest {
         containerProperties.put("description", "Karaf root container");
 
         final KarafProjectReifier reifier = new KarafProjectReifier(null);
-        reifier.reify(target, containerProperties, new Profiles(repository), "jboss-fuse-minimal");
+        reifier.reify(target, containerProperties, materialized);
     }
 }

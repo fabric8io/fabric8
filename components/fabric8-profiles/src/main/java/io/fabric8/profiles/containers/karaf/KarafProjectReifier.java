@@ -10,36 +10,24 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import io.fabric8.profiles.Profiles;
-import io.fabric8.profiles.ProfilesHelpers;
 import io.fabric8.profiles.containers.ProjectReifier;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.log.Log4JLogChute;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
 
 /**
  * Reify Karaf container from Profiles
  */
-public class KarafProjectReifier implements ProjectReifier {
+public class KarafProjectReifier extends ProjectReifier {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KarafProjectReifier.class);
     private static final String KARAF_POM_VM = "/containers/karaf/pom.vm";
 
     private static final String REPOSITORY_PREFIX = "repository.";
@@ -52,50 +40,18 @@ public class KarafProjectReifier implements ProjectReifier {
 
     private static final String AGENT_PROPERTIES = "io.fabric8.agent.properties";
 
-    private final Properties defaultProperties;
-    private final VelocityEngine engine;
+    public static final String CONTAINER_TYPE = "karaf";
 
     public KarafProjectReifier(Properties properties) {
-        this.defaultProperties = new Properties();
-        if (properties != null) {
-            this.defaultProperties.putAll(properties);
-        }
-
-        // initialize velocity to load resources from class loader and use Log4J
-        Properties velocityProperties = new Properties();
-        velocityProperties.setProperty(RuntimeConstants.RESOURCE_LOADER, "cloader");
-        velocityProperties.setProperty("cloader.resource.loader.class", ClasspathResourceLoader.class.getName());
-        velocityProperties.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, Log4JLogChute.class.getName());
-        velocityProperties.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM + ".log4j.logger", LOG.getName());
-        engine = new VelocityEngine(velocityProperties);
-        engine.init();
+        super(properties);
     }
 
-    @Override
-    public void reify(Path target, Properties config, Profiles profiles, String... profileNames) throws IOException {
-        // temp dir for materialized profile
-        final Path profilesDir = Files.createTempDirectory(target, "profiles-");
-
-        try {
-            // materialize profile
-            // remove ensemble profiles fabric-ensemble-*
-            profileNames = Arrays.stream(profileNames).filter(new Predicate<String>() {
-                @Override
-                public boolean test(String p) {
-                    return !p.matches("fabric\\-ensemble\\-.*");
-                }
-            }).collect(Collectors.toList()).toArray(new String[0]);
-            profiles.materialize(profilesDir, profileNames);
-
-            // reify maven project using template
-            final Properties containerProperties = new Properties();
-            containerProperties.putAll(defaultProperties);
-            containerProperties.putAll(config);
-            reifyProject(target, profilesDir, containerProperties);
-
-        } finally {
-            ProfilesHelpers.deleteDirectory(profilesDir);
-        }
+    public void reify(Path target, Properties config, Path profilesDir) throws IOException {
+        // reify maven project using template
+        final Properties containerProperties = new Properties();
+        containerProperties.putAll(defaultProperties);
+        containerProperties.putAll(config);
+        reifyProject(target, profilesDir, containerProperties);
     }
 
     private void reifyProject(Path target, final Path profilesDir, Properties properties) throws IOException {
@@ -113,7 +69,7 @@ public class KarafProjectReifier implements ProjectReifier {
             // read profile properties
             loadProperties(context, profilesDir);
 
-            LOG.debug("Writing %s...", pojoFile);
+            log.debug("Writing %s...", pojoFile);
             Template pojoTemplate = engine.getTemplate(KARAF_POM_VM);
             pojoTemplate.merge(context, writer);
 
@@ -122,7 +78,7 @@ public class KarafProjectReifier implements ProjectReifier {
 
             // add other resource files under src/main/resources/assembly
             final Path assemblyPath = target.resolve("src/main/resources/assembly/etc");
-            LOG.debug("Writing resources to %s...", assemblyPath);
+            log.debug("Writing resources to %s...", assemblyPath);
             Files.createDirectories(assemblyPath,
                 PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
             Files.walkFileTree(profilesDir, new SimpleFileVisitor<Path>() {
@@ -143,7 +99,7 @@ public class KarafProjectReifier implements ProjectReifier {
                 }
             });
 
-            LOG.debug("Done!");
+            log.debug("Done!");
 
         } finally {
             if (writer != null) {

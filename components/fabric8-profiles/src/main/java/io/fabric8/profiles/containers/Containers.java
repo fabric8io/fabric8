@@ -16,46 +16,41 @@
 package io.fabric8.profiles.containers;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.ProfilesHelpers;
-
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
 public class Containers {
 
-    public static final String DEFAULT_CONTAINER_TYPE = "karaf";
+    public static final String DEFAULT_CONTAINER_TYPE = KarafProjectReifier.CONTAINER_TYPE;
 
-    private static final String VERSION_PROPERTY = "version";
-    private static final String NAME_PROPERTY = "name";
+    public static final String NAME_PROPERTY = "name";
+    public static final String PROFILES_PROPERTY = "profiles";
+    public static final String CONTAINER_TYPE_PROPERTY = "container-type";
 
-    private static final String CONTAINERS = "fabric/configs/containers/%s.cfg";
-    private static final String VERSIONS = "fabric/configs/versions/%s/containers/%s";
-
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final String CONTAINERS = "containers/%s.cfg";
 
     private final Path repository;
+    private final Profiles profiles;
     private Map<String, ProjectReifier> reifierMap;
-    private String remoteUri;
 
     /**
-     * @param repository container configuration directory, exported from ZK repository.
-     * @param reifierMap map from container types to reifiers.
-     * @param remoteUri  uri for remote profile git repo.
+     * @param repository    container configuration directory.
+     * @param reifierMap    map from container types to reifiers.
+     * @param profiles      profiles repository.
      */
-    public Containers(Path repository, Map<String, ProjectReifier> reifierMap, String remoteUri) {
+    public Containers(Path repository, Map<String, ProjectReifier> reifierMap, Profiles profiles) {
         this.repository = repository;
         this.reifierMap = reifierMap;
-        this.remoteUri = remoteUri;
+        this.profiles = profiles;
     }
 
     /**
@@ -64,96 +59,49 @@ public class Containers {
      * @throws IOException  on error.
      */
     public void reify(Path target, String name) throws IOException {
-        // read default version
-        final String defaultVersion = getDefaultVersion();
-
         // read container config
-        final Path configPath = getConfigPath(name);
+        final Properties config = getContainerConfig(name);
+
+        // container profiles and type
+        String[] containerProfiles = config.getProperty(PROFILES_PROPERTY, Profiles.DEFAULT_PROFILE).split(" ");
+        final String containerType = config.getProperty(CONTAINER_TYPE_PROPERTY, DEFAULT_CONTAINER_TYPE);
+
+        // get reifier from type
+        final ProjectReifier reifier = reifierMap.get(containerType);
+        if (reifier == null) {
+            throw new IOException("Unknown container type " + containerType);
+        }
+
+        // temp dir for materialized profile
+        final Path profilesDir = Files.createTempDirectory(target, "profiles-");
+
+        try {
+            // remove ensemble profiles fabric-ensemble-* from fabric8 v1
+            containerProfiles = Arrays.stream(containerProfiles).filter(new Predicate<String>() {
+                @Override
+                public boolean test(String p) {
+                    return !p.matches("fabric\\-ensemble\\-.*");
+                }
+            }).collect(Collectors.toList()).toArray(new String[0]);
+
+            // materialize profile
+            profiles.materialize(profilesDir, containerProfiles);
+
+            // reify
+            reifier.reify(target, config, profilesDir);
+
+        } finally {
+            ProfilesHelpers.deleteDirectory(profilesDir);
+        }
+    }
+
+    private Properties getContainerConfig(String name) throws IOException {
+        final Path configPath = repository.resolve(String.format(CONTAINERS, name));
         if (!Files.exists(configPath)) {
             throw new IOException("Missing container config " + configPath);
         }
-        final Properties config = getContainerConfig(configPath);
+        final Properties config = ProfilesHelpers.readPropertiesFile(configPath);
         config.put(NAME_PROPERTY, name);
-
-        // read container profiles
-        final String version = config.getProperty(VERSION_PROPERTY, defaultVersion);
-        final String[] containerProfiles = getContainerProfiles(name, version);
-
-        final String containerType = config.getProperty("container-type", DEFAULT_CONTAINER_TYPE);
-        final ProjectReifier reifier = reifierMap.get(containerType);
-
-        // clone the Profiles repo and checkout required branch in a temp dir
-        final Path tempRepo = Files.createTempDirectory(target, "profile-repo-");
-        try (Git clonedRepo = new CloneCommand()
-                .setURI(this.remoteUri)
-                .setBranch(version)
-                .setCloneAllBranches(false)
-                .setDirectory(tempRepo.toFile())
-                .call()) {
-
-            // validate repo
-            if (Files.list(tempRepo).filter(new Predicate<Path>() {
-                @Override
-                public boolean test(Path file) {
-                    return !".git".matches(file.getFileName().toString());
-                }
-            }).count() == 0) {
-                throw new IOException("Missing version branch " + version + " in profiles repo " + remoteUri);
-            }
-
-            // reify
-            reifier.reify(target, config, new Profiles(tempRepo), containerProfiles);
-
-        } catch (GitAPIException e) {
-            throw new IOException("Error cloning Profile version " + version + ": " + e.getMessage(), e);
-        } finally {
-            ProfilesHelpers.deleteDirectory(tempRepo);
-        }
+        return config;
     }
-
-    private String getDefaultVersion() throws IOException {
-        final Path defaultVersionPath = repository.resolve("fabric/configs/default-version.cfg");
-        if (!Files.exists(defaultVersionPath)) {
-            throw new IOException("Missing " + defaultVersionPath);
-        }
-        final List<String> lines = Files.readAllLines(defaultVersionPath, UTF_8);
-        if (lines.isEmpty()) {
-            throw new IOException("Missing default version value");
-        }
-        return lines.get(0).trim();
-    }
-
-    private Properties getContainerConfig(Path configPath) throws IOException {
-        final Properties configProps = new Properties();
-
-        for (String line : Files.readAllLines(configPath, UTF_8)) {
-            if (line.contains("=")) {
-                final String[] keyValue = line.split("=");
-                configProps.put(keyValue[0], keyValue[1]);
-            } else {
-                configProps.put(VERSION_PROPERTY, line);
-            }
-        }
-
-        return configProps;
-    }
-
-    private String[] getContainerProfiles(String name, String version) throws IOException {
-        final Path path = repository.resolve(String.format(VERSIONS, version, name));
-        if (Files.notExists(path)) {
-            throw new IOException("Missing container profile file " + path);
-        }
-
-        final List<String> allLines = Files.readAllLines(path, UTF_8);
-        if (allLines.isEmpty()) {
-            throw new IOException("Error reading profiles for container " + name + ":" + version);
-        }
-
-        return allLines.get(0).split(" ");
-    }
-
-    private Path getConfigPath(String containerName) {
-        return repository.resolve(String.format(CONTAINERS, containerName));
-    }
-
 }

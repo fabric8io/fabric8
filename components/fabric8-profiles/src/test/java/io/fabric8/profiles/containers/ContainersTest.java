@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Properties;
 
+import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.ProfilesHelpers;
 import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
@@ -28,23 +29,29 @@ public class ContainersTest {
         Files.createDirectories(target);
 
         // temp profile git repo
-        final Path sourceRepository = PROJECT_BASE_DIR.resolve("src/test/karaf-profiles/fabric/fabric/profiles");
-        final Path repository = PROJECT_BASE_DIR.resolve("target/test-data/karaf-profiles");
-        ProfilesHelpers.copyDirectory(sourceRepository, repository);
+        final Path repository = PROJECT_BASE_DIR.resolve("target/test-data/it-repo");
+        final Path profilesRoot = repository.resolve("profiles");
+        final Path configsRoot = repository.resolve("configs");
+        deleteDirectory(repository);
+        Files.createDirectories(profilesRoot);
+        Files.createDirectories(configsRoot);
+
+        // copy integration test repository
+        ProfilesHelpers.copyDirectory(PROJECT_BASE_DIR.resolve("src/test/it-repo"), repository);
+
         try (final Git profileRepo = new InitCommand().setDirectory(repository.toFile()).call()) {
             profileRepo.add().addFilepattern(".").call();
             profileRepo.commit().setMessage("Adding version 1.0").call();
-            profileRepo.branchRename().setOldName("master").setNewName("1.0").call();
+            profileRepo.branchRename().setNewName("1.0").call();
 
             final Properties karafDefaults = new Properties();
             karafDefaults.put("groupId", "io.fabric8.karaf-swarm");
             karafDefaults.put("description", "Karaf Swarm container");
 
-            final Path containerRepository = PROJECT_BASE_DIR.resolve("src/test/zk");
             final HashMap<String, ProjectReifier> reifierMap = new HashMap<>();
             reifierMap.put(Containers.DEFAULT_CONTAINER_TYPE, new KarafProjectReifier(karafDefaults));
 
-            final Containers containers = new Containers(containerRepository, reifierMap, repository.toUri().toString());
+            final Containers containers = new Containers(configsRoot, reifierMap, new Profiles(profilesRoot));
             containers.reify(target, "root");
         }
     }

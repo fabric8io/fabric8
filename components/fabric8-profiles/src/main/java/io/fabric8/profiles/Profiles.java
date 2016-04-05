@@ -18,14 +18,24 @@ package io.fabric8.profiles;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.profiles.ProfilesHelpers.readJsonFile;
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
@@ -37,7 +47,16 @@ import static io.fabric8.profiles.ProfilesHelpers.toYamlBytes;
 
 public class Profiles {
 
-    private static final String DEFAULT_PROFILE = "default";
+    public static final String DEFAULT_PROFILE = "default";
+
+    private static final Logger LOG = LoggerFactory.getLogger(Profiles.class);
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+
+    private static final Pattern RUNTIME_PATTERN = Pattern.compile("\\$\\{runtime\\.");
+    private static final Pattern PROFILE_PID_PATTERN = Pattern.compile("\\$\\{profile\\\\?\\:([^/]+)/([^\\}]+)\\}");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("\\$\\{version\\\\?\\:([^\\}]+)\\}");
+
     private final Path repository;
 
     /**
@@ -62,14 +81,98 @@ public class Profiles {
             files.addAll(listFiles(profileName));
         }
 
-        System.out.println("profile search order" + profileSearchOrder);
-        System.out.println("files: " + files);
+        LOG.debug("profile search order {}", profileSearchOrder);
+        LOG.debug("files: {}", files);
         for (String file : files) {
             try (InputStream is = materializeFile(file, profileSearchOrder)) {
                 Files.copy(is, target.resolve(file), StandardCopyOption.REPLACE_EXISTING);
             }
         }
 
+        // resolve Fabric8 URLs
+        final Properties versionProperties;
+        final Path versionFile = target.resolve("io.fabric8.version.properties");
+        if (Files.exists(versionFile)) {
+            versionProperties = readPropertiesFile(versionFile);
+        } else {
+            LOG.warn("Missing io.fabric8.version.properties");
+            versionProperties = new Properties();
+        }
+        Files.walkFileTree(target, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                resolveURLsInFile(file, versionProperties);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private void resolveURLsInFile(Path file, final Properties versionProperties) throws IOException {
+//        final List<String> lines = Files.readAllLines(file, UTF_8);
+        final List<String> lines = Files.readAllLines(file);
+        final List<String> updatedLines = new ArrayList<>();
+        boolean updated = false;
+        for (String line : lines) {
+
+            // replace ${runtime. with ${karaf.
+            line = RUNTIME_PATTERN.matcher(line).replaceAll(Matcher.quoteReplacement("${karaf."));
+
+            int origLen = line.length();
+            StringBuffer updatedLine = new StringBuffer(line.length());
+
+            // resolve ${profile:PID/property} URLs
+            Matcher profileMatcher = PROFILE_PID_PATTERN.matcher(line);
+            updated |= resolveUrls(file, updatedLine, profileMatcher, new UrlResolver() {
+                    @Override
+                    public void resolve(Path file, StringBuffer updatedLine, Matcher matcher) throws IOException {
+                        final Path pidFile = file.getParent().resolve(matcher.group(1) + ".properties");
+                        final String value = readPropertiesFile(pidFile).getProperty(matcher.group(2));
+                        matcher.appendReplacement(updatedLine, Matcher.quoteReplacement(value));
+                    }
+                }
+            );
+            if (updatedLine.length() > 0) {
+                line = updatedLine.toString();
+                updatedLine = new StringBuffer(line.length());
+            }
+
+            // resolve ${version:xyz} URLs
+            final Matcher versionMatcher = VERSION_PATTERN.matcher(line);
+            updated |= resolveUrls(file, updatedLine, versionMatcher, new UrlResolver() {
+                @Override
+                public void resolve(Path file, StringBuffer updatedLine, Matcher matcher) throws IOException {
+                    final String value = versionProperties.getProperty(matcher.group(1));
+                    matcher.appendReplacement(updatedLine, Matcher.quoteReplacement(value));
+                }
+            });
+
+            final int newLen = updatedLine.length();
+            if (newLen > 0 && newLen != origLen) {
+                updatedLines.add(updatedLine.toString());
+            } else {
+                updatedLines.add(line);
+            }
+        }
+
+        if (updated) {
+            Files.write(file, updatedLines, UTF_8);
+        }
+    }
+
+    private boolean resolveUrls(Path file, StringBuffer updatedLine, Matcher matcher, UrlResolver resolver) throws IOException {
+        while (matcher.find()) {
+            resolver.resolve(file, updatedLine, matcher);
+        }
+        if (updatedLine.length() > 0) {
+            matcher.appendTail(updatedLine);
+            return true;
+        }
+        return false;
+    }
+
+    @FunctionalInterface
+    private interface UrlResolver {
+        void resolve(Path file, StringBuffer updatedLine, Matcher matcher) throws IOException;
     }
 
     private InputStream materializeFile(String fileName, ArrayList<String> profileSearchOrder) throws IOException {
