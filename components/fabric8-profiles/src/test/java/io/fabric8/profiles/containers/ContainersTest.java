@@ -65,7 +65,7 @@ public class ContainersTest {
 
             final HashMap<String, ProjectReifier> reifierMap = new HashMap<>();
             reifierMap.put(KarafProjectReifier.CONTAINER_TYPE, new KarafProjectReifier(karafDefaults));
-            reifierMap.put(JenkinsProjectReifier.CONTAINER_TYPE, new JenkinsProjectReifier(karafDefaults));
+            reifierMap.put(JenkinsfileReifier.CONTAINER_TYPE, new JenkinsfileReifier(karafDefaults));
 
             final Containers containers = new Containers(configsRoot, reifierMap, new Profiles(profilesRoot));
             containers.reify(target, "root");

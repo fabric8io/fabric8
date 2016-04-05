@@ -39,7 +39,7 @@ public class Containers {
     public static final String CONTAINER_TYPE_PROPERTY = "container-type";
 
     private static final String DEFAULT_CONTAINER_TYPE =
-        KarafProjectReifier.CONTAINER_TYPE + " " + JenkinsProjectReifier.CONTAINER_TYPE;
+        KarafProjectReifier.CONTAINER_TYPE + " " + JenkinsfileReifier.CONTAINER_TYPE;
 
     private static final String CONTAINERS = "containers/%s.cfg";
 

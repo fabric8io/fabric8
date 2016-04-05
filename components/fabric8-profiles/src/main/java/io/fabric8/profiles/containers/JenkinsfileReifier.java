@@ -23,13 +23,13 @@ import java.util.Properties;
 /**
  * Reifies jenkins project resources, like jenkinsfile pipeline script.
  */
-public class JenkinsProjectReifier extends ProjectReifier {
+public class JenkinsfileReifier extends ProjectReifier {
 
-    public static final String CONTAINER_TYPE = "jenkins";
+    public static final String CONTAINER_TYPE = "jenkinsfile";
 
     private static final String JENKINSFILE = "Jenkinsfile";
 
-    public JenkinsProjectReifier(Properties properties) {
+    public JenkinsfileReifier(Properties properties) {
         super(properties);
     }
 

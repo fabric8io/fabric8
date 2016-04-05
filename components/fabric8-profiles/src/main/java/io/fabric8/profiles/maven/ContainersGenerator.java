@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.containers.Containers;
-import io.fabric8.profiles.containers.JenkinsProjectReifier;
+import io.fabric8.profiles.containers.JenkinsfileReifier;
 import io.fabric8.profiles.containers.ProjectReifier;
 import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
@@ -84,7 +84,7 @@ public class ContainersGenerator extends AbstractProfilesMojo {
 
             // add karaf and jenkins reifiers
             reifiers.put(KarafProjectReifier.CONTAINER_TYPE, new KarafProjectReifier(defaultProps));
-            reifiers.put(JenkinsProjectReifier.CONTAINER_TYPE, new JenkinsProjectReifier(defaultProps));
+            reifiers.put(JenkinsfileReifier.CONTAINER_TYPE, new JenkinsfileReifier(defaultProps));
 
         } else {
 
