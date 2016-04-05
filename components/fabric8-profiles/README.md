@@ -1,6 +1,7 @@
 # Profile based Configuration and Management Support #
 ## TODO List ##
 
+* Make container type a list, allowing Reifiers to be run in sequence, for example a jenkins reifier to configure jenkinsfile pipeline
 * Migrate container config from V1 ZK to Git
 * Handle Maven proxy settings, not needed at runtime, migrate to generated pom.xml and custom settings.xml
 * PID property encryption

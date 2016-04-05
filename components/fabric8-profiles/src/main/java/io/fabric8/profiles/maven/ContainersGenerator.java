@@ -1,3 +1,18 @@
+/**
+ *  Copyright 2005-2016 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
 package io.fabric8.profiles.maven;
 
 import java.io.File;
@@ -18,6 +33,7 @@ import java.util.stream.Collectors;
 
 import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.containers.Containers;
+import io.fabric8.profiles.containers.JenkinsProjectReifier;
 import io.fabric8.profiles.containers.ProjectReifier;
 import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
@@ -54,7 +70,7 @@ public class ContainersGenerator extends AbstractProfilesMojo {
         super.execute();
 
         // populate default reifiers if not set
-        final Map<String, ProjectReifier> reifiers = new HashMap<String, ProjectReifier>();
+        final Map<String, ProjectReifier> reifiers = new HashMap<>();
         if (reifierMap == null || reifierMap.isEmpty()) {
 
             // configure with default karaf container reifier
@@ -65,7 +81,10 @@ public class ContainersGenerator extends AbstractProfilesMojo {
                     defaultProps.putAll(map);
                 }
             }
+
+            // add karaf and jenkins reifiers
             reifiers.put(KarafProjectReifier.CONTAINER_TYPE, new KarafProjectReifier(defaultProps));
+            reifiers.put(JenkinsProjectReifier.CONTAINER_TYPE, new JenkinsProjectReifier(defaultProps));
 
         } else {
 

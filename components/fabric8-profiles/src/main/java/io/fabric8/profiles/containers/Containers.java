@@ -18,23 +18,28 @@ package io.fabric8.profiles.containers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.ProfilesHelpers;
 import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
+/**
+ * Utility class for reading container configurations and generating containers.
+ */
 public class Containers {
-
-    public static final String DEFAULT_CONTAINER_TYPE = KarafProjectReifier.CONTAINER_TYPE;
 
     public static final String NAME_PROPERTY = "name";
     public static final String PROFILES_PROPERTY = "profiles";
     public static final String CONTAINER_TYPE_PROPERTY = "container-type";
+
+    private static final String DEFAULT_CONTAINER_TYPE =
+        KarafProjectReifier.CONTAINER_TYPE + " " + JenkinsProjectReifier.CONTAINER_TYPE;
 
     private static final String CONTAINERS = "containers/%s.cfg";
 
@@ -62,37 +67,46 @@ public class Containers {
         // read container config
         final Properties config = getContainerConfig(name);
 
-        // container profiles and type
-        String[] containerProfiles = config.getProperty(PROFILES_PROPERTY, Profiles.DEFAULT_PROFILE).split(" ");
-        final String containerType = config.getProperty(CONTAINER_TYPE_PROPERTY, DEFAULT_CONTAINER_TYPE);
+        // container profiles and types
+        List<String> containerProfiles = Arrays.asList(
+            config.getProperty(PROFILES_PROPERTY, Profiles.DEFAULT_PROFILE).split(" "));
+        final String[] containerType = config.getProperty(CONTAINER_TYPE_PROPERTY, DEFAULT_CONTAINER_TYPE).split(" ");
 
         // get reifier from type
-        final ProjectReifier reifier = reifierMap.get(containerType);
-        if (reifier == null) {
-            throw new IOException("Unknown container type " + containerType);
-        }
+        final ProjectReifier[] reifiers = getProjectReifiers(containerType);
 
         // temp dir for materialized profile
         final Path profilesDir = Files.createTempDirectory(target, "profiles-");
 
         try {
             // remove ensemble profiles fabric-ensemble-* from fabric8 v1
-            containerProfiles = Arrays.stream(containerProfiles).filter(new Predicate<String>() {
-                @Override
-                public boolean test(String p) {
-                    return !p.matches("fabric\\-ensemble\\-.*");
-                }
-            }).collect(Collectors.toList()).toArray(new String[0]);
+            containerProfiles = containerProfiles.stream()
+                .filter(p -> !p.matches("fabric\\-ensemble\\-.*"))
+                .collect(Collectors.toList());
 
             // materialize profile
-            profiles.materialize(profilesDir, containerProfiles);
+            profiles.materialize(profilesDir, containerProfiles.toArray(new String[containerProfiles.size()]));
 
             // reify
-            reifier.reify(target, config, profilesDir);
+            for (ProjectReifier reifier : reifiers) {
+                reifier.reify(target, config, profilesDir);
+            }
 
         } finally {
             ProfilesHelpers.deleteDirectory(profilesDir);
         }
+    }
+
+    private ProjectReifier[] getProjectReifiers(String[] containerType) throws IOException {
+        final List<ProjectReifier> reifiers = new ArrayList<ProjectReifier>();
+        for (String type : containerType) {
+            final ProjectReifier reifier = reifierMap.get(type);
+            if (reifier == null) {
+                throw new IOException("Unknown container type " + type);
+            }
+            reifiers.add(reifier);
+        }
+        return reifiers.toArray(new ProjectReifier[reifiers.size()]);
     }
 
     private Properties getContainerConfig(String name) throws IOException {
