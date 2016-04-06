@@ -146,8 +146,7 @@ public class Profiles {
                 }
             });
 
-            final int newLen = updatedLine.length();
-            if (newLen > 0 && newLen != origLen) {
+            if (updatedLine.length() > 0) {
                 updatedLines.add(updatedLine.toString());
             } else {
                 updatedLines.add(line);
