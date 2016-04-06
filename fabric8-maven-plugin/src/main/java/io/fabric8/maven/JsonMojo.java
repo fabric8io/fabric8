@@ -1560,10 +1560,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String httpGetPath = properties.getProperty(prefix + ".httpGet.path");
         String httpGetPort = properties.getProperty(prefix + ".httpGet.port");
         String httpGetHost = properties.getProperty(prefix + ".httpGet.host");
+        String httpGetScheme = properties.getProperty(prefix + ".httpGet.scheme");
         if (Strings.isNotBlank(httpGetPath)) {
             action = new HTTPGetAction();
             action.setPath(httpGetPath);
             action.setHost(httpGetHost);
+            if (Strings.isNotBlank(httpGetScheme)) {
+                action.setScheme(httpGetScheme.toUpperCase());
+            }
             if (Strings.isNotBlank(httpGetPort)) {
                 IntOrString httpGetPortIntOrString = KubernetesHelper.createIntOrString(httpGetPort);
                 action.setPort(httpGetPortIntOrString);
