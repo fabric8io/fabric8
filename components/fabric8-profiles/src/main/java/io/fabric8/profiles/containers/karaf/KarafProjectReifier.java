@@ -76,6 +76,17 @@ public class KarafProjectReifier extends VelocityBasedReifier {
         try {
             writer = new BufferedWriter(new FileWriter(pojoFile));
 
+            if( properties.getProperty("groupId")==null ) {
+                properties.setProperty("groupId", "container");
+            }
+            if( properties.getProperty("version")==null ) {
+                properties.setProperty("version", getProjectVersion());
+            }
+            if( properties.getProperty("description")==null ) {
+                properties.setProperty("description", "");
+            }
+
+
             VelocityContext context = new VelocityContext();
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 context.put(entry.getKey().toString(), entry.getValue());
@@ -154,6 +165,11 @@ public class KarafProjectReifier extends VelocityBasedReifier {
                 writer.close();
             }
         }
+    }
+
+    private String getProjectVersion() {
+        // TODO: perhpas use the git hash?
+        return "1.0-SNAPSHOT";
     }
 
     static private String extension(String fileName) {
