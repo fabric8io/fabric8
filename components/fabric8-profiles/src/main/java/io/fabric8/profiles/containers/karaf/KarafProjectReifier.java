@@ -107,9 +107,42 @@ public class KarafProjectReifier extends VelocityBasedReifier {
                 @Override
                 public FileVisitResult visitFile(final Path file,
                                                  final BasicFileAttributes attrs) throws IOException {
-                    if (!AGENT_PROPERTIES.equals(file.getFileName().toString())) {
-                        Files.copy(file, assemblyPath.resolve(profilesDir.relativize(file)));
+
+                    Path targetPath = assemblyPath.resolve(profilesDir.relativize(file));
+                    String fileName = file.getFileName().toString();
+                    if (AGENT_PROPERTIES.equals(fileName)) {
+                        return FileVisitResult.CONTINUE;
                     }
+
+                    // Skip over profile file that we know are not karaf config.
+                    if (
+                        fileName.equalsIgnoreCase("icon.svg") ||
+                            fileName.equalsIgnoreCase("readme.md") ||
+                            fileName.equalsIgnoreCase("summary.md") ||
+                            fileName.equalsIgnoreCase("Jenkinsfile") ||
+                            fileName.equalsIgnoreCase("welcome.dashboard") ||
+                            fileName.endsWith("#docker") ||
+                            fileName.endsWith("#openshift")
+                        ) {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    String extension = extension(fileName);
+                    if ("properties".equals(extension)) {
+
+                        // Lets put auth related files in the auth dir to keep things neat.
+                        boolean isAuthFile = fileName.startsWith("jmx.acl.") || fileName.startsWith("org.apache.karaf.command.acl");
+                        if (isAuthFile && profilesDir.relativize(file).getParent() == null) {
+                            targetPath = assemblyPath.resolve("auth").resolve(profilesDir.relativize(file));
+                        }
+
+                        // Rename .properties files to .cfg files.
+                        String targetName = withoutExtension(fileName) + ".cfg";
+                        targetPath = targetPath.getParent().resolve(targetName);
+                    }
+
+                    Files.createDirectories(targetPath.getParent());
+                    Files.copy(file, targetPath);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -121,6 +154,22 @@ public class KarafProjectReifier extends VelocityBasedReifier {
                 writer.close();
             }
         }
+    }
+
+    static private String extension(String fileName) {
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            return fileName.substring(i + 1);
+        }
+        return null;
+    }
+
+    static private String withoutExtension(String fileName) {
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            return fileName.substring(0, i);
+        }
+        return fileName;
     }
 
     private void loadProperties(VelocityContext context, Path profilesDir) throws IOException {
