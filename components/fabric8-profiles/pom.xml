@@ -44,34 +44,12 @@
       <version>1.7</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>3.0.4</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>3.0.4</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.3</version>
-    </dependency>
-
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -79,25 +57,10 @@
 
     <!-- test dependencies -->
     <dependency>
-      <groupId>org.apache.maven.plugin-testing</groupId>
-      <artifactId>maven-plugin-testing-harness</artifactId>
-      <version>3.3.0</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
+
   </dependencies>
-
-  <build>
-
-    <!-- copy integration test repo -->
-    <testResources>
-      <testResource>
-        <directory>src/test/it-repo</directory>
-        <targetPath>${project.build.directory}/it-repo</targetPath>
-      </testResource>
-    </testResources>
-
-    <plugins>
-      <!-- run integration test project -->
-    </plugins>
-  </build>
 
 </project>

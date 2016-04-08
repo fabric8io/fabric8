@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.profiles.maven;
+package io.fabric8.maven.profiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,13 +55,13 @@ public abstract class AbstractProfilesMojo extends AbstractMojo {
     /**
      * Build directory, defaults to ${project.build.outputDir}.
      */
-    @Parameter(defaultValue = "${project.build.outputDir}", readonly = false, required = true)
+    @Parameter(defaultValue = "${project.build.directory}", readonly = false, required = true)
     protected File targetDirectory;
 
     /**
      * Build properties, overrides fabric8-profies.cfg under {@literal sourceDirectory}.
      */
-    @Parameter(readonly = false, required = true)
+    @Parameter(readonly = false, required = false)
     protected Properties profilesProperties;
 
     protected Path configs;
@@ -70,6 +70,19 @@ public abstract class AbstractProfilesMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // validate paths
+        if (!Files.isDirectory(Paths.get(sourceDirectory.toURI()))) {
+            throw new MojoExecutionException("Missing source directory " + sourceDirectory);
+        }
+        Path targetPath = Paths.get(targetDirectory.toURI());
+        if (!Files.isDirectory(targetPath)) {
+            try {
+                Files.createDirectories(targetPath);
+            } catch (IOException e) {
+                throwMojoException("Error creating output directory", targetDirectory, e);
+            }
+        }
+
         // read generator properties
         final Path sourcePath = Paths.get(sourceDirectory.getAbsolutePath());
         try {
@@ -99,5 +112,9 @@ public abstract class AbstractProfilesMojo extends AbstractMojo {
         if (!Files.isDirectory(profiles)) {
             throw new MojoExecutionException("Missing profiles directory " + configs);
         }
+    }
+
+    protected void throwMojoException(String message, Object target, Exception e) throws MojoExecutionException {
+        throw new MojoExecutionException(String.format("%s %s : %s", message, target, e.getMessage()), e);
     }
 }

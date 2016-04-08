@@ -25,6 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+
 public class TestHelpers {
 
     static final public Path PROJECT_BASE_DIR;
@@ -54,5 +57,43 @@ public class TestHelpers {
         while( (c=is.read(data)) >= 0 ) {
             os.write(data, 0, c);
         }
+    }
+
+    /**
+     * Create remote repos for containers
+     * @param sourceDirectory   profile repo directory
+     * @throws IOException      on error
+     */
+    public static void createTestRepos(Path sourceDirectory) throws IOException {
+        Path remoteRoot = Paths.get("/tmp/remotes/");
+        Files.createDirectories(remoteRoot);
+
+        Files.list(sourceDirectory.resolve("configs/containers"))
+            .filter( file -> file.getFileName().toString().endsWith(".cfg") )
+            .forEach( path -> {
+                Path containerName = path.getFileName();
+                Path containerRepoPath = remoteRoot.resolve(containerName);
+
+                if (!Files.isDirectory(containerRepoPath.resolve(".git"))) {
+                    try {
+                        Files.createDirectories(containerRepoPath);
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                    try (Git ignored = initRepo(containerRepoPath)) {
+                    } catch (GitAPIException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                }
+            }
+        );
+    }
+
+    public static Git initRepo(Path sourceDirectory) throws GitAPIException {
+        Git sourceRepo = Git.init().setDirectory(sourceDirectory.toFile()).call();
+        sourceRepo.add().addFilepattern(".").call();
+        sourceRepo.commit().setMessage("Adding version 1.0").call();
+        sourceRepo.branchRename().setNewName("1.0").call();
+        return sourceRepo;
     }
 }

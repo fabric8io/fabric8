@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.profiles.maven;
+package io.fabric8.maven.profiles;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,14 +27,14 @@ import org.junit.Test;
 /**
  * Test container generation using Mojo.
  */
-public class ContainersGeneratorTest extends PlexusTestCase {
+public class ContainersGeneratorMojoTest extends PlexusTestCase {
 
     @Test
     public void testExecute() throws Exception {
         // set mojo parameters
-        ContainersGenerator generator = new ContainersGenerator();
+        ContainersGeneratorMojo generator = new ContainersGeneratorMojo();
 
-        generator.sourceDirectory = TestHelpers.PROJECT_BASE_DIR.resolve("src/test/it-repo").toFile();
+        generator.sourceDirectory = TestHelpers.PROJECT_BASE_DIR.resolve("target/it/it-repo").toFile();
         final Path target = TestHelpers.PROJECT_BASE_DIR.resolve("target/generated-containers");
         ProfilesHelpers.deleteDirectory(target);
         Files.createDirectories(target);

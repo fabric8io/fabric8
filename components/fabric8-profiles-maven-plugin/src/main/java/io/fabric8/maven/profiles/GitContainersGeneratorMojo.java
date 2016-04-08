@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.profiles.maven;
+package io.fabric8.maven.profiles;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  */
 @Mojo(name = "git-generate", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME,
     requiresProject = true, defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class GitContainersGenerator extends ContainersGenerator {
+public class GitContainersGeneratorMojo extends ContainersGeneratorMojo {
 
     @Override
     protected void generateContainers(Containers containers, Path target, List<Path> names) throws IOException {

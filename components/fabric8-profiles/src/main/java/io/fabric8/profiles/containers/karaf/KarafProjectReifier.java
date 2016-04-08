@@ -86,7 +86,6 @@ public class KarafProjectReifier extends VelocityBasedReifier {
                 properties.setProperty("description", "");
             }
 
-
             VelocityContext context = new VelocityContext();
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 context.put(entry.getKey().toString(), entry.getValue());
@@ -95,7 +94,7 @@ public class KarafProjectReifier extends VelocityBasedReifier {
             // read profile properties
             loadProperties(context, profilesDir);
 
-            log.debug("Writing %s...", pojoFile);
+            log.debug(String.format("Writing %s...", pojoFile));
             Template pojoTemplate = engine.getTemplate(KARAF_POM_VM);
             pojoTemplate.merge(context, writer);
 
@@ -104,7 +103,7 @@ public class KarafProjectReifier extends VelocityBasedReifier {
 
             // add other resource files under src/main/resources/assembly
             final Path assemblyPath = target.resolve("src/main/resources/assembly/etc");
-            log.debug("Writing resources to %s...", assemblyPath);
+            log.debug(String.format("Writing resources to %s...", assemblyPath));
             Files.createDirectories(assemblyPath,
                 PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
             Files.walkFileTree(profilesDir, new SimpleFileVisitor<Path>() {

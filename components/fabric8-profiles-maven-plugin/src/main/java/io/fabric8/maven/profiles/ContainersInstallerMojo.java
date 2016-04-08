@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.profiles.maven;
+package io.fabric8.maven.profiles;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,9 +44,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 /**
  * After all containers are generated, push generated container source to Git repos.
  */
-@Mojo(name = "update", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresProject = true,
-    defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class ContainersRepositoriesManager extends AbstractProfilesMojo {
+@Mojo(name = "install", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME,
+    defaultPhase = LifecyclePhase.INSTALL)
+//@Execute(lifecycle = "fabric8-profiles", phase = LifecyclePhase.INSTALL)
+public class ContainersInstallerMojo extends AbstractProfilesMojo {
 
     protected static final String GIT_REMOTE_URI_PROPERTY = "gitRemoteUri";
     protected static final String GIT_REMOTE_NAME_PROPERTY = "gitRemoteName";
@@ -202,7 +203,4 @@ public class ContainersRepositoriesManager extends AbstractProfilesMojo {
         return gitRemotePattern.replace("${name}", name);
     }
 
-    private void throwMojoException(String message, Object target, Exception e) throws MojoExecutionException {
-        throw new MojoExecutionException(String.format("%s %s : %s", message, target, e.getMessage()), e);
-    }
 }

@@ -24,8 +24,6 @@ import io.fabric8.profiles.Profiles;
 import io.fabric8.profiles.ProfilesHelpers;
 import io.fabric8.profiles.containers.karaf.KarafProjectReifier;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.InitCommand;
 import org.junit.Test;
 
 import static io.fabric8.profiles.ProfilesHelpers.deleteDirectory;
@@ -54,22 +52,16 @@ public class ContainersTest {
         // copy integration test repository
         ProfilesHelpers.copyDirectory(PROJECT_BASE_DIR.resolve("src/test/it-repo"), repository);
 
-        try (final Git profileRepo = new InitCommand().setDirectory(repository.toFile()).call()) {
-            profileRepo.add().addFilepattern(".").call();
-            profileRepo.commit().setMessage("Adding version 1.0").call();
-            profileRepo.branchRename().setNewName("1.0").call();
+        final Properties karafDefaults = new Properties();
+        karafDefaults.put("groupId", "io.fabric8.karaf-swarm");
+        karafDefaults.put("description", "Karaf Swarm container");
 
-            final Properties karafDefaults = new Properties();
-            karafDefaults.put("groupId", "io.fabric8.karaf-swarm");
-            karafDefaults.put("description", "Karaf Swarm container");
+        final HashMap<String, ProjectReifier> reifierMap = new HashMap<>();
+        reifierMap.put(KarafProjectReifier.CONTAINER_TYPE, new KarafProjectReifier(karafDefaults));
+        reifierMap.put(JenkinsfileReifier.CONTAINER_TYPE, new JenkinsfileReifier(karafDefaults));
 
-            final HashMap<String, ProjectReifier> reifierMap = new HashMap<>();
-            reifierMap.put(KarafProjectReifier.CONTAINER_TYPE, new KarafProjectReifier(karafDefaults));
-            reifierMap.put(JenkinsfileReifier.CONTAINER_TYPE, new JenkinsfileReifier(karafDefaults));
-
-            final Containers containers = new Containers(configsRoot, reifierMap, new Profiles(profilesRoot));
-            containers.reify(target, "root");
-        }
+        final Containers containers = new Containers(configsRoot, reifierMap, new Profiles(profilesRoot));
+        containers.reify(target, "root");
     }
 
 }

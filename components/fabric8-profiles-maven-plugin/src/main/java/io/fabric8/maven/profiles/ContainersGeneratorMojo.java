@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.profiles.maven;
+package io.fabric8.maven.profiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +47,10 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 /**
  * Generates all containers, run on updates to the Profiles repository.
  */
-@Mojo(name = "generate", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresProject = true,
+@Mojo(name = "generate", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME,
     defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class ContainersGenerator extends AbstractProfilesMojo {
+//@Execute(lifecycle = "fabric8-profiles", phase = LifecyclePhase.GENERATE_SOURCES)
+public class ContainersGeneratorMojo extends AbstractProfilesMojo {
 
     /**
      * Reifier map, defaults to Karaf reifier for container type karaf.
@@ -107,9 +108,9 @@ public class ContainersGenerator extends AbstractProfilesMojo {
                     final Constructor<? extends ProjectReifier> constructor = reifierClass.getConstructor(Properties.class);
                     reifiers.put(KarafProjectReifier.CONTAINER_TYPE, constructor.newInstance(properties));
                 } catch (ClassCastException e) {
-                    throw new MojoExecutionException("Class is not of type ProjectReifier " + className, e);
+                    throwMojoException("Class is not of type ProjectReifier", className, e);
                 } catch (ReflectiveOperationException e) {
-                    throw new MojoExecutionException("Error loading ProjectReifier " + className, e);
+                    throwMojoException("Error loading ProjectReifier", className, e);
                 }
             }
         }
@@ -128,7 +129,7 @@ public class ContainersGenerator extends AbstractProfilesMojo {
             generateContainers(containers, target, names);
 
         } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            throwMojoException("Error generating containers", e.getMessage(), e);
         }
     }
 
