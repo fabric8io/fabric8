@@ -1,0 +1,11 @@
+
+  /**
+   * Navigates to the property ${property} so that assertions can be done on it
+   */
+  public ${propertyAssertType} ${property_safe}() ${throws} {
+    // check that actual ${class_to_assert} we want to make assertions on is not null.
+    isNotNull();
+
+    // return the assertion for the property
+    return (${propertyAssertType}) assertThat(actual.get${Property}()).describedAs(io.fabric8.kubernetes.assertions.Assertions.joinDescription(this, "${property}"));
+  }

@@ -42,12 +42,22 @@ public class ExampleTest {
         pod.getMetadata().setName(expectedId);
         pod.getMetadata().setLabels(expectedLabels);
 
-        assertThat(pod.getMetadata()).hasName(expectedId).hasLabels(expectedLabels);
+
+
+        assertThat(pod).metadata().name().isEqualTo(expectedId);
+        assertThat(pod).metadata().labels().isEqualTo(expectedLabels);
 
         assertAssertionError(new Block() {
             @Override
             public void invoke() throws Exception {
-                assertThat(pod.getMetadata()).hasName("cheese");
+                assertThat(pod).metadata().name().isEqualTo("cheese");
+            }
+        });
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(pod).describedAs("my pod").metadata().name().isEqualTo("cheese");
             }
         });
 
@@ -56,7 +66,7 @@ public class ExampleTest {
             public void invoke() throws Exception {
                 Map<String, String> wrongLabels = new HashMap<>();
                 wrongLabels.put("bar", "whatnot");
-                assertThat(pod.getMetadata()).hasLabels(wrongLabels);
+                assertThat(pod).metadata().labels().isEqualTo(wrongLabels);
             }
         });
     }

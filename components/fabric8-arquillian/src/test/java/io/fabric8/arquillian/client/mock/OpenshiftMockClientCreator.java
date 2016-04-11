@@ -16,33 +16,17 @@
 package io.fabric8.arquillian.client.mock;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodListBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
 import io.fabric8.openshift.api.model.RouteBuilder;
-import io.fabric8.openshift.api.model.RouteBuilderAssert;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenShiftMockClient;
-import org.easymock.EasyMock;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 public class OpenshiftMockClientCreator extends VanillaMockClientCreator {
 

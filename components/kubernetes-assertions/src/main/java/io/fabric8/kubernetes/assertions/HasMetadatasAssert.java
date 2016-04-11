@@ -40,7 +40,7 @@ public abstract class HasMetadatasAssert<R extends HasMetadata, AI extends HasMe
     }
 
     public AI filter(Condition<R> condition) {
-        return assertThat(Filters.filter(actual).having(condition).get());
+        return assertThat((Iterable<R>) Filters.filter(actual).having(condition).get());
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class HasMetadatasAssert<R extends HasMetadata, AI extends HasMe
      * Returns the underlying actual value
      */
     public List<R> get() {
-        return actual;
+        return (List<R>) actual;
     }
 
     /**
