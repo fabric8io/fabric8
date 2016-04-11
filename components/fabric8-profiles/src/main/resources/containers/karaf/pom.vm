@@ -36,7 +36,7 @@
     <fuse.version>6.2.1.redhat-084</fuse.version>
     <fabric8.version>2.2.0.redhat-079</fabric8.version>
     <docker.maven.plugin.version>0.13.6</docker.maven.plugin.version>
-    <karaf.plugin.version>4.0.2.redhat-621079</karaf.plugin.version>
+    <karaf.plugin.version>4.1.0-SNAPSHOT</karaf.plugin.version>
 
     <docker.from>jboss-fuse-6/fis-karaf-openshift:1.0</docker.from>
     <fabric8.dockerUser>fabric8/</fabric8.dockerUser>
