@@ -37,7 +37,7 @@ public class Example {
             assertThat(client).pods().runningStatus().hasSize(6);
             assertThat(client).pods().runningStatus().filterLabel("provider", "fabric8").assertSize().isGreaterThan(0);
 
-            assertThat(client.services().inNamespace("default").withName("fabric8").get().getMetadata()).hasName("fabric8");
+            assertThat(client.services().inNamespace("default").withName("fabric8").get().getMetadata()).name().isEqualTo("fabric8");
 
             Map<String, String> consoleLabels = new HashMap<>();
             consoleLabels.put("component", "console");
@@ -54,7 +54,7 @@ public class Example {
                 @Override
                 public void invoke() throws Exception {
                     try {
-                        assertThat(client.services().inNamespace("default").withName("doesNotExist").get().getMetadata()).hasName("fabric8-console-controller");
+                        assertThat(client.services().inNamespace("default").withName("doesNotExist").get().getMetadata()).name().isEqualTo("fabric8-console-controller");
                     } catch (KubernetesClientException e) {
                         if (e.getCode() != 404) {
                             throw e;
