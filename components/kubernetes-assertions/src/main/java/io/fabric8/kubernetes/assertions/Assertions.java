@@ -31,6 +31,8 @@ public class Assertions extends io.fabric8.kubernetes.assertions.internal.Assert
         return assertThat(kubernetesClient).namespace(namespace);
     }
 
+    // TODO remove and replace with Descriptions.navigateDescription() when this issue is resolved and released:
+    // https://github.com/joel-costigliola/assertj-core/issues/641
     public static String joinDescription(AbstractAssert asserter, String propertyName) {
         String text = asserter.descriptionText();
         if (text == null || text.length() == 0) {

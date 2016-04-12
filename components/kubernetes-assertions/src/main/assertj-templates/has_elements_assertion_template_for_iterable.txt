@@ -1,0 +1,17 @@
+
+  /**
+   * Navigates to the property ${property} so that assertions can be done on it
+   */
+  public NavigationListAssert<${elementType}, ${elementAssertType}> ${property_safe}() ${throws} {
+    isNotNull();
+
+    // return the assertion for the property
+    AssertFactory<${elementType}, ${elementAssertType}> assertFactory = new AssertFactory<${elementType}, ${elementAssertType}>() {
+      public ${elementAssertType} createAssert(${elementType} t) {
+        return (${elementAssertType}) assertThat(t);
+      }
+    };
+    NavigationListAssert<${elementType}, ${elementAssertType}> answer = new NavigationListAssert<${elementType}, ${elementAssertType}>(actual.get${Property}(), assertFactory);
+    answer.describedAs(io.fabric8.kubernetes.assertions.Assertions.joinDescription(this, "${property}"));
+    return answer;
+  }

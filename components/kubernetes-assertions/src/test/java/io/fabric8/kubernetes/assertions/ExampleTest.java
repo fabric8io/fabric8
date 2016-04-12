@@ -17,9 +17,12 @@ package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.utils.Block;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +35,7 @@ import static io.fabric8.utils.Asserts.assertAssertionError;
 public class ExampleTest {
 
     @Test
-    public void testSomething() throws Exception {
+    public void testNavigationAssertions() throws Exception {
         String expectedId = "abc";
         Map<String, String> expectedLabels = new HashMap<>();
         expectedLabels.put("foo", "bar");
@@ -41,7 +44,6 @@ public class ExampleTest {
         pod.setMetadata(new ObjectMeta());
         pod.getMetadata().setName(expectedId);
         pod.getMetadata().setLabels(expectedLabels);
-
 
 
         assertThat(pod).metadata().name().isEqualTo(expectedId);
@@ -67,6 +69,56 @@ public class ExampleTest {
                 Map<String, String> wrongLabels = new HashMap<>();
                 wrongLabels.put("bar", "whatnot");
                 assertThat(pod).metadata().labels().isEqualTo(wrongLabels);
+            }
+        });
+    }
+
+    @Test
+    public void testNavigationListAssertions() throws Exception {
+        final String id1 = "abc";
+        final String id2 = "def";
+        Map<String, String> labels1 = new HashMap<>();
+        labels1.put("foo", "bar");
+        Map<String, String> labels2 = new HashMap<>();
+        labels2.put("whatnot", "cheese");
+
+        final Pod pod1 = new Pod();
+        pod1.setMetadata(new ObjectMeta());
+        pod1.getMetadata().setName(id1);
+        pod1.getMetadata().setLabels(labels1);
+
+        final Pod pod2 = new Pod();
+        pod2.setMetadata(new ObjectMeta());
+        pod2.getMetadata().setName(id2);
+        pod2.getMetadata().setLabels(labels2);
+
+
+        final PodList emptyPodList = new PodList();
+        final PodList podList = new PodList();
+        podList.setItems(new ArrayList<Pod>(Arrays.asList(pod1, pod2)));
+
+        assertThat(emptyPodList).describedAs("emptyPodList").items().isEmpty();
+        assertThat(podList).describedAs("podListWith2Items").items().first().metadata().name().isEqualTo(id1);
+        assertThat(podList).describedAs("podListWith2Items").items().last().metadata().name().isEqualTo(id2);
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(podList).describedAs("podListWith2Items").items().item(-1).isNotNull();
+            }
+        });
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(podList).describedAs("podListWith2Items").items().item(2).isNotNull();
+            }
+        });
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(podList).describedAs("podListWith2Items").items().first().metadata().name().isEqualTo("shouldNotMatch");
             }
         });
     }
