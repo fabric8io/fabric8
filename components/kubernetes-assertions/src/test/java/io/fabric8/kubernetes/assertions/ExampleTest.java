@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.assertions;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.utils.Block;
 import org.junit.Test;
 
@@ -69,6 +70,31 @@ public class ExampleTest {
                 Map<String, String> wrongLabels = new HashMap<>();
                 wrongLabels.put("bar", "whatnot");
                 assertThat(pod).metadata().labels().isEqualTo(wrongLabels);
+            }
+        });
+    }
+
+    @Test
+    public void testNullNavigationOnPod() throws Exception {
+        final Pod pod = new Pod();
+        pod.setMetadata(null);
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(pod).metadata().name().isEqualTo("cheese");
+            }
+        });
+    }
+
+    @Test
+    public void testNullNavigationOnRC() throws Exception {
+        final ReplicationController rc = new ReplicationController();
+
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(rc).spec().template().spec().containers().first().image().isEqualTo("someDockerImageName");
             }
         });
     }
