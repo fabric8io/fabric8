@@ -2,15 +2,10 @@ package ${package};
 
 ${imports}
 
-// assert classes
-//import org.assertj.core.api.*;
-//import static io.fabric8.kubernetes.api.model.*;
-//import static io.fabric8.kubernetes.api.model.extensions.*;
-//import static io.fabric8.openshift.api.model.*;
+import io.fabric8.kubernetes.assertions.AssertFactory;
+import io.fabric8.kubernetes.assertions.NavigationListAssert;
 
-// assertThat methods
 import static org.assertj.core.api.Assertions.assertThat;
-//import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
 import static io.fabric8.kubernetes.assertions.internal.Assertions.assertThat;
 import static io.fabric8.openshift.assertions.Assertions.assertThat;
 

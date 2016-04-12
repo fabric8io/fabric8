@@ -92,7 +92,7 @@
           <dependency>
             <groupId>io.fabric8.assertj</groupId>
             <artifactId>assertj-assertions-generator</artifactId>
-            <version>2.0.1.1</version>
+            <version>2.0.1.2</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -135,6 +135,7 @@
             <templatesDirectory>${basedir}/src/main/assertj-templates</templatesDirectory>
             <!-- TODO is there a way to add a new custom template? -->
             <objectAssertion>navigation_template.txt</objectAssertion>
+            <iterableAssertion>has_elements_assertion_template_for_iterable.txt</iterableAssertion>
             <hierarchicalAssertionAbstractClass>custom_abstract_assertion_class_template.txt</hierarchicalAssertionAbstractClass>
           </templates>
         </configuration>
