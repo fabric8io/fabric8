@@ -31,6 +31,8 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.util.LinkedHashMap;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.DEFAULT_NAMESPACE;
+
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
     @Parameter(property = "fabric8.namespace")
@@ -79,6 +81,9 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
         }
         if (Strings.isNullOrBlank(namespace)) {
             namespace = KubernetesHelper.defaultNamespace();
+        }
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = DEFAULT_NAMESPACE;
         }
         return namespace;
     }

@@ -44,6 +44,7 @@ import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftNotAvailableException;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
@@ -247,51 +248,56 @@ public class Controller {
     }
 
     public void applyOAuthClient(OAuthClient entity, String sourceName) {
-        OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
-        if (supportOAuthClients) {
-            String id = getName(entity);
-            Objects.notNull(id, "No name for " + entity + " " + sourceName);
-            if (isServicesOnlyMode()) {
-                LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
-                return;
-            }
-            OAuthClient old = openShiftClient.oAuthClients().withName(id).get();
-            if (isRunning(old)) {
-                if (isIgnoreRunningOAuthClients()) {
-                    LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            if (supportOAuthClients) {
+                String id = getName(entity);
+                Objects.notNull(id, "No name for " + entity + " " + sourceName);
+                if (isServicesOnlyMode()) {
+                    LOG.debug("Only processing Services right now so ignoring OAuthClient: " + id);
                     return;
                 }
-                if (UserConfigurationCompare.configEqual(entity, old)) {
-                    LOG.info("OAuthClient has not changed so not doing anything");
-                } else {
-                    if (isRecreateMode()) {
-                        openShiftClient.oAuthClients().withName(id).delete();
-                        doCreateOAuthClient(entity, sourceName);
+                OAuthClient old = openShiftClient.oAuthClients().withName(id).get();
+                if (isRunning(old)) {
+                    if (isIgnoreRunningOAuthClients()) {
+                        LOG.info("Not updating the OAuthClient which are shared across namespaces as its already running");
+                        return;
+                    }
+                    if (UserConfigurationCompare.configEqual(entity, old)) {
+                        LOG.info("OAuthClient has not changed so not doing anything");
                     } else {
-                        try {
-                            Object answer = openShiftClient.oAuthClients().withName(id).replace(entity);
-                            LOG.info("Updated OAuthClient result: " + answer);
-                        } catch (Exception e) {
-                            onApplyError("Failed to update OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
+                        if (isRecreateMode()) {
+                            openShiftClient.oAuthClients().withName(id).delete();
+                            doCreateOAuthClient(entity, sourceName);
+                        } else {
+                            try {
+                                Object answer = openShiftClient.oAuthClients().withName(id).replace(entity);
+                                LOG.info("Updated OAuthClient result: " + answer);
+                            } catch (Exception e) {
+                                onApplyError("Failed to update OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
+                            }
                         }
                     }
-                }
-            } else {
-                if (!isAllowCreate()) {
-                    LOG.warn("Creation disabled so not creating an OAuthClient from " + sourceName + " name " + getName(entity));
                 } else {
-                    doCreateOAuthClient(entity, sourceName);
+                    if (!isAllowCreate()) {
+                        LOG.warn("Creation disabled so not creating an OAuthClient from " + sourceName + " name " + getName(entity));
+                    } else {
+                        doCreateOAuthClient(entity, sourceName);
+                    }
                 }
             }
         }
     }
 
     protected void doCreateOAuthClient(OAuthClient entity, String sourceName) {
-        Object result = null;
-        try {
-            result = kubernetesClient.adapt(OpenShiftClient.class).oAuthClients().create(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            Object result = null;
+            try {
+                result = openShiftClient.oAuthClients().create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create OAuthClient from " + sourceName + ". " + e + ". " + entity, e);
+            }
         }
     }
 
@@ -307,7 +313,11 @@ public class Controller {
      * Installs the template into the namespace without processing it
      */
     public void installTemplate(Template entity, String sourceName) {
-        OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient == null) {
+            // lets not install the template on Kubernetes!
+            return;
+        }
         if (!isProcessTemplatesLocally()) {
             String namespace = getNamespace();
             String id = getName(entity);
@@ -343,13 +353,26 @@ public class Controller {
         }
     }
 
-    protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
-        LOG.info("Creating a Template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+    protected OpenShiftClient getOpenShiftClientOrNull() {
+        OpenShiftClient openShiftClient = null;
         try {
-            Object answer = kubernetesClient.adapt(OpenShiftClient.class).templates().inNamespace(namespace).create(entity);
-            logGeneratedEntity("Created Template: ", namespace, entity, answer);
-        } catch (Exception e) {
-            onApplyError("Failed to Template entity from " + sourceName + ". " + e + ". " + entity, e);
+            openShiftClient = openShiftClient;
+        } catch (OpenShiftNotAvailableException e) {
+            // ignore
+        }
+        return openShiftClient;
+    }
+
+    protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            LOG.info("Creating a Template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+            try {
+                Object answer = openShiftClient.templates().inNamespace(namespace).create(entity);
+                logGeneratedEntity("Created Template: ", namespace, entity, answer);
+            } catch (Exception e) {
+                onApplyError("Failed to Template entity from " + sourceName + ". " + e + ". " + entity, e);
+            }
         }
     }
 
@@ -580,87 +603,100 @@ public class Controller {
     }
 
     public void applyRoute(Route entity, String sourceName) {
-        OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
-        String id = getName(entity);
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
-        if (Strings.isNullOrBlank(namespace)) {
-            namespace = getNamespace();
-        }
-        Route route = openShiftClient.routes().inNamespace(namespace).withName(id).get();
-        if (route == null) {
-            try {
-                LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
-                openShiftClient.routes().inNamespace(namespace).create(entity);
-            } catch (Exception e) {
-                onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            String id = getName(entity);
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            String namespace = KubernetesHelper.getNamespace(entity);
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = getNamespace();
+            }
+            Route route = openShiftClient.routes().inNamespace(namespace).withName(id).get();
+            if (route == null) {
+                try {
+                    LOG.info("Creating Route " + namespace + ":" + id + " " + KubernetesHelper.summaryText(entity));
+                    openShiftClient.routes().inNamespace(namespace).create(entity);
+                } catch (Exception e) {
+                    onApplyError("Failed to create Route from " + sourceName + ". " + e + ". " + entity, e);
+                }
             }
         }
     }
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
-        String id = getName(entity);
-        OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            String id = getName(entity);
 
-        Objects.notNull(id, "No name for " + entity + " " + sourceName);
-        String namespace = KubernetesHelper.getNamespace(entity);
-        if (Strings.isNullOrBlank(namespace)) {
-            namespace = getNamespace();
-        }
-        applyNamespace(namespace);
-        BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).get();
-        if (isRunning(old)) {
-            if (UserConfigurationCompare.configEqual(entity, old)) {
-                LOG.info("BuildConfig has not changed so not doing anything");
-            } else {
-                if (isRecreateMode()) {
-                    LOG.info("Deleting BuildConfig: " + id);
-                    openShiftClient.buildConfigs().inNamespace(namespace).withName(id).delete();
-                    doCreateBuildConfig(entity, namespace, sourceName);
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            String namespace = KubernetesHelper.getNamespace(entity);
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = getNamespace();
+            }
+            applyNamespace(namespace);
+            BuildConfig old = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).get();
+            if (isRunning(old)) {
+                if (UserConfigurationCompare.configEqual(entity, old)) {
+                    LOG.info("BuildConfig has not changed so not doing anything");
                 } else {
-                    LOG.info("Updating BuildConfig from " + sourceName);
-                    try {
-                        String resourceVersion = KubernetesHelper.getResourceVersion(old);
-                        ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
-                        metadata.setNamespace(namespace);
-                        metadata.setResourceVersion(resourceVersion);
-                        Object answer = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).replace(entity);
-                        logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
-                    } catch (Exception e) {
-                        onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
+                    if (isRecreateMode()) {
+                        LOG.info("Deleting BuildConfig: " + id);
+                        openShiftClient.buildConfigs().inNamespace(namespace).withName(id).delete();
+                        doCreateBuildConfig(entity, namespace, sourceName);
+                    } else {
+                        LOG.info("Updating BuildConfig from " + sourceName);
+                        try {
+                            String resourceVersion = KubernetesHelper.getResourceVersion(old);
+                            ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
+                            metadata.setNamespace(namespace);
+                            metadata.setResourceVersion(resourceVersion);
+                            Object answer = openShiftClient.buildConfigs().inNamespace(namespace).withName(id).replace(entity);
+                            logGeneratedEntity("Updated BuildConfig: ", namespace, entity, answer);
+                        } catch (Exception e) {
+                            onApplyError("Failed to update BuildConfig from " + sourceName + ". " + e + ". " + entity, e);
+                        }
                     }
                 }
-            }
-        } else {
-            if (!isAllowCreate()) {
-                LOG.warn("Creation disabled so not creating BuildConfig from " + sourceName + " namespace " + namespace + " name " + getName(entity));
             } else {
-                doCreateBuildConfig(entity, namespace, sourceName);
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating BuildConfig from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+                } else {
+                    doCreateBuildConfig(entity, namespace, sourceName);
+                }
             }
         }
     }
 
     public void doCreateBuildConfig(BuildConfig entity, String namespace ,String sourceName) {
-        try {
-            kubernetesClient.adapt(OpenShiftClient.class).buildConfigs().inNamespace(namespace).create(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            try {
+                openShiftClient.buildConfigs().inNamespace(namespace).create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            }
         }
     }
 
     public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
-        try {
-            kubernetesClient.adapt(OpenShiftClient.class).deploymentConfigs().inNamespace(getNamespace()).create(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            try {
+                openShiftClient.deploymentConfigs().inNamespace(getNamespace()).create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
+            }
         }
     }
 
     public void applyImageStream(ImageStream entity, String sourceName) {
-        try {
-            kubernetesClient.adapt(OpenShiftClient.class).imageStreams().inNamespace(getNamespace()).create(entity);
-        } catch (Exception e) {
-            onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            try {
+                openShiftClient.imageStreams().inNamespace(getNamespace()).create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            }
         }
     }
 
