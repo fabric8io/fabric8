@@ -1,0 +1,17 @@
+target
+.idea
+*.iml
+*.im
+*.ipr
+*.iws
+overlays
+.DS_Store
+.settings
+*.swp
+*.log
+.project
+.classpath
+*.fmd
+.cache
+setup.groovy
+verify.groovy

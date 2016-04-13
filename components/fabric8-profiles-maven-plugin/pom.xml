@@ -159,6 +159,31 @@
         </executions>
       </plugin>
 
+      <!-- Build sample profile project archive from integration test -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.5.5</version>
+        <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
+          <finalName>profiles-project-${project.version}</finalName>
+          <descriptors>
+            <descriptor>src/assembly/assembly.xml</descriptor>
+          </descriptors>
+          <encoding>UTF-8</encoding>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>assemble-profiles-project</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 

@@ -71,8 +71,8 @@ public class TestHelpers {
         Files.list(sourceDirectory.resolve("configs/containers"))
             .filter( file -> file.getFileName().toString().endsWith(".cfg") )
             .forEach( path -> {
-                Path containerName = path.getFileName();
-                Path containerRepoPath = remoteRoot.resolve(containerName);
+                String containerName = path.getFileName().toString();
+                Path containerRepoPath = remoteRoot.resolve(containerName.substring(0, containerName.lastIndexOf('.')));
 
                 if (!Files.isDirectory(containerRepoPath.resolve(".git"))) {
                     try {
