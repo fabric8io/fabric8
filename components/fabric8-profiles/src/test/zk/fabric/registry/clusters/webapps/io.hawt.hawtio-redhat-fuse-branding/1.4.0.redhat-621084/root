@@ -1,0 +1,1 @@
+{"id":"root","services":["${zk:root/http}/redhat-branding"],"version":"1.0","bundleName":"io.hawt.hawtio-redhat-fuse-branding","bundleVersion":"1.4.0.redhat-621084","container":"root"}

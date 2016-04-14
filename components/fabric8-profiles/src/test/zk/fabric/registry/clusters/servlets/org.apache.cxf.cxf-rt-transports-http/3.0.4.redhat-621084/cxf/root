@@ -1,0 +1,1 @@
+{"id":"root","services":["${zk:root/http}/cxf"],"container":"root","bundleName":"org.apache.cxf.cxf-rt-transports-http","bundleVersion":"3.0.4.redhat-621084","version":"1.0"}

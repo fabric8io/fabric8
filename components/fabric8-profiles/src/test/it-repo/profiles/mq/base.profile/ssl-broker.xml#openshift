@@ -1,0 +1,120 @@
+<!--
+  Copyright (C) Red Hat, Inc.
+  http://redhat.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <!-- Allows us to use system properties and fabric as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <bean class="io.fabric8.mq.fabric.ConfigurationProperties"/>
+        </property>
+        <property name="searchSystemEnvironment" value="true"/>
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false">
+
+        <destinationPolicy>
+            <policyMap>
+              <policyEntries>
+                <policyEntry topic=">" producerFlowControl="true">
+                  <pendingMessageLimitStrategy>
+                    <constantPendingMessageLimitStrategy limit="1000"/>
+                  </pendingMessageLimitStrategy>
+                </policyEntry>
+                <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
+                </policyEntry>
+              </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <persistenceAdapter>
+            <kahaDB directory="${data}/kahadb"/>
+        </persistenceAdapter>
+
+        <plugins>
+            <jaasAuthenticationPlugin configuration="karaf" />
+        </plugins>
+
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="64 mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="3 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="1 gb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+
+        <sslContext>
+            <sslContext
+                keyStore="${keystore.url}"
+                keyStorePassword="${zookeeper.password}"
+                trustStore="${keystore.url}"
+                trustStorePassword="${zookeeper.password}"
+                />
+        </sslContext>
+
+        <transportConnectors>
+            <transportConnector name="openwire"     publishedAddressPolicy="#addressPolicy"   
+                                uri="tcp://${bind.address}:${OPENSHIFT_FUSE_OPENWIRE_PORT}"/>
+            <transportConnector name="mqtt"         publishedAddressPolicy="#addressPolicy"   
+                                uri="mqtt://${bind.address}:${OPENSHIFT_FUSE_MQTT_PORT}"/>
+            <transportConnector name="amqp"         publishedAddressPolicy="#addressPolicy"   
+                                uri="amqp://${bind.address}:${OPENSHIFT_FUSE_AMQP_PORT}"/>
+            <transportConnector name="stomp"        publishedAddressPolicy="#addressPolicy"   
+                                uri="stomp://${bind.address}:${OPENSHIFT_FUSE_STOMP_PORT}"/>
+            <transportConnector name="openwire-ssl" publishedAddressPolicy="#addressPolicy"   
+                                uri="ssl://${bind.address}:${OPENSHIFT_FUSE_OPENWIRE_SSL_PORT}"/>
+            <transportConnector name="mqtt-ssl"     publishedAddressPolicy="#addressPolicy"   
+                                uri="mqtt+ssl://${bind.address}:${OPENSHIFT_FUSE_MQTT_SSL_PORT}"/>
+            <transportConnector name="amqp-ssl"     publishedAddressPolicy="#addressPolicy"   
+                                uri="amqp+ssl://${bind.address}:${OPENSHIFT_FUSE_AMQP_SSL_PORT}"/>
+            <transportConnector name="stomp-ssl"    publishedAddressPolicy="#addressPolicy"   
+                                uri="stomp+ssl://${bind.address}:${OPENSHIFT_FUSE_STOMP_SSL_PORT}"/>
+        </transportConnectors>
+        
+    </broker>
+
+    <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
+        <property name="portMapping">
+          <map>
+            <entry key="${OPENSHIFT_FUSE_OPENWIRE_PORT}" value="${OPENSHIFT_FUSE_OPENWIRE_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_STOMP_PORT}" value="${OPENSHIFT_FUSE_STOMP_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_AMQP_PORT}" value="${OPENSHIFT_FUSE_AMQP_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_MQTT_PORT}" value="${OPENSHIFT_FUSE_MQTT_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_OPENWIRE_SSL_PORT}" value="2303"/>
+            <entry key="${OPENSHIFT_FUSE_STOMP_SSL_PORT}" value="2304"/>
+            <entry key="${OPENSHIFT_FUSE_AMQP_SSL_PORT}" value="2305"/>
+            <entry key="${OPENSHIFT_FUSE_MQTT_SSL_PORT}" value="2306"/>
+          </map>
+        </property>
+    </bean>
+</beans>
+

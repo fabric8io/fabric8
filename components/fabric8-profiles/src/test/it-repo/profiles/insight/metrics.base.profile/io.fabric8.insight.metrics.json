@@ -1,0 +1,17 @@
+{
+  "queries" : [ {
+    "name" : "elasticsearch",
+	  "template": "profile:elasticsearch.mvel",
+	  "metadata": "profile:elasticsearch.json",
+    "period": 1,
+    "minPeriod": "default",
+    "lock": "global",
+    "requests" : [ {
+      "name": "health",
+      "obj" : "io.fabric8.insight:type=Elasticsearch",
+      "oper": "getClusterHealth",
+      "args": [ "insight" ],
+      "sig" : [ "java.lang.String" ]
+    } ]
+  } ]
+}

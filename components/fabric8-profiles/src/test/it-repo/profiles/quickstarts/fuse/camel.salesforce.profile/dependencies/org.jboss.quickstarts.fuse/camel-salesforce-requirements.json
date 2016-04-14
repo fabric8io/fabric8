@@ -1,0 +1,171 @@
+{
+  "profileId" : "quickstarts-fuse-camel.salesforce",
+  "abstractProfile" : false,
+  "description" : "Camel Olingo2 OData Example",
+  "parentProfiles" : [ "feature-camel" ],
+  "bundles" : [ "mvn:org.jboss.quickstarts.fuse/camel-salesforce/6.2.1.redhat-084" ],
+  "minimumInstances" : 1,
+  "rootDependency" : {
+    "groupId" : "org.jboss.quickstarts.fuse",
+    "artifactId" : "camel-salesforce",
+    "version" : "6.2.1.redhat-084",
+    "type" : "bundle",
+    "optional" : false,
+    "children" : [ {
+      "groupId" : "org.apache.camel",
+      "artifactId" : "camel-blueprint",
+      "version" : "2.15.1.redhat-621084",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-xml",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "jar",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.apache.camel",
+        "artifactId" : "camel-core-osgi",
+        "version" : "2.15.1.redhat-621084",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-core",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "com.sun.xml.bind",
+        "artifactId" : "jaxb-impl",
+        "version" : "2.2.11",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    }, {
+      "groupId" : "org.apache.camel",
+      "artifactId" : "camel-salesforce",
+      "version" : "2.15.1.redhat-621084",
+      "type" : "bundle",
+      "scope" : "compile",
+      "optional" : false,
+      "children" : [ {
+        "groupId" : "org.eclipse.jetty",
+        "artifactId" : "jetty-client",
+        "version" : "8.1.16.v20140903",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.eclipse.jetty",
+          "artifactId" : "jetty-http",
+          "version" : "8.1.17.v20150415",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.eclipse.jetty",
+        "artifactId" : "jetty-util",
+        "version" : "8.1.17.v20150415",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.eclipse.jetty",
+        "artifactId" : "jetty-io",
+        "version" : "8.1.17.v20150415",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.codehaus.jackson",
+        "artifactId" : "jackson-mapper-asl",
+        "version" : "1.9.12",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.codehaus.jackson",
+          "artifactId" : "jackson-core-asl",
+          "version" : "1.9.12",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "com.thoughtworks.xstream",
+        "artifactId" : "xstream",
+        "version" : "1.4.7",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "xmlpull",
+          "artifactId" : "xmlpull",
+          "version" : "1.1.3.1",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "xpp3",
+          "artifactId" : "xpp3_min",
+          "version" : "1.1.4c",
+          "type" : "jar",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "org.cometd.java",
+        "artifactId" : "cometd-java-client",
+        "version" : "2.4.3",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false,
+        "children" : [ {
+          "groupId" : "org.cometd.java",
+          "artifactId" : "bayeux-api",
+          "version" : "2.4.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        }, {
+          "groupId" : "org.cometd.java",
+          "artifactId" : "cometd-java-common",
+          "version" : "2.4.3",
+          "type" : "bundle",
+          "scope" : "compile",
+          "optional" : false
+        } ]
+      }, {
+        "groupId" : "joda-time",
+        "artifactId" : "joda-time",
+        "version" : "2.5",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      }, {
+        "groupId" : "org.slf4j",
+        "artifactId" : "slf4j-api",
+        "version" : "1.7.7",
+        "type" : "bundle",
+        "scope" : "compile",
+        "optional" : false
+      } ]
+    } ]
+  },
+  "webContextPath" : "camel-salesforce",
+  "useResolver" : true
+}

@@ -1,0 +1,1 @@
+{"id":"root","services":["${zk:root/http}/mq-discovery"],"container":"root","bundleName":"io.fabric8.mq.mq-http-discovery","bundleVersion":"1.2.0.redhat-621084","version":"1.0"}

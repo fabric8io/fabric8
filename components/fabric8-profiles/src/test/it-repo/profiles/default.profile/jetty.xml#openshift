@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//
+DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+
+<Configure class="org.eclipse.jetty.server.Server">
+
+    <!-- =========================================================== -->
+    <!-- Set connectors                                              -->
+    <!-- =========================================================== -->
+
+    <Call name="addConnector">
+        <Arg>
+            <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                <Set name="host">
+                    <SystemProperty name="org.ops4j.pax.web.listening.addresses"/>
+                </Set>
+                <Set name="port">
+                    <SystemProperty name="org.osgi.service.http.port"/>
+                </Set>
+                <Set name="maxIdleTime">300000</Set>
+                <Set name="Acceptors">2</Set>
+                <Set name="statsOn">false</Set>
+                <Set name="confidentialPort">8443</Set>
+                <Set name="lowResourcesConnections">20000</Set>
+                <Set name="lowResourcesMaxIdleTime">5000</Set>
+            </New>
+        </Arg>
+    </Call>
+
+    <!-- =========================================================== -->
+    <!-- Security setting                                           -->
+    <!-- =========================================================== -->
+
+    <Call name="addBean">
+        <Arg>
+            <New class="org.eclipse.jetty.plus.jaas.JAASLoginService">
+                <Set name="name">karaf</Set>
+                <Set name="loginModuleName">karaf</Set>
+                <Set name="roleClassNames">
+                    <Array type="java.lang.String">
+                        <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
+                    </Array>
+                </Set>
+            </New>
+        </Arg>
+    </Call>
+</Configure>

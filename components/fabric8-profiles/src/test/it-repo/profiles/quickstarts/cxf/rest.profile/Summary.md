@@ -1,0 +1,1 @@
+RESTful WebService Example using JAX-RS with JBoss Fuse

@@ -1,0 +1,1 @@
+Adds the [kibana](http://www.elasticsearch.org/overview/kibana/) and [eshead](http://mobz.github.io/elasticsearch-head/) web application into the web console for viewing and searching logs across all your containers.

@@ -1,0 +1,1 @@
+Default a-mq client profile

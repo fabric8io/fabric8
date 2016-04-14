@@ -1,0 +1,1 @@
+Secure Restful Web Services Example using JAX-RS Basic Authentication with Fabric8

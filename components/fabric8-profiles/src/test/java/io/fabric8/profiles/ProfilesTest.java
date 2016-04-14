@@ -15,27 +15,28 @@
  */
 package io.fabric8.profiles;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import static io.fabric8.profiles.ProfilesHelpers.deleteDirectory;
 import static io.fabric8.profiles.ProfilesHelpers.readPropertiesFile;
 import static io.fabric8.profiles.ProfilesHelpers.readYamlFile;
 import static io.fabric8.profiles.TestHelpers.PROJECT_BASE_DIR;
 import static io.fabric8.profiles.TestHelpers.readTextFile;
-import static io.fabric8.profiles.TestHelpers.recusiveDeleteIfExists;
 
 public class ProfilesTest {
 
     @Test
     public void basicTest() throws IOException {
         Path target = PROJECT_BASE_DIR.resolve("target/test-data/materialize1");
-        recusiveDeleteIfExists(target);
+        deleteDirectory(target);
         Files.createDirectories(target);
 
         Path repository = PROJECT_BASE_DIR.resolve("src/test/profiles");
