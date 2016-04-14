@@ -4,6 +4,7 @@ def updateDependencies(source){
   def properties = []
   properties << ['<kubernetes-client>','io/fabric8/kubernetes-client']
   properties << ['<docker.maven.plugin.version>','io/fabric8/docker-maven-plugin']
+  properties << ['<sundrio.version>','io/sundr/sundr-maven-plugin']
 
   updatePropertyVersion{
     updates = properties
