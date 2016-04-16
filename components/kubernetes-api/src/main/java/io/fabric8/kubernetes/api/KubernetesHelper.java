@@ -19,34 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.ContainerState;
-import io.fabric8.kubernetes.api.model.ContainerStateRunning;
-import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
-import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodCondition;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodStatus;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.RootPaths;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -67,6 +40,7 @@ import io.fabric8.utils.Filters;
 import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1274,6 +1248,13 @@ public final class KubernetesHelper {
         }
 
         if (srv == null) {
+            // lets try use environment variables
+            String hostAndPort = Systems.getServiceHostAndPort(serviceName, "", "");
+            if (!hostAndPort.startsWith(":")) {
+                return serviceProto + "://" + hostAndPort;
+            }
+        }
+        if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + actualNamespace);
         }
 
@@ -1300,7 +1281,36 @@ public final class KubernetesHelper {
         if ("None".equals(srv.getSpec().getClusterIP())) {
             throw new IllegalStateException("Service: " + serviceName + " in namespace:" + serviceNamespace + "is head-less. Search for endpoints instead.");
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+        String portalIP = srv.getSpec().getPortalIP();
+        Integer portNumber = port.getPort();
+        if (Strings.isNullOrBlank(portalIP)) {
+            // on vanilla kubernetes we can use nodePort to access things externally
+            Integer nodePort = port.getNodePort();
+            if (nodePort != null) {
+                try {
+                    NodeList nodeList = client.nodes().list();
+                    if (nodeList != null) {
+                        List<Node> items = nodeList.getItems();
+                        if (items != null) {
+                            for (Node item : items) {
+                                NodeSpec spec = item.getSpec();
+                                if (spec != null) {
+                                    portalIP = spec.getExternalID();
+                                    if (Strings.isNotBlank(portalIP)) {
+                                        portNumber = nodePort;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // ignore could not find a node!
+                    LOG.warn("Could not find a node!: " + e, e);
+                }
+            }
+        }
+        return (serviceProto + "://" + portalIP + ":" + portNumber).toLowerCase();
     }
 
     /**

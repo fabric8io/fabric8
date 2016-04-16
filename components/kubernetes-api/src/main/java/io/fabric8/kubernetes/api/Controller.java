@@ -43,12 +43,14 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftNotAvailableException;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,12 +355,23 @@ public class Controller {
         }
     }
 
-    protected OpenShiftClient getOpenShiftClientOrNull() {
+    public OpenShiftClient getOpenShiftClientOrNull() {
         OpenShiftClient openShiftClient = null;
         try {
-            openShiftClient = openShiftClient;
+            openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
         } catch (OpenShiftNotAvailableException e) {
             // ignore
+        }
+        return openShiftClient;
+    }
+
+    public OpenShiftClient getOpenShiftClientOrJenkinshift() {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        if (openShiftClient == null) {
+            // lets try talk to the jenkinshift service which provides a BuildConfig REST API based on Jenkins
+            // for when using vanilla Kubernetes
+            String jenkinshiftUrl = Systems.getEnvVar("JENKINSHIFT_URL", "http://jenkinshift/");
+            openShiftClient = new DefaultOpenShiftClient(jenkinshiftUrl);
         }
         return openShiftClient;
     }
@@ -624,7 +637,7 @@ public class Controller {
     }
 
     public void applyBuildConfig(BuildConfig entity, String sourceName) {
-        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
         if (openShiftClient != null) {
             String id = getName(entity);
 
@@ -668,7 +681,7 @@ public class Controller {
     }
 
     public void doCreateBuildConfig(BuildConfig entity, String namespace ,String sourceName) {
-        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
         if (openShiftClient != null) {
             try {
                 openShiftClient.buildConfigs().inNamespace(namespace).create(entity);
