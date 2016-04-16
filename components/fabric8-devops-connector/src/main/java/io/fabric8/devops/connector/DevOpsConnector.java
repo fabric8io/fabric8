@@ -1219,12 +1219,11 @@ public class DevOpsConnector {
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlText);
-
             connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "text/xml");
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/xml");
             int responseCode = connection.getResponseCode();
-            System.out.println("Checking URL exists got response code " + responseCode + " on url " + urlText);
+            getLog().info("Checking URL exists got response code " + responseCode + " on url " + urlText);
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
             }
