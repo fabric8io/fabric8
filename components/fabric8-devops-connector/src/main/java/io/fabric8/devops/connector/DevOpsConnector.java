@@ -323,14 +323,16 @@ public class DevOpsConnector {
         addLink("Git", getGitUrl());
 
         Controller controller = createController();
-        OpenShiftClient openShiftClient = getKubernetes().adapt(OpenShiftClient.class);
+        OpenShiftClient openShiftClient = controller.getOpenShiftClientOrJenkinshift();
         BuildConfig buildConfig = null;
-        try {
-            buildConfig = openShiftClient.inNamespace(namespace).buildConfigs().withName(projectName).get();
-        } catch (Exception e) {
-            log.error("Failed to load build config for " + namespace + "/" + projectName + ". " + e, e);
+        if (openShiftClient != null) {
+            try {
+                buildConfig = openShiftClient.inNamespace(namespace).buildConfigs().withName(projectName).get();
+            } catch (Exception e) {
+                log.error("Failed to load build config for " + namespace + "/" + projectName + ". " + e, e);
+            }
+            log.info("Loaded build config for " + namespace + "/" + projectName + " " + buildConfig);
         }
-        log.info("Loaded build config for " + namespace + "/" + projectName  + " " + buildConfig);
 
         // if we have loaded a build config then lets assume its correct!
         boolean foundExistingGitUrl = false;
@@ -357,10 +359,6 @@ public class DevOpsConnector {
             log.info("Loaded gitSourceSecretName: " + gitSourceSecretName);
         }
         log.info("gitUrl is: " + gitUrl);
-
-
-
-
 
         if (buildConfig == null) {
             buildConfig = new BuildConfig();
@@ -1174,11 +1172,9 @@ public class DevOpsConnector {
     protected void postJenkinsBuild(String jobName, String xml, boolean create) {
         String address = getServiceUrl(ServiceNames.JENKINS, false, namespace, jenkinsNamespace);
         if (Strings.isNotBlank(address)) {
-            String jobUrl;
-            if (create) {
+            String jobUrl = URLUtils.pathJoin(address, "/job", jobName, "config.xml");
+            if (create && !existsXmlURL(jobUrl)) {
                 jobUrl = URLUtils.pathJoin(address, "/createItem") + "?name=" + jobName;
-            } else {
-                jobUrl = URLUtils.pathJoin(address, "/job", jobName, "config.xml");
             }
 
             getLog().info("POSTING the jenkins job to: " + jobUrl);
@@ -1211,8 +1207,31 @@ public class DevOpsConnector {
                 }
             }
         }
+    }
 
+    /**
+     * Checks if the given XML URL exists
+     *
+     * @return true if it does
+     */
+    protected boolean existsXmlURL(String urlText) {
+        // lets check that the job doesn't already exist!
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(urlText);
 
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "text/xml");
+            int responseCode = connection.getResponseCode();
+            System.out.println("Checking URL exists got response code " + responseCode + " on url " + urlText);
+            if (responseCode >= 200 && responseCode < 300) {
+                return true;
+            }
+        } catch (Throwable e) {
+            // ignore
+        }
+        return false;
     }
 
     protected void createJenkinsWebhook(String jenkinsJobUrl) {
