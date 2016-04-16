@@ -31,6 +31,7 @@ import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -109,6 +110,9 @@ public class Builds {
             customStrategy.setFrom(new ObjectReferenceBuilder().withKind("DockerImage").withName(s2iCustomBuilderImage).build());
         }
         List<BuildTriggerPolicy> triggers = spec.getTriggers();
+        if (triggers == null) {
+            triggers = new ArrayList<>();
+            }
         if (triggers.isEmpty()) {
             triggers.add(new BuildTriggerPolicyBuilder().withType("GitHub").withNewGithub().withSecret(secret).endGithub().build());
             triggers.add(new BuildTriggerPolicyBuilder().withType("Generic").withNewGeneric().withSecret(secret).endGeneric().build());
