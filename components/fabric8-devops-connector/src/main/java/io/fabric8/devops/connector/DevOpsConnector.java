@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.api.builds.Builds;
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -305,17 +306,37 @@ public class DevOpsConnector {
         ProjectConfigs.defaultEnvironments(projectConfig, namespace);
 
         String consoleUrl = getServiceUrl(ServiceNames.FABRIC8_CONSOLE, namespace, fabric8ConsoleNamespace);
-        if (Strings.isNotBlank(consoleUrl) && projectConfig != null) {
+        if (projectConfig != null) {
             Map<String, String> environments = projectConfig.getEnvironments();
-            if (environments != null) {
+            if (environments != null && !environments.isEmpty()) {
+                getLog().info("Ensuring ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " is populated with enviroments: " + environments);
+                ConfigMap environmentsConfigMap = Environments.getOrCreateEnvironments(kubernetes, namespace);
+                boolean updatedEnvConfigMap = false;
+
                 for (Map.Entry<String, String> entry : environments.entrySet()) {
                     String label = entry.getKey();
                     String value = entry.getValue();
                     String key = value;
-                    String environmentLink = URLUtils.pathJoin(consoleUrl, "/kubernetes/pods?namespace=" + value);
-                    annotations.put("fabric8.link.environment." + key + "/url", environmentLink);
                     annotations.put("fabric8.link.environment." + key + "/label", label);
-                    addLink(label, environmentLink);
+                    if (Strings.isNotBlank(consoleUrl)) {
+                        String environmentLink = URLUtils.pathJoin(consoleUrl, "/kubernetes/pods?namespace=" + value);
+                        annotations.put("fabric8.link.environment." + key + "/url", environmentLink);
+                        addLink(label, environmentLink);
+                    }
+                    String dataKey = label.toLowerCase().replace(' ', '-');
+                    boolean updated = Environments.ensureEnvironmentAdded(environmentsConfigMap, dataKey, label, value);
+                    updatedEnvConfigMap = updated || updatedEnvConfigMap;
+                }
+
+                if (updatedEnvConfigMap) {
+                    getLog().info("Updating ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " with data: " + environmentsConfigMap.getData());
+                    if (KubernetesHelper.getResourceVersion(environmentsConfigMap) == null) {
+                        kubernetes.inNamespace(namespace).configMaps().create(environmentsConfigMap);
+                    } else {
+                        kubernetes.inNamespace(namespace).configMaps().replace(environmentsConfigMap);
+                    }
+                } else {
+                    getLog().info("No need to update ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " as already has data: " + environmentsConfigMap.getData());
                 }
             }
         }
