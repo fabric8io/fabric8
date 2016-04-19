@@ -24,7 +24,7 @@ import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -59,14 +59,15 @@ public class Environments {
      */
     public static boolean ensureEnvironmentAdded(ConfigMap environmentsConfigMap, String key, String label, String namespace) {
         boolean answer = false;
-        Map<String, String> data = environmentsConfigMap.getData();
-        if (data == null) {
-            data = new HashMap<>();
-            answer = true;
+        Map<String, String> data = new LinkedHashMap<>();
+        Map<String, String> oldData = environmentsConfigMap.getData();
+        if (oldData != null) {
+            data.putAll(oldData);
+            environmentsConfigMap.setData(data);
         }
         String yaml = data.get(key);
         if (Strings.isNullOrBlank(yaml)) {
-            yaml = "name: " + label + "\nnamespace: " + namespace;
+            yaml = "name: " + label + "\nnamespace: " + namespace + "\norder: " + data.size();
             data.put(key, yaml);
             answer = true;
         }
