@@ -20,36 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.EnvVarBuilder;
-import io.fabric8.kubernetes.api.model.ExecAction;
-import io.fabric8.kubernetes.api.model.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.PersistentVolumeClaimVolumeSource;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.Probe;
-import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.QuantityBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.RunAsUserStrategyOptions;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceFluent;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.TCPSocketAction;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.maven.support.Commandline;
 import io.fabric8.maven.support.JsonSchema;
@@ -128,6 +99,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_METRICS_SCHEME = FABRIC8_METRICS_PREFIX + "scheme";
     public static final String FABRIC8_METRICS_SCHEME_ANNOTATION = FABRIC8_METRICS_SCHEME + ".annotation";
 
+    public static final String FABRIC8_ICON_URL_ANNOTATION = "fabric8.io/iconUrl";
+    
     private static final String SERVICE_REGEX = "^fabric8\\.service\\.(?<name>[^. ]+)\\..+$";
     private static final Pattern SERVICE_PATTERN = Pattern.compile(SERVICE_REGEX);
 
@@ -916,6 +889,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
             addServiceConstraints(builder, volumes, containerPrivileged != null && containerPrivileged.booleanValue());
         }
 
+        String iconUrl = getIconUrl();
+        if (Strings.isNotBlank(iconUrl)) {
+            rcAnnotations.put(FABRIC8_ICON_URL_ANNOTATION, iconUrl);
+        }
+
         if (Utils.isNotNullOrEmpty(getDockerImage())) {
             builder.addNewReplicationControllerItem()
                     .withNewMetadata()
@@ -955,10 +933,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
         addPersistentVolumeClaims(builder, volumes);
 
-        addServices(builder, labelMap);
+        addServices(builder, labelMap, iconUrl);
 
         Template template = getTemplate();
-        String iconUrl = getIconUrl();
         if (!template.getParameters().isEmpty() || Strings.isNotBlank(iconUrl)) {
             configureTemplateDescriptionAndIcon(template, iconUrl);
             builder = builder.addToTemplateItems(template);
@@ -972,6 +949,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         Object result = Templates.combineTemplates(kubernetesList);
         if (result instanceof Template) {
             Template resultTemplate = (Template) result;
+            defaultIconUrl(resultTemplate.getObjects());
             configureTemplateDescriptionAndIcon(resultTemplate, iconUrl);
 
             if (pureKubernetes) {
@@ -983,6 +961,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
         }
         try {
+            defaultIconUrl(KubernetesHelper.toItemList(result));
             if (pureKubernetes) {
                 result = filterPureKubernetes(result);
             }
@@ -996,7 +975,21 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
-    private void addServices(KubernetesListBuilder builder, Map<String, String> labelMap) throws MojoExecutionException {
+    private void defaultIconUrl(List<HasMetadata> hasMetadatas) {
+        String iconUrl = getIconUrl();
+        if (Strings.isNotBlank(iconUrl)) {
+            for (HasMetadata entity : hasMetadatas) {
+                if (entity instanceof Service || entity instanceof ServiceAccount) {
+                    Map<String, String> annotations = KubernetesHelper.getOrCreateAnnotations(entity);
+                    if (Strings.isNullOrBlank(annotations.get(FABRIC8_ICON_URL_ANNOTATION))) {
+                        annotations.put(FABRIC8_ICON_URL_ANNOTATION, iconUrl);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addServices(KubernetesListBuilder builder, Map<String, String> labelMap, String iconUrl) throws MojoExecutionException {
         MavenProject project = getProject();
         Properties properties = getProjectAndFabric8Properties(project);
 
@@ -1016,6 +1009,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         for (String serviceName : serviceNames) {
             Map<String, String> serviceAnnotations = getServiceAnnotations();
             serviceAnnotations.putAll(getMetricsAnnotations(serviceName));
+
+            if (Strings.isNotBlank(this.iconUrl)) {
+                serviceAnnotations.put(FABRIC8_ICON_URL_ANNOTATION, this.iconUrl);
+            }
 
             Map<String, String> selector = new HashMap<>(labelMap);
             if (removeVersionLabelFromServiceSelector) {
