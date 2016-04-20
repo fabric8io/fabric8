@@ -67,6 +67,8 @@ import java.util.Map;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getKind;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateAnnotations;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateLabels;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
@@ -828,7 +830,13 @@ public class Controller {
 
     public void applyNamespace(String namespaceName) {
         Namespace entity = new Namespace();
-        getOrCreateMetadata(entity).setName(namespaceName);
+        ObjectMeta metadata = getOrCreateMetadata(entity);
+        metadata.setName(namespaceName);
+        String namespace = kubernetesClient.getNamespace();
+        if (Strings.isNotBlank(namespace)) {
+            // lets associate this new namespace with the project that it was created from
+            getOrCreateLabels(entity).put("project", namespace);
+        }
         applyNamespace(entity);
     }
 
