@@ -266,7 +266,7 @@ public class DevOpsConnector {
         jenkinsJobUrl = null;
         String jenkinsUrl = null;
         try {
-            jenkinsUrl = getJenkinsServiceUrl();
+            jenkinsUrl = getJenkinsServiceUrl(true);
 
             if (Strings.isNotBlank(jenkinsUrl)) {
                 if (Strings.isNotBlank(jenkinsMonitorView)) {
@@ -417,8 +417,8 @@ public class DevOpsConnector {
         }
     }
 
-    protected String getJenkinsServiceUrl() {
-        return getServiceUrl(ServiceNames.JENKINS, false, namespace, jenkinsNamespace);
+    protected String getJenkinsServiceUrl(boolean externalUrl) {
+        return getServiceUrl(ServiceNames.JENKINS, externalUrl, namespace, jenkinsNamespace);
     }
 
 
