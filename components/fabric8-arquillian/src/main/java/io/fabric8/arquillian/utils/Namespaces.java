@@ -37,6 +37,7 @@ public class Namespaces {
         return client.namespaces().createNew()
                 .withNewMetadata()
                     .withName(session.getNamespace())
+                    .addToLabels("project", client.getNamespace())
                     .addToLabels("provider", "fabric8")
                     .addToLabels("component", "integrationTest")
                     .addToLabels("framework", "arquillian")
