@@ -1302,43 +1302,46 @@ public final class KubernetesHelper {
                 List<Ingress> items = ingresses.getItems();
                 if (items != null) {
                     for (Ingress item : items) {
-                        IngressSpec spec = item.getSpec();
-                        if (spec != null) {
-                            List<IngressRule> rules = spec.getRules();
-                            List<IngressTLS> tls = spec.getTls();
-                            if (rules != null) {
-                                for (IngressRule rule : rules) {
-                                    HTTPIngressRuleValue http = rule.getHttp();
-                                    if (http != null) {
-                                        List<HTTPIngressPath> paths = http.getPaths();
-                                        if (paths != null) {
-                                            for (HTTPIngressPath path : paths) {
-                                                IngressBackend backend = path.getBackend();
-                                                if (backend != null) {
-                                                    String backendServiceName = backend.getServiceName();
-                                                    if (serviceName.equals(backendServiceName) && portsMatch(port, backend.getServicePort())) {
-                                                        String pathPostfix = path.getPath();
-                                                        if (tls != null) {
-                                                            for (IngressTLS tlsHost : tls) {
-                                                                List<String> hosts = tlsHost.getHosts();
-                                                                if (hosts != null) {
-                                                                    for (String host : hosts) {
-                                                                        if (Strings.isNotBlank(host)) {
-                                                                            if (Strings.isNullOrBlank(pathPostfix)) {
-                                                                                pathPostfix = "/";
+                        String ns = getNamespace(item);
+                        if (Objects.equal(serviceNamespace, ns)) {
+                            IngressSpec spec = item.getSpec();
+                            if (spec != null) {
+                                List<IngressRule> rules = spec.getRules();
+                                List<IngressTLS> tls = spec.getTls();
+                                if (rules != null) {
+                                    for (IngressRule rule : rules) {
+                                        HTTPIngressRuleValue http = rule.getHttp();
+                                        if (http != null) {
+                                            List<HTTPIngressPath> paths = http.getPaths();
+                                            if (paths != null) {
+                                                for (HTTPIngressPath path : paths) {
+                                                    IngressBackend backend = path.getBackend();
+                                                    if (backend != null) {
+                                                        String backendServiceName = backend.getServiceName();
+                                                        if (serviceName.equals(backendServiceName) && portsMatch(port, backend.getServicePort())) {
+                                                            String pathPostfix = path.getPath();
+                                                            if (tls != null) {
+                                                                for (IngressTLS tlsHost : tls) {
+                                                                    List<String> hosts = tlsHost.getHosts();
+                                                                    if (hosts != null) {
+                                                                        for (String host : hosts) {
+                                                                            if (Strings.isNotBlank(host)) {
+                                                                                if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                                    pathPostfix = "/";
+                                                                                }
+                                                                                return "https://" + URLUtils.pathJoin(host, pathPostfix);
                                                                             }
-                                                                            return "https://" + URLUtils.pathJoin(host, pathPostfix);
                                                                         }
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                        String answer = rule.getHost();
-                                                        if (Strings.isNotBlank(answer)) {
-                                                            if (Strings.isNullOrBlank(pathPostfix)) {
-                                                                pathPostfix = "/";
+                                                            String answer = rule.getHost();
+                                                            if (Strings.isNotBlank(answer)) {
+                                                                if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                    pathPostfix = "/";
+                                                                }
+                                                                return "http://" + URLUtils.pathJoin(answer, pathPostfix);
                                                             }
-                                                            return "http://" + URLUtils.pathJoin(answer, pathPostfix);
                                                         }
                                                     }
                                                 }
