@@ -20,6 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPath;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValue;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBackend;
+import io.fabric8.kubernetes.api.model.extensions.IngressList;
+import io.fabric8.kubernetes.api.model.extensions.IngressRule;
+import io.fabric8.kubernetes.api.model.extensions.IngressSpec;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -41,6 +48,7 @@ import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +66,11 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.tools.FileObject;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -1284,6 +1296,45 @@ public final class KubernetesHelper {
         String portalIP = srv.getSpec().getPortalIP();
         Integer portNumber = port.getPort();
         if (Strings.isNullOrBlank(portalIP)) {
+            IngressList ingresses = client.extensions().ingresses().inNamespace(serviceNamespace).list();
+            if (ingresses != null) {
+                List<Ingress> items = ingresses.getItems();
+                if (items != null) {
+                    for (Ingress item : items) {
+                        IngressSpec spec = item.getSpec();
+                        if (spec != null) {
+                            List<IngressRule> rules = spec.getRules();
+                            if (rules != null) {
+                                for (IngressRule rule : rules) {
+                                    HTTPIngressRuleValue http = rule.getHttp();
+                                    if (http != null) {
+                                        List<HTTPIngressPath> paths = http.getPaths();
+                                        if (paths != null) {
+                                            for (HTTPIngressPath path : paths) {
+                                                IngressBackend backend = path.getBackend();
+                                                if (backend != null) {
+                                                    String backendServiceName = backend.getServiceName();
+                                                    if (serviceName.equals(backendServiceName) && portsMatch(port, backend.getServicePort())) {
+                                                        String answer = rule.getHost();
+                                                        if (Strings.isNotBlank(answer)) {
+                                                            // TODO add a path too?
+                                                            String pathPostfix = path.getPath();
+                                                            if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                pathPostfix = "/";
+                                                            }
+                                                            return "http://" + URLUtils.pathJoin(answer, pathPostfix);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             // on vanilla kubernetes we can use nodePort to access things externally
             Integer nodePort = port.getNodePort();
             if (nodePort != null) {
@@ -1311,6 +1362,27 @@ public final class KubernetesHelper {
             }
         }
         return (serviceProto + "://" + portalIP + ":" + portNumber).toLowerCase();
+    }
+
+    /**
+     * Returns true if the given servicePort matches the intOrString value
+     */
+    private static boolean portsMatch(ServicePort servicePort, IntOrString intOrString) {
+        if (intOrString != null) {
+            Integer port = servicePort.getPort();
+            Integer intVal = intOrString.getIntVal();
+            String strVal = intOrString.getStrVal();
+            if (intVal != null) {
+                if (port != null) {
+                    return port.intValue() == intVal.intValue();
+                } else {
+                    /// should we find the port by name now?
+                }
+            } else if (strVal != null ){
+                return Objects.equal(strVal, servicePort.getName());
+            }
+        }
+        return false;
     }
 
     /**
