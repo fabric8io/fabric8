@@ -27,6 +27,7 @@ import io.fabric8.kubernetes.api.model.extensions.IngressBackend;
 import io.fabric8.kubernetes.api.model.extensions.IngressList;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.api.model.extensions.IngressSpec;
+import io.fabric8.kubernetes.api.model.extensions.IngressTLS;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -1304,6 +1305,7 @@ public final class KubernetesHelper {
                         IngressSpec spec = item.getSpec();
                         if (spec != null) {
                             List<IngressRule> rules = spec.getRules();
+                            List<IngressTLS> tls = spec.getTls();
                             if (rules != null) {
                                 for (IngressRule rule : rules) {
                                     HTTPIngressRuleValue http = rule.getHttp();
@@ -1315,10 +1317,24 @@ public final class KubernetesHelper {
                                                 if (backend != null) {
                                                     String backendServiceName = backend.getServiceName();
                                                     if (serviceName.equals(backendServiceName) && portsMatch(port, backend.getServicePort())) {
+                                                        String pathPostfix = path.getPath();
+                                                        if (tls != null) {
+                                                            for (IngressTLS tlsHost : tls) {
+                                                                List<String> hosts = tlsHost.getHosts();
+                                                                if (hosts != null) {
+                                                                    for (String host : hosts) {
+                                                                        if (Strings.isNotBlank(host)) {
+                                                                            if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                                pathPostfix = "/";
+                                                                            }
+                                                                            return "https://" + URLUtils.pathJoin(host, pathPostfix);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                         String answer = rule.getHost();
                                                         if (Strings.isNotBlank(answer)) {
-                                                            // TODO add a path too?
-                                                            String pathPostfix = path.getPath();
                                                             if (Strings.isNullOrBlank(pathPostfix)) {
                                                                 pathPostfix = "/";
                                                             }
