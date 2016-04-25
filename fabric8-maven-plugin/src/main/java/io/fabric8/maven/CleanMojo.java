@@ -38,7 +38,7 @@ public class CleanMojo extends ApplyMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        KubernetesClient client = getKubernetes().inNamespace(getNamespace());
+        KubernetesClient client = getKubernetes();
 
         delete(client.services());
         delete(client.replicationControllers());

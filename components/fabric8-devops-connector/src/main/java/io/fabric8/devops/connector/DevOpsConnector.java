@@ -28,6 +28,8 @@ import io.fabric8.kubernetes.api.builds.Builds;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.letschat.LetsChatClient;
@@ -67,7 +69,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.DigestScheme;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -310,7 +311,7 @@ public class DevOpsConnector {
             Map<String, String> environments = projectConfig.getEnvironments();
             if (environments != null && !environments.isEmpty()) {
                 getLog().info("Ensuring ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " is populated with enviroments: " + environments);
-                ConfigMap environmentsConfigMap = Environments.getOrCreateEnvironments(kubernetes, namespace);
+                ConfigMap environmentsConfigMap = Environments.getOrCreateEnvironments(kubernetes);
                 boolean updatedEnvConfigMap = false;
 
                 for (Map.Entry<String, String> entry : environments.entrySet()) {
@@ -331,9 +332,9 @@ public class DevOpsConnector {
                 if (updatedEnvConfigMap) {
                     getLog().info("Updating ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " with data: " + environmentsConfigMap.getData());
                     if (KubernetesHelper.getResourceVersion(environmentsConfigMap) == null) {
-                        kubernetes.inNamespace(namespace).configMaps().create(environmentsConfigMap);
+                        kubernetes.configMaps().create(environmentsConfigMap);
                     } else {
-                        kubernetes.inNamespace(namespace).configMaps().replace(environmentsConfigMap);
+                        kubernetes.configMaps().replace(environmentsConfigMap);
                     }
                 } else {
                     getLog().info("No need to update ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " as already has data: " + environmentsConfigMap.getData());
@@ -348,7 +349,7 @@ public class DevOpsConnector {
         BuildConfig buildConfig = null;
         if (openShiftClient != null) {
             try {
-                buildConfig = openShiftClient.inNamespace(namespace).buildConfigs().withName(projectName).get();
+                buildConfig = openShiftClient.buildConfigs().withName(projectName).get();
             } catch (Exception e) {
                 log.error("Failed to load build config for " + namespace + "/" + projectName + ". " + e, e);
             }
@@ -489,7 +490,8 @@ public class DevOpsConnector {
 
     public KubernetesClient getKubernetes() {
         if (kubernetes == null) {
-            kubernetes = new DefaultKubernetesClient();
+            Config config = new ConfigBuilder().withNamespace(namespace).build();
+            kubernetes = new DefaultKubernetesClient(config);
         }
         return kubernetes;
     }

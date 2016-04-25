@@ -20,6 +20,8 @@ import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
@@ -62,7 +64,8 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     private KubernetesClient kubernetes;
 
     public KubernetesClient getKubernetes() {
-        return new DefaultKubernetesClient();
+        Config config = new ConfigBuilder().withNamespace(getNamespace()).build();
+        return new DefaultKubernetesClient(config);
     }
 
     protected Controller createController() {

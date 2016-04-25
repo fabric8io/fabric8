@@ -37,9 +37,6 @@ public class DeleteBuildConfig {
             KubernetesClient kube = new DefaultKubernetesClient();
             String namespace = kube.getNamespace();
             System.out.println("Using namespace: " + namespace);
-
-            kube = kube.inNamespace(namespace);
-
             Controller controller = new Controller(kube);
             OpenShiftClient openshift = controller.getOpenShiftClientOrJenkinshift();
             if (openshift == null) {

@@ -33,12 +33,12 @@ public class Environments {
     private static final transient Logger LOG = LoggerFactory.getLogger(Environments.class);
     public static final String ENVIRONMENTS_CONFIG_MAP_NAME = "fabric8-environments";
 
-    public static ConfigMap getOrCreateEnvironments(KubernetesClient client, String namespace) {
+    public static ConfigMap getOrCreateEnvironments(KubernetesClient client) {
         ConfigMap answer = null;
         try {
-            answer = client.inNamespace(namespace).configMaps().withName(ENVIRONMENTS_CONFIG_MAP_NAME).get();
+            answer = client.configMaps().withName(ENVIRONMENTS_CONFIG_MAP_NAME).get();
         } catch (Exception e) {
-            LOG.info("Failed to find ConfigMap " + namespace + "." + ENVIRONMENTS_CONFIG_MAP_NAME + ". " + e, e);
+            LOG.info("Failed to find ConfigMap " + client.getNamespace() + "." + ENVIRONMENTS_CONFIG_MAP_NAME + ". " + e, e);
         }
         if (answer == null || KubernetesHelper.getName(answer) == null) {
             answer = new ConfigMapBuilder().
