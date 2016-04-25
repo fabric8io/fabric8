@@ -38,7 +38,7 @@ import java.net.URL;
 public class ClientFactory {
 
     @Bean
-    public KubernetesClient getKubernetesClient(OpenShiftClient openShiftClient) throws MalformedURLException {
+    public KubernetesClient getKubernetesClient() throws MalformedURLException {
         KubernetesMockClient mock = new KubernetesMockClient();
 
         mock.getMasterUrl().andReturn(new URL("https://kubernetes.default.svc")).anyTimes();
@@ -131,7 +131,6 @@ public class ClientFactory {
         return mock.replay();
     }
 
-    @Bean
     public OpenShiftClient getOpenShiftClient() {
         OpenShiftMockClient mock = new OpenShiftMockClient();
         mock.routes().list().andReturn(new RouteListBuilder().build()).anyTimes();

@@ -30,6 +30,7 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 
 import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import java.net.MalformedURLException;
@@ -243,8 +244,6 @@ public class ClientProducer {
         return mock.replay();
     }
 
-    @Produces
-    @Alternative
     public OpenShiftClient getOpenShiftClient() throws MalformedURLException {
         OpenShiftMockClient mock = new OpenShiftMockClient();
 
