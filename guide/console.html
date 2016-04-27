@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Console | Fabric8 Documentation</title>
+        <title>Developer Console | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -54,10 +54,10 @@
         
     <div class="book"
         data-level="4.4.1"
-        data-chapter-title="Console"
+        data-chapter-title="Developer Console"
         data-filepath="console.md"
         data-basepath="."
-        data-revision="Wed Apr 27 2016 15:58:54 GMT+0000 (UTC)"
+        data-revision="Wed Apr 27 2016 17:12:09 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -430,7 +430,7 @@
                         
                             <b>4.4.1.</b>
                         
-                        Console
+                        Developer Console
                     </a>
             
             
@@ -1253,8 +1253,9 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="console"><a name="console" class="plugin-anchor" href="#console"><span class="fa fa-link"></span></a>Console</h2>
-<p>The Fabric8 Console provides a rich HTML5 web application for working with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. The front end code is based on the <a href="http://hawt.io/" target="_blank">hawtio project</a> which supports Kubernetes and reuses the various <a href="http://hawt.io/plugins/index.html" target="_blank">hawtio plugins</a>.</p>
+                        <h2 id="fabric8-developer-console"><a name="fabric8-developer-console" class="plugin-anchor" href="#fabric8-developer-console"><span class="fa fa-link"></span></a>Fabric8 Developer Console</h2>
+<p>Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing microservices on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. </p>
+<p>Fabric8 Developer Console is single lightweight pod, <a href="replicationControllers.html">replication controller</a> and <a href="services.html">services</a> that runs on any <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> or <a href="https://www.openshift.org/" target="_blank">Openshift</a> cluster.</p>
 <h3 id="installing"><a name="installing" class="plugin-anchor" href="#installing"><span class="fa fa-link"></span></a>Installing</h3>
 <p>Here is <a href="getStarted/apps.html#console">how to install the Console on Kubernetes / OpenShift</a></p>
 <h3 id="authentication"><a name="authentication" class="plugin-anchor" href="#authentication"><span class="fa fa-link"></span></a>Authentication</h3>
@@ -1279,14 +1280,7 @@
 <p>Otherwise you need to find the host name to use.</p>
 <p>e.g. on OpenShift V3 you can find it via:</p>
 <pre><code>oc get route fabric8
-</code></pre><h3 id="using-jube"><a name="using-jube" class="plugin-anchor" href="#using-jube"><span class="fa fa-link"></span></a>Using Jube</h3>
-<p>If you are using Jube then the web console should be visible at <a href="http://localhost:8585/hawtio/" target="_blank">http://localhost:8585/hawtio/</a>. You can then view these tabs:</p>
-<ul>
-<li><a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods tab</a> views all the available <a href="pods.html">pods</a> in your kubernetes environment</li>
-<li><a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a> views all the available <a href="replicationControllers.html">replication controllers</a> in your kubernetes environment</li>
-<li><a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services tab</a> views all the available <a href="services.html">services</a> in your kubernetes environment</li>
-</ul>
-
+</code></pre>
                     
                     </section>
                 
