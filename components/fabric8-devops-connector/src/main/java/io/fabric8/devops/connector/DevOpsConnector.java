@@ -309,37 +309,7 @@ public class DevOpsConnector {
         String consoleUrl = getServiceUrl(ServiceNames.FABRIC8_CONSOLE, namespace, fabric8ConsoleNamespace);
         if (projectConfig != null) {
             Map<String, String> environments = projectConfig.getEnvironments();
-            if (environments != null && !environments.isEmpty()) {
-                getLog().info("Ensuring ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " is populated with enviroments: " + environments);
-                ConfigMap environmentsConfigMap = Environments.getOrCreateEnvironments(kubernetes);
-                boolean updatedEnvConfigMap = false;
-
-                for (Map.Entry<String, String> entry : environments.entrySet()) {
-                    String label = entry.getKey();
-                    String value = entry.getValue();
-                    String key = value;
-                    annotations.put("fabric8.link.environment." + key + "/label", label);
-                    if (Strings.isNotBlank(consoleUrl)) {
-                        String environmentLink = URLUtils.pathJoin(consoleUrl, "/kubernetes/pods?namespace=" + value);
-                        annotations.put("fabric8.link.environment." + key + "/url", environmentLink);
-                        addLink(label, environmentLink);
-                    }
-                    String dataKey = label.toLowerCase().replace(' ', '-');
-                    boolean updated = Environments.ensureEnvironmentAdded(environmentsConfigMap, dataKey, label, value);
-                    updatedEnvConfigMap = updated || updatedEnvConfigMap;
-                }
-
-                if (updatedEnvConfigMap) {
-                    getLog().info("Updating ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " with data: " + environmentsConfigMap.getData());
-                    if (KubernetesHelper.getResourceVersion(environmentsConfigMap) == null) {
-                        kubernetes.configMaps().create(environmentsConfigMap);
-                    } else {
-                        kubernetes.configMaps().replace(environmentsConfigMap);
-                    }
-                } else {
-                    getLog().info("No need to update ConfigMap " + Environments.ENVIRONMENTS_CONFIG_MAP_NAME + " as already has data: " + environmentsConfigMap.getData());
-                }
-            }
+            updateEnvironmentConfigMap(environments, kubernetes, annotations, consoleUrl);
         }
 
         addLink("Git", getGitUrl());
@@ -414,6 +384,46 @@ public class DevOpsConnector {
                 } catch (IOException e) {
                     getLog().error("Could not save updated " + ProjectConfigs.FILE_NAME + ": " + e, e);
                 }
+            }
+        }
+    }
+
+    public void updateEnvironmentConfigMap(Map<String, String> environments, KubernetesClient kubernetes, Map<String, String> annotations, String consoleUrl) {
+        if (environments != null && !environments.isEmpty()) {
+            String name = Environments.ENVIRONMENTS_CONFIG_MAP_NAME;
+            getLog().info("Ensuring ConfigMap " + name + " is populated with enviroments: " + environments);
+            ConfigMap environmentsConfigMap = Environments.getOrCreateEnvironments(kubernetes);
+            boolean updatedEnvConfigMap = false;
+
+            for (Map.Entry<String, String> entry : environments.entrySet()) {
+                String label = entry.getKey();
+                String value = entry.getValue();
+                String key = value;
+                annotations.put("fabric8.link.environment." + key + "/label", label);
+                if (Strings.isNotBlank(consoleUrl)) {
+                    String environmentLink = URLUtils.pathJoin(consoleUrl, "/kubernetes/pods?namespace=" + value);
+                    annotations.put("fabric8.link.environment." + key + "/url", environmentLink);
+                    addLink(label, environmentLink);
+                }
+                String dataKey = label.toLowerCase().replace(' ', '-');
+                boolean updated = Environments.ensureEnvironmentAdded(environmentsConfigMap, dataKey, label, value);
+                updatedEnvConfigMap = updated || updatedEnvConfigMap;
+            }
+
+            if (updatedEnvConfigMap) {
+                String ns = kubernetes.getNamespace();
+                getLog().info("Updating ConfigMap " + name + " with data: " + environmentsConfigMap.getData());
+                if (KubernetesHelper.getResourceVersion(environmentsConfigMap) == null) {
+                    kubernetes.configMaps().inNamespace(ns).create(environmentsConfigMap);
+                } else {
+                    try {
+                        kubernetes.configMaps().inNamespace(ns).withName(name).replace(environmentsConfigMap);
+                    } catch (Exception e) {
+                        getLog().error("Failed to update the Environment ConfigMap with data: " + environments + ". Reason: " + e, e);
+                    }
+                }
+            } else {
+                getLog().info("No need to update ConfigMap " + name + " as already has data: " + environmentsConfigMap.getData());
             }
         }
     }

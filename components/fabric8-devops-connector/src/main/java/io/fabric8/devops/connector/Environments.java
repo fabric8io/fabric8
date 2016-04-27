@@ -36,7 +36,7 @@ public class Environments {
     public static ConfigMap getOrCreateEnvironments(KubernetesClient client) {
         ConfigMap answer = null;
         try {
-            answer = client.configMaps().withName(ENVIRONMENTS_CONFIG_MAP_NAME).get();
+            answer = client.configMaps().inNamespace(client.getNamespace()).withName(ENVIRONMENTS_CONFIG_MAP_NAME).get();
         } catch (Exception e) {
             LOG.info("Failed to find ConfigMap " + client.getNamespace() + "." + ENVIRONMENTS_CONFIG_MAP_NAME + ". " + e, e);
         }
