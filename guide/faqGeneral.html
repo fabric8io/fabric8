@@ -57,7 +57,7 @@
         data-chapter-title="General Questions"
         data-filepath="faqGeneral.md"
         data-basepath="."
-        data-revision="Wed Apr 27 2016 15:14:48 GMT+0000 (UTC)"
+        data-revision="Wed Apr 27 2016 15:58:54 GMT+0000 (UTC)"
         data-innerlanguage="">
     
 
@@ -1293,11 +1293,11 @@
 </ul>
 <p>Having said all that; with the  <a href="ipaas.html">Fabric8 iPaaS)</a> focus, we have optimised Fabric8 so that folks who do use Java have an optimised experience of working with Docker, Kubernetes, OpenShift and Fabric8. Though we hope to continue to improve tooling, management and visualisation for other languages and runtimes too.</p>
 <h4 id="is-jenkins-workflow-java-centric"><a name="is-jenkins-workflow-java-centric" class="plugin-anchor" href="#is-jenkins-workflow-java-centric"><span class="fa fa-link"></span></a>Is Jenkins Workflow Java centric?</h4>
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins-ci.org/" target="_blank">Jenkins</a>.</p>
+<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins.io/" target="_blank">Jenkins</a>.</p>
 <p>Jenkins Workflow provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the <a href="http://groovy-lang.org/" target="_blank">Groovy programming language</a>.</p>
 <p>The preferred approach to using Jenkins Workflow is to reuse docker images for all your build and testing tools; so that most of the details in your <strong>Jenkinsfile</strong> tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.</p>
 <h4 id="can-fabric8-devops-work-with-my-ci-server"><a name="can-fabric8-devops-work-with-my-ci-server" class="plugin-anchor" href="#can-fabric8-devops-work-with-my-ci-server"><span class="fa fa-link"></span></a>Can Fabric8 DevOps work with my CI server?</h4>
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins-ci.org/" target="_blank">Jenkins</a>.</p>
+<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin" target="_blank">Jenkins Workflow plugin</a> with <a href="https://jenkins.io/" target="_blank">Jenkins</a>.</p>
 <p>However this is for <em>orchestrating delivery pipelines</em> which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.</p>
 <p>For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Workflow pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.</p>
 <p>Our preferred approach is to use Jenkins Workflow pipelines as the core orchestration layer when trying to implement  <a href="cdelivery.html">Continuous Delivery, Continous Deployment or Continous Improvement</a> then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift <a href="https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build" target="_blank">Source to Image builds</a> or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.</p>

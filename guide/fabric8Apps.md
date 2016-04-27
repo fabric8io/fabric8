@@ -8,7 +8,7 @@ The following [Apps](apps.html) are included in the Fabric8 distribution.
     * [Metrics](metrics.html) provides consolidated historical metric collection and visualisation across your environment
 (replicationControllers.html) and [services](services.html)
 * [Continuous Delivery](cdelivery.html) to help teams deliver software in a faster and more reliable way 
-    * [Jenkins](https://jenkins-ci.org/) for Building, Continuous Integration and creating Continuous Delivery pipelines
+    * [Jenkins](https://jenkins.io/) for Building, Continuous Integration and creating Continuous Delivery pipelines
     * [Nexus](http://www.sonatype.org/nexus/) as the artifact repository for caching public artifacts and hosting canary and real release artifacts
     * [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
     * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
