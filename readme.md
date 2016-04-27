@@ -10,12 +10,9 @@ fabric8
   </a>
 </p>
 
-[Fabric8](http://fabric8.io) is an open source set of microservices that run on top of [Kubernetes](http://kubernetes.io/) and [OpenShift V3](http://www.openshift.org/) to provide:
+<b>fabric8</b> is an opinionated open source <b>microservices platform</b> based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
 
-* [Management](http://fabric8.io/guide/management.html) with centralised logging and metrics
-* [Continuous Delivery](http://fabric8.io/guide/cdelivery.html) based on Jenkins, Nexus and Sonarqube with integrated [Chat](http://fabric8.io/guide/chat.html)
-* [iPaaS](http://fabric8.io/guide/ipaas.html) - an Integration Platform as a Service with deep integration with Apache ActiveMQ, Camel and CXF
-* [Tooling](http://fabric8.io/guide/tools.html) for developers and devops
+<b>fabric8</b> makes it easy to create microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
 
 ### Documentation
 
@@ -25,7 +22,7 @@ fabric8
 
 ### Demos
 
-* [Using the web console](https://vimeo.com/125255595)
+* [Using the fabric8 developer console](https://vimeo.com/125255595)
 * [Creating a project](https://vimeo.com/125066673)
 * [More videos](https://vimeo.com/album/2635012)
 
