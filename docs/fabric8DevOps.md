@@ -8,7 +8,7 @@ The available services in **Fabric8 DevOps** are:
 
 * [Continuous Integration and Continuous Delivery](cdelivery.html) to help teams deliver software in a faster and more reliable way via: 
   * the following open source projects:
-    * [Jenkins](https://jenkins-ci.org/) for Building, Continuous Integration and creating Continuous Delivery pipelines
+    * [Jenkins](https://jenkins.io/) for Building, Continuous Integration and creating Continuous Delivery pipelines
     * [Nexus](http://www.sonatype.org/nexus/) as the artifact repository for caching public artifacts and hosting canary and real release artifacts
     * [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
     * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality

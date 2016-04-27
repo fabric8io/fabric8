@@ -14,7 +14,7 @@ built as a reusable set of microservices that run on top of
 
 * [Continuous](http://fabric8.io/guide/cdelivery.html) Integration and
   Continous Delivery to help you deliver software faster and more
-  reliably using [Jenkins](https://jenkins-ci.org/) with a
+  reliably using [Jenkins](https://jenkins.io/) with a
   [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable
   CD pipelines with integrated
   [Chat](http://fabric8.io/guide/chat.html) and

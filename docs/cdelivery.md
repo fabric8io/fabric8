@@ -8,7 +8,7 @@
 
 Continuous Integration and Continous Delivery in **Fabric8 DevOps** consists of the following open source components:
 
-* [Jenkins](https://jenkins-ci.org/) for Building, Continuous Integration and creating Continuous Delivery pipelines.
+* [Jenkins](https://jenkins.io/) for Building, Continuous Integration and creating Continuous Delivery pipelines.
 * [Nexus](http://www.sonatype.org/nexus/) as the artifact repository for caching public artifacts and hosting canary and real release artifacts
 * [Gogs](http://gogs.io/) for on premise git repository hosting and [GitHub](https://github.com/) for public hosting
 * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
@@ -30,7 +30,7 @@ Since **Fabric8 DevOps** is built on top of Kubernetes we get an easy way to sca
  
 ### Automate Jenkins Jobs
  
-Teams often have many git repositories with many artifacts and docker container builds. Manually maintaining individual [Jenkins](https://jenkins-ci.org/) build configurations for each git repository can be time consuming and error prone.
+Teams often have many git repositories with many artifacts and docker container builds. Manually maintaining individual [Jenkins](https://jenkins.io/) build configurations for each git repository can be time consuming and error prone.
 
 So we recommend the use of the [Jenkins Job DSL](https://github.com/jenkinsci/job-dsl-plugin/wiki) to generate the Jenkins build jobs for your projects.
 

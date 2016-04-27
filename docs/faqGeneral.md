@@ -44,7 +44,7 @@ Having said all that; with the  [Fabric8 iPaaS)](ipaas.html) focus, we have opti
 
 #### Is Jenkins Workflow Java centric?
 
-Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins-ci.org/).
+Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins.io/).
 
 Jenkins Workflow provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the [Groovy programming language](http://groovy-lang.org/).
 
@@ -52,7 +52,7 @@ The preferred approach to using Jenkins Workflow is to reuse docker images for a
 
 #### Can Fabric8 DevOps work with my CI server?
 
-Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins-ci.org/).
+Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins.io/).
 
 However this is for _orchestrating delivery pipelines_ which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.
  
