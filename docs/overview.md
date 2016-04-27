@@ -1,11 +1,8 @@
 ## Overview
 
-*fabric8* is an open source
-[DevOps](http://fabric8.io/guide/fabric8DevOps.html) and
-[Integration Platform](http://fabric8.io/guide/ipaas.html) which is
-built as a reusable set of microservices that run on top of
-[Kubernetes](http://kubernetes.io/) and
-[OpenShift V3](http://www.openshift.org/)
+<b>fabric8</b> is an opinionated open source <b>microservices platform</b> based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
+
+<b>fabric8</b> makes it easy to create microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
 
 
 ### [Fabric8 DevOps](fabric8DevOps.html)

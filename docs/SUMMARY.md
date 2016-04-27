@@ -19,7 +19,7 @@
   * [Chat](chat.md)
   * [Chaos Monkey](chaosMonkey.md)
   * [Management](management.md)
-    * [Console](console.md)
+    * [Developer Console](console.md)
     * [Logging](logging.md)
     * [Metrics](metrics.md)
 * [Fabric8 iPaaS](ipaas.md)

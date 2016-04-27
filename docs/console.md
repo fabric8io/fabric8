@@ -1,7 +1,9 @@
-## Console
+## Fabric8 Developer Console
 
-The Fabric8 Console provides a rich HTML5 web application for working with [Kubernetes](http://kubernetes.io/). The front end code is based on the [hawtio project](http://hawt.io/) which supports Kubernetes and reuses the various [hawtio plugins](http://hawt.io/plugins/index.html).
+Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing microservices on [Kubernetes](http://kubernetes.io/). 
 
+Fabric8 Developer Console is single lightweight pod, [replication controller](replicationControllers.html) and [services](services.html) that runs on any [Kubernetes](http://kubernetes.io/) or [Openshift](https://www.openshift.org/) cluster.
+ 
 ### Installing
 
 Here is [how to install the Console on Kubernetes / OpenShift](getStarted/apps.html#console)
@@ -51,11 +53,3 @@ e.g. on OpenShift V3 you can find it via:
 
     oc get route fabric8
 
-
-### Using Jube
-
-If you are using Jube then the web console should be visible at [http://localhost:8585/hawtio/](http://localhost:8585/hawtio/). You can then view these tabs:
-
- * [Pods tab](http://localhost:8585/hawtio/kubernetes/pods) views all the available [pods](pods.html) in your kubernetes environment
- * [Replication Controllers tab](http://localhost:8585/hawtio/kubernetes/replicationControllers) views all the available [replication controllers](replicationControllers.html) in your kubernetes environment
- * [Services tab](http://localhost:8585/hawtio/kubernetes/services) views all the available [services](services.html) in your kubernetes environment
