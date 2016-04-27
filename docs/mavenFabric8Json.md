@@ -308,6 +308,10 @@ There are many options as listed in the following table:
 <td>The name of the service account to use in this pod (defaults to none)</td>
 </tr>
 <tr>
+<td>fabric8.serviceAccountCreate</td>
+<td>Should we create the ServiceAccount resource as part of the build (defaults to false)</td>
+</tr>
+<tr>
 <td>fabric8.service.name</td>
 <td>The name of the Service to generate. Defaults to <code>${project.artifactId}</code> (the artifact Id of the project)</td>
 </tr>
