@@ -124,6 +124,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private static final String VALUE = "value";
     private static final String DESCRIPTION = "description";
 
+    private static final String CPU = "cpu";
+    private static final String MEMORY = "memory";
+
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -529,6 +532,29 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.removeVersionLabelFromServiceSelector", defaultValue = "true")
     private boolean removeVersionLabelFromServiceSelector;
 
+    /**
+     * CPU resource limits
+     */
+    @Parameter(property = "fabric8.resources.limits.cpu", defaultValue = "0")
+    private String limitsCpu;
+
+    /**
+     * Memory resource limits
+     */
+    @Parameter(property = "fabric8.resources.limits.memory", defaultValue = "0")
+    private String limitsMemory;
+
+    /**
+     * CPU resource requests
+     */
+    @Parameter(property = "fabric8.resources.requests.cpu", defaultValue = "0")
+    private String requestsCpu;
+    /**
+     * Memory resource requests
+     */
+    @Parameter(property = "fabric8.resources.requests.cpu", defaultValue = "0")
+    private String requestsMemory;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
@@ -915,6 +941,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     .withName(getKubernetesContainerName())
                     .withImage(getDockerImage())
                     .withImagePullPolicy(getImagePullPolicy())
+                    .withNewResources()
+                    .addToLimits(CPU,new Quantity(limitsCpu))
+                    .addToLimits(MEMORY,new Quantity(limitsMemory))
+                    .addToRequests(CPU,new Quantity(requestsCpu))
+                    .addToRequests(MEMORY,new Quantity(requestsMemory))
+                    .endResources()
                     .withEnv(getEnvironmentVariables())
                     .withNewSecurityContext()
                     .withPrivileged(containerPrivileged)

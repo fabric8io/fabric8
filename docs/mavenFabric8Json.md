@@ -296,6 +296,22 @@ There are many options as listed in the following table:
 <td>Creates a TCP socket action readiness probe on specified port.</td>
 </tr>
 <tr>
+<td>fabric8.resources.limits.memory</td>
+<td>Creates a memory limit compute resource, for example <code>64Mi</code> (64MiB). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.limits.cpu</td>
+<td>Creates a cpu limit compute resource, for example <code>250m</code> (0.25 core). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.requests.memory</td>
+<td>Creates a memory request compute resource, for example <code>64Mi</code> (64MiB). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.requests.cpu</td>
+<td>Creates a cpu request compute resource, for example <code>250m</code> (0.25 core). The default value is 0</td>
+</tr>
+<tr>
 <td>fabric8.replicas</td>
 <td>The number of pods to create for the <a href="http://fabric8.io/guide/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
 </tr>
