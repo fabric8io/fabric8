@@ -142,7 +142,7 @@
         <maven.failsafe.plugin.version>2.19</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
         <mockserver.version>3.10.4</mockserver.version>
-        <mvel.version>2.2.7.Final</mvel.version>
+        <mvel.version>2.2.8.Final</mvel.version>
         <osgi.version>4.3.1</osgi.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
         <pax.url.version>2.4.7</pax.url.version>
