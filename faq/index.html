@@ -150,7 +150,7 @@
 
 <ul>
 <li><a href="management.html">Fabric8 Management</a> works with any Docker images on <a href="http://kubernetes.io/">Kubernetes</a> - so its completely language, framework and runtime agnostic. The <a href="console.html">console</a> has added extra introspection and visualisation for Java docker containers which contain a <a href="http://jolokia.org/">Jolokia</a> but we hope to add more deep introspection tools for other languages. Certainly you can always use any language, framework or runtime specific diagnostic or visualiation tools on Kubernetes directly</li>
-<li><a href="fabric8DevOps.html">Fabric8 DevOps</a> focusses on working with any project with any build mechanism running Docker images on <a href="http://kubernetes.io/">Kubernetes</a>. So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift's <a href="https://docs.openshift.com/enterprise/3.0/architecture/core&#95;concepts/builds&#95;and&#95;image&#95;streams.html#source-build">Source to image build mechanism</a>, or our preferred <a href="cdelivery.html">Continuous Delivery</a> using <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Workflow</a>.</li>
+<li><a href="fabric8DevOps.html">Microservices Platform</a> focusses on working with any project with any build mechanism running Docker images on <a href="http://kubernetes.io/">Kubernetes</a>. So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift's <a href="https://docs.openshift.com/enterprise/3.0/architecture/core&#95;concepts/builds&#95;and&#95;image&#95;streams.html#source-build">Source to image build mechanism</a>, or our preferred <a href="cdelivery.html">Continuous Delivery</a> using <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Workflow</a>.</li>
 <li><a href="ipaas.html">Fabric8 iPaaS (Integration Platform</a> is more Java centric in the sense that integration flows tend to be implemented using <a href="http://camel.apache.org/">Apache Camel</a> which runs inside a Java virtual machine (JVM) but the services that Camel integrates with can be any technology, language, runtime, on premise or SaaS etc.</li>
 <li><a href="apiManagement.html">Fabric8 API Management</a> works with any API implemented in any language or runtime; currently only HTTP based APIs are supported though.</li>
 </ul>
@@ -165,7 +165,7 @@
 
 <p>The preferred approach to using Jenkins Workflow is to reuse docker images for all your build and testing tools; so that most of the details in your <strong>Jenkinsfile</strong> tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.</p>
 
-<h4 id = "Can_Fabric8_DevOps_work_with_my_CI_server_">Can Fabric8 DevOps work with my CI server?</h4>
+<h4 id = "Can_Microservices_Platform_work_with_my_CI_server_">Can Microservices Platform work with my CI server?</h4>
 
 <p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Workflow plugin</a> with <a href="https://jenkins.io/">Jenkins</a>.</p>
 

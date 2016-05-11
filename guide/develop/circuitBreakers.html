@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Develop locally | Fabric8 Documentation</title>
+        <title>Circuit Breakers | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="../getStarted/browserCertificates.html" />
+    <link rel="next" href="../fabric8DevOps.html" />
     
     
-    <link rel="prev" href="../getStarted/apps.html" />
+    <link rel="prev" href="../develop/tracing.html" />
     
 
         
@@ -53,9 +53,9 @@
         
         
     <div class="book"
-        data-level="2.6"
-        data-chapter-title="Develop locally"
-        data-filepath="getStarted/develop.md"
+        data-level="3.8"
+        data-chapter-title="Circuit Breakers"
+        data-filepath="develop/circuitBreakers.md"
         data-basepath=".."
         data-revision="Wed May 11 2016 11:01:13 GMT+0000 (UTC)"
         data-innerlanguage="">
@@ -192,7 +192,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.6" data-path="getStarted/develop.html">
+        <li class="chapter " data-level="2.6" data-path="getStarted/develop.html">
             
                 
                     <a href="../getStarted/develop.html">
@@ -363,7 +363,7 @@
             
         </li>
     
-        <li class="chapter " data-level="3.8" data-path="develop/circuitBreakers.html">
+        <li class="chapter active" data-level="3.8" data-path="develop/circuitBreakers.html">
             
                 
                     <a href="../develop/circuitBreakers.html">
@@ -1394,29 +1394,10 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="develop-locally"><a name="develop-locally" class="plugin-anchor" href="#develop-locally"><span class="fa fa-link"></span></a>Develop locally</h2>
-<p>Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your <code>edit -&gt; compile -&gt; run</code> cycle time and helps you develop faster.</p>
-<p>So if you are running Kubernetes locally on your laptop such as via the <a href="vagrant.html">Fabric8 vagrant image</a> its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.</p>
-<h3 id="setup-your-machine"><a name="setup-your-machine" class="plugin-anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h3>
-<p>Set this environment variable if you use the <a href="vagrant.html">Fabric8 vagrant image</a>:</p>
-<pre><code>export DOCKER_HOST=tcp://vagrant.f8:2375
-</code></pre><p>And don&apos;t define any of the other docker env vars like <code>DOCKER_CERT_PATH</code> or <code>DOCKER_TLS_VERIFY</code>.</p>
-<p>Now when in a shell on your host (OS X / Windows) you can type <code>docker ps</code> and the output is the same as if you type the same command inside the <code>vagrant ssh</code> shell inside the vagrant VM.</p>
-<p>This then means that your host (OS X / Windows) will use the same docker daemon as the Kubernetes running inside the fabric8 vagrant image. Because of this you don&apos;t need to use a docker registry; a docker daemon is kinda like a local registry anyway - provided you don&apos;t try to push or pull the image! </p>
-<p><strong>NOTE</strong>  you need to make sure that your kubernetes JSON uses the imagePullPolicy of <code>PullIfAbsent</code> (via the maven property <code>fabric8.imagePullPolicy</code>); as any attempt to pull an image just built locally that isn&apos;t pushed to a docker registry won&apos;t work; since the image isn&apos;t public yet. In fabric8 2.2.101 the default in <code>mvn fabric8:json</code> is to now omit this value which means it uses the kubernetes default which is <code>PullIfAbsent</code>.</p>
-<h3 id="build-and-apply"><a name="build-and-apply" class="plugin-anchor" href="#build-and-apply"><span class="fa fa-link"></span></a>Build and apply</h3>
-<p>So in a Maven project type the following:</p>
-<pre><code>mvn install docker:build fabric8:json fabric8:apply
-</code></pre><p>This will then build the docker image - in the fabric8 vagrant image - and then generate and apply the kubernetes JSON. This should then run your application on kubernetes. Kubernetes should not need to try pull the image from anywhere since its local in the docker daemon and it should startup fine.</p>
-<p>If it doesn&apos;t try to start up - or you see it keep retrying from the openshift logs - then there could be an issue with your docker image or code. So its a good idea to try just run it yourself on the console.</p>
-<pre><code>docker run -itP imageName
-</code></pre><p>Ideally passing in the environment variables your image needs to discover other services. There&apos;s a handy command, <a href="../mavenFabric8CreateEnv.html">mvn fabric8:create-env</a> to figure out the env vars for you so that you can run docker images outside of kubernetes as if they are inside (in terms of service discovery and environment variables defined in the kubernetes json).</p>
-<h3 id="apply-new-images-faster"><a name="apply-new-images-faster" class="plugin-anchor" href="#apply-new-images-faster"><span class="fa fa-link"></span></a>Apply new images faster</h3>
-<p>Rather than doing the whole regeneration of the JSON and reapplying (which is fairly fast but can take a couple of seconds) and doing a docker push/pull (which can take many seconds) you can just do:</p>
-<pre><code>mvn install docker:build fabric8:delete-pods
-</code></pre><p>For more background see a <a href="../mavenFabric8DeletePods.html">description of the mvn fabric8:delete-pods command</a>.</p>
-<p>What this does is builds the docker image in the docker daemon and deletes all the pods in kubernetes which use the same image as your current maven project; this immediately causes the kubernetes <a href="../replicationControllers.html">Replication Controller</a> to recreate any of the pods you deleted. </p>
-<p>Basically this causes an immediate rolling upgrade to the new image! Its a pretty nice, quick way of working.</p>
+                        <h2 id="circuit-breakers"><a name="circuit-breakers" class="plugin-anchor" href="#circuit-breakers"><span class="fa fa-link"></span></a>Circuit Breakers</h2>
+<p>Adding circuit breakers via the <a href="https://github.com/Netflix/Hystrix" target="_blank">Hystrix</a> library helps you provide a fallback if any dependent service either goes down or goes too slow.</p>
+<p>If you are using Hystrix then you can run the <strong>kubeflix</strong> application which runs the Hystrix dashboard application to help you visualise the state of your hystrix circuit breakers.</p>
+<p>For more background on using Hystrix with Kubernetes check out the <a href="https://github.com/fabric8io/kubeflix" target="_blank">kubeflix project</a></p>
 
                     
                     </section>
@@ -1427,10 +1408,10 @@
         </div>
 
         
-        <a href="../getStarted/apps.html" class="navigation navigation-prev " aria-label="Previous page: Install on OpenShift"><i class="fa fa-angle-left"></i></a>
+        <a href="../develop/tracing.html" class="navigation navigation-prev " aria-label="Previous page: Tracing"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/browserCertificates.html" class="navigation navigation-next " aria-label="Next page: Accept self-signed certs"><i class="fa fa-angle-right"></i></a>
+        <a href="../fabric8DevOps.html" class="navigation navigation-next " aria-label="Next page: Microservices Platform"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

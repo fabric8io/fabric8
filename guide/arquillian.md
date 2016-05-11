@@ -20,7 +20,7 @@ This extension, will not mutate neither your containers *(by deploying, reconfig
     - Services
 - Integration with Fabric8 Modules:
     - [Fabric8 Maven Plugin](mavenPlugin.html)
-    - [Fabric8 DevOps](fabric8DevOps.html)
+    - [Microservices Platform](fabric8DevOps.html)
     - [Fabric8 CDI](cdi.html)
 - "Bring your own client" support
 
