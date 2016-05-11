@@ -1,10 +1,10 @@
-## iPaaS
+## Integration
 
-**Fabric8 iPaaS** provides an _Integration Platform As A Service_ consisting of:
+**Fabric8 Integration** provides an _Integration Platform As A Service_ consisting of:
 
-* [Console](console.html) provides a nice web console based on [hawtio](http://hawt.io/) for working with your integration services
+* [Developer Console](console.html) provides a nice web console based on [hawtio](http://hawt.io/) for working with your integration services
 * [API Registry](apiRegistry.html) provides a global view of all of your RESTful and web service APIs that is displayed in the [Console](console.html) allowing you to inspect and invoke all the endpoints
-* [Fabric8 Messaging](fabric8MQ.html) implements elastic and scalable _Messaging As A Service_ with [Apache ActiveMQ Artemis](http://activemq.apache.org/artemis/) on Kubernetes.
+* [Messaging](fabric8MQ.html) implements elastic and scalable _Messaging As A Service_ with [Apache ActiveMQ Artemis](http://activemq.apache.org/artemis/) on Kubernetes.
 
 Then to help you and your team provision and manage your integration services:
 
