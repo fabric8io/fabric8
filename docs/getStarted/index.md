@@ -1,8 +1,8 @@
 ## Getting Started
 
-#### OpenShift / Kubernetes setup
+### OpenShift / Kubernetes setup
 
-First you need an OpenShift or Kubernetes environment, which can be setup in multiple ways. For a quick start choose one of these recipes:
+Before you start using fabric8 you will need a Kubernetes or Kubernetes cluster. Here are some recipies:
 
 * [**Vagrant**](vagrant.html) - OpenShift Origin
 
