@@ -10,13 +10,13 @@ Fabric8 is made up of a number of different modular open source repositories:
 
 ### DevOps
 
-The following projects are for [Fabric8 DevOps](http://fabric8.io/guide/fabric8DevOps.html):
+The following projects are for [Microservices Platform](http://fabric8.io/guide/fabric8DevOps.html):
 
-* [fabric8-devops](https://github.com/fabric8io/fabric8-devops) contains the main [Fabric8 DevOps](http://fabric8.io/guide/fabric8DevOps.html) applications
+* [fabric8-devops](https://github.com/fabric8io/fabric8-devops) contains the main [Microservices Platform](http://fabric8.io/guide/fabric8DevOps.html) applications
 * [fabric8-console](https://github.com/fabric8io/fabric8-console) the web console for fabric8
 * [fabric8-forge](https://github.com/fabric8io/fabric8-forge) contains the main [JBoss Forge addons and REST service](http://fabric8.io/guide/forge.html) 
 * [jenkins-workflow-library](https://github.com/fabric8io/jenkins-workflow-library) the reusable [Jenkins Workflow library](http://fabric8.io/guide/jenkinsWorkflowLibrary.html)
-* [fabric8-jenkins-workflow-steps](https://github.com/fabric8io/fabric8-jenkins-workflow-steps) the Jenkins Pipeline steps for working with [Fabric8 DevOps](http://fabric8.io/guide/fabric8DevOps.html)
+* [fabric8-jenkins-workflow-steps](https://github.com/fabric8io/fabric8-jenkins-workflow-steps) the Jenkins Pipeline steps for working with [Microservices Platform](http://fabric8.io/guide/fabric8DevOps.html)
 * [kubernetes-workflow](https://github.com/fabric8io/kubernetes-workflow) extends Jenkins Pipeline to have native Kubernetes support for creating build slaves using custom pods, images, volumes and secrets
 
 ### iPaaS

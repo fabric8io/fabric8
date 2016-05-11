@@ -4,10 +4,9 @@ Capturing historical metrics an extremely useful tool to help diagnose your runn
 
 With fabric8 we recommend using:
 
-* [Prometheus](http://prometheus.io/) or [Hawkular](http://hawkular.org) as the back end storage of historical metric data as they are both easy to scale, provide options for resilience and are very easy to query.
+* [Prometheus](http://prometheus.io/) as the back end storage of historical metric data as they are both easy to scale, provide options for resilience and are very easy to query.
 * [Grafana](http://grafana.org/) as the console to view, query and analyze metrics.
-* to collect the metrics we use [cAdvisor](https://github.com/google/cadvisor) for collecting metrics from docker containers and Prometheus for collecting metrics from JMX.
-
+* for Java applications we use [Agent Bond](https://github.com/fabric8io/agent-bond) to expose JMX metrics for Prometheus
 
 ### How to use Metrics in fabric8
 

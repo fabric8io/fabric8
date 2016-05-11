@@ -1,35 +1,28 @@
 ## Overview
 
-<b>fabric8</b> is an opinionated open source <b>microservices platform</b> based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
+<b>fabric8</b> is an opinionated open source [Microservices Platform](fabric8DevOps.html)  based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
 
 <b>fabric8</b> makes it easy to create microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
 
+The [Fabric8 Microservices Platform](fabric8DevOps.html) provides:
 
-### [Fabric8 DevOps](fabric8DevOps.html)
-
-[Fabric8 DevOps](fabric8DevOps.html) provides:
-
-* [Continuous](http://fabric8.io/guide/cdelivery.html) Integration and
-  Continous Delivery to help you deliver software faster and more
+* [Developer Console](console.html) is a rich web application which provides a single plane of glass to create, edit, build, deploy and test microservices
+* [Continuous Integration and Continous Delivery](http://fabric8.io/guide/cdelivery.html) to help you deliver software faster and more
   reliably using [Jenkins](https://jenkins.io/) with a
   [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable
-  CD pipelines with integrated
-  [Chat](http://fabric8.io/guide/chat.html) and
-  [Chaos Monkey](http://fabric8.io/guide/chaosMonkey.html)
+  CD pipelines 
 
 * [Management](http://fabric8.io/guide/management.html) of your
-  applications with a powerful
-  [Console](http://fabric8.io/guide/console.html) with centralised
-  [Logging](http://fabric8.io/guide/logging.html) and
-  [Metrics](http://fabric8.io/guide/metrics.html) along with deep
+  applications with centralised
+  [Logging](http://fabric8.io/guide/logging.html) and 
+  [Metrics](http://fabric8.io/guide/metrics.html), [ChatOps](http://fabric8.io/guide/chat.html) 
+  and [Chaos Monkey](http://fabric8.io/guide/chaosMonkey.html) along with deep
   management of Java Containers using [Hawtio](http://hawt.io/) and
   [Jolokia](http://jolokia.org/)
+  
 
-### [Fabric8 iPaaS](ipaas.html)
-
-[Fabric8 iPaaS](ipaas.html) is an *Integration Platform As A
-Service* with
-[deep visualisation](http://fabric8.io/guide/console.html) of your
+* [Integration](ipaas.html) *Integration Platform As A
+Service* with [deep visualisation](http://fabric8.io/guide/console.html) of your
 [Apache Camel](http://camel.apache.org/) integration services, an
 [API Registry](http://fabric8.io/guide/apiRegistry.html) to view of
 all your RESTful and SOAP APIs and
@@ -37,20 +30,17 @@ all your RESTful and SOAP APIs and
 *Messaging As A Service* based on
 [Apache ActiveMQ](http://activemq.apache.org/)
 
-### [Fabric8 Tools](tools.html)
-
-[Fabric8 Tools](http://fabric8.io/guide/tools.html) helps the
+* [Java Tools](http://fabric8.io/guide/tools.html) helps the
 Java community take full advantage of
 [Kubernetes](http://kubernetes.io/):
-
-* [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html) for working
-  with [Kubernetes](http://kubernetes.io/)
-* [Integration and System Testing](http://fabric8.io/guide/testing.html)
-  of [Kubernetes](http://kubernetes.io/) resources easily inside
-  [JUnit](http://junit.org/) with [Arquillian](http://arquillian.org/)
-* [Java Libraries](http://fabric8.io/guide/javaLibraries.html) and
-  support for [CDI](http://fabric8.io/guide/cdi.html) extensions for
-  working with [Kubernetes](http://kubernetes.io/)
+    * [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html) for working
+      with [Kubernetes](http://kubernetes.io/)
+    * [Integration and System Testing](http://fabric8.io/guide/testing.html)
+      of [Kubernetes](http://kubernetes.io/) resources easily inside
+      [JUnit](http://junit.org/) with [Arquillian](http://arquillian.org/)
+    * [Java Libraries](http://fabric8.io/guide/javaLibraries.html) and
+      support for [CDI](http://fabric8.io/guide/cdi.html) extensions for
+      working with [Kubernetes](http://kubernetes.io/)
 
 ### Supported Platforms
 

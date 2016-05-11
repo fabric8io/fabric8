@@ -1,12 +1,12 @@
 ## Logging
 
-Logging is a key part of being able to maintain and understand distributed systems. Consolidating log statements and events and being able to query and visualise them is an extremely useful tool.
+Logging is a key part of being able to understand and diagnose distributed systems. Consolidating log statements and events and being able to query and visualise them is an extremely useful tool.
 
 With fabric8 we recommend using:
 
 * [Elasticsearch](http://www.elasticsearch.com/products/elasticsearch/) as the back end storage of logs and events in your system as its easy to scale, provides replicated data for resilience and is very easy to query using complex structural and textual queries
 * [Kibana](http://www.elasticsearch.com/products/kibana/) as the console to view, query and analyze the logs
-* to collect the logs we tend to use this [logspout fork](https://github.com/jimmidyson/logspout) which is a small docker container for collecting logs which appends the docker and kuberentes metadata. Or you can use [LogStash](http://www.elasticsearch.com/products/logstash/) directly inside a container if you wish
+* to collect the logs we recommend fluentd
 
 Using [Elasticsearch](http://www.elasticsearch.com/products/elasticsearch/) on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using [Kubernetes Services](http://kubernetes.io/v1.0/docs/user-guide/services.html). Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like [fluentd](http://www.fluentd.org)
 

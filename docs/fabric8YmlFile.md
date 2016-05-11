@@ -1,6 +1,6 @@
 ## fabric8.yml file
 
-The `fabric8.yml` file is an optional YAML file that the **Fabric8 DevOps** tools use to store project configuration inside the source code of a project. 
+The `fabric8.yml` file is an optional YAML file that the **Microservices Platform** tools use to store project configuration inside the source code of a project. 
 
 Its a place you can store things like
 
@@ -16,4 +16,4 @@ There are a few ways you can edit the contents:
 
 * the `project settings` button in the [console](console.html)
 * the `fabric8.yml` file directly using a text editor in source control
-* using the [Fabric8 DevOps Forge commands from the CLI or in your IDE](forge.html)
+* using the [Microservices Platform Forge commands from the CLI or in your IDE](forge.html)
