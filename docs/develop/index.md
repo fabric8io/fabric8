@@ -2,14 +2,14 @@
 
 When developing microservices you need to consider the following capabilities:
 
-  * [Elasticity and Resilience](develop/elasticity.html)
-  * [Service Discovery](develop/serviceDiscovery.html)
-  * [Load balancing](develop/loadBalancing.html)
-  * [Pipelines](develop/pipelines.html)
-  * [Logging](develop/logging.html)
-  * [Monitoring](develop/monitoring.html)
-  * [Tracing](develop/tracing.html)
-  * [Circuit Breakers](develop/circuitBreakers.html)
+  * [Elasticity and Resilience](elasticity.html)
+  * [Service Discovery](serviceDiscovery.html)
+  * [Load balancing](loadBalancing.html)
+  * [Pipelines](pipelines.html)
+  * [Logging](logging.html)
+  * [Monitoring](monitoring.html)
+  * [Tracing](tracing.html)
+  * [Circuit Breakers](circuitBreakers.html)
 
 <!--  
 ## Authentication
