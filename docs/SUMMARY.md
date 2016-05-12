@@ -10,6 +10,7 @@
   * [Troubleshooting](getStarted/troubleshooting.md)
 * [Developing Microservices](develop/index.md)
   * [Elasticity and Resilience](develop/elasticity.md)
+  * [Design for Failure](develop/designForFailure.md)
   * [Service Discovery](develop/serviceDiscovery.md)
   * [Load balancing](develop/loadBalancing.md)
   * [Pipelines](develop/pipelines.md)
