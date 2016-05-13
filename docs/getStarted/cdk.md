@@ -16,6 +16,9 @@ export OPENSHIFT_VAGRANT_USE_OSE_3_2=true
 export SUB_USERNAME=...  
 export SUB_PASSWORD=...  
 
+export VM_CPU=4
+export VM_MEMORY=6120
+
 vagrant plugin install vagrant-registration
 vagrant plugin install vagrant-service-manager
 vagrant plugin install vagrant-sshfs
