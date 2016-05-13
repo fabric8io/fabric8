@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Vagrant Image | Fabric8 Documentation</title>
+        <title>CDK | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -41,10 +41,10 @@
         
     
     
-    <link rel="next" href="../getStarted/cdk.html" />
+    <link rel="next" href="../getStarted/openshift.html" />
     
     
-    <link rel="prev" href="../getStarted/index.html" />
+    <link rel="prev" href="../getStarted/vagrant.html" />
     
 
         
@@ -53,9 +53,9 @@
         
         
     <div class="book"
-        data-level="2.1"
-        data-chapter-title="Vagrant Image"
-        data-filepath="getStarted/vagrant.md"
+        data-level="2.2"
+        data-chapter-title="CDK"
+        data-filepath="getStarted/cdk.md"
         data-basepath=".."
         data-revision="Fri May 13 2016 15:07:23 GMT+0000 (UTC)"
         data-innerlanguage="">
@@ -117,7 +117,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="2.1" data-path="getStarted/vagrant.html">
+        <li class="chapter " data-level="2.1" data-path="getStarted/vagrant.html">
             
                 
                     <a href="../getStarted/vagrant.html">
@@ -132,7 +132,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="getStarted/cdk.html">
+        <li class="chapter active" data-level="2.2" data-path="getStarted/cdk.html">
             
                 
                     <a href="../getStarted/cdk.html">
@@ -1424,136 +1424,37 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-vagrant-image"><a name="fabric8-vagrant-image" class="plugin-anchor" href="#fabric8-vagrant-image"><span class="fa fa-link"></span></a>Fabric8 Vagrant Image</h2>
-<p>This is the fastest way to get going with Fabric8 and OpenShift on your laptop.</p>
-<p>Here is a <a href="https://vimeo.com/134408216" target="_blank">video walking you through these steps</a></p>
-<div class="row">
-  <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134408216" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
-  </p>
-</div>
-
-
-<h3 id="how-to-vagrant-up"><a name="how-to-vagrant-up" class="plugin-anchor" href="#how-to-vagrant-up"><span class="fa fa-link"></span></a>How to vagrant up</h3>
+                        <h2 id="installing-fabric8-inside-the-cdk"><a name="installing-fabric8-inside-the-cdk" class="plugin-anchor" href="#installing-fabric8-inside-the-cdk"><span class="fa fa-link"></span></a>Installing Fabric8 inside the CDK</h2>
+<p>First you will need to:</p>
 <ul>
 <li>Download and install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox</a></li>
 <li>Download and install <a href="http://www.vagrantup.com/downloads.html" target="_blank">Vagrant</a></li>
 </ul>
-<p>Now clone the
-<a href="https://github.com/fabric8io/fabric8-installer" target="_blank">fabric8 installer git repository</a>
-repository and type these commands:</p>
-<pre><code class="lang-sh">$ git <span class="hljs-built_in">clone</span> https://github.com/fabric8io/fabric8-installer.git
-$ <span class="hljs-built_in">cd</span> fabric8-installer/vagrant/openshift
-</code></pre>
-<p>Depending on your host operating system you need to install an
-additional vagrant plugin:</p>
-<ul>
-<li><code>vagrant plugin install landrush</code> for Linux and OS X</li>
-<li><code>vagrant plugin install vagrant-hostmanager</code> for Windows</li>
-</ul>
-<p>The next steps are needed for proper routing from the host to
-OpenShift services which are exposed via routes:</p>
-<ul>
-<li><p><strong>Linux</strong>: Setup a <code>dnsmasq</code> DNS proxy locally. The detailed
-procedure depends on the Linux distribution used.  Here is the
-example for Ubuntu:</p>
-<pre><code>  sudo apt-get install -y resolvconf dnsmasq
-  sudo sh -c &apos;echo &quot;server=/vagrant.f8/127.0.0.1#10053&quot; &gt; /etc/dnsmasq.d/vagrant-landrush&apos;
-  sudo service dnsmasq restart
-</code></pre></li>
-<li><p><strong>Windows</strong>: Unfortunately for Windows no automatic routing for new
-services is possible. You have to add new routes manually to
-<code>%WINDIR%\System32\drivers\etc\hosts</code>. For your convenience, a set
-of routes for default Fabric8 applications has been pre-added. For
-new services look for the following line and add your new routes
-(<code>&lt;service-name&gt;.vagrant.f8</code>) to this file on a new line like this:</p>
-<pre><code>  ## vagrant-hostmanager-start id: 9a4ba3f3-f5e4-4ad4-9e80-b4045c6cf2fc
-  172.28.128.4  vagrant.f8 fabric8.vagrant.f8 jenkins.vagrant.f8 .....
-  172.28.128.4  myservice.vagrant.f8
-  ## vagrant-hostmanager-end
-</code></pre></li>
-<li><p><strong>OS X</strong>: Nothing has to be done. OS X will automatically resolve
-all routes to <code>*.vagrant.f8</code> to your Vagrant VM. This is done via OS
-X&apos;s resolver feature (see <code>man 5 resolver</code> for details).</p>
-</li>
-</ul>
-<p>Now startup the Vagrant VM.</p>
-<pre><code class="lang-sh">vagrant up
-</code></pre>
-<p>Note the vagrant image is by default configured with 2 CPU cores and
-4 gigs of memory. It is recommended to not exceed about half of your
-machine&#x2019;s resources. In case you have plenty of resources on your
-machine you can increase the settings by editing the
-<code>Vagrantfile</code>. The settings are defined in the bottom of the file:</p>
-<pre><code class="lang-ruby">v.cpus = <span class="hljs-number">2</span>
-</code></pre>
-<p>To update the RAM you can use an environment variable. For example to run the <code>cd-pipeline</code> application we recommend about 8Gb of RAM:</p>
-<pre><code>export FABRIC8_VM_MEMORY=8192
-</code></pre><p>Then follow the on screen instructions.</p>
-<ul>
-<li>You should now have a running vagrant image running at IP address
-<code>172.28.128.4</code> or at <code>vagrant.f8</code></li>
-<li>Downloading the docker images may take a few minutes so you might
-want to jump ahead to the <a href="local.html">Local Setup</a> recipe then
-coming back here when you&apos;re done.</li>
-<li>After the vagrant box is created and docker images are downloaded,
-the <a href="../console.html">fabric8 console</a> should appear at
-<a href="http://fabric8.vagrant.f8/" target="_blank">http://fabric8.vagrant.f8/</a></li>
-<li><p>When you first open your browser Chrome will say:</p>
-<pre><code>  Your connection is not private
-</code></pre></li>
-<li><p>You will want to accept the self signed cert, follow
-<a href="browserCertificates.html">these steps</a> and return here</p>
-</li>
-<li>Enter <code>admin</code> and <code>admin</code></li>
-<li>You should now be in the main fabric8 console! That was easy eh! :)</li>
-<li>Make sure you start off in the <code>default</code> namespace.</li>
-</ul>
-<h3 id="installing-other-applications"><a name="installing-other-applications" class="plugin-anchor" href="#installing-other-applications"><span class="fa fa-link"></span></a>Installing other applications</h3>
-<p>When you are on the <code>Apps</code> tab in the
-<a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> click on the
-<code>Run...</code> button.</p>
-<p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a>
-on your installation.</p>
-<ul>
-<li>To Run any of the installed templates just click the <code>Run</code> button
-(the green play button).</li>
-<li>To install any new
-<a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a>
-or other Kubernetes resources just drag and drop the JSON file onto
-the <code>Apps</code> tab!</li>
-<li>You can download the
-<a href="http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.101/distro-2.2.101-templates.zip" target="_blank">fabric8 templates 2.2.101 distribution</a>
-unzip and drag the JSON files you want to install onto the
-<a href="http://fabric8.io/guide/console.html" target="_blank">fabric8 console</a> and they
-should appear on the <code>Run...</code> page</li>
-<li>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" target="_blank">helm command line tool</a>     </li>
-<li>You can also install other OpenShift Templates or Kubernetes
-resources via the <strong>oc</strong> command line tool:<pre><code>  oc create -f jsonOr YamlFileOrUrl
-</code></pre><ul>
-<li>Typically the default username/password for various applications is <code>admin/admin</code> or <code>gogsadmin/RedHat$1</code>.  Try these espcially for  secrets to get the pipeline to work with GOGS. </li>
-</ul>
-</li>
-</ul>
-<h3 id="setting-up-your-local-machine"><a name="setting-up-your-local-machine" class="plugin-anchor" href="#setting-up-your-local-machine"><span class="fa fa-link"></span></a>Setting up your local machine</h3>
-<p>In order to communicate with the Vagrant VM from you localhost it is
-recommended to install the OpenShift client
-tools. This is explained in an extra <a href="local.html">document</a>.</p>
-<p>This is also useful using the
-<a href="../mavenPlugin.html">fabric8 maven tooling</a> or reusing the docker
-daemon inside vagrant; so that all images built are accessible inside
-the OpenShift environment.</p>
-<p>Alternatively you can log into the Vagrant VM also via <code>vagrant
-ssh</code>. The OpenShift tools (<code>oc</code>, <code>oadmn</code>) are installed in the VM,
-too.</p>
-<h3 id="trying-a-fresh-image"><a name="trying-a-fresh-image" class="plugin-anchor" href="#trying-a-fresh-image"><span class="fa fa-link"></span></a>Trying a fresh image</h3>
-<p>Note: in case you already ran the above and want to update to the
-latest vagrant image, OpenShift and Fabric8 release you need to
-destroy and recreate the vagrant image.  You can do that using:</p>
-<pre><code class="lang-sh">vagrant destroy <span class="hljs-operator">-f</span>
-git pull
+<p>Next clone the <a href="https://github.com/redhat-developer-tooling/openshift-vagrant" target="_blank">CDK vagrant repository</a> and follow the <a href="https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites" target="_blank">prerequisites</a></p>
+<pre><code>git clone https://github.com/redhat-developer-tooling/openshift-vagrant.git
+cd openshift-vagrant
+
+cd cdk-v2
+export OPENSHIFT_VAGRANT_USE_OSE_3_2=true
+export SUB_USERNAME=...  
+export SUB_PASSWORD=...  
+
+vagrant plugin install vagrant-registration
+vagrant plugin install vagrant-service-manager
+vagrant plugin install vagrant-sshfs
+
 vagrant up
-</code></pre>
+</code></pre><p>Once that is completed you should have the OpenShift console at <a href="https://10.1.2.2:8443/console/" target="_blank">https://10.1.2.2:8443/console/</a></p>
+<p>Now download and install <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> and ensure its on your <code>$PATH</code>.</p>
+<p>You will probably want to login so you can use the <code>oc</code> command line tool from OpenShift:</p>
+<pre><code>oc login 10.1.2.2:8443 -u=admin -p=admin
+</code></pre><p>Now install fabric8:</p>
+<pre><code>gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io
+gofabric8 secrets -y
+</code></pre><p>It will take a few moments to startup and download the <a href="../console.html">Fabric8 Developer Console</a>, you should see the pod startup in the OpenShift console or via the commmand:</p>
+<pre><code>oc get pods -w
+</code></pre><p>Now that the fabric8 console is up and running you should be able to access it at: <a href="http://fabric8.openshift.10.1.2.2.xip.io/" target="_blank">http://fabric8.openshift.10.1.2.2.xip.io/</a></p>
+<p>From there you should be able to start running apps and having fun! :) </p>
 <h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
 <p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
 
@@ -1566,10 +1467,10 @@ vagrant up
         </div>
 
         
-        <a href="../getStarted/index.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
+        <a href="../getStarted/vagrant.html" class="navigation navigation-prev " aria-label="Previous page: Vagrant Image"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/cdk.html" class="navigation navigation-next " aria-label="Next page: CDK"><i class="fa fa-angle-right"></i></a>
+        <a href="../getStarted/openshift.html" class="navigation navigation-next " aria-label="Next page: Native OpenShift"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
