@@ -8,7 +8,12 @@ Before you start using fabric8 you will need a Kubernetes or Kubernetes cluster.
 
   This is the easiest and fastest way to get started with fabric8 locally.
   All you need is [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) installed locally.
-  The detailed steps are described in "[Fabric8 Vagrant Image](vagrant.html)"
+  Check out how to [Create the Fabric8 Vagrant Image](vagrant.html)
+
+* [**CDK**](cdk.html) - Using the Red Hat Container Development Kit
+
+  You will need is [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) installed locally along with a [number of prerequisites](https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites).
+  Check out [Installing Fabric8 inside the CDK Vagrant Image](cdk.html)
 
 * [**Native OpenShift**](openshift.html) - OpenShift Origin
 

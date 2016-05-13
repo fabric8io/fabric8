@@ -1,6 +1,7 @@
 * [Overview](overview.md)
 * [Getting Started](getStarted/index.md)
   * [Vagrant Image](getStarted/vagrant.md)
+  * [CDK](getStarted/cdk.md)
   * [Native OpenShift](getStarted/openshift.md)
   * [Native Kubernetes on GKE](getStarted/gke.md)
   * [Local OpenShift Client](getStarted/local.md)
