@@ -138,11 +138,12 @@
         </dependency>
 
         <dependency>
-            <groupId>com.squareup.okhttp</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>${okhttp.version}</version>
+            <version>${mockwebserver.version}</version>
             <scope>test</scope>
         </dependency>
+        
     </dependencies>
 
     <build>

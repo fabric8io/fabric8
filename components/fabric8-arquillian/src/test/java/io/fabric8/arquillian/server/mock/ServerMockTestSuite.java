@@ -18,8 +18,6 @@ package io.fabric8.arquillian.server.mock;
 import io.fabric8.arquillian.ResourceInjection;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
