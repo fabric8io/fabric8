@@ -1,5 +1,7 @@
 ## Kubernetes Client API
 
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-api)
+
 This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0.
 
 ### Add it to your Maven pom.xml
