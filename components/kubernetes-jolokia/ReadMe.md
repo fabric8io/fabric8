@@ -1,5 +1,8 @@
 ## Kubernetes Jolokia
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-jolokia/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-jolokia/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-jolokia.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-jolokia)
+
 This library provides integration between the [kubernetes-api](../kubernetes-api/) and [Jolokia](http://jolokia.org/) so that its easy to work with Java containers which expose Jolokia ports such as the [Fabric8](https://registry.hub.docker.com/repos/fabric8/) containers and [ConSol](https://registry.hub.docker.com/repos/consol/) docker containers.
 
 ### Add it to your Maven pom.xml

@@ -1,5 +1,6 @@
 ## Kubernetes Client API
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-api/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-api/)
 [![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-api)
 
 This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0.

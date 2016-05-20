@@ -1,6 +1,9 @@
 Fabric8 Hubot API
 =================
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/hubot-api/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/hubot-api/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/hubot-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/hubot-api)
+
 This library provides a JAXRS 2.0 based Java client API for working with the <a href="http://hubot.github.com/">Hubot chat bot</a> that lets you send notifications to chat systems such as:
 
 * Lets Chat

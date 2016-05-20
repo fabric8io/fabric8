@@ -1,5 +1,8 @@
 ## Kubernetes Assertions
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-assertions/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-assertions/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-assertions.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-assertions)
+
 This library provides a bunch of helpful [assertj](http://joel-costigliola.github.io/assertj/) assertions for working with the [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api).
 
 Some quick examples:

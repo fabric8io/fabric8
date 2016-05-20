@@ -1,5 +1,8 @@
 ## Fabric8 DevOps 
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-devops/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-devops/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/fabric8-devops.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/fabric8-devops)
+
 A Java library for working with the Fabric8 DevOps configuration for a project
 
 ### Add it to your Maven pom.xml

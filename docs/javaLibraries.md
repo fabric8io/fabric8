@@ -6,9 +6,8 @@ If you want to write any Java/JVM based tools to interact with [Kubernetes](http
 
 Kubernetes provides the main REST API for working with the [Kubernetes Platform](http://kubernetes.io). It should provide all you need for writing most services and plugins for Kubernetes.
 
-* [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) [![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-api) provides a Java API for working with the Kubernetes REST API (pods, replication controllers, services etc)
+* [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) provides a Java API for working with the Kubernetes REST API (pods, replication controllers, services etc)
 * [kubernetes-jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) makes it easy to work with the [Jolokia Client API](http://jolokia.org/reference/html/clients.html#client-java) and Java containers running in [Pods](pods.html) inside Kubernetes which expose the Jolokia port
-* [kubernetes-template](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-template) provides a simple templating mechanism for generating the Kubernetes JSON files from MVEL templates with parameters from a DTO
 
 #### Testing
 
@@ -51,7 +50,7 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 
 ### Hubot
 
-* [hubot-letschat](https://github.com/fabric8io/fabric8/blob/master/components/letschat-api/) provides a Java API for working with the <a href="http://sdelements.github.io/lets-chat/">Let's Chat</a> to auto-create rooms etc.
+* [letschat-api](https://github.com/fabric8io/fabric8/blob/master/components/letschat-api/) provides a Java API for working with the <a href="http://sdelements.github.io/lets-chat/">Let's Chat</a> to auto-create rooms etc.
 
 ### Taiga
 
