@@ -1,1465 +1,1335 @@
+
 <!DOCTYPE HTML>
-<html lang="en" >
-    
+<html lang="" >
     <head>
-        
+        <title>Install on OpenShift · Fabric8 Documentation</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Install on OpenShift | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.7">
+        <meta name="generator" content="GitBook 3.0.0">
         
         
-        <meta name="HandheldFriendly" content="true"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
-        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
         
+    
     <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-anchors/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
         
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+    
         
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-search/search.css">
-        
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
-        
-    
     
 
         
     
     
-    <link rel="next" href="../getStarted/develop.html" />
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="develop.html" />
     
     
-    <link rel="prev" href="../getStarted/local.html" />
+    <link rel="prev" href="local.html" />
     
 
-        
     </head>
     <body>
         
+<div class="book">
+    <div class="book-summary">
         
-    <div class="book"
-        data-level="2.6"
-        data-chapter-title="Install on OpenShift"
-        data-filepath="getStarted/apps.md"
-        data-basepath=".."
-        data-revision="Fri May 20 2016 15:02:39 GMT+0000 (UTC)"
-        data-innerlanguage="">
-    
-
-<div class="book-summary">
-    <nav role="navigation">
-        <ul class="summary">
             
-            
-            
-            
-
-            
-
-            
-    
-        <li class="chapter " data-level="0" data-path="index.html">
-            
-                
-                    <a href="../index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                        Introduction
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="1" data-path="overview.html">
-            
-                
-                    <a href="../overview.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>1.</b>
-                        
-                        Overview
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2" data-path="getStarted/index.html">
-            
-                
-                    <a href="../getStarted/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.</b>
-                        
-                        Getting Started
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="2.1" data-path="getStarted/vagrant.html">
-            
-                
-                    <a href="../getStarted/vagrant.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.1.</b>
-                        
-                        Vagrant Image
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.2" data-path="getStarted/cdk.html">
-            
-                
-                    <a href="../getStarted/cdk.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.2.</b>
-                        
-                        CDK
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.3" data-path="getStarted/openshift.html">
-            
-                
-                    <a href="../getStarted/openshift.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.3.</b>
-                        
-                        Native OpenShift
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.4" data-path="getStarted/gke.html">
-            
-                
-                    <a href="../getStarted/gke.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.4.</b>
-                        
-                        Native Kubernetes on GKE
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.5" data-path="getStarted/local.html">
-            
-                
-                    <a href="../getStarted/local.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.5.</b>
-                        
-                        Local OpenShift Client
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter active" data-level="2.6" data-path="getStarted/apps.html">
-            
-                
-                    <a href="../getStarted/apps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.6.</b>
-                        
-                        Install on OpenShift
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.7" data-path="getStarted/develop.html">
-            
-                
-                    <a href="../getStarted/develop.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.7.</b>
-                        
-                        Develop locally
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.8" data-path="getStarted/browserCertificates.html">
-            
-                
-                    <a href="../getStarted/browserCertificates.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.8.</b>
-                        
-                        Accept self-signed certs
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.9" data-path="getStarted/troubleshooting.html">
-            
-                
-                    <a href="../getStarted/troubleshooting.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.9.</b>
-                        
-                        Troubleshooting
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="3" data-path="develop/index.html">
-            
-                
-                    <a href="../develop/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.</b>
-                        
-                        Developing Microservices
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="3.1" data-path="develop/elasticity.html">
-            
-                
-                    <a href="../develop/elasticity.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.1.</b>
-                        
-                        Elasticity and Resilience
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.2" data-path="develop/designForFailure.html">
-            
-                
-                    <a href="../develop/designForFailure.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.2.</b>
-                        
-                        Design for Failure
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.3" data-path="develop/serviceDiscovery.html">
-            
-                
-                    <a href="../develop/serviceDiscovery.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.3.</b>
-                        
-                        Service Discovery
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.4" data-path="develop/loadBalancing.html">
-            
-                
-                    <a href="../develop/loadBalancing.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.4.</b>
-                        
-                        Load balancing
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.5" data-path="develop/pipelines.html">
-            
-                
-                    <a href="../develop/pipelines.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.5.</b>
-                        
-                        Pipelines
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.6" data-path="develop/logging.html">
-            
-                
-                    <a href="../develop/logging.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.6.</b>
-                        
-                        Logging
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.7" data-path="develop/monitoring.html">
-            
-                
-                    <a href="../develop/monitoring.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.7.</b>
-                        
-                        Monitoring
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.8" data-path="develop/tracing.html">
-            
-                
-                    <a href="../develop/tracing.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.8.</b>
-                        
-                        Tracing
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="3.9" data-path="develop/circuitBreakers.html">
-            
-                
-                    <a href="../develop/circuitBreakers.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.9.</b>
-                        
-                        Circuit Breakers
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="4" data-path="fabric8DevOps.html">
-            
-                
-                    <a href="../fabric8DevOps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.</b>
-                        
-                        Microservices Platform
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="4.1" data-path="console.html">
-            
-                
-                    <a href="../console.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.1.</b>
-                        
-                        Developer Console
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="4.2" data-path="cdelivery.html">
-            
-                
-                    <a href="../cdelivery.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.2.</b>
-                        
-                        CI and CD
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="4.2.1" data-path="jenkinsWorkflowLibrary.html">
-            
-                
-                    <a href="../jenkinsWorkflowLibrary.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.2.1.</b>
-                        
-                        Jenkins Workflow Library
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="4.2.2" data-path="fabric8YmlFile.html">
-            
-                
-                    <a href="../fabric8YmlFile.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.2.2.</b>
-                        
-                        fabric8.yml file
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="4.3" data-path="management.html">
-            
-                
-                    <a href="../management.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.3.</b>
-                        
-                        Management
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="4.3.1" data-path="logging.html">
-            
-                
-                    <a href="../logging.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.3.1.</b>
-                        
-                        Logging
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="4.3.2" data-path="metrics.html">
-            
-                
-                    <a href="../metrics.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.3.2.</b>
-                        
-                        Metrics
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="4.4" data-path="chat.html">
-            
-                
-                    <a href="../chat.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.4.</b>
-                        
-                        Chat
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="4.5" data-path="chaosMonkey.html">
-            
-                
-                    <a href="../chaosMonkey.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.5.</b>
-                        
-                        Chaos Monkey
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="5" data-path="ipaas.html">
-            
-                
-                    <a href="../ipaas.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.</b>
-                        
-                        Integration
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="5.1" data-path="fabric8MQ.html">
-            
-                
-                    <a href="../fabric8MQ.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.1.</b>
-                        
-                        Messaging
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.2" data-path="apiManagement.html">
-            
-                
-                    <a href="../apiManagement.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.</b>
-                        
-                        API Management
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="5.2.1" data-path="apimanComponents.html">
-            
-                
-                    <a href="../apimanComponents.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.1.</b>
-                        
-                        Apiman Components
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.2.2" data-path="apimanGettingStarted.html">
-            
-                
-                    <a href="../apimanGettingStarted.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.2.</b>
-                        
-                        Getting Started
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.2.3" data-path="apimanDataModel.html">
-            
-                
-                    <a href="../apimanDataModel.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.3.</b>
-                        
-                        Data Model
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.2.4" data-path="apimanImportService.html">
-            
-                
-                    <a href="../apimanImportService.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.4.</b>
-                        
-                        Publish Service
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5.2.5" data-path="apimanConsumeService.html">
-            
-                
-                    <a href="../apimanConsumeService.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.2.5.</b>
-                        
-                        Consume a Service
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="6" data-path="quickstarts/index.html">
-            
-                
-                    <a href="../quickstarts/index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>6.</b>
-                        
-                        Quickstarts
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="6.1" data-path="quickstarts/archetypes.html">
-            
-                
-                    <a href="../quickstarts/archetypes.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>6.1.</b>
-                        
-                        Archetypes
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="6.2" data-path="quickstarts/running.html">
-            
-                
-                    <a href="../quickstarts/running.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>6.2.</b>
-                        
-                        Running
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="6.3" data-path="quickstarts/walkthrough.html">
-            
-                
-                    <a href="../quickstarts/walkthrough.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>6.3.</b>
-                        
-                        Walk-through
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="7" data-path="tools.html">
-            
-                
-                    <a href="../tools.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.</b>
-                        
-                        Tools
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="7.1" data-path="testing.html">
-            
-                
-                    <a href="../testing.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.1.</b>
-                        
-                        Testing
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.2" data-path="forge.html">
-            
-                
-                    <a href="../forge.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.2.</b>
-                        
-                        Forge
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="7.2.1" data-path="camelMavenPlugin.html">
-            
-                
-                    <a href="../camelMavenPlugin.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.2.1.</b>
-                        
-                        Camel Maven Plugin
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3" data-path="mavenPlugin.html">
-            
-                
-                    <a href="../mavenPlugin.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.</b>
-                        
-                        Maven Plugin
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="7.3.1" data-path="mavenDockerBuild.html">
-            
-                
-                    <a href="../mavenDockerBuild.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.1.</b>
-                        
-                        docker:build
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.2" data-path="mavenDockerPush.html">
-            
-                
-                    <a href="../mavenDockerPush.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.2.</b>
-                        
-                        docker:push
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.3" data-path="mavenFabric8Apply.html">
-            
-                
-                    <a href="../mavenFabric8Apply.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.3.</b>
-                        
-                        fabric8:apply
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.4" data-path="mavenFabric8CreateEnv.html">
-            
-                
-                    <a href="../mavenFabric8CreateEnv.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.4.</b>
-                        
-                        fabric8:create-env
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.5" data-path="mavenFabric8CreateRoutes.html">
-            
-                
-                    <a href="../mavenFabric8CreateRoutes.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.5.</b>
-                        
-                        fabric8:create-routes
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.6" data-path="mavenFabric8DeletePods.html">
-            
-                
-                    <a href="../mavenFabric8DeletePods.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.6.</b>
-                        
-                        fabric8:delete-pods
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.7" data-path="mavenFabric8DevOps.html">
-            
-                
-                    <a href="../mavenFabric8DevOps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.7.</b>
-                        
-                        fabric8:devops
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.8" data-path="mavenFabric8Helm.html">
-            
-                
-                    <a href="../mavenFabric8Helm.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.8.</b>
-                        
-                        fabric8:helm
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.9" data-path="mavenFabric8HelmPush.html">
-            
-                
-                    <a href="../mavenFabric8HelmPush.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.9.</b>
-                        
-                        fabric8:helm-push
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.10" data-path="mavenFabric8Json.html">
-            
-                
-                    <a href="../mavenFabric8Json.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.10.</b>
-                        
-                        fabric8:json
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="7.3.10.1" data-path="annotationProcessors.html">
-            
-                
-                    <a href="../annotationProcessors.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.10.1.</b>
-                        
-                        annotation processors
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.11" data-path="mavenFabric8Recreate.html">
-            
-                
-                    <a href="../mavenFabric8Recreate.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.11.</b>
-                        
-                        fabric8:recreate
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.3.12" data-path="mavenFabric8Rolling.html">
-            
-                
-                    <a href="../mavenFabric8Rolling.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.3.12.</b>
-                        
-                        fabric8:rolling
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="7.4" data-path="helm.html">
-            
-                
-                    <a href="../helm.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.4.</b>
-                        
-                        Helm
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.5" data-path="javaLibraries.html">
-            
-                
-                    <a href="../javaLibraries.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.5.</b>
-                        
-                        Java Libraries
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="7.6" data-path="cdi.html">
-            
-                
-                    <a href="../cdi.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>7.6.</b>
-                        
-                        CDI
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="8" data-path="annotations.html">
-            
-                
-                    <a href="../annotations.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>8.</b>
-                        
-                        Annotations
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="8.1" data-path="secretAnnotations.html">
-            
-                
-                    <a href="../secretAnnotations.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>8.1.</b>
-                        
-                        Secret Annotations
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="9" data-path="architecture.html">
-            
-                
-                    <a href="../architecture.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.</b>
-                        
-                        Architecture
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="9.1" data-path="pods.html">
-            
-                
-                    <a href="../pods.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.1.</b>
-                        
-                        Pods
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.2" data-path="replicationControllers.html">
-            
-                
-                    <a href="../replicationControllers.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.2.</b>
-                        
-                        Replication Controllers
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.3" data-path="labels.html">
-            
-                
-                    <a href="../labels.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.3.</b>
-                        
-                        Labels
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.4" data-path="services.html">
-            
-                
-                    <a href="../services.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.4.</b>
-                        
-                        Services
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.5" data-path="apps.html">
-            
-                
-                    <a href="../apps.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.5.</b>
-                        
-                        Apps
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.6" data-path="environments.html">
-            
-                
-                    <a href="../environments.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.6.</b>
-                        
-                        Environments
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="9.7" data-path="builds.html">
-            
-                
-                    <a href="../builds.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>9.7.</b>
-                        
-                        Builds
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="10" data-path="projects.html">
-            
-                
-                    <a href="../projects.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>10.</b>
-                        
-                        Source Code
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="11" data-path="v2-changes.html">
-            
-                
-                    <a href="../v2-changes.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>11.</b>
-                        
-                        Changes from V1
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="12" data-path="FAQ.html">
-            
-                
-                    <a href="../FAQ.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>12.</b>
-                        
-                        FAQ
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="12.1" data-path="faqGeneral.html">
-            
-                
-                    <a href="../faqGeneral.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>12.1.</b>
-                        
-                        General Questions
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="12.2" data-path="faqFuse.html">
-            
-                
-                    <a href="../faqFuse.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>12.2.</b>
-                        
-                        JBoss Fuse Questions
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="12.3" data-path="faqKubernetes.html">
-            
-                
-                    <a href="../faqKubernetes.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>12.3.</b>
-                        
-                        Kubernetes Questions
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="12.4" >
-            
-                
-                    <a target="_blank" href="https:/help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>12.4.</b>
-                        
-                        OpenShift Questions
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-
-
-            
-            <li class="divider"></li>
-            <li>
-                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
-                    Published with GitBook
-                </a>
-            </li>
-            
-        </ul>
-    </nav>
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
 </div>
 
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../overview.html">
+            
+                <a href="../overview.html">
+            
+                    
+                    Overview
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="vagrant.html">
+            
+                <a href="vagrant.html">
+            
+                    
+                    Vagrant Image
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="cdk.html">
+            
+                <a href="cdk.html">
+            
+                    
+                    CDK
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="openshift.html">
+            
+                <a href="openshift.html">
+            
+                    
+                    Native OpenShift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="gke.html">
+            
+                <a href="gke.html">
+            
+                    
+                    Native Kubernetes on GKE
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="local.html">
+            
+                <a href="local.html">
+            
+                    
+                    Local OpenShift Client
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3.6" data-path="apps.html">
+            
+                <a href="apps.html">
+            
+                    
+                    Install on OpenShift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.7" data-path="develop.html">
+            
+                <a href="develop.html">
+            
+                    
+                    Develop locally
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.8" data-path="browserCertificates.html">
+            
+                <a href="browserCertificates.html">
+            
+                    
+                    Accept self-signed certs
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.9" data-path="troubleshooting.html">
+            
+                <a href="troubleshooting.html">
+            
+                    
+                    Troubleshooting
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../develop/">
+            
+                <a href="../develop/">
+            
+                    
+                    Developing Microservices
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../develop/elasticity.html">
+            
+                <a href="../develop/elasticity.html">
+            
+                    
+                    Elasticity and Resilience
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../develop/designForFailure.html">
+            
+                <a href="../develop/designForFailure.html">
+            
+                    
+                    Design for Failure
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../develop/serviceDiscovery.html">
+            
+                <a href="../develop/serviceDiscovery.html">
+            
+                    
+                    Service Discovery
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../develop/loadBalancing.html">
+            
+                <a href="../develop/loadBalancing.html">
+            
+                    
+                    Load balancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../develop/pipelines.html">
+            
+                <a href="../develop/pipelines.html">
+            
+                    
+                    Pipelines
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../develop/logging.html">
+            
+                <a href="../develop/logging.html">
+            
+                    
+                    Logging
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.7" data-path="../develop/monitoring.html">
+            
+                <a href="../develop/monitoring.html">
+            
+                    
+                    Monitoring
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.8" data-path="../develop/tracing.html">
+            
+                <a href="../develop/tracing.html">
+            
+                    
+                    Tracing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.9" data-path="../develop/circuitBreakers.html">
+            
+                <a href="../develop/circuitBreakers.html">
+            
+                    
+                    Circuit Breakers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../fabric8DevOps.html">
+            
+                <a href="../fabric8DevOps.html">
+            
+                    
+                    Microservices Platform
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../console.html">
+            
+                <a href="../console.html">
+            
+                    
+                    Developer Console
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../cdelivery.html">
+            
+                <a href="../cdelivery.html">
+            
+                    
+                    CI and CD
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.2.1" data-path="../jenkinsWorkflowLibrary.html">
+            
+                <a href="../jenkinsWorkflowLibrary.html">
+            
+                    
+                    Jenkins Workflow Library
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2.2" data-path="../fabric8YmlFile.html">
+            
+                <a href="../fabric8YmlFile.html">
+            
+                    
+                    fabric8.yml file
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="../management.html">
+            
+                <a href="../management.html">
+            
+                    
+                    Management
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.3.1" data-path="../logging.html">
+            
+                <a href="../logging.html">
+            
+                    
+                    Logging
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3.2" data-path="../metrics.html">
+            
+                <a href="../metrics.html">
+            
+                    
+                    Metrics
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.4" data-path="../chat.html">
+            
+                <a href="../chat.html">
+            
+                    
+                    Chat
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.5" data-path="../chaosMonkey.html">
+            
+                <a href="../chaosMonkey.html">
+            
+                    
+                    Chaos Monkey
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../ipaas.html">
+            
+                <a href="../ipaas.html">
+            
+                    
+                    Integration
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../fabric8MQ.html">
+            
+                <a href="../fabric8MQ.html">
+            
+                    
+                    Messaging
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../apiManagement.html">
+            
+                <a href="../apiManagement.html">
+            
+                    
+                    API Management
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.2.1" data-path="../apimanComponents.html">
+            
+                <a href="../apimanComponents.html">
+            
+                    
+                    Apiman Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2.2" data-path="../apimanGettingStarted.html">
+            
+                <a href="../apimanGettingStarted.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2.3" data-path="../apimanDataModel.html">
+            
+                <a href="../apimanDataModel.html">
+            
+                    
+                    Data Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2.4" data-path="../apimanImportService.html">
+            
+                <a href="../apimanImportService.html">
+            
+                    
+                    Publish Service
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2.5" data-path="../apimanConsumeService.html">
+            
+                <a href="../apimanConsumeService.html">
+            
+                    
+                    Consume a Service
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../quickstarts/">
+            
+                <a href="../quickstarts/">
+            
+                    
+                    Quickstarts
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../quickstarts/archetypes.html">
+            
+                <a href="../quickstarts/archetypes.html">
+            
+                    
+                    Archetypes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../quickstarts/running.html">
+            
+                <a href="../quickstarts/running.html">
+            
+                    
+                    Running
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../quickstarts/walkthrough.html">
+            
+                <a href="../quickstarts/walkthrough.html">
+            
+                    
+                    Walk-through
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../tools.html">
+            
+                <a href="../tools.html">
+            
+                    
+                    Tools
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../testing.html">
+            
+                <a href="../testing.html">
+            
+                    
+                    Testing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="../forge.html">
+            
+                <a href="../forge.html">
+            
+                    
+                    Forge
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.2.1" data-path="../camelMavenPlugin.html">
+            
+                <a href="../camelMavenPlugin.html">
+            
+                    
+                    Camel Maven Plugin
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../mavenPlugin.html">
+            
+                <a href="../mavenPlugin.html">
+            
+                    
+                    Maven Plugin
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.1" data-path="../mavenDockerBuild.html">
+            
+                <a href="../mavenDockerBuild.html">
+            
+                    
+                    docker:build
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.2" data-path="../mavenDockerPush.html">
+            
+                <a href="../mavenDockerPush.html">
+            
+                    
+                    docker:push
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.3" data-path="../mavenFabric8Apply.html">
+            
+                <a href="../mavenFabric8Apply.html">
+            
+                    
+                    fabric8:apply
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.4" data-path="../mavenFabric8CreateEnv.html">
+            
+                <a href="../mavenFabric8CreateEnv.html">
+            
+                    
+                    fabric8:create-env
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.5" data-path="../mavenFabric8CreateRoutes.html">
+            
+                <a href="../mavenFabric8CreateRoutes.html">
+            
+                    
+                    fabric8:create-routes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.6" data-path="../mavenFabric8DeletePods.html">
+            
+                <a href="../mavenFabric8DeletePods.html">
+            
+                    
+                    fabric8:delete-pods
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.7" data-path="../mavenFabric8DevOps.html">
+            
+                <a href="../mavenFabric8DevOps.html">
+            
+                    
+                    fabric8:devops
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.8" data-path="../mavenFabric8Helm.html">
+            
+                <a href="../mavenFabric8Helm.html">
+            
+                    
+                    fabric8:helm
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.9" data-path="../mavenFabric8HelmPush.html">
+            
+                <a href="../mavenFabric8HelmPush.html">
+            
+                    
+                    fabric8:helm-push
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.10" data-path="../mavenFabric8Json.html">
+            
+                <a href="../mavenFabric8Json.html">
+            
+                    
+                    fabric8:json
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.10.1" data-path="../annotationProcessors.html">
+            
+                <a href="../annotationProcessors.html">
+            
+                    
+                    annotation processors
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.11" data-path="../mavenFabric8Recreate.html">
+            
+                <a href="../mavenFabric8Recreate.html">
+            
+                    
+                    fabric8:recreate
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3.12" data-path="../mavenFabric8Rolling.html">
+            
+                <a href="../mavenFabric8Rolling.html">
+            
+                    
+                    fabric8:rolling
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.4" data-path="../helm.html">
+            
+                <a href="../helm.html">
+            
+                    
+                    Helm
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.5" data-path="../javaLibraries.html">
+            
+                <a href="../javaLibraries.html">
+            
+                    
+                    Java Libraries
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.6" data-path="../cdi.html">
+            
+                <a href="../cdi.html">
+            
+                    
+                    CDI
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../annotations.html">
+            
+                <a href="../annotations.html">
+            
+                    
+                    Annotations
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.9.1" data-path="../secretAnnotations.html">
+            
+                <a href="../secretAnnotations.html">
+            
+                    
+                    Secret Annotations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="../architecture.html">
+            
+                <a href="../architecture.html">
+            
+                    
+                    Architecture
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.10.1" data-path="../pods.html">
+            
+                <a href="../pods.html">
+            
+                    
+                    Pods
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.2" data-path="../replicationControllers.html">
+            
+                <a href="../replicationControllers.html">
+            
+                    
+                    Replication Controllers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.3" data-path="../labels.html">
+            
+                <a href="../labels.html">
+            
+                    
+                    Labels
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.4" data-path="../services.html">
+            
+                <a href="../services.html">
+            
+                    
+                    Services
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.5" data-path="../apps.html">
+            
+                <a href="../apps.html">
+            
+                    
+                    Apps
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.6" data-path="../environments.html">
+            
+                <a href="../environments.html">
+            
+                    
+                    Environments
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10.7" data-path="../builds.html">
+            
+                <a href="../builds.html">
+            
+                    
+                    Builds
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="../projects.html">
+            
+                <a href="../projects.html">
+            
+                    
+                    Source Code
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="../v2-changes.html">
+            
+                <a href="../v2-changes.html">
+            
+                    
+                    Changes from V1
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="../FAQ.html">
+            
+                <a href="../FAQ.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.13.1" data-path="../faqGeneral.html">
+            
+                <a href="../faqGeneral.html">
+            
+                    
+                    General Questions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13.2" data-path="../faqFuse.html">
+            
+                <a href="../faqFuse.html">
+            
+                    
+                    JBoss Fuse Questions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13.3" data-path="../faqKubernetes.html">
+            
+                <a href="../faqKubernetes.html">
+            
+                    
+                    Kubernetes Questions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13.4" >
+            
+                <a target="_blank" href="https://help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
+            
+                    
+                    OpenShift Questions
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
     <div class="book-body">
-        <div class="body-inner">
-            <div class="book-header" role="navigation">
-    <!-- Actions Left -->
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
     
 
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="../" >Fabric8 Documentation</a>
+        <a href=".." >Install on OpenShift</a>
     </h1>
 </div>
 
-            <div class="page-wrapper" tabindex="-1" role="main">
-                <div class="page-inner">
-                
-                
-                    <section class="normal" id="section-">
-                    
-                        <h2 id="install-fabric8-on-openshift"><a name="install-fabric8-on-openshift" class="plugin-anchor" href="#install-fabric8-on-openshift"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h2 id="install-fabric8-on-openshift"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
 <p><a href="../fabric8Apps.html">Fabric8 apps</a> have been
-<a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">packaged</a> to make them easy
+<a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" _target="blank">packaged</a> to make them easy
 to install on Kubernetes or OpenShift.</p>
-<h3 id="install-via-the-console"><a name="install-via-the-console" class="plugin-anchor" href="#install-via-the-console"><span class="fa fa-link"></span></a>Install via the console</h3>
+<h3 id="install-via-the-console"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install via the console</h3>
 <p>If you are already running the <a href="../console.html">fabric8 console</a> you can use it to install all the
 other <a href="../fabric8Apps.html">Fabric8 apps</a> and quickstarts. If you are not yet running the
 fabric8 console then try <a href="#console">install it via the CLI below</a>.</p>
 <p>When you open the fabric8 console select the <code>Apps</code> tab then click on the <code>Run...</code> button (top right green button).</p>
-<p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a>
+<p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" _target="blank">OpenShift Templates</a>
 on your installation.</p>
 <ul>
 <li>To Run any of the installed templates just click the <code>Run</code> button (the green play button).</li>
-<li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift Templates</a> or
+<li>To install any new <a href="http://docs.openshift.org/latest/dev_guide/templates.html" _target="blank">OpenShift Templates</a> or
 other Kubernetes resources just drag and drop the JSON file onto the <code>Apps</code> tab!</li>
-<li>You can download the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">fabric8 templates 2.2.153 distribution</a>
+<li>You can download the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" _target="blank">fabric8 templates 2.2.153 distribution</a>
 unzip and drag the JSON files you want to install onto the <a href="../console.html">fabric8 console</a>
 and they should appear on the <code>Run...</code> page  </li>
 <li><p>You can also install other OpenShift Templates or Kubernetes resources via the <strong>oc</strong> command line tool:</p>
 <pre><code>  oc create -f jsonOrYamlFileOrUrl
 </code></pre></li>
 </ul>
-<h3 id="install-via-the-cli"><a name="install-via-the-cli" class="plugin-anchor" href="#install-via-the-cli"><span class="fa fa-link"></span></a>Install via the CLI</h3>
+<h3 id="install-via-the-cli"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install via the CLI</h3>
 <p>These instructions assume that you have either</p>
 <ul>
 <li>Either setup the fabric8 <a href="vagrant.html">Vagrant image</a> or have a <a href="openshift.html">native OpenShift</a> installation</li>
 <li>You have the <a href="local.html">local machine</a>  setup to talk to OpenShift</li>
 </ul>
-<h4 id="setup-domain"><a name="setup-domain" class="plugin-anchor" href="#setup-domain"><span class="fa fa-link"></span></a>Setup domain</h4>
+<h4 id="setup-domain"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Setup domain</h4>
 <ul>
 <li>setup the <strong>KUBERNETES_DOMAIN</strong> environment variable for the domain you are installing to. Usually this is a host name or domain name.</li>
 </ul>
 <p>e.g. if you are using the fabric8 Vagrant image then use</p>
 <pre><code>export KUBERNETES_DOMAIN=vagrant.f8
-</code></pre><h4 id="downloading-all-templates"><a name="downloading-all-templates" class="plugin-anchor" href="#downloading-all-templates"><span class="fa fa-link"></span></a>Downloading all templates</h4>
-<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" target="_blank">fabric8 templates 2.2.153 distribution</a>.</p>
+</code></pre><h4 id="downloading-all-templates"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Downloading all templates</h4>
+<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" _target="blank">fabric8 templates 2.2.153 distribution</a>.</p>
 <p>e.g.</p>
 <pre><code>curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip
 unzip fabric8.zip
@@ -1468,54 +1338,54 @@ cd main
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | oc create -f -
 </code></pre><p>For example to install the <a href="console.html">fabric8 console</a> then type:</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.101.json | oc create -f -
-</code></pre><h4 id="download-templates-individually"><a name="download-templates-individually" class="plugin-anchor" href="#download-templates-individually"><span class="fa fa-link"></span></a>Download templates individually</h4>
+</code></pre><h4 id="download-templates-individually"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Download templates individually</h4>
 <p>Or to install from the central repository then choose the commands below to suit the application you wish to install:</p>
-<h5 id="console"><a name="console" class="plugin-anchor" href="#console"><span class="fa fa-link"></span></a>Console</h5>
+<h5 id="console"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Console</h5>
 <p>Provides the base <a href="../console.html">fabric8 console</a> at the <code>vagrant.f8</code> domain.</p>
-<p><a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> provides a script for installing fabric8 on openshift or vanilla kubernetes.</p>
-<p>First download a <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8 binary</a>, unpack the archive and copy the binary to a folder in your path, e.g. /usr/bin/</p>
+<p><a href="https://github.com/fabric8io/gofabric8" _target="blank">gofabric8</a> provides a script for installing fabric8 on openshift or vanilla kubernetes.</p>
+<p>First download a <a href="https://github.com/fabric8io/gofabric8/releases" _target="blank">gofabric8 binary</a>, unpack the archive and copy the binary to a folder in your path, e.g. /usr/bin/</p>
 <p>Then install fabric8 by running:</p>
 <pre><code>gofabric8 deploy -y
 gofabric8 secrets -y
-</code></pre><h5 id="management"><a name="management" class="plugin-anchor" href="#management"><span class="fa fa-link"></span></a>Management</h5>
+</code></pre><h5 id="management"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Management</h5>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.101/management-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
-<h6 id="logging"><a name="logging" class="plugin-anchor" href="#logging"><span class="fa fa-link"></span></a>Logging</h6>
+<h6 id="logging"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Logging</h6>
 <p>Provides just the centralised <a href="../logging.html">Logging</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.101/logging-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
-<h6 id="metrics"><a name="metrics" class="plugin-anchor" href="#metrics"><span class="fa fa-link"></span></a>Metrics</h6>
+<h6 id="metrics"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Metrics</h6>
 <p>Provides just the centralised <a href="../metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.101/metrics-2.2.101-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
-<h5 id="ipaas"><a name="ipaas" class="plugin-anchor" href="#ipaas"><span class="fa fa-link"></span></a>iPaaS</h5>
+<h5 id="ipaas"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>iPaaS</h5>
 <p>Provides the <a href="../console.html">fabric8 console</a> and the <a href="../ipaas.html">Integration Platform As A Service</a></p>
-<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip" target="_blank">fabric8 templates 2.2.94 distribution</a>.</p>
+<p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip" _target="blank">fabric8 templates 2.2.94 distribution</a>.</p>
 <p>e.g.</p>
 <p>```
-curl -o fabric8.zip <a href="http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip" target="_blank">http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip</a>
+curl -o fabric8.zip <a href="http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip" _target="blank">http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip</a>
 unzip fabric8.zip
 cd main</p>
 <p>Then run whatever templates you want to run from the ipaas:</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f apiman-2.2.94.json | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
-<h5 id="continuous-delivery"><a name="continuous-delivery" class="plugin-anchor" href="#continuous-delivery"><span class="fa fa-link"></span></a>Continuous Delivery</h5>
+<h5 id="continuous-delivery"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Continuous Delivery</h5>
 <p>Provides a Continuous Integration and <a href="../cdelivery.html">Continuous Delivery</a> system.</p>
 <p>The complete <a href="../cdelivery.html">Continuous Delivery</a> installation.</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.2.153/cd-pipeline-2.2.153-kubernetes.json \
     | oc create -f -
 </code></pre><p>Then <a href="#creating-routes">setup the OpenShift Routes</a></p>
-<h3 id="creating-routes"><a name="creating-routes" class="plugin-anchor" href="#creating-routes"><span class="fa fa-link"></span></a>Creating Routes</h3>
+<h3 id="creating-routes"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Creating Routes</h3>
 <p>If you install via the command line then you will need to create the
-<a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a> for any <a href="../services.html">services</a>
+<a href="http://docs.openshift.org/latest/admin_guide/router.html" _target="blank">OpenShift Routes</a> for any <a href="../services.html">services</a>
 you created. Note that this is done automatically if you create applications via the <a href="../console.html">fabric8 console</a>.</p>
 <p>To do this use the <a href="../mavenFabric8CreateRoutes.html">mvn fabric8:create-routes</a> goal.</p>
 <p>Note that this command can be run in any folder; it doesn&apos;t need to be run from inside a maven project.</p>
@@ -1533,52 +1403,84 @@ master/router is <code>172.28.128.4</code> (which it is for the fabric8 <a href=
 add this to your hosts file to expose  the routes as host names:</p>
 <pre><code>    172.28.128.4 vagrant.f8 fabric8.vagrant.f8 docker-registry.vagrant.f8 gogs-http.vagrant.f8
     172.28.128.4 gogs-ssh.vagrant.f8 nexus.vagrant.f8 jenkins.vagrant.f8 kibana.vagrant.f8
-</code></pre><p>You should now be able to access the console at <a href="http://fabric8.vagrant.f8/" target="_blank">http://fabric8.vagrant.f8/</a></p>
+</code></pre><p>You should now be able to access the console at <a href="http://fabric8.vagrant.f8/" _target="blank">http://fabric8.vagrant.f8/</a></p>
 
-                    
-                    </section>
-                
-                
-                </div>
-            </div>
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
         </div>
-
-        
-        <a href="../getStarted/local.html" class="navigation navigation-prev " aria-label="Previous page: Local OpenShift Client"><i class="fa fa-angle-left"></i></a>
-        
-        
-        <a href="../getStarted/develop.html" class="navigation navigation-next " aria-label="Next page: Develop locally"><i class="fa fa-angle-right"></i></a>
-        
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
     </div>
 </div>
 
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="local.html" class="navigation navigation-prev " aria-label="Previous page: Local OpenShift Client">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="develop.html" class="navigation navigation-next " aria-label="Next page: Develop locally">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
         
-<script src="../gitbook/app.js"></script>
+    </div>
 
-    
-    <script src="../gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-search/search.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
-    
-
-<script>
-require(["gitbook"], function(gitbook) {
-    var config = {"anchors":{},"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
-    gitbook.start(config);
-});
-</script>
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Install on OpenShift","level":"1.3.6","depth":2,"next":{"title":"Develop locally","level":"1.3.7","depth":2,"path":"getStarted/develop.md","ref":"getStarted/develop.md","articles":[]},"previous":{"title":"Local OpenShift Client","level":"1.3.5","depth":2,"path":"getStarted/local.md","ref":"getStarted/local.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/apps.md","mtime":"2016-05-23T13:37:52.000Z","type":"markdown"},"gitbook":{"version":"3.0.0","time":"2016-05-23T13:41:10.919Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
 
         
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
     </body>
-    
 </html>
+
