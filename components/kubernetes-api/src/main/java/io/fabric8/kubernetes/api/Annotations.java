@@ -32,6 +32,8 @@ public class Annotations {
         public static final String GIT_COMMIT = "fabric8.io/git-commit";
         public static final String GIT_URL = "fabric8.io/git-url";
         public static final String GIT_BRANCH = "fabric8.io/git-branch";
+
+        public static final String DOCS_URL = "fabric8.io/docs-url";
     }
 
     public static class Project {

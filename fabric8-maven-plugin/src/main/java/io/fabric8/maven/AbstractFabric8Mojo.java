@@ -15,6 +15,38 @@
  */
 package io.fabric8.maven;
 
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectRepositories;
+import io.fabric8.kubernetes.api.Annotations;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.DistributionManagement;
+import org.apache.maven.model.Site;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,35 +75,9 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import io.fabric8.devops.ProjectConfig;
-import io.fabric8.devops.ProjectConfigs;
-import io.fabric8.devops.ProjectRepositories;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.ServiceNames;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.maven.support.JsonSchema;
-import io.fabric8.maven.support.JsonSchemas;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.Template;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.GitHelpers;
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
-import io.fabric8.utils.URLUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
+import static jdk.nashorn.internal.objects.NativeArray.lastIndexOf;
 
 /**
  * Abstract base class for Fabric8 based Mojos
@@ -423,6 +429,88 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
         }
+
+        // lets try and figure out the documentation URL
+        String docUrl = findDocumentationUrl();
+        if (Strings.isNotBlank(docUrl)) {
+            annotations.put(Annotations.Builds.DOCS_URL, docUrl);
+            getLog().info("Found documentation URL: " + docUrl);
+        }
+    }
+
+    protected String findDocumentationUrl() {
+        DistributionManagement distributionManagement = findProjectDistributionManagement();
+        if (distributionManagement != null) {
+            Site site = distributionManagement.getSite();
+            if (site != null) {
+                String url = site.getUrl();
+                if (Strings.isNotBlank(url)) {
+
+                    // lets replace any properties...
+                    MavenProject project = getProject();
+                    if (project != null) {
+                        url = replaceProperties(url, project.getProperties());
+                    }
+
+                    // lets convert the internal dns name to a public name
+                    try {
+                        String urlToParse = url;
+                        int idx = url.indexOf("://");
+                        if (idx > 0) {
+                            // lets strip any previous schemes such as "dav:"
+                            int idx2 = url.substring(0, idx).lastIndexOf(':');
+                            if (idx2 >= 0 && idx2 < idx) {
+                                urlToParse = url.substring(idx2 + 1);
+                            }
+                        }
+                        URL u = new URL(urlToParse);
+                        String host = u.getHost();
+                        // lets see if the host name is a service name in which case we'll resolve to the public URL
+                        KubernetesClient kubernetes = getKubernetes();
+                        String ns = kubernetes.getNamespace();
+                        Service service = kubernetes.services().inNamespace(ns).withName(host).get();
+                        if (service != null) {
+                            String publicUrl = KubernetesHelper.getServiceURL(kubernetes, host, ns, u.getProtocol(), true);
+                            return URLUtils.pathJoin(publicUrl, u.getPath());
+                        }
+
+                    } catch (MalformedURLException e) {
+                        getLog().error("Failed to parse URL: " + url, e);
+                    }
+                    return url;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Replaces all text of the form <code>{foo}</code>$ with the value in the properties object
+     */
+    protected static String replaceProperties(String text, Properties properties) {
+        Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (key != null && value != null) {
+                String pattern = "${" + key + "}";
+                text = Strings.replaceAllWithoutRegex(text, pattern, value.toString());
+            }
+        }
+        return text;
+    }
+
+    protected DistributionManagement findProjectDistributionManagement() {
+        MavenProject project = getProject();
+        while (project != null) {
+            DistributionManagement distributionManagement = project.getDistributionManagement();
+            if (distributionManagement != null) {
+                return distributionManagement;
+            }
+            project = project.getParent();
+        }
+        return null;
     }
 
     /**
