@@ -77,7 +77,6 @@ import java.util.jar.JarInputStream;
 
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
-import static jdk.nashorn.internal.objects.NativeArray.lastIndexOf;
 
 /**
  * Abstract base class for Fabric8 based Mojos
