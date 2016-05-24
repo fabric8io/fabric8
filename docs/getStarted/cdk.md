@@ -30,6 +30,13 @@ Once that is completed you should have the OpenShift console at https://10.1.2.2
 
 Now download and install [gofabric8](https://github.com/fabric8io/gofabric8/releases) and ensure its on your `$PATH`.
 
+So ssh to your vagrant machine, download the latest release using curl, decompress the file and move gofabric8 to the /usr/local/bin folder.
+
+```
+curl -sSL https://github.com/fabric8io/gofabric8/releases/download/LATEST_VERSION/gofabric8-LATEST_VERSION-linux-amd64.tar.gz | tar -xzv
+sudo cp gofabric8 /usr/local/bin
+```
+
 You will probably want to login so you can use the `oc` command line tool from OpenShift:
 
 ```
