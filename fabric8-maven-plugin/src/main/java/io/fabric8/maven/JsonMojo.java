@@ -100,7 +100,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     public static final String FABRIC8_METRICS_SCHEME_ANNOTATION = FABRIC8_METRICS_SCHEME + ".annotation";
 
     public static final String FABRIC8_ICON_URL_ANNOTATION = "fabric8.io/iconUrl";
-    
+
     private static final String SERVICE_REGEX = "^fabric8\\.service\\.(?<name>[^. ]+)\\..+$";
     private static final Pattern SERVICE_PATTERN = Pattern.compile(SERVICE_REGEX);
 
@@ -1096,8 +1096,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 }
             }
 
-            if (Strings.isNotBlank(serviceType)) {
-                serviceSpecBuilder.withType(serviceType);
+            String specificServiceType = getServiceType(serviceName);
+            if (Strings.isNotBlank(specificServiceType)) {
+                serviceSpecBuilder.withType(specificServiceType);
             }
             serviceSpecBuilder.endSpec();
 
@@ -1888,6 +1889,19 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
 
         return portSpec;
+    }
+
+    private String getServiceType(String serviceName) throws MojoExecutionException {
+        String serviceSpecificTypeName = buildServicePrefix(serviceName, "fabric8.service", "type");
+
+        Properties properties = getProjectAndFabric8Properties(getProject());
+        String serviceSpecificType = properties.getProperty(serviceSpecificTypeName);
+
+        if (Strings.isNullOrBlank(serviceSpecificType)) {
+            serviceSpecificType = this.serviceType;
+        }
+
+        return serviceSpecificType;
     }
 
     protected static EnvVar getOrCreateEnv(Map<String, EnvVar> envMap, String name) {
