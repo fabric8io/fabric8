@@ -33,6 +33,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.extensions.DaemonSet;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ClientOperation;
@@ -246,6 +247,8 @@ public class Controller {
             applySecret((Secret) dto, sourceName);
         } else if (dto instanceof DaemonSet) {
             applyResource((DaemonSet) dto, sourceName, kubernetesClient.extensions().daemonSets());
+        } else if (dto instanceof Ingress) {
+            applyResource((Ingress) dto, sourceName, kubernetesClient.extensions().ingresses());
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
