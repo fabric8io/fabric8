@@ -382,6 +382,9 @@ public final class KubernetesHelper {
     }
 
     public static String toJson(Object dto) throws JsonProcessingException {
+        if (dto == null) {
+            return "null";
+        }
         Class<?> clazz = dto.getClass();
         return OBJECT_MAPPER.writerFor(clazz).writeValueAsString(dto);
     }

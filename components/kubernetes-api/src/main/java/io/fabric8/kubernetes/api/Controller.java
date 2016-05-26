@@ -33,10 +33,11 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.extensions.DaemonSet;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.ClientOperation;
+import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -68,7 +69,6 @@ import java.util.Map;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getKind;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateAnnotations;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateLabels;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
@@ -237,8 +237,6 @@ public class Controller {
             applyImageStream((ImageStream) dto, sourceName);
         } else if (dto instanceof OAuthClient) {
             applyOAuthClient((OAuthClient) dto, sourceName);
-        } else if (dto instanceof PersistentVolumeClaim) {
-            applyResource((PersistentVolumeClaim) dto, sourceName, kubernetesClient.persistentVolumeClaims());
         } else if (dto instanceof Template) {
             applyTemplate((Template) dto, sourceName);
         } else if (dto instanceof ServiceAccount) {
@@ -247,8 +245,12 @@ public class Controller {
             applySecret((Secret) dto, sourceName);
         } else if (dto instanceof DaemonSet) {
             applyResource((DaemonSet) dto, sourceName, kubernetesClient.extensions().daemonSets());
+        } else if (dto instanceof Deployment) {
+            applyResource((Deployment) dto, sourceName, kubernetesClient.extensions().deployments());
         } else if (dto instanceof Ingress) {
             applyResource((Ingress) dto, sourceName, kubernetesClient.extensions().ingresses());
+        } else if (dto instanceof PersistentVolumeClaim) {
+            applyResource((PersistentVolumeClaim) dto, sourceName, kubernetesClient.persistentVolumeClaims());
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -763,7 +765,7 @@ public class Controller {
         }
     }
 
-    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientOperation<T, L, D, ClientResource<T, D>> resources) throws Exception {
+    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientMixedOperation<T, L, D, ? extends ClientResource<T, D>> resources) throws Exception {
         String namespace = getNamespace();
         String id = getName(resource);
         String kind = getKind(resource);
@@ -800,7 +802,7 @@ public class Controller {
         }
     }
 
-    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientOperation<T, L, D, ClientResource<T, D>> resources) throws Exception {
+    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientMixedOperation<T, L, D, ? extends ClientResource<T, D>> resources) throws Exception {
         String kind = getKind(resource);
         LOG.info("Creating a " + kind + " from " + sourceName + " namespace " + namespace + " name " + getName(resource));
         try {
