@@ -53,9 +53,9 @@ We recommend you try to keep the environment specific configuration down to a mi
 
 So if you can avoid any configuration that is environment specific (thanks to [service discovery](serviceDiscovery.html) and [kubernetes secrets](http://kubernetes.io/docs/user-guide/secrets/)) then just including configuration inside your docker image makes the most sense.
 
-When you absolutely must have some environment specific configuration then our recommendation is:
+When you absolutely must have some environment specific configuration which doesn't relate to [service discovery](serviceDiscovery.html) or [secrets](http://kubernetes.io/docs/user-guide/secrets/) then our recommendation is:
 
-* if you want history and to be able to see who changes what and when so you can easily audit or revert changes then use `git`. Otherwise use `ConfigMap`
+* if you want history and to be able to see who changes what and when so you can easily audit or revert changes then use `git` and a [`gitRepo` volume](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) to mount the configuration into your docker container. Otherwise use `ConfigMap`
 
 
 
