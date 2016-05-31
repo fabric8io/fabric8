@@ -12,6 +12,8 @@ When developing Microservices you need to consider the following capabilities:
   * [Tracing](tracing.html)
   * [Circuit Breakers](circuitBreakers.html)
   * [Configuration](configuration.html)
+  * [Testing](../testing.html)
+
 
 <!--  
 ## Authentication
