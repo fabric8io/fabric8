@@ -1028,7 +1028,7 @@ public class DevOpsConnector {
             String flow = projectConfig.getPipeline();
             String flowGitUrlValue = null;
             boolean localFlow = false;
-            String projectGitUrl = convertGitUrlToHttpFromSsh(this.gitUrl);
+            String projectGitUrl = this.gitUrl;
             if (Strings.isNotBlank(flow)) {
                 flowGitUrlValue = this.flowGitUrl;
             } else if (projectConfig.isUseLocalFlow()) {
@@ -1100,23 +1100,6 @@ public class DevOpsConnector {
             }
         }
 
-    }
-
-
-
-    /**
-     * Jenkins can't clone yet git URLs using openshift secrets so lets switch to https for now for CI builds
-     */
-    protected String convertGitUrlToHttpFromSsh(String gitUrl) {
-        if (Strings.isNotBlank(gitUrl)) {
-            String prefix = "git@";
-            if (gitUrl.startsWith(prefix)) {
-                String remaining = gitUrl.substring(prefix.length());
-                remaining = remaining.replace(":", "/");
-                return  "https://" + remaining;
-            }
-        }
-        return gitUrl;
     }
 
     public static String loadJenkinsBuildTemplate(Logger log) {
