@@ -19,6 +19,7 @@
   * [Monitoring](develop/monitoring.md)
   * [Tracing](develop/tracing.md)
   * [Circuit Breakers](develop/circuitBreakers.md)
+  * [Configuration](develop/configuration.md)
 * [Microservices Platform](fabric8DevOps.md)
   * [Developer Console](console.md)
   * [CI and CD](cdelivery.md)
