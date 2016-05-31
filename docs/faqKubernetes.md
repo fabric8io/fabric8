@@ -1,13 +1,13 @@
 ### Kubernetes Questions
 
-#### What is a microservice in Kubernetes?
+#### What is a Microservice in Kubernetes?
 
-Note that the term [microservice](http://martinfowler.com/articles/microservices.html) and [Kubernetes Services](services.html) they are quite different things.
+Note that the term [Microservice](http://martinfowler.com/articles/Microservices.html) and [Kubernetes Services](services.html) they are quite different things.
 
-Implementing a microservice on Kubernetes typically comprises of: 
+Implementing a Microservice on Kubernetes typically comprises of:
 
-* a [Pod](pods.html) containing the code and configuration of the microservice
-* a [Replication Controller](replicationControllers.html) to scale the microservice and keep it running in case of hardware or software failure (including liveness checks to kill dead or hung containers)
+* a [Pod](pods.html) containing the code and configuration of the Microservice
+* a [Replication Controller](replicationControllers.html) to scale the Microservice and keep it running in case of hardware or software failure (including liveness checks to kill dead or hung containers)
 * a [Kubernetes Services](services.html) to expose the pods as a network host and port which may well also be [exposed externally](services.html#exposing-services-externally) 
 
 In terms of Kubernetes JSON resources; a micro service is a Replication Controller and Service metadata.
@@ -38,9 +38,9 @@ So our recommendation is use a namespace for each environment (e.g. Dev, Test, S
 
 You may find that namespaces can be shared across teams (e.g. maybe Staging contains the apps from multiple teams) so use your best judgement. There’s nothing stopping you just having, say, 1 namespace for all your production apps; but given companies often split ‘all of production’ into separate teams who look after different parts; its probably a case where you refactor “production” into separate production teams and they each have their own namespace per environment (they may want a Staging and Production environment for example).
 
-In a pure microservice world, you may have 1 namespace per environment per microservice; though that might be a bit granular for every environment (you may wish to colocate multiple microservices in the same namespace). Though even a single microservice might be a collection of pods and services - whether its cassandra, kafka, riak, elasticsearch or whatever. Really a microservice just represents a ‘chunk’ of a monolith thats built, released & managed by a separate independent team. 
+In a pure Microservice world, you may have 1 namespace per environment per Microservice; though that might be a bit granular for every environment (you may wish to colocate multiple Microservices in the same namespace). Though even a single Microservice might be a collection of pods and services - whether its cassandra, kafka, riak, elasticsearch or whatever. Really a Microservice just represents a ‘chunk’ of a monolith thats built, released & managed by a separate independent team.
 
-If you do go the direction of one microservice per namespace; you’ll have all the Kubernetes Services you need for your app in your namespace; but they will be remote (implemented typically outside your namespace) so you’ll use [external services or service linking](services.html#exposing-services-externally) to point to the implementations you need (using _Endpoints_ rather than using the usual _pod selectors_ in [Kubernetes services](service.html)
+If you do go the direction of one Microservice per namespace; you’ll have all the Kubernetes Services you need for your app in your namespace; but they will be remote (implemented typically outside your namespace) so you’ll use [external services or service linking](services.html#exposing-services-externally) to point to the implementations you need (using _Endpoints_ rather than using the usual _pod selectors_ in [Kubernetes services](service.html)
 
 
 #### How do I browse the Swagger docs?

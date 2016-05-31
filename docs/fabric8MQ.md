@@ -2,7 +2,7 @@
 
 Fabric8 Messaging provides a scalable and elastic _Messaging as a Service_ built on top of Kubernetes.
 
-Fabric8 Messaging comprises of the following microservices:
+Fabric8 Messaging comprises of the following Microservices:
 
 * **Message Broker** is an elastic pool of messaging pods based on [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis/) which supports JMS 2.0 and various protocols like AMQP, OpenWire, MQTT and STOMP on a single port, 61616 so its easier to work with Kubernetes external services (e.g. OpenShift's haproxy)
 * **Message Gateway** performs discovery, load balancing and sharding of message Destinations across the pool of message brokers to provide linear scalability of messaging.

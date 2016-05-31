@@ -49,7 +49,7 @@ gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io
 gofabric8 secrets -y
 ```
 
-If you wish to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) then try this command instead
+If you wish to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) then try this command instead
 ```
 gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io --app=cd-pipeline
 gofabric8 secrets -y

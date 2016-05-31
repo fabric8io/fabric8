@@ -10,4 +10,4 @@ _Overview of the apiman components_
 
 ### Apiman on Fabric8
 
-Apiman is deployed on top of Fabric8 itself. This means that both apiman and the gateway are deployed as a microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.
+Apiman is deployed on top of Fabric8 itself. This means that both apiman and the gateway are deployed as a Microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.

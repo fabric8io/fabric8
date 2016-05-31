@@ -2,11 +2,11 @@
 
 **Fabric8** provides a completely integrated open source Microservices Platform which works out of the box on any [Kubernetes](http://kubernetes.io) or [OpenShift](http://www.openshift.org/) environment.
 
-The entire platform is modular and based on _microservices_ so you can use as much or as little of Microservices Platform as you wish! Its microservices all the way down!
+The entire platform is modular and based on _Microservices_ so you can use as much or as little of Microservices Platform as you wish! Its Microservices all the way down!
 
 The available services in **Microservices Platform** are:
 
-* [Developer Console](console.html) is a rich web application which provides a single plane of glass to create, edit, build, deploy and test microservices
+* [Developer Console](console.html) is a rich web application which provides a single plane of glass to create, edit, build, deploy and test Microservices
 * [Continuous Integration and Continuous Delivery](cdelivery.html) to help teams deliver software in a faster and more reliable way via: 
   * the following open source projects:
     * [Jenkins](https://jenkins.io/) for Building, Continuous Integration and creating Continuous Delivery pipelines

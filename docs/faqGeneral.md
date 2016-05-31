@@ -12,7 +12,7 @@ Fabric8 is an integrated open source [DevOps](fabric8DevOps.html) and [Integrati
 
 #### What does fabric8 do?
 
-Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/). 
+Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building Microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/).
 
 #### What value does fabric8 add over OpenShift?
 

@@ -1,6 +1,6 @@
 ## Elasticity and Resilience
 
-Your microservices should be __highly available__ and resilient to failure. Ideally each microservice should also be _elastic_ so that you can easily scale up or down the number of containers used for each microservice. Some microservices may only require one container; others may require many.
+Your Microservices should be __highly available__ and resilient to failure. Ideally each Microservice should also be _elastic_ so that you can easily scale up or down the number of containers used for each Microservice. Some Microservices may only require one container; others may require many.
  
  Many times when considering elasticity, you have to consider whether your app is stateless or stateful. Stateless apps should be trivial to scale up and down, however stateful apps require more care. For example, a stateful data store would need to shard and replicate its state across the members in the cluster and know how to rebalance itself during scaling events.
   

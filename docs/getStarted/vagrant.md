@@ -112,7 +112,7 @@ on your installation.
 
 * To Run any of the installed templates just click the `Run` button
   (the green play button).
-* To install other applications via the command line you can use the `gofabric8` binary which is inside the Vagrant image. e.g. to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) then try this command instead:
+* To install other applications via the command line you can use the `gofabric8` binary which is inside the Vagrant image. e.g. to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) then try this command instead:
 
 ```
 gofabric8 deploy -y --domain=vagrant.f8 --app=cd-pipeline

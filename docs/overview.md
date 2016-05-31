@@ -2,11 +2,11 @@
 
 <b>fabric8</b> is an opinionated open source [Microservices Platform](fabric8DevOps.html)  based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
 
-<b>fabric8</b> makes it easy to create microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
+<b>fabric8</b> makes it easy to create Microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
 
 The [Fabric8 Microservices Platform](fabric8DevOps.html) provides:
 
-* [Developer Console](console.html) is a rich web application which provides a single plane of glass to create, edit, build, deploy and test microservices
+* [Developer Console](console.html) is a rich web application which provides a single plane of glass to create, edit, build, deploy and test Microservices
 * [Continuous Integration and Continous Delivery](http://fabric8.io/guide/cdelivery.html) to help you deliver software faster and more
   reliably using [Jenkins](https://jenkins.io/) with a
   [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable

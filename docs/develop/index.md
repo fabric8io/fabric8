@@ -1,6 +1,6 @@
 # Developing Microservices
 
-When developing microservices you need to consider the following capabilities:
+When developing Microservices you need to consider the following capabilities:
 
   * [Elasticity and Resilience](elasticity.html)
   * [Design for Failure](designForFailure.md)

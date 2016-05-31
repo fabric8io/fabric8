@@ -13,7 +13,7 @@ You have various options for how to create the `kubernetes.json`
 * use the [annotation processors and typesafe builders](annotationProcessors.html) to create the metadata yourself; or enrich the default created metadata 
 * you can enrich the generated JSON with additional metadata JSON file (using the `fabric8.extra.json` property which defaults to the file `target/classes/kubernetes-extra.json`)
 
-If you have a maven project which is a typical microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).  
+If you have a maven project which is a typical Microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).
 
 ### Example usage
 

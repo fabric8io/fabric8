@@ -39,15 +39,15 @@ Note a [pod](pod.html) can terminate at any time; so its recommended that any ne
         
 ### Using Ribbon
 
-If you are using Java to implement your microservice then you can use Ribbon from NetflixOSS to perform process local load balancing over the available endpoints.
+If you are using Java to implement your Microservice then you can use Ribbon from NetflixOSS to perform process local load balancing over the available endpoints.
 
 We recommend using Kubernetes Service Discovery via DNS (see above) by default because:
 
 * it works for services using any network protocols based on TCP and UDP
-* it works for any microservice language implementation
-* apart from a String change, it typically has minimal impact on the code of your microservice.
+* it works for any Microservice language implementation
+* apart from a String change, it typically has minimal impact on the code of your Microservice.
 
-However using Ribbon means that your Java code has an in memory model of the available endpoints you could invoke; which lets you plugin your own custom load balancing logic into your microservice.
+However using Ribbon means that your Java code has an in memory model of the available endpoints you could invoke; which lets you plugin your own custom load balancing logic into your Microservice.
 
 
 

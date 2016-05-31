@@ -1,6 +1,6 @@
 ## Fabric8 Developer Console
 
-Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing microservices on [Kubernetes](http://kubernetes.io/). 
+Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing Microservices on [Kubernetes](http://kubernetes.io/).
 
 Fabric8 Developer Console is single lightweight pod, [replication controller](replicationControllers.html) and [services](services.html) that runs on any [Kubernetes](http://kubernetes.io/) or [Openshift](https://www.openshift.org/) cluster.
  

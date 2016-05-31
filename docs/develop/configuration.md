@@ -2,21 +2,21 @@
 
 As developers we usually try to make the software we create easy to configure so that it can be used in any environment.
 
-However building microservices on the cloud changes our approach to configuration since you no longer need to configure the following differently for each environment:
+However building Microservices on the cloud changes our approach to configuration since you no longer need to configure the following differently for each environment:
 
 * file locations: since docker images have the same file system layout whatever the environment
 * service locations: instead use [service discovery](serviceDiscovery.html)
 * secrets like usernames and passwords: instead use [kubernetes secrets](http://kubernetes.io/docs/user-guide/secrets/)
 
-So it turns out that many microservices no longer need any configuration values which change for different environments thanks to the above!
+So it turns out that many Microservices no longer need any configuration values which change for different environments thanks to the above!
 
-This helps reduce possible errors; it means most configuration for your microservice can be included inside the docker image and tested in every environment in your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html)
+This helps reduce possible errors; it means most configuration for your Microservice can be included inside the docker image and tested in every environment in your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html)
 
 However for times when you really need to configure things differently on a per environment/deployment basis then here are the main approaches:
 
 ### Include configuration inside the docker image
 
-The simplest thing to do with configuration is just include it inside your docker image. e.g. if you are building a Spring Boot microservice then just include the `application.properties` or `application.yml` file inside your `src/main/resources` folder so that it gets included into your jar and the docker image. This then means that all your configuration gets tested as part of your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html)
+The simplest thing to do with configuration is just include it inside your docker image. e.g. if you are building a Spring Boot Microservice then just include the `application.properties` or `application.yml` file inside your `src/main/resources` folder so that it gets included into your jar and the docker image. This then means that all your configuration gets tested as part of your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html)
 
 This assumes the configuration will be the same in each environment due to the above (using [service discovery](serviceDiscovery.html) and [kubernetes secrets](http://kubernetes.io/docs/user-guide/secrets/)).
 
@@ -30,22 +30,22 @@ Kubernetes supports a resource called [ConfigMap](http://kubernetes.io/docs/user
 
 You can then expose the `ConfigMap` resources either as volume mounts or as environment variables.
 
-If you are using Spring in your Java based microservices you may want to check out the [ConfigMap based PropertySource](https://github.com/fabric8io/spring-cloud-kubernetes#configmap-propertysource) that makes it really easy to load environment specific configurations along with any other configuration included in your docker image.
+If you are using Spring in your Java based Microservices you may want to check out the [ConfigMap based PropertySource](https://github.com/fabric8io/spring-cloud-kubernetes#configmap-propertysource) that makes it really easy to load environment specific configurations along with any other configuration included in your docker image.
 
 
 ### Git
 
 One of the downsides of using `ConfigMap` as described above is that there's no history or change tracking; there's just the latest version of the ConfigMap. For complex configuration its very useful to have a changelog so you can see who changed what configuration values when so that when things start to go wrong you can easily revert changes or see the history.
 
-So you can store your environment specific configuration in a git repository (maybe using a different branch or repo for each environment) then you can mount the git repository as a volume in your microservice docker container via a [`gitRepo` volume](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) using a specific git revision.
+So you can store your environment specific configuration in a git repository (maybe using a different branch or repo for each environment) then you can mount the git repository as a volume in your Microservice docker container via a [`gitRepo` volume](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) using a specific git revision.
 
-You can then use the [gitcontroller](https://github.com/fabric8io/gitcontroller) microservice to watch the [Kubernetes Deployments](http://kubernetes.io/docs/user-guide/deployments/) with one or more [`gitRepo` volumes](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) and it then watches for changes in the associated git repositories and branches.
+You can then use the [gitcontroller](https://github.com/fabric8io/gitcontroller) Microservice to watch the [Kubernetes Deployments](http://kubernetes.io/docs/user-guide/deployments/) with one or more [`gitRepo` volumes](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) and it then watches for changes in the associated git repositories and branches.
 
 When there are changes in a configuration git repository the `gitcontroller` will perform a rolling upgrade of the [Kubernetes Deployments](http://kubernetes.io/docs/user-guide/deployments/) to use the new configuration git  revision; or rollback. The rolling upgrade policy (e.g. speed and number of concurrent pods which update and so forth) is all specified by your [rolling update configuration in the Deployment specification](http://kubernetes.io/docs/user-guide/deployments/#rolling-update-deployment).
 
 Here is an [example of how to add a `gitRepo` volume to your application](https://github.com/jstrachan/springboot-config-demo/blob/master/src/main/fabric8/deployment.yml#L5-L14); in this case a spring boot application to load the [`application.properties`](https://github.com/jstrachan/sample-springboot-config/blob/master/application.properties) file from a git repository.
 
-You can either run `gitcontroller` as a microservice in your namespace or you can use the `gitcontroller` binary at any time or as part of your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html) process.
+You can either run `gitcontroller` as a Microservice in your namespace or you can use the `gitcontroller` binary at any time or as part of your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html) process.
 
 ### Choosing the right approach
 

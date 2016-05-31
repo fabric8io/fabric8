@@ -41,7 +41,7 @@ gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
 gofabric8 secrets -y
 ```
 
-If you wish to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) or any other app you can add the `--app` command line argument:
+If you wish to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) or any other app you can add the `--app` command line argument:
 
 ```
 gofabric8 deploy -y -d mydomain.com --app=cd-pipeline

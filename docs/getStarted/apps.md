@@ -25,7 +25,7 @@ gofabric8 secrets -y
 
 where `XXX` should be the domain postfix to access applications on your OpenShift cluster.
 
-If you wish to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) then try this command instead:
+If you wish to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) then try this command instead:
 
 ```
 gofabric8 deploy -y --domain=XXX --app=cd-pipeline
@@ -74,7 +74,7 @@ These instructions assume that you have either
 
 #### Using the imported templates
 
-When you install fabric8 via the [gofabric8 command line tool](#using-gofabric8) it will have installed openshift templates for all the microservices and packages in fabric8. You can view them via
+When you install fabric8 via the [gofabric8 command line tool](#using-gofabric8) it will have installed openshift templates for all the Microservices and packages in fabric8. You can view them via
 
 ```
 oc get template
@@ -127,7 +127,7 @@ For example to install the [fabric8 console](console.html) then type:
 
 Or to install from the central repository then choose the commands below to suit the application you wish to install:
 
-Then you can run individual microservices as follows:
+Then you can run individual Microservices as follows:
 
 ##### Management
 
