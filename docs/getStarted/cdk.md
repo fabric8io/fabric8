@@ -43,9 +43,15 @@ You will probably want to login so you can use the `oc` command line tool from O
 oc login 10.1.2.2:8443 -u=admin -p=admin
 ```
 
-Now install fabric8:
+Now install the [fabric8 developer console](../console.html):
 ```
 gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io
+gofabric8 secrets -y
+```
+
+If you wish to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) then try this command instead
+```
+gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io --app=cd-pipeline
 gofabric8 secrets -y
 ```
 

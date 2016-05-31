@@ -1,71 +1,12 @@
-## Getting Started with native OpenShift
+## Getting Started with OpenShift
 
-As an alternative to the all-in-one [Vagrant image](vagrant.html), fabric8 can be installed on top of a
-native [OpenShift V3](http://www.openshift.org/) Linux installation.
+As an alternative to the all-in-one [Vagrant image](vagrant.html), fabric8 can be installed on top of a native [OpenShift V3](http://www.openshift.org/) Linux installation.
 
-### Install OpenShift on Linux
-
-The following steps work on a Linux box. If you are on OS X or Windows then check out how to use
-[the Fabric8 Vagrant box](vagrant.html) which contains a full feature OpenShift V3 installation.
-
-#### OpenShift Origin installation
-
-We recommend you check out the [OpenShift Origin Installation documentation](https://docs.openshift.org/latest/getting_started/administrators.html)
-as the default way to install [OpenShift V3](http://www.openshift.org/) before trying the alternative approach. Be sure that you
-install the router and registry as described [below](#openshift-configuration) which has to be done in any case.
-
-#### Alternative Installation route
-
-Here's an alternative installation approach which could be tried if the guide in the previous section doesn't work
-for you.
-
-* You should have installed [Docker 1.6 or later](https://docs.docker.com/installation/#installation) and have
-  the docker daemon running (see instructions for [CentOs](https://docs.docker.com/installation/centos/),
-  [Fedora](https://docs.docker.com/installation/fedora/) or [Ubuntu](https://docs.docker.com/installation/ubuntulinux/))
-* Download and unpack a [release of OpenShift 1.0 or later](https://github.com/openshift/origin/releases/):
-
-```sh
-curl -L https://github.com/openshift/origin/releases/download/v1.1.1/openshift-origin-server-v1.1.1-e1d9873-linux-64bit.tar.gz | tar xzv
-```
-
-Now setup `$OPENSHIFT_MASTER` to point to the IP address or host name of the OpenShift master:
-
-```sh
-export OPENSHIFT_MASTER=https://$HOST_IP:8443
-```
-
-**Note** Be sure to use the host ip instead of localhost or 127.0.0.1. This ip will be used from inside a container to connect to the openshift api. Therefor localhost would point to the container itself and it won't be able to connect.
-
-Move the extracted folder to be ```/var/lib/openshift/``` and cd into that directory.
-
-Then start OpenShift:
-
-```sh
-nohup ./openshift start \
-        --cors-allowed-origins='.*' \
-        --master=$OPENSHIFT_MASTER \
-        --volume-dir=/var/lib/openshift/openshift.local.volumes \
-        --etcd-dir=/var/lib/openshift/openshift.local.etcd \
-        > /var/lib/openshift/openshift.log &
-```
-
-When running commands on the OpenShift master type the following to avoid you having to add `--config=....` arguments:
-
-```sh
-mkdir -p ~/.kube
-ln -s `pwd`/openshift.local.config/master/admin.kubeconfig ~/.kube/config
-```
-
-In order to be able to run `oadm` command add `/var/lib/openshift` to your ``$PATH``:
-
-```sh
-export PATH="$PATH:/var/lib/openshift"
-```
+If you don't have an OpenShift cluster yet then please check out the [various options](https://www.openshift.com/), check out the [OpenShift Origin getting started guide](https://docs.openshift.org/latest/getting_started/administrators.html) or try [these OpenShift setup tips](installOpenShift.html)
 
 ### OpenShift configuration
 
 OpenShift needs some extra installation steps in order to be able to run all the [Fabric8 apps](apps.html).
-Various apps (like [Continuous Delivery](../cdelivery.html) and [MQ](../fabric8MQ.html) requires secrets and service accounts to be setup).
 
 #### Add roles
 
@@ -77,7 +18,13 @@ The following commands assume you are on the OpenShift master machine :
 oadm policy add-cluster-role-to-user cluster-admin admin
 ```
 
-#### Run the gofabric8 installer
+* Enable the `cluster-reader` role to Service Accounts
+
+```sh
+oc adm policy add-cluster-role-to-group cluster-reader system:serviceaccounts
+```
+
+### Run the gofabric8 installer
 
 [gofabric8](https://github.com/fabric8io/gofabric8) is a useful installer for fabric8.
 
@@ -103,6 +50,14 @@ gofabric8 secrets -y
 gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
 gofabric8 secrets -y
 ```
+
+If you wish to install the full [fabric8 microservices platform with CI / CD support](../cdelivery.html) or any other app you can add the `--app` command line argument:
+
+```
+gofabric8 deploy -y -d mydomain.com --app=cd-pipeline
+gofabric8 secrets -y
+```
+
 
 At any point you can validate your installation via:
 
@@ -183,13 +138,9 @@ You might have the wrong domain setup for the fabric8 ServiceAccount. You should
 oc get oauthclient fabric8
 ```
 
-If its got the wrong domain for the redirect URIs, just delete it and re-run gofabric8.
-
+If its got the wrong domain for the redirect URIs, make sure you have the [latest gofabric8 version](https://github.com/fabric8io/gofabric8/releases) on your `$PATH` then just re-run gofabric8
 ```
-oc delete oauthclient fabric8
 gofabric8 deploy -y -d my-new-domain.com
 gofabric8 secrets -y
 oc get oauthclient fabric8
 ```
-
-Though there's a pending issue to do this automatically whenever you run gofabric8 deploy

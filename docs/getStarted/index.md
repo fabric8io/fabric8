@@ -10,18 +10,23 @@ Before you start using fabric8 you will need a Kubernetes or Kubernetes cluster.
   All you need is [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) installed locally.
   Check out how to [Create the Fabric8 Vagrant Image](vagrant.html)
 
-* [**CDK**](cdk.html) - Using the Red Hat Container Development Kit
+* [**Native Kubernetes**](kubernetes.html) - Kuberentes
 
-  You will need is [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) installed locally along with a [number of prerequisites](https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites).
-  Check out [Installing Fabric8 inside the CDK Vagrant Image](cdk.html)
+  If you have [Kubernetes](http://kuberentes.io) installed locally, this [guide](kubernetes.html) helps you step-by-step how to install fabric8 on it.
+
+* [**Google Container Engine**](gke.html) - Kubernetes
+
+  [Google Container Engine](https://cloud.google.com/container-engine/) (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes [Getting Started](http://kubernetes.io/gettingstarted/) page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This [guide](gke.html) will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.
 
 * [**Native OpenShift**](openshift.html) - OpenShift Origin
 
   If you have [OpenShift V3](http://www.openshift.com) installed locally, this [guide](openshift.html) helps you step-by-step how to install fabric8 on it.
 
-* [**Google Container Engine**](gke.html) - Kubernetes
+* [**CDK**](cdk.html) - Using the Red Hat Container Development Kit
 
-  [Google Container Engine](https://cloud.google.com/container-engine/) (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes [Getting Started](http://kubernetes.io/gettingstarted/) page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This [guide](gke.html) will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.
+  You will need is [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) installed locally along with a [number of prerequisites](https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites).
+  Check out [Installing Fabric8 inside the CDK Vagrant Image](cdk.html)
+
 
 
 #### Local client setup
