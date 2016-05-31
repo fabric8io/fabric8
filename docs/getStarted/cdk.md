@@ -12,8 +12,7 @@ git clone https://github.com/redhat-developer-tooling/openshift-vagrant.git
 cd openshift-vagrant
 
 cd cdk-v2
-export OPENSHIFT_VAGRANT_USE_OSE_3_2=true
-export SUB_USERNAME=...  
+export SUB_USERNAME=...
 export SUB_PASSWORD=...  
 
 export VM_CPU=4
