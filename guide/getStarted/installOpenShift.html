@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html lang="" >
     <head>
-        <title>Use OpenShift · Fabric8 Documentation</title>
+        <title>Install OpenShift · Fabric8 Documentation</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -61,10 +61,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="installOpenShift.html" />
+    <link rel="next" href="cdk.html" />
     
     
-    <link rel="prev" href="gke.html" />
+    <link rel="prev" href="openshift.html" />
     
 
     </head>
@@ -172,7 +172,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.3.4" data-path="openshift.html">
+        <li class="chapter " data-level="1.3.4" data-path="openshift.html">
             
                 <a href="openshift.html">
             
@@ -186,7 +186,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.3.4.1" data-path="installOpenShift.html">
+        <li class="chapter active" data-level="1.3.4.1" data-path="installOpenShift.html">
             
                 <a href="installOpenShift.html">
             
@@ -1324,7 +1324,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Use OpenShift</a>
+        <a href=".." >Install OpenShift</a>
     </h1>
 </div>
 
@@ -1339,83 +1339,44 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h2 id="getting-started-with-openshift"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Getting Started with OpenShift</h2>
-<p>As an alternative to the all-in-one <a href="vagrant.html">Vagrant image</a>, fabric8 can be installed on top of a native <a href="http://www.openshift.org/" _target="blank">OpenShift V3</a> Linux installation.</p>
-<p>If you don&apos;t have an OpenShift cluster yet then please check out the <a href="https://www.openshift.com/" _target="blank">various options</a>, check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" _target="blank">OpenShift Origin getting started guide</a> or try <a href="installOpenShift.html">these OpenShift setup tips</a></p>
-<h3 id="openshift-configuration"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>OpenShift configuration</h3>
-<p>OpenShift needs some extra installation steps in order to be able to run all the <a href="apps.html">Fabric8 apps</a>.</p>
-<h4 id="add-roles"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Add roles</h4>
-<p>The following commands assume you are on the OpenShift master machine :</p>
+                                <h2 id="install-openshift"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install OpenShift</h2>
+<p>If you don&apos;t have an OpenShift cluster yet then please check out the <a href="https://www.openshift.com/" _target="blank">various options</a> or check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" _target="blank">OpenShift Origin getting started guide</a> or try <a href="installOpenShift.html">these OpenShift setup tips</a>.</p>
+<h4 id="openshift-origin-installation"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>OpenShift Origin installation</h4>
+<p>We recommend you check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" _target="blank">OpenShift Origin Installation documentation</a>
+as the default way to install <a href="http://www.openshift.org/" _target="blank">OpenShift V3</a> before trying the alternative approach. Be sure that you
+install the router and registry as described <a href="#openshift-configuration">below</a> which has to be done in any case.</p>
+<h4 id="alternative-installation-route"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Alternative Installation route</h4>
+<p>Here&apos;s an alternative installation approach which could be tried if the guide in the previous section doesn&apos;t work
+for you.</p>
 <ul>
-<li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
+<li>You should have installed <a href="https://docs.docker.com/installation/#installation" _target="blank">Docker 1.6 or later</a> and have
+the docker daemon running (see instructions for <a href="https://docs.docker.com/installation/centos/" _target="blank">CentOs</a>,
+<a href="https://docs.docker.com/installation/fedora/" _target="blank">Fedora</a> or <a href="https://docs.docker.com/installation/ubuntulinux/" _target="blank">Ubuntu</a>)</li>
+<li>Download and unpack a <a href="https://github.com/openshift/origin/releases/" _target="blank">release of OpenShift 1.0 or later</a>:</li>
 </ul>
-<pre><code class="lang-sh">oadm policy add-cluster-role-to-user cluster-admin admin
+<pre><code class="lang-sh">curl -L https://github.com/openshift/origin/releases/download/v1.1.1/openshift-origin-server-v1.1.1<span class="hljs-_">-e</span>1d9873-linux-64bit.tar.gz | tar xzv
 </code></pre>
-<ul>
-<li>Enable the <code>cluster-reader</code> role to Service Accounts</li>
-</ul>
-<pre><code class="lang-sh">oc adm policy add-cluster-role-to-group cluster-reader system:serviceaccounts
+<p>Now setup <code>$OPENSHIFT_MASTER</code> to point to the IP address or host name of the OpenShift master:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> OPENSHIFT_MASTER=https://<span class="hljs-variable">$HOST_IP</span>:8443
 </code></pre>
-<h3 id="run-the-gofabric8-installer"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h3>
-<p><a href="https://github.com/fabric8io/gofabric8" _target="blank">gofabric8</a> is a useful installer for fabric8.</p>
-<p><a href="https://github.com/fabric8io/gofabric8/releases" _target="blank">Download a gofabric8 binary</a>, extract it and add it to your <code>$PATH</code></p>
-<p>Now type the following:</p>
-<pre><code class="lang-sh">gofabric8 deploy -y
-gofabric8 secrets -y
+<p><strong>Note</strong> Be sure to use the host ip instead of localhost or 127.0.0.1. This ip will be used from inside a container to connect to the openshift api. Therefor localhost would point to the container itself and it won&apos;t be able to connect.</p>
+<p>Move the extracted folder to be <code>/var/lib/openshift/</code> and cd into that directory.</p>
+<p>Then start OpenShift:</p>
+<pre><code class="lang-sh">nohup ./openshift start \
+        --cors-allowed-origins=<span class="hljs-string">&apos;.*&apos;</span> \
+        --master=<span class="hljs-variable">$OPENSHIFT_MASTER</span> \
+        --volume-dir=/var/lib/openshift/openshift.local.volumes \
+        --etcd-dir=/var/lib/openshift/openshift.local.etcd \
+        &gt; /var/lib/openshift/openshift.log &amp;
 </code></pre>
-<p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
-<pre><code>gofabric8 deploy -d mydomain.com -y
-gofabric8 secrets -y
-</code></pre><p><strong>Note:</strong> If your router lives on another domain/host then your openshift api, you will need to provide the --api-server parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:</p>
-<pre><code>gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
-gofabric8 secrets -y
-</code></pre><p>If you wish to install the full <a href="../cdelivery.html">fabric8 microservices platform with CI / CD support</a> or any other app you can add the <code>--app</code> command line argument:</p>
-<pre><code>gofabric8 deploy -y -d mydomain.com --app=cd-pipeline
-gofabric8 secrets -y
-</code></pre><p>At any point you can validate your installation via:</p>
-<pre><code class="lang-sh">gofabric8 validate
+<p>When running commands on the OpenShift master type the following to avoid you having to add <code>--config=....</code> arguments:</p>
+<pre><code class="lang-sh">mkdir -p ~/.kube
+ln <span class="hljs-_">-s</span> `<span class="hljs-built_in">pwd</span>`/openshift.local.config/master/admin.kubeconfig ~/.kube/config
 </code></pre>
-<p>You can also eagerly pull docker images for a Fabric8 template via the <code>pull</code> command</p>
-<pre><code class="lang-sh">gofabric8 pull <span class="hljs-built_in">cd</span>-pipeline
+<p>In order to be able to run <code>oadm</code> command add <code>/var/lib/openshift</code> to your <code>$PATH</code>:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">export</span> PATH=<span class="hljs-string">&quot;<span class="hljs-variable">$PATH</span>:/var/lib/openshift&quot;</span>
 </code></pre>
-<h4 id="install-or-upgrade-applications-using-helm"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install or upgrade applications using Helm</h4>
-<p>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" _target="blank">helm command line tool</a>.</p>
-<h4 id="enable-the-openshift-router-and-registry"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Enable the OpenShift router and registry</h4>
-<p>The <a href="https://docs.openshift.org/latest/architecture/core_concepts/routes.html#haproxy-template-router" _target="blank">OpenShift Router</a> enables
-external access to services inside a Kubernetes cluster using <a href="http://www.haproxy.org/" _target="blank">HAProxy</a>; e.g. so you can access web apps
-from your browser for apps running inside Kubernetes.</p>
-<p>The <a href="https://docs.openshift.org/latest/architecture/infrastructure_components/image_registry.html" _target="blank">OpenShift Registry</a> is used
-as an internal registry for holding Docker images for Kubernetes.</p>
-<p>The detailed instructions for installing these components can be found in the
-<a href="https://docs.openshift.org/latest/admin_guide/install/deploy_router.html" _target="blank">Router installation documentation</a> and
-the <a href="https://docs.openshift.org/latest/admin_guide/install/docker_registry.html" _target="blank">Registry installation documentation</a>. In short it
-boils down to these two commands:</p>
-<pre><code>oadm router --create --service-account=router --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig
-oadm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
-</code></pre><h3 id="next-steps"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Next steps</h3>
-<p>As the next step you can now <a href="local.html">setup the OpenShift client</a> and install
-the <a href="apps.html">fabric8 applications</a></p>
-<h2 id="troubleshooting"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Troubleshooting</h2>
-<p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
-<p>If you are having issues logging into the console, ensure you&apos;ve enabled <code>cors-allowed</code> as shown above in the <code>./openshift start</code> command.</p>
-<p>Another way to do that is to edit the <code>/etc/openshift/master/master-config.yaml</code> file <a href="https://github.com/fabric8io/gofabric8/issues/17#issuecomment-149788441" _target="blank">and add an entry like the following</a>:</p>
-<pre><code>$vi /etc/openshift/master/master-config.yaml
-</code></pre><p>then add:</p>
-<pre><code>corsAllowedOrigins:
-  - .*
-</code></pre><p>After making a change run:</p>
-<pre><code>$ restart master
-systemctl restart openshift-master
-</code></pre><p>Also <a href="https://github.com/fabric8io/fabric8/issues/4866#issue-109652169" _target="blank">make sure your user has a login via web console</a> e.g. if using HTPasswdPasswordIdentityProvider in OSEv3</p>
-<pre><code>htpasswd -b /etc/openshift-passwd admin admin
-</code></pre><h3 id="if-you-ran-gofabric8-with-the-wrong-domain"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>If you ran gofabric8 with the wrong domain</h3>
-<p>You might have the wrong domain setup for the fabric8 ServiceAccount. You should be able to see this via</p>
-<pre><code>oc get oauthclient fabric8
-</code></pre><p>If its got the wrong domain for the redirect URIs, make sure you have the <a href="https://github.com/fabric8io/gofabric8/releases" _target="blank">latest gofabric8 version</a> on your <code>$PATH</code> then just re-run gofabric8</p>
-<pre><code>gofabric8 deploy -y -d my-new-domain.com
-gofabric8 secrets -y
-oc get oauthclient fabric8
-</code></pre>
+
                                 
                                 </section>
                             
@@ -1442,12 +1403,12 @@ oc get oauthclient fabric8
 
             
                 
-                <a href="gke.html" class="navigation navigation-prev " aria-label="Previous page: Use Kubernetes on GKE">
+                <a href="openshift.html" class="navigation navigation-prev " aria-label="Previous page: Use OpenShift">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="installOpenShift.html" class="navigation navigation-next " aria-label="Next page: Install OpenShift">
+                <a href="cdk.html" class="navigation navigation-next " aria-label="Next page: Use CDK">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -1458,7 +1419,7 @@ oc get oauthclient fabric8
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Use OpenShift","level":"1.3.4","depth":2,"next":{"title":"Install OpenShift","level":"1.3.4.1","depth":3,"path":"getStarted/installOpenShift.md","ref":"getStarted/installOpenShift.md","articles":[]},"previous":{"title":"Use Kubernetes on GKE","level":"1.3.3","depth":2,"path":"getStarted/gke.md","ref":"getStarted/gke.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/openshift.md","mtime":"2016-05-31T12:44:05.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:47:37.971Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Install OpenShift","level":"1.3.4.1","depth":3,"next":{"title":"Use CDK","level":"1.3.5","depth":2,"path":"getStarted/cdk.md","ref":"getStarted/cdk.md","articles":[]},"previous":{"title":"Use OpenShift","level":"1.3.4","depth":2,"path":"getStarted/openshift.md","ref":"getStarted/openshift.md","articles":[{"title":"Install OpenShift","level":"1.3.4.1","depth":3,"path":"getStarted/installOpenShift.md","ref":"getStarted/installOpenShift.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/installOpenShift.md","mtime":"2016-05-31T12:44:05.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:47:37.971Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

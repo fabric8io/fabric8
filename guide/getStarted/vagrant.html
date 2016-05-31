@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html lang="" >
     <head>
-        <title>Vagrant Image · Fabric8 Documentation</title>
+        <title>Use Vagrant · Fabric8 Documentation</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -61,7 +61,7 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="cdk.html" />
+    <link rel="next" href="kubernetes.html" />
     
     
     <link rel="prev" href="./" />
@@ -138,7 +138,7 @@
                 <a href="vagrant.html">
             
                     
-                    Vagrant Image
+                    Use Vagrant
             
                 </a>
             
@@ -146,12 +146,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.2" data-path="cdk.html">
+        <li class="chapter " data-level="1.3.2" data-path="kubernetes.html">
             
-                <a href="cdk.html">
+                <a href="kubernetes.html">
             
                     
-                    CDK
+                    Use Kubernetes
             
                 </a>
             
@@ -159,25 +159,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3" data-path="openshift.html">
-            
-                <a href="openshift.html">
-            
-                    
-                    Native OpenShift
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.3.4" data-path="gke.html">
+        <li class="chapter " data-level="1.3.3" data-path="gke.html">
             
                 <a href="gke.html">
             
                     
-                    Native Kubernetes on GKE
+                    Use Kubernetes on GKE
             
                 </a>
             
@@ -185,12 +172,44 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.5" data-path="local.html">
+        <li class="chapter " data-level="1.3.4" data-path="openshift.html">
             
-                <a href="local.html">
+                <a href="openshift.html">
             
                     
-                    Local OpenShift Client
+                    Use OpenShift
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.4.1" data-path="installOpenShift.html">
+            
+                <a href="installOpenShift.html">
+            
+                    
+                    Install OpenShift
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="cdk.html">
+            
+                <a href="cdk.html">
+            
+                    
+                    Use CDK
             
                 </a>
             
@@ -203,7 +222,7 @@
                 <a href="apps.html">
             
                     
-                    Install on OpenShift
+                    Installing apps
             
                 </a>
             
@@ -211,7 +230,20 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.7" data-path="develop.html">
+        <li class="chapter " data-level="1.3.7" data-path="local.html">
+            
+                <a href="local.html">
+            
+                    
+                    Setup Local OpenShift Client
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.8" data-path="develop.html">
             
                 <a href="develop.html">
             
@@ -224,7 +256,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.8" data-path="browserCertificates.html">
+        <li class="chapter " data-level="1.3.9" data-path="browserCertificates.html">
             
                 <a href="browserCertificates.html">
             
@@ -237,7 +269,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.9" data-path="troubleshooting.html">
+        <li class="chapter " data-level="1.3.10" data-path="troubleshooting.html">
             
                 <a href="troubleshooting.html">
             
@@ -1292,7 +1324,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Vagrant Image</a>
+        <a href=".." >Use Vagrant</a>
     </h1>
 </div>
 
@@ -1401,6 +1433,10 @@ on your installation.</p>
 <ul>
 <li>To Run any of the installed templates just click the <code>Run</code> button
 (the green play button).</li>
+<li>To install other applications via the command line you can use the <code>gofabric8</code> binary which is inside the Vagrant image. e.g. to install the full <a href="../cdelivery.html">fabric8 microservices platform with CI / CD support</a> then try this command instead:</li>
+</ul>
+<pre><code>gofabric8 deploy -y --domain=vagrant.f8 --app=cd-pipeline
+</code></pre><ul>
 <li>To install any new
 <a href="http://docs.openshift.org/latest/dev_guide/templates.html" _target="blank">OpenShift Templates</a>
 or other Kubernetes resources just drag and drop the JSON file onto
@@ -1471,7 +1507,7 @@ vagrant up
                 </a>
                 
                 
-                <a href="cdk.html" class="navigation navigation-next " aria-label="Next page: CDK">
+                <a href="kubernetes.html" class="navigation navigation-next " aria-label="Next page: Use Kubernetes">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -1482,7 +1518,7 @@ vagrant up
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Vagrant Image","level":"1.3.1","depth":2,"next":{"title":"CDK","level":"1.3.2","depth":2,"path":"getStarted/cdk.md","ref":"getStarted/cdk.md","articles":[]},"previous":{"title":"Getting Started","level":"1.3","depth":1,"path":"getStarted/index.md","ref":"getStarted/index.md","articles":[{"title":"Vagrant Image","level":"1.3.1","depth":2,"path":"getStarted/vagrant.md","ref":"getStarted/vagrant.md","articles":[]},{"title":"CDK","level":"1.3.2","depth":2,"path":"getStarted/cdk.md","ref":"getStarted/cdk.md","articles":[]},{"title":"Native OpenShift","level":"1.3.3","depth":2,"path":"getStarted/openshift.md","ref":"getStarted/openshift.md","articles":[]},{"title":"Native Kubernetes on GKE","level":"1.3.4","depth":2,"path":"getStarted/gke.md","ref":"getStarted/gke.md","articles":[]},{"title":"Local OpenShift Client","level":"1.3.5","depth":2,"path":"getStarted/local.md","ref":"getStarted/local.md","articles":[]},{"title":"Install on OpenShift","level":"1.3.6","depth":2,"path":"getStarted/apps.md","ref":"getStarted/apps.md","articles":[]},{"title":"Develop locally","level":"1.3.7","depth":2,"path":"getStarted/develop.md","ref":"getStarted/develop.md","articles":[]},{"title":"Accept self-signed certs","level":"1.3.8","depth":2,"path":"getStarted/browserCertificates.md","ref":"getStarted/browserCertificates.md","articles":[]},{"title":"Troubleshooting","level":"1.3.9","depth":2,"path":"getStarted/troubleshooting.md","ref":"getStarted/troubleshooting.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/vagrant.md","mtime":"2016-05-31T12:40:56.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:44:09.721Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Use Vagrant","level":"1.3.1","depth":2,"next":{"title":"Use Kubernetes","level":"1.3.2","depth":2,"path":"getStarted/kubernetes.md","ref":"getStarted/kubernetes.md","articles":[]},"previous":{"title":"Getting Started","level":"1.3","depth":1,"path":"getStarted/index.md","ref":"getStarted/index.md","articles":[{"title":"Use Vagrant","level":"1.3.1","depth":2,"path":"getStarted/vagrant.md","ref":"getStarted/vagrant.md","articles":[]},{"title":"Use Kubernetes","level":"1.3.2","depth":2,"path":"getStarted/kubernetes.md","ref":"getStarted/kubernetes.md","articles":[]},{"title":"Use Kubernetes on GKE","level":"1.3.3","depth":2,"path":"getStarted/gke.md","ref":"getStarted/gke.md","articles":[]},{"title":"Use OpenShift","level":"1.3.4","depth":2,"path":"getStarted/openshift.md","ref":"getStarted/openshift.md","articles":[{"title":"Install OpenShift","level":"1.3.4.1","depth":3,"path":"getStarted/installOpenShift.md","ref":"getStarted/installOpenShift.md","articles":[]}]},{"title":"Use CDK","level":"1.3.5","depth":2,"path":"getStarted/cdk.md","ref":"getStarted/cdk.md","articles":[]},{"title":"Installing apps","level":"1.3.6","depth":2,"path":"getStarted/apps.md","ref":"getStarted/apps.md","articles":[]},{"title":"Setup Local OpenShift Client","level":"1.3.7","depth":2,"path":"getStarted/local.md","ref":"getStarted/local.md","articles":[]},{"title":"Develop locally","level":"1.3.8","depth":2,"path":"getStarted/develop.md","ref":"getStarted/develop.md","articles":[]},{"title":"Accept self-signed certs","level":"1.3.9","depth":2,"path":"getStarted/browserCertificates.md","ref":"getStarted/browserCertificates.md","articles":[]},{"title":"Troubleshooting","level":"1.3.10","depth":2,"path":"getStarted/troubleshooting.md","ref":"getStarted/troubleshooting.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/vagrant.md","mtime":"2016-05-31T12:44:05.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:47:37.971Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

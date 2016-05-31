@@ -138,7 +138,7 @@
                 <a href="vagrant.html">
             
                     
-                    Vagrant Image
+                    Use Vagrant
             
                 </a>
             
@@ -146,12 +146,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.2" data-path="cdk.html">
+        <li class="chapter " data-level="1.3.2" data-path="kubernetes.html">
             
-                <a href="cdk.html">
+                <a href="kubernetes.html">
             
                     
-                    CDK
+                    Use Kubernetes
             
                 </a>
             
@@ -159,25 +159,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3" data-path="openshift.html">
-            
-                <a href="openshift.html">
-            
-                    
-                    Native OpenShift
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.3.4" data-path="gke.html">
+        <li class="chapter " data-level="1.3.3" data-path="gke.html">
             
                 <a href="gke.html">
             
                     
-                    Native Kubernetes on GKE
+                    Use Kubernetes on GKE
             
                 </a>
             
@@ -185,12 +172,44 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.5" data-path="local.html">
+        <li class="chapter " data-level="1.3.4" data-path="openshift.html">
             
-                <a href="local.html">
+                <a href="openshift.html">
             
                     
-                    Local OpenShift Client
+                    Use OpenShift
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.4.1" data-path="installOpenShift.html">
+            
+                <a href="installOpenShift.html">
+            
+                    
+                    Install OpenShift
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="cdk.html">
+            
+                <a href="cdk.html">
+            
+                    
+                    Use CDK
             
                 </a>
             
@@ -203,7 +222,7 @@
                 <a href="apps.html">
             
                     
-                    Install on OpenShift
+                    Installing apps
             
                 </a>
             
@@ -211,7 +230,20 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.7" data-path="develop.html">
+        <li class="chapter " data-level="1.3.7" data-path="local.html">
+            
+                <a href="local.html">
+            
+                    
+                    Setup Local OpenShift Client
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.8" data-path="develop.html">
             
                 <a href="develop.html">
             
@@ -224,7 +256,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.8" data-path="browserCertificates.html">
+        <li class="chapter " data-level="1.3.9" data-path="browserCertificates.html">
             
                 <a href="browserCertificates.html">
             
@@ -237,7 +269,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.9" data-path="troubleshooting.html">
+        <li class="chapter " data-level="1.3.10" data-path="troubleshooting.html">
             
                 <a href="troubleshooting.html">
             
@@ -1316,15 +1348,18 @@
 All you need is <a href="https://www.vagrantup.com/" _target="blank">Vagrant</a> and <a href="https://www.virtualbox.org/" _target="blank">VirtualBox</a> installed locally.
 Check out how to <a href="vagrant.html">Create the Fabric8 Vagrant Image</a></p>
 </li>
-<li><p><a href="cdk.html"><strong>CDK</strong></a> - Using the Red Hat Container Development Kit</p>
-<p>You will need is <a href="https://www.vagrantup.com/" _target="blank">Vagrant</a> and <a href="https://www.virtualbox.org/" _target="blank">VirtualBox</a> installed locally along with a <a href="https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites" _target="blank">number of prerequisites</a>.
-Check out <a href="cdk.html">Installing Fabric8 inside the CDK Vagrant Image</a></p>
+<li><p><a href="kubernetes.html"><strong>Native Kubernetes</strong></a> - Kuberentes</p>
+<p>If you have <a href="http://kuberentes.io" _target="blank">Kubernetes</a> installed locally, this <a href="kubernetes.html">guide</a> helps you step-by-step how to install fabric8 on it.</p>
+</li>
+<li><p><a href="gke.html"><strong>Google Container Engine</strong></a> - Kubernetes</p>
+<p><a href="https://cloud.google.com/container-engine/" _target="blank">Google Container Engine</a> (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes <a href="http://kubernetes.io/gettingstarted/" _target="blank">Getting Started</a> page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This <a href="gke.html">guide</a> will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.</p>
 </li>
 <li><p><a href="openshift.html"><strong>Native OpenShift</strong></a> - OpenShift Origin</p>
 <p>If you have <a href="http://www.openshift.com" _target="blank">OpenShift V3</a> installed locally, this <a href="openshift.html">guide</a> helps you step-by-step how to install fabric8 on it.</p>
 </li>
-<li><p><a href="gke.html"><strong>Google Container Engine</strong></a> - Kubernetes</p>
-<p><a href="https://cloud.google.com/container-engine/" _target="blank">Google Container Engine</a> (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes <a href="http://kubernetes.io/gettingstarted/" _target="blank">Getting Started</a> page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This <a href="gke.html">guide</a> will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.</p>
+<li><p><a href="cdk.html"><strong>CDK</strong></a> - Using the Red Hat Container Development Kit</p>
+<p>You will need is <a href="https://www.vagrantup.com/" _target="blank">Vagrant</a> and <a href="https://www.virtualbox.org/" _target="blank">VirtualBox</a> installed locally along with a <a href="https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites" _target="blank">number of prerequisites</a>.
+Check out <a href="cdk.html">Installing Fabric8 inside the CDK Vagrant Image</a></p>
 </li>
 </ul>
 <h4 id="local-client-setup"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Local client setup</h4>
@@ -1372,7 +1407,7 @@ How this is done is described in this <a href="local.html">recipe</a>.</p>
                 </a>
                 
                 
-                <a href="vagrant.html" class="navigation navigation-next " aria-label="Next page: Vagrant Image">
+                <a href="vagrant.html" class="navigation navigation-next " aria-label="Next page: Use Vagrant">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -1383,7 +1418,7 @@ How this is done is described in this <a href="local.html">recipe</a>.</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.3","depth":1,"next":{"title":"Vagrant Image","level":"1.3.1","depth":2,"path":"getStarted/vagrant.md","ref":"getStarted/vagrant.md","articles":[]},"previous":{"title":"Overview","level":"1.2","depth":1,"path":"overview.md","ref":"overview.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/index.md","mtime":"2016-05-31T12:40:56.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:44:09.721Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.3","depth":1,"next":{"title":"Use Vagrant","level":"1.3.1","depth":2,"path":"getStarted/vagrant.md","ref":"getStarted/vagrant.md","articles":[]},"previous":{"title":"Overview","level":"1.2","depth":1,"path":"overview.md","ref":"overview.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/index.md","mtime":"2016-05-31T12:44:05.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:47:37.971Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html lang="" >
     <head>
-        <title>Install on OpenShift · Fabric8 Documentation</title>
+        <title>Installing apps · Fabric8 Documentation</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -61,10 +61,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="develop.html" />
+    <link rel="next" href="local.html" />
     
     
-    <link rel="prev" href="local.html" />
+    <link rel="prev" href="cdk.html" />
     
 
     </head>
@@ -138,7 +138,7 @@
                 <a href="vagrant.html">
             
                     
-                    Vagrant Image
+                    Use Vagrant
             
                 </a>
             
@@ -146,12 +146,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.2" data-path="cdk.html">
+        <li class="chapter " data-level="1.3.2" data-path="kubernetes.html">
             
-                <a href="cdk.html">
+                <a href="kubernetes.html">
             
                     
-                    CDK
+                    Use Kubernetes
             
                 </a>
             
@@ -159,25 +159,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3" data-path="openshift.html">
-            
-                <a href="openshift.html">
-            
-                    
-                    Native OpenShift
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.3.4" data-path="gke.html">
+        <li class="chapter " data-level="1.3.3" data-path="gke.html">
             
                 <a href="gke.html">
             
                     
-                    Native Kubernetes on GKE
+                    Use Kubernetes on GKE
             
                 </a>
             
@@ -185,12 +172,44 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.5" data-path="local.html">
+        <li class="chapter " data-level="1.3.4" data-path="openshift.html">
             
-                <a href="local.html">
+                <a href="openshift.html">
             
                     
-                    Local OpenShift Client
+                    Use OpenShift
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.4.1" data-path="installOpenShift.html">
+            
+                <a href="installOpenShift.html">
+            
+                    
+                    Install OpenShift
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="cdk.html">
+            
+                <a href="cdk.html">
+            
+                    
+                    Use CDK
             
                 </a>
             
@@ -203,7 +222,7 @@
                 <a href="apps.html">
             
                     
-                    Install on OpenShift
+                    Installing apps
             
                 </a>
             
@@ -211,7 +230,20 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.7" data-path="develop.html">
+        <li class="chapter " data-level="1.3.7" data-path="local.html">
+            
+                <a href="local.html">
+            
+                    
+                    Setup Local OpenShift Client
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.8" data-path="develop.html">
             
                 <a href="develop.html">
             
@@ -224,7 +256,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.8" data-path="browserCertificates.html">
+        <li class="chapter " data-level="1.3.9" data-path="browserCertificates.html">
             
                 <a href="browserCertificates.html">
             
@@ -237,7 +269,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.9" data-path="troubleshooting.html">
+        <li class="chapter " data-level="1.3.10" data-path="troubleshooting.html">
             
                 <a href="troubleshooting.html">
             
@@ -1292,7 +1324,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Install on OpenShift</a>
+        <a href=".." >Installing apps</a>
     </h1>
 </div>
 
@@ -1307,15 +1339,31 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h2 id="install-fabric8-on-openshift"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install Fabric8 on OpenShift</h2>
-<p><a href="../fabric8Apps.html">Fabric8 apps</a> have been
-<a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" _target="blank">packaged</a> to make them easy
-to install on Kubernetes or OpenShift.</p>
+                                <h2 id="installing-fabric8-apps"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Installing Fabric8 Apps</h2>
+<h3 id="using-gofabric8"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Using gofabric8</h3>
+<p>The easiest way to install all the OpenShift templates for fabric8 into your OpenShift cluster and setup the required ServiceAccounts, security and secrets is via the <a href="https://github.com/fabric8io/gofabric8/" _target="blank">gofabric8 command line tool</a>.</p>
+<p>Download and install <a href="https://github.com/fabric8io/gofabric8/releases" _target="blank">gofabric8</a> and ensure its on your <code>$PATH</code>.</p>
+<p>Test that your machine can connect to the OpenShift cluster via</p>
+<pre><code>oc get pods
+</code></pre><p>If that fails you might want to try using <code>oc login</code> to login to your cluster again.</p>
+<p>Also make sure you are in the right project you wish to install fabric8. Use <code>oc project</code> to list or change the project and <code>oc new-project</code> to create a new project.</p>
+<p>Then to install the <a href="../console.html">fabric8 developer console</a> type this:</p>
+<pre><code>gofabric8 deploy -y --domain=XXX
+gofabric8 secrets -y
+</code></pre><p>where <code>XXX</code> should be the domain postfix to access applications on your OpenShift cluster.</p>
+<p>If you wish to install the full <a href="../cdelivery.html">fabric8 microservices platform with CI / CD support</a> then try this command instead:</p>
+<pre><code>gofabric8 deploy -y --domain=XXX --app=cd-pipeline
+gofabric8 secrets -y
+</code></pre><p>It will take a few moments to startup and download the <a href="../console.html">Fabric8 Developer Console</a>, you should see the pod startup in the OpenShift console or via the commmand:</p>
+<pre><code>oc get pods -w
+</code></pre><p>Now that the fabric8 console is up and running you should be able to access it at: <a href="http://fabric8.${DOMAIN}/" _target="blank">http://fabric8.${DOMAIN}/</a> based on your domain.</p>
+<p>From there you should be able to start running apps and having fun! :)</p>
+<h3 id="troubleshooting"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Troubleshooting</h3>
+<p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
 <h3 id="install-via-the-console"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install via the console</h3>
-<p>If you are already running the <a href="../console.html">fabric8 console</a> you can use it to install all the
-other <a href="../fabric8Apps.html">Fabric8 apps</a> and quickstarts. If you are not yet running the
-fabric8 console then try <a href="#console">install it via the CLI below</a>.</p>
-<p>When you open the fabric8 console select the <code>Apps</code> tab then click on the <code>Run...</code> button (top right green button).</p>
+<p>If you are already running the <a href="../console.html">fabric8 console</a> you can use it to install all the other <a href="../fabric8Apps.html">Fabric8 apps</a>. If you are not yet running the
+fabric8 console then try <a href="#using-gofabric8">install it via the CLI above</a>.</p>
+<p>When you open the fabric8 console select a <code>Team</code> page (which views a namespace in kubernetes), then select the <code>Runtie</code> tab then click on the <code>Run...</code> button (top right green button).</p>
 <p>This will list all of the installed <a href="http://docs.openshift.org/latest/dev_guide/templates.html" _target="blank">OpenShift Templates</a>
 on your installation.</p>
 <ul>
@@ -1329,19 +1377,27 @@ and they should appear on the <code>Run...</code> page  </li>
 <pre><code>  oc create -f jsonOrYamlFileOrUrl
 </code></pre></li>
 </ul>
-<h3 id="install-via-the-cli"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install via the CLI</h3>
+<h3 id="install-via-the-oc-cli"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Install via the oc CLI</h3>
 <p>These instructions assume that you have either</p>
 <ul>
 <li>Either setup the fabric8 <a href="vagrant.html">Vagrant image</a> or have a <a href="openshift.html">native OpenShift</a> installation</li>
-<li>You have the <a href="local.html">local machine</a>  setup to talk to OpenShift</li>
+<li>You have the <a href="local.html">local machine</a> setup to talk to OpenShift</li>
 </ul>
-<h4 id="setup-domain"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Setup domain</h4>
+<h4 id="using-the-imported-templates"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Using the imported templates</h4>
+<p>When you install fabric8 via the <a href="#using-gofabric8">gofabric8 command line tool</a> it will have installed openshift templates for all the microservices and packages in fabric8. You can view them via</p>
+<pre><code>oc get template
+</code></pre><p>You can then run a template, such as <code>cd-pipeline</code> via:</p>
+<pre><code>oc process cd-pipeline | oc create -f -
+</code></pre><h4 id="running-templates-without-gofabric8"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Running templates without gofabric8</h4>
+<p>While its not recommended; you can try to run templates by hand without the <a href="#using-gofabric8">gofabric8 command line tool</a></p>
+<p>These instructions describe how:</p>
+<h5 id="setup-domain-environment-variable"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Setup domain environment variable</h5>
 <ul>
 <li>setup the <strong>KUBERNETES_DOMAIN</strong> environment variable for the domain you are installing to. Usually this is a host name or domain name.</li>
 </ul>
 <p>e.g. if you are using the fabric8 Vagrant image then use</p>
 <pre><code>export KUBERNETES_DOMAIN=vagrant.f8
-</code></pre><h4 id="downloading-all-templates"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Downloading all templates</h4>
+</code></pre><h5 id="downloading-all-templates"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Downloading all templates</h5>
 <p>Download and unzip the <a href="http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip" _target="blank">fabric8 templates 2.2.153 distribution</a>.</p>
 <p>e.g.</p>
 <pre><code>curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/forge/distro/distro/2.2.153/distro-2.2.153-templates.zip
@@ -1351,16 +1407,10 @@ cd main
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f kubernetes.json | oc create -f -
 </code></pre><p>For example to install the <a href="console.html">fabric8 console</a> then type:</p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f console-2.2.101.json | oc create -f -
-</code></pre><h4 id="download-templates-individually"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Download templates individually</h4>
+</code></pre><h5 id="download-templates-individually"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Download templates individually</h5>
 <p>Or to install from the central repository then choose the commands below to suit the application you wish to install:</p>
-<h5 id="console"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Console</h5>
-<p>Provides the base <a href="../console.html">fabric8 console</a> at the <code>vagrant.f8</code> domain.</p>
-<p><a href="https://github.com/fabric8io/gofabric8" _target="blank">gofabric8</a> provides a script for installing fabric8 on openshift or vanilla kubernetes.</p>
-<p>First download a <a href="https://github.com/fabric8io/gofabric8/releases" _target="blank">gofabric8 binary</a>, unpack the archive and copy the binary to a folder in your path, e.g. /usr/bin/</p>
-<p>Then install fabric8 by running:</p>
-<pre><code>gofabric8 deploy -y
-gofabric8 secrets -y
-</code></pre><h5 id="management"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Management</h5>
+<p>Then you can run individual microservices as follows:</p>
+<h5 id="management"><a name="undefined" class="plugin-anchor" href="#undefined"><span class="fa fa-link"></span></a>Management</h5>
 <p>Provides centralised <a href="logging.html">Logging</a> and <a href="metrics.html">Metrics</a></p>
 <pre><code>    oc process -v DOMAIN=$KUBERNETES_DOMAIN -f \
     http://repo1.maven.org/maven2/io/fabric8/devops/packages/management/2.2.101/management-2.2.101-kubernetes.json \
@@ -1444,12 +1494,12 @@ add this to your hosts file to expose  the routes as host names:</p>
 
             
                 
-                <a href="local.html" class="navigation navigation-prev " aria-label="Previous page: Local OpenShift Client">
+                <a href="cdk.html" class="navigation navigation-prev " aria-label="Previous page: Use CDK">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="develop.html" class="navigation navigation-next " aria-label="Next page: Develop locally">
+                <a href="local.html" class="navigation navigation-next " aria-label="Next page: Setup Local OpenShift Client">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -1460,7 +1510,7 @@ add this to your hosts file to expose  the routes as host names:</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Install on OpenShift","level":"1.3.6","depth":2,"next":{"title":"Develop locally","level":"1.3.7","depth":2,"path":"getStarted/develop.md","ref":"getStarted/develop.md","articles":[]},"previous":{"title":"Local OpenShift Client","level":"1.3.5","depth":2,"path":"getStarted/local.md","ref":"getStarted/local.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/apps.md","mtime":"2016-05-31T12:40:56.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:44:09.721Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Installing apps","level":"1.3.6","depth":2,"next":{"title":"Setup Local OpenShift Client","level":"1.3.7","depth":2,"path":"getStarted/local.md","ref":"getStarted/local.md","articles":[]},"previous":{"title":"Use CDK","level":"1.3.5","depth":2,"path":"getStarted/cdk.md","ref":"getStarted/cdk.md","articles":[]},"dir":"ltr"},"config":{"plugins":["anchors"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchors":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"github":"fabric8io/fabric8","theme":"default","githubHost":"https://github.com/","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":36,"bottom":36},"toc":true},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Fabric8 Documentation","links":{"home":"http://fabric8.io/","about":"http://fabric8.io/docs/index.html","issues":"https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed","contribute":"http://fabric8.io/contributing/index.html","sharing":{"google":null,"facebook":null,"twitter":"https://twitter.com/fabric8io"}},"gitbook":">=2.0.0","description":"Fabric8 User Guide and Reference Documentation","extension":"pdf"},"file":{"path":"getStarted/apps.md","mtime":"2016-05-31T12:44:05.000Z","type":"markdown"},"gitbook":{"version":"3.0.3","time":"2016-05-31T12:47:37.971Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
