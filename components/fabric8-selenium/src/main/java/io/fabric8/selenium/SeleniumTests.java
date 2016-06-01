@@ -37,6 +37,10 @@ public class SeleniumTests {
 
     public static <T> T assertWebDriverForService(KubernetesClient client, String namespace, String serviceName, Function<WebDriverFacade, T> block) throws Exception {
         WebDriver driver = createWebDriver();
+        return assertWebDriverForService(client, namespace, serviceName, driver, block);
+    }
+
+    public static <T> T assertWebDriverForService(KubernetesClient client, String namespace, String serviceName, WebDriver driver, Function<WebDriverFacade, T> block) throws Exception {
         try {
             WebDriverFacade facade = new WebDriverFacade(driver, client, namespace);
             facade.navigateToService(serviceName);
