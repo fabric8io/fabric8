@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.extensions.Templates;
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -243,6 +244,8 @@ public class Controller {
             applyServiceAccount((ServiceAccount) dto, sourceName);
         } else if (dto instanceof Secret) {
             applySecret((Secret) dto, sourceName);
+        } else if (dto instanceof ConfigMap) {
+            applyResource((ConfigMap) dto, sourceName, kubernetesClient.configMaps());
         } else if (dto instanceof DaemonSet) {
             applyResource((DaemonSet) dto, sourceName, kubernetesClient.extensions().daemonSets());
         } else if (dto instanceof Deployment) {
