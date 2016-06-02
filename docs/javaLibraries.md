@@ -17,6 +17,14 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 * [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) makes it easy to perform assertions on remote JVMs via JMX using  [Jolokia](http://jolokia.org/) over HTTP/JSON
 
 
+#### Spring
+
+* [kubeflix](https://github.com/fabric8io/kubeflix) provides <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="https://netflix.github.io/">Netflix OSS</a> like <a href="https://github.com/Netflix/Hystrix">Hystrix</a>, <a href="https://github.com/Netflix/Ribbon">Ribbon</a> and <a href="https://github.com/Netflix/Turbine">Turbine</a>
+* [spring-cloud-kubernetes](https://github.com/fabric8io/spring-cloud-kubernetes) provides <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="http://projects.spring.io/spring-cloud/">Spring Cloud</a>
+* [kubernetes-zipkin](https://github.com/fabric8io/kubernetes-zipkin) provides <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="http://zipkin.io/">Zipkin</a> for tracing microservices
+
+
+
 ### ActiveMQ
 
 * [mq-client](https://github.com/fabric8io/fabric8-ipaas/tree/master/mq-client) provides the the **io.fabric8.mq.core.MQConnectionFactory** class which implements the JMS ConnectionFactory to connect to Apache ActiveMQ Artemis using the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)
