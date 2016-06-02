@@ -36,6 +36,7 @@ import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.extensions.DaemonSet;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
@@ -250,6 +251,8 @@ public class Controller {
             applyResource((DaemonSet) dto, sourceName, kubernetesClient.extensions().daemonSets());
         } else if (dto instanceof Deployment) {
             applyResource((Deployment) dto, sourceName, kubernetesClient.extensions().deployments());
+        } else if (dto instanceof ReplicaSet) {
+            applyResource((ReplicaSet) dto, sourceName, kubernetesClient.extensions().replicaSets());
         } else if (dto instanceof Ingress) {
             applyResource((Ingress) dto, sourceName, kubernetesClient.extensions().ingresses());
         } else if (dto instanceof PersistentVolumeClaim) {
