@@ -87,7 +87,7 @@
         <snakeyaml.version>1.17</snakeyaml.version>
 	<!-- swagger 1.5.7 doesnt work with fabric8-cxf-plugin -->
         <swagger.jaxrs.version>1.5.5</swagger.jaxrs.version>
-        <vertx.version>2.1.6</vertx.version>
+        <vertx.version>3.2.1</vertx.version>
         <weld.version>2.3.4.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
@@ -459,11 +459,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-vertx</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>letschat-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -574,11 +569,6 @@
             <dependency>
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-core</artifactId>
-                <version>${vertx.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.vertx</groupId>
-                <artifactId>vertx-platform</artifactId>
                 <version>${vertx.version}</version>
             </dependency>
 
