@@ -234,7 +234,13 @@ public class Controller {
         } else if (dto instanceof BuildConfig) {
             applyBuildConfig((BuildConfig) dto, sourceName);
         } else if (dto instanceof DeploymentConfig) {
-            applyDeploymentConfig((DeploymentConfig) dto, sourceName);
+            DeploymentConfig resource = (DeploymentConfig) dto;
+            OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+            if (openShiftClient != null) {
+                applyResource(resource, sourceName, openShiftClient.deploymentConfigs());
+            } else {
+                LOG.warn("Not connected to OpenShift cluster so cannot create entity " + dto);
+            }
         } else if (dto instanceof ImageStream) {
             applyImageStream((ImageStream) dto, sourceName);
         } else if (dto instanceof OAuthClient) {
@@ -700,17 +706,6 @@ public class Controller {
                 openShiftClient.buildConfigs().inNamespace(namespace).create(entity);
             } catch (Exception e) {
                 onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
-            }
-        }
-    }
-
-    public void applyDeploymentConfig(DeploymentConfig entity, String sourceName) {
-        OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
-            try {
-                openShiftClient.deploymentConfigs().inNamespace(getNamespace()).create(entity);
-            } catch (Exception e) {
-                onApplyError("Failed to create DeploymentConfig from " + sourceName + ". " + e, e);
             }
         }
     }
