@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -29,6 +30,9 @@ public class WatchServicesExample {
             public void eventReceived(Action action, Service service) {
                 System.out.println(action + ": " + service);
             }
+
+            @Override
+            public void errorReceived(Status status) { System.out.println("Status: " + status); }
 
             @Override
             public void onClose(KubernetesClientException e) {

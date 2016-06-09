@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -29,6 +30,9 @@ public class WatchPodsExample {
             public void eventReceived(Action action, Pod pod) {
                 System.out.println(action + ": " + pod);
             }
+
+            @Override
+            public void errorReceived(Status status) { System.out.println("Status: " + status); }
 
             @Override
             public void onClose(KubernetesClientException e) {

@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
@@ -31,6 +32,9 @@ public class WatchBuildsExample {
             public void eventReceived(Action action, Build build) {
                 System.out.println(action + ": " + build);
             }
+
+            @Override
+            public void errorReceived(Status status) { System.out.println("Status: " + status); }
 
             @Override
             public void onClose(KubernetesClientException e) {

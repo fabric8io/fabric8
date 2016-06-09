@@ -15,7 +15,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.EditablePod;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import org.junit.Test;
@@ -26,9 +25,11 @@ public class UserConfigurationCompareTest {
 
     @Test
     public void testCommonDenominator() {
-        assertEquals(Pod.class, UserConfigurationCompare.getCommonDenominator(Pod.class, EditablePod.class));
-        assertEquals(EditablePod.class, UserConfigurationCompare.getCommonDenominator(EditablePod.class, EditablePod.class));
-        assertEquals(Pod.class, UserConfigurationCompare.getCommonDenominator(EditablePod.class, Pod.class));
+
+        // commented out following kubernetes-client 1.3.96 upgrade, no EditablePod in model anymore so not sure if this test makes sense still
+//        assertEquals(Pod.class, UserConfigurationCompare.getCommonDenominator(Pod.class, EditablePod.class));
+//        assertEquals(EditablePod.class, UserConfigurationCompare.getCommonDenominator(EditablePod.class, EditablePod.class));
+//        assertEquals(Pod.class, UserConfigurationCompare.getCommonDenominator(EditablePod.class, Pod.class));
 
         assertEquals(null, UserConfigurationCompare.getCommonDenominator(ReplicationController.class, Pod.class));
     }
