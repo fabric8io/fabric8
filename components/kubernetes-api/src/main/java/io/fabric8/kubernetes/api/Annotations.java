@@ -33,7 +33,33 @@ public class Annotations {
         public static final String GIT_URL = "fabric8.io/git-url";
         public static final String GIT_BRANCH = "fabric8.io/git-branch";
 
+        /**
+         * Links to the static report and documentation for the microservice version
+         */
         public static final String DOCS_URL = "fabric8.io/docs-url";
+
+        /**
+         * Links to the metrics dashboard for the microservice version
+         */
+        public static final String METRICS_URL = "fabric8.io/metricsUrl";
+
+
+        /**
+         * The URL of the icon to use for the microservice
+         */
+        public static final String ICON_URL = "fabric8.io/iconUrl";
+    }
+
+    public static class Management {
+        /**
+         * Enables prometheus metrics scraping from the given prometheus metrics port
+         */
+        public static final String PROMETHEUS_PORT = "prometheus.io/port";
+
+        /**
+         * Enables prometheus metrics scraping if the value is <code>true</code>
+         */
+        public static final String PROMETHEUS_SCRAPE = "prometheus.io/scrape";
     }
 
     public static class Project {
