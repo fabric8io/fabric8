@@ -45,6 +45,7 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
+import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
@@ -239,7 +240,15 @@ public class Controller {
             if (openShiftClient != null) {
                 applyResource(resource, sourceName, openShiftClient.deploymentConfigs());
             } else {
-                LOG.warn("Not connected to OpenShift cluster so cannot create entity " + dto);
+                LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
+            }
+        } else if (dto instanceof RoleBinding) {
+            RoleBinding resource = (RoleBinding) dto;
+            OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
+            if (openShiftClient != null) {
+                applyResource(resource, sourceName, openShiftClient.roleBindings());
+            } else {
+                LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
             }
         } else if (dto instanceof ImageStream) {
             applyImageStream((ImageStream) dto, sourceName);
