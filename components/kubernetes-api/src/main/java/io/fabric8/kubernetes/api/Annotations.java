@@ -39,9 +39,9 @@ public class Annotations {
         public static final String DOCS_URL = "fabric8.io/docs-url";
 
         /**
-         * Links to the metrics dashboard for the microservice version
+         * Relative URL link to the metrics dashboard for the microservice version for the dashboard
          */
-        public static final String METRICS_URL = "fabric8.io/metricsUrl";
+        public static final String METRICS_PATH = "fabric8.io/metrics-path";
 
 
         /**
