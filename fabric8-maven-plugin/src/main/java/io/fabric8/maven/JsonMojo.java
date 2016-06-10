@@ -2146,7 +2146,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         String templateName = projectProperties.containsKey(TEMPLATE_NAME) ?
                 String.valueOf(projectProperties.getProperty(TEMPLATE_NAME)) :
                 project.getArtifactId();
-        return new TemplateBuilder().withNewMetadata().withName(templateName).withAnnotations(getTemplateAnnotations()).endMetadata().withParameters(parameters).build();
+        Template template = new Template();
+        template.setMetadata(new ObjectMetaBuilder().withName(templateName).withAnnotations(getTemplateAnnotations()).build());
+        template.setParameters(parameters);
+        return template;
     }
 
     protected void loadParametersFromProperties(Properties properties, List<io.fabric8.openshift.api.model.Parameter> parameters, Set<String> paramNames) {
