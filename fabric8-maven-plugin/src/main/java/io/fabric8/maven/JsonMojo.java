@@ -971,7 +971,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
         Template template = getTemplate();
         if (!template.getParameters().isEmpty() || Strings.isNotBlank(iconUrl)) {
             configureTemplateDescriptionAndIcon(template, iconUrl);
-            builder = builder.addToTemplateItems(template);
         }
 
         KubernetesList kubernetesList;
@@ -979,7 +978,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         try {
             items = builder.getItems();
         } catch (Exception e) {
-            // ignore - must be empty. Validations FTW :)
+            getLog().warn("Caught: " + e, e);
         }
         if (Lists.isNullOrEmpty(items)) {
             getLog().warn("No Kubernetes resources found! Skipping...");
@@ -988,7 +987,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             kubernetesList = builder.build();
         }
 
-        Object result = Templates.combineTemplates(kubernetesList);
+        Object result = Templates.combineTemplates(kubernetesList, template);
         if (result instanceof Template) {
             Template resultTemplate = (Template) result;
             defaultIconUrl(resultTemplate.getObjects());

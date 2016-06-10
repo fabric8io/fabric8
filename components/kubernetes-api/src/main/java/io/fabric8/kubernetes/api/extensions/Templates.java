@@ -47,7 +47,10 @@ public class Templates {
      * or just return the unchanged list if no templates are present.
      */
     public static Object combineTemplates(KubernetesList kubernetesList) {
-        Template firstTemplate = null;
+        return combineTemplates(kubernetesList, (Template) null);
+    }
+
+    public static Object combineTemplates(KubernetesList kubernetesList, Template firstTemplate) {
         List<HasMetadata> items = kubernetesList.getItems();
         for (HasMetadata item : items) {
             if (item instanceof Template) {
