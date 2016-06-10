@@ -35,6 +35,7 @@ import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.api.model.TemplateBuilder;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Lists;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
@@ -973,9 +974,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
             builder = builder.addToTemplateItems(template);
         }
 
-        KubernetesList kubernetesList = builder.build();
-        if (kubernetesList.getItems().isEmpty()) {
+        KubernetesList kubernetesList;
+        List<HasMetadata> items = null;
+        try {
+            items = builder.getItems();
+        } catch (Exception e) {
+            // ignore - must be empty. Validations FTW :)
+        }
+        if (Lists.isNullOrEmpty(items)) {
             getLog().warn("No Kubernetes resources found! Skipping...");
+            kubernetesList = new KubernetesList();
+        } else {
+            kubernetesList = builder.build();
         }
 
         Object result = Templates.combineTemplates(kubernetesList);

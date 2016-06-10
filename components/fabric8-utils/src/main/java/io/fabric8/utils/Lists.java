@@ -54,4 +54,11 @@ public class Lists {
         }
         return answer;
     }
+
+    /**
+     * Returns true if the list is null or empty
+     */
+    public static <T> boolean isNullOrEmpty(List<T> list) {
+        return list == null || list.isEmpty();
+    }
 }
