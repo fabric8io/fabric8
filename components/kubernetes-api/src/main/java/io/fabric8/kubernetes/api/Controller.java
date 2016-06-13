@@ -45,7 +45,9 @@ import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.RoleBinding;
+import io.fabric8.openshift.api.model.RoleBindingBuilder;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
@@ -75,8 +77,10 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getObjectId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateLabels;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.KubernetesHelper.setName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
+import static org.json.XMLTokener.entity;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -844,15 +848,53 @@ public class Controller {
     }
 
     public void applyNamespace(String namespaceName) {
-        Namespace entity = new Namespace();
-        ObjectMeta metadata = getOrCreateMetadata(entity);
-        metadata.setName(namespaceName);
-        String namespace = kubernetesClient.getNamespace();
-        if (Strings.isNotBlank(namespace)) {
-            // lets associate this new namespace with the project that it was created from
-            getOrCreateLabels(entity).put("project", namespace);
+        OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
+        if (openshiftClient != null) {
+            Project entity = new Project();
+            ObjectMeta metadata = getOrCreateMetadata(entity);
+            metadata.setName(namespaceName);
+            String namespace = kubernetesClient.getNamespace();
+            if (Strings.isNotBlank(namespace)) {
+                // lets associate this new namespace with the project that it was created from
+                getOrCreateLabels(entity).put("project", namespace);
+            }
+            applyProject(entity);
+            ensureRoleBindingExists(openshiftClient, namespaceName, "system:deployers", "system:deployer", "deployer");
         }
-        applyNamespace(entity);
+        else {
+            Namespace entity = new Namespace();
+            ObjectMeta metadata = getOrCreateMetadata(entity);
+            metadata.setName(namespaceName);
+            String namespace = kubernetesClient.getNamespace();
+            if (Strings.isNotBlank(namespace)) {
+                // lets associate this new namespace with the project that it was created from
+                getOrCreateLabels(entity).put("project", namespace);
+            }
+            applyNamespace(entity);
+        }
+    }
+
+    /**
+     * Ensures there's a RoleBinding for the given name, role and SA in the given namespace
+     */
+    protected boolean ensureRoleBindingExists(OpenShiftClient openshiftClient, String namespace, String roleBindingName, String roleName, String serviceAccountName) {
+        RoleBinding old = openshiftClient.roleBindings().withName(roleBindingName).get();
+        if (!isRunning(old)) {
+            RoleBinding entity = new RoleBindingBuilder().
+                    withNewMetadata().withName(roleBindingName).endMetadata().
+                    withNewRoleRef().withName(roleName).endRoleRef().
+                    addNewSubject().withKind("ServiceAccount").withName(serviceAccountName).withNamespace(namespace).endSubject().
+                    withUserNames("system:serviceaccount:" + namespace + ":" + serviceAccountName).
+                    build();
+            try {
+                Object answer = openshiftClient.roleBindings().create(entity);
+                logGeneratedEntity("Created RoleBinding: ", namespace, entity, answer);
+                return true;
+            } catch (Exception e) {
+                onApplyError("Failed to create RoleBinding: " + roleBindingName + " due " + e.getMessage(), e);
+            }
+        }
+        return false;
     }
 
     /**
@@ -871,6 +913,32 @@ public class Controller {
                 return true;
             } catch (Exception e) {
                 onApplyError("Failed to create namespace: " + name + " due " + e.getMessage(), e);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the project is created
+     */
+    public boolean applyProject(Project entity) {
+        String namespace = getOrCreateMetadata(entity).getName();
+        LOG.info("Using project: " + namespace);
+        String name = getName(entity);
+        Objects.notNull(name, "No name for " + entity);
+        OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
+        if (openshiftClient == null) {
+            LOG.warn("Cannot check for Project " + namespace + " as not running against OpenShift!");
+            return false;
+        }
+        Project old = openshiftClient.projects().withName(name).get();
+        if (!isRunning(old)) {
+            try {
+                Object answer = openshiftClient.projects().create(entity);
+                logGeneratedEntity("Created project: ", namespace, entity, answer);
+                return true;
+            } catch (Exception e) {
+                onApplyError("Failed to create project: " + name + " due " + e.getMessage(), e);
             }
         }
         return false;
