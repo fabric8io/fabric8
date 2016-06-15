@@ -1,4 +1,4 @@
-## Fabric8 Vagrant Image
+## Fabric8 Vagrant Image for Openshfit Origin
 
 This is the fastest way to get going with Fabric8 and OpenShift on your laptop.
 
@@ -98,12 +98,12 @@ Then follow the on screen instructions.
   [these steps](./browserCertificates.html) and return here
 * Enter `admin` and `admin`
 * You should now be in the main fabric8 console! That was easy eh! :)
-* Make sure you start off in the `default` namespace.
+* To create new Apps select the `Team Dashboard` which is usually called `default` but will be named whatever the default namespace was in your Kubernetes cluster
 
 
 ### Installing other applications
 
-When you are on the `Apps` tab in the
+When you are in the `Runtime` perspective of a Team or Namespace in the
 [fabric8 console](http://fabric8.io/guide/console.html) click on the
 `Run...` button.
 
@@ -112,16 +112,16 @@ on your installation.
 
 * To Run any of the installed templates just click the `Run` button
   (the green play button).
-* To install other applications via the command line you can use the `gofabric8` binary which is inside the Vagrant image. e.g. to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) then try this command instead:
+ * To install other applications via the command line you can use the `gofabric8` binary which is inside the Vagrant image. e.g. to install the full [Fabric8 Microservices Platform Management support](../management.html) then try this command instead:
 
-```
-gofabric8 deploy -y --domain=vagrant.f8 --app=cd-pipeline
-```
+ ```
+ gofabric8 deploy -y --domain=vagrant.f8 --app=management
+ ```
 
 * To install any new
   [OpenShift Templates](http://docs.openshift.org/latest/dev_guide/templates.html)
   or other Kubernetes resources just drag and drop the JSON file onto
-  the `Apps` tab!
+  the `Run...` page!
 * You can download the
   [fabric8 templates 2.2.101 distribution](http://repo1.maven.org/maven2/io/fabric8/devops/distro/distro/2.2.101/distro-2.2.101-templates.zip)
   unzip and drag the JSON files you want to install onto the
@@ -133,7 +133,7 @@ gofabric8 deploy -y --domain=vagrant.f8 --app=cd-pipeline
 ```
     oc create -f jsonOr YamlFileOrUrl
 ```
- * Typically the default username/password for various applications is `admin/admin` or `gogsadmin/RedHat$1`.  Try these espcially for  secrets to get the pipeline to work with GOGS. 
+ * Typically the default username/password for various applications is `admin/admin` or `gogsadmin/RedHat$1`.  Try these especially for  secrets to get the pipeline to work with GOGS.
 
 ### Setting up your local machine
 

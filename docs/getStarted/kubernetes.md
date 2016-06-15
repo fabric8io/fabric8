@@ -2,8 +2,6 @@
 
 First you wiil need a Kubernetes cluster to play with. If you don't yet have a Kubernetes cluster you could try [these instructions to install a Kuberentes cluster](http://kubernetes.io/docs/getting-started-guides/binary_release/#download-kubernetes-and-automatically-set-up-a-default-cluster) or try [GKE](gke.html).
 
-There is also a single node [Vagrant image which comes with fabric8 pre-installed here](https://github.com/fabric8io/fabric8-installer/tree/master/vagrant/kubernetes) which you should be able to `vagrant up` in a similar way to the [OpenShift vagrant image](vagrant.html).
-
 ### Checking your connection
 
 Once you have your kubernetes cluster then check you can connect to it via:
