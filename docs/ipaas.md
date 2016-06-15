@@ -10,7 +10,7 @@ Then to help you and your team provision and manage your integration services:
 
 * [Management](management.html) consolidated [Logging](logging.html) and  [Metrics](metrics.html) to visualise and diagnose your integration solutions
 * [Continuous Delivery](cdelivery.html) provides a development, building, releasing and provisioning pipeline
-* [Chat](chat.html) provides a [hubot](https://hubot.github.com/) [app](apps.html) and a notification engine to post [build completion](builds.html) events to a chat room (which defaults to one room per kubernetes namespace).
+* [ChatOps](chat.html) provides a [hubot](https://hubot.github.com/) [app](apps.html) and a notification engine to post [build completion](builds.html) events to a chat room (which defaults to one room per kubernetes namespace).
 * [API Management](apiManagement.md) allows you to add governance and metrics to your integration services
 
 ### Installation

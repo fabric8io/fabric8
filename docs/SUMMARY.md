@@ -32,7 +32,7 @@
   * [Management](management.md)
     * [Logging](logging.md)
     * [Metrics](metrics.md)
-  * [Chat](chat.md)
+  * [ChatOps](chat.md)
   * [Chaos Monkey](chaosMonkey.md)
 * [Integration](ipaas.md)
   * [Messaging](fabric8MQ.md)

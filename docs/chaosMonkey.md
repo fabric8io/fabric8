@@ -10,7 +10,7 @@ The idea behind Chaos Monkey came from [folks at Netflix](https://github.com/Net
 
 Click the `Run...` button on the `apps` tab of the [fabric8 console](console.html) then select the `chaos monkey` app and click the run button.
 
-We highly recommend you run the [Chat](chat.html) application first and login to the chat room so that you can see the monkey awesome take place in the chat room as pods are killed!
+We highly recommend you run the [ChatOps](chat.html) apps first and login to the chat room so that you can see the monkey awesome take place in the chat room as pods are killed!
 
 You can configure the template of the Chaos Monkey to specifically include or exclude certain kinds of pods using wildcards; chaos monkey can even kill itself which is quite funny ;)
 

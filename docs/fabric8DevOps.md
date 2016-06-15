@@ -15,7 +15,7 @@ The available services in **Microservices Platform** are:
     * [SonarQube](http://www.sonarqube.org/) provides a platform to maintain code quality
   * [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) to help reuse a [library](https://github.com/fabric8io/jenkins-workflow-library) of reusable [Jenkins Workflow scripts](https://github.com/fabric8io/jenkins-workflow-library) across projects
   * [fabric8.yml file](fabric8YmlFile.html) as a per project configuration file to tie together the various projects, repositories, chat rooms, workflow script and issue tracker
-* [Chat integration](chat.html) of all the development and management services via [hubot](https://hubot.github.com/) lets your team embrace devops, have chat notifications of changes to the system and use chat for [approval of release promotion](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove)
+* [ChatOps](chat.html) of all the development and management services via [hubot](https://hubot.github.com/) lets your team embrace devops, have chat notifications of changes to the system and use chat for [approval of release promotion](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove)
 * [Chaos Monkey](chaosMonkey.html) to test the resilience of your system by killing [pods](pods.html)!
 * [Management](management.html)
     * [Logging](logging.html) provides consolidated logging and visualisation of log statements and events across your environment
