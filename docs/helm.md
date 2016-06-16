@@ -36,7 +36,7 @@ All the  [fabric8 charts](https://github.com/fabric8io/charts) begin with the na
 
 So to install a particular chart name, such as `fabric8/cd-pipeline` type:
 
-    help install fabric8/cd-pipeline
+    helm install fabric8/cd-pipeline
 
 which will install the [CD Pipeline chart](cdelivery.html).
 
