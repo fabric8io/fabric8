@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="7.3" data-basepath="." data-revision="Wed Jun 15 2016 10:16:29 GMT+0000 (UTC)">
+    <div class="book" data-level="7.3" data-basepath="." data-revision="Thu Jun 16 2016 13:43:35 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1565,7 +1565,7 @@ helm repo add fabric8 https://github.com/fabric8io/charts.git
 <h4 id="installing-a-chart"><a name="installing-a-chart" class="plugin-anchor" href="#installing-a-chart"><span class="fa fa-link"></span></a>Installing a chart</h4>
 <p>All the  <a href="https://github.com/fabric8io/charts" target="_blank">fabric8 charts</a> begin with the name <code>fabric8/</code>. </p>
 <p>So to install a particular chart name, such as <code>fabric8/cd-pipeline</code> type:</p>
-<pre><code>help install fabric8/cd-pipeline
+<pre><code>helm install fabric8/cd-pipeline
 </code></pre><p>which will install the <a href="cdelivery.html">CD Pipeline chart</a>.</p>
 <p>Note that <code>helm install</code> tends to fail if it finds any resources that already exist; so use <code>helm upgrade</code> instead; which creates or upgrades depending on whats already installed!</p>
 <h4 id="upgrading-a-chart"><a name="upgrading-a-chart" class="plugin-anchor" href="#upgrading-a-chart"><span class="fa fa-link"></span></a>Upgrading a chart</h4>
