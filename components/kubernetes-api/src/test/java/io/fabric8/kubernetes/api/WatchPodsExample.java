@@ -31,8 +31,6 @@ public class WatchPodsExample {
                 System.out.println(action + ": " + pod);
             }
 
-            @Override
-            public void errorReceived(Status status) { System.out.println("Status: " + status); }
 
             @Override
             public void onClose(KubernetesClientException e) {

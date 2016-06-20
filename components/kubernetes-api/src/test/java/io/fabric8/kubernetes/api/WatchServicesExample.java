@@ -32,9 +32,6 @@ public class WatchServicesExample {
             }
 
             @Override
-            public void errorReceived(Status status) { System.out.println("Status: " + status); }
-
-            @Override
             public void onClose(KubernetesClientException e) {
                 System.out.println("Closed: " + e);
             }
