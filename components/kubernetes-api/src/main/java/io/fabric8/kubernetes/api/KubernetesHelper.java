@@ -1357,6 +1357,27 @@ public final class KubernetesHelper {
                     }
                 }
             }
+
+            // lets try use the status on GKE
+            ServiceStatus status = srv.getStatus();
+            if (status != null) {
+                LoadBalancerStatus loadBalancerStatus = status.getLoadBalancer();
+                if (loadBalancerStatus != null) {
+                    List<LoadBalancerIngress> loadBalancerIngresses = loadBalancerStatus.getIngress();
+                    if (loadBalancerIngresses != null) {
+                        for (LoadBalancerIngress loadBalancerIngress : loadBalancerIngresses) {
+                            String ip = loadBalancerIngress.getIp();
+                            if (Strings.isNotBlank(ip)) {
+                                portalIP = ip;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Strings.isNullOrBlank(portalIP)) {
             // on vanilla kubernetes we can use nodePort to access things externally
             Integer nodePort = port.getNodePort();
             if (nodePort != null) {
