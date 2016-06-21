@@ -201,7 +201,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
                     getName(getObjectMeta(entity)),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "id"),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "name"),
-                    String.valueOf(additionalProperties.get("id")),
+                    additionalProperties != null ? String.valueOf(additionalProperties.get("id")) : null,
                     getUuid(entity));
         } else {
             return null;
