@@ -849,6 +849,10 @@ public class Controller {
     }
 
     public void applyNamespace(String namespaceName) {
+        applyNamespace(namespaceName, null);
+
+    }
+    public void applyNamespace(String namespaceName, Map<String,String> labels) {
         OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
         if (openshiftClient != null) {
             ProjectRequest entity = new ProjectRequest();
@@ -856,8 +860,13 @@ public class Controller {
             metadata.setName(namespaceName);
             String namespace = kubernetesClient.getNamespace();
             if (Strings.isNotBlank(namespace)) {
-                // lets associate this new namespace with the project that it was created from
-                getOrCreateLabels(entity).put("project", namespace);
+                Map<String, String> entityLabels = getOrCreateLabels(entity);
+                if (labels != null) {
+                    entityLabels.putAll(labels);
+                } else {
+                    // lets associate this new namespace with the project that it was created from
+                    entityLabels.put("project", namespace);
+                }
             }
             applyProjectRequest(entity);
         }
@@ -867,8 +876,13 @@ public class Controller {
             metadata.setName(namespaceName);
             String namespace = kubernetesClient.getNamespace();
             if (Strings.isNotBlank(namespace)) {
-                // lets associate this new namespace with the project that it was created from
-                getOrCreateLabels(entity).put("project", namespace);
+                Map<String, String> entityLabels = getOrCreateLabels(entity);
+                if (labels != null) {
+                    entityLabels.putAll(labels);
+                } else {
+                    // lets associate this new namespace with the project that it was created from
+                    entityLabels.put("project", namespace);
+                }
             }
             applyNamespace(entity);
         }

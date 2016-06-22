@@ -263,13 +263,21 @@ public class Configuration {
             return new URL(map.get(ENVIRONMENT_CONFIG_URL));
         } else if (map.containsKey(ENVIRONMENT_CONFIG_RESOURCE_NAME)) {
             String resourceName = map.get(ENVIRONMENT_CONFIG_RESOURCE_NAME);
-            return resourceName.startsWith("/") ? Configuration.class.getResource(resourceName) : Configuration.class.getResource("/" + resourceName);
+            return findConfigResource(resourceName);
         } else if (Strings.isNotBlank(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
             return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
         } else {
-            String resourceName = Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, "/" + DEFAULT_CONFIG_FILE_NAME);
-            return resourceName.startsWith("/") ? Configuration.class.getResource(resourceName) : Configuration.class.getResource("/" + resourceName);
+            String defaultValue = "/" + DEFAULT_CONFIG_FILE_NAME;
+            String resourceName = Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, defaultValue);
+            URL answer = findConfigResource(resourceName);
+            if (answer == null) {
+            }
+            return answer;
         }
+    }
+
+    public static URL findConfigResource(String resourceName) {
+        return resourceName.startsWith("/") ? Configuration.class.getResource(resourceName) : Configuration.class.getResource("/" + resourceName);
     }
 
     private static String getStringProperty(String name, Map<String, String> map, String defaultValue) {

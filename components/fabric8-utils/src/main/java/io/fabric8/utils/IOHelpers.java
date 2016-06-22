@@ -142,6 +142,17 @@ public class IOHelpers {
         }
     }
 
+    public static String readFully(URL url) throws IOException {
+        if (url == null) {
+            return null;
+        }
+        InputStream in = url.openStream();
+        if (in == null) {
+            return null;
+        }
+        return readFully(in);
+    }
+
     public static String readFully(File file) throws IOException {
         if (!file.isFile()) {
             return null;

@@ -446,6 +446,28 @@ public final class KubernetesHelper {
     }
 
     /**
+     * Loads the YAML file for the kubernetes resource
+     */
+    public static <T> T loadYaml(File file) throws IOException {
+        return (T) loadYaml(file, KubernetesResource.class);
+    }
+
+    /**
+     * Loads the YAML text for the given DTO class
+     */
+    public static <T> T loadYaml(String text, Class<T> clazz) throws IOException {
+        byte[] data = text.getBytes();
+        return loadYaml(data, clazz);
+    }
+
+    /**
+     * Loads the YAML text for the kubernetes resource
+     */
+    public static <T> T loadYaml(String text) throws IOException {
+        return (T) loadYaml(text, KubernetesResource.class);
+    }
+
+    /**
      * Loads the YAML file for the given DTO class
      */
     public static <T> T loadYaml(byte[] data, Class<T> clazz) throws IOException {

@@ -19,6 +19,7 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
@@ -33,27 +34,25 @@ import java.util.Properties;
 
 public class Namespaces {
 
-    public static Namespace createNamespace(KubernetesClient client, Session session) {
-        return client.namespaces().createNew()
-                .withNewMetadata()
-                    .withName(session.getNamespace())
-                    .addToLabels("project", client.getNamespace())
-                    .addToLabels("provider", "fabric8")
-                    .addToLabels("component", "integrationTest")
-                    .addToLabels("framework", "arquillian")
-                    .withAnnotations(createNamespaceAnnotations(session, Constants.RUNNING_STATUS))
-                .endMetadata()
-                .done();
+    public static void createNamespace(KubernetesClient client, Controller controller, Session session) {
+        String newNamespace = session.getNamespace();
+        Map<String, String> labels = new HashMap<>();
+        labels.put("project", client.getNamespace());
+        labels.put("provider", "fabric8");
+        labels.put("component", "integrationTest");
+        labels.put("framework", "arquillian");
+        controller.applyNamespace(newNamespace, labels);
     }
 
-    public static Namespace checkNamespace(KubernetesClient client, final Session session, Configuration configuration) {
+    public static void checkNamespace(KubernetesClient client, Controller controller, final Session session, Configuration configuration) {
         Namespace result = client.namespaces().withName(session.getNamespace()).get();
         if (result != null) {
-            return result;
+            return;
         } else if (configuration.isNamespaceLazyCreateEnabled()) {
-            return createNamespace(client, session);
+            createNamespace(client, controller, session);
+        } else {
+            throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
         }
-        throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
     }
 
     public static synchronized Namespace updateNamespaceStatus(KubernetesClient client, final Session session, final String status) {
