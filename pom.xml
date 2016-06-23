@@ -127,6 +127,9 @@
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
         <jetty.version>8.1.17.v20150415</jetty.version>
+
+        <karaf-version>2.4.0.redhat-630-SNAPSHOT</karaf-version>
+
 <!--
         We've released a new version of gitective (0.9.15) with the latest jgit support (4.4.0.201606070830-r)
 -->
