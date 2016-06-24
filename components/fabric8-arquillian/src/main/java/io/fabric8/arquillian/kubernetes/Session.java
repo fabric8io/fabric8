@@ -32,16 +32,10 @@ public class Session {
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger skiped = new AtomicInteger();
 
-    private static final String NAMESPACE_PREFIX = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
-
-    public Session(String id, Logger logger) {
-        this(id, NAMESPACE_PREFIX + id, logger);
-    }
-
-    public Session(String id, String namesapce, Logger logger) {
+    public Session(String id, String namespace, Logger logger) {
         this.id = id;
         this.logger = logger;
-        namespace = namesapce;
+        this.namespace = namespace;
     }
     void init() {
         logger.status("Initializing Session:" + id);

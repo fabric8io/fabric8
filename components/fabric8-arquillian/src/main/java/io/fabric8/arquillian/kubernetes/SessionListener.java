@@ -49,7 +49,6 @@ import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.BaseClient;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.OAuthClient;
@@ -59,7 +58,6 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.io.File;
@@ -113,7 +111,7 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        String namespaceToUse = configuration.getNamespaceToUse();
+        String namespaceToUse = configuration.getNamespace();
         if (Strings.isNullOrBlank(namespaceToUse)) {
             createNamespace(client, controller, session);
         } else {

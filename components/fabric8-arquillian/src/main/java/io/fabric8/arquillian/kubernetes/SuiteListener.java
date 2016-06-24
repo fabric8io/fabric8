@@ -18,17 +18,13 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
-import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.test.spi.TestResult;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
-
-import java.util.UUID;
 
 public class SuiteListener {
 
@@ -42,15 +38,7 @@ public class SuiteListener {
     private Session session;
 
     public void start(@Observes(precedence = 100) BeforeSuite event, Configuration configuration, Logger logger) {
-        // TODO should the test ID include the test class, method, user?
-        // Or do we associate those things later on with the namespace object metadata?
-        UUID uuid = UUID.randomUUID();
-        if (Strings.isNotBlank(configuration.getNamespaceToUse())) {
-            session = new Session(uuid.toString(), configuration.getNamespaceToUse(), logger);
-        } else {
-            session = new Session(uuid.toString(), logger);
-        }
-
+        session = new Session(configuration.getSessionId(), configuration.getNamespace(), logger);
         session.init();
         sessionProducer.set(session);
         controlEvent.fire(new Start(session));

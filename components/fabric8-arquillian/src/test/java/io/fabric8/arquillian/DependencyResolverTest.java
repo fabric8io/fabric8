@@ -27,7 +27,7 @@ public class DependencyResolverTest {
 
     @Test
     public void testResolutionOfPomWithNoDeps() throws IOException {
-        Session session = new Session("test-session", new AnsiLogger());
+        Session session = new Session("test-session", "test-session-123", new AnsiLogger());
         DependencyResolver resolver = new DependencyResolver(DependencyResolver.class.getResource("/test-pom.xml").getFile(), true);
         Assert.assertTrue(resolver.resolve(session).isEmpty());
     }

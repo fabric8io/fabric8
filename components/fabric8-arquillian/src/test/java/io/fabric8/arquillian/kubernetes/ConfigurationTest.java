@@ -118,7 +118,7 @@ public class ConfigurationTest {
         Configuration configuration = Configuration.fromMap(map);
 
         assertEquals(expctedMaster, configuration.getMasterUrl());
-        assertEquals(expectedNamespace, configuration.getNamespaceToUse());
+        assertEquals(expectedNamespace, configuration.getNamespace());
         assertEquals(expectedDomain, configuration.getKubernetesDomain());
 
         assertEquals(0L, configuration.getWaitForServiceConnectionTimeout());
@@ -179,7 +179,7 @@ public class ConfigurationTest {
         Configuration configuration = Configuration.fromMap(new HashMap<String, String>());
 
         assertEquals(expctedMaster, configuration.getMasterUrl());
-        assertEquals(expectedNamespace, configuration.getNamespaceToUse());
+        assertEquals(expectedNamespace, configuration.getNamespace());
         assertEquals(expectedDomain, configuration.getKubernetesDomain());
 
         assertEquals(0L, configuration.getWaitForServiceConnectionTimeout());
@@ -241,7 +241,7 @@ public class ConfigurationTest {
         Configuration configuration = Configuration.fromMap(map);
 
         assertEquals(overridenMaster, configuration.getMasterUrl());
-        assertEquals(overridenNamespace, configuration.getNamespaceToUse());
+        assertEquals(overridenNamespace, configuration.getNamespace());
         assertEquals(overridenDomain, configuration.getKubernetesDomain());
 
         assertEquals(0L, configuration.getWaitForServiceConnectionTimeout());

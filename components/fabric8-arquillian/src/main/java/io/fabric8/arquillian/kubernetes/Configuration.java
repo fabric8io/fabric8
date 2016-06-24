@@ -21,14 +21,12 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
@@ -60,13 +58,16 @@ import static io.fabric8.arquillian.kubernetes.Constants.WAIT_TIMEOUT;
 
 public class Configuration {
 
+    private static final String NAMESPACE_PREFIX = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
     private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
+
 
     private String masterUrl;
     private List<String> environmentDependencies = new ArrayList<>();
     private URL environmentConfigUrl;
 
-    private String namespaceToUse;
+    private String sessionId;
+    private String namespace;
     private String environment;
     private boolean namespaceLazyCreateEnabled = DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED;
     private boolean namespaceCleanupEnabled = DEFAULT_NAMESPACE_CLEANUP_ENABLED;
@@ -126,6 +127,10 @@ public class Configuration {
         return waitTimeout;
     }
 
+    public String getSessionId() {
+        return sessionId;
+    }
+
     public boolean isNamespaceCleanupConfirmationEnabled() {
         return namespaceCleanupConfirmationEnabled;
     }
@@ -142,8 +147,8 @@ public class Configuration {
         return namespaceLazyCreateEnabled;
     }
 
-    public String getNamespaceToUse() {
-        return namespaceToUse;
+    public String getNamespace() {
+        return namespace;
     }
 
     /**
@@ -211,10 +216,13 @@ public class Configuration {
 
             String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
             String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map);
-            configuration.namespaceToUse = selectNamespace(environmentNamespace, existingNamespace);
+            String providedNamespace = selectNamespace(environmentNamespace, existingNamespace);
+
+            configuration.sessionId = UUID.randomUUID().toString();
+            configuration.namespace = Strings.isNotBlank(providedNamespace) ? providedNamespace : NAMESPACE_PREFIX + configuration.sessionId;
 
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
-            configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(configuration.namespaceToUse));
+            configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(providedNamespace));
             configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);
             configuration.namespaceCleanupTimeout = getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT);
 
