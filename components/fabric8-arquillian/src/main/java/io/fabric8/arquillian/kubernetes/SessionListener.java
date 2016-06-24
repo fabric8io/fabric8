@@ -48,6 +48,8 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.client.BaseClient;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.OAuthClient;
@@ -57,10 +59,12 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -90,11 +94,10 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadYaml;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
-
     private ShutdownHook shutdownHook;
     private DependencyResolver resolver = new DependencyResolver();
 
-    public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
+    public void start(final @Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         Session session = event.getSession();
         final Logger log = session.getLogger();
         String namespace = session.getNamespace();
@@ -118,6 +121,24 @@ public class SessionListener {
             updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
             namespace = namespaceToUse;
             controller.setNamespace(namespace);
+        }
+
+        if (client instanceof BaseClient) {
+            BaseClient defaultKubernetesClient = (BaseClient) client;
+
+            // lets configure the default namespace to that of the Arquillian test
+            // TODO would be nice not to have to use reflection!
+            Class<? extends BaseClient> clazz = BaseClient.class;
+            String fieldName = "namespace";
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(defaultKubernetesClient, namespace);
+            } catch (NoSuchFieldException e) {
+                log.error("Could not find field " + fieldName + " in class " + clazz.getName() + ". " + e);
+            } catch (IllegalAccessException e) {
+                log.error("Could not access field " + fieldName + " in class " + clazz.getName() + ". " + e);
+            }
         }
 
         shutdownHook = new ShutdownHook(client, configuration, session);
