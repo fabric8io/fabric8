@@ -222,9 +222,57 @@
 
     <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nimble and only use whats in Maven Central -->
     <repositories>
+      <repository>
+        <id>oss-sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <name>OSS Sonatype Nexus Snapshots</name>
+        <releases>
+          <enabled>false</enabled>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </repository>
+      <repository>
+        <releases>
+          <updatePolicy>never</updatePolicy>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <id>jboss.ea</id>
+        <name>JBoss Community Early Access Release Repository</name>
+        <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+      </repository>
+      <repository>
+        <id>redhat-product</id>
+        <name>Redhat Product Repository</name>
+        <url>https://maven.repository.redhat.com/ga</url>
+      </repository>
     </repositories>
-
     <pluginRepositories>
+      <pluginRepository>
+        <id>oss-sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <name>OSS Sonatype Nexus Snapshots</name>
+        <releases>
+          <enabled>false</enabled>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </pluginRepository>
+      <pluginRepository>
+        <releases>
+          <updatePolicy>never</updatePolicy>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <id>jboss.ea</id>
+        <name>JBoss Community Early Access Release Repository</name>
+        <url>http://origin-repository.jboss.org/nexus/content/groups/ea</url>
+      </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
@@ -284,11 +332,6 @@
             </dependency>
 
             <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-apt</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-annotations</artifactId>
                 <version>${project.version}</version>
@@ -317,97 +360,6 @@
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-devops-connector</artifactId>
               <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>fabric8-jgroups</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-cxf-plugins</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-selenium</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.seleniumhq.selenium</groupId>
-              <artifactId>selenium-java</artifactId>
-              <version>${selenium.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>com.github.detro</groupId>
-              <artifactId>phantomjsdriver</artifactId>
-              <version>${phantomjsdriver.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.seleniumhq.selenium</groupId>
-              <artifactId>selenium-firefox-driver</artifactId>
-              <version>${selenium.firefox.driver.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-api</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-apiman</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-model</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>io.fabric8</groupId>
-              <artifactId>gateway-servlet</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>gitrepo-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>hubot-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>jenkins-assertions</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>jolokia-assertions</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-assertions</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
@@ -446,14 +398,82 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-devops</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric8-devops-connector</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>hubot-api</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>letschat-api</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>taiga-api</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-utils</artifactId>
+                <artifactId>gitrepo-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>hubot-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>jenkins-assertions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>jolokia-assertions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-assertions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-generator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+
             <dependency>
               <groupId>io.fabric8</groupId>
               <artifactId>rest-utils</artifactId>
               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-cxf</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-cxf-plugins</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
@@ -462,19 +482,30 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-vertx</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-jgroups</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>letschat-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>taiga-api</artifactId>
-                <version>${project.version}</version>
+              <groupId>com.github.detro</groupId>
+              <artifactId>phantomjsdriver</artifactId>
+              <version>${phantomjsdriver.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>gerrit-api</artifactId>
-                <version>${project.version}</version>
+              <groupId>org.seleniumhq.selenium</groupId>
+              <artifactId>selenium-firefox-driver</artifactId>
+              <version>${selenium.firefox.driver.version}</version>
             </dependency>
+            -->
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -494,6 +525,11 @@
                 <version>${camel.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-jetty</artifactId>
+                <version>${camel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -910,6 +946,11 @@
                  <artifactId>cxf-rt-rs-extension-search</artifactId>
                  <version>${cxf.version}</version>
              </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-javascript</artifactId>
@@ -1181,6 +1222,30 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-spi</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-impl</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-util</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <!-- allows quickstarts to override the ancient plexu-utils that somemtimes comes in from shrinkwrap boms -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.eclipse.aether</groupId>
@@ -1282,6 +1347,11 @@
               <groupId>org.glassfish.web</groupId>
               <artifactId>javax.el</artifactId>
               <version>${javax.el-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jsoup</groupId>
+              <artifactId>jsoup</artifactId>
+              <version>${jsoup.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun</groupId>

@@ -1274,6 +1274,9 @@ public final class KubernetesHelper {
         //Use specified or fallback namespace.
         String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
 
+        //Use specified or fallback namespace.
+        String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
+
         //1. Inside Kubernetes: Services as ENV vars
         if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;

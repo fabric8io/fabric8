@@ -18,6 +18,7 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.kubernetes.client.Config;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;

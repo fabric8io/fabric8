@@ -75,6 +75,33 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+//import io.fabric8.devops.ProjectConfig;
+//import io.fabric8.devops.ProjectConfigs;
+//import io.fabric8.devops.ProjectRepositories;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.ServiceNames;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemas;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
 import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 import static io.fabric8.utils.PropertiesHelper.toMap;
 
@@ -632,6 +659,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
             } else {
                 warnIfInCDBuild("Cannot auto-default GIT_URL as there is no environment variable `" + userEnvVar + "` defined so we can't guess the Gogs build URL");
             }
+*/
 /*
             TODO this is the git clone url; while we could try convert from it to a browse URL its probably too flaky?
 
@@ -644,7 +672,8 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 // for gogs / github style repos we trim the .git suffix for browsing
                 return Strings.stripSuffix(url, ".git");
             }
-*/
+*//*
+
         } else if (Objects.equal("GIT_COMMIT", envVarName)) {
             return getGitCommitId(envVarName, basedir);
         } else if (Objects.equal("GIT_BRANCH", envVarName)) {
@@ -688,6 +717,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                 }
             }
         }
+*/
         return null;
     }
 

@@ -16,14 +16,14 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.devops.connector.WebHooks;
+//import io.fabric8.devops.connector.WebHooks;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.repo.git.GitRepoClient;
-import io.fabric8.repo.git.GitRepoKubernetes;
+//import io.fabric8.repo.git.GitRepoClient;
+//import io.fabric8.repo.git.GitRepoKubernetes;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Mojo;
+//import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Creates a web hook in a gogs repository
  */
-@Mojo(name = "create-gogs-webhook", requiresProject = false)
+//@Mojo(name = "create-gogs-webhook", requiresProject = false)
 public class CreateGogsWebhook extends AbstractNamespacedMojo {
 
     /**
@@ -75,6 +75,8 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
             String webhookUrlValue = this.webhookUrl;
             String webhookSecret = this.secret;
 
+/*
+            THIS MOJO IS EXCLUDED FROM THE RELEASE. COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
             GitRepoClient gitRepoClient = GitRepoKubernetes.createGitRepoClient(getKubernetes(), gogsUser, gogsPassword);
             if (gitRepoClient == null) {
                 getLog().error("No Gogs service found in kubernetes at address " + kubernetes.getMasterUrl() + " namespace " + getNamespace());
@@ -82,7 +84,7 @@ public class CreateGogsWebhook extends AbstractNamespacedMojo {
                 // TODO should ideally reuse the mojo Log
                 Logger logger = LoggerFactory.getLogger(CreateGogsWebhook.class);
                 WebHooks.createGogsWebhook(gitRepoClient, logger, gogsUser, repoName, webhookUrlValue, webhookSecret);
-            }
+            }*/
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to load environment schemas: " + e, e);
         }

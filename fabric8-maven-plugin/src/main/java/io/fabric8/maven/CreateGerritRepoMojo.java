@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Creates a Gerrit Git repository
  */
-@Mojo(name = "create-gitrepo", requiresProject = false)
+//@Mojo(name = "create-gitrepo", requiresProject = false)
 public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
 
     private static final String JSON_MAGIC = ")]}'";
@@ -143,6 +143,9 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
                 httpPost.addHeader(digestScheme.authenticate(creds, httpPost, null));
                 httpPost.addHeader("Content-Type", "application/json");
 
+/*
+                THIS MOJO IS EXCLUDED FROM THE RELEASE. COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
+
                 CreateRepositoryDTO createRepoDTO = new CreateRepositoryDTO();
                 createRepoDTO.setDescription("my cool git repo");
                 createRepoDTO.setName(repoName);
@@ -156,7 +159,7 @@ public class CreateGerritRepoMojo extends AbstractNamespacedMojo {
                 
                 ResponseHandler<String> responseHandler = new BasicResponseHandler();
                 String responseBody = httpclientPost.execute(httpPost, responseHandler);
-                System.out.println("responseBody : " + responseBody);
+                System.out.println("responseBody : " + responseBody);*/
             }
 
         } catch (MalformedChallengeException e) {

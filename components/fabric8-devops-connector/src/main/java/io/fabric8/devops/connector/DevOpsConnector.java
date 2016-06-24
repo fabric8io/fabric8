@@ -97,12 +97,17 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
+
+import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 
@@ -224,6 +229,18 @@ public class DevOpsConnector {
                     projectConfig.setBuildName(name);
                 }
             }
+            if (Strings.isNullOrBlank(name)) {
+                name = jenkinsJob;
+            }
+            if (Strings.isNullOrBlank(name)) {
+                name = ProjectRepositories.createBuildName(username, repoName);
+                if (projectConfig != null) {
+                    projectConfig.setBuildName(name);
+                }
+            }
+        }
+        if (Strings.isNullOrBlank(projectName)) {
+            projectName = name;
         }
         if (Strings.isNullOrBlank(projectName)) {
             projectName = name;
@@ -310,6 +327,40 @@ public class DevOpsConnector {
         if (projectConfig != null) {
             Map<String, String> environments = projectConfig.getEnvironments();
             updateEnvironmentConfigMap(environments, kubernetes, annotations, consoleUrl);
+        }
+        Controller controller = createController();
+        OpenShiftClient openShiftClient = getKubernetes().adapt(OpenShiftClient.class);
+        BuildConfig buildConfig = null;
+        try {
+            buildConfig = openShiftClient.inNamespace(namespace).buildConfigs().withName(projectName).get();
+        } catch (Exception e) {
+            log.error("Failed to load build config for " + namespace + "/" + projectName + ". " + e, e);
+        }
+        log.info("Loaded build config for " + namespace + "/" + projectName  + " " + buildConfig);
+
+        // if we have loaded a build config then lets assume its correct!
+        boolean foundExistingGitUrl = false;
+        if (buildConfig != null) {
+            BuildConfigSpec spec = buildConfig.getSpec();
+            if (spec != null) {
+                BuildSource source = spec.getSource();
+                if (source != null) {
+                    GitBuildSource git = source.getGit();
+                    if (git != null) {
+                        gitUrl = git.getUri();
+                        log.info("Loaded existing BuildConfig git url: " + gitUrl);
+                        foundExistingGitUrl = true;
+                    }
+                    LocalObjectReference sourceSecret = source.getSourceSecret();
+                    if (sourceSecret != null) {
+                        gitSourceSecretName = sourceSecret.getName();
+                    }
+                }
+            }
+            if (!foundExistingGitUrl) {
+                log.warn("Could not find a git url in the loaded BuildConfig: " + buildConfig);
+            }
+            log.info("Loaded gitSourceSecretName: " + gitSourceSecretName);
         }
 
         addLink("Git", getGitUrl());
@@ -1102,6 +1153,21 @@ public class DevOpsConnector {
 
     }
 
+    /**
+     * Jenkins can't clone yet git URLs using openshift secrets so lets switch to https for now for CI builds
+     */
+    protected String convertGitUrlToHttpFromSsh(String gitUrl) {
+        if (Strings.isNotBlank(gitUrl)) {
+            String prefix = "git@";
+            if (gitUrl.startsWith(prefix)) {
+                String remaining = gitUrl.substring(prefix.length());
+                remaining = remaining.replace(":", "/");
+                return  "https://" + remaining;
+            }
+        }
+        return gitUrl;
+    }
+
     public static String loadJenkinsBuildTemplate(Logger log) {
         String template = null;
         String templateName = "jenkinsBuildConfig.xml";
@@ -1394,12 +1460,8 @@ public class DevOpsConnector {
     protected void createGerritRepo(String repoName, String gerritUser, String gerritPwd, String gerritGitInitialCommit, String gerritGitRepoDescription) throws Exception {
 
         // lets add defaults if not env vars
-        if (Strings.isNullOrBlank(gerritUser)) {
-            gerritUser = "admin";
-        }
-        if (Strings.isNullOrBlank(gerritPwd)) {
-            gerritPwd = "secret";
-        }
+        final String username = Strings.isNullOrBlank(gerritUser) ? "admin" : gerritUser;
+        final String password = Strings.isNullOrBlank(gerritPwd) ? "secret" : gerritPwd;
 
         log.info("A Gerrit git repo will be created for this name : " + repoName);
 
