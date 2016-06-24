@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodAssert;
@@ -30,7 +31,11 @@ import io.fabric8.kubernetes.api.model.ServiceListAssert;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.ServiceSpecAssert;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
 
@@ -56,6 +61,46 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
 
     public KubernetesNamespaceAssert namespace(String namespace) {
         return new KubernetesNamespaceAssert(client, namespace);
+    }
+
+    /**
+     * Asserts that there is a deployment of the given name
+     *
+     * @return the assertion object for the deployment
+     */
+    public HasPodSelectionAssert deployment(String deploymentName) {
+        String namespace = client.getNamespace();
+        String qualifiedName = namespace + "." + deploymentName;
+        OpenShiftClient openShiftClient = new Controller(client).getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            DeploymentConfig deployment = openShiftClient.deploymentConfigs().inNamespace(namespace).withName(deploymentName).get();
+            assertThat(deployment).describedAs("DeploymentConfig: " + qualifiedName).isNotNull().metadata().name().isEqualTo(deploymentName);
+            return new DeploymentConfigPodsAssert(client, deployment);
+        } else {
+            Deployment deployment = client.extensions().deployments().inNamespace(namespace).withName(deploymentName).get();
+            assertThat(deployment).describedAs("Deployment: " + qualifiedName).isNotNull().metadata().name().isEqualTo(deploymentName);
+            return new DeploymentPodsAssert(client, deployment);
+        }
+    }
+
+    /**
+     * Asserts that there is a ReplicaSet or ReplicationController of the given name
+     *
+     * @return the assertion object for the replicas
+     */
+    public HasPodSelectionAssert replicas(String replicaName) {
+        String namespace = client.getNamespace();
+        String qualifiedName = namespace + "." + replicaName;
+        ReplicaSet replicasSet = client.extensions().replicaSets().withName(replicaName).get();
+        if (replicasSet != null) {
+            assertThat(replicasSet).describedAs("ReplicaSet: " + qualifiedName).metadata().name().isEqualTo(replicaName);
+            return new ReplicaSetPodsAssert(client, replicasSet);
+        } else {
+            ReplicationController replicationController = client.replicationControllers().withName(replicaName).get();
+            assertThat(replicationController).describedAs("No ReplicaSet or ReplicationController called: " + qualifiedName).isNotNull();
+            assertThat(replicationController).describedAs("ReplicationController: " + qualifiedName).metadata().name().isEqualTo(replicaName);
+            return new ReplicationControllerPodsAssert(client, replicationController);
+        }
     }
 
     public PodsAssert podList() {
