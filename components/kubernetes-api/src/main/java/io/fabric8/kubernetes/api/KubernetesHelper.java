@@ -97,7 +97,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * Kubernetes utility methods.
