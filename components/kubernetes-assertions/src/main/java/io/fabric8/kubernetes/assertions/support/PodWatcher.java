@@ -33,7 +33,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-import static javafx.scene.paint.Color.YELLOW;
 import static org.assertj.core.api.Assertions.fail;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -44,12 +43,11 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
     private static final transient Logger LOG = LoggerFactory.getLogger(PodWatcher.class);
 
     private final PodSelectionAssert podSelectionAssert;
-    private Map<String, PodAsserter> podAsserts = new HashMap<>();
-
-    private CountDownLatch podReady = new CountDownLatch(1);
-    private CountDownLatch podReadyForEntireDuration = new CountDownLatch(1);
     private final long readyTimeoutMS;
     private final long readyPeriodMS;
+    private Map<String, PodAsserter> podAsserts = new HashMap<>();
+    private CountDownLatch podReady = new CountDownLatch(1);
+    private CountDownLatch podReadyForEntireDuration = new CountDownLatch(1);
 
     public PodWatcher(PodSelectionAssert podSelectionAssert, long readyTimeoutMS, long readyPeriodMS) {
         this.podSelectionAssert = podSelectionAssert;
@@ -161,7 +159,7 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
 
     public void podIsReady(String name, Pod pod) {
         if (podReady.getCount() > 0) {
-            String message ="Pod " + name + " is Ready!";
+            String message = "Pod " + name + " is Ready!";
             LOG.info(ansi().fg(GREEN).a(message).reset().toString());
             podReady.countDown();
         }
