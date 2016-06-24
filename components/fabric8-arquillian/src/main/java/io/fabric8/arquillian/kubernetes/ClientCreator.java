@@ -32,9 +32,14 @@ public class ClientCreator {
 
     public void createClient(@Observes Configuration config) {
         if (!Strings.isNullOrBlank(config.getMasterUrl())) {
-            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder().withMasterUrl(config.getMasterUrl()).build()));
+            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder()
+                    .withMasterUrl(config.getMasterUrl())
+                    .withNamespace(config.getNamespace())
+                    .build()));
         } else {
-            kubernetesProducer.set(new DefaultKubernetesClient());
+            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder()
+                    .withNamespace(config.getNamespace())
+                    .build()));
         }
     }
 }
