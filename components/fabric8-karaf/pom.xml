@@ -40,11 +40,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>junit</groupId>
@@ -94,20 +89,6 @@
                         <_failok>false</_failok>
                     </instructions>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>cleanVersions</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>cleanVersions</goal>
-                        </goals>
-                        <configuration>
-                            <versions>
-                                <karaf.osgi.version>${karaf-version}</karaf.osgi.version>
-                            </versions>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
