@@ -121,27 +121,8 @@ public class SessionListener {
             controller.setNamespace(namespace);
         }
 
-        if (client instanceof BaseClient) {
-            BaseClient defaultKubernetesClient = (BaseClient) client;
-
-            // lets configure the default namespace to that of the Arquillian test
-            // TODO would be nice not to have to use reflection!
-            Class<? extends BaseClient> clazz = BaseClient.class;
-            String fieldName = "namespace";
-            try {
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                field.set(defaultKubernetesClient, namespace);
-            } catch (NoSuchFieldException e) {
-                log.error("Could not find field " + fieldName + " in class " + clazz.getName() + ". " + e);
-            } catch (IllegalAccessException e) {
-                log.error("Could not access field " + fieldName + " in class " + clazz.getName() + ". " + e);
-            }
-        }
-
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
