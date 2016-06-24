@@ -47,6 +47,7 @@ public class KubernetesNamespaceAssert extends KubernetesAssert {
         this.namespace = namespace;
     }
 
+    @Override
     public String namespace() {
         return namespace;
     }

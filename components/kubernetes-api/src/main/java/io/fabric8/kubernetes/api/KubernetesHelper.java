@@ -45,6 +45,7 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -96,6 +97,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * Kubernetes utility methods.
@@ -2117,5 +2119,39 @@ public final class KubernetesHelper {
         }
         IS_OPENSHIFT.putIfAbsent(masterUrl, false);
         return false;
+    }
+
+
+    /**
+     * Returns the kubernetes resources on the classpath of the current project
+     */
+    public static List<HasMetadata> findKubernetesResourcesOnClasspath(Controller controller) throws IOException {
+        String resourceName = "kubernetes.yml";
+        if (controller.getOpenShiftClientOrNull() != null) {
+            resourceName = "openshift.yml";
+        }
+        URL configUrl = findConfigResource("/META-INF/fabric8/" + resourceName);
+        if (configUrl == null) {
+            configUrl = findConfigResource("kubernetes.json");
+        }
+        if (configUrl != null) {
+            String configText = IOHelpers.loadFully(configUrl);
+            Object dto = null;
+            String configPath = configUrl.getPath();
+            if (configPath.endsWith(".yml") || configPath.endsWith(".yaml")) {
+                dto = loadYaml(configText, KubernetesResource.class);
+            } else {
+                dto = loadJson(configText);
+            }
+            KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
+            List<HasMetadata> items = kubeList.getItems();
+            return items;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    private static URL findConfigResource(String resourceName) {
+        return KubernetesHelper.class.getResource(resourceName);
     }
 }

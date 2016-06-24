@@ -76,14 +76,14 @@ public class PodSelectionAssert {
     /**
      * Asserts that a pod is ready for this deployment all become ready within the given time and that each one keeps being ready for the given time
      */
-    public PodSelectionAssert hasReadyPod() {
-        return hasReadyPod(DEFAULT_NOT_READY_TIMEOUT_MS, DEFAULT_READY_PERIOD_MS);
+    public PodSelectionAssert isPodReadyForPeriod() {
+        return isPodReadyForPeriod(DEFAULT_NOT_READY_TIMEOUT_MS, DEFAULT_READY_PERIOD_MS);
     }
     
     /**
      * Asserts that a pod is ready for this deployment all become ready within the given time and that each one keeps being ready for the given time
      */
-    public PodSelectionAssert hasReadyPod(long notReadyTimeoutMS, long readyPeriodMS) {
+    public PodSelectionAssert isPodReadyForPeriod(long notReadyTimeoutMS, long readyPeriodMS) {
         if (replicas.intValue() <= 0) {
             LOG.warn("Not that the pod selection for: " + description + " has no replicas defined so we cannot assert there is a pod ready");
             return this;
