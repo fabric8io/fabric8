@@ -1,5 +1,8 @@
 ## Fabric8 APT Tool
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-apt/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-apt/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/fabric8-apt.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/fabric8-apt)
+
 This APT plugin generates a JSON Schema file called **io/fabric8/environment/schema.json** inside each jar which uses CDI for your dependency injection and uses the [@ConfigProperty](http://deltaspike.apache.org/documentation/configuration.html) annotation from [deltaspike](http://deltaspike.apache.org/) to inject environment variables or default values into your Java code.
 
 The generated JSON schema document will describe all the environment variables, their types, default values and their description (if you added some javadoc for them).
@@ -22,6 +25,6 @@ To enable the fabric8 API tool then add the following to your [Apache Maven](htt
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-apt</artifactId>
         <scope>provided</scope>
-        <version>2.2.56</version>
+        <version>2.2.101</version>
     </dependency>
 

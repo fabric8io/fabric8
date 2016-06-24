@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -140,6 +140,17 @@ public class IOHelpers {
             } catch (IOException e) {
             }
         }
+    }
+
+    public static String readFully(URL url) throws IOException {
+        if (url == null) {
+            return null;
+        }
+        InputStream in = url.openStream();
+        if (in == null) {
+            return null;
+        }
+        return readFully(in);
     }
 
     public static String readFully(File file) throws IOException {

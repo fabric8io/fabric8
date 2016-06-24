@@ -21,6 +21,21 @@ title: join the fabric8 community!
   </div>
   <!-- end community header -->
 
+  <!-- begin blog -->
+  <div class="row">
+    <div class="col-md-12">
+      <h2><img style="max-width: 48px; max-height: 48px;" src="/images/blog-icon.png"/>
+        Blog</h2>
+
+      <p>
+        For the latest and greatest articles on fabric8 check out the <a href="https://blog.fabric8.io">fabric8 blog</a> and the <a href="https://vimeo.com/tag:fabric8">fabric8 video stream</a>.</p>
+
+      <p><a class="btn btn-primary" href="https://blog.fabric8.io">fabric8 blog</a>
+      </p>
+    </div>
+  </div>
+  <!-- end blog -->
+
   <!-- begin issue tracker -->
   <div class="row">
     <div class="col-md-12">

@@ -90,29 +90,25 @@ permissions for the account `fabric8`.
 If you want to push the image to you own account on Docker hub, use
 the option `-Dfabric8.dockerUser` to specify your username:
  
-    mvn clean install docker:build docker:push -Dfabric8.dockerUser=morlock
- 
-Authentication for this user *morlock* must be done as described in
-the
-[manual for the docker-maven-plugin](https://github.com/rhuss/docker-maven-plugin). E.g. you
-can use `-Ddocker.username` and `-Ddocker.password` for specifying the
-credentials or you can set this up in yout `~/.m2/settings.xml`.
+    mvn clean install docker:build docker:push -Dfabric8.dockerUser=morlock/
+
+(Pleade note the trailing `/` after the username). Authentication for this user *morlock* must 
+be done as described in the [manual for the docker-maven-plugin](https://github.com/rhuss/docker-maven-plugin). 
+E.g. you can use `-Ddocker.push.username` and `-Ddocker.push.password` for specifying the
+credentials or you can set this up in your `~/.m2/settings.xml`.
  
 Alternatively you can push the image also to another registry, like
 the OpenShift internal registry. Assuming that you use the
 [fabric8 Vagrant image](../getStarted/vagrant.md)
 and have set up the routes properly, the OpenShift registry is
-available as `docker-registry.vagrant.f8:80`. If your OpenShift user
+available as `docker-registry.vagrant.f8`. If your OpenShift user
 is authenticated against Docker as desribed in the
 [OpenShift Documentation](https://docs.openshift.com/enterprise/3.0/install_config/install/docker_registry.html#access)
 and a project **fabric8** exists (`oc new-project fabric8` if
 required), then you can push to this registry with
  
-    mvn clean install docker:build docker:push -Dfabric8.dockerPrefix="docker-registry.vagrant.f8:80/" \
-                                               -Ddocker.username=$(oc whoami) \
-                                               -Ddocker.password=$(oc whoami -t)
+    mvn clean install docker:build docker:push -Ddocker.push.registry=docker-registry.vagrant.f8 \
+                                               -Ddocker.push.useOpenShiftAuth
  
-Please note the trailing `/` at the end of the prefix. This is mandatory.
-
-These properties can be used also with the shortcut profiles
-`f8-build`, `f8-deploy` and `f8-local-deploy`
+These properties can be used also with the shortcut profiles `f8-build`, `f8-deploy` and 
+`f8-local-deploy`.

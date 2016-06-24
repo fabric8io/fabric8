@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -39,6 +39,20 @@ public class DomHelper {
 
     private static TransformerFactory transformerFactory;
     private static Transformer transformer;
+
+    public static Element addChildElement(Node parent, String elementName) {
+        Document ownerDocument = parent.getOwnerDocument();
+        Objects.notNull(ownerDocument, "nodes ownerDocument " + parent);
+        Element element = ownerDocument.createElement(elementName);
+        parent.appendChild(element);
+        return element;
+    }
+
+    public static Element addChildElement(Node parent, String elementName, String textContent) {
+        Element element = addChildElement(parent, elementName);
+        element.setTextContent(textContent);
+        return element;
+    }
 
     public static void save(Document document, File file) throws FileNotFoundException, TransformerException {
         Transformer transformer = getTransformer();

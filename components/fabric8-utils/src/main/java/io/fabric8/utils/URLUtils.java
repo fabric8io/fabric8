@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -181,8 +181,18 @@ public class URLUtils {
             if (string == null) {
                 continue;
             }
-            if (buffer.length() > 0 && !buffer.toString().endsWith("/") && !string.startsWith("/")) {
-                buffer.append("/");
+            if (buffer.length() > 0) {
+              boolean bufferEndsWithSeparator = buffer.toString().endsWith("/");
+              boolean stringStartsWithSeparator = string.startsWith("/");
+              if (bufferEndsWithSeparator) {
+                if (stringStartsWithSeparator) {
+                  string = string.substring(1);
+                }
+              } else {
+                if (!stringStartsWithSeparator) {
+                  buffer.append("/");
+                }
+              }
             }
             buffer.append(string);
         }

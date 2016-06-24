@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -50,6 +50,33 @@ public class PropertiesHelper {
         Properties properties = new Properties();
         properties.putAll(map);
         return getLong(properties, key, defaultValue);
+    }
+
+    public static Integer getInteger(Properties properties, String key) {
+        return getInteger(properties, key, null);
+    }
+
+    public static Integer getInteger(Properties properties, String key, Integer defaultValue) {
+        Object value = properties.get(key);
+        if (value instanceof String) {
+            return Integer.parseInt(value.toString());
+        } else if (value instanceof Long) {
+            return (Integer) value;
+        } else if (value instanceof Number) {
+            Number number = (Number)value;
+            return number.intValue();
+        }
+        return defaultValue;
+    }
+
+    public static int getIntegerValue(Properties properties, String key, int defaultValue) {
+        return getInteger(properties, key, defaultValue);
+    }
+
+    public static int getIntegerValue(Map<String, String> map, String key, int defaultValue) {
+        Properties properties = new Properties();
+        properties.putAll(map);
+        return getInteger(properties, key, defaultValue);
     }
 
     /**

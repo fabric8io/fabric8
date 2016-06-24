@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -210,18 +211,17 @@ public class ApplyMojo extends AbstractFabric8Mojo {
                 dto = applyTemplates(template, kubernetes, controller, fileName);
             }
 
-            Set<KubernetesList> kubeConfigs = new LinkedHashSet<>();
-
+            Set<KubernetesResource> resources = new LinkedHashSet<>();
             if (!combineDependencies) {
                 for (File dependency : getDependencies()) {
                     getLog().info("Found dependency: " + dependency);
-                    loadDependency(getLog(), kubeConfigs, dependency);
+                    loadDependency(getLog(), resources, dependency);
                 }
             }
 
             Set<HasMetadata> entities = new TreeSet<>(new HasMetadataComparator());
-            for (KubernetesList c : kubeConfigs) {
-                entities.addAll(c.getItems());
+            for (KubernetesResource resource : resources) {
+                entities.addAll(KubernetesHelper.toItemList(resource));
             }
 
             entities.addAll(KubernetesHelper.toItemList(dto));
@@ -364,24 +364,25 @@ public class ApplyMojo extends AbstractFabric8Mojo {
         }
     }
 
-    public static void addConfig(Collection<KubernetesList> kubeConfigs, Object kubeCfg) {
-        if (kubeCfg instanceof KubernetesList) {
-            kubeConfigs.add((KubernetesList) kubeCfg);
+    public static void addConfig(Collection<KubernetesResource> resources, Object resource) {
+        if (resource instanceof KubernetesList) {
+            resources.add((KubernetesList)resource);
+        } else if (resource instanceof Template) {
+            resources.add((Template)resource);
         }
     }
 
-
-    public static void loadDependency(Log log, Collection<KubernetesList> kubeConfigs, File file) throws IOException {
+    public static void loadDependency(Log log, Collection<KubernetesResource> resources, File file) throws IOException {
         if (file.isFile()) {
             log.debug("Loading file " + file);
-            addConfig(kubeConfigs, loadJson(file));
+            addConfig(resources, loadJson(file));
         } else {
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
                     String name = child.getName().toLowerCase();
                     if (name.endsWith(".json") || name.endsWith(".yaml")) {
-                        loadDependency(log, kubeConfigs, child);
+                        loadDependency(log, resources, child);
                     }
                 }
             }

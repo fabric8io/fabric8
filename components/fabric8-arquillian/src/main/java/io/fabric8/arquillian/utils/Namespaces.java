@@ -1,25 +1,25 @@
-/*
- * Copyright 2005-2014 Red Hat, Inc.
+/**
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
-
 package io.fabric8.arquillian.utils;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
@@ -34,26 +34,25 @@ import java.util.Properties;
 
 public class Namespaces {
 
-    public static Namespace createNamespace(KubernetesClient client, Session session) {
-        return client.namespaces().createNew()
-                .withNewMetadata()
-                    .withName(session.getNamespace())
-                    .addToLabels("provider", "fabric8")
-                    .addToLabels("component", "integrationTest")
-                    .addToLabels("framework", "arquillian")
-                    .withAnnotations(createNamespaceAnnotations(session, Constants.RUNNING_STATUS))
-                .endMetadata()
-                .done();
+    public static void createNamespace(KubernetesClient client, Controller controller, Session session) {
+        String newNamespace = session.getNamespace();
+        Map<String, String> labels = new HashMap<>();
+        labels.put("project", client.getNamespace());
+        labels.put("provider", "fabric8");
+        labels.put("component", "integrationTest");
+        labels.put("framework", "arquillian");
+        controller.applyNamespace(newNamespace, labels);
     }
 
-    public static Namespace checkNamespace(KubernetesClient client, final Session session, Configuration configuration) {
+    public static void checkNamespace(KubernetesClient client, Controller controller, final Session session, Configuration configuration) {
         Namespace result = client.namespaces().withName(session.getNamespace()).get();
         if (result != null) {
-            return result;
+            return;
         } else if (configuration.isNamespaceLazyCreateEnabled()) {
-            return createNamespace(client, session);
+            createNamespace(client, controller, session);
+        } else {
+            throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
         }
-        throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
     }
 
     public static synchronized Namespace updateNamespaceStatus(KubernetesClient client, final Session session, final String status) {

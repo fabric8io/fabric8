@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -55,9 +55,10 @@ public class HubotNotifier {
     private boolean initalised;
 
     @Inject
-    public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME", defaultValue = "") String username,
-                         @ConfigProperty(name = "HUBOT_PASSWORD", defaultValue = "") String password,
+    public HubotNotifier(@ConfigProperty(name = "HUBOT_USERNAME") String username,
+                         @ConfigProperty(name = "HUBOT_PASSWORD") String password,
                          @ConfigProperty(name = "HUBOT_BUILD_ROOM", defaultValue = DEFAULT_ROOM_EXPRESSION) String roomExpression) {
+
         this.username = username;
         this.password = password;
         this.roomExpression = roomExpression;

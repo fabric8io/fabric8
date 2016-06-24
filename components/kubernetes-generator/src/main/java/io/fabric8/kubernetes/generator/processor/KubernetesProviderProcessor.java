@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -15,15 +15,10 @@
  */
 package io.fabric8.kubernetes.generator.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.generator.annotation.KubernetesProvider;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -32,21 +27,18 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.io.File;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-
 @SupportedAnnotationTypes("io.fabric8.kubernetes.generator.annotation.KubernetesProvider")
 public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationProcessor {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<HasMetadata> provided = new LinkedHashSet<>();
+
 
         CompilationTaskFactory compilationTaskFactory = new CompilationTaskFactory(processingEnv);
         Set<TypeElement> providers = new HashSet<>();
@@ -78,10 +70,12 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
         }
 
         //2nd pass generate json.
+        Map<String, Set> providedMap = new HashMap<>();
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesProvider.class)) {
             try {
                 if (element instanceof ExecutableElement) {
-                    KubernetesProvider provider = element.getAnnotation(KubernetesProvider.class);
+
+                    Set provided = getProvidedSet(providedMap, element);
 
                     ExecutableElement methodElement = (ExecutableElement) element;
                     String methodName = methodElement.getSimpleName().toString();
@@ -91,10 +85,8 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
 
                     Method providerMethod = instance.getClass().getDeclaredMethod(methodName);
                     if (providerMethod != null) {
-                        Object obj = providerMethod.invoke(instance);
-                        if (obj instanceof HasMetadata) {
-                            provided.add((HasMetadata) obj);
-                        }
+                        providerMethod.setAccessible(true);
+                        provided.add(providerMethod.invoke(instance));
                     }
                 }
             } catch (Exception ex) {
@@ -102,36 +94,46 @@ public class KubernetesProviderProcessor extends AbstractKubernetesAnnotationPro
             }
         }
 
-        KubernetesResource answer = null;
-        try {
-            answer = (KubernetesResource)KubernetesHelper.combineJson(provided);
+        for (Map.Entry<String, Set> entry : providedMap.entrySet()) {
 
-        } catch (Exception e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
-            return false;
+            KubernetesResource answer;
+            try {
+                answer = (KubernetesResource)KubernetesHelper.combineJson(entry.getValue().toArray());
+                generateKubernetesManifest(entry.getKey(), answer);
+            } catch (Exception e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to combine provider items");
+                return false;
+            }
+
+
         }
 
-        generateJson(answer);
         return true;
     }
 
-    private KubernetesList createList(Iterable<HasMetadata> objects) {
-        StringBuilder sb = new StringBuilder();
-        List<HasMetadata> allItems = new ArrayList<>();
-        boolean first = true;
-        for (HasMetadata obj : objects) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append("-");
-            }
-            
-            sb.append(getName(obj));
-            allItems.add(obj);
+    private void generateKubernetesManifest(String fileName, KubernetesResource resource) {
+        FileExtension ext = FileExtension.determineExtension(Files.getFileExtension(new File(fileName)));
+        switch (ext) {
+            case JSON:
+                generateJson(fileName, resource);
+                break;
+            case YAML:
+                generateYaml(fileName, resource);
+                break;
+            case UNDEFINED:
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "could not determine file extension for " + fileName + ". Is it .json, .yaml, or .yml?");
+
         }
-        return new KubernetesListBuilder().
-                // TODO KubernetesList no longer has an id/name
-                //withName(sb.toString()).
-                withItems(allItems).build();
+    }
+
+    private Set getProvidedSet(Map<String, Set> providedMap, Element element) {
+        KubernetesProvider providerAnnotation = element.getAnnotation(KubernetesProvider.class);
+        String kubernetesFile = providerAnnotation.value().trim();
+        if (providedMap.containsKey(kubernetesFile)) {
+            return providedMap.get(kubernetesFile);
+        }
+        LinkedHashSet rc = new LinkedHashSet();
+        providedMap.put(kubernetesFile, rc);
+        return rc;
     }
 }

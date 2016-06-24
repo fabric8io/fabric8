@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -67,6 +67,8 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
             Callable<Boolean> compileTask = compilationTaskFactory.create(processors, writer);
             if (!compileTask.call()) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to compile provider classes. See output below.");
+
+                printCompileErrors(compilationTaskFactory);
                 return false;
             }
         } catch (Exception e) {
@@ -82,7 +84,9 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
 
         //2nd pass generate json.
         for (Element element : roundEnv.getElementsAnnotatedWith(KubernetesModelProcessor.class)) {
-            KubernetesResource json = readJson();
+            KubernetesModelProcessor annotation = element.getAnnotation(KubernetesModelProcessor.class);
+            String kubernetesJsonFileName = annotation.value();
+            KubernetesResource json = readJson(kubernetesJsonFileName);
 
             Builder<? extends KubernetesResource> builder;
             if (json instanceof KubernetesList) {
@@ -136,7 +140,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
                     }
                 }
                 json = builder.build();
-                generateJson(json);
+                generateJson(kubernetesJsonFileName, json);
             } catch (Exception ex) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error creating Kubernetes configuration:" + ex.getMessage());
             }
@@ -145,6 +149,13 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
         return true;
     }
 
+    private void printCompileErrors(CompilationTaskFactory compilationTaskFactory) {
+        if (compilationTaskFactory.getCompileDiagnostics().size() > 0) {
+            for (Diagnostic diag : compilationTaskFactory.getCompileDiagnostics()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Compile error: " + diag.toString());
+            }
+        }
+    }
 
     private static Set<Method> findMethods(Object instance, String methodName, Class argumentType) {
         Set<Method> result = new LinkedHashSet<>();
@@ -190,7 +201,7 @@ public class KubernetesModelProcessorProcessor extends AbstractKubernetesAnnotat
                     getName(getObjectMeta(entity)),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "id"),
                     Maps.nestedValueAsString(additionalProperties, "metadata", "name"),
-                    String.valueOf(additionalProperties.get("id")),
+                    additionalProperties != null ? String.valueOf(additionalProperties.get("id")) : null,
                     getUuid(entity));
         } else {
             return null;

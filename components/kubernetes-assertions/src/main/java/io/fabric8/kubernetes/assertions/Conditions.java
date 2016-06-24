@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatusType;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -28,6 +29,50 @@ import java.util.Objects;
 /**
  */
 public class Conditions {
+
+    public static <T extends HasMetadata> Condition<T> hasLabel(final String key, final String value) {
+        return new Condition<T>() {
+            @Override
+            public String toString() {
+                return "hasLabel(" + key + " = " + value + ")";
+            }
+
+            @Override
+            public boolean matches(T resource) {
+                return matchesLabel(resource.getMetadata().getLabels(), key, value);
+            }
+        };
+    }
+
+    public static <T extends HasMetadata>  Condition<T> hasName(final String name) {
+        return new Condition<T>() {
+            @Override
+            public String toString() {
+                return "hasName(" + name + ")";
+            }
+
+            @Override
+            public boolean matches(T resource) {
+                return Objects.equals(name, resource.getMetadata().getName());
+            }
+        };
+    }
+
+    public static <T extends HasMetadata>  Condition<T> hasNamespace(final String namespace) {
+        return new Condition<T>() {
+            @Override
+            public String toString() {
+                return "hasNamespace(" + namespace + ")";
+            }
+
+            @Override
+            public boolean matches(T resource) {
+                return Objects.equals(namespace, resource.getMetadata().getNamespace());
+            }
+        };
+    }
+
+
 
     public static Condition<Pod> status(final PodStatusType status) {
         return new Condition<Pod>() {

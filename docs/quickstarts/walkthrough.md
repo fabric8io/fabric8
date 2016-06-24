@@ -1,6 +1,8 @@
 ### Walk through a simple quickstart
 
-This is a guide that shows you from end to end how to try the fabric8 quickstarts.
+This is a more detailed guide showing step by step how to try the fabric8 quickstarts.
+
+A [video of this walkthrough](https://vimeo.com/142658441) is also available.
 
 First, make sure you have followed the [Get Started Guide](../getStarted/index.md)
 so you should have things running and you have
@@ -14,18 +16,18 @@ You can run any of the [quickstarts](index.md) either directly out of
 a git checked out repository or from a project created by an
 quickstart [archetype](archetype.md).
 
-In this guide we will start with one of the simplest which is the `java-simple-fatjar` quickstart.
+In this guide we will start with one of the simplest which is the `java-fatjar` quickstart.
 
 To get started you can checkout the quickstart source code using the following git command:
 
     git clone https://github.com/fabric8io/ipaas-quickstarts.git
-    cd ipaas-quickstart
+    cd ipaas-quickstarts
 
 And then change directory to 
 
     cd quickstart
     cd java
-    cd simple-fatjar
+    cd fatjar
     
  
 #### Check your environment
@@ -43,12 +45,13 @@ In this guide we assume you have setup the `DOCKER_HOST` environment, such as:
 
 .. and using the OpenShift Client we can login to OpenShift with
 
-    oc login      // (use admin/admin if using the default credentials)
+    # Use admin/admin if using the default credentials
+    oc login      
     
 
 #### Build the application and run locally
 
-Almost every quickstarts can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven
+Almost every quickstart can run locally, which allows you as a developer to quickly try it. First we need to build the project with Maven
 
     mvn clean install
     
@@ -59,7 +62,7 @@ We can then run the quickstart locally using:
 This quickstart is a simple Java standalone application that prints a random string to the console, as shown below:
 
 ```
-[INFO] --- exec-maven-plugin:1.4.0:java (default-cli) @ quickstart-java-simple-fatjar ---
+[INFO] --- exec-maven-plugin:1.4.0:java (default-cli) @ java-fatjar ---
 Hello Fabric8! Here's your random string: q83b6
 Hello Fabric8! Here's your random string: 3ZyNE
 Hello Fabric8! Here's your random string: B6uV4
@@ -69,7 +72,7 @@ You can use `ctrl + c` to stop the application.
 
 As this quickstart is a _fat jar_ type of application you can also run it using `java -jar` as shown:
 
-    java -jar target/quickstart-java-simple-fatjar-2.2.56.jar
+    java -jar target/java-fatjar-2.2.101.jar
     
 Now lets try to build and deploy this application to docker and kubernetes.
 
@@ -86,8 +89,9 @@ pre-configured goal:
 
 Please note that by default the Docker username is "fabric8" and the
 default registry is "docker.io". This works by default when you are
-not pushing to a registry with `docker:push`. Please see below how you
-can customize this to your needs
+not pushing to a registry with `docker:push`. Please see
+[changing Docker user and registry](http://fabric8.io/guide/quickstarts/running.html#changing-docker-user-and-registry) for
+details how to push to a custom registry.
 
 #### Deploy the application on Kubernetes / OpenShift
 
@@ -112,27 +116,27 @@ After you have deployed the application, you often would like to see if everythi
 
     oc get pods
     
-What you should see in the list, is a pod with the name of `quickstart-java-simple-fatjar` and a random suffix as shown below:
+What you should see in the list, is a pod with the name of `java-fatjar` and a random suffix as shown below:
 
 ```
-ipaas-quickstarts/quickstart/java/simple-fatjar/$ oc get pods
+ipaas-quickstarts/quickstart/java/fatjar/$ oc get pods
 NAME                                  READY     STATUS    RESTARTS   AGE
 docker-registry-1-68nz6               1/1       Running   0          6m
 fabric8-jccyj                         1/1       Running   0          7m
 fluentd-elasticsearch-172.28.128.4    1/1       Running   0          5m
-quickstart-java-simple-fatjar-o8hxg   1/1       Running   0          9s
+java-fatjar-o8hxg                     1/1       Running   0          9s
 router-1-lz02h                        1/1       Running   0          6m
 ```
 
-We can see our example is running with the pod name `quickstart-java-simple-fatjar-o8hxg`
+We can see our example is running with the pod name `java-fatjar-o8hxg`
 
 To see the logs of the running pod we can type `oc logs <name>` such as:
 
-    oc logs quickstart-java-simple-fatjar-o8hxg
+    oc logs java-fatjar-o8hxg
     
 That will dump the logs which can be _massive_. What you may want to do is to follow the logs using the `-f` flag, by doing:
 
-    oc logs -f quickstart-java-simple-fatjar-o8hxg
+    oc logs -f java-fatjar-o8hxg
     
 And then the console is updated in real time, you can use `ctrl + c` to exit the logging.
 
@@ -142,7 +146,7 @@ We would now like to update the source code so the application prints a differen
 
 To do that we start by changing the source code which you can load into your favorite Java editor, or use a plain text editor as the source code is so simple we can change it without a full blown Java editor.
 
-The source code is in the `src/main/java/io/fabric8/quickstarts/java/simple/fatjar/Main.java` java file, which we change as follows:
+The source code is in the `src/main/java/io/fabric8/quickstarts/java/fatjar/Main.java` java file, which we change as follows:
 
 ```
 public class Main {
@@ -168,23 +172,23 @@ Which will clean and compile the source, do a docker image build, and re-deploy 
 When the application is de-deployed then kubernetes will shutdown the old pod, and start a new pod, so we will list all the running pods with `oc get pods`:
 
 ```
-ipaas-quickstarts/quickstart/java/simple-fatjar/$ oc get pods
+ipaas-quickstarts/quickstart/java/fatjar/$ oc get pods
 NAME                                  READY     STATUS    RESTARTS   AGE
 docker-registry-1-68nz6               1/1       Running   0          15m
 fabric8-jccyj                         1/1       Running   0          16m
 fluentd-elasticsearch-172.28.128.4    1/1       Running   0          14m
-quickstart-java-simple-fatjar-2nnx7   1/1       Running   0          42s
+java-fatjar-2nnx7                     1/1       Running   0          42s
 router-1-lz02h                        1/1       Running   0          15m
 ```
 
-And as you can see the pod name has changed to `quickstart-java-simple-fatjar-2nnx7`. To see our code change we can show the logs of the pods with:
+And as you can see the pod name has changed to `java-fatjar-2nnx7`. To see our code change we can show the logs of the pods with:
 
-    oc logs -f quickstart-java-simple-fatjar-2nnx7
+    oc logs -f java-fatjar-2nnx7
     
 And you should see our changed logging message:
 
 ```
-ipaas-quickstarts/quickstart/java/simple-fatjar/$ oc logs -f quickstart-java-simple-fatjar-2nnx7
+ipaas-quickstarts/quickstart/java/fatjar/$ oc logs -f java-fatjar-2nnx7
 I> No access restrictor found, access to all MBean is allowed
 Jolokia: Agent started with URL http://172.17.0.7:8778/jolokia/
 I was here: PorTM
@@ -202,7 +206,7 @@ So if you want to delete the running quickstart, you would either need to scale 
 
 So what we can do is to delete the controller using
 
-    oc delete rc quickstart-java-simple-fatjar
+    oc delete rc java-fatjar
     
 Then the pod will automatic be shutdown and deleted as well.
 
@@ -216,4 +220,3 @@ Another easy way would be to use the fabric8 web console to delete the quickstat
 #### Closing remarks
 
 Yay you made through this first walk through of the most simple quickstart we have. For the next walk lets up the game a bit and use Camel and Kubernetes services.
-

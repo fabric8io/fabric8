@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2015 Red Hat, Inc.
+ * Copyright 2005-2016 Red Hat, Inc.
  *
  * Red Hat licenses this file to you under the Apache License, version
  * 2.0 (the "License"); you may not use this file except in compliance
@@ -45,10 +45,28 @@ public class AttachMojo extends AbstractFabric8Mojo {
     private String artifactType = "json";
 
     /**
+     * The artifact type for attaching the generated kubernetes YAML file to the project
+     */
+    @Parameter(property = "fabric8.kubernetes.yaml.artifactType", defaultValue = "yml")
+    private String yamlArtifactType = "yml";
+
+    /**
      * The artifact classifier for attaching the generated kubernetes json file to the project
      */
     @Parameter(property = "fabric8.kubernetes.artifactClassifier", defaultValue = "kubernetes")
     private String artifactClassifier = "kubernetes";
+
+    /**
+     * Should we generate YAML too?
+     */
+    @Parameter(property = "fabric8.generateYaml", defaultValue = "true")
+    private boolean generateYaml = true;
+
+    /**
+     * The generated kubernetes YAML file
+     */
+    @Parameter(property = "fabric8.yaml.target", defaultValue = "${basedir}/target/classes/kubernetes.yml")
+    private File kubernetesYaml;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -58,6 +76,23 @@ public class AttachMojo extends AbstractFabric8Mojo {
 
             getLog().info("Attaching kubernetes json file: " + json + " to the build");
             projectHelper.attachArtifact(getProject(), artifactType, artifactClassifier, json);
+
+            if (generateYaml) {
+                Object savedObjects = null;
+                try {
+                    savedObjects = KubernetesHelper.loadJson(json);
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Failed to load saved json file " + json + ". Reason: " + e, e);
+                }
+                if (savedObjects != null) {
+                    try {
+                        KubernetesHelper.saveYaml(savedObjects, kubernetesYaml);
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("Failed to save YAML file " + kubernetesYaml + ". Reason: " + e, e);
+                    }
+                }
+                projectHelper.attachArtifact(getProject(), yamlArtifactType, artifactClassifier, kubernetesYaml);
+            }
         }
     }
 

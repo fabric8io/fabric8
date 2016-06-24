@@ -1,6 +1,6 @@
-## Chat
+## ChatOps
 
-DevOps is all about culture and teams efficiently deploying and managing software. Using Chat software is a great way to help the cultural and social side of DevOps.
+DevOps is all about culture and teams efficiently deploying and managing software. Using ChatOps is a great way to help the cultural and social side of DevOps by watching and interacting with your team and your microservices via chat.
 
 There are various types of Chat software like IRC, Slack, HipChat, Campfire and so forth.
 

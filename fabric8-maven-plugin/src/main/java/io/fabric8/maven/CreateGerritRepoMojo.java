@@ -1,6 +1,6 @@
 package io.fabric8.maven;
 
-//import io.fabric8.gerrit.CreateRepositoryDTO;
+import io.fabric8.gerrit.CreateRepositoryDTO;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
 import io.fabric8.kubernetes.client.KubernetesClient;

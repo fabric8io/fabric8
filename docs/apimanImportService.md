@@ -16,15 +16,15 @@ Go through the wizzard and select import as 'Public Service' as we don't yet hav
 
 Kubernetes allows the creation of Service Annotations. Here we propose the use of the following annotations
 
-* 'apiman.io/servicepath' - the path part of the service endpoint url. An example value could be 'cxfcdi',
+* 'api.service.kubernetes.io/path' - the path part of the service endpoint url. An example value could be 'cxfcdi',
 
-* 'apiman.io/servicetype' - the protocol of the service. Example values can be 'SOAP' or 'REST',
+* 'api.service.kubernetes.io/protocol' - the protocol of the service. Example values can be 'SOAP' or 'REST',
 
-* 'apiman.io/servicescheme' - the scheme of service endpoint url which can be 'http' or 'https' (defaults to 'http')
+* 'api.service.kubernetes.io/scheme' - the scheme of service endpoint url which can be 'http' or 'https' (defaults to 'http')
 
-* 'apiman.io/descriptionpath' - the path part of the service description document’s endpoint. It is a pretty safe assumption that the service self documents. An example value for a swagger 2.0 document can be 'cxfcdi/swagger.json',
+* 'api.service.kubernetes.io/description-path' - the path part of the service description document’s endpoint. It is a pretty safe assumption that the service self documents. An example value for a swagger 2.0 document can be 'cxfcdi/swagger.json',
 
-* 'apiman.io/descriptiontype' - the type of Description Language used. Example values supported by apiman are 'WSDL', 'WADL', 'SwaggerJSON', 'SwaggerYAML'.
+* 'api.service.kubernetes.io/description-language' - the type of Description Language used. Example values supported by apiman are 'WSDL', 'WADL', 'SwaggerJSON', 'SwaggerYAML'.
 
 The fragment below is taken from the service section of the kubernetes.json were these annotations are used
 
@@ -34,27 +34,29 @@ The fragment below is taken from the service section of the kubernetes.json were
       "kind" : "Service",
       "metadata" : {
         "annotations" : {
-          "apiman.io/servicepath" : "cxfcdi",
-          "apiman.io/servicetype" : "REST",
-          "apiman.io/descriptionpath" : "cxfcdi/swagger.json",
-          "apiman.io/descriptiontype" : "SwaggerJSON"
+          "api.service.kubernetes.io/path" : "cxfcdi",
+          "api.service.kubernetes.io/protocol" : "REST",
+          "api.service.kubernetes.io/description-path" : "cxfcdi/swagger.json",
+          "api.service.kubernetes.io/description-language" : "SwaggerJSON"
+          "api.service.openshift.io/api-manager" : "apiman"
       },
     ...
 
-The [fabric8-maven-plugin](http://fabric8.io/gitbook/mavenPlugin.html) makes it easy to define these annotations as properties in your project's pom. Simply add a property that is prefixed with 'fabric8.annotations.service.'. In the [CdiCxf project](https://github.com/fabric8io/ipaas-quickstarts/blob/v2.2.56/quickstart/cdi/cxf/pom.xml#L59-L62) mentioned above this looks like
+The [fabric8-maven-plugin](http://fabric8.io/gitbook/mavenPlugin.html) makes it easy to define these annotations as properties in your project's pom. Simply add a property that is prefixed with 'fabric8.annotations.service.'. In the [CdiCxf project](https://github.com/fabric8io/ipaas-quickstarts/blob/v2.2.101/quickstart/cdi/cxf/pom.xml#L59-L62) mentioned above this looks like
 
     ...
-    <fabric8.annotations.service.apiman.io.servicePath>cxfcdi</fabric8.annotations.service.apiman.io.servicePath>
-    <fabric8.annotations.service.apiman.io.serviceType>REST</fabric8.annotations.service.apiman.io.serviceType>
-    <fabric8.annotations.service.apiman.io.descriptionPath>cxfcdi/swagger.json</fabric8.annotations.service.apiman.io.descriptionPath>
-    <fabric8.annotations.service.apiman.io.descriptionType>SwaggerJSON</fabric8.annotations.service.apiman.io.descriptionType>
+    <fabric8.annotations.service.api.service.kubernetes.io.path>cxfcdi</fabric8.annotations.service.api.service.kubernetes.io.path>
+    <fabric8.annotations.service.api.service.kubernetes.io.protocol>REST</fabric8.annotations.service.api.service.kubernetes.io.protocol>
+    <fabric8.annotations.service.api.service.kubernetes.io.description-path>cxfcdi/swagger.json</fabric8.annotations.service.api.service.kubernetes.io.description-path>
+    <fabric8.annotations.service.api.service.kubernetes.io.description-language>SwaggerJSON</fabric8.annotations.service.api.service.kubernetes.io.description-language>
+    <fabric8.annotations.service.api.service.openshift.io.api-manager>apiman</fabric8.annotations.service.api.service.openshift.io.api-manager>
     ...
     
-By convention the part _after_ the prefix is the annotation key, and if the key contains a '.', everything before that last dot turns into the annotation's namespace. So, for example, 'apiman.io.servicePath' turns into 'apiman.io/servicePath' in the kubernetes.json.
+By convention the part _after_ the prefix is the annotation key, and if the key contains a '.', everything before that last dot turns into the annotation's namespace. So, for example, 'api.service.kubernetes.io.path' turns into 'api.service.kubernetes.io/path in the kubernetes.json.
 
 ### Publishing the service to the gateway
 
-After the service is imported into the API manager, we can publish it out to the gateway. After publication the service will be ready for use by service consumers. To publish a service, open the service detail page and click the blue 'publish' button.
+You may have noticed the use of the annotion "api.service.openshift.io/api-manager" : "apiman". If this annotation is set it this service will be imported automatically. After the service is imported into the API manager, we can publish it out to the gateway. After publication the service will be ready for use by service consumers. To publish a service, open the service detail page and click the blue 'publish' button.
 
 ![service publish](images/apiman-servicepublish.png).
 

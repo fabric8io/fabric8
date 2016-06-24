@@ -18,8 +18,8 @@ cd .. && \
 mvn scalate:sitegen && \
 mkdir -p target/sitegen/guide && \
 mkdir -p ../docs/_book && \
-gitbook install ../docs  && \
-gitbook build ../docs && \
+gitbook -v 2.1.0 install ../docs  && \
+gitbook -v 2.1.0 build ../docs && \
 echo "copying generated gitbook"
 cp -rv ../docs/_book/* target/sitegen/guide && \
 cd target/sitegen && \

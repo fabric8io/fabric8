@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-     Copyright 2005-2015 Red Hat, Inc.
+     Copyright 2005-2016 Red Hat, Inc.
 
      Red Hat licenses this file to you under the Apache License, version
      2.0 (the "License"); you may not use this file except in compliance
@@ -26,7 +26,7 @@
     <version>2.3-SNAPSHOT</version>
 -->
     <!-- lets avoid a snapshot so when we do the next major release the website generation doesn't break ;) -->
-    <version>2.2.57-SNAPSHOT</version>
+    <version>2.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>website</artifactId>
@@ -36,6 +36,9 @@
   <description>The fabric8.io Website and Documentation</description>
 
   <properties>
+    <!-- for some odd reason the website fails to generate when using Camel 2.16.0, so here is a workaround to get it working -->
+    <camel.version>2.15.3</camel.version>
+    
     <jettyPort>8000</jettyPort>
     <scala.version>2.9.0</scala.version>
 <!--

@@ -1,20 +1,14 @@
-<style>
-  img.logo {
-    width: 48px;
-    height: 48px;
-  }
-  td.icon-column {
-    width: 180px;
-  }
-  td.icon-desc-column {
-    width: 380px;
-  }
-</style>
 <div class="container">
   <div class="row">
     <div class="col-md-12">
 <p>
-  Fabric8 is an integrated open source <a href="http://fabric8.io/guide/fabric8DevOps.html">DevOps</a> and <a href="http://fabric8.io/guide/ipaas.html">Integration Platform</a> which works out of the box on any <a href="http://kubernetes.io/">Kubernetes</a> or <a href="http://www.openshift.org/">OpenShift</a> environment and provides <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery</a>, <a href="http://fabric8.io/guide/management.html">Management</a>, <a href="http://fabric8.io/guide/chat.html">ChatOps</a> and a <a href="http://fabric8.io/guide/chaosMonkey.html">Chaos Monkey</a>.
+  <h1>let's develop microservices faster and have fun!</h1>
+</p>
+<p>
+  <b>fabric8</b> is an opinionated open source <b>microservices platform</b> based on <a href="http://docker.com/">Docker</a>, <a href="http://kubernetes.io/">Kubernetes</a> and <a href="https://jenkins.io/">Jenkins</a>
+</p>
+<p>
+  <b>fabric8</b> makes it easy to create microservices, build, test and deploy them via <a href="http://fabric8.io/guide/cdelivery.html">Continuous Delivery pipelines</a> then <a href="http://fabric8.io/guide/fabric8DevOps.html">run and manage them</a> with Continuous Improvement and <a href="http://fabric8.io/guide/chat.html">ChatOps</a>
 </p>
 
 <div class="row">
@@ -50,36 +44,95 @@
 <br/>
 
 <p>
-Fabric8 DevOps is made up of the following Open Source components:
+Fabric8 is made up of the following Open Source components:
 </p>
+
+<h4>Development</h4>
+
+<table class="table services">
+  <tr>
+    <td class="icon-column">
+      <a href="http://projects.spring.io/spring-boot/">
+        <img class="logo" src="../images/logos/spring-boot.svg"/>
+        Spring Boot
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      Spring based microservices
+    </td>
+    <td class="icon-column">
+      <a href="http://wildfly-swarm.io/">
+        <img class="logo" src="../images/logos/wildfly-swarm.png"/>
+        WildFly Swarm
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      JavaEE based microservices
+    </td>
+  </tr>
+  <tr>
+    <td class="icon-column">
+      <a href="https://github.com/fabric8io/spring-cloud-kubernetes" title="Spring Cloud Kubernetes">
+        <img class="logo" src="../images/logos/kubernetes.png"/>
+        Spring Cloud
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="http://projects.spring.io/spring-cloud/">Spring Cloud</a>
+    </td>
+    <td class="icon-column">
+      <a href="https://github.com/fabric8io/kubeflix">
+        <img class="logo" src="../images/logos/kubeflix.png"/>
+        Kubeflix
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="https://netflix.github.io/">Netflix OSS</a> like
+      <a href="https://github.com/Netflix/Hystrix">Hystrix</a>, <a href="https://github.com/Netflix/Ribbon">Ribbon</a> and <a href="https://github.com/Netflix/Turbine">Turbine</a>
+    </td>
+  </tr>
+  <tr>
+    <td class="icon-column">
+      <a href="https://github.com/fabric8io/funktion">
+        <img class="logo" src="../images/logos/funktion.png"/>
+        Funktion
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      lambda style event based programming model for <a href="http://kubernetes.io/">Kubernetes</a>
+    </td>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+</table>
 
 <h4>Continuous Improvement</h4>
 
-<table class="table">
+<table class="table services">
   <tr>
     <td class="icon-column">
+      <a href="http://fabric8.io/guide/console.html">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-console/f619a352/img/fabric8_icon.svg"/>
+        Developer
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      Developer Console to help you create, build, manage microservices with deep visualisation
+      into projects, apps and environments
+    </td>
+    <td class="icon-column">
       <a href="http://fabric8.io/guide/chaosMonkey.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/chaos-monkey/src/main/fabric8/icon.png"/>
         Chaos Monkey
       </a>
     </td>
     <td class="icon-desc-column">
       Randomly kills pods to help check your environment can withstand failures
     </td>
-    <td class="icon-column">
-      <a href="http://www.elasticsearch.org/overview/kibana/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"/>
-        Kibana
-      </a>
-    </td>
-    <td class="icon-desc-column">
-      Lets you view, filter and search all logs and events that have been written to Elasticsearch.
-    </td>
   </tr>
   <tr>
     <td class="icon-column">
       <a href="http://elasticsearch.com/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/elasticsearch/src/main/fabric8/icon.png"/>
         Elasticsearch
       </a>
     </td>
@@ -87,8 +140,28 @@ Fabric8 DevOps is made up of the following Open Source components:
       Elasticsearch is a distributed fault tolerant scalable search engine for logs, events and documents
     </td>
     <td class="icon-column">
+      <a href="http://prometheus.io/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/prometheus/src/main/fabric8/icon.png"/>
+        Prometheus
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      Service monitoring, metrics and alerting system with a time series database
+    </td>
+  </tr>
+  <tr>
+    <td class="icon-column">
+      <a href="http://www.elasticsearch.org/overview/kibana/">
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/kibana/src/main/fabric8/icon.svg"/>
+        Kibana
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      Lets you view, filter and search all logs and events that have been written to Elasticsearch.
+    </td>
+    <td class="icon-column">
       <a href="http://grafana.org/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana2/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/grafana2/src/main/fabric8/icon.png"/>
         Grafana
       </a>
     </td>
@@ -96,32 +169,12 @@ Fabric8 DevOps is made up of the following Open Source components:
       Rich metrics dashboard and graph editor for Prometheus and InfluxDB
     </td>
   </tr>
-  <tr>
-    <td class="icon-column">
-      <a href="http://prometheus.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"/>
-        Prometheus
-      </a>
-    </td>
-    <td class="icon-desc-column">
-      Service monitoring, metrics and alerting system with a time series database
-    </td>
-    <td class="icon-column">
-      <a href="http://fabric8.io/guide/console.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/console/src/main/fabric8/icon.svg"/>
-        Console
-      </a>
-    </td>
-    <td class="icon-desc-column">
-      Console and deep visualisation into projects, Kubernetes, OpenShift, Docker and JVMs
-    </td>
-  </tr>
 </table>
 
 
 <h4>Social</h4>
 
-<table class="table">
+<table class="table services">
   <tr>
     <td class="icon-column">
       <a href="http://slack.com">
@@ -134,7 +187,7 @@ Fabric8 DevOps is made up of the following Open Source components:
     </td>
     <td class="icon-column">
       <a href="https://github.com/sdelements/lets-chat">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/letschat/src/main/fabric8/icon.png"/>
         Let's Chat
       </a>
     </td>
@@ -147,7 +200,7 @@ Fabric8 DevOps is made up of the following Open Source components:
 
 <h4>Systems Availability</h4>
 
-<table class="table">
+<table class="table services">
   <tr>
     <td class="icon-column">
       <a href="http://docker.com/">
@@ -178,17 +231,27 @@ Fabric8 DevOps is made up of the following Open Source components:
     <td class="icon-desc-column">
       A PaaS (Platform As A Service) based on Docker and Kubernetes
     </td>
+    <td class="icon-column">
+      <a href="https://github.com/fabric8io/kansible">
+        <img class="logo" src="../images/logos/kansible.png"/>
+        Kansible
+      </a>
+    </td>
+    <td class="icon-desc-column">
+      orchestrate operating system processes on Windows or Unix like
+      Docker containers using <a href="https://www.ansible.com/">Ansible</a>
+    </td>
   </tr>
 </table>
 
 
 <h4>Automation</h4>
 
-<table class="table">
+<table class="table services">
   <tr>
     <td class="icon-column">
       <a href="http://fabric8.io/guide/cdelivery.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/jenkins/src/main/fabric8/icon.svg"/>
         Jenkins
       </a>
     </td>
@@ -197,7 +260,7 @@ Fabric8 DevOps is made up of the following Open Source components:
     </td>
     <td class="icon-column">
       <a href="http://www.sonatype.org/nexus/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/nexus/src/main/fabric8/icon.png"/>
         Nexus
       </a>
     </td>
@@ -208,7 +271,7 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td class="icon-column">
       <a href="http://fabric8.io/guide/chat.html">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/hubot-letschat/src/main/fabric8/icon.png"/>
         Hubot
       </a>
     </td>
@@ -228,24 +291,25 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td class="icon-column">
       <a href="http://forge.jboss.org/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-forge/src/main/fabric8/icon.svg"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-forge/60c66e/fabric8-forge/src/main/fabric8/icon.svg"/>
         JBoss Forge
       </a>
     </td>
     <td class="icon-desc-column">
       A Java toolbox to help create apps faster
     </td>
+    <td colspan="2">&nbsp;</td>
   </tr>
 </table>
 
 
 <h4>Transparency</h4>
 
-<table class="table">
+<table class="table services">
   <tr>
     <td class="icon-column">
       <a href="https://www.gerritcodereview.com/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/gerrit/src/main/fabric8/icon.png"/>
         Gerrit
       </a>
     </td>
@@ -254,7 +318,7 @@ Fabric8 DevOps is made up of the following Open Source components:
     </td>
     <td class="icon-column">
       <a href="http://gogs.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/gogs/src/main/fabric8/icon.png"/>
         Gogs
       </a>
     </td>
@@ -265,13 +329,14 @@ Fabric8 DevOps is made up of the following Open Source components:
   <tr>
     <td class="icon-column">
       <a href="https://taiga.io/">
-        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"/>
+        <img class="logo" src="https://cdn.rawgit.com/fabric8io/fabric8-devops/93ca9bc/taiga/src/main/fabric8/icon.png"/>
         Taiga
       </a>
     </td>
     <td class="icon-desc-column">
       Project Management Tool (i.e. issue tracker and kanban board)
     </td>
+    <td colspan="2">&nbsp;</td>
   </tr>
 </table>
     </div>

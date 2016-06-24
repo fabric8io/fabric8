@@ -51,8 +51,7 @@ h2:first-child {
 
 .top-banner {
   height: 312px;
-  background-image: url(../images/banner.png);
-  background-position: left;
+  background: url(../images/banner.jpg) left;
   position: relative;
 }
 
@@ -166,3 +165,28 @@ h2:first-child {
   padding-left: 30px;
   padding-right: 30px;
 }
+
+table.services {
+  background-color: #f9f9f9;
+}
+
+table.services td {
+  border-bottom: 1px solid #ddd;
+}
+
+img.logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+  vertical-align: top;
+}
+
+td.icon-column {
+  width: 190px;
+}
+
+td.icon-desc-column {
+  width: 380px;
+  padding-right: 25px !important;
+}
+

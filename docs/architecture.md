@@ -1,6 +1,6 @@
 ## Architecture
 
-Fabric8 provides a number of microservices and tools above the [Kubernetes](http://kubernetes.io) cloud.
+Fabric8 provides a number of Microservices and tools above the [Kubernetes](http://kubernetes.io) cloud.
 
 * Docker provides the abstraction for packaging and creating Linux based lightweight containers
 * [Kubernetes](http://kubernetes.io) provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together

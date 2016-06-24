@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-     Copyright 2005-2015 Red Hat, Inc.
+     Copyright 2005-2016 Red Hat, Inc.
 
      Red Hat licenses this file to you under the Apache License, version
      2.0 (the "License"); you may not use this file except in compliance
@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>components</artifactId>
-    <version>2.2.57-SNAPSHOT</version>
+    <version>2.3-SNAPSHOT</version>
   </parent>
 
   <groupId>io.fabric8</groupId>
@@ -48,6 +48,11 @@
       <artifactId>fabric8-utils</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.fusesource.jansi</groupId>
+      <artifactId>jansi</artifactId>
+      <version>${jansi.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.assertj</groupId>
@@ -68,7 +73,33 @@
       <plugin>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
-        <version>1.6.0</version>
+        <version>2.0.0</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.core.version}</version>
+          </dependency>
+<!--
+          If this PR gets merged we can move to the latest release of this jar:
+          https://github.com/joel-costigliola/assertj-assertions-generator/pull/68
+
+          <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-assertions-generator</artifactId>
+            <version>2.0.1</version>
+          </dependency>
+
+          eventually we can even remove this dependency completely if a new maven plugin is released!
+
+          until then lets use a temporary release:
+-->
+          <dependency>
+            <groupId>io.fabric8.assertj</groupId>
+            <artifactId>assertj-assertions-generator</artifactId>
+            <version>2.0.1.2</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <packages>
             <param>io.fabric8.kubernetes.api.model</param>
@@ -91,7 +122,11 @@
           -->
           <!-- excludes with regex classes from generation -->
           <excludes>
-            <param>.*Examples.*</param>
+            <param>.*Doneable.*</param>
+            <param>.*Editable.*</param>
+            <param>.*Builder</param>
+            <param>.*Fluent</param>
+            <param>.*FluentImpl</param>
           </excludes>
           <!-- base directory where to generate assertions -->
           <targetDir>${basedir}/target/generated-sources</targetDir>
@@ -100,6 +135,14 @@
           <generateBddAssertions>false</generateBddAssertions>
           <generateSoftAssertions>false</generateSoftAssertions>
           <generateJUnitSoftAssertions>false</generateJUnitSoftAssertions>
+
+          <templates>
+            <templatesDirectory>${basedir}/src/main/assertj-templates</templatesDirectory>
+            <!-- TODO is there a way to add a new custom template? -->
+            <objectAssertion>navigation_template.txt</objectAssertion>
+            <iterableAssertion>has_elements_assertion_template_for_iterable.txt</iterableAssertion>
+            <hierarchicalAssertionAbstractClass>custom_abstract_assertion_class_template.txt</hierarchicalAssertionAbstractClass>
+          </templates>
         </configuration>
 
         <executions>

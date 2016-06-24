@@ -1,19 +1,18 @@
-/*
- * Copyright 2005-2014 Red Hat, Inc.
+/**
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
-
 package io.fabric8.cdi.weld;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -31,6 +30,7 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 
 import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import java.net.MalformedURLException;
@@ -144,18 +144,18 @@ public class ClientProducer {
                         .withName("port")
                         .withPort(8080)
                     .endPort()
-                    .addNewAddresse()
+                    .addNewAddress()
                         .withIp("10.0.0.1")
-                    .endAddresse()
+                    .endAddress()
                 .endSubset()
                 .addNewSubset()
                     .addNewPort()
                         .withName("port")
                         .withPort(8080)
                     .endPort()
-                .addNewAddresse()
+                .addNewAddress()
                     .withIp("10.0.0.2")
-                .endAddresse()
+                .endAddress()
                 .endSubset()
                 .build();
 
@@ -169,18 +169,18 @@ public class ClientProducer {
                 .withName("port")
                 .withPort(8080)
                 .endPort()
-                .addNewAddresse()
+                .addNewAddress()
                 .withIp("10.0.0.1")
-                .endAddresse()
+                .endAddress()
                 .endSubset()
                 .addNewSubset()
                 .addNewPort()
                 .withName("port")
                 .withPort(8080)
                 .endPort()
-                .addNewAddresse()
+                .addNewAddress()
                 .withIp("10.0.0.2")
-                .endAddresse()
+                .endAddress()
                 .endSubset()
                 .build();
 
@@ -194,9 +194,9 @@ public class ClientProducer {
                 .withName("port")
                 .withPort(8080)
                 .endPort()
-                .addNewAddresse()
+                .addNewAddress()
                 .withIp("10.0.0.1")
-                .endAddresse()
+                .endAddress()
                 .endSubset()
                 .build();
 
@@ -206,9 +206,9 @@ public class ClientProducer {
                 .withNamespace("default")
                 .endMetadata()
                 .addNewSubset()
-                    .addNewAddresse()
+                    .addNewAddress()
                         .withIp("172.30.17.2")
-                    .endAddresse()
+                    .endAddress()
                     .addNewPort("port1", 8081, "TCP")
                     .addNewPort("port2", 8082, "TCP")
                     .addNewPort("port3", 8083, "TCP")
@@ -244,8 +244,6 @@ public class ClientProducer {
         return mock.replay();
     }
 
-    @Produces
-    @Alternative
     public OpenShiftClient getOpenShiftClient() throws MalformedURLException {
         OpenShiftMockClient mock = new OpenShiftMockClient();
 

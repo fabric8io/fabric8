@@ -23,24 +23,24 @@ For example:
 
     @KubernetesProvider
     public KubernetesList create() {
-        return new KubernetesBuilder()
-                .withNewReplicationController()
+        return new KubernetesListBuilder()
+                .addNewReplicationControllerItem()
                     .withNewMetadata()
                         .withName("Hello-Controller")
-                    .endNewMetadata()
-                 .withNewSpec()
-                    .withReplicas(1)
-                    .addToSelector("component", "my-component")
-                    .withNewTemplate()
-                        .withNewSpec()
-                            .addNewContainer()
-                                .withName("my-container)
-                                .withImage("my/image")
-                            .endContainer()
-                        .endSpec()
-                    .endTemplate()
-                .endSpec()
-                .endReplicationController()
+                    .endMetadata()
+                    .withNewSpec()
+                        .withReplicas(1)
+                        .addToSelector("component", "my-component")
+                        .withNewTemplate()
+                            .withNewSpec()
+                                .addNewContainer()
+                                    .withName("my-container")
+                                    .withImage("my/image")
+                                .endContainer()
+                            .endSpec()
+                        .endTemplate()
+                    .endSpec()
+                .endReplicationControllerItem()
                 .build();
     }
 
@@ -86,6 +86,35 @@ The particular method will generate a json file that will look like:
             }
           ]
         }
+        
+You can also have multiple methods annotated with `@KubernetesProvider` and specify specific kubernetes.json files you
+wish to generate. For example, `@KubernetesProvider("foo.json")` will generate the previous manifest as `target/classes/foo.json`:
+
+    @KubernetesProvider("foo.json")
+    public KubernetesList create() {
+        return new KubernetesListBuilder()
+                .addNewReplicationControllerItem()
+                    .withNewMetadata()
+                        .withName("Hello-Controller")
+                    .endMetadata()
+                    .withNewSpec()
+                        .withReplicas(1)
+                        .addToSelector("component", "my-component")
+                        .withNewTemplate()
+                            .withNewSpec()
+                                .addNewContainer()
+                                    .withName("my-container")
+                                    .withImage("my/image")
+                                .endContainer()
+                            .endSpec()
+                        .endTemplate()
+                    .endSpec()
+                .endReplicationControllerItem()
+                .build();
+    }    
+    
+`@KubernetesProvider` annotation can also generate YAML files. When you give the file a name as in above, and you use an
+extension of `.yaml` or `.yml`, the processor will automatically generate YAML for you. 
 
 So what is the benefit of using java instead of json? The most noteworthy are:
 
@@ -138,6 +167,22 @@ An other example can be "Add a container to all pods"
             .endSpec();
         }
     }
+    
+You can also manipulate existing kubernetes resources with a specific file name by passing in the file name to the `@KubernetesModelProcessor`
+annotation like this:
+
+    @KubernetesModelProcessor("foo.json")
+    public class ManipulationExample {
+        public void on(PodTemplateSpecBuilder builder) {
+            builder.withNewSpec()
+                    .addNewContainer()
+                        .withName("my-container)
+                        .withImage("my/image")
+                    .endContainer()
+            .endSpec();
+        }
+    }
+
 
 In many cases we would want to apply a change not to *"ALL"* items of a particular type, but to some or to a specific one.
 For this purpose the annotation processor used the @Named annotation (javax.inject.Named) to specify the name of element we want to manipulate.

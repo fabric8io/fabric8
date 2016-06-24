@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -15,7 +15,6 @@
  */
 package io.fabric8.cdi;
 
-
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointPort;
@@ -27,7 +26,6 @@ import io.fabric8.utils.URLUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Services {
 

@@ -13,7 +13,7 @@ You have various options for how to create the `kubernetes.json`
 * use the [annotation processors and typesafe builders](annotationProcessors.html) to create the metadata yourself; or enrich the default created metadata 
 * you can enrich the generated JSON with additional metadata JSON file (using the `fabric8.extra.json` property which defaults to the file `target/classes/kubernetes-extra.json`)
 
-If you have a maven project which is a typical microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).  
+If you have a maven project which is a typical Microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).
 
 ### Example usage
 
@@ -75,6 +75,8 @@ The `fabric8:json` goal generates a kubernetes.json for each maven project which
 Another advantage of combining the JSON files together is that the `fabric8:json` goal automatically moves `Service` objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).
 
 By default a `List` of items is created; unless the pom.xml defines any [OpenShift template](http://docs.openshift.org/latest/dev_guide/templates.html) parameters (see [Creating OpenShift Templates](##creating-openshift-templates) for more detail) or any of the dependent JSON files are `Template`. The `fabric8:json` goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined `Template`.
+
+You can generate a separate JSON file with the dependencies of the current project, use <code>fabric8.combineJson.target</code> property for that. If you want to create a Template of the current project and its dependencies, you can set `fabric8.extra.json` property to `${fabric8.combineJson.target}`, and don’t forget to change the name of the Template (because "Combining JSON files" feature uses the names of templates for filtering duplicate), for example: `<fabric8.combineJson.project>${project.artifactId}Combine</fabric8.combineJson.project>`
  
 #### Examples
 
@@ -114,8 +116,24 @@ There are many options as listed in the following table:
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>
+<td>fabric8.json.target</td>
+<td>The generated kubernetes JSON file. Defaults to using the file <code>target/classes/kubernetes.json</code></td>
+</tr>
+<tr>
+<td>fabric8.pureKubernetes</td>
+<td>Should we exclude OpenShift templates and any extensions like OAuthConfigs in the generated or combined JSON? This defaults to <code>false</code></td>
+</tr>
+<tr>
 <td>fabric8.combineDependencies</td>
 <td>If enabled then the maven dependencies will be scanned for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> which are then combined into the resulting generated JSON file. See <a href="#combining-json-files">Combining JSON files</a></td>
+</tr>
+<tr>
+<td>fabric8.combineJson.target</td>
+<td>The generated kubernetes JSON file dependencies on the classpath. See <a href="#combining-json-files">Combining JSON files</a>. Defaults to using the property <code>fabric8.json.target</code></td>
+</tr>
+<tr>
+<td>fabric8.combineJson.project</td>
+<td>The project label used in the generated Kubernetes JSON dependencies template. See <a href="#combining-json-files">Combining JSON files</a>. This defaults to <code>${project.artifactId}</code></td>
 </tr>
 <tr>
 <td>fabric8.container.name</td>
@@ -124,6 +142,10 @@ There are many options as listed in the following table:
 <tr>
 <td>fabric8.containerPrivileged</td>
 <td>Whether the generated container should be run in priviledged mode (defaults to false)</td>
+</tr>
+<tr>
+<td>fabric8.envProperties</td>
+<td>The properties file used to specify environment variables which allows ${FOO_BAR} expressions to be used without any Maven property expansion. Defaults to using the file <code>src/main/fabric8/env.properties</code></td>
 </tr>
 <tr>
 <td>fabric8.env.FOO = BAR</td>
@@ -182,24 +204,44 @@ There are many options as listed in the following table:
 <td>Defines the kubernetes label FOO and value BAR.</td>
 </tr>
 <tr>
+<td>fabric8.livenessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.livenessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.livenessProbe.exec</td>
 <td>Creates a exec action liveness probe with this command.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.path</td>
-<td>Creates a HTTP GET action liveness probe on with this path.</td>
+<td>fabric8.livenessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action liveness probe on this host. To use liveness probe with HTTP you must configure at least the host and path options.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.httpGet.port</td>
 <td>Creates a HTTP GET action liveness probe on this port.</td>
 </tr>
 <tr>
-<td>fabric8.livenessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action liveness probe on this host.</td>
+<td>fabric8.livenessProbe.httpGet.path</td>
+<td>Creates a HTTP GET action liveness probe on with this path.</td>
 </tr>
 <tr>
 <td>fabric8.livenessProbe.port</td>
 <td>Creates a TCP socket action liveness probe on specified port.</td>
+</tr>
+<tr>
+<td>fabric8.metrics.scrape</td>
+<td>Enable/disable the export of metrics to Prometheus. See more details at <a href="http://fabric8.io/guide/metrics.html">metrics</a></td>
+</tr>
+<tr>
+<td>fabric8.metrics.port</td>
+<td>the request port to find metrics to export to Prometheus.</td>
+</tr>
+<tr>
+<td>fabric8.metrics.scheme</td>
+<td>the request scheme to find metrics to export to Prometheus.</td>
 </tr>
 <tr>
 <td>fabric8.namespaceEnvVar</td>
@@ -226,24 +268,48 @@ There are many options as listed in the following table:
 <td>The provider name to include in resource labels (defaults to <code>fabric8</code>).</td>
 </tr>
 <tr>
+<td>fabric8.readinessProbe.initialDelaySeconds</td>
+<td>Configures an initial delay in seconds before the probe is started.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.timeoutSeconds</td>
+<td>Configures a timeout in seconds which the probe will use and is expected to complete within to be succesful.</td>
+</tr>
+<tr>
 <td>fabric8.readinessProbe.exec</td>
 <td>Creates a exec action readiness probe with this command.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.httpGet.host</td>
+<td>Creates a HTTP GET action readiness probe on this host. To use readiness probe with HTTP you must configure at least the host and path options.</td>
+</tr>
+<tr>
+<td>fabric8.readinessProbe.httpGet.port</td>
+<td>Creates a HTTP GET action readiness probe on this port. The default value is 80.</td>
 </tr>
 <tr>
 <td>fabric8.readinessProbe.httpGet.path</td>
 <td>Creates a HTTP GET action readiness probe on with this path.</td>
 </tr>
 <tr>
-<td>fabric8.readinessProbe.httpGet.port</td>
-<td>Creates a HTTP GET action readiness probe on this port.</td>
-</tr>
-<tr>
-<td>fabric8.readinessProbe.httpGet.host</td>
-<td>Creates a HTTP GET action readiness probe on this host.</td>
-</tr>
-<tr>
 <td>fabric8.readinessProbe.port</td>
 <td>Creates a TCP socket action readiness probe on specified port.</td>
+</tr>
+<tr>
+<td>fabric8.resources.limits.memory</td>
+<td>Creates a memory limit compute resource, for example <code>128Mi</code> (128 MB). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.limits.cpu</td>
+<td>Creates a cpu limit compute resource, for example <code>500m</code> (0.50 core). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.requests.memory</td>
+<td>Creates a memory request compute resource, for example <code>64Mi</code> (64 MB). The default value is 0</td>
+</tr>
+<tr>
+<td>fabric8.resources.requests.cpu</td>
+<td>Creates a cpu request compute resource, for example <code>250m</code> (0.25 core). The default value is 0</td>
 </tr>
 <tr>
 <td>fabric8.replicas</td>
@@ -258,9 +324,17 @@ There are many options as listed in the following table:
 <td>The name of the service account to use in this pod (defaults to none)</td>
 </tr>
 <tr>
+<td>fabric8.serviceAccountCreate</td>
+<td>Should we create the ServiceAccount resource as part of the build (defaults to false)</td>
+</tr>
+<tr>
 <td>fabric8.service.name</td>
 <td>The name of the Service to generate. Defaults to <code>${project.artifactId}</code> (the artifact Id of the project)</td>
 </tr>
+<td>fabric8.service.headless</td>
+<td>Whether or not we should generate headless services (services with no ports exposed, no cluster IPs, and are not managed my the Kube Proxy)</td>
+</tr>
+<tr>
 <tr>
 <td>fabric8.service.port</td>
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
@@ -287,7 +361,44 @@ There are many options as listed in the following table:
 <td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>
+<td>fabric8.service.nodePort.&lt;portName&gt;</td>
+<td>The node port of this service to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
 <td>fabric8.service.protocol.&lt;portName&gt;</td>
+<td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.port</td>
+<td>The port of the Service to generate for service &lt;name&gt;.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.type</td>
+<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
+  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created.</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.protocol</td>
+<td>The protocol of the service. (If not specified then kubernetes will default it to TCP).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.port.&lt;portName&gt;</td>
+<td>The service port to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.containerPort.&lt;portName&gt;</td>
+<td>The container port to target to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.nodePort.&lt;portName&gt;</td>
+<td>The node port of this service to generate (if a kubernetes service is required with multiple ports).</td>
+</tr>
+<tr>
+<td>fabric8.service.&lt;name&gt;.protocol.&lt;portName&gt;</td>
 <td>The protocol of this service port to generate (if a kubernetes service is required with multiple ports).</td>
 </tr>
 <tr>

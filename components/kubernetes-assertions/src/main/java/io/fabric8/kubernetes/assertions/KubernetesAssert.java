@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -15,7 +15,9 @@
  */
 package io.fabric8.kubernetes.assertions;
 
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodAssert;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -30,10 +32,15 @@ import io.fabric8.kubernetes.api.model.ServiceListAssert;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.ServiceSpecAssert;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +65,96 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         return new KubernetesNamespaceAssert(client, namespace);
     }
 
+    /**
+     * Finds all the resources that create pod selections (Deployment, DeploymentConfig, ReplicaSet, ReplicationController)
+     * and create a {@link HasPodSelectionAssert} to make assertions on their pods that they startup etc.
+     *
+     * @return the assertion object for the deployment
+     */
+    public HasPodSelectionAssert deployments() {
+        List<HasPodSelectionAssert> asserters = new ArrayList<>();
+        List<HasMetadata> resources = new ArrayList<>();
+        try {
+            resources = KubernetesHelper.findKubernetesResourcesOnClasspath(new Controller(client));
+        } catch (IOException e) {
+            fail("Failed to load kubernetes resources on the classpath: " + e, e);
+        }
+        for (HasMetadata resource : resources) {
+            HasPodSelectionAssert asserter = createPodSelectionAssert(resource);
+            if (asserter != null) {
+                asserters.add(asserter);
+            }
+        }
+        String message = "No pod selection kinds found on the classpath such as Deployment, DeploymentConfig, ReplicaSet, ReplicationController";
+        // TODO we don't yet support size > 1
+        assertThat(asserters).describedAs(message).isNotEmpty().hasSize(1);
+        return asserters.get(0);
+    }
+
+    protected HasPodSelectionAssert createPodSelectionAssert(HasMetadata resource) {
+        if (resource instanceof DeploymentConfig) {
+            DeploymentConfig deployment = (DeploymentConfig) resource;
+            return new DeploymentConfigPodsAssert(client, deployment);
+        } else if (resource instanceof Deployment) {
+            Deployment deployment = (Deployment) resource;
+            return new DeploymentPodsAssert(client, deployment);
+        } else if (resource instanceof ReplicaSet) {
+            ReplicaSet replica = (ReplicaSet) resource;
+            return new ReplicaSetPodsAssert(client, replica);
+        } else if (resource instanceof ReplicationController) {
+            ReplicationController replica = (ReplicationController) resource;
+            return new ReplicationControllerPodsAssert(client, replica);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Asserts that there is a deployment of the given name
+     *
+     * @return the assertion object for the deployment
+     */
+    public HasPodSelectionAssert deployment(String deploymentName) {
+        String namespace = namespace();
+        String qualifiedName = namespace + "." + deploymentName;
+        OpenShiftClient openShiftClient = new Controller(client).getOpenShiftClientOrNull();
+        if (openShiftClient != null) {
+            DeploymentConfig deployment = openShiftClient.deploymentConfigs().inNamespace(namespace).withName(deploymentName).get();
+            assertThat(deployment).describedAs("DeploymentConfig: " + qualifiedName).isNotNull().metadata().name().isEqualTo(deploymentName);
+            return new DeploymentConfigPodsAssert(client, deployment);
+        } else {
+            Deployment deployment = client.extensions().deployments().inNamespace(namespace).withName(deploymentName).get();
+            assertThat(deployment).describedAs("Deployment: " + qualifiedName).isNotNull().metadata().name().isEqualTo(deploymentName);
+            return new DeploymentPodsAssert(client, deployment);
+        }
+    }
+
+    public String namespace() {
+        return client.getNamespace();
+    }
+
+    /**
+     * Asserts that there is a ReplicaSet or ReplicationController of the given name
+     *
+     * @return the assertion object for the replicas
+     */
+    public HasPodSelectionAssert replicas(String replicaName) {
+        String namespace = namespace();
+        String qualifiedName = namespace + "." + replicaName;
+        ReplicaSet replicasSet = client.extensions().replicaSets().withName(replicaName).get();
+        if (replicasSet != null) {
+            assertThat(replicasSet).describedAs("ReplicaSet: " + qualifiedName).metadata().name().isEqualTo(replicaName);
+            return new ReplicaSetPodsAssert(client, replicasSet);
+        } else {
+            ReplicationController replicationController = client.replicationControllers().withName(replicaName).get();
+            assertThat(replicationController).describedAs("No ReplicaSet or ReplicationController called: " + qualifiedName).isNotNull();
+            assertThat(replicationController).describedAs("ReplicationController: " + qualifiedName).metadata().name().isEqualTo(replicaName);
+            return new ReplicationControllerPodsAssert(client, replicationController);
+        }
+    }
+
     public PodsAssert podList() {
-        PodList pods = client.pods().list();
+        PodList pods = client.pods().inNamespace(namespace()).list();
         return podList(pods);
     }
 

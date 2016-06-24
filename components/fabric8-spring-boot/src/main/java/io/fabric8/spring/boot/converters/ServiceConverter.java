@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -22,10 +22,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Strings;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -111,7 +109,7 @@ public class ServiceConverter implements GenericConverter {
 
     public String getServiceURL(KubernetesClient client, Service srv, String serviceProtocol, String servicePortName) {
         String serviceName = KubernetesHelper.getName(srv);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesHelper.serviceToProtocol(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesServices.serviceToProtocol(serviceName, servicePortName);
 
         if (Strings.isNullOrBlank(servicePortName) && KubernetesHelper.isOpenShift(client)) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);

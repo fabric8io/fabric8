@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -19,23 +19,23 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.GitHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
-import org.jboss.arquillian.test.spi.TestResult;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,16 +46,11 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
 public class Util {
 
     public static String readAsString(URL url) {
-        StringBuilder response = new StringBuilder();
-        String line;
-        try (InputStreamReader isr = new InputStreamReader(url.openStream()); BufferedReader br = new BufferedReader(isr)) {
-            while ((line = br.readLine()) != null) {
-                response.append(line);
-            }
+        try {
+            return IOHelpers.readFully(url);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return response.toString();
     }
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
@@ -147,32 +142,64 @@ public class Util {
          * Lets use a loop to ensure we really do delete all the matching resources
          */
         for (int i = 0; i < 10; i++) {
+            OpenShiftClient openShiftClient = new Controller(client).getOpenShiftClientOrNull();
+            String sessionNamespace = session.getNamespace();
+            if (openShiftClient != null) {
+                try {
+                    openShiftClient.deploymentConfigs().inNamespace(sessionNamespace).delete();
+                } catch (KubernetesClientException e) {
+                    errors.add(e);
+                }
+                try {
+                    openShiftClient.routes().inNamespace(sessionNamespace).delete();
+                } catch (KubernetesClientException e) {
+                    errors.add(e);
+                }
+            }
             try {
-                client.replicationControllers().inNamespace(session.getNamespace()).delete();
+                client.extensions().deployments().inNamespace(sessionNamespace).delete();
             } catch (KubernetesClientException e) {
                 errors.add(e);
             }
 
             try {
-                client.pods().inNamespace(session.getNamespace()).delete();
+                client.extensions().replicaSets().inNamespace(sessionNamespace).delete();
             } catch (KubernetesClientException e) {
                 errors.add(e);
             }
 
             try {
-                client.services().inNamespace(session.getNamespace()).delete();
+                client.replicationControllers().inNamespace(sessionNamespace).delete();
             } catch (KubernetesClientException e) {
                 errors.add(e);
             }
 
             try {
-                client.securityContextConstraints().withName(session.getNamespace()).delete();
+                client.pods().inNamespace(sessionNamespace).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
+            }
+
+            try {
+                client.extensions().ingresses().inNamespace(sessionNamespace).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
+            }
+
+            try {
+                client.services().inNamespace(sessionNamespace).delete();
+            } catch (KubernetesClientException e) {
+                errors.add(e);
+            }
+
+            try {
+                client.securityContextConstraints().withName(sessionNamespace).delete();
             } catch (KubernetesClientException e) {
                 errors.add(e);
             }
 
             // lets see if there are any matching podList left
-            List<Pod> filteredPods = client.pods().inNamespace(session.getNamespace()).list().getItems();
+            List<Pod> filteredPods = client.pods().inNamespace(sessionNamespace).list().getItems();
             if (filteredPods.isEmpty()) {
                 return;
             } else {

@@ -16,13 +16,18 @@ For generating and applying Kubernetes JSON
 * [fabric8:rolling](mavenFabric8DRolling.html) works like [fabric8:apply](mavenFabric8Apply.html) but performs a **rolling update** on any [replication controllers](replicationControllers.html) which already exist 
 * [fabric8:recreate](mavenFabric8DRecreate.html) works like [fabric8:apply](mavenFabric8Apply.html) but forces all resources which exist to be recreated
 
-Helper goals for working with Kubernetes 
+Goals for working with Kubernetes 
 
 * [fabric8:devops](mavenFabric8DevOps.html) uses the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) to connect various DevOps services like git hosting, [chat](chat.html), issue tracking and [CI / CD builds in jenkins](cdelivery.html) for a project reusing the optional project specific `fabric8.yml` configuration file
 * [fabric8:create-env](mavenFabric8CreateEnv.html) generates environment variable scripts for Kubernetes [services](services.html) so you can simulate running programs as if they were inside kubernetes
 * [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services 
 * [fabric8:delete-pods](mavenFabric8DeletePods.html) deletes pods for the current projects docker image so that they get recreated by the [replication controllers](replicationControllers.html) to use the latest image
 * [fabric8:clean](mavenFabric8Clean.html) cleans up the namespace
+
+Goals for working with [Helm Chart repositories](http://helm.sh/)
+
+* [fabric8:helm](mavenFabric8Helm.html) generates a [Helm Chart](http://helm.sh/) for your application
+* [fabric8:helm-push](mavenFabric8HelmPush.html) goal commits and pushes changes to the [Helm](http://helm.sh/) chart repository to the remote git repository
 
 ### Adding the plugin to your project
 

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -19,33 +19,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.ContainerState;
-import io.fabric8.kubernetes.api.model.ContainerStateRunning;
-import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
-import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodStatus;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.RootPaths;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPath;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValue;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBackend;
+import io.fabric8.kubernetes.api.model.extensions.IngressList;
+import io.fabric8.kubernetes.api.model.extensions.IngressRule;
+import io.fabric8.kubernetes.api.model.extensions.IngressSpec;
+import io.fabric8.kubernetes.api.model.extensions.IngressTLS;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -63,9 +45,12 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.KubernetesServices;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +67,12 @@ import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
+import javax.tools.FileObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -116,6 +103,8 @@ import static io.fabric8.utils.Strings.isNullOrBlank;
  */
 public final class KubernetesHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesHelper.class);
+
     public static final String KUBERNETES_NAMESPACE_SYSTEM_PROPERTY = "kubernetes.namespace";
     public static final String KUBERNETES_NAMESPACE_ENV = "KUBERNETES_NAMESPACE";
     public static final String DEFAULT_NAMESPACE = "default";
@@ -132,11 +121,6 @@ public final class KubernetesHelper {
 
     public static final String defaultApiVersion = "v1";
     public static final String defaultOsApiVersion = "v1";
-
-    private static final String HOST_SUFFIX = "_SERVICE_HOST";
-    private static final String PORT_SUFFIX = "_SERVICE_PORT";
-    private static final String PROTO_SUFFIX = "_TCP_PROTO";
-    public static final String DEFAULT_PROTO = "tcp";
 
     private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
     private static final Config CONFIG = new ConfigBuilder().build();
@@ -399,6 +383,9 @@ public final class KubernetesHelper {
     }
 
     public static String toJson(Object dto) throws JsonProcessingException {
+        if (dto == null) {
+            return "null";
+        }
         Class<?> clazz = dto.getClass();
         return OBJECT_MAPPER.writerFor(clazz).writeValueAsString(dto);
     }
@@ -460,11 +447,45 @@ public final class KubernetesHelper {
     }
 
     /**
+     * Loads the YAML file for the kubernetes resource
+     */
+    public static <T> T loadYaml(File file) throws IOException {
+        return (T) loadYaml(file, KubernetesResource.class);
+    }
+
+    /**
+     * Loads the YAML text for the given DTO class
+     */
+    public static <T> T loadYaml(String text, Class<T> clazz) throws IOException {
+        byte[] data = text.getBytes();
+        return loadYaml(data, clazz);
+    }
+
+    /**
+     * Loads the YAML text for the kubernetes resource
+     */
+    public static <T> T loadYaml(String text) throws IOException {
+        return (T) loadYaml(text, KubernetesResource.class);
+    }
+
+    /**
      * Loads the YAML file for the given DTO class
      */
     public static <T> T loadYaml(byte[] data, Class<T> clazz) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(data, clazz);
+    }
+
+    public static void saveYaml(Object data, File file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.writeValue(file, data);
+    }
+
+    public static void saveYaml(Object data, FileObject fileObject) throws IOException{
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try (Writer writer = fileObject.openWriter()) {
+            mapper.writeValue(writer, data);
+        }
     }
 
     /**
@@ -1246,9 +1267,12 @@ public final class KubernetesHelper {
      */
     public static String getServiceURL(KubernetesClient client, String serviceName, String serviceNamespace, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         Service srv = null;
-        String serviceHost = serviceToHost(serviceName);
-        String servicePort = serviceToPort(serviceName, servicePortName);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+        String serviceHost = KubernetesServices.serviceToHostOrBlank(serviceName);
+        String servicePort = KubernetesServices.serviceToPortOrBlank(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesServices.serviceToProtocol(serviceName, servicePort);
+
+        //Use specified or fallback namespace.
+        String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
 
         //Use specified or fallback namespace.
         String actualNamespace = Strings.isNotBlank(serviceNamespace) ? serviceNamespace : client.getNamespace();
@@ -1258,20 +1282,40 @@ public final class KubernetesHelper {
             return serviceProtocol + "://" + serviceHost + ":" + servicePort;
             //2. Anywhere: When namespace is passed System / Env var. Mostly needed for integration tests.
         } else if (Strings.isNotBlank(actualNamespace)) {
-            srv = client.services().inNamespace(actualNamespace).withName(serviceName).get();
+            try {
+                srv = client.services().inNamespace(actualNamespace).withName(serviceName).get();
+            } catch (Exception e) {
+                LOGGER.warn("Could not lookup service:"+serviceName+" in namespace:"+actualNamespace+", due to: " + e.getMessage());
+            }
         }
 
+        if (srv == null) {
+            // lets try use environment variables
+            String hostAndPort = Systems.getServiceHostAndPort(serviceName, "", "");
+            if (!hostAndPort.startsWith(":")) {
+                return serviceProto + "://" + hostAndPort;
+            }
+        }
         if (srv == null) {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + actualNamespace);
         }
 
-        if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
-            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            Route route = openShiftClient.routes().inNamespace(actualNamespace).withName(serviceName).get();
-            if (route != null) {
-                return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+        try {
+            if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
+                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                Route route = openShiftClient.routes().inNamespace(actualNamespace).withName(serviceName).get();
+                if (route != null) {
+                    return (serviceProto + "://" + route.getSpec().getHost()).toLowerCase();
+                }
+            }
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 403) {
+                LOGGER.warn("Could not lookup route:"+serviceName+" in namespace:"+actualNamespace+", due to: " + e.getMessage());
+            } else {
+                throw e;
             }
         }
+
         ServicePort port = findServicePortByName(srv, servicePortName);
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
@@ -1279,7 +1323,135 @@ public final class KubernetesHelper {
         if ("None".equals(srv.getSpec().getClusterIP())) {
             throw new IllegalStateException("Service: " + serviceName + " in namespace:" + serviceNamespace + "is head-less. Search for endpoints instead.");
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+        String portalIP = srv.getSpec().getPortalIP();
+        Integer portNumber = port.getPort();
+        if (Strings.isNullOrBlank(portalIP)) {
+            IngressList ingresses = client.extensions().ingresses().inNamespace(serviceNamespace).list();
+            if (ingresses != null) {
+                List<Ingress> items = ingresses.getItems();
+                if (items != null) {
+                    for (Ingress item : items) {
+                        String ns = getNamespace(item);
+                        if (Objects.equal(serviceNamespace, ns)) {
+                            IngressSpec spec = item.getSpec();
+                            if (spec != null) {
+                                List<IngressRule> rules = spec.getRules();
+                                List<IngressTLS> tls = spec.getTls();
+                                if (rules != null) {
+                                    for (IngressRule rule : rules) {
+                                        HTTPIngressRuleValue http = rule.getHttp();
+                                        if (http != null) {
+                                            List<HTTPIngressPath> paths = http.getPaths();
+                                            if (paths != null) {
+                                                for (HTTPIngressPath path : paths) {
+                                                    IngressBackend backend = path.getBackend();
+                                                    if (backend != null) {
+                                                        String backendServiceName = backend.getServiceName();
+                                                        if (serviceName.equals(backendServiceName) && portsMatch(port, backend.getServicePort())) {
+                                                            String pathPostfix = path.getPath();
+                                                            if (tls != null) {
+                                                                for (IngressTLS tlsHost : tls) {
+                                                                    List<String> hosts = tlsHost.getHosts();
+                                                                    if (hosts != null) {
+                                                                        for (String host : hosts) {
+                                                                            if (Strings.isNotBlank(host)) {
+                                                                                if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                                    pathPostfix = "/";
+                                                                                }
+                                                                                return "https://" + URLUtils.pathJoin(host, pathPostfix);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            String answer = rule.getHost();
+                                                            if (Strings.isNotBlank(answer)) {
+                                                                if (Strings.isNullOrBlank(pathPostfix)) {
+                                                                    pathPostfix = "/";
+                                                                }
+                                                                return "http://" + URLUtils.pathJoin(answer, pathPostfix);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // lets try use the status on GKE
+            ServiceStatus status = srv.getStatus();
+            if (status != null) {
+                LoadBalancerStatus loadBalancerStatus = status.getLoadBalancer();
+                if (loadBalancerStatus != null) {
+                    List<LoadBalancerIngress> loadBalancerIngresses = loadBalancerStatus.getIngress();
+                    if (loadBalancerIngresses != null) {
+                        for (LoadBalancerIngress loadBalancerIngress : loadBalancerIngresses) {
+                            String ip = loadBalancerIngress.getIp();
+                            if (Strings.isNotBlank(ip)) {
+                                portalIP = ip;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Strings.isNullOrBlank(portalIP)) {
+            // on vanilla kubernetes we can use nodePort to access things externally
+            Integer nodePort = port.getNodePort();
+            if (nodePort != null) {
+                try {
+                    NodeList nodeList = client.nodes().list();
+                    if (nodeList != null) {
+                        List<Node> items = nodeList.getItems();
+                        if (items != null) {
+                            for (Node item : items) {
+                                NodeSpec spec = item.getSpec();
+                                if (spec != null) {
+                                    portalIP = spec.getExternalID();
+                                    if (Strings.isNotBlank(portalIP)) {
+                                        portNumber = nodePort;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // ignore could not find a node!
+                    LOG.warn("Could not find a node!: " + e, e);
+                }
+            }
+        }
+        return (serviceProto + "://" + portalIP + ":" + portNumber).toLowerCase();
+    }
+
+    /**
+     * Returns true if the given servicePort matches the intOrString value
+     */
+    private static boolean portsMatch(ServicePort servicePort, IntOrString intOrString) {
+        if (intOrString != null) {
+            Integer port = servicePort.getPort();
+            Integer intVal = intOrString.getIntVal();
+            String strVal = intOrString.getStrVal();
+            if (intVal != null) {
+                if (port != null) {
+                    return port.intValue() == intVal.intValue();
+                } else {
+                    /// should we find the port by name now?
+                }
+            } else if (strVal != null ){
+                return Objects.equal(strVal, servicePort.getName());
+            }
+        }
+        return false;
     }
 
     /**
@@ -1290,9 +1462,9 @@ public final class KubernetesHelper {
      */
     public static String getServiceURLInCurrentNamespace(KubernetesClient client, String serviceName, String serviceProtocol, String servicePortName, boolean serviceExternal) {
         Service srv = null;
-        String serviceHost = serviceToHost(serviceName);
-        String servicePort = serviceToPort(serviceName, servicePortName);
-        String serviceProto = serviceProtocol != null ? serviceProtocol : serviceToProtocol(serviceName, servicePort);
+        String serviceHost = KubernetesServices.serviceToHostOrBlank(serviceName);
+        String servicePort = KubernetesServices.serviceToPortOrBlank(serviceName, servicePortName);
+        String serviceProto = serviceProtocol != null ? serviceProtocol : KubernetesServices.serviceToProtocol(serviceName, servicePort);
 
         //1. Inside Kubernetes: Services as ENV vars
         if (!serviceExternal && Strings.isNotBlank(serviceHost) && Strings.isNotBlank(servicePort) && Strings.isNotBlank(serviceProtocol)) {
@@ -1319,27 +1491,6 @@ public final class KubernetesHelper {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
         return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
-    }
-
-    public static String serviceToHost(String id) {
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + HOST_SUFFIX), "");
-    }
-
-    public static String serviceToPort(String serviceId) {
-        return serviceToPort(serviceId, null);
-    }
-
-    public static String serviceToPort(String serviceId, String portName) {
-        String name = serviceId + PORT_SUFFIX + (Strings.isNotBlank(portName) ? "_" + portName : "");
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(name), "");
-    }
-
-    public static String serviceToProtocol(String id, String servicePort) {
-        return Systems.getEnvVarOrSystemProperty(toEnvVariable(id + PORT_SUFFIX + "_" + servicePort + PROTO_SUFFIX), DEFAULT_PROTO);
-    }
-
-    public static String toEnvVariable(String str) {
-        return str.toUpperCase().replaceAll("-", "_");
     }
 
     /**
@@ -1434,6 +1585,34 @@ public final class KubernetesHelper {
     public static boolean isPodRunning(Pod pod) {
         PodStatusType status = getPodStatus(pod);
         return Objects.equal(status, PodStatusType.OK);
+    }
+
+    /**
+     * Returns true if the pod is running and ready
+     */
+    public static boolean isPodReady(Pod pod) {
+        if (!isPodRunning(pod)) {
+            return false;
+        }
+
+        PodStatus podStatus = pod.getStatus();
+        if (podStatus == null) {
+            return true;
+        }
+
+        List<PodCondition> conditions = podStatus.getConditions();
+        if (conditions == null || conditions.isEmpty()) {
+            return true;
+        }
+
+        // Check "ready" condition
+        for (PodCondition condition : conditions) {
+            if ("ready".equalsIgnoreCase(condition.getType())) {
+                return Boolean.parseBoolean(condition.getStatus());
+            }
+        }
+
+        return true;
     }
 
     public static String getPodStatusText(Pod pod) {
@@ -1942,5 +2121,39 @@ public final class KubernetesHelper {
         }
         IS_OPENSHIFT.putIfAbsent(masterUrl, false);
         return false;
+    }
+
+
+    /**
+     * Returns the kubernetes resources on the classpath of the current project
+     */
+    public static List<HasMetadata> findKubernetesResourcesOnClasspath(Controller controller) throws IOException {
+        String resourceName = "kubernetes.yml";
+        if (controller.getOpenShiftClientOrNull() != null) {
+            resourceName = "openshift.yml";
+        }
+        URL configUrl = findConfigResource("/META-INF/fabric8/" + resourceName);
+        if (configUrl == null) {
+            configUrl = findConfigResource("kubernetes.json");
+        }
+        if (configUrl != null) {
+            String configText = IOHelpers.loadFully(configUrl);
+            Object dto = null;
+            String configPath = configUrl.getPath();
+            if (configPath.endsWith(".yml") || configPath.endsWith(".yaml")) {
+                dto = loadYaml(configText, KubernetesResource.class);
+            } else {
+                dto = loadJson(configText);
+            }
+            KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
+            List<HasMetadata> items = kubeList.getItems();
+            return items;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    private static URL findConfigResource(String resourceName) {
+        return KubernetesHelper.class.getResource(resourceName);
     }
 }

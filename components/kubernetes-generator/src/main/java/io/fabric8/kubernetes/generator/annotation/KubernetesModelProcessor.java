@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -25,4 +25,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Documented
 public @interface KubernetesModelProcessor {
+    String value() default "kubernetes.json";
 }

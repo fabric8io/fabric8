@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.generator.processor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -34,6 +35,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CompilationTaskFactory {
@@ -89,7 +91,12 @@ public class CompilationTaskFactory {
         }
 
         for (TypeElement element : elements) {
-            javaFileObjects.add(fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, element.getQualifiedName().toString(), JavaFileObject.Kind.SOURCE));
+            JavaFileObject source = fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, element.getQualifiedName().toString(), JavaFileObject.Kind.SOURCE);
+            if (source == null) {
+                throw new IOException("Unable to find class: " + element.getQualifiedName().toString());
+            }
+
+            javaFileObjects.add(source);
         }
         return compiler.getTask(writer, fileManager, diagnosticListener, options, new ArrayList<String>(), javaFileObjects);
     }
@@ -106,5 +113,9 @@ public class CompilationTaskFactory {
             sb.append(url.toExternalForm().replaceFirst(FILE_URL_PREFIX, ""));
         }
         return sb.toString();
-    } 
+    }
+
+    public List<Diagnostic> getCompileDiagnostics() {
+        return ((DiagnosticCollector)diagnosticListener).getDiagnostics();
+    }
 }

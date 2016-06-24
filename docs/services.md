@@ -10,6 +10,20 @@ Note make sure the services are created before any of your pods which use them; 
 
 ### Discovering services from your application
 
+The simplest way to discover things inside Kubernetes is via DNS which does not require any custom client side code, dependency injection or magic libraries. It also benefits from working with all programming languages and frameworks!
+
+#### Service discovery via DNS
+
+For a service named `foo-bar` you can just hard code the host name `foo-bar` in your application code.
+
+e.g. to access a HTTP URL use `http://foo-bar/` or for HTTPS use  `https://foo-bar/` (assuming the service is using the port 80 or 443 respectively). 
+
+If you use a non standard port number, say, 1234, then append that port number to your URL such as `http://foo-bar:1234/`.
+
+Note that DNS works in kubernetes by resolving to the service named `foo-bar` in the namespace of your pods so you don't have to worry about configuring your application with environment specific configuration or worry about accidentally talking to the production service when in a testing environment!  You can then move your application (its docker image and kubernetes metadata) into any environment and your application works without any changes!
+
+#### Service discovery via environment variables
+
 Kubernetes uses 2 environment variables to expose the fixed IP address and port that you can use to access the service.
 
 So for a service named `foo-bar` you can use these 2 environment variables to access the service:
@@ -29,9 +43,9 @@ Note a [pod](pod.html) can terminate at any time; so its recommended that any ne
         
 ### Discovering external services
 
-You can use the Kubernetes [service discovery mechanism](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md) with environment variables to discover services which are internal and running inside Kubernetes or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.
+You can use the Kubernetes [service discovery mechanism](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md) with DNS or environment variables to discover services which are internal and running inside Kubernetes, running in a different namespace or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.
 
-Basically you just need to create the Service metadata for external services; the difference is you list the physical external endpoints rather than letting Kubernetes discover them by using a selector and watching the running pods.
+Basically you just need to create the Service metadata for external services; the difference is you list the actual `Endpoints` rather than letting Kubernetes discover them by using a `pod selector` and watching the running pods.
  
 For more detail see [integrating external services](http://docs.openshift.org/latest/dev_guide/integrating_external_services.html).
 
@@ -39,13 +53,20 @@ For more detail see [integrating external services](http://docs.openshift.org/la
  
 Kubernetes service discovery is designed for containers running inside the Kubernetes cluster. The host/ports of services and pods typically are only visible to containers running inside the Kubernetes cluster. 
 
-So for software running outside of a Kubernetes cluster - and for browsers to access the services and web applications you need to expose the services externally.
+So for software running outside of a Kubernetes cluster (such as web browsers) to access the services and web applications you need to expose the services externally.
 
-With kubernetes you can do this via DNS. 
+Using the command line you can use the Kubernetes or OpenShift commands:
 
-In addition OpenShift [supports Routes](http://docs.openshift.org/latest/admin_guide/router.html) which provides a haproxy based external load balancer to accessing services.
+```
+kubectl expose service cheese
+oc expose service cheese
+```
 
-To easily create OpenShift routes see these maven goals:
+When using [helm](helm.html) to install or update applications then any service of `type = LoadBalancer` are automatically exposed.
+
+In addition in OpenShift you can [create Route resources directly](http://docs.openshift.org/latest/admin_guide/router.html) which provides a haproxy based external load balancer to accessing services.
+
+If you use Maven you can also use these goals:
 
 * [fabric8:apply](mavenFabric8Apply.html) applies the kubernetes json into a namespace in a kubernetes cluster and by default automatically create any required routes for services
 * [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services in the current namespace 
@@ -55,7 +76,11 @@ To easily create OpenShift routes see these maven goals:
 
 When in development its often handy to run your code directly; either inside a docker container or just as a native operating system process; but on your laptop and not inside the kubernetes cluster.
 
-Since Kubernetes service discovery is essentially about using environment variables, its very easy to setup environment variables so your code can discover services in a remote kubernetes cluster while running on your laptop.
+Though even when developing locally we highly recommend to always run your code in a docker image inside Kubernetes via a [vagrant image](getStarted/vagrant.html) as then you can be sure you're really testing your application in docker on the same platform as production together with testing your kubernetes resources too!
+
+To mimick DNS service discovery inside Kubernetes you can just add entries in your `/etc/hosts` file pointing to the host/IP addresses of the services.
+
+For environment variables based discovery, its very easy to setup environment variables so your code can discover services in a remote kubernetes cluster while running on your laptop.
 
 To try this out see:
 

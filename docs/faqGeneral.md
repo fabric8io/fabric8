@@ -6,17 +6,13 @@ fabric8 uses the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0
 
 #### What is it?
 
-fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Hawtio and others.
+Fabric8 is an integrated open source [DevOps](fabric8DevOps.html) and [Integration Platform](ipaas.html) which works out of the box on any [Kubernetes](http://kubernetes.io/) or [OpenShift](http://www.openshift.org/) environment and provides [Continuous Delivery](cdelivery.html), [Management](management.html), [ChatOps](chat.html) and a [Chaos Monkey](chaosMonkey.html).
 
-It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.
 
-Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to see a more detailed treatment.
 
 #### What does fabric8 do?
 
-fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.
-
-Try reading the [overview](/guide/overview.html) to see if that helps give you an idea what fabric8 is.
+Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building Microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/).
 
 #### What value does fabric8 add over OpenShift?
 
@@ -35,13 +31,38 @@ Try reading the [overview](/guide/overview.html) to see if that helps give you a
     * [Testing with Arquillian](testing.html) helps you perform integration tests of your [apps](apps.html)
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
 
-#### What maven plugin goals are available?
+#### Is Fabric8 Java centric?
+
+The short answer is no ;).
+
+* [Fabric8 Management](management.html) works with any Docker images on [Kubernetes](http://kubernetes.io/) - so its completely language, framework and runtime agnostic. The [console](console.html) has added extra introspection and visualisation for Java docker containers which contain a [Jolokia](http://jolokia.org/) but we hope to add more deep introspection tools for other languages. Certainly you can always use any language, framework or runtime specific diagnostic or visualiation tools on Kubernetes directly
+* [Microservices Platform](fabric8DevOps.html) focusses on working with any project with any build mechanism running Docker images on [Kubernetes](http://kubernetes.io/). So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift's [Source to image build mechanism](https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build), or our preferred [Continuous Delivery](cdelivery.html) using [Jenkins Workflow](https://github.com/jenkinsci/workflow-plugin). 
+* [Fabric8 iPaaS (Integration Platform](ipaas.html) is more Java centric in the sense that integration flows tend to be implemented using [Apache Camel](http://camel.apache.org/) which runs inside a Java virtual machine (JVM) but the services that Camel integrates with can be any technology, language, runtime, on premise or SaaS etc.
+* [Fabric8 API Management](apiManagement.html) works with any API implemented in any language or runtime; currently only HTTP based APIs are supported though.
+
+Having said all that; with the  [Fabric8 iPaaS)](ipaas.html) focus, we have optimised Fabric8 so that folks who do use Java have an optimised experience of working with Docker, Kubernetes, OpenShift and Fabric8. Though we hope to continue to improve tooling, management and visualisation for other languages and runtimes too.
+
+#### Is Jenkins Workflow Java centric?
+
+Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins.io/).
+
+Jenkins Workflow provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the [Groovy programming language](http://groovy-lang.org/).
+
+The preferred approach to using Jenkins Workflow is to reuse docker images for all your build and testing tools; so that most of the details in your **Jenkinsfile** tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.
+
+#### Can Microservices Platform work with my CI server?
+
+Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Workflow plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins.io/).
+
+However this is for _orchestrating delivery pipelines_ which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.
  
-See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html) 
+For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Workflow pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.
 
-#### What Java versions are supported?
+Our preferred approach is to use Jenkins Workflow pipelines as the core orchestration layer when trying to implement  [Continuous Delivery, Continous Deployment or Continous Improvement](cdelivery.html) then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift [Source to Image builds](https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build) or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.
+ 
+#### Where do I look for the source code?
 
-fabric8 runs on Java 7 and 8.
+Fabric8 is comprised of a collection of projects written in Java and Golang and packaged up as Docker containers. The git repos for each of these projects/containers can be found in detail in the [project documentation pages](projects.md) 
 
 #### Are Docker and Kubernetes required to run Fabric8?
 
@@ -52,6 +73,14 @@ Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabri
 We recommend using a linux based system for production; preferably if you want a fully managed platform use [Docker](http://docker.io/) and [Kubernetes](http://kubernetes.io) or [OpenShift Origin V3](https://github.com/openshift/origin).
 
 Windows is currently only partially supported. Windows users may consider using [Docker](http://docker.io/) so that all the fabric8 technologies run inside a linux VM in lightweight containers.
+
+#### What maven plugin goals are available?
+ 
+See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html) 
+
+#### What Java versions are supported?
+
+fabric8's Java code uses Java 8 but any docker image can use any version of any language, runtime or framework it wishes
 
 #### Does Fabric8 use ZooKeeper runtime registry?
 

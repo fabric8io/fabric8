@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -345,9 +345,19 @@ public final class Files {
         if (!target.exists() && !target.getParentFile().exists() && !target.getParentFile().mkdirs()) {
             throw new IOException("Can't create target directory:" + target.getParentFile().getAbsolutePath());
         }
-        FileInputStream is = new FileInputStream(source);
-        FileOutputStream os = new FileOutputStream(target);
-        copy(is, os);
+        if (source.isDirectory()) {
+            target.mkdirs();
+            File[] files = source.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    copy(child, new File(target, child.getName()));
+                }
+            }
+        } else {
+            FileInputStream is = new FileInputStream(source);
+            FileOutputStream os = new FileOutputStream(target);
+            copy(is, os);
+        }
     }
 
     /**

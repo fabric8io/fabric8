@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-     Copyright 2005-2015 Red Hat, Inc.
+     Copyright 2005-2016 Red Hat, Inc.
 
      Red Hat licenses this file to you under the Apache License, version
      2.0 (the "License"); you may not use this file except in compliance
@@ -20,7 +20,7 @@
     <parent>
         <artifactId>fabric8-parent</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>2.2.57-SNAPSHOT</version>
+        <version>2.3-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -32,20 +32,10 @@
     <name>Fabric8 :: Tooling</name>
 
     <modules>
-<!--
-        <module>archetypes</module>
--->
-        <module>archetype-builder</module>
-<!--
-        TODO
-        <module>archetype-commands</module>
--->
-<!--
-        <module>examples</module>
--->
     </modules>
 
     <profiles>
+<!--
         <profile>
             <id>ts.all</id>
             <activation>
@@ -57,6 +47,7 @@
                 <module>archetype-itests</module>
             </modules>
         </profile>
+-->
         <profile>
             <id>profiles</id>
             <modules>

@@ -22,6 +22,17 @@ The fabric8 extension provides a unified approach in looking up for service coor
     @ServiceName("my-service")
     private String service.
 
+### The @Protocol annotation
+Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that its really smelly.
+
+The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.
+
+        @Inject
+        @ServiceName("my-ftp-service")
+        @Protocol("ftp")
+        private String service.
+        
 ### The @PortName annotation
 In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.
 
@@ -31,6 +42,21 @@ In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier 
         private String service.
 
 If for a multiport service no @PortName qualifier is specified, the first port on the list will be used.
+
+### The @Path annotation
+In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.
+
+                @Inject
+                @ServiceName("mysqldb")
+                @Protocol("jdbc:mysql")
+                @Path("db1")
+                private String urlForDb1.
+                
+                @Inject
+                @ServiceName("mysqldb")
+                @Protocol("jdbc:mysql")
+                @Path("db2")
+                private String urlForDb2.                        
 
 ### The @Endpoint annotation
 There are cases, where we don't want to access the Service IP but we want to access and endpoint to the service.
@@ -56,8 +82,12 @@ Under the covers the code will default to using the **MY_SERVICE_SERVICE_HOST** 
 
 If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable **KUBERNETES_MASTER** to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.
 
+### Integration with OpenShift routes
+In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
+Currently route will be used only if @Protocol or @PortName haven't been explicitly specified and only if OpenShift is available.
+
 ### Creating custom objects
-In most of the cases the user will create a client so that it can consume the service. This can be easily done by providing a factory.
+In most of the cases the user will create a client so that it can consume the service. This can be easily done using the injection point and a manual kubernetes service lookup.
    
     @Produces
     @ServiceName
@@ -66,39 +96,9 @@ In most of the cases the user will create a client so that it can consume the se
         String url = Services.toServiceUrl(service.getId(), service.getProtocol());
         return new MyClient(url);
     }
-
-### The @Protocol annotation
-Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
-One could find and replace the transport protocol with the actual application protocol but that its really smelly.
-
-The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.
-
-        @Inject
-        @ServiceName("my-ftp-service")
-        @Protocol("ftp")
-        private String service.
-        
-### The @Path annotation
-In the same spirit with the @Protocol annotation this extension also supports the @Path annotation, for the cases that we need the injected value to be decorated with a custom path.
-
-                @Inject
-                @ServiceName("mysqldb")
-                @Protocol("jdbc:mysql")
-                @Path("db1")
-                private String urlForDb1.
-                
-                @Inject
-                @ServiceName("mysqldb")
-                @Protocol("jdbc:mysql")
-                @Path("db2")
-                private String urlForDb2.                        
-
-### Integration with OpenShift routes
-In any case if a Route is available that match the Service we need to inject, the route host will be used instead.
-Currently route will be used only if @Protocol or @PortName haven't been explicitly specified and only if OpenShift is available.
-
+    
 ### Using Factories
-The example above is something that works but it does require boilerplate (and other limitation which are discussed below).
+The example above is something that works but it does require boilerplate.
 To simplify the code Fabric8 provides the @Factory annotation.
    
        @Factory
@@ -106,7 +106,6 @@ To simplify the code Fabric8 provides the @Factory annotation.
        public MyClient create(@ServiceName String url) {
            return new MyClient(url);
        }
-
 
 ### Integration with Apache Deltaspike
 In kubernetes its quite common to pass around configuration via Environment Variables. Outside of kubernetes java developers often use System properties, property files and what not.

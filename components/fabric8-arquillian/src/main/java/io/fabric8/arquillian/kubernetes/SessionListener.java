@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -26,11 +26,16 @@ import io.fabric8.arquillian.utils.Commands;
 import io.fabric8.arquillian.utils.Routes;
 import io.fabric8.arquillian.utils.SecretKeys;
 import io.fabric8.arquillian.utils.Secrets;
+import io.fabric8.arquillian.utils.URLs;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.builder.Visitable;
+import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
@@ -41,7 +46,12 @@ import io.fabric8.kubernetes.api.model.SecurityContextConstraints;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.client.BaseClient;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
@@ -49,16 +59,21 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.test.spi.TestResult;
+import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -66,21 +81,23 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import static io.fabric8.arquillian.kubernetes.Configuration.findConfigResource;
 import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
 import static io.fabric8.arquillian.utils.Namespaces.createNamespace;
 import static io.fabric8.arquillian.utils.Namespaces.updateNamespaceStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
-import static io.fabric8.kubernetes.api.KubernetesHelper.*;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadYaml;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
 
 public class SessionListener {
-
     private ShutdownHook shutdownHook;
     private DependencyResolver resolver = new DependencyResolver();
 
-    public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
+    public void start(final @Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         Session session = event.getSession();
         final Logger log = session.getLogger();
         String namespace = session.getNamespace();
@@ -96,15 +113,37 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        if (Strings.isNullOrBlank(configuration.getNamespaceToUse())) {
-            createNamespace(client, session);
+        String namespaceToUse = configuration.getNamespaceToUse();
+        if (Strings.isNullOrBlank(namespaceToUse)) {
+            createNamespace(client, controller, session);
         } else {
-            checkNamespace(client, session, configuration);
+            checkNamespace(client, controller, session, configuration);
             updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
+            namespace = namespaceToUse;
+            controller.setNamespace(namespace);
+        }
+
+        if (client instanceof BaseClient) {
+            BaseClient defaultKubernetesClient = (BaseClient) client;
+
+            // lets configure the default namespace to that of the Arquillian test
+            // TODO would be nice not to have to use reflection!
+            Class<? extends BaseClient> clazz = BaseClient.class;
+            String fieldName = "namespace";
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(defaultKubernetesClient, namespace);
+            } catch (NoSuchFieldException e) {
+                log.error("Could not find field " + fieldName + " in class " + clazz.getName() + ". " + e);
+            } catch (IllegalAccessException e) {
+                log.error("Could not access field " + fieldName + " in class " + clazz.getName() + ". " + e);
+            }
         }
 
         shutdownHook = new ShutdownHook(client, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
+
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -117,9 +156,24 @@ public class SessionListener {
                     loadDependency(log, kubeConfigs, dependency, controller, configuration, namespace);
                 }
 
+                if (configUrl == null) {
+                    // lets try find the default configuration generated by the new fabric8-maven-plugin
+                    String resourceName = "kubernetes.yml";
+                    if (controller.getOpenShiftClientOrNull() != null) {
+                        resourceName = "openshift.yml";
+                    }
+                    configUrl = findConfigResource("/META-INF/fabric8/" + resourceName);
+                }
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
-                    Object dto = loadJson(readAsString(configUrl));
+                    String configText = readAsString(configUrl);
+                    Object dto = null;
+                    String configPath = configUrl.getPath();
+                    if (configPath.endsWith(".yml") || configPath.endsWith(".yaml")) {
+                        dto = loadYaml(configText, KubernetesResource.class);
+                    } else {
+                        dto = loadJson(configText);
+                    }
                     dto = expandTemplate(controller, configuration, log, namespace, configUrl.toString(), dto);
                     KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
                     List<HasMetadata> items = kubeList.getItems();
@@ -169,7 +223,7 @@ public class SessionListener {
         }
     }
 
-    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws IOException {
+    public void loadDependency(Logger log, List<KubernetesList> kubeConfigs, String dependency, Controller controller, Configuration configuration, String namespace) throws Exception {
         // lets test if the dependency is a local string
         String baseDir = System.getProperty("basedir", ".");
         String path = baseDir + "/" + dependency;
@@ -177,8 +231,17 @@ public class SessionListener {
         if (file.exists()) {
             loadDependency(log, kubeConfigs, file, controller, configuration, log, namespace);
         } else {
-            addConfig(kubeConfigs, loadJson(readAsString(new URL(dependency))), controller, configuration, log, namespace, dependency);
+            addConfig(kubeConfigs, loadJson(readAsString(createURL(dependency))), controller, configuration, log, namespace, dependency);
         }
+    }
+
+    protected URL createURL(final String dependency) throws Exception {
+        return URLs.doWithMavenURLHandlerFactory(new Callable<URL>() {
+            @Override
+            public URL call() throws Exception {
+                return new URL(dependency);
+            }
+        });
     }
 
     protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file, Controller controller, Configuration configuration, Logger logger, String namespace) throws IOException {
@@ -217,7 +280,7 @@ public class SessionListener {
 
         List<Object> entities = new ArrayList<>();
         for (KubernetesList c : kubeConfigs) {
-            entities.addAll(c.getItems());
+            entities.addAll(enhance(session, configuration ,c).getItems());
         }
 
         //Ensure services are processed first.
@@ -234,11 +297,12 @@ public class SessionListener {
             }
         });
 
+        boolean isOpenshift = client.isAdaptable(OpenShiftClient.class);
         String namespace = session.getNamespace();
         String routePrefix = namespace + "." + configuration.getKubernetesDomain();
 
         preprocessEnvironment(client, controller, configuration, session);
-        
+
         List<Object> extraEntities = new ArrayList<>();
         for (Object entity : entities) {
             if (entity instanceof Pod) {
@@ -258,11 +322,13 @@ public class SessionListener {
                 controller.applyService(service, session.getId());
                 conditions.put(2, servicesReady);
 
-                Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
-                if (route != null) {
-                    log.status("Applying route for:" + serviceName);
-                    controller.applyRoute(route, "route for " + serviceName);
-                    extraEntities.add(route);
+                if (isOpenshift) {
+                    Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
+                    if (route != null) {
+                        log.status("Applying route for:" + serviceName);
+                        controller.applyRoute(route, "route for " + serviceName);
+                        extraEntities.add(route);
+                    }
                 }
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
@@ -274,38 +340,44 @@ public class SessionListener {
                 }
                 controller.applyReplicationController(replicationController, session.getId());
                 conditions.put(1, sessionPodsReady);
+            } else if (entity instanceof ReplicaSet || entity instanceof Deployment || entity instanceof DeploymentConfig) {
+                log.status("Applying " + entity.getClass().getSimpleName() + ".");
+                controller.apply(entity, session.getId());
+                conditions.put(1, sessionPodsReady);
             } else if (entity instanceof OAuthClient) {
                 OAuthClient oc = (OAuthClient) entity;
                 // these are global so lets create a custom one for the new namespace
                 ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(oc);
                 String name = metadata.getName();
-                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-                OAuthClient current = openShiftClient.oAuthClients().withName(name).get();
-                boolean create = false;
-                if (current == null) {
-                    current = oc;
-                    create = true;
-                }
-                boolean updated = false;
-                // lets add a new redirect entry
-                List<String> redirectURIs = current.getRedirectURIs();
-                String redirectUri = "http://" + name + "." + routePrefix;
-                if (!redirectURIs.contains(redirectUri)) {
-                    redirectURIs.add(redirectUri);
-                    updated = true;
-                }
-                current.setRedirectURIs(redirectURIs);
-                log.status("Applying OAuthClient:" + name);
-                controller.setSupportOAuthClients(true);
-                if (create) {
-                    openShiftClient.oAuthClients().create(current);
-                } else {
-                    if (updated) {
-                        // TODO this should work!
-                        // openShiftClient.oAuthClients().withName(name).replace(current);
-                        openShiftClient.oAuthClients().withName(name).delete();
-                        current.getMetadata().setResourceVersion(null);
+                if (isOpenshift) {
+                    OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                    OAuthClient current = openShiftClient.oAuthClients().withName(name).get();
+                    boolean create = false;
+                    if (current == null) {
+                        current = oc;
+                        create = true;
+                    }
+                    boolean updated = false;
+                    // lets add a new redirect entry
+                    List<String> redirectURIs = current.getRedirectURIs();
+                    String redirectUri = "http://" + name + "." + routePrefix;
+                    if (!redirectURIs.contains(redirectUri)) {
+                        redirectURIs.add(redirectUri);
+                        updated = true;
+                    }
+                    current.setRedirectURIs(redirectURIs);
+                    log.status("Applying OAuthClient:" + name);
+                    controller.setSupportOAuthClients(true);
+                    if (create) {
                         openShiftClient.oAuthClients().create(current);
+                    } else {
+                        if (updated) {
+                            // TODO this should work!
+                            // openShiftClient.oAuthClients().withName(name).replace(current);
+                            openShiftClient.oAuthClients().withName(name).delete();
+                            current.getMetadata().setResourceVersion(null);
+                            openShiftClient.oAuthClients().create(current);
+                        }
                     }
                 }
             } else if (entity instanceof HasMetadata) {
@@ -404,7 +476,7 @@ public class SessionListener {
     private Set<Secret> generateSecrets(KubernetesClient client, Session session, ObjectMeta meta) {
         Set<Secret> secrets = new HashSet<>();
         Map<String, String> annotations = meta.getAnnotations();
-        if ( annotations != null && !annotations.isEmpty()) {
+        if (annotations != null && !annotations.isEmpty()) {
             for (Map.Entry<String, String> entry : annotations.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -438,5 +510,58 @@ public class SessionListener {
             }
         }
         return secrets;
+    }
+
+    private KubernetesList enhance(final Session session, Configuration configuration, KubernetesList kubernetesList) {
+        if (configuration == null || configuration.getProperties() == null || !configuration.getProperties().containsKey(Constants.KUBERNETES_MODEL_PROCESSOR_CLASS)) {
+            return kubernetesList;
+        }
+
+        String processorClassName = configuration.getProperties().get(Constants.KUBERNETES_MODEL_PROCESSOR_CLASS);
+        try {
+            final Object instance = SessionListener.class.getClassLoader().loadClass(processorClassName).newInstance();
+
+            KubernetesListBuilder builder = new KubernetesListBuilder(kubernetesList);
+
+            ((Visitable) builder).accept(new Visitor() {
+                @Override
+                public void visit(Object o) {
+                    for (Method m : findMethods(instance, o.getClass())) {
+                        Named named = m.getAnnotation(Named.class);
+                        if (named != null && !Strings.isNullOrBlank(named.value())) {
+                            String objectName = o instanceof ObjectMeta ? getName((ObjectMeta) o) : getName((HasMetadata) o);
+                            //If a name has been explicitly specified check if there is a match
+                            if (!named.value().equals(objectName)) {
+                                session.getLogger().warn("Named method:" + m.getName() + " with name:" + named.value() + " doesn't match: " + objectName + ", ignoring");
+                                return;
+                            }
+                        }
+                        try {
+                            m.invoke(instance, o);
+                        } catch (IllegalAccessException e) {
+
+                        } catch (InvocationTargetException e) {
+                            session.getLogger().error("Error invoking visitor method:" + m.getName() + " on:" + instance + "with argument:" + o);
+                        }
+                    }
+                }
+            });
+
+            return builder.build();
+        } catch (Exception e) {
+            session.getLogger().warn("Failed to load processor class:" + processorClassName + ". Ignoring");
+            return kubernetesList;
+        }
+    }
+
+    private static Set<Method> findMethods(Object instance, Class argumentType) {
+        Set<Method> result = new LinkedHashSet<>();
+
+        for (Method m : instance.getClass().getDeclaredMethods()) {
+            if (m.getParameterTypes().length == 1 && m.getParameterTypes()[0].isAssignableFrom(argumentType)) {
+                result.add(m);
+            }
+        }
+        return result;
     }
 }

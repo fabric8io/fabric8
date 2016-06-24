@@ -16,7 +16,7 @@ You can add a Jenkins workflow script into your project's source code to maintai
 
 However teams often have lots of projects which are very similar in nature and copying a groovy script into each project; or into each jenkins workflow job configuration page can soon become maintenance burden.
 
-So with Fabric8 DevOps you can configure a reusable _library of workflow scripts_ such as the [default Fabric8 workflow library](https://github.com/fabric8io/jenkins-workflow-library). 
+So with Microservices Platform you can configure a reusable _library of workflow scripts_ such as the [default Fabric8 workflow library](https://github.com/fabric8io/jenkins-workflow-library). 
  
 Then you can link each project to the reusable pipeline script that most suits the project. The pipeline scripts are configurable with build parameters. If you find that none of the workflow scripts are quite right for a project, just copy the closest one into the project and customise it.
 
@@ -29,6 +29,6 @@ You can edit the `fabric8.yml` file via:
 
 * the `project settings` button in the [console](console.html)
 * the `fabric8.yml` file directly using a text editor in source control
-* using the [Fabric8 DevOps Forge commands from the CLI or in your IDE](forge.html)
+* using the [Microservices Platform Forge commands from the CLI or in your IDE](forge.html)
 
 

@@ -1,17 +1,25 @@
-## Console
+## Fabric8 Developer Console
 
-The Fabric8 Console provides a rich HTML5 web application for working with [Kubernetes](http://kubernetes.io/). The front end code is based on the [hawtio project](http://hawt.io/) which supports Kubernetes and reuses the various [hawtio plugins](http://hawt.io/plugins/index.html).
+Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing Microservices on [Kubernetes](http://kubernetes.io/).
 
-### Installing 
+Fabric8 Developer Console is single lightweight pod, [replication controller](replicationControllers.html) and [services](services.html) that runs on any [Kubernetes](http://kubernetes.io/) or [Openshift](https://www.openshift.org/) cluster.
+ 
+### Installing
 
 Here is [how to install the Console on Kubernetes / OpenShift](getStarted/apps.html#console)
+
+### Authentication
+
+The fabric8 console uses the authentication of the underlying system. Therefor you need to adjust the authentication on your base platform.
+
+So if you are on openshift have a look how to [configure authentication](https://docs.openshift.org/latest/install_config/configuring_authentication.html).
 
 ### Getting Started
 
 The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you'll need to use:
 
 #### Controllers
-                                                                                     
+
 The main tab to get a feel for what's running in your system is the **Controllers** tab which shows all the [replication controllers](replicationControllers.html).
 
 To scale up or down a controller to run more or less [pods](pods.html) (containers) just increase or decrease the **Desired Replicas** value and hit **Save** and hey presto pods are created or destroyed.
@@ -39,19 +47,9 @@ If you are using Kubernetes or OpenShift you need to find the URL for the consol
 
 If you use the [Fabric8 Vagrant](getStarted/vagrant.html) approach then the URL is `http://fabric8.vagrant.f8/`.
 
-Otherwise you need to find the host name to use. 
+Otherwise you need to find the host name to use.
 
 e.g. on OpenShift V3 you can find it via:
 
     oc get route fabric8
-
-    
-### Using Jube
-
-If you are using Jube then the web console should be visible at [http://localhost:8585/hawtio/](http://localhost:8585/hawtio/). You can then view these tabs:
-
- * [Pods tab](http://localhost:8585/hawtio/kubernetes/pods) views all the available [pods](pods.html) in your kubernetes environment
- * [Replication Controllers tab](http://localhost:8585/hawtio/kubernetes/replicationControllers) views all the available [replication controllers](replicationControllers.html) in your kubernetes environment
- * [Services tab](http://localhost:8585/hawtio/kubernetes/services) views all the available [services](services.html) in your kubernetes environment
-
 

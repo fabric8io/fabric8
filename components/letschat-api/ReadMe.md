@@ -1,6 +1,9 @@
 Fabric8 LetsChat API
 ====================
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/letschat-api/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/letschat-api/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/letschat-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/letschat-api)
+
 This library provides a JAXRS 2.0 based Java client API to [Let's Chat](http://sdelements.github.io/lets-chat/) chat service
 
 ### Add it to your Maven pom.xml
@@ -10,7 +13,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
              <dependency>
                  <groupId>io.fabric8</groupId>
                  <artifactId>letschat-api</artifactId>
-                 <version>2.2.56</version>
+                 <version>2.2.101</version>
              </dependency>
 
 ### Environment variables

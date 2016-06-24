@@ -1,5 +1,8 @@
 ## Kubernetes Client API
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-api/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/kubernetes-api/)
+[![Javadocs](http://www.javadoc.io/badge/io.fabric8/kubernetes-api.svg?color=blue)](http://www.javadoc.io/doc/io.fabric8/kubernetes-api)
+
 This library represents a Java [Kubernetes](http://kubernetes.io/) client API using JAXRS 2.0.
 
 ### Add it to your Maven pom.xml
@@ -9,7 +12,7 @@ To be able to use the Java code in your [Apache Maven](http://maven.apache.org/)
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
-                <version>2.2.56</version>
+                <version>2.2.101</version>
             </dependency>
 
 ### Try an example

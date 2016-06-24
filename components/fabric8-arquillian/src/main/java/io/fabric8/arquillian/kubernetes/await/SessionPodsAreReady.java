@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -50,8 +50,8 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         }
 
         for (Pod pod : pods) {
-            result = result && Objects.equal(PodStatusType.OK, KubernetesHelper.getPodStatus(pod));
-            if (!result) {
+            if (!KubernetesHelper.isPodReady(pod)) {
+                result = false;
                 PodStatus podStatus = pod.getStatus();
                 if (podStatus != null) {
                     List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
@@ -59,9 +59,11 @@ public class SessionPodsAreReady implements Callable<Boolean> {
                         ContainerState state = containerStatus.getState();
                         if (state != null) {
                             ContainerStateWaiting waiting = state.getWaiting();
+                            String containerName = containerStatus.getName();
                             if (waiting != null) {
-                                String containerName = containerStatus.getName();
                                 session.getLogger().warn("Waiting for container:" + containerName + ". Reason:" + waiting.getReason());
+                            } else {
+                                session.getLogger().warn("Waiting for container:" + containerName + ".");
                             }
                         }
                     }

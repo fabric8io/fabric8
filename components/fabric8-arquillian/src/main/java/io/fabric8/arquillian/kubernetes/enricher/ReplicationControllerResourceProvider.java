@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -49,6 +49,6 @@ public class ReplicationControllerResourceProvider implements ResourceProvider {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
         String name = getReplicationControllerName(qualifiers);
-        return client.pods().inNamespace(session.getNamespace()).withName(name).get();
+        return client.replicationControllers().inNamespace(session.getNamespace()).withName(name).get();
     }
 }

@@ -16,10 +16,12 @@
  */
 package io.fabric8.maven;
 
-//import io.fabric8.devops.ProjectConfig;
-//import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.devops.ProjectConfig;
+import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
@@ -30,6 +32,8 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.DEFAULT_NAMESPACE;
 
 public abstract class AbstractNamespacedMojo extends AbstractMojo  {
 
@@ -42,7 +46,7 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     /**
      * The domain added to the service ID when creating OpenShift routes
      */
-    @Parameter(property = "fabric8.domain", defaultValue = "${env.KUBERNETES_DOMAIN}")
+    @Parameter(property = "fabric8.domain")
     protected String routeDomain;
 
     /**
@@ -60,7 +64,8 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     private KubernetesClient kubernetes;
 
     public KubernetesClient getKubernetes() {
-        return new DefaultKubernetesClient();
+        Config config = new ConfigBuilder().withNamespace(getNamespace()).build();
+        return new DefaultKubernetesClient(config);
     }
 
     protected Controller createController() {
@@ -74,12 +79,14 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
     protected synchronized String getNamespace() {
         if (Strings.isNullOrBlank(namespace)) {
             if (Strings.isNotBlank(environment)) {
-               // COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
-               // namespace = getNamespaceForEnvironment(environment);
+                namespace = getNamespaceForEnvironment(environment);
             }
         }
         if (Strings.isNullOrBlank(namespace)) {
             namespace = KubernetesHelper.defaultNamespace();
+        }
+        if (Strings.isNullOrBlank(namespace)) {
+            namespace = DEFAULT_NAMESPACE;
         }
         return namespace;
     }
@@ -88,9 +95,6 @@ public abstract class AbstractNamespacedMojo extends AbstractMojo  {
      * Lets look in the fabric8.yml file if it exists and find the environment name from it
      * otherwise lets look for environment variables or return null
      */
-/*
-COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
-
     protected String getNamespaceForEnvironment(String environment) throws IllegalStateException {
         String namespace = null;
         ProjectConfig projectConfig = findProjectConfig();
@@ -113,14 +117,12 @@ COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
             getLog().info("Mapping environment `" + environment + "` to namespace `" + namespace + "`");
         }
         return namespace;
-    }*/
+    }
 
     /**
      * Returns the configuration of the project in the <code>fabric8.yml</code> file in the root project or current directory
      * or returns an empty configuraiton
      */
-/*
-    COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
     protected ProjectConfig findProjectConfig() {
         MavenProject rootProject = getRootProject();
         File basedir = null;
@@ -137,7 +139,7 @@ COMMENTING OUT REFERENCES TO EXCLUDED ARTIFACTS
             basedir = new File(System.getProperty("basedir", "."));
         }
         return ProjectConfigs.loadFromFolder(basedir);
-    }*/
+    }
 
     public String getRouteDomain() {
         return routeDomain;

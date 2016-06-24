@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -47,7 +47,10 @@ public class Templates {
      * or just return the unchanged list if no templates are present.
      */
     public static Object combineTemplates(KubernetesList kubernetesList) {
-        Template firstTemplate = null;
+        return combineTemplates(kubernetesList, (Template) null);
+    }
+
+    public static Object combineTemplates(KubernetesList kubernetesList, Template firstTemplate) {
         List<HasMetadata> items = kubernetesList.getItems();
         for (HasMetadata item : items) {
             if (item instanceof Template) {
