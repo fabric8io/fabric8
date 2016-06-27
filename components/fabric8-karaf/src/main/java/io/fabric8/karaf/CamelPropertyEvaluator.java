@@ -16,24 +16,28 @@
 
 package io.fabric8.karaf;
 
+import java.util.Dictionary;
+import java.util.LinkedHashMap;
+
 import org.apache.aries.blueprint.ext.evaluator.PropertyEvaluator;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 
-import java.util.Dictionary;
-import java.util.LinkedHashMap;
-
 /**
  * Ports Camel's env: sys: service: service.host: service.port: property
- * placeholder prefix resolution strategies so that they are supported in Blueprint via an
- * evaluator.
+ * placeholder prefix resolution strategies so that they are supported in Blueprint
+ * via an evaluator.
  *
  * see: http://camel.apache.org/using-propertyplaceholder.html
+ *
+ * It supports chained evaluators i.e ${env+service:MY_ENV_VAR} where the first
+ * step is to resolve MY_ENV_VAR against environment variables then the result is
+ * resolved using service function.
  */
 @Component(
-    name = "io.fabric8.karaf.env",
+    name = "io.fabric8.karaf.camel",
     immediate = true,
     enabled = true,
     policy = ConfigurationPolicy.IGNORE,
@@ -44,8 +48,7 @@ import java.util.LinkedHashMap;
 })
 @Service(PropertyEvaluator.class)
 public class CamelPropertyEvaluator implements PropertyEvaluator {
-
-    LinkedHashMap<String, PropertiesFunction> functions = new LinkedHashMap<>();
+    private final LinkedHashMap<String, PropertiesFunction> functions = new LinkedHashMap<>();
 
     public CamelPropertyEvaluator() {
         addFunction(new EnvPropertiesFunction());
@@ -61,17 +64,28 @@ public class CamelPropertyEvaluator implements PropertyEvaluator {
 
     @Override
     public String evaluate(String key, Dictionary<String, String> dictionary) {
-        for (PropertiesFunction function : functions.values()) {
-            String token = function.getName() + ":";
-            if (key.startsWith(token)) {
-                String remainder = key.substring(token.length());
-                String value = function.apply(remainder);
-                if (value != null) {
-                    return value;
-                }
+        String[] resolvers = Support.before(key, ":").split("\\+");
+        String remainder = Support.after(key, ":");
+        String value = null;
+
+        for (String resolver : resolvers) {
+            PropertiesFunction function = functions.get(resolver);
+            if (function == null) {
+                value = null;
+                break;
+            }
+
+            value = function.apply(remainder);
+            if (value != null) {
+                remainder = value;
+            } else {
+                break;
             }
         }
-        return dictionary.get(key);
+
+        return value != null ? value : dictionary.get(key);
     }
+
+
 
 }
