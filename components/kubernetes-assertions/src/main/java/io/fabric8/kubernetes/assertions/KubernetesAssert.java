@@ -61,6 +61,12 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         this.client = client;
     }
 
+    /**
+     * Creates an asserter using the given namespace
+     *
+     * @param namespace
+     * @return an asserter using the given namespace
+     */
     public KubernetesNamespaceAssert namespace(String namespace) {
         return new KubernetesNamespaceAssert(client, namespace);
     }
@@ -169,11 +175,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     public PodsAssert pods() {
-        return pods(null);
-    }
-
-    public PodsAssert pods(String namespace) {
-        List<Pod> pods = getPods(namespace);
+        List<Pod> pods = getPods(namespace());
         return podList(pods);
     }
 
@@ -190,48 +192,41 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         return assertThat(replicationControllers).isNotNull();
     }
 
-    public ReplicationControllerListAssert replicationControllerList(String namespace) {
-        ReplicationControllerList replicationControllers = client.replicationControllers().inNamespace(namespace).list();
-        return assertThat(replicationControllers).isNotNull();
-    }
-
     public ListAssert<ReplicationController> replicationControllers() {
-        return replicationControllers(null);
-    }
-
-    public ListAssert<ReplicationController> replicationControllers(String namespace) {
-        ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(namespace).list();
+        ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(namespace()).list();
         assertThat(replicationControllerList).isNotNull();
         List<ReplicationController> replicationControllers = replicationControllerList.getItems();
         return (ListAssert<ReplicationController>) assertThat(replicationControllers);
     }
 
     public ServiceListAssert serviceList() {
-        ServiceList serviceList = client.services().list();
+        ServiceList serviceList = client.services().inNamespace(namespace()).list();
         return assertThat(serviceList).isNotNull();
     }
 
-    public ServiceListAssert serviceList(String namespace) {
-        ServiceList serviceList = client.services().inNamespace(namespace).list();
-        return assertThat(serviceList).isNotNull();
-    }
-
-    public ListAssert<Service> services() {
-       return services(null);
-    }
-
-    public ListAssert<Service> services(String namespace) {
-        ServiceList serviceList = client.services().inNamespace(namespace).list();
+    public ServicesAssert services() {
+        ServiceList serviceList = client.services().inNamespace(namespace()).list();
         assertThat(serviceList).isNotNull();
         List<Service> services = serviceList.getItems();
-        return (ListAssert<Service>) assertThat(services);
+        return new ServicesAssert(client, services);
+    }
+
+    /**
+     * Asserts that the given service name exist
+     *
+     * @return the assertion object on the given service
+     */
+    public ServicePodsAssert service(String serviceName) {
+        Service service = client.services().inNamespace(namespace()).withName(serviceName).get();
+        assertThat(service).describedAs("No service exists for name: " + serviceName).isNotNull();
+        return new ServicePodsAssert(client, service);
     }
 
     /**
      * Asserts that we can find the given replication controller and match it to a list of pods, returning the pods for further assertions
      */
-    public PodsAssert podsForReplicationController(String replicationControllerId, String namespace) {
-        ReplicationController replicationController = getReplicationController(replicationControllerId, namespace);
+    public PodsAssert podsForReplicationController(String replicationControllerName) {
+        ReplicationController replicationController = getReplicationController(replicationControllerName, namespace());
         return podsForReplicationController(replicationController);
     }
 
@@ -248,8 +243,8 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     /**
      * Asserts that we can find the given service and match it to a list of pods, returning the pods for further assertions
      */
-    public PodsAssert podsForService(String serviceId, String namespace) {
-        Service service = getService(serviceId, namespace);
+    public PodsAssert podsForService(String serviceName) {
+        Service service = getService(serviceName, namespace());
         return podsForService(service);
     }
 
@@ -263,10 +258,10 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     /**
-     * Asserts that the replication controller can be found for the given ID and namespace.
+     * Asserts that the replication controller can be found for the given name
      */
-    public ReplicationControllerAssert replicationController(String replicationControllerId, String namespace) {
-        return assertThat(getReplicationController(replicationControllerId, namespace));
+    public ReplicationControllerAssert replicationController(String replicationControllerName) {
+        return assertThat(getReplicationController(replicationControllerName, namespace()));
     }
     
 
@@ -283,17 +278,10 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     /**
-     * Asserts that the service can be found for the given ID and namespace
+     * Asserts that the service can be found for the given name and has a port of the given value
      */
-    public ServiceAssert service(String serviceId, String namespace) {
-        return assertThat(getService(serviceId, namespace));
-    }
-
-    /**
-     * Asserts that the service can be found for the given ID and namespace and has a port of the given value
-     */
-    public void hasServicePort(String serviceId, String namespace, int port) {
-        ServiceSpec spec = getServiceSpec(serviceId, namespace);
+    public void hasServicePort(String serviceId, int port) {
+        ServiceSpec spec = getServiceSpec(serviceId, namespace());
         boolean found = false;
         List<ServicePort> ports = spec.getPorts();
         List<Integer> portNumbers = new ArrayList<>();
@@ -316,10 +304,10 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
 
 
     /**
-     * Asserts that the service spec can be found for the given ID and namespace
+     * Asserts that the service spec can be found for the given name
      */
-    public ServiceSpecAssert serviceSpec(String serviceId, String namespace) {
-        return assertThat(getServiceSpec(serviceId, namespace));
+    public ServiceSpecAssert serviceSpec(String serviceName) {
+        return assertThat(getServiceSpec(serviceName, namespace()));
     }
 
     protected Service getService(String serviceId, String namespace) {
@@ -343,10 +331,10 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
 
 
     /**
-     * Asserts that the pod can be found for the given ID and namespace
+     * Asserts that the pod can be found for the given name
      */
-    public PodAssert pod(String podId, String namespace) {
-        return assertThat(getPod(podId, namespace));
+    public PodAssert pod(String podName) {
+        return assertThat(getPod(podName, namespace()));
     }
 
     protected Pod getPod(String podId, String namespace) {
