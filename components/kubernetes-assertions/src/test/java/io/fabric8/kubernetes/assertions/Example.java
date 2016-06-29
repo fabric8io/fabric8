@@ -43,11 +43,11 @@ public class Example {
             consoleLabels.put("component", "console");
             consoleLabels.put("provider", "fabric8");
 
-            assertThat(client).podsForService("fabric8", "default").runningStatus().extracting("metadata").extracting("labels").contains(consoleLabels);
-            assertThat(client).podsForService("fabric8", "default").runningStatus().hasSize(1).extracting("metadata").extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForService("fabric8").runningStatus().extracting("metadata").extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForService("fabric8").runningStatus().hasSize(1).extracting("metadata").extracting("labels").contains(consoleLabels);
 
 
-            assertThat(client).podsForService("fabric8", "default").logs().doesNotContainText("Exception", "Error");
+            assertThat(client).podsForService("fabric8").logs().doesNotContainText("Exception", "Error");
             assertThat(client).pods().logs().doesNotContainText("Exception", "Error");
 
             assertAssertionError(new Block() {
