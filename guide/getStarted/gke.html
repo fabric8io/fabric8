@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Jun 30 2016 19:12:11 GMT+0000 (UTC)">
+    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Jun 30 2016 22:03:48 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1578,12 +1578,11 @@ kubectl config use-context demo
 <p>Here is a <a href="https://vimeo.com/172948055" target="_blank">video showing you what you can do with the console on Google Container Engine (GKE)</a></p>
 <div class="row">
   <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134408470" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
+      <iframe src="https://player.vimeo.com/video/172948055" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
   </p>
 </div>
 
 <p>For more details check the <a href="console.html">console documentation</a></p>
-<p><img src="../images/gkeApps.png" alt="fabric8 console on GKE screenshot"></p>
 <h3 id="container-registry"><a name="container-registry" class="plugin-anchor" href="#container-registry"><span class="fa fa-link"></span></a>Container Registry</h3>
 <p>Your GKE project has a <a href="https://cloud.google.com/tools/container-registry/" target="_blank">container registry</a> that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.</p>
 <p>For example if your GKE project ID is <code>fabric8-984</code>, to Docker build, tag and push to your Google projects container registry</p>
@@ -1593,7 +1592,7 @@ gcloud docker push gcr.io/fabric8-984/fabric8-console
 <p>The Google Container Load Balancer can take a minute or two to create an external IP that can be used to access your services.  Best way to check is to wait for your Kubernetes services to display an <code>EXTERNAL_IP</code> using</p>
 <pre><code>kubectl get svc -w
 </code></pre><h3 id="google-container-engine-quotas"><a name="google-container-engine-quotas" class="plugin-anchor" href="#google-container-engine-quotas"><span class="fa fa-link"></span></a>Google Container Engine Quotas</h3>
-<p>It&apos;s easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IPs, firewalls and forwarding rules.  Here are a few <code>gloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
+<p>It&apos;s easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP&apos;s and firewalls.  Here are a few <code>gcloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
 <pre><code>gcloud compute addresses list
 gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d &apos; &apos;)
 </code></pre><pre><code>gcloud compute target-pools list
