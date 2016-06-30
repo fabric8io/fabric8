@@ -24,6 +24,8 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class Namespaces {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Namespaces.class);
 
     public static void createNamespace(KubernetesClient client, Controller controller, Session session) {
         String newNamespace = session.getNamespace();
@@ -65,12 +68,17 @@ public class Namespaces {
     }
 
     public static synchronized Namespace updateNamespaceTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
-        return client.namespaces().withName(session.getNamespace())
-                .edit()
-                .editMetadata()
-                    .addToAnnotations(Annotations.Tests.TEST_CASE_STATUS+ test, status)
-                .endMetadata()
-                .done();
+        try {
+            return client.namespaces().withName(session.getNamespace())
+                    .edit()
+                    .editMetadata()
+                        .addToAnnotations(Annotations.Tests.TEST_CASE_STATUS+ test, status)
+                    .endMetadata()
+                    .done();
+        } catch (Exception e) {
+            LOG.warn("failed to update namespace: " + e, e);
+            return null;
+        }
     }
 
     private static Map<String, String> createNamespaceAnnotations(Session session, String status) {
