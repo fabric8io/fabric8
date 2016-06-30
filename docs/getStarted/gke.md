@@ -63,13 +63,11 @@ Here is a [video showing you what you can do with the console on Google Containe
 
 <div class="row">
   <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/134408470" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      <iframe src="https://player.vimeo.com/video/172948055" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
   </p>
 </div>
 
 For more details check the [console documentation](console.html)
-
-![fabric8 console on GKE screenshot](../images/gkeApps.png)
 
 ### Container Registry
 
@@ -92,7 +90,7 @@ kubectl get svc -w
 
 ### Google Container Engine Quotas
 
-It's easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IPs, firewalls and forwarding rules.  Here are a few `gloud` commands that can help clean up after tearing down a cluster and GC your resources
+It's easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP's and firewalls.  Here are a few `gcloud` commands that can help clean up after tearing down a cluster and GC your resources
 ```
 gcloud compute addresses list
 gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d ' ')
