@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Jun 30 2016 17:51:20 GMT+0000 (UTC)">
+    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Jun 30 2016 19:12:11 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1549,22 +1549,33 @@
                         <h2 id="getting-started-with-kubernetes-on-google-container-engine"><a name="getting-started-with-kubernetes-on-google-container-engine" class="plugin-anchor" href="#getting-started-with-kubernetes-on-google-container-engine"><span class="fa fa-link"></span></a>Getting Started with Kubernetes on Google Container Engine</h2>
 <p>It is very easy to get up and running with Google Container Engine (GKE) and the docs are extremely well structured.  Before you start you should read the short GKE <a href="https://cloud.google.com/container-engine/docs/#overview" target="_blank">overview</a> and especially familiarise yourself with the <a href="https://cloud.google.com/container-engine/docs/#pricing" target="_blank">pricing</a> information!</p>
 <h3 id="before-you-begin"><a name="before-you-begin" class="plugin-anchor" href="#before-you-begin"><span class="fa fa-link"></span></a>Before you begin</h3>
-<p>To start you will need to sign up for an account, enable billing and install on your local machine the gcloud and kubectl client binaries.  All this can be done by following the <a href="https://cloud.google.com/container-engine/docs/before-you-begin" target="_blank">Google before you begin guide</a>.</p>
-<p>To make things easier to type we use we&apos;ve been using an alias pointing to where the google-cloud-sdk was downloaded for <code>kubectl</code> so we can just call <code>kc</code>..</p>
-<pre><code>alias kc=~/google-cloud-sdk/bin/kubectl
-</code></pre><h3 id="creating-a-container-cluster"><a name="creating-a-container-cluster" class="plugin-anchor" href="#creating-a-container-cluster"><span class="fa fa-link"></span></a>Creating a container cluster</h3>
-<p>Now you are ready to create a cluster on GKE.  To start with we recommend creating a cluster of one instance which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.</p>
-<p>Follow this guide to create your cluster <a href="https://cloud.google.com/container-engine/docs/clusters/operations#creating_a_container_cluster" target="_blank">creating a container cluster</a></p>
-<p>Again to start with we recommend choosing a low spec machine such as n1-standard-1 (1 vCPU, 3.75 GB memory).</p>
-<p><img src="../images/gkeCreateCluster.png" alt="GKE create cluster screenshot"></p>
-<p>Now that you have created your cluster you should be able to use your <code>kc</code> alias from the &quot;Before you begin step&quot; above to interact with your new Kubernetes instance, for example..</p>
-<pre><code>kc get pods
-</code></pre><h3 id="install-the-fabric8-console"><a name="install-the-fabric8-console" class="plugin-anchor" href="#install-the-fabric8-console"><span class="fa fa-link"></span></a>Install the fabric8 console</h3>
-<p>Now there wont be anything running yet so lets install the fabric8 console, run as a <a href="https://cloud.google.com/container-engine/docs/replicationcontrollers/" target="_blank">replication controller</a> and include a <a href="https://cloud.google.com/container-engine/docs/services/" target="_blank">service</a>.  We will also install another pod that includes a base set of template apps that we can run later.  So now run..</p>
-<pre><code>kc create -f http://central.maven.org/maven2/io/fabric8/apps/console-kubernetes/2.2.104/console-kubernetes-2.2.104-kubernetes.json
-</code></pre><p>To explain what just happened a little, we downloaded a kubernetes.json configuration file which describes a <a href="https://cloud.google.com/container-engine/docs/replicationcontrollers/" target="_blank">replication controller</a> for the fabric8-console docker image.  This file is generated as part of the fabric8 release process.  The kubernetes CLI created this replication controller called fabric8 which then instructed the API server to schedule a pod on a node in our cluster.  The image may take a little while to download from docker hub.  If you want to build and push the image to your Google registry then see the relevant section below.</p>
-<h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
-<p>Here is a <a href="https://vimeo.com/134408470" target="_blank">video showing you what you can do with the console on GKE</a></p>
+<p>To start you will need to sign up for an account, enable billing and install on your local machine the <code>gcloud</code> and <code>kubectl</code> client binaries.  All this can be done by following the <a href="https://cloud.google.com/container-engine/docs/before-you-begin" target="_blank">Google before you begin guide</a>.</p>
+<h3 id="creating-a-container-cluster"><a name="creating-a-container-cluster" class="plugin-anchor" href="#creating-a-container-cluster"><span class="fa fa-link"></span></a>Creating a container cluster</h3>
+<p>Now you are ready to create a cluster on GKE.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.</p>
+<p>Go to <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine website</a>, from here you can click to be taken to your <a href="https://console.cloud.google.com/kubernetes/" target="_blank">Console</a>.</p>
+<p><img src="../images/gkeCreateClusters.png" alt="GKE create cluster screenshot"></p>
+<p>Now that you&apos;ve created your cluster you should be able to use <code>kubectl</code> as described above to remotely connect and interact with your new Kubernetes cluster. For example to authenticate, set the following ENV VARS in a terminal taken from the Google Container Engine console.</p>
+<p><img src="../images/gkeCredentials.png" alt="GKE create cluster screenshot"></p>
+<pre><code>KUBERNETES_USERNAME=
+KUBERNETES_PASSWORD=
+KUBERNETES_SERVER=
+</code></pre><p>Once the above ENV VARS are set you can authenticate against your new cluster from your local machine using</p>
+<pre><code>kubectl config set-credentials demo --username=$KUBERNETES_USERNAME --password=$KUBERNETES_PASSWORD
+kubectl config set-cluster demo --insecure-skip-tls-verify=true --server=https://$KUBERNETES_SERVER
+kubectl config set-context demo --user=demo --namespace=default --cluster=demo
+kubectl config use-context demo
+</code></pre><p>Check your nodes are running</p>
+<pre><code>kubectl get nodes
+</code></pre><h3 id="install-the-fabric8-microservices-platform-default-applications"><a name="install-the-fabric8-microservices-platform-default-applications" class="plugin-anchor" href="#install-the-fabric8-microservices-platform-default-applications"><span class="fa fa-link"></span></a>Install the fabric8 microservices platform default applications</h3>
+<p>Next we want to deploy the fabric8 microservices platform components on top of Kubernetes, get the latest <code>gofabric8</code> binary from  <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> and run</p>
+<pre><code>gofabric8 deploy
+</code></pre><p>gofabric8 will use the local credentials on your remote machine from <code>~/.kube/config</code> after the authentication script above</p>
+<p>It may make a few minutes to download a number of docker images but to track progress you can watch progress using</p>
+<pre><code>kubectl get pod -w
+</code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console</p>
+<pre><code>open https://$KUBERNETES_SERVER/api/v1/proxy/namespaces/default/services/fabric8/
+</code></pre><h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
+<p>Here is a <a href="https://vimeo.com/172948055" target="_blank">video showing you what you can do with the console on Google Container Engine (GKE)</a></p>
 <div class="row">
   <p class="text-center">
       <iframe src="https://player.vimeo.com/video/134408470" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
@@ -1572,33 +1583,23 @@
 </div>
 
 <p>For more details check the <a href="console.html">console documentation</a></p>
-<h3 id="accessing-the-api-server-from-your-local-machine"><a name="accessing-the-api-server-from-your-local-machine" class="plugin-anchor" href="#accessing-the-api-server-from-your-local-machine"><span class="fa fa-link"></span></a>Accessing the API server from your local machine</h3>
-<p>In the short term (we&apos;re working on an improved way to access the console) we can view the console using the Kubernetes API server, service proxy.</p>
-<p>After we logged in earlier using <code>gcloud beta container get-credentials</code> it created a config file in your user home directory...</p>
-<pre><code>cat ~/.kube/config
-</code></pre><p>in here you can see the API server address under <code>server:</code> whis we will use later in this step when we refer to <code>$API_SERVER_IP</code>.  Currently the API server uses basic auth to authenticate so at the bottom of the <code>~/.kube/config</code> file you will also see the admin username and password that you can use.</p>
-<p>You will then be able to access the API server from you browser after accepting the certificate, for example to view the Kubernetes swagger UI...</p>
-<pre><code>https://$API_SERVER_IP/swagger-ui
-</code></pre><p>now to view the fabric8 console go to...</p>
-<pre><code>https://$API_SERVER_IP/api/v1/proxy/namespaces/default/services/fabric8/
-</code></pre><p><img src="../images/gkeApps.png" alt="fabric8 console on GKE screenshot"></p>
+<p><img src="../images/gkeApps.png" alt="fabric8 console on GKE screenshot"></p>
 <h3 id="container-registry"><a name="container-registry" class="plugin-anchor" href="#container-registry"><span class="fa fa-link"></span></a>Container Registry</h3>
 <p>Your GKE project has a <a href="https://cloud.google.com/tools/container-registry/" target="_blank">container registry</a> that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.</p>
-<p>For example lets take the fabric8-console itself...</p>
-<h4 id="clone-and-build"><a name="clone-and-build" class="plugin-anchor" href="#clone-and-build"><span class="fa fa-link"></span></a>Clone and build</h4>
-<pre><code>git clone git@github.com:fabric8io/fabric8-console.git
-cd fabric8-console
-npm install -g bower gulp
-npm install
-bower update
-rm -Rf site.*
-gulp bower
-gulp site
-</code></pre><h4 id="docker-build-tag-and-push-to-your-projects-google-registry"><a name="docker-build-tag-and-push-to-your-projects-google-registry" class="plugin-anchor" href="#docker-build-tag-and-push-to-your-projects-google-registry"><span class="fa fa-link"></span></a>Docker build, tag and push to your projects Google registry</h4>
+<p>For example if your GKE project ID is <code>fabric8-984</code>, to Docker build, tag and push to your Google projects container registry</p>
 <pre><code>docker build --rm -t gcr.io/fabric8-984/fabric8-console .
 gcloud docker push gcr.io/fabric8-984/fabric8-console
-</code></pre><h4 id="modify-the-console-kubernetes-json-search-for-image-and-replace-the-name-with-the-tagged-name-above"><a name="modify-the-console-kubernetes-json-search-for-image-and-replace-the-name-with-the-tagged-name-above" class="plugin-anchor" href="#modify-the-console-kubernetes-json-search-for-image-and-replace-the-name-with-the-tagged-name-above"><span class="fa fa-link"></span></a>Modify the console kubernetes.json, search for <code>image</code> and replace the name with the tagged name above</h4>
-<pre><code>&quot;image&quot; : &quot;gcr.io/fabric8-984/fabric8-console&quot;
+</code></pre><h3 id="load-balancer"><a name="load-balancer" class="plugin-anchor" href="#load-balancer"><span class="fa fa-link"></span></a>Load Balancer</h3>
+<p>The Google Container Load Balancer can take a minute or two to create an external IP that can be used to access your services.  Best way to check is to wait for your Kubernetes services to display an <code>EXTERNAL_IP</code> using</p>
+<pre><code>kubectl get svc -w
+</code></pre><h3 id="google-container-engine-quotas"><a name="google-container-engine-quotas" class="plugin-anchor" href="#google-container-engine-quotas"><span class="fa fa-link"></span></a>Google Container Engine Quotas</h3>
+<p>It&apos;s easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IPs, firewalls and forwarding rules.  Here are a few <code>gloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
+<pre><code>gcloud compute addresses list
+gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d &apos; &apos;)
+</code></pre><pre><code>gcloud compute target-pools list
+gcloud compute target-pools delete $(gcloud compute target-pools list | cut -f 1 -d &apos; &apos;)
+</code></pre><pre><code>gcloud compute firewall-rules list
+gcloud compute firewall-rules delete $(gcloud compute firewall-rules list | cut -f 1 -d &apos; &apos;)
 </code></pre>
                     
                     </section>
