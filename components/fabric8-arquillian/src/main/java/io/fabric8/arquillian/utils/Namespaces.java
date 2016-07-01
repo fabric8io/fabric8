@@ -16,7 +16,6 @@
 package io.fabric8.arquillian.utils;
 
 import io.fabric8.arquillian.kubernetes.Configuration;
-import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.Controller;
@@ -59,12 +58,17 @@ public class Namespaces {
     }
 
     public static synchronized Namespace updateNamespaceStatus(KubernetesClient client, final Session session, final String status) {
-        return client.namespaces().withName(session.getNamespace())
-                .edit()
+        try {
+            return client.namespaces().withName(session.getNamespace())
+                    .edit()
                     .editMetadata()
-                        .addToAnnotations(createNamespaceAnnotations(session, status))
+                    .addToAnnotations(createNamespaceAnnotations(session, status))
                     .endMetadata()
-                .done();
+                    .done();
+        } catch (Exception e) {
+            LOG.warn("failed to update namespace: " + e, e);
+            return null;
+        }
     }
 
     public static synchronized Namespace updateNamespaceTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
