@@ -17,6 +17,7 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Strings;
 
 /**
  * Tests generating an external service URL
@@ -31,7 +32,11 @@ public class GetServiceURL {
             String name = args[0];
             KubernetesClient kube = new DefaultKubernetesClient();
 
-            String url = KubernetesHelper.getServiceURL(kube, name, kube.getNamespace(), "http", true);
+            String namespace = kube.getNamespace();
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = "default";
+            }
+            String url = KubernetesHelper.getServiceURL(kube, name, namespace, "http", true);
             System.out.println("Service " + name + " has external URL: " + url);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);

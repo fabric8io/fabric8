@@ -1402,6 +1402,7 @@ public final class KubernetesHelper {
 
         if (Strings.isNullOrBlank(portalIP)) {
             // on vanilla kubernetes we can use nodePort to access things externally
+            boolean found = false;
             Integer nodePort = port.getNodePort();
             if (nodePort != null) {
                 try {
@@ -1410,12 +1411,31 @@ public final class KubernetesHelper {
                         List<Node> items = nodeList.getItems();
                         if (items != null) {
                             for (Node item : items) {
-                                NodeSpec spec = item.getSpec();
-                                if (spec != null) {
-                                    portalIP = spec.getExternalID();
-                                    if (Strings.isNotBlank(portalIP)) {
-                                        portNumber = nodePort;
-                                        break;
+                                NodeStatus status = item.getStatus();
+                                if (!found && status != null) {
+                                    List<NodeAddress> addresses = status.getAddresses();
+                                    if (addresses != null) {
+                                        for (NodeAddress address : addresses) {
+                                            String ip = address.getAddress();
+                                            if (Strings.isNotBlank(ip)) {
+                                                portalIP = ip;
+                                                portNumber = nodePort;
+                                                found = true;
+                                                break;
+                                            }
+
+                                        }
+
+                                    }
+                                }
+                                if (!found) {
+                                    NodeSpec spec = item.getSpec();
+                                    if (spec != null) {
+                                        portalIP = spec.getExternalID();
+                                        if (Strings.isNotBlank(portalIP)) {
+                                            portNumber = nodePort;
+                                            break;
+                                        }
                                     }
                                 }
                             }
