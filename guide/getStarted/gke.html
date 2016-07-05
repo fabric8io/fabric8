@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Mon Jul 04 2016 15:05:47 GMT+0000 (UTC)">
+    <div class="book" data-level="2.4" data-basepath=".." data-revision="Tue Jul 05 2016 09:26:38 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1547,11 +1547,11 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="getting-started-with-kubernetes-on-google-container-engine"><a name="getting-started-with-kubernetes-on-google-container-engine" class="plugin-anchor" href="#getting-started-with-kubernetes-on-google-container-engine"><span class="fa fa-link"></span></a>Getting Started with Kubernetes on Google Container Engine</h2>
-<p>It is very easy to get up and running with Google Container Engine (GKE) and the docs are extremely well structured.  Before you start you should read the short GKE <a href="https://cloud.google.com/container-engine/docs/#overview" target="_blank">overview</a> and especially familiarise yourself with the <a href="https://cloud.google.com/container-engine/docs/#pricing" target="_blank">pricing</a> information!</p>
+<p>It is very easy to get up and running with Google Container Engine and the docs are extremely well structured.  Before you start you should read the <a href="https://cloud.google.com/container-engine/docs/#overview" target="_blank">overview</a> and familiarise yourself with the <a href="https://cloud.google.com/container-engine/docs/#pricing" target="_blank">pricing</a> information.</p>
 <h3 id="before-you-begin"><a name="before-you-begin" class="plugin-anchor" href="#before-you-begin"><span class="fa fa-link"></span></a>Before you begin</h3>
 <p>To start you will need to sign up for an account, enable billing and install on your local machine the <code>gcloud</code> and <code>kubectl</code> client binaries.  All this can be done by following the <a href="https://cloud.google.com/container-engine/docs/before-you-begin" target="_blank">Google before you begin guide</a>.</p>
 <h3 id="creating-a-container-cluster"><a name="creating-a-container-cluster" class="plugin-anchor" href="#creating-a-container-cluster"><span class="fa fa-link"></span></a>Creating a container cluster</h3>
-<p>Now you are ready to create a cluster on GKE.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.</p>
+<p>Now you are ready to create a cluster on Google Container Engine.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.</p>
 <p>Go to <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine website</a>, from here you can click to be taken to your <a href="https://console.cloud.google.com/kubernetes/" target="_blank">Console</a>.</p>
 <p><img src="../images/gkeCreateClusters.png" alt="GKE create cluster screenshot"></p>
 <p>Now that you&apos;ve created your cluster you should be able to use <code>kubectl</code> as described above to remotely connect and interact with your new Kubernetes cluster. For example to authenticate, set the following ENV VARS in a terminal taken from the Google Container Engine console.</p>
@@ -1575,7 +1575,7 @@ kubectl config use-context demo
 </code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console</p>
 <pre><code>open https://$KUBERNETES_SERVER/api/v1/proxy/namespaces/default/services/fabric8/
 </code></pre><h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
-<p>Here is a <a href="https://vimeo.com/172948055" target="_blank">video showing you what you can do with the console on Google Container Engine (GKE)</a></p>
+<p>Here is a <a href="https://vimeo.com/172948055" target="_blank">video showing you what you can do with the console on Google Container Engine</a></p>
 <div class="row">
   <p class="text-center">
       <iframe src="https://player.vimeo.com/video/172948055" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
@@ -1584,21 +1584,19 @@ kubectl config use-context demo
 
 <p>For more details check the <a href="console.html">console documentation</a></p>
 <h3 id="container-registry"><a name="container-registry" class="plugin-anchor" href="#container-registry"><span class="fa fa-link"></span></a>Container Registry</h3>
-<p>Your GKE project has a <a href="https://cloud.google.com/tools/container-registry/" target="_blank">container registry</a> that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.</p>
-<p>For example if your GKE project ID is <code>fabric8-984</code>, to Docker build, tag and push to your Google projects container registry</p>
+<p>Your Google Container Engine project has a <a href="https://cloud.google.com/tools/container-registry/" target="_blank">container registry</a> that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.</p>
+<p>For example if your Google Container Engine project ID is <code>fabric8-984</code>, to Docker build, tag and push to your Google projects container registry</p>
 <pre><code>docker build --rm -t gcr.io/fabric8-984/fabric8-console .
 gcloud docker push gcr.io/fabric8-984/fabric8-console
 </code></pre><h3 id="load-balancer"><a name="load-balancer" class="plugin-anchor" href="#load-balancer"><span class="fa fa-link"></span></a>Load Balancer</h3>
 <p>The Google Container Load Balancer can take a minute or two to create an external IP that can be used to access your services.  Best way to check is to wait for your Kubernetes services to display an <code>EXTERNAL_IP</code> using</p>
 <pre><code>kubectl get svc -w
 </code></pre><h3 id="google-container-engine-quotas"><a name="google-container-engine-quotas" class="plugin-anchor" href="#google-container-engine-quotas"><span class="fa fa-link"></span></a>Google Container Engine Quotas</h3>
-<p>It&apos;s easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP&apos;s and firewalls.  Here are a few <code>gcloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
-<pre><code>gcloud compute addresses list
-gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d &apos; &apos;)
-</code></pre><pre><code>gcloud compute target-pools list
+<p>It&apos;s easy to exceed the default limits provided by Google Container Engine when starting out.  Navigating to the Google Container Engine Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP&apos;s and firewalls.  Here are a few <code>gcloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
+<pre><code>gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d &apos; &apos;)
 gcloud compute target-pools delete $(gcloud compute target-pools list | cut -f 1 -d &apos; &apos;)
-</code></pre><pre><code>gcloud compute firewall-rules list
 gcloud compute firewall-rules delete $(gcloud compute firewall-rules list | cut -f 1 -d &apos; &apos;)
+gcloud compute forwarding-rules delete $(gcloud compute forwarding-rules list | cut -f 1 -d &apos; &apos;)
 </code></pre>
                     
                     </section>
