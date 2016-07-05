@@ -71,6 +71,7 @@ public class Constants {
     public static final String ABORTED_STATUS = "ABORTED";
     public static final String ERROR_STATUS = "ERROR";
 
-
+    public static final String FABRIC8_DOCKER_REGISTRY_SERVICE_HOST = "FABRIC8_DOCKER_REGISTRY_SERVICE_HOST";
+    public static final String FABRIC8_DOCKER_REGISTRY_SERVICE_PORT = "FABRIC8_DOCKER_REGISTRY_SERVICE_PORT";
 
 }

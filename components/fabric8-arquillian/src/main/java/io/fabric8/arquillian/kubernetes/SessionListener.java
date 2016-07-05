@@ -32,24 +32,12 @@ import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.builder.Visitable;
 import io.fabric8.kubernetes.api.builder.Visitor;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.SecurityContextConstraints;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceAccount;
-import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.BaseClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.internal.HasMetadataComparator;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
@@ -66,18 +54,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.fabric8.arquillian.kubernetes.Configuration.findConfigResource;
 import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
@@ -156,6 +136,7 @@ public class SessionListener {
                     dto = expandTemplate(controller, configuration, log, namespace, configUrl.toString(), dto);
                     KubernetesList kubeList = KubernetesHelper.asKubernetesList(dto);
                     List<HasMetadata> items = kubeList.getItems();
+
                     kubeConfigs.add(kubeList);
                 }
             }
@@ -257,13 +238,21 @@ public class SessionListener {
         Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, session);
         Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration);
 
-        List<Object> entities = new ArrayList<>();
+        Set<HasMetadata> entities = new TreeSet<>(new HasMetadataComparator());
         for (KubernetesList c : kubeConfigs) {
             entities.addAll(enhance(session, configuration ,c).getItems());
         }
 
+        String registry = getLocalDockerRegistry();
+        if (Strings.isNotBlank(registry)){
+            log.status("Adapting resources to pull images from registry: " + registry);
+            addRegistryToImageNameIfNotPresent(entities, registry);
+        }
+
+        List<Object> items = new ArrayList<>();
+        items.addAll(entities);
         //Ensure services are processed first.
-        Collections.sort(entities, new Comparator<Object>() {
+        Collections.sort(items, new Comparator<Object>() {
             @Override
             public int compare(Object left, Object right) {
                 if (left instanceof Service) {
@@ -282,8 +271,8 @@ public class SessionListener {
 
         preprocessEnvironment(client, controller, configuration, session);
 
-        List<Object> extraEntities = new ArrayList<>();
-        for (Object entity : entities) {
+        Set<HasMetadata> extraEntities = new TreeSet<>(new HasMetadataComparator());
+        for (Object entity : items) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
                 log.status("Applying pod:" + getName(pod));
@@ -542,5 +531,79 @@ public class SessionListener {
             }
         }
         return result;
+    }
+
+    private String getLocalDockerRegistry() {
+        if (Strings.isNotBlank(System.getenv(Constants.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST))){
+            return System.getenv(Constants.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST) + ":" + System.getenv(Constants.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT);
+        }
+        return null;
+
+    }
+
+    public void addRegistryToImageNameIfNotPresent(Iterable<HasMetadata> items, String registry) throws Exception {
+        if (items != null) {
+            for (HasMetadata item : items) {
+                if (item instanceof KubernetesList) {
+                    KubernetesList list = (KubernetesList) item;
+                    addRegistryToImageNameIfNotPresent(list.getItems(), registry);
+                } else if (item instanceof Template) {
+                    Template template = (Template) item;
+                    addRegistryToImageNameIfNotPresent(template.getObjects(), registry);
+                } else if (item instanceof Pod) {
+                    List<Container> containers = ((Pod) item).getSpec().getContainers();
+                    prefixRegistryIfNotPresent(containers, registry);
+
+                } else if (item instanceof ReplicationController) {
+                    List<Container> containers = ((ReplicationController) item).getSpec().getTemplate().getSpec().getContainers();
+                    prefixRegistryIfNotPresent(containers, registry);
+
+                } else if (item instanceof ReplicaSet) {
+                    List<Container> containers = ((ReplicaSet) item).getSpec().getTemplate().getSpec().getContainers();
+                    prefixRegistryIfNotPresent(containers, registry);
+
+                } else if (item instanceof DeploymentConfig) {
+                    List<Container> containers = ((DeploymentConfig) item).getSpec().getTemplate().getSpec().getContainers();
+                    prefixRegistryIfNotPresent(containers, registry);
+
+                } else if (item instanceof Deployment) {
+                    List<Container> containers = ((Deployment) item).getSpec().getTemplate().getSpec().getContainers();
+                    prefixRegistryIfNotPresent(containers, registry);
+                }
+
+            }
+        }
+    }
+
+    private void prefixRegistryIfNotPresent(List<Container> containers, String registry) {
+        for (Container container : containers) {
+            if (!hasRegistry(container.getImage())){
+                container.setImage(registry+"/"+container.getImage());
+            }
+        }
+    }
+
+    /**
+     * Checks to see if there's a registry name already provided in the image name
+     *
+     * Code influenced from <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/src/main/java/org/jolokia/docker/maven/util/ImageName.java">docker-maven-plugin</a>
+     * @param imageName
+     * @return true if the image name contains a registry
+     */
+    public static boolean hasRegistry(String imageName) {
+        if (imageName == null) {
+            throw new NullPointerException("Image name must not be null");
+        }
+        Pattern tagPattern = Pattern.compile("^(.+?)(?::([^:/]+))?$");
+        Matcher matcher = tagPattern.matcher(imageName);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException(imageName + " is not a proper image name ([registry/][repo][:port]");
+        }
+
+        String rest = matcher.group(1);
+        String[] parts = rest.split("\\s*/\\s*");
+        String part = parts[0];
+
+        return part.contains(".") || part.contains(":");
     }
 }
