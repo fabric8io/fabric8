@@ -1,13 +1,13 @@
 ## Getting Started with Kubernetes on Google Container Engine
 
-It is very easy to get up and running with Google Container Engine (GKE) and the docs are extremely well structured.  Before you start you should read the short GKE [overview](https://cloud.google.com/container-engine/docs/#overview) and especially familiarise yourself with the [pricing](https://cloud.google.com/container-engine/docs/#pricing) information!
+It is very easy to get up and running with Google Container Engine and the docs are extremely well structured.  Before you start you should read the [overview](https://cloud.google.com/container-engine/docs/#overview) and familiarise yourself with the [pricing](https://cloud.google.com/container-engine/docs/#pricing) information.
 
 ### Before you begin
 To start you will need to sign up for an account, enable billing and install on your local machine the `gcloud` and `kubectl` client binaries.  All this can be done by following the [Google before you begin guide](https://cloud.google.com/container-engine/docs/before-you-begin).
 
 ### Creating a container cluster
 
-Now you are ready to create a cluster on GKE.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.
+Now you are ready to create a cluster on Google Container Engine.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.
 
 Go to [Google Container Engine website](https://cloud.google.com/container-engine/), from here you can click to be taken to your [Console](https://console.cloud.google.com/kubernetes/).
 
@@ -58,7 +58,7 @@ open https://$KUBERNETES_SERVER/api/v1/proxy/namespaces/default/services/fabric8
 
 ### Using the console
 
-Here is a [video showing you what you can do with the console on Google Container Engine (GKE)](https://vimeo.com/172948055)
+Here is a [video showing you what you can do with the console on Google Container Engine](https://vimeo.com/172948055)
 
 
 <div class="row">
@@ -71,9 +71,9 @@ For more details check the [console documentation](console.html)
 
 ### Container Registry
 
-Your GKE project has a [container registry](https://cloud.google.com/tools/container-registry/) that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.
+Your Google Container Engine project has a [container registry](https://cloud.google.com/tools/container-registry/) that you can use to push images to and reference in you kubernetes configurations.  This is useful if you want to avoid pulling images from dockerhub and also when developing custom images.
 
-For example if your GKE project ID is `fabric8-984`, to Docker build, tag and push to your Google projects container registry
+For example if your Google Container Engine project ID is `fabric8-984`, to Docker build, tag and push to your Google projects container registry
 
 ```
 docker build --rm -t gcr.io/fabric8-984/fabric8-console .
@@ -90,16 +90,11 @@ kubectl get svc -w
 
 ### Google Container Engine Quotas
 
-It's easy to exceed the default limits provided by GKE when starting out.  Navigating to the GKE Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP's and firewalls.  Here are a few `gcloud` commands that can help clean up after tearing down a cluster and GC your resources
+It's easy to exceed the default limits provided by Google Container Engine when starting out.  Navigating to the Google Container Engine Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP's and firewalls.  Here are a few `gcloud` commands that can help clean up after tearing down a cluster and GC your resources
+
 ```
-gcloud compute addresses list
 gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d ' ')
-```
-```
-gcloud compute target-pools list
 gcloud compute target-pools delete $(gcloud compute target-pools list | cut -f 1 -d ' ')
-```
-```
-gcloud compute firewall-rules list
 gcloud compute firewall-rules delete $(gcloud compute firewall-rules list | cut -f 1 -d ' ')
+gcloud compute forwarding-rules delete $(gcloud compute forwarding-rules list | cut -f 1 -d ' ')
 ```
