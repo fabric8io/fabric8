@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="7.4" data-basepath="." data-revision="Tue Jul 05 2016 16:56:20 GMT+0000 (UTC)">
+    <div class="book" data-level="7.4" data-basepath="." data-revision="Wed Jul 06 2016 18:12:31 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1569,9 +1569,13 @@
 </ul>
 <h3 id="activemq"><a name="activemq" class="plugin-anchor" href="#activemq"><span class="fa fa-link"></span></a>ActiveMQ</h3>
 <ul>
-<li><p><a href="https://github.com/fabric8io/fabric8-ipaas/tree/master/mq-client" target="_blank">mq-client</a> provides the the <strong>io.fabric8.mq.core.MQConnectionFactory</strong> class which implements the JMS ConnectionFactory to connect to Apache ActiveMQ Artemis using the <a href="http://fabric8.io/guide/services.html" target="_blank">Kubernetes Service</a> discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)</p>
-</li>
+<li><a href="https://github.com/fabric8io/fabric8-ipaas/tree/master/mq-client" target="_blank">mq-client</a> provides the the <strong>io.fabric8.mq.core.MQConnectionFactory</strong> class which implements the JMS ConnectionFactory to connect to Apache ActiveMQ Artemis using the <a href="http://fabric8.io/guide/services.html" target="_blank">Kubernetes Service</a> discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)</li>
+</ul>
+<h3 id="camel"><a name="camel" class="plugin-anchor" href="#camel"><span class="fa fa-link"></span></a>Camel</h3>
+<ul>
 <li><p><a href="https://github.com/fabric8io/fabric8-ipaas/tree/master/camel-amq" target="_blank">camel-amq</a> provides the <a href="http://camel.apache.org/" target="_blank">Camel</a> <strong>amq:</strong> component which uses the <a href="http://fabric8.io/guide/services.html" target="_blank">Kubernetes Service</a> discovery mechanism to discover and connect to the ActiveMQ Artemis brokers so that no configuration is required (other than a single environment variable if you wish to switch to a non default service implementation)</p>
+</li>
+<li><p><a href="https://github.com/fabric8io/fabric8-ipaas/tree/master/camel-master" target="_blank">camel-master</a> provides the <a href="http://camel.apache.org/" target="_blank">Camel</a> <strong>master:</strong> component which provides a locking mechanism to ensure that only one pod implements a consumer at any time; if that pod dies then another one takes over. </p>
 </li>
 </ul>
 <h3 id="cdi"><a name="cdi" class="plugin-anchor" href="#cdi"><span class="fa fa-link"></span></a>CDI</h3>
