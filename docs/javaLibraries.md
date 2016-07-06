@@ -24,12 +24,16 @@ Kubernetes provides the main REST API for working with the [Kubernetes Platform]
 * [kubernetes-zipkin](https://github.com/fabric8io/kubernetes-zipkin) provides <a href="http://kubernetes.io/">Kubernetes</a> integration with <a href="http://zipkin.io/">Zipkin</a> for tracing microservices
 
 
-
 ### ActiveMQ
 
 * [mq-client](https://github.com/fabric8io/fabric8-ipaas/tree/master/mq-client) provides the the **io.fabric8.mq.core.MQConnectionFactory** class which implements the JMS ConnectionFactory to connect to Apache ActiveMQ Artemis using the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism which requires no user configuration (other than a single environment variable if you wish to switch to a non default service implementation)
 
+
+### Camel 
+
 * [camel-amq](https://github.com/fabric8io/fabric8-ipaas/tree/master/camel-amq) provides the [Camel](http://camel.apache.org/) **amq:** component which uses the [Kubernetes Service](http://fabric8.io/guide/services.html) discovery mechanism to discover and connect to the ActiveMQ Artemis brokers so that no configuration is required (other than a single environment variable if you wish to switch to a non default service implementation)
+
+* [camel-master](https://github.com/fabric8io/fabric8-ipaas/tree/master/camel-master) provides the [Camel](http://camel.apache.org/) **master:** component which provides a locking mechanism to ensure that only one pod implements a consumer at any time; if that pod dies then another one takes over. 
 
 ### CDI
 
