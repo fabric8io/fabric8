@@ -471,6 +471,12 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         if (service != null) {
                             String publicUrl = KubernetesHelper.getServiceURL(kubernetes, host, ns, u.getProtocol(), true);
                             return URLUtils.pathJoin(publicUrl, u.getPath());
+                        } else {
+                            if (host.indexOf('.') < 0) {
+                                // the kubernetes service name is not running so lets not generate a Docs link!
+                                getLog().info("Not generating a documentation link annotation as the service " + host + " is not running!");
+                                return null;
+                            }
                         }
 
                     } catch (MalformedURLException e) {
