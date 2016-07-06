@@ -17,5 +17,8 @@ node{
     if (prId != null){
       pipeline.mergePullRequest(prId)
     }    
+
+    stage 'Update downstream dependencies'
+    pipeline.updateDownstreamDependencies(stagedProject)
   }
 }
