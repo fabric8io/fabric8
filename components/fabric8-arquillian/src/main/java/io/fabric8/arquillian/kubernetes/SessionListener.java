@@ -247,6 +247,8 @@ public class SessionListener {
         if (Strings.isNotBlank(registry)){
             log.status("Adapting resources to pull images from registry: " + registry);
             addRegistryToImageNameIfNotPresent(entities, registry);
+        } else {
+	    log.status("No local fabric8 docker registry found");
         }
 
         List<Object> items = new ArrayList<>();
