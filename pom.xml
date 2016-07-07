@@ -1354,6 +1354,10 @@
                           <name>Fabric8 :: Project :: Bom with Platform Dependencies</name>
                           <dependencies>
                               <includes>
+                                  <!-- The kubernetes Client and Model -->
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+
                                   <include>javax*:*</include>
                                   <!-- Core platform -->
                                   <include>org.jboss.weld*:*</include>
