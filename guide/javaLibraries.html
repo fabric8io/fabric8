@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="7.4" data-basepath="." data-revision="Thu Jul 07 2016 08:47:06 GMT+0000 (UTC)">
+    <div class="book" data-level="7.4" data-basepath="." data-revision="Thu Jul 07 2016 09:14:54 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1551,7 +1551,8 @@
 <h3 id="kubernetes"><a name="kubernetes" class="plugin-anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
 <p>Kubernetes provides the main REST API for working with the <a href="http://kubernetes.io" target="_blank">Kubernetes Platform</a>. It should provide all you need for writing most services and plugins for Kubernetes.</p>
 <ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a> provides a Java API for working with the Kubernetes REST API (pods, replication controllers, services etc)</li>
+<li><a href="https://github.com/fabric8io/fubernetes-client" target="_blank">kubernetes-client</a> provides a Java API for working with the Kubernetes and OpenShift REST API (pods, replication controllers, services etc)</li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a> provides helper APIs around the <a href="https://github.com/fabric8io/fubernetes-client" target="_blank">kubernetes-client</a> for working with Kubernetes and OpenShift</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="pods.html">Pods</a> inside Kubernetes which expose the Jolokia port</li>
 </ul>
 <h4 id="testing"><a name="testing" class="plugin-anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h4>
