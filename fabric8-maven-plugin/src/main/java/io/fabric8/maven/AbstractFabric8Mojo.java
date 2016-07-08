@@ -958,6 +958,13 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     }
 
     public String getDockerImage() {
+        if (Strings.isNullOrBlank(dockerImage)) {
+            // lets see if the old maven property was specified
+            MavenProject project = getProject();
+            if (project != null) {
+                dockerImage = project.getProperties().getProperty("docker.image");
+            }
+        }
         return dockerImage;
     }
 
