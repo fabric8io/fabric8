@@ -49,44 +49,36 @@ def mergePullRequest(prId){
   }
 }
 
-def updateDownstreamDependencies(stagedProject){
-  def downstreamProjects = [
-          'fabric8io/fabric8-devops',
-          'fabric8io/fabric8-forge',
-          'fabric8io/fabric8-ipaas',
-          'fabric8io/ipaas-quickstarts',
-          'fabric8io/kubeflix',
-          'fabric8io/kubernetes-zipkin',
-
-          'fabric8-quickstarts/cdi-camel',
-          'fabric8-quickstarts/swarm-camel',
-          'fabric8-quickstarts/spring-boot-ribbon',
-          'fabric8-quickstarts/spring-boot-camel',
-          'fabric8-quickstarts/spring-boot-camel-xml'
-  ]
-  pushPomPropertyChangePR{
+def updateDownstreamDependencies(stagedProject) {
+  pushPomPropertyChangePR {
     propertyName = 'fabric8.version'
-    projects = downstreamProjects
+    projects = [
+            'fabric8io/fabric8-devops',
+            'fabric8io/fabric8-ipaas',
+            'fabric8io/ipaas-quickstarts',
+            'fabric8io/fabric8-forge',
+            'fabric8io/kubeflix',
+            'fabric8io/kubernetes-zipkin',
+            'fabric8io/fabric8-maven-dependencies'
+    ]
     version = stagedProject[1]
   }
 
-  def parentPomDownstreamProjects = [
-          'fabric8io/funktion'
-  ]
-  pushPomPropertyChangePR{
+  pushPomPropertyChangePR {
     parentPomLocation = 'parent/pom.xml'
     propertyName = 'fabric8.version'
-    projects = parentPomDownstreamProjects
+    projects = [
+            'fabric8io/funktion'
+    ]
     version = stagedProject[1]
   }
 
-  parentPomDownstreamProjects = [
-          'fabric8io/fabric8-maven-plugin'
-  ]
-  pushPomPropertyChangePR{
+  pushPomPropertyChangePR {
     parentPomLocation = 'parent/pom.xml'
     propertyName = 'version.fabric8'
-    projects = parentPomDownstreamProjects
+    projects = [
+            'fabric8io/fabric8-maven-plugin'
+    ]
     version = stagedProject[1]
   }
 }
