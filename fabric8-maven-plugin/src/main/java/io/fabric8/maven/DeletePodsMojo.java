@@ -43,7 +43,7 @@ public class DeletePodsMojo extends AbstractFabric8Mojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         String dockerImage = getDockerImage();
         if (Strings.isNullOrBlank(dockerImage)) {
-            getLog().error("Cannot delete any pods as there is no docker image specified via the `docker.image` property");
+            getLog().error("Cannot delete any pods as there is no docker image specified via the `fabric8.image` property");
             return;
         }
         KubernetesClient kubernetes = getKubernetes();
