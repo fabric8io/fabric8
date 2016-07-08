@@ -51,6 +51,7 @@
     <module>kubernetes-api</module>
     <module>gerrit-api</module>
     <module>gitrepo-api</module>
+    <module>gitrepo-resteasy</module>
     <module>hubot-api</module>
     <module>letschat-api</module>
     <module>taiga-api</module>
