@@ -112,7 +112,7 @@ There are many options as listed in the following table:
 <th>Description</th>
 </tr>
 <tr>
-<td>docker.image</td>
+<td>fabric8.image</td>
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>

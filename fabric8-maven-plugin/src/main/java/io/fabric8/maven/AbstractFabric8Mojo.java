@@ -208,7 +208,7 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
     /**
      * The docker image to use.
      */
-    @Parameter(property = "docker.image")
+    @Parameter(property = "fabric8.image")
     private String dockerImage;
 
     /**
