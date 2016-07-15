@@ -21,29 +21,37 @@ Otherwise you typically use a URL like `http://fabric8.${DOMAIN}` where `DOMAIN`
 
 When you open the fabric8 console you should see a screen like this:
 
-![fabric8 developer console: home page](images/console-home.png)
+![fabric8 developer console: Start page](images/console-home.png)
 
 A `Team` is a kubernetes namespace running your development tools (like Jenkins, Nexus, JBoss Forge) and is associated with a number of environments (Testing, Staging, Production etc).
 
 Click on the `Team Dashboard` which should take you to the Team Dashboard where you can create new apps or view your existing apps:
 
-![fabric8 developer console: team dashboard](images/console-dashboard.png)
+![fabric8 developer console: Team Dashboard](images/console-dashboard.png)
 
 If you click the `Create Application` you get to the create wizard page:
 
-![fabric8 developer console: team dashboard](images/create-project.png)
+![fabric8 developer console: Create App](images/create-project.png)
 
 Then you get to pick what kind of project you wish to create and its name:
 
-![fabric8 developer console: team dashboard](images/create-app.png)
+![fabric8 developer console: Select Project Type](images/create-app.png)
 
 Then choose your [CD Pipeline](cdpipline.html):
 
 ![fabric8 developer console: Choose CD Pipeline](images/console-pick-pipeline.png)
 
-From the console you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:
+If you choose `Copy pipeline to project` then the Jenkinsfile that defines the pipeline gets copied into your project's git repository so that you can easily edit it later on via a versioned source code change just like any other code change.
 
-![clicking on the tools drop down](images/console-tools.png)
+Now you will be taken to the `App Dashboard` where you can see all the environments and active pipelines along with recent commits on a single pane of glass. This is how it looks once the Canary release, Testing and Staging is complete; waiting for Promotion to Production
+
+![fabric8 developer console: App Dashboard](images/console-app-dashboard.png)
+
+You can click on the `Proceed` button to promote to Production, or `Abort` to stop the pipeline.
+
+You can easily switch between all your development tools (Gogs, Jenkins, Nexus etc) using the tool drop down menu at the top right of the screen:
+
+![Clicking on the tools drop down to see development apps](images/console-tools.png)
 
 ### Runtime tabs
 
