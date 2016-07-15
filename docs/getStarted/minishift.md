@@ -26,7 +26,7 @@ oc get pods
 Now type the following:
 
 ```sh
-gofabric8 deploy -y --domain=$(minishift ip).xip.io
+gofabric8 deploy -y --domain=$(minishift ip).xip.io --api-server=$(minishift ip)
 ```
 
 At any point you can validate your installation via:
