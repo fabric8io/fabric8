@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.1" data-basepath="." data-revision="Fri Jul 15 2016 12:37:41 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1" data-basepath="." data-revision="Fri Jul 15 2016 16:17:41 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1562,17 +1562,34 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="fabric8-developer-console"><a name="fabric8-developer-console" class="plugin-anchor" href="#fabric8-developer-console"><span class="fa fa-link"></span></a>Fabric8 Developer Console</h2>
-<p>Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing Microservices on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>.</p>
-<p>Fabric8 Developer Console is single lightweight pod, <a href="replicationControllers.html">replication controller</a> and <a href="services.html">services</a> that runs on any <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> or <a href="https://www.openshift.org/" target="_blank">Openshift</a> cluster.</p>
-<h3 id="installing"><a name="installing" class="plugin-anchor" href="#installing"><span class="fa fa-link"></span></a>Installing</h3>
-<p>Here is <a href="getStarted/apps.html#console">how to install the Console on Kubernetes / OpenShift</a></p>
-<h3 id="authentication"><a name="authentication" class="plugin-anchor" href="#authentication"><span class="fa fa-link"></span></a>Authentication</h3>
-<p>The fabric8 console uses the authentication of the underlying system. Therefor you need to adjust the authentication on your base platform.</p>
-<p>So if you are on openshift have a look how to <a href="https://docs.openshift.org/latest/install_config/configuring_authentication.html" target="_blank">configure authentication</a>.</p>
+<p>Fabric8 Developer Console provides a rich HTML5 web application for creating, building, testing and managing Microservices on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> or <a href="https://www.openshift.org/" target="_blank">Openshift</a>.</p>
+<p>See the <a href="getStarted/index.html">Getting Started Guide</a> for how to install it.</p>
+<h3 id="opening-the-fabric8-console"><a name="opening-the-fabric8-console" class="plugin-anchor" href="#opening-the-fabric8-console"><span class="fa fa-link"></span></a>Opening the Fabric8 Console</h3>
+<p>If you are using <a href="getStarted/minishift.html">minishift</a> or <a href="getStarted/minikube.html">minikube</a> then you open the fabric8 console via the command</p>
+<pre><code class="lang-sh">minikube service fabric8
+minishift service fabric8
+</code></pre>
+<p>Depending on if you are using minikube or minishift.</p>
+<p>Otherwise you typically use a URL like <code>http://fabric8.${DOMAIN}</code> where <code>DOMAIN</code> is the domain you used to <a href="getStarted/index.html">install fabric8</a></p>
 <h3 id="getting-started"><a name="getting-started" class="plugin-anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting Started</h3>
-<p>The console has a number of tabs that let you work with the various Kubernetes resources. We&apos;ll highlight the main ones you&apos;ll need to use:</p>
-<h4 id="controllers"><a name="controllers" class="plugin-anchor" href="#controllers"><span class="fa fa-link"></span></a>Controllers</h4>
-<p>The main tab to get a feel for what&apos;s running in your system is the <strong>Controllers</strong> tab which shows all the <a href="replicationControllers.html">replication controllers</a>.</p>
+<p>When you open the fabric8 console you should see a screen like this:</p>
+<p><img src="images/console-home.png" alt="fabric8 developer console: home page"></p>
+<p>A <code>Team</code> is a kubernetes namespace running your development tools (like Jenkins, Nexus, JBoss Forge) and is associated with a number of environments (Testing, Staging, Production etc).</p>
+<p>Click on the <code>Team Dashboard</code> which should take you to the Team Dashboard where you can create new apps or view your existing apps:</p>
+<p><img src="images/console-dashboard.png" alt="fabric8 developer console: team dashboard"></p>
+<p>If you click the <code>Create Application</code> you get to the create wizard page:</p>
+<p><img src="images/create-project.png" alt="fabric8 developer console: team dashboard"></p>
+<p>Then you get to pick what kind of project you wish to create and its name:</p>
+<p><img src="images/create-app.png" alt="fabric8 developer console: team dashboard"></p>
+<p>Then choose your <a href="cdpipline.html">CD Pipeline</a>:</p>
+<p><img src="images/console-pick-pipeline.png" alt="fabric8 developer console: Choose CD Pipeline"></p>
+<p>From the console you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:</p>
+<p><img src="../images/console-tools.png" alt="clicking on the tools drop down"></p>
+<h3 id="runtime-tabs"><a name="runtime-tabs" class="plugin-anchor" href="#runtime-tabs"><span class="fa fa-link"></span></a>Runtime tabs</h3>
+<p>The <code>Team</code> page has a <code>Runtime</code> tab that lets you browse the runtime of your development environment. Or from the home page you can click on an environment page to view its runtime.</p>
+<p>The <code>Runtime</code> pages have a number of tabs that let you work with the various Kubernetes resources. We&apos;ll highlight the main ones you&apos;ll need to use:</p>
+<h4 id="replicas"><a name="replicas" class="plugin-anchor" href="#replicas"><span class="fa fa-link"></span></a>Replicas</h4>
+<p>The main tab to get a feel for what&apos;s running in your system is the <strong>Replicas</strong> tab which shows all the <a href="replicationControllers.html">replication controllers</a> or ReplicaSets on Kubernetes.</p>
 <p>To scale up or down a controller to run more or less <a href="pods.html">pods</a> (containers) just increase or decrease the <strong>Desired Replicas</strong> value and hit <strong>Save</strong> and hey presto pods are created or destroyed.</p>
 <p><img src="images/controllers.png" alt="controllers tab screenshot"></p>
 <h4 id="overview"><a name="overview" class="plugin-anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h4>

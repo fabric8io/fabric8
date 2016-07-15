@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2" data-basepath=".." data-revision="Fri Jul 15 2016 12:37:41 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2" data-basepath=".." data-revision="Fri Jul 15 2016 16:17:41 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1586,15 +1586,16 @@
 </code></pre>
 <h3 id="access-the-fabric8-developer-console"><a name="access-the-fabric8-developer-console" class="plugin-anchor" href="#access-the-fabric8-developer-console"><span class="fa fa-link"></span></a>Access the Fabric8 Developer Console</h3>
 <p>To open the <a href="../console.html">Fabric8 Developer Console</a> then type the following:</p>
-<pre><code class="lang-sh">minikube service fabric8
+<pre><code class="lang-sh">minishift service fabric8
 </code></pre>
 <p>Then a browse window will open for the console. </p>
 <p>You can use the same command to open other consoles too like gogs, Jenkins or Nexus</p>
-<pre><code class="lang-sh">minikube service gogs
-minikube service jenkins
-minikube service nexus
+<pre><code class="lang-sh">minishift service gogs
+minishift service jenkins
+minishift service nexus
 </code></pre>
 <p>Though from the <a href="../console.html">Fabric8 Developer Console</a> you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:</p>
+<p><img src="../images/console-tools.png" alt="clicking on the tools drop down"></p>
 <h4 id="configuring-docker"><a name="configuring-docker" class="plugin-anchor" href="#configuring-docker"><span class="fa fa-link"></span></a>Configuring Docker</h4>
 <p>To use docker on your host communicating with the docker daemon inside your MiniShift cluster type:</p>
 <pre><code class="lang-sh"><span class="hljs-built_in">eval</span> $(minishift docker-env)
