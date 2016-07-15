@@ -465,18 +465,23 @@ public abstract class AbstractFabric8Mojo extends AbstractNamespacedMojo {
                         URL u = new URL(urlToParse);
                         String host = u.getHost();
                         // lets see if the host name is a service name in which case we'll resolve to the public URL
-                        KubernetesClient kubernetes = getKubernetes();
-                        String ns = kubernetes.getNamespace();
-                        Service service = kubernetes.services().inNamespace(ns).withName(host).get();
-                        if (service != null) {
-                            String publicUrl = KubernetesHelper.getServiceURL(kubernetes, host, ns, u.getProtocol(), true);
-                            return URLUtils.pathJoin(publicUrl, u.getPath());
-                        } else {
-                            if (host.indexOf('.') < 0) {
-                                // the kubernetes service name is not running so lets not generate a Docs link!
-                                getLog().info("Not generating a documentation link annotation as the service " + host + " is not running!");
-                                return null;
+                        String ns = null;
+                        try {
+                            KubernetesClient kubernetes = getKubernetes();
+                            ns = kubernetes.getNamespace();
+                            Service service = kubernetes.services().inNamespace(ns).withName(host).get();
+                            if (service != null) {
+                                String publicUrl = KubernetesHelper.getServiceURL(kubernetes, host, ns, u.getProtocol(), true);
+                                return URLUtils.pathJoin(publicUrl, u.getPath());
+                            } else {
+                                if (host.indexOf('.') < 0) {
+                                    // the kubernetes service name is not running so lets not generate a Docs link!
+                                    getLog().info("Not generating a documentation link annotation as the service " + host + " is not running!");
+                                    return null;
+                                }
                             }
+                        } catch (Exception e) {
+                            getLog().warn("Could not look up service " + host + " in namespace " + ns + " due to : " + e);
                         }
 
                     } catch (MalformedURLException e) {
