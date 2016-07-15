@@ -43,7 +43,7 @@ Then choose your [CD Pipeline](cdpipline.html):
 
 From the console you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:
 
-![clicking on the tools drop down](../images/console-tools.png)
+![clicking on the tools drop down](images/console-tools.png)
 
 ### Runtime tabs
 
