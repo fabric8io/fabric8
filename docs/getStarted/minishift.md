@@ -41,7 +41,7 @@ gofabric8 validate
 To open the [Fabric8 Developer Console](../console.html) then type the following:
 
 ```sh
-minikube service fabric8
+minishift service fabric8
 ```
 
 Then a browse window will open for the console. 
@@ -49,13 +49,14 @@ Then a browse window will open for the console.
 You can use the same command to open other consoles too like gogs, Jenkins or Nexus
 
 ```sh
-minikube service gogs
-minikube service jenkins
-minikube service nexus
+minishift service gogs
+minishift service jenkins
+minishift service nexus
 ```
 
 Though from the [Fabric8 Developer Console](../console.html) you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:
 
+![clicking on the tools drop down](../images/console-tools.png)
  
 #### Configuring Docker
  
