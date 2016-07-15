@@ -1,6 +1,7 @@
 * [Overview](overview.md)
 * [Getting Started](getStarted/index.md)
   * [Use Vagrant and Kubernetes](getStarted/vagrant-kubernetes.md)
+  * [Use MiniShift](getStarted/minishift.md)
   * [Use Vagrant and OpenShift](getStarted/vagrant.md)
   * [Use Kubernetes](getStarted/kubernetes.md)
   * [Use Kubernetes on GKE](getStarted/gke.md)

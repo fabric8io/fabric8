@@ -15,6 +15,12 @@ If you already have a cluster installed try this:
 
 #### Don't have a Kubernetes cluster yet?
 
+* [**MiniShift**](minishift.html)
+
+  This is the easiest and fastest way to get started with Fabric8 and OpenShift Origin locally.
+  You just need to download 2 small binaries ([minishift](https://github.com/jimmidyson/minishift/releases) and [gofabric8](https://github.com/fabric8io/gofabric8/releases)) - no need for VirtualBox or Vagrant!
+  Check out how to [Install Fabric8 on a MiniShift created cluster of OpenShift Origin](minishift.html)
+
 * [**Vagrant with Kubernetes**](vagrant-kubernetes.html)
 
   This is the easiest and fastest way to get started with Fabric8 and Kubernetes locally.
