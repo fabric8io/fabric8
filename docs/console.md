@@ -37,7 +37,7 @@ Then you get to pick what kind of project you wish to create and its name:
 
 ![fabric8 developer console: Select Project Type](images/create-app.png)
 
-Then choose your [CD Pipeline](cdpipline.html):
+Then choose your [CD Pipeline](cdelivery.html):
 
 ![fabric8 developer console: Choose CD Pipeline](images/console-pick-pipeline.png)
 
