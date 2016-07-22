@@ -39,6 +39,12 @@ public abstract class GitRepoClientSupport {
         this.username = username;
     }
 
+    public GitRepoClientSupport(String address, String username) {
+        this.username = username;
+        this.address = address;
+        this.password = null;
+    }
+
     public List<RepositoryDTO> listRepositories() {
         return getApi().listRepositories();
     }
