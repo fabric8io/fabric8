@@ -218,6 +218,18 @@ public class WebClients {
         }
     }
     
+    public static void configureAuthorization(WebClient webClient, String username, String authorizationType, String authorization) {
+        HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
+        if (Strings.isNotBlank(username)) {
+            conduit.getAuthorization().setUserName(username);
+        }
+        if (Strings.isNotBlank(authorizationType) && Strings.isNotBlank(authorization)) {
+            conduit.getAuthorization().setUserName(username);
+            conduit.getAuthorization().setAuthorizationType(authorizationType);
+            conduit.getAuthorization().setAuthorization(authorization);
+        }
+    }
+
     public static void enableDigestAuthenticaionType(WebClient webClient) {
         HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
         conduit.setAuthSupplier(new DigestAuthSupplier());
