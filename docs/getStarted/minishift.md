@@ -46,6 +46,12 @@ minishift service fabric8
 
 Then a browse window will open for the console. 
 
+To see the URL so you can open it in another browser you can type:
+
+```sh
+minishift service fabric8 --url
+```
+
 You can use the same command to open other consoles too like gogs, Jenkins or Nexus
 
 ```sh
