@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Use Kubernetes | Fabric8 Documentation</title>
+        <title>Use MiniKube | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="../getStarted/gke.html" />
+    <link rel="next" href="../getStarted/minishift.html" />
     
     
-    <link rel="prev" href="../getStarted/vagrant.html" />
+    <link rel="prev" href="../getStarted/index.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.5" data-basepath=".." data-revision="Thu Jul 28 2016 14:56:40 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Jul 28 2016 14:56:40 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -101,7 +101,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.1" data-path="getStarted/minikube.html">
+        <li class="chapter active" data-level="2.1" data-path="getStarted/minikube.html">
             
                 
                     <a href="../getStarted/minikube.html">
@@ -161,7 +161,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.5" data-path="getStarted/kubernetes.html">
+        <li class="chapter " data-level="2.5" data-path="getStarted/kubernetes.html">
             
                 
                     <a href="../getStarted/kubernetes.html">
@@ -1576,38 +1576,52 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="getting-started-with-kubernetes"><a name="getting-started-with-kubernetes" class="plugin-anchor" href="#getting-started-with-kubernetes"><span class="fa fa-link"></span></a>Getting started with Kubernetes</h2>
-<p>First you wiil need a Kubernetes cluster to play with. If you don&apos;t yet have a Kubernetes cluster you could try <a href="http://kubernetes.io/docs/getting-started-guides/binary_release/#download-kubernetes-and-automatically-set-up-a-default-cluster" target="_blank">these instructions to install a Kuberentes cluster</a> or try <a href="gke.html">GKE</a>.</p>
-<h3 id="checking-your-connection"><a name="checking-your-connection" class="plugin-anchor" href="#checking-your-connection"><span class="fa fa-link"></span></a>Checking your connection</h3>
-<p>Once you have your kubernetes cluster then check you can connect to it via:</p>
-<pre><code>kubectl get pods
-</code></pre><p>You may also want to <a href="https://blog.fabric8.io/enable-bash-completion-for-kubernetes-with-kubectl-506bc89fe79e#.wswsvb7y7" target="_blank">setup bash completion for kubectl</a> which can make working with <code>kubectl</code> much more fun ;).</p>
+                        <h2 id="getting-started-with-minikube"><a name="getting-started-with-minikube" class="plugin-anchor" href="#getting-started-with-minikube"><span class="fa fa-link"></span></a>Getting Started with MiniKube</h2>
+<p>The easiest way to get started with Fabric8 and Kubernetes on your laptop is via <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a></p>
+<h3 id="start-the-cluster-with-minikube-start"><a name="start-the-cluster-with-minikube-start" class="plugin-anchor" href="#start-the-cluster-with-minikube-start"><span class="fa fa-link"></span></a>Start the cluster with minikube start</h3>
+<ul>
+<li><a href="https://github.com/kubernetes/minikube/releases" target="_blank">Download a MiniKube binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
+<li>type the following command to create a new Kubernetes cluster:</li>
+</ul>
+<pre><code class="lang-sh">minikube start --memory=<span class="hljs-number">6000</span>
+</code></pre>
+<p>Then follow the on screen prompts.</p>
+<p>Note that on OS X we recommend you use the <code>xhyve</code> driver which avoids you having to install VirtualBox and Vagrant; its also leaner &amp; meaner and requires less memory:</p>
+<pre><code class="lang-sh">minikube start  --memory=<span class="hljs-number">6000</span> --vm-driver=xhyve
+</code></pre>
+<p>On Windows you should use the <code>hyperv</code> driver.</p>
+<p>You should now be able to connect to the cluster via the <code>kubectl</code> command line tool from Kubernetes which you can <a href="https://coreos.com/kubernetes/docs/latest/configure-kubectl.html" target="_blank">download kubectl for your platform</a>.</p>
+<pre><code class="lang-sh">oc get pods
+</code></pre>
 <h3 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h3>
-<p>The easiest way to install fabric8 on Kubernetes or OpenShift is the <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8 command line tool</a>.</p>
-<p><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download the latest gofabric8 binary</a>, extract it and add it to your <code>$PATH</code></p>
+<ul>
+<li><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
+</ul>
 <p>Now type the following:</p>
 <pre><code class="lang-sh">gofabric8 deploy -y
-gofabric8 secrets -y
 </code></pre>
-<p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
-<pre><code>gofabric8 deploy -d mydomain.com -y
-gofabric8 secrets -y
-</code></pre><p><strong>Note:</strong> If you wish to use a different domain name to your kubernetes API server, you will need to provide the --api-server parameter to point to the api. e.g.:</p>
-<pre><code>gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
-gofabric8 secrets -y
-</code></pre><p>If you wish to install the full <a href="../cdelivery.html">Fabric8 Microservices Platform with CI / CD support</a> or any other app you can add the <code>--app</code> command line argument:</p>
-<pre><code>gofabric8 deploy -y -d mydomain.com --app=cd-pipeline
-gofabric8 secrets -y
-</code></pre><p>At any point you can validate your installation via:</p>
+<p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
 </code></pre>
-<p>You can also eagerly pull docker images for a Fabric8 template via the <code>pull</code> command</p>
-<pre><code class="lang-sh">gofabric8 pull <span class="hljs-built_in">cd</span>-pipeline
+<h3 id="access-the-fabric8-developer-console"><a name="access-the-fabric8-developer-console" class="plugin-anchor" href="#access-the-fabric8-developer-console"><span class="fa fa-link"></span></a>Access the Fabric8 Developer Console</h3>
+<p>To open the <a href="../console.html">Fabric8 Developer Console</a> then type the following:</p>
+<pre><code class="lang-sh">minikube service fabric8
 </code></pre>
-<h4 id="install-or-upgrade-applications-using-helm"><a name="install-or-upgrade-applications-using-helm" class="plugin-anchor" href="#install-or-upgrade-applications-using-helm"><span class="fa fa-link"></span></a>Install or upgrade applications using Helm</h4>
-<p>You can install or upgrade application using the <a href="http://fabric8.io/guide/helm.html" target="_blank">helm command line tool</a>.</p>
-<h3 id="next-steps"><a name="next-steps" class="plugin-anchor" href="#next-steps"><span class="fa fa-link"></span></a>Next steps</h3>
-<p>You can now install more <a href="apps.html">fabric8 applications</a>.</p>
+<p>Then a browse window will open for the console. </p>
+<p>To see the URL so you can open it in another browser you can type:</p>
+<pre><code class="lang-sh">minikube service fabric8 --url
+</code></pre>
+<p>You can use the same command to open other consoles too like gogs, Jenkins or Nexus</p>
+<pre><code class="lang-sh">minikube service gogs
+minikube service jenkins
+minikube service nexus
+</code></pre>
+<p>Though from the <a href="../console.html">Fabric8 Developer Console</a> you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:</p>
+<p><img src="../images/console-tools.png" alt="clicking on the tools drop down"></p>
+<h4 id="configuring-docker"><a name="configuring-docker" class="plugin-anchor" href="#configuring-docker"><span class="fa fa-link"></span></a>Configuring Docker</h4>
+<p>To use docker on your host communicating with the docker daemon inside your MiniKube cluster type:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">eval</span> $(minikube docker-env)
+</code></pre>
 <h2 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
 <p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
 
@@ -1620,10 +1634,10 @@ gofabric8 secrets -y
         </div>
 
         
-        <a href="../getStarted/vagrant.html" class="navigation navigation-prev " aria-label="Previous page: Use Vagrant and OpenShift"><i class="fa fa-angle-left"></i></a>
+        <a href="../getStarted/index.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/gke.html" class="navigation navigation-next " aria-label="Next page: Use Kubernetes on GKE"><i class="fa fa-angle-right"></i></a>
+        <a href="../getStarted/minishift.html" class="navigation navigation-next " aria-label="Next page: Use MiniShift"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
