@@ -24,7 +24,7 @@ On Windows you should use the `hyperv` driver.
 You should now be able to connect to the cluster via the `kubectl` command line tool from Kubernetes which you can [download kubectl for your platform](https://coreos.com/kubernetes/docs/latest/configure-kubectl.html).
 
 ```sh
-oc get pods
+kubectl get pods
 ```
 
 ### Run the gofabric8 installer
