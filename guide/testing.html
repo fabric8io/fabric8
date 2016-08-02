@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.11" data-basepath="." data-revision="Mon Aug 01 2016 07:02:34 GMT+0000 (UTC)">
+    <div class="book" data-level="3.11" data-basepath="." data-revision="Tue Aug 02 2016 12:33:41 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1590,6 +1590,32 @@
 <li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
 </ul>
+<h3 id="sample-system-test"><a name="sample-system-test" class="plugin-anchor" href="#sample-system-test"><span class="fa fa-link"></span></a>Sample system test</h3>
+<p>The following code provides a sample system test:</p>
+<pre><code class="lang-java"><span class="hljs-keyword">import</span> io.fabric8.kubernetes.client.KubernetesClient;
+<span class="hljs-keyword">import</span> org.jboss.arquillian.junit.Arquillian;
+<span class="hljs-keyword">import</span> org.jboss.arquillian.test.api.ArquillianResource;
+<span class="hljs-keyword">import</span> org.junit.Test;
+<span class="hljs-keyword">import</span> org.junit.runner.RunWith;
+
+<span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> io.fabric8.kubernetes.assertions.Assertions.assertThat;
+
+<span class="hljs-annotation">@RunWith</span>(Arquillian.class)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">KubernetesIntegrationKT</span> </span>{
+
+    <span class="hljs-annotation">@ArquillianResource</span>
+    KubernetesClient client;
+
+    <span class="hljs-annotation">@Test</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">testRunningPodStaysUp</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception </span>{
+        assertThat(client).deployments().pods().isPodReadyForPeriod();
+    }
+}
+</code></pre>
+<p>This will assert that the current project&apos;s <code>Deployment</code>, <code>ReplicaSet</code> or <code>ReplicationController</code> creates at least one pod; that it becomes <code>Ready</code> within a time period (30 seconds by default), then that the pod keeps being <code>Ready</code> for a period (defaults to 10 seconds).</p>
+<p>This may seem a fairly simple test case; but it catches most errors with the image or <code>Deployment</code> being invalid or failing to start; the pod starting then failing due to some configuration issue etc. However you can then add extra custom assertions and code after this initial assertion!</p>
+<p>If your application uses <a href="http://kubernetes.io/docs/user-guide/liveness/" target="_blank">liveness checks</a> (which are used by default with Spring Boot apps) then this test also asserts that the liveness checks keep valid for the period too. So if your application fails to connect to a database or your Camel route fails to start a route or whatever; then the test fails!</p>
+<p>This means to improve your system tests you can just improve your liveness checks; which also helps Kubernetes manage your production environment too!</p>
 <h3 id="session-lifecycle-amp-labels"><a name="session-lifecycle-amp-labels" class="plugin-anchor" href="#session-lifecycle-amp-labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
 <p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
