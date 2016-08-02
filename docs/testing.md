@@ -48,6 +48,37 @@ If your application uses [liveness checks](http://kubernetes.io/docs/user-guide/
 
 This means to improve your system tests you can just improve your liveness checks; which also helps Kubernetes manage your production environment too!
 
+### Using dependent resources
+
+Often if you want to test, say, a messaging client you need to also provision a message broker. You can [configure various settings](#configuration-options) for this in your `src/test/resources/arquillian.xml` file but the easiest thing is to refer to directories or maven dependencies for those dependent JSON/YAML files for the kubernetes resources you want to deploy to your test namespace first before you actual app gets deployed and tested.
+ 
+Here is [an example which deploys a Fabric8 Message Broker](https://github.com/fabric8-quickstarts/cdi-camel-amq/blob/master/src/test/resources/arquillian.xml), store this in `src/test/resources/arquillian.xml`  in your project:
+
+```xml
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://jboss.org/schema/arquillian"
+            xsi:schemaLocation="http://jboss.org/schema/arquillian
+               http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="kubernetes">
+    <property name="env.dependencies">mvn:io.fabric8.ipaas.packages/messaging/${fabric8-ipaas.version}/json/kubernetes</property>
+  </extension>
+</arquillian>
+```
+
+Note to refer to version properties in your XML you need to make sure you enabled filtering in your `pom.xml`
+
+```xml
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+    ...
+```
+
 ### Session, Lifecycle &amp; Labels
 
 The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
@@ -148,16 +179,16 @@ This means that the arquillian.xml configuration file is completely optional.
         
 Supported options:
         
-* masterUrl: The url to the kubernetes master.
-* configFileName: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
-* configUrl: The url to the kubernetes configuration to be tested.
-* connectToServices: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)
-* dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
-* waitForServiceConnection: Wait until a network connection to all applied services is possible.
-* serviceConnectionTimeout: The connection timeout for each attempt to "connect to the service".
-* waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.
-* timeout: The total amount of time for to wait for pods and service to be ready.
-* pollInterval: The interval between polling the status of pods and services.
+* `masterUrl`: The url to the kubernetes master.
+* `configFileName`: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
+* `configUrl`: The url to the kubernetes configuration to be tested.
+* `connectToServices`: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)
+* `env.dependencies`: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
+* `waitForServiceConnection`: Wait until a network connection to all applied services is possible.
+* `serviceConnectionTimeout`: The connection timeout for each attempt to "connect to the service".
+* `waitForServices`: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.
+* `timeout`: The total amount of time for to wait for pods and service to be ready.
+* `pollInterval`: The interval between polling the status of pods and services.
 
 
 ### Maven Integration
