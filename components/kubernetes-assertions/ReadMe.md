@@ -5,6 +5,24 @@
 
 This library provides a bunch of helpful [assertj](http://joel-costigliola.github.io/assertj/) assertions for working with the [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api).
 
+### Default system test
+
+The following code provides a default system test:
+
+```
+             assertThat(client).deployments().pods().isPodReadyForPeriod();
+```
+
+This will assert that the current project's `Deployment` creates at least one pod; that it becomes `Ready` within a time period (30 seconds by default), then that the pod keeps being `Ready` for a period (defaults to 10 seconds).
+
+This may seem a fairly simple test case; but it catches most errors with the `Deployment` being invalid or failing to start; the pod starting then failing due to some configuration issue etc.
+
+If your application uses [liveness checks](http://kubernetes.io/docs/user-guide/liveness/) (which are used by default with Spring Boot apps) then this test also asserts that the liveness checks keep valid for the period too. So if your application fails to connect to a database or your Camel route fails to start a route or whatever; then the test fails!
+
+This means to improve your system tests you can just improve your liveness checks; which also helps Kubernetes manage your production environment too!
+
+### Other examples
+
 Some quick examples:
 
 * [assertThat(KubernetesClient)](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-assertions/src/test/java/io/fabric8/kubernetes/assertions/Example.java#L38) helper code that is available if you add the **kubernetes-assertions** dependency.

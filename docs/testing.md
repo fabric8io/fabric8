@@ -14,6 +14,40 @@ Using this extension you can easily:
 * [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
 * [kubernetes-assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) and [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) to provide assertions within the JUnit test case.
 
+### Sample system test
+
+The following code provides a sample system test:
+
+``` java
+import io.fabric8.kubernetes.client.KubernetesClient;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
+
+@RunWith(Arquillian.class)
+public class KubernetesIntegrationKT {
+
+    @ArquillianResource
+    KubernetesClient client;
+
+    @Test
+    public void testRunningPodStaysUp() throws Exception {
+        assertThat(client).deployments().pods().isPodReadyForPeriod();
+    }
+}
+```
+
+This will assert that the current project's `Deployment`, `ReplicaSet` or `ReplicationController` creates at least one pod; that it becomes `Ready` within a time period (30 seconds by default), then that the pod keeps being `Ready` for a period (defaults to 10 seconds).
+
+This may seem a fairly simple test case; but it catches most errors with the image or `Deployment` being invalid or failing to start; the pod starting then failing due to some configuration issue etc. However you can then add extra custom assertions and code after this initial assertion!
+
+If your application uses [liveness checks](http://kubernetes.io/docs/user-guide/liveness/) (which are used by default with Spring Boot apps) then this test also asserts that the liveness checks keep valid for the period too. So if your application fails to connect to a database or your Camel route fails to start a route or whatever; then the test fails!
+
+This means to improve your system tests you can just improve your liveness checks; which also helps Kubernetes manage your production environment too!
+
 ### Session, Lifecycle &amp; Labels
 
 The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
