@@ -147,7 +147,7 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
             ready = podReadyForEntireDuration.getCount() == 0L;
         }
         if (!ready) {
-            fail(podSelectionAssert.getDescription() + " did not have a pod Ready fora duration of " + readyPeriodMS + " millis");
+            fail(podSelectionAssert.getDescription() + " did not have a pod Ready for a duration of " + readyPeriodMS + " millis");
         }
     }
 
