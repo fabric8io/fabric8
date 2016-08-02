@@ -191,7 +191,14 @@ public class SessionListener {
         if (file.exists()) {
             loadDependency(log, kubeConfigs, file, controller, configuration, log, namespace);
         } else {
-            addConfig(kubeConfigs, loadJson(readAsString(createURL(dependency))), controller, configuration, log, namespace, dependency);
+            String text = readAsString(createURL(dependency));
+            Object resources;
+            if (text.trim().startsWith("---")) {
+                resources = loadYaml(text);
+            }  else {
+                resources = loadJson(text);
+            }
+            addConfig(kubeConfigs, resources, controller, configuration, log, namespace, dependency);
         }
     }
 
