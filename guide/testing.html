@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.11" data-basepath="." data-revision="Tue Aug 02 2016 12:33:41 GMT+0000 (UTC)">
+    <div class="book" data-level="3.11" data-basepath="." data-revision="Tue Aug 02 2016 14:21:47 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1616,6 +1616,29 @@
 <p>This may seem a fairly simple test case; but it catches most errors with the image or <code>Deployment</code> being invalid or failing to start; the pod starting then failing due to some configuration issue etc. However you can then add extra custom assertions and code after this initial assertion!</p>
 <p>If your application uses <a href="http://kubernetes.io/docs/user-guide/liveness/" target="_blank">liveness checks</a> (which are used by default with Spring Boot apps) then this test also asserts that the liveness checks keep valid for the period too. So if your application fails to connect to a database or your Camel route fails to start a route or whatever; then the test fails!</p>
 <p>This means to improve your system tests you can just improve your liveness checks; which also helps Kubernetes manage your production environment too!</p>
+<h3 id="using-dependent-resources"><a name="using-dependent-resources" class="plugin-anchor" href="#using-dependent-resources"><span class="fa fa-link"></span></a>Using dependent resources</h3>
+<p>Often if you want to test, say, a messaging client you need to also provision a message broker. You can <a href="#configuration-options">configure various settings</a> for this in your <code>src/test/resources/arquillian.xml</code> file but the easiest thing is to refer to directories or maven dependencies for those dependent JSON/YAML files for the kubernetes resources you want to deploy to your test namespace first before you actual app gets deployed and tested.</p>
+<p>Here is <a href="https://github.com/fabric8-quickstarts/cdi-camel-amq/blob/master/src/test/resources/arquillian.xml" target="_blank">an example which deploys a Fabric8 Message Broker</a>, store this in <code>src/test/resources/arquillian.xml</code>  in your project:</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">arquillian</span> <span class="hljs-attribute">xmlns:xsi</span>=<span class="hljs-value">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+            <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;http://jboss.org/schema/arquillian&quot;</span>
+            <span class="hljs-attribute">xsi:schemaLocation</span>=<span class="hljs-value">&quot;http://jboss.org/schema/arquillian
+               http://jboss.org/schema/arquillian/arquillian_1_0.xsd&quot;</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-title">extension</span> <span class="hljs-attribute">qualifier</span>=<span class="hljs-value">&quot;kubernetes&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;env.dependencies&quot;</span>&gt;</span>mvn:io.fabric8.ipaas.packages/messaging/${fabric8-ipaas.version}/json/kubernetes<span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">extension</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">arquillian</span>&gt;</span>
+</code></pre>
+<p>Note to refer to version properties in your XML you need to make sure you enabled filtering in your <code>pom.xml</code></p>
+<pre><code class="lang-xml">  <span class="hljs-tag">&lt;<span class="hljs-title">build</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">testResources</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">testResource</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">directory</span>&gt;</span>src/test/resources<span class="hljs-tag">&lt;/<span class="hljs-title">directory</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">filtering</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-title">filtering</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">testResource</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">testResources</span>&gt;</span>
+    ...
+</code></pre>
 <h3 id="session-lifecycle-amp-labels"><a name="session-lifecycle-amp-labels" class="plugin-anchor" href="#session-lifecycle-amp-labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
 <p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
@@ -1681,16 +1704,16 @@ to specify it again.
 This means that the arquillian.xml configuration file is completely optional.</p>
 <p>Supported options:</p>
 <ul>
-<li>masterUrl: The url to the kubernetes master.</li>
-<li>configFileName: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
-<li>configUrl: The url to the kubernetes configuration to be tested.</li>
-<li>connectToServices: Whether or not an attempt is made to connect to a service port; failing the test if it can&apos;t be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)</li>
-<li>dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.</li>
-<li>waitForServiceConnection: Wait until a network connection to all applied services is possible.</li>
-<li>serviceConnectionTimeout: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
-<li>waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.</li>
-<li>timeout: The total amount of time for to wait for pods and service to be ready.</li>
-<li>pollInterval: The interval between polling the status of pods and services.</li>
+<li><code>masterUrl</code>: The url to the kubernetes master.</li>
+<li><code>configFileName</code>: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
+<li><code>configUrl</code>: The url to the kubernetes configuration to be tested.</li>
+<li><code>connectToServices</code>: Whether or not an attempt is made to connect to a service port; failing the test if it can&apos;t be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)</li>
+<li><code>env.dependencies</code>: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.</li>
+<li><code>waitForServiceConnection</code>: Wait until a network connection to all applied services is possible.</li>
+<li><code>serviceConnectionTimeout</code>: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
+<li><code>waitForServices</code>: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.</li>
+<li><code>timeout</code>: The total amount of time for to wait for pods and service to be ready.</li>
+<li><code>pollInterval</code>: The interval between polling the status of pods and services.</li>
 </ul>
 <h3 id="maven-integration"><a name="maven-integration" class="plugin-anchor" href="#maven-integration"><span class="fa fa-link"></span></a>Maven Integration</h3>
 <p>If dependencies have not been explicitly specified, the extension will find all test scoped dependencies and search inside those artifacts for kubernetes.json resources.
