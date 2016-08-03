@@ -31,12 +31,12 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 TOOLSJAR="$JAVA_HOME/lib/tools.jar"
-JAVA_OPTS=-javaagent:$JAR_DIR/fabric8-agent-2.3-SNAPSHOT.jar
+JAVA_OPTS=-javaagent:$JAR_DIR/fabric8-agent-2.2-SNAPSHOT.jar
 
 if [ ! -f "$TOOLSJAR" ] ; then
         echo "$JAVA_HOME seems to be no JDK!" >&2
         exit 1
 fi
 
-"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/fabric8-agent-2.3-SNAPSHOT-tests.jar" io.fabric8.testApp.TestApp
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/fabric8-agent-2.2-SNAPSHOT-tests.jar" io.fabric8.testApp.TestApp
 exit $?

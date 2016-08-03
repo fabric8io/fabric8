@@ -37,6 +37,6 @@ if [ ! -f "$TOOLSJAR" ] ; then
         exit 1
 fi
 
-"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/fabric8-apm-2.3-SNAPSHOT.jar:$TOOLSJAR" \
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/fabric8-apm-2.2-SNAPSHOT.jar:$TOOLSJAR" \
 io.fabric8.apmagent.ApmAgentLauncher "$@"
 exit $?
