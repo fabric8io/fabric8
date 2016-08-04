@@ -71,7 +71,7 @@ public class ServerMockTestSuite {
 
         MOCK.init();
 
-        String masterUrl = MOCK.getServer().getUrl("/").toString();
+        String masterUrl = MOCK.getServer().url("/").toString();
         System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, masterUrl);
         System.setProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, "arquillian");
         System.setProperty(Constants.NAMESPACE_TO_USE, "arquillian");
