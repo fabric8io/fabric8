@@ -1,6 +1,6 @@
 ## Getting Started with Kubernetes on AWS
 
-It is very easy to get up and running with AWS and the docs are extremely well structured.  Before you start you should read the [overview](https://cloud.google.com/container-engine/docs/#overview) and familiarise yourself with the [pricing](https://cloud.google.com/container-engine/docs/#pricing) information.
+It is very easy to get up and running with AWS and the docs are extremely well structured. 
 
 ### Before you begin
 To start you will need to sign up for an account and obtain your AWS Access Key ID and Secret Access Key as well as get the AWS CLI client.  Follow the prerequisits in the Kubernetes docs.

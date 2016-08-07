@@ -1,17 +1,17 @@
 * [Overview](overview.md)
 * [Getting Started](getStarted/index.md)
-  * [Kubernetes]
+  * Kubernetes
     * [MiniKube](getStarted/minikube.md)
     * [Vagrant](getStarted/vagrant-kubernetes.md)
-    * [Kubernetes](getStarted/kubernetes.md) 
     * [Google Container Engine](getStarted/gke.md)
     * [AWS](getStarted/aws.md)
-  * [OpenShift]
+    * [Kubernetes](getStarted/kubernetes.md) 
+  * OpenShift
     * [MiniShift](getStarted/minishift.md)
-    * [Vagrant and OpenShift](getStarted/vagrant.md)
+    * [Vagrant](getStarted/vagrant.md)
+    * [Red Hat CDK](getStarted/cdk.md)
     * [OpenShift](getStarted/openshift.md)
       * [Install OpenShift](getStarted/installOpenShift.md)
-    * [Red Hat CDK](getStarted/cdk.md)
     * [Accept self-signed certs](getStarted/browserCertificates.md)
     * [Setup Local OpenShift Client](getStarted/local.md)
   * [Installing apps](getStarted/apps.md)
