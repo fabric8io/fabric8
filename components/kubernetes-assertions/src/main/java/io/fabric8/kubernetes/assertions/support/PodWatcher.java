@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +49,10 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
     private final long readyTimeoutMS;
     private final long readyPeriodMS;
     private Map<String, PodAsserter> podAsserts = new HashMap<>();
+    private Map<String, PodLogWatcher> podLogWatchers = new HashMap<>();
     private CountDownLatch podReady = new CountDownLatch(1);
     private CountDownLatch podReadyForEntireDuration = new CountDownLatch(1);
+    private File basedir;
 
     public PodWatcher(PodSelectionAssert podSelectionAssert, long readyTimeoutMS, long readyPeriodMS) {
         this.podSelectionAssert = podSelectionAssert;
@@ -90,7 +95,8 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
         if (action.equals(Action.ERROR)) {
             LOG.warn("Got error for pod " + name);
         } else if (action.equals(Action.DELETED)) {
-            closeAsserter(name);
+            closeCloser(name, this.podAsserts);
+            closeCloser(name, this.podLogWatchers);
         } else {
             onPod(name, pod);
         }
@@ -105,13 +111,37 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
         } else {
             asserter.updated(pod);
         }
+        PodLogWatcher logWatcher = podLogWatchers.get(name);
+        if (logWatcher == null) {
+            String logName = name;
+            int counter = 2;
+            File logFile;
+            while (true) {
+                logFile = new File(getBaseDir(), "target/test-pod-logs/" + logName + ".log");
+                if (!logFile.exists()) {
+                    break;
+                }
+                logName = name + "-" + counter++;
+            }
+            try {
+                logWatcher = new PodLogWatcher(this, name, pod, logFile);
+                podLogWatchers.put(name, logWatcher);
+                LOG.info("Watching pod " + name + " log at file: " + logFile.getAbsolutePath());
+            } catch (FileNotFoundException e) {
+                LOG.warn("Failed to create PodLogWatcher: " + e, e);
+            }
+        }
     }
 
-    protected void closeAsserter(String name) {
-        PodAsserter asserter = podAsserts.remove(name);
-        if (asserter != null) {
-            asserter.close();
+    public File getBaseDir() {
+        if (basedir == null) {
+            basedir = new File(System.getProperty("basedir", "."));
         }
+        return basedir;
+    }
+
+    public void setBasedir(File basedir) {
+        this.basedir = basedir;
     }
 
     @Override
@@ -120,10 +150,26 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
     }
 
     public void close() {
-        while (!podAsserts.isEmpty()) {
-            Set<String> keys = podAsserts.keySet();
+        closeAllClosers(this.podAsserts);
+        closeAllClosers(this.podLogWatchers);
+    }
+
+    protected void closeAllClosers(Map<String, ? extends Closeable> closers) {
+        while (!closers.isEmpty()) {
+            Set<String> keys = closers.keySet();
             for (String key : keys) {
-                closeAsserter(key);
+                closeCloser(key, closers);
+            }
+        }
+    }
+
+    private void closeCloser(String name, Map<String, ? extends Closeable> closers) {
+        Closeable closer = closers.remove(name);
+        if (closer != null) {
+            try {
+                closer.close();
+            } catch (Exception e) {
+                LOG.warn("Failed to close " + closer + ". " + e, e);
             }
         }
     }

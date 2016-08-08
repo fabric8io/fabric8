@@ -17,10 +17,14 @@
 package io.fabric8.kubernetes.assertions.support;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,7 +33,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 /**
  */
-public class PodAsserter {
+public class PodAsserter implements Closeable {
     private static final transient Logger LOG = LoggerFactory.getLogger(PodAsserter.class);
 
     private final PodWatcher watcher;
