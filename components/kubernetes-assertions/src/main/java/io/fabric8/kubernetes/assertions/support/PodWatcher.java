@@ -17,7 +17,9 @@
 package io.fabric8.kubernetes.assertions.support;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.assertions.PodSelectionAssert;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -27,16 +29,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.assertions.support.LogHelpers.getRestartCount;
 import static org.assertj.core.api.Assertions.fail;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -49,8 +51,8 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
     private final PodSelectionAssert podSelectionAssert;
     private final long readyTimeoutMS;
     private final long readyPeriodMS;
-    private Map<String, PodAsserter> podAsserts = new HashMap<>();
-    private Map<String, PodLogWatcher> podLogWatchers = new HashMap<>();
+    private Map<String, PodAsserter> podAsserts = new ConcurrentHashMap<>();
+    private Map<String, PodLogWatcher> podLogWatchers = new ConcurrentHashMap<>();
     private CountDownLatch podReady = new CountDownLatch(1);
     private CountDownLatch podReadyForEntireDuration = new CountDownLatch(1);
     private File basedir;
@@ -112,24 +114,26 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
         } else {
             asserter.updated(pod);
         }
-        PodLogWatcher logWatcher = podLogWatchers.get(name);
-        if (logWatcher == null) {
-            String logName = name;
-            int counter = 2;
-            File logFile;
-            while (true) {
-                logFile = new File(getBaseDir(), "target/test-pod-logs/" + logName + ".log");
-                if (!logFile.exists()) {
-                    break;
+        int restartCount = getRestartCount(pod);
+        PodSpec spec = pod.getSpec();
+        if (spec != null) {
+            if (KubernetesHelper.isPodRunning(pod)) {
+                List<Container> containers = spec.getContainers();
+                for (Container container : containers) {
+                    File logFileName = LogHelpers.getLogFileName(getBaseDir(), name, container, restartCount);
+                    String key = logFileName.getName();
+                    PodLogWatcher logWatcher = podLogWatchers.get(key);
+                    if (logWatcher == null) {
+                        try {
+                            String containerName = container.getName();
+                            logWatcher = new PodLogWatcher(this, name, pod, containerName, logFileName);
+                            podLogWatchers.put(key, logWatcher);
+                            LOG.info("Watching pod " + name + " container " + containerName + " log at file: " + logFileName.getAbsolutePath());
+                        } catch (Exception e) {
+                            LOG.warn("Failed to create PodLogWatcher: " + e, e);
+                        }
+                    }
                 }
-                logName = name + "-" + counter++;
-            }
-            try {
-                logWatcher = new PodLogWatcher(this, name, pod, logFile);
-                podLogWatchers.put(name, logWatcher);
-                LOG.info("Watching pod " + name + " log at file: " + logFile.getAbsolutePath());
-            } catch (FileNotFoundException e) {
-                LOG.warn("Failed to create PodLogWatcher: " + e, e);
             }
         }
         File yamlFile = new File(getBaseDir(), "target/test-pod-status/" + name + ".yml");
@@ -158,8 +162,8 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
     }
 
     public void close() {
-        closeAllClosers(this.podAsserts);
-        closeAllClosers(this.podLogWatchers);
+        closeAllClosers(podAsserts);
+        closeAllClosers(podLogWatchers);
     }
 
     protected void closeAllClosers(Map<String, ? extends Closeable> closers) {
