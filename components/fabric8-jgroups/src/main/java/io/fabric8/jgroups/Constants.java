@@ -20,5 +20,5 @@ public class Constants {
     public static final short KUBERNETES_DISCOVERY_ID = 1001;
     
     public static final String JGROUPS_CLUSTER_NAME = "cluster";
-    public static final String JGROUPS_TCP_PORT = "jgroups-tcp-port";
+    public static final String JGROUPS_TCP_PORT = "jgroups-tcp";
 }
