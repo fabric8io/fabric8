@@ -18,6 +18,7 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.utils.Systems;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -31,6 +32,7 @@ public class Session {
     private final AtomicInteger passed = new AtomicInteger();
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger skiped = new AtomicInteger();
+    private File basedir;
 
     public Session(String id, String namespace, Logger logger) {
         this.id = id;
@@ -71,5 +73,13 @@ public class Session {
 
     public AtomicInteger getSkiped() {
         return skiped;
+    }
+
+
+    public File getBaseDir() {
+        if (basedir == null) {
+            basedir = new File(System.getProperty("basedir", "."));
+        }
+        return basedir;
     }
 }

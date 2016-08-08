@@ -43,6 +43,7 @@ import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -85,6 +86,8 @@ public class SessionListener {
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
+
+        clearTestResultDirectories(session);
 
         controller.setNamespace(namespace);
         controller.setThrowExceptionOnError(true);
@@ -157,6 +160,11 @@ public class SessionListener {
             }
             throw new RuntimeException(e);
         }
+    }
+
+    private void clearTestResultDirectories(Session session) {
+        Files.recursiveDelete(new File(session.getBaseDir(), "target/test-pod-status"));
+        Files.recursiveDelete(new File(session.getBaseDir(), "target/test-pod-logs"));
     }
 
     protected Object expandTemplate(Controller controller, Configuration configuration, Logger log, String namespace, String sourceName, Object dto) {

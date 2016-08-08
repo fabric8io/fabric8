@@ -24,15 +24,23 @@ import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 public class SessionPodsAreReady implements Callable<Boolean> {
-
+    public static final String LOG_FILE_POSTFIX = ".log";
     private final Session session;
     private final KubernetesClient kubernetesClient;
+    private File basedir;
 
     public SessionPodsAreReady(KubernetesClient kubernetesClient, Session session) {
         this.session = session;
@@ -53,9 +61,16 @@ public class SessionPodsAreReady implements Callable<Boolean> {
             if (!KubernetesHelper.isPodReady(pod)) {
                 result = false;
                 PodStatus podStatus = pod.getStatus();
+                int restartCount = 0;
                 if (podStatus != null) {
                     List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
                     for (ContainerStatus containerStatus : containerStatuses) {
+                        if (restartCount == 0) {
+                            Integer restartCountValue = containerStatus.getRestartCount();
+                            if (restartCountValue != null) {
+                                restartCount = restartCountValue.intValue();
+                            }
+                        }
                         ContainerState state = containerStatus.getState();
                         if (state != null) {
                             ContainerStateWaiting waiting = state.getWaiting();
@@ -68,9 +83,45 @@ public class SessionPodsAreReady implements Callable<Boolean> {
                         }
                     }
                 }
+                String name = KubernetesHelper.getName(pod);
+                File yamlFile = new File(session.getBaseDir(), "target/test-pod-status/" + name + ".yml");
+                yamlFile.getParentFile().mkdirs();
+                try {
+                    KubernetesHelper.saveYaml(pod, yamlFile);
+                } catch (IOException e) {
+                    session.getLogger().warn("Failed to write " + yamlFile + ". " + e);
+                }
+                File logDir = new File(session.getBaseDir(), "target/test-pod-logs/");
+                String logFileName;
+                if (restartCount == 0) {
+                    logFileName = name + LOG_FILE_POSTFIX;
+                } else {
+                    logFileName = name + "-" + restartCount + LOG_FILE_POSTFIX;
+                }
+                File logFile =  new File(logDir, logFileName);
+                logFile.getParentFile().mkdirs();
+                String log = kubernetesClient.pods().inNamespace(session.getNamespace()).withName(name).getLog(true);
+                IOHelpers.writeFully(logFile, log);
             }
         }
         return result;
+    }
+
+    private SortedMap<String, File> findLogFiles(File logDir, String name) {
+        SortedMap<String, File> answer = new TreeMap<>();
+        File[] files = logDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
+                if (fileName.endsWith(LOG_FILE_POSTFIX)) {
+                    fileName = Strings.stripSuffix(fileName, LOG_FILE_POSTFIX);
+                    if (fileName.startsWith(name)) {
+                        answer.put(fileName, file);
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
 }

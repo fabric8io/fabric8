@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.assertions.support;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.assertions.PodSelectionAssert;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -130,6 +131,13 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
             } catch (FileNotFoundException e) {
                 LOG.warn("Failed to create PodLogWatcher: " + e, e);
             }
+        }
+        File yamlFile = new File(getBaseDir(), "target/test-pod-status/" + name + ".yml");
+        yamlFile.getParentFile().mkdirs();
+        try {
+            KubernetesHelper.saveYaml(pod, yamlFile);
+        } catch (IOException e) {
+            LOG.warn("Failed to write " + yamlFile + ". " + e, e);
         }
     }
 
