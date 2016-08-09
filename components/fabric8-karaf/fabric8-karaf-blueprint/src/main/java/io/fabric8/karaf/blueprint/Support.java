@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.fabric8.karaf;
+package io.fabric8.karaf.blueprint;
 
 public class Support {
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf;
+package io.fabric8.karaf.blueprint;
 
 /**
  * A function that is applied instead of looking up a property placeholder.

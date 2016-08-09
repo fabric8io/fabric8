@@ -14,12 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf;
+package io.fabric8.karaf.blueprint;
 
 import java.util.Locale;
-
-import static io.fabric8.karaf.Support.after;
-import static io.fabric8.karaf.Support.before;
 
 /**
  * A {@link PropertiesFunction} that lookup the property value from
@@ -52,8 +49,8 @@ public class ServiceHostPropertiesFunction implements PropertiesFunction {
         String defaultValue = null;
 
         if (remainder.contains(":")) {
-            key = before(remainder, ":");
-            defaultValue = after(remainder, ":");
+            key = Support.before(remainder, ":");
+            defaultValue = Support.after(remainder, ":");
         }
 
         // make sure to use upper case

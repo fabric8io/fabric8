@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.karaf;
+package io.fabric8.karaf.blueprint;
 
 import java.util.Dictionary;
 import java.util.LinkedHashMap;
