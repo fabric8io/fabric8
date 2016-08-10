@@ -1,8 +1,23 @@
 ## Fabric8 Maven Plugin
 
-This maven plugin makes it easy to work with Kubernetes from your Maven project.
+The fabric8 maven plugin makes it easy to work with Docker and Kubernetes or OpenShift from inside your existing Maven project.
 
-### Goals
+### Version 3.x
+
+If you are starting a new project we highly recommend using the new 3.x version of the fabric8-maven-plugin which has the following features:
+
+* much simpler to use!
+* can detect most common Java apps and just do the right thing OOTB
+* configure via maven XML or by writing optional partial kubernetes YAML files in `src/main/fabric8`
+* pluggable generators and enrichers for different kinds of apps (e.g. to auto detect Spring Boot, executable jars, WARs, Karaf etc). 
+
+See the [fabric8 maven plugin 3.x documentation](https://maven.fabric8.io/) for more details!
+
+### Version 2.x
+
+**NOTE** We highly recommend you [use 3.x or later](https://maven.fabric8.io/) but if you are not yet ready to move, here's the docs for the 2.x version of the maven plugin!
+
+#### Goals
 
 For building and pushing docker images
 
