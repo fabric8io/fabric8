@@ -2,6 +2,7 @@
 
 When developing Microservices you need to consider the following capabilities:
 
+  * [Create a microservice](develop/createMicroservice.html)
   * [Elasticity and Resilience](elasticity.html)
   * [Design for Failure](designForFailure.md)
   * [Service Discovery](serviceDiscovery.html)
