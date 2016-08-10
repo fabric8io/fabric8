@@ -37,60 +37,17 @@ The Jenkins app comes with a template parameter **SEED_GIT_URL** which is the lo
 
 The `SEED_GIT_URL` parameter defaults to the value `https://github.com/fabric8io/default-jenkins-dsl.git` for the [default-jenkins-dsl](https://github.com/fabric8io/default-jenkins-dsl) project which provides an example set of scripts to iterate over your projects and create the necessary jobs for them. We hope soon those scripts will automatically setup CI / CD jobs for projects in the hosted [Gogs](http://gogs.io/) repositories (for now it will iterate over a github organisation and generates builds for matching projects).
 
-### Installation
+### Getting started
     
-If you have [Apache Maven](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) installed then the following instructions should get you going.
-   
-* type `oc login` to ensure you are logged in and [your machine is setup](setupLocalHost.html)
-* set the `KUBERNETES_DOMAIN` environment variable which if you are running the [Fabric8 vagrant image](getStartedVagrant.html) will be:
-
-```
-    export KUBERNETES_DOMAIN=vagrant.f8
-```
-
-* if you have run the Fabric8 Continuous Deployment before its a good idea to get the latest console and jenkins images. If this is the first time you are running it you can skip this step (though it does no harm):
-    
-```
-    docker pull fabric8/fabric8-console
-    docker pull fabric8/jenkins
-``` 
-    
-* type the following commands
-
-```
-    git clone https://github.com/fabric8io/fabric8-installer.git
-    cd fabric8-installer
-    cd cdelivery
-    mvn install
-```    
-
-If you are running the [Fabric8 vagrant image](getStarted/vagrant.html) and have [setup your local machine's /etc/hosts file](setupLocalHost.html#adding-entries-in-etc-hosts) then you should be able to open [http://gogs.vagrant.f8/](http://gogs.vagrant.f8/) then click the `sign in up` link.
-
-For now use user `gogsadmin` and password `RedHat$1` as the user and password in gogs (unless you changed the defaults).
-
-* Now in the [fabric8 console](console.html) if you click the **Projects** tab the **Repositories** sub tab should be available. This prompts you to login to gogs with the user and password (until we can get [single sign on working with gogs and OpenShift](https://github.com/gogits/gogs/issues/1271))
-
-* Once you are logged in the **Repositories** tab should show a **Create Project** button on the top right. Click that and try create a project. On the second page of the wizard you get to choose which archetype to use as the start of the project. (If this combo box doesn't populate first time, its a little bug, go back in your browser and try again ;).
-
-* A good start project is the **camel-cdi** archetype but try any of the archetypes you like the look of. 
-
-* Once you click the **Execute** button the new git repository should be created, the initial code for the project generated from the archetype using the group and artifact IDs and Java package names you picked.
-
-* You should now be able to see the new repository in the **Repositories** page and browse the repository in gogs via the **Browse** button and open the editor using the **Edit** button.
- 
-* The create project wizard should also now have triggered the Jenkins Job DSL to generate the CI / CD builds for this new project by triggering the **seed** build in Jenkins. If you look at the jenkins install - by default at [http://jenkins.vagrant.f8](http://jenkins.vagrant.f8) you should see either the **seed** build running or the new builds created for your project! 
-
-* Now you might want to setup [Chat](chat.html) so that you see chat room notifications of builds and kubernetes resources change.
-
-For more information see [Install Fabric8 on OpenShift Guide](getStarted/openshift.html).
+For more information on getting started with Continous Delivery check out the [Fabric8 Getting Started Guide](getStarted/index.html).
 
 ### Demo
 
-Here is a [video demonstrating Fabric8 Continuous Delivery Pipelines](https://vimeo.com/142857726)
+Here is a [video demonstrating Fabric8 Continuous Delivery Pipelines](https://vimeo.com/170830750)
 
 <div class="row">
   <p class="text-center">
-      <iframe src="https://player.vimeo.com/video/142857726" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      <iframe src="https://player.vimeo.com/video/170830750" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
   </p>
   <p class="text-center">
     <a href="https://medium.com/fabric8-io/create-and-explore-continuous-delivery-pipelines-with-fabric8-and-jenkins-on-openshift-661aa82cb45a">more details in a blog post</a>
