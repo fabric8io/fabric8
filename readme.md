@@ -2,7 +2,8 @@ fabric8
 =======
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-project/badge.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/io.fabric8/fabric8-project/)
-![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)
+![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)[![Join the chat at https://gitter.im/fabric8io/fabric8](https://badges.gitter.im/fabric8io/fabric8.svg)](https://gitter.im/fabric8io/fabric8?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 <p align="center">
   <a href="http://fabric8.io/">
