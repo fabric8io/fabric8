@@ -1,4 +1,4 @@
-## Jenkins Workflow Library
+## Jenkins Pipeline Library
 
 Continuous Delivery pipelines can be complex; with things like:
 
@@ -6,29 +6,32 @@ Continuous Delivery pipelines can be complex; with things like:
 * parallel builds
 * fan-in and fan-out of builds
 
-So to allow flexible Continuous Delivery Pipelines to be defined in a simple script (or DSL) there is an excellent Jenkins plugin called [Jenkins Workflow Plugin](https://github.com/jenkinsci/workflow-plugin).
+Our recommended tool for implementing Continuous Delivery pipelines is Jenkins which version 2.x or later comes with the [Jenkins Pipeline Plugin](https://github.com/jenkinsci/pipeline-plugin) included by default.
+                                                                                                                          
+The Jenkins Pipeline Plugin lets you to define delivery pipelines using concise [Groovy](http://www.groovy-lang.org/) scripts which deal elegantly with the persistence and asynchrony involved.
+
+You [define your pipeline](https://jenkins.io/doc/pipeline/) in a file called `Jenkinsfile` which we recommend you commit into the root directory of your projects git repository.
+
+### Reusing Pipeline Scripts
  
-The Jenkins Workflow Plugin lets you to define delivery pipelines using concise [Groovy](http://www.groovy-lang.org/) scripts which deal elegantly with the persistence and asynchrony involved.
+You can add a Jenkins pipeline file into your project's source code to maintain the delivery pipeline and source code together in the same repository.
+
+However teams often have lots of projects which are very similar in nature and copying a groovy script into each project; or into each jenkins pipeline job configuration page can soon become maintenance burden.
+
+So with Microservices Platform you can configure a reusable _library of pipeline scripts_ such as the [default Fabric8 pipeline library](https://github.com/fabric8io/jenkins-pipeline-library). 
  
-### Reusing Workflow Scripts
+Then you can link each project to the reusable pipeline script that most suits the project. The pipeline scripts are configurable with build parameters. If you find that none of the pipeline scripts are quite right for a project, just copy the closest one into the project and customise it.
+
+### Configuring the Pipeline Script for a project
+
+The easiest way to configure the Pipeline for your project is via the [fabric8 developer console](../console.html).
+
+* navigate to the `Team` page then the `App` page
+* click on the `Settings` option on the left hand navigation bar
+* now click the `Pipeline` tab
+
+If your project has a pipeline you will then have a button to edit it directly in the console.
+
+Otherwise the console will present you with a selection of pipelines that are available to reuse from the [Fabric8 pipeline library](https://github.com/fabric8io/jenkins-pipeline-library). Just pick the one you want and `Next` then fabric8 will add the Jenkinsfile to your project (if you enable the copy operation) and setup the Jenkins build for you.
  
-You can add a Jenkins workflow script into your project's source code to maintain the delivery pipeline and source code together in the same repository.
-
-However teams often have lots of projects which are very similar in nature and copying a groovy script into each project; or into each jenkins workflow job configuration page can soon become maintenance burden.
-
-So with Microservices Platform you can configure a reusable _library of workflow scripts_ such as the [default Fabric8 workflow library](https://github.com/fabric8io/jenkins-workflow-library). 
- 
-Then you can link each project to the reusable pipeline script that most suits the project. The pipeline scripts are configurable with build parameters. If you find that none of the workflow scripts are quite right for a project, just copy the closest one into the project and customise it.
-
-
-### Configuring the Workflow Script for a project
-
-To configure the reuseable workflow script for a project you can use the [fabric8.yml file](fabric8YmlFile.html).
-
-You can edit the `fabric8.yml` file via:
-
-* the `project settings` button in the [console](console.html)
-* the `fabric8.yml` file directly using a text editor in source control
-* using the [Microservices Platform Forge commands from the CLI or in your IDE](forge.html)
-
-
+                                                                                                           
