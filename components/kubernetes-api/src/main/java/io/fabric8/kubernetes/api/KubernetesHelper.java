@@ -15,8 +15,12 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.extensions.Templates;
 import io.fabric8.kubernetes.api.model.*;
@@ -88,6 +92,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -472,20 +477,31 @@ public final class KubernetesHelper {
      * Loads the YAML file for the given DTO class
      */
     public static <T> T loadYaml(byte[] data, Class<T> clazz) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        ObjectMapper mapper = createYamlObjectMapper();
         return mapper.readValue(data, clazz);
     }
 
     public static void saveYaml(Object data, File file) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        ObjectMapper mapper = createYamlObjectMapper();
         mapper.writeValue(file, data);
     }
 
     public static void saveYaml(Object data, FileObject fileObject) throws IOException{
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        ObjectMapper mapper = createYamlObjectMapper();
         try (Writer writer = fileObject.openWriter()) {
             mapper.writeValue(writer, data);
         }
+    }
+
+    public static String toYaml(Object data) throws IOException {
+        ObjectMapper mapper = createYamlObjectMapper();
+        return mapper.writeValueAsString(data);
+    }
+
+    public static ObjectMapper createYamlObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return objectMapper;
     }
 
     /**
@@ -2172,5 +2188,67 @@ public final class KubernetesHelper {
 
     private static URL findConfigResource(String resourceName) {
         return KubernetesHelper.class.getResource(resourceName);
+    }
+
+    // this method is a workaround until we default to NON_EMPTY on the kubernetes model
+    // see: https://github.com/fabric8io/kubernetes-model/issues/154
+    public static void saveYamlNotEmpty(HasMetadata entity, File outFile) throws IOException {
+        String yaml = toYaml(entity);
+        ObjectMapper objectMapper = createYamlObjectMapper();
+
+        // TODO we must convert to YAML, parse as JsonNode
+        // then remove empty nodes then write to YAML
+        // again which is a hack around this issue:
+        // https://github.com/fabric8io/kubernetes-model/issues/154
+        JsonNode jsonNode = objectMapper.readTree(yaml);
+        removeNullOrEmptyValues(jsonNode);
+        objectMapper.writeValue(outFile, jsonNode);
+    }
+
+    private static void removeNullOrEmptyValues(JsonNode jsonNode) {
+        if (jsonNode instanceof ObjectNode) {
+            List<String> removeFields = new ArrayList<>();
+            ObjectNode object = (ObjectNode) jsonNode;
+            for (Iterator<String> iter = object.fieldNames(); iter.hasNext(); ) {
+                String field = iter.next();
+                JsonNode value = object.get(field);
+                if (isEmptyValue(value)) {
+                    removeFields.add(field);
+                } else {
+                    removeNullOrEmptyValues(value);;
+                }
+            }
+            for (String field : removeFields) {
+                object.remove(field);
+            }
+        } else if (jsonNode instanceof ArrayNode) {
+            ArrayNode arrayNode = (ArrayNode) jsonNode;
+            for (int i = 0, size = arrayNode.size(); i < size; i++) {
+                JsonNode value = arrayNode.get(i);
+                removeNullOrEmptyValues(value);
+            }
+        }
+    }
+
+    private static boolean isEmptyValue(JsonNode value) {
+        if (value.isArray()) {
+            int size = value.size();
+            return size == 0;
+        }
+        if (value.isTextual()) {
+            String text = value.textValue();
+            return isNullOrBlank(text);
+        }
+        if (value.isObject()) {
+            removeNullOrEmptyValues(value);
+            Iterator<String> iter = value.fieldNames();
+            int count = 0;
+            while (iter.hasNext()) {
+                iter.next();
+                count++;
+            }
+            return count == 0;
+        }
+        return false;
     }
 }
