@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="7.2.1.1" data-basepath="." data-revision="Fri Aug 12 2016 09:28:06 GMT+0000 (UTC)">
+    <div class="book" data-level="7.2.1.1" data-basepath="." data-revision="Fri Aug 12 2016 13:59:01 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1677,8 +1677,11 @@
 <p>To migrate your <code>fabric8-maven-plugin</code> 2.x project to 3.x try:</p>
 <pre><code>mvn fabric8:migrate
 </code></pre><p>Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your <code>pom.xml</code>. Also you may want to reformat the <code>pom.xml</code> file in your IDE to ensure that all the indentation is just right.</p>
-<p>If you are feeling brave you can migrate and try deploy the project in one line:</p>
-<pre><code>mvn fabric8:migrate io.fabric8:fabric8-maven-plugin:3.1.11:resource io.fabric8:fabric8-maven-plugin:3.1.11:deploy
+<p>The <code>fabric8:migrate</code> goal will add the <code>&lt;executions&gt;</code> element to the plugin. If you have a multi module project and configure the maven plugin in a parent pom you could supply the <code>fabric8.migrate.updateExecutions</code> property to disable this feature:</p>
+<pre><code>mvn fabric8:migrate -Dfabric8.migrate.updateExecutions=false
+</code></pre><p>If you are feeling brave you can migrate and try deploy the project using the new maven plugin all via these lines:</p>
+<pre><code>mvn fabric8:migrate 
+mvn clean io.fabric8:fabric8-maven-plugin:3.1.11:run
 </code></pre><p>Then your new app should be built and applied.</p>
 <p>You can compare the difference between the old and new manifests by comparing these files</p>
 <ul>
