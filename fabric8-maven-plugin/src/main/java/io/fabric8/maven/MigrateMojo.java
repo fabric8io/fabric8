@@ -163,8 +163,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                     entities.addAll(KubernetesHelper.toItemList(dto));
                 }
 
-
-                //Apply all items
+                outputDir.mkdirs();
                 for (HasMetadata entity : entities) {
                     entity = migrateEntity(entity, parameterConfigMap);
                     String name = KubernetesHelper.getName(entity);
