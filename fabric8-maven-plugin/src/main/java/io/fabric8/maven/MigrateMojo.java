@@ -39,6 +39,7 @@ import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.XmlUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -58,6 +59,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -179,18 +181,43 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                 }
                 tryAddFilesToGit(".");
 
+                File basedir = getProject().getBasedir();
                 if (updatePom) {
-                    updatePomFile(new File(getProject().getBasedir(), "pom.xml"));
+                    updatePomFile(new File(basedir, "pom.xml"));
                 }
                 String[] filesToDelete = {"uses.fmp2", "src/main/fabric8/templateParameters.properties", "src/main/fabric8/env.properties"};
                 for (String fileName : filesToDelete) {
-                    File file = new File(getProject().getBasedir(), fileName);
+                    File file = new File(basedir, fileName);
                     if (file.exists()) {
                         file.delete();
                     }
                 }
+                deleteModelProcessorJavaFiles(new File(basedir, "src/main/java"));
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private void deleteModelProcessorJavaFiles(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String name = file.getName().toLowerCase();
+                    if (name.endsWith(".java")) {
+                        try {
+                            String text = IOHelpers.readFully(file);
+                            if (text.contains("@KubernetesModelProcessor")) {
+                                file.delete();
+                            }
+                        } catch (IOException e) {
+                            getLog().warn("Failed to load file " + file + ". " + e, e);
+                        }
+                    }
+                } else if (file.isDirectory()) {
+                    deleteModelProcessorJavaFiles(file);
+                }
             }
         }
     }
