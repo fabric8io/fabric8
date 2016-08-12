@@ -14,6 +14,8 @@ To migrate your `fabric8-maven-plugin` 2.x project to 3.x try:
  
     mvn fabric8:migrate
 
+Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your `pom.xml`
+
 If you are feeling brave you can migrate and try deploy the project in one line:
 
     mvn fabric8:migrate io.fabric8:fabric8-maven-plugin:3.1.11:resource io.fabric8:fabric8-maven-plugin:3.1.11:deploy
