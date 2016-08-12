@@ -34,6 +34,8 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
 import io.fabric8.kubernetes.api.model.extensions.LabelSelectorBuilder;
 import io.fabric8.kubernetes.internal.HasMetadataComparator;
+import io.fabric8.maven.support.JsonSchema;
+import io.fabric8.maven.support.JsonSchemaProperty;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.Files;
@@ -119,8 +121,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
 
                     List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
                     if (parameters != null && parameters.size() > 0) {
-                        parameterConfigMap = new ConfigMapBuilder().withNewMetadataLike(template.getMetadata()).endMetadata().build();
-
+                        JsonSchema schema = new JsonSchema();
                         Map<String, String> configMapData = new HashMap<>();
                         for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
                             String name = parameter.getName();
@@ -128,9 +129,30 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                             if (value == null) {
                                 value = "";
                             }
+                            JsonSchemaProperty property = schema.getOrCreateProperty(name);
+                            String generate = parameter.getGenerate();
+                            if (Strings.isNotBlank(generate)) {
+                                property.setGenerate(generate);
+                            }
+                            Boolean required = parameter.getRequired();
+                            if (required != null && required.booleanValue()) {
+                                schema.addRequired(name);
+                            }
+                            String description = parameter.getDescription();
+                            if (Strings.isNotBlank(description)) {
+                                property.setDescription(description);
+                            }
+                            if (Strings.isNotBlank(value)) {
+                                property.setDefaultValue(value);
+                            }
                             configMapData.put(convertToConfigMapKey(name), value);
                         }
+                        String jsonSchemaJson = KubernetesHelper.toPrettyJson(schema);
+                        getLog().info("Generated ConfigMap JSON Schema: " + jsonSchemaJson);
+                        parameterConfigMap = new ConfigMapBuilder().withNewMetadataLike(template.getMetadata()).
+                                addToAnnotations(Annotations.Config.JSON_SCHEMA, jsonSchemaJson).endMetadata().build();
                         parameterConfigMap.setData(configMapData);
+
 
                         migrateEntity(parameterConfigMap, parameterConfigMap);
                         entities.add(parameterConfigMap);
@@ -160,11 +182,13 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                 if (updatePom) {
                     updatePomFile(new File(getProject().getBasedir(), "pom.xml"));
                 }
-                File useFmp2File = new File(getProject().getBasedir(), "uses.fmp2");
-                if (useFmp2File.exists()) {
-                    useFmp2File.delete();
+                String[] filesToDelete = {"uses.fmp2", "src/main/fabric8/templateParameters.properties", "src/main/fabric8/env.properties"};
+                for (String fileName : filesToDelete) {
+                    File file = new File(getProject().getBasedir(), fileName);
+                    if (file.exists()) {
+                        file.delete();
+                    }
                 }
-
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }

@@ -17,10 +17,12 @@
  */
 package io.fabric8.maven.support;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonSchemaProperty {
     private String type = "string";
     private String format;
@@ -28,6 +30,7 @@ public class JsonSchemaProperty {
     private String defaultValue;
     private String javaType;
     private String description;
+    private String generate;
 
     @Override
     public String toString() {
@@ -76,5 +79,13 @@ public class JsonSchemaProperty {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getGenerate() {
+        return generate;
+    }
+
+    public void setGenerate(String generate) {
+        this.generate = generate;
     }
 }

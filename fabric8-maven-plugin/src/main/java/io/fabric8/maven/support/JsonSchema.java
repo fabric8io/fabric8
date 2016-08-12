@@ -22,19 +22,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A DTO to load/save JSON schema
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonSchema {
     private String id;
     @JsonProperty("$schema")
     private String uri;
     private String type = "object";
     private Map<String,JsonSchemaProperty> properties = new HashMap<>();
+    private Set<String> required = new LinkedHashSet<>();
+
+    public JsonSchemaProperty getOrCreateProperty(String name) {
+        JsonSchemaProperty property = properties.get(name);
+        if (property == null) {
+            property = new JsonSchemaProperty();
+            properties.put(name, property);
+        }
+        return property;
+    }
+
+    public void addRequired(String property) {
+        required.add(property);
+    }
 
     public String getId() {
         return id;
@@ -66,5 +82,13 @@ public class JsonSchema {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public Set<String> getRequired() {
+        return required;
+    }
+
+    public void setRequired(Set<String> required) {
+        this.required = new LinkedHashSet<>(required);
     }
 }

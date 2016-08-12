@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -393,6 +394,16 @@ public final class KubernetesHelper {
         }
         Class<?> clazz = dto.getClass();
         return OBJECT_MAPPER.writerFor(clazz).writeValueAsString(dto);
+    }
+
+    public static String toPrettyJson(Object dto) throws JsonProcessingException {
+        if (dto == null) {
+            return "null";
+        }
+        Class<?> clazz = dto.getClass();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        return objectMapper.writerFor(clazz).writeValueAsString(dto);
     }
 
     /**

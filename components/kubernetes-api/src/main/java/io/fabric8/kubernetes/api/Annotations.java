@@ -19,6 +19,10 @@ package io.fabric8.kubernetes.api;
  * Constants for standard annotations used in fabric8
  */
 public class Annotations {
+    public static class Config {
+        public static final String JSON_SCHEMA = "fabric8.io/json-schema";
+    }
+
     public static class Secrets {
         public static final String SSH_KEY = "fabric8.io/secret-ssh-key";
         public static final String SSH_PUBLIC_KEY = "fabric8.io/secret-ssh-public-key";
