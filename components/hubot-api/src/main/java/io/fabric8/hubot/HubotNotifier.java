@@ -96,8 +96,8 @@ public class HubotNotifier {
         logMessages.notify(room, message);
         try {
             getHubotRestApi().notify(room, message);
-        } catch (Exception e) {
-            LOG.error("Failed to notify hubot room: " + room + " with message: " + message + ". Reason: " + e, e);
+        } catch (Throwable e) {
+            LOG.error("Failed to notify hubot room: " + room + " with message: " + message + ". Reason: " + e);
         }
     }
 
