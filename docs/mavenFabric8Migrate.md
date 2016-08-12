@@ -40,7 +40,7 @@ Note that if you use any OpenShift Template parameters in your manifest then the
 
 will be replaced with a `configMapKeyRef` instead:
 
-```   
+```yaml
       - env:
         - name: "FOO"
           valueFrom:
