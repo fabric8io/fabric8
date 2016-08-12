@@ -184,7 +184,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                 if (updatePom) {
                     updatePomFile(new File(basedir, "pom.xml"));
                 }
-                String[] filesToDelete = {"uses.fmp2", "src/main/fabric8/templateParameters.properties", "src/main/fabric8/env.properties"};
+                String[] filesToDelete = {"uses.fmp2", "src/main/fabric8/templateParameters.properties", "src/main/fabric8/env.properties", "src/main/fabric8/kubernetes.json"};
                 for (String fileName : filesToDelete) {
                     File file = new File(basedir, fileName);
                     if (file.exists()) {
