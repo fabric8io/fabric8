@@ -1,8 +1,12 @@
 ## Fabric8 Maven Plugin version 2.x
 
-**NOTE** We highly recommend you [use 3.x or later](https://maven.fabric8.io/) but if you are not yet ready to move, here's the docs for the 2.x version of the maven plugin!
+**NOTE** We highly recommend you [use 3.x or later](https://maven.fabric8.io/). We can help you migrate to the new version via the [fabric8:migrate](mavenFabric8Migrate.html) goal.
+
+If you wish to stay on the 2.x version then here's the documentation:
 
 ##### Goals
+
+* [fabric8:migrate](mavenFabric8Migrate.html) helps migrate your project from 2.x fabric8-maven-plugin to using the new shiny 3.x or newer version
 
 For building and pushing docker images
 

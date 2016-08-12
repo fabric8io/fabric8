@@ -57,6 +57,7 @@
       * [Camel Maven Plugin](camelMavenPlugin.md)
     * [Maven Plugin](mavenPlugin.md)
       * [Old 2.x plugin](mavenPlugin2x.md)
+          * [fabric8:migrate](mavenFabric8Migrate.md)
           * [docker:build](mavenDockerBuild.md)
           * [docker:push](mavenDockerPush.md)
           * [fabric8:apply](mavenFabric8Apply.md)
