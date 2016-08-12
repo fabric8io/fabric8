@@ -15,13 +15,13 @@
  */
 package io.fabric8.maven;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.EnvVarSource;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -34,8 +34,10 @@ import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
 import io.fabric8.kubernetes.api.model.extensions.LabelSelectorBuilder;
 import io.fabric8.kubernetes.internal.HasMetadataComparator;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
+import io.fabric8.utils.XmlUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -43,15 +45,27 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static io.fabric8.utils.DomHelper.firstChild;
 
 /**
  * Migrates the generated Kubernetes manifest to be used by the 3.x or later of the fabric8-maven-plugin
@@ -67,16 +81,18 @@ public class MigrateMojo extends AbstractFabric8Mojo {
 
     private Map<String, String> kindAliases = new HashMap();
 
+    /**
+     * Should we also update the pom.xml to remove the fabric8-maven-plugin 2.x properties?
+     */
+    @Parameter(property = "fabric8.migrate.outputDir", defaultValue = "true")
+    private boolean updatePom;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         init();
         File json = getKubernetesJson();
         if (Files.isFile(json)) {
-
-            getLog().info("Kubernetes JSON: " + json);
-
             try {
-                String fileName = json.getName();
                 Object dto = KubernetesHelper.loadJson(json);
                 if (dto == null) {
                     throw new MojoFailureException("Cannot load kubernetes json: " + json);
@@ -85,7 +101,6 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                 Set<HasMetadata> entities = new TreeSet<>(new HasMetadataComparator());
 
                 ConfigMap parameterConfigMap = null;
-
                 if (dto instanceof Template) {
                     Template template = (Template) dto;
 
@@ -109,8 +124,6 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                         migrateEntity(parameterConfigMap, parameterConfigMap);
                         entities.add(parameterConfigMap);
                     }
-
-                    // TODO do something with the parameters!
                 } else {
                     entities.addAll(KubernetesHelper.toItemList(dto));
                 }
@@ -127,10 +140,231 @@ public class MigrateMojo extends AbstractFabric8Mojo {
 
                     getLog().info("Generated migration file: " + outFile);
                 }
+                tryAddFilesToGit(".");
+
+                if (updatePom) {
+                    updatePomFile(new File(getProject().getBasedir(), "pom.xml"));
+                }
+                File useFmp2File = new File(getProject().getBasedir(), "uses.fmp2");
+                if (useFmp2File.exists()) {
+                    useFmp2File.delete();
+                }
+
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
+    }
+
+    private void tryAddFilesToGit(String filePattern) {
+        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+        try {
+            Repository repository = builder
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
+
+            Git git = new Git(repository);
+            git.add().addFilepattern(filePattern).call();
+        } catch (Exception e) {
+            getLog().warn("Failed to add generated files to the git repository: " + e, e);
+        }
+    }
+
+    protected void updatePomFile(File pom) throws MojoExecutionException {
+        boolean updated = false;
+        Document doc;
+        try {
+            doc = XmlUtils.parseDoc(pom);
+        } catch (Exception e) {
+            getLog().error("Failed to parse pom " + pom + ". " + e, e);
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+
+        Map<String, String> propertyMap = new HashMap<>();
+        Element properties = firstChild(doc.getDocumentElement(), "properties");
+        if (properties != null) {
+            NodeList childNodes = properties.getChildNodes();
+            if (childNodes != null) {
+                boolean lastRemoved = false;
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node item = childNodes.item(i);
+                    if (item instanceof Element) {
+                        Element property = (Element) item;
+                        String tagName = property.getTagName();
+                        String value = property.getTextContent();
+                        propertyMap.put(tagName, value);
+                        if (removePropertyName(tagName, value)) {
+                            properties.removeChild(property);
+                            i--;
+                            lastRemoved = true;
+                            updated = true;
+                        }
+                    } else if (item instanceof Text) {
+                        Text text = (Text) item;
+                        if (lastRemoved) {
+                            properties.removeChild(text);
+                            i--;
+                            lastRemoved = false;
+                        }
+                    }
+                }
+            }
+        }
+        if (removeProfiles(doc, "docker-build", "docker-push", "jube")) {
+            updated = true;
+        }
+        if (removePlugin(doc, "io.fabric8.jube", "jube-maven-plugin")) {
+            updated = true;
+        }
+        if (migrateDockerMavenPluginConfiguration(doc, propertyMap)) {
+            updated = true;
+        }
+        if (updated) {
+            getLog().info("Updating the pom " + pom);
+            try {
+                DomHelper.save(doc, pom);
+            } catch (Exception e) {
+                getLog().error("Failed to update pom " + pom + ". " + e, e);
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        }
+    }
+
+
+    private boolean removeProfiles(Document doc, String... profileIds) {
+        Set<String> profileIdSet = new HashSet<>(Arrays.asList(profileIds));
+        boolean updated = false;
+        Element profiles = firstChild(doc.getDocumentElement(), "profiles");
+        if (profiles != null) {
+            NodeList childNodes = profiles.getChildNodes();
+            if (childNodes != null) {
+                boolean lastRemoved = false;
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node item = childNodes.item(i);
+                    if (item instanceof Element) {
+                        Element profile = (Element) item;
+                        Element idElement = firstChild(profile, "id");
+                        if (idElement != null) {
+                            String id = idElement.getTextContent();
+                            if (id != null && profileIdSet.contains(id)) {
+                                profiles.removeChild(profile);
+                                i--;
+                                lastRemoved = true;
+                                updated = true;
+                            }
+                        }
+                    } else if (item instanceof Text) {
+                        Text text = (Text) item;
+                        if (lastRemoved) {
+                            profiles.removeChild(text);
+                            i--;
+                            lastRemoved = false;
+                        }
+                    }
+                }
+            }
+        }
+        return updated;
+    }
+
+    private boolean migrateDockerMavenPluginConfiguration(Document doc, Map<String, String> propertyMap) {
+        boolean updated = false;
+        Element configuration = null;
+        Element dmpPlugin = findPlugin(doc, "io.fabric8", "docker-maven-plugin");
+        if (dmpPlugin != null) {
+            configuration = firstChild(dmpPlugin, "configuration");
+            if (configuration != null) {
+                DomHelper.detach(configuration);
+            }
+            Node nextSibling = dmpPlugin.getNextSibling();
+            if (nextSibling instanceof TextNode) {
+                DomHelper.detach(nextSibling);
+            }
+            DomHelper.detach(dmpPlugin);
+            updated = true;
+        }
+        Element fmpPlugin = findPlugin(doc, "io.fabric8", "fabric8-maven-plugin");
+        if (fmpPlugin == null) {
+            findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
+            updated = true;
+        }
+        return updated;
+    }
+
+    private boolean removePlugin(Document doc, String groupId, String artifactId) {
+        Element plugin = findPlugin(doc, groupId, artifactId);
+        if (plugin != null) {
+            Node nextSibling = plugin.getNextSibling();
+            DomHelper.detach(plugin);
+            if (nextSibling instanceof TextNode) {
+                DomHelper.detach(nextSibling);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Element findOrAddPlugin(Document doc, String groupId, String artifactId, String version, Element configuration) {
+        Element plugin = findPlugin(doc, groupId, artifactId);
+        if (plugin != null) {
+            return plugin;
+        }
+        Element documentElement = doc.getDocumentElement();
+        Element build = firstChild(documentElement, "build");
+        if (build == null) {
+            build = DomHelper.addChildElement(documentElement, "build");
+        }
+        Element plugins = firstChild(build, "plugins");
+        if (plugins == null) {
+            plugins = DomHelper.addChildElement(build, "plugins");
+        }
+        plugins.appendChild(doc.createTextNode("\n      "));
+        plugin = DomHelper.addChildElement(plugins, "plugin");
+        plugin.appendChild(doc.createTextNode("\n        "));
+        DomHelper.addChildElement(plugin, "groupId", groupId);
+        plugin.appendChild(doc.createTextNode("\n        "));
+        DomHelper.addChildElement(plugin, "artifactId", artifactId);
+        plugin.appendChild(doc.createTextNode("\n        "));
+        DomHelper.addChildElement(plugin, "version", version);
+        plugin.appendChild(doc.createTextNode("\n        "));
+        if (configuration != null) {
+            plugin.appendChild(configuration);
+        }
+        plugin.appendChild(doc.createTextNode("\n      "));
+        plugins.appendChild(doc.createTextNode("\n      "));
+        return plugin;
+    }
+
+    private Element findPlugin(Document doc, String groupId, String artifactId) {
+        Element build = firstChild(doc.getDocumentElement(), "build");
+        if (build != null) {
+            Element plugins = firstChild(build, "plugins");
+            if (plugins != null) {
+                NodeList childNodes = plugins.getChildNodes();
+                if (childNodes != null) {
+                    boolean lastRemoved = false;
+                    for (int i = 0; i < childNodes.getLength(); i++) {
+                        Node item = childNodes.item(i);
+                        if (item instanceof Element) {
+                            Element plugin = (Element) item;
+                            if (Objects.equals(DomHelper.firstChildTextContent(plugin, "groupId"), groupId) &&
+                                    Objects.equals(DomHelper.firstChildTextContent(plugin, "artifactId"), artifactId)) {
+                                return plugin;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return null;
+    }
+
+
+    private boolean removePropertyName(String tagName, String value) {
+        return tagName.startsWith("docker.port.") || tagName.startsWith("fabric8.") ||
+                tagName.equals("docker.maven.plugin.version") || tagName.equals("jube.version");
     }
 
     protected String convertToConfigMapKey(String name) {
@@ -139,7 +373,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
 
     /**
      * Returns the migrated entity
-     *
+     * <p>
      * - use Deployment by default instead of ReplicationController
      * - remove some annotations which should be generated at real build time
      * - replace groupId, artifactId and version with expressions

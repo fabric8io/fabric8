@@ -175,4 +175,12 @@ public class DomHelper {
         return null;
     }
 
+    public static String firstChildTextContent(Element element, String name) {
+        Element child = DomHelper.firstChild(element, name);
+        if (child != null) {
+            return child.getTextContent();
+        }
+        return null;
+    }
+
 }
