@@ -183,4 +183,13 @@ public class DomHelper {
         return null;
     }
 
+    public static void removeChildren(Element element) {
+        while (true) {
+            Node child = element.getFirstChild();
+            if (child == null) {
+                return;
+            }
+            element.removeChild(child);
+        }
+    }
 }

@@ -29,6 +29,7 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
 import io.fabric8.kubernetes.api.model.extensions.LabelSelectorBuilder;
@@ -87,6 +88,13 @@ public class MigrateMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.migrate.outputDir", defaultValue = "true")
     private boolean updatePom;
 
+    /**
+     * Should we ensure that the fabric8-maven-plugin has executions? If using a multi module project
+     * you may wish to define these executions in the parent pom
+     */
+    @Parameter(property = "fabric8.migrate.updateExecutions", defaultValue = "true")
+    private boolean updateExecutions;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         init();
@@ -117,6 +125,9 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                         for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
                             String name = parameter.getName();
                             String value = parameter.getValue();
+                            if (value == null) {
+                                value = "";
+                            }
                             configMapData.put(convertToConfigMapKey(name), value);
                         }
                         parameterConfigMap.setData(configMapData);
@@ -136,7 +147,11 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                     String kind = shortenKind(KubernetesHelper.getKind(entity).toLowerCase());
 
                     File outFile = new File(outputDir, name + "-" + kind + ".yml");
-                    KubernetesHelper.saveYamlNotEmpty(entity, outFile);
+                    if (entity instanceof ConfigMap || entity instanceof Secret) {
+                        KubernetesHelper.saveYaml(entity, outFile);
+                    } else {
+                        KubernetesHelper.saveYamlNotEmpty(entity, outFile);
+                    }
 
                     getLog().info("Generated migration file: " + outFile);
                 }
@@ -286,8 +301,37 @@ public class MigrateMojo extends AbstractFabric8Mojo {
         }
         Element fmpPlugin = findPlugin(doc, "io.fabric8", "fabric8-maven-plugin");
         if (fmpPlugin == null) {
-            findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
+            fmpPlugin = findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
             updated = true;
+        }
+        if (updateExecutions) {
+            Element executions = firstChild(fmpPlugin, "executions");
+            if (executions == null) {
+                executions = DomHelper.addChildElement(fmpPlugin, "executions");
+                fmpPlugin.appendChild(doc.createTextNode("\n      "));
+            } else {
+                // lets remove all the children to be sure
+                DomHelper.removeChildren(executions);
+            }
+            executions.appendChild(doc.createTextNode("\n        "));
+            Element execution = DomHelper.addChildElement(executions, "execution");
+            execution.appendChild(doc.createTextNode("\n          "));
+
+            DomHelper.addChildElement(execution, "id", "fmp");
+            execution.appendChild(doc.createTextNode("\n          "));
+
+            Element goals = DomHelper.addChildElement(execution, "goals");
+            execution.appendChild(doc.createTextNode("\n          "));
+
+            String[] goalNames = {"resource", "helm", "build"};
+            for (String goalName : goalNames) {
+                goals.appendChild(doc.createTextNode("\n            "));
+                DomHelper.addChildElement(goals, "goal", goalName);
+            }
+            goals.appendChild(doc.createTextNode("\n          "));
+
+            executions.appendChild(doc.createTextNode("\n      "));
+            updated= true;
         }
         return updated;
     }
@@ -343,7 +387,6 @@ public class MigrateMojo extends AbstractFabric8Mojo {
             if (plugins != null) {
                 NodeList childNodes = plugins.getChildNodes();
                 if (childNodes != null) {
-                    boolean lastRemoved = false;
                     for (int i = 0; i < childNodes.getLength(); i++) {
                         Node item = childNodes.item(i);
                         if (item instanceof Element) {
@@ -355,7 +398,6 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                         }
                     }
                 }
-
             }
         }
         return null;
