@@ -27,24 +27,21 @@ You can compare the difference between the old and new manifests by comparing th
 * `target/classes/kubernetes.yml` is the 2.x generated manifest    
 * `target/classes/META-INF/fabric8/kubernetes.yml` is the 3.x generated manifest
     
-Note that if you use any OpenShift Template parameters in your manifest then the YAML files will be considerably different; there will be no OpenShift Template and the parameters will be replaced by a `ConfigMap` and the property expression environment variables of the form `${FOO}`
+Note that if you use any OpenShift Template parameters in your manifest then the YAML files will be considerably different; there will be no OpenShift Template and the parameters will be replaced by a `ConfigMap` and the property expression environment variables of the form `${BAR}`
    
 ```yaml
         - env:
           - name: "FOO"
-            valueFrom:
-              configMapKeyRef:
-                key: "foo"
-                name: "${project.artifactId}"
+            value: "${BAR}"
 ```   
 
-will be replaced with a `configMapKeyRef` instead:
+will be replaced with a `configMapKeyRef` instead, referring to the `bar` key in the `ConfigMap`:
 
 ```yaml
       - env:
         - name: "FOO"
           valueFrom:
             configMapKeyRef:
-              key: "foo"
+              key: "bar"
               name: "${project.artifactId}"
 ```   
