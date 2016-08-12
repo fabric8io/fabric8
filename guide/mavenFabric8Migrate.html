@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>JBoss Fuse Questions | Fabric8 Documentation</title>
+        <title>fabric8:migrate | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./faqKubernetes.html" />
+    <link rel="next" href="./mavenDockerBuild.html" />
     
     
-    <link rel="prev" href="./faqGeneral.html" />
+    <link rel="prev" href="./mavenPlugin2x.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="12.2" data-basepath="." data-revision="Fri Aug 12 2016 09:24:22 GMT+0000 (UTC)">
+    <div class="book" data-level="7.2.1.1" data-basepath="." data-revision="Fri Aug 12 2016 09:24:22 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1014,7 +1014,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="7.2.1.1" data-path="mavenFabric8Migrate.html">
+        <li class="chapter active" data-level="7.2.1.1" data-path="mavenFabric8Migrate.html">
             
                 
                     <a href="./mavenFabric8Migrate.html">
@@ -1513,7 +1513,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="12.2" data-path="faqFuse.html">
+        <li class="chapter " data-level="12.2" data-path="faqFuse.html">
             
                 
                     <a href="./faqFuse.html">
@@ -1668,16 +1668,36 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="questions-on-jboss-fuse"><a name="questions-on-jboss-fuse" class="plugin-anchor" href="#questions-on-jboss-fuse"><span class="fa fa-link"></span></a>Questions on JBoss Fuse</h3>
-<p>The upstream fabric8 open source project is now focussed on the 2.x version based on <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>.</p>
-<p>JBoss Fuse versions 6.x includes its <a href="https://github.com/jboss-fuse/fabric8" target="_blank">own branch of fabric8 1.x</a> using Karaf and ZooKeeper.</p>
-<p>So for any questions relating to fabric8 inside JBoss Fuse 6.x you are best off using one of these:</p>
+                        <h2 id="fabric8-migrate"><a name="fabric8-migrate" class="plugin-anchor" href="#fabric8-migrate"><span class="fa fa-link"></span></a>fabric8:migrate</h2>
+<p>The maven <code>fabric8:migrate</code> goal helps migrate your project from 2.x of the <code>fabric8-maven-plugin</code> to version 3.x.</p>
+<p>This goal takes the generated Kubernetes manifest in <code>target/classes/kubernetes.yml</code> and generates the source files in <code>src/main/fabric8</code> that will be detected by the 3.x plugin.</p>
+<h3 id="prerequisites"><a name="prerequisites" class="plugin-anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
+<p><strong>Note</strong> before using this goal please make sure you have checked in all your changes to source control as it will overwrite and modify your source code! Namely the <code>pom.xml</code> file and files in <code>src/main/fabric8/*.yml</code></p>
+<h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
+<p>To migrate your <code>fabric8-maven-plugin</code> 2.x project to 3.x try:</p>
+<pre><code>mvn fabric8:migrate
+</code></pre><p>Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your <code>pom.xml</code></p>
+<p>If you are feeling brave you can migrate and try deploy the project in one line:</p>
+<pre><code>mvn fabric8:migrate io.fabric8:fabric8-maven-plugin:3.1.11:resource io.fabric8:fabric8-maven-plugin:3.1.11:deploy
+</code></pre><p>Then your new app should be built and applied.</p>
+<p>You can compare the difference between the old and new manifests by comparing these files</p>
 <ul>
-<li><a href="https://developer.jboss.org/en/products/fuse" target="_blank">JBoss Fuse Forum</a></li>
-<li><a href="https://access.redhat.com/" target="_blank">Red Hat Support</a></li>
+<li><code>target/classes/kubernetes.yml</code> is the 2.x generated manifest    </li>
+<li><code>target/classes/META-INF/fabric8/kubernetes.yml</code> is the 3.x generated manifest</li>
 </ul>
-<p>You can also browser the <a href="https://issues.jboss.org/projects/ENTESB" target="_blank">JIRA for JBoss Fuse</a></p>
-<p>The JBoss Fuse fork of fabric8 1.x is here: <a href="https://github.com/jboss-fuse/fabric8" target="_blank">https://github.com/jboss-fuse/fabric8</a></p>
+<p>Note that if you use any OpenShift Template parameters in your manifest then the YAML files will be considerably different; there will be no OpenShift Template and the parameters will be replaced by a <code>ConfigMap</code> and the property expression environment variables of the form <code>${BAR}</code></p>
+<pre><code class="lang-yaml">        - env:
+          - name: &quot;FOO&quot;
+            value: &quot;${BAR}&quot;
+</code></pre>
+<p>will be replaced with a <code>configMapKeyRef</code> instead, referring to the <code>bar</code> key in the <code>ConfigMap</code>:</p>
+<pre><code class="lang-yaml">      - env:
+        - name: &quot;FOO&quot;
+          valueFrom:
+            configMapKeyRef:
+              key: &quot;bar&quot;
+              name: &quot;${project.artifactId}&quot;
+</code></pre>
 
                     
                     </section>
@@ -1688,10 +1708,10 @@
         </div>
 
         
-        <a href="./faqGeneral.html" class="navigation navigation-prev " aria-label="Previous page: General Questions"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenPlugin2x.html" class="navigation navigation-prev " aria-label="Previous page: Old 2.x plugin"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./faqKubernetes.html" class="navigation navigation-next " aria-label="Next page: Kubernetes Questions"><i class="fa fa-angle-right"></i></a>
+        <a href="./mavenDockerBuild.html" class="navigation navigation-next " aria-label="Next page: docker:build"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
