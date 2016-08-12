@@ -14,7 +14,7 @@ To migrate your `fabric8-maven-plugin` 2.x project to 3.x try:
  
     mvn fabric8:migrate
 
-Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your `pom.xml`
+Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your `pom.xml`. Also you may want to reformat the `pom.xml` file in your IDE to ensure that all the indentation is just right.
 
 If you are feeling brave you can migrate and try deploy the project in one line:
 
