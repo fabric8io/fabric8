@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import static io.fabric8.utils.DomHelper.firstChild;
@@ -124,7 +125,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                     List<io.fabric8.openshift.api.model.Parameter> parameters = template.getParameters();
                     if (parameters != null && parameters.size() > 0) {
                         JsonSchema schema = new JsonSchema();
-                        Map<String, String> configMapData = new HashMap<>();
+                        Map<String, String> configMapData = new TreeMap<>();
                         for (io.fabric8.openshift.api.model.Parameter parameter : parameters) {
                             String name = parameter.getName();
                             String value = parameter.getValue();
