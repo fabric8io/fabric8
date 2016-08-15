@@ -132,7 +132,8 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                             if (value == null) {
                                 value = "";
                             }
-                            JsonSchemaProperty property = schema.getOrCreateProperty(name);
+                            String key = convertToConfigMapKey(name);
+                            JsonSchemaProperty property = schema.getOrCreateProperty(key);
                             String generate = parameter.getGenerate();
                             if (Strings.isNotBlank(generate)) {
                                 property.setGenerate(generate);
@@ -148,7 +149,7 @@ public class MigrateMojo extends AbstractFabric8Mojo {
                             if (Strings.isNotBlank(value)) {
                                 property.setDefaultValue(value);
                             }
-                            configMapData.put(convertToConfigMapKey(name), value);
+                            configMapData.put(key, value);
                         }
                         String jsonSchemaJson = KubernetesHelper.toPrettyJson(schema);
                         getLog().info("Generated ConfigMap JSON Schema: " + jsonSchemaJson);
