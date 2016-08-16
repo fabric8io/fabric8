@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package io.fabric8.karaf.checks;
+package io.fabric8.karaf.checks.internal;
 
+import io.fabric8.karaf.checks.HealthChecker;
+import io.fabric8.karaf.checks.ReadinessChecker;
 import io.fabric8.karaf.checks.internal.HealthCheckServlet;
 import io.fabric8.karaf.checks.internal.ReadinessCheckServlet;
 import org.apache.felix.scr.annotations.Activate;
