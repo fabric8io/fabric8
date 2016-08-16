@@ -43,7 +43,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
-import io.fabric8.kubernetes.client.internal.SSLUtils;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -61,7 +60,6 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
-import okhttp3.ConnectionSpec;
 import okhttp3.Credentials;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -74,18 +72,12 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -421,7 +413,7 @@ public class Controller {
             // lets try talk to the jenkinshift service which provides a BuildConfig REST API based on Jenkins
             // for when using vanilla Kubernetes
             String jenkinshiftUrl = Systems.getEnvVar("JENKINSHIFT_URL", "http://jenkinshift/");
-            System.out.println("Using jenknshift URL: " + jenkinshiftUrl);
+            LOG.debug("Using jenknshift URL: " + jenkinshiftUrl);
             Config config = createJenkinshiftConfig(jenkinshiftUrl);
 
             // TODO until jenkinshift supports HTTPS lets disable HTTPS by default
