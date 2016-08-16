@@ -48,6 +48,7 @@
   <modules>
     <!-- karaf support -->
     <module>fabric8-karaf-blueprint</module>
+    <module>fabric8-karaf-checks</module>
     <module>fabric8-karaf-cm</module>
     <module>fabric8-karaf-features</module>
   </modules>
