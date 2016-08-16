@@ -29,7 +29,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.karaf.checks;
+package io.fabric8.karaf.checks.internal;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

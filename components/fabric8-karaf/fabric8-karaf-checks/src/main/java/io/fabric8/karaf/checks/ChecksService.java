@@ -17,6 +17,8 @@
 
 package io.fabric8.karaf.checks;
 
+import io.fabric8.karaf.checks.internal.HealthCheckServlet;
+import io.fabric8.karaf.checks.internal.ReadinessCheckServlet;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
