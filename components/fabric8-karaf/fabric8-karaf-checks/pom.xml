@@ -84,7 +84,9 @@
                         <Import-Package>
                             *
                         </Import-Package>
-                        <Private-Package></Private-Package>
+                        <Private-Package>
+                            io.fabric8.karaf.checks.internal
+                        </Private-Package>
                         <Implementation-Title>Fabric8 Karaf Readiness/Heath Check Support</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
                         <Include-Resource>{maven-resources}</Include-Resource>

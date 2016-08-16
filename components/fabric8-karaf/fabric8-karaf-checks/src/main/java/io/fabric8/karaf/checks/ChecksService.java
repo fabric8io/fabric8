@@ -24,11 +24,15 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.servlet.ServletException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(
     name      = "io.fabric8.karaf.k8s.check",
@@ -39,8 +43,15 @@ import java.util.Map;
 )
 public class ChecksService {
 
-    @Reference(referenceInterface = HttpService.class)
+    @Reference(referenceInterface = HttpService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private HttpService httpService;
+
+    @Reference(referenceInterface = ReadinessChecker.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    final CopyOnWriteArrayList<ReadinessChecker> readinessCheckers = new CopyOnWriteArrayList<>();
+
+    @Reference(referenceInterface = HealthChecker.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    final CopyOnWriteArrayList<HealthChecker> healthCheckers = new CopyOnWriteArrayList<>();
+
 
     // TODO: perhaps allow these to be configured via pid?
     String readinessCheckPath = "/readiness-check";
@@ -48,8 +59,8 @@ public class ChecksService {
 
     @Activate
     void activate(Map<String, ?> configuration) throws ServletException, NamespaceException {
-        httpService.registerServlet(readinessCheckPath, new ReadinessCheckServlet(), null, null);
-        httpService.registerServlet(healthCheckPath, new HealthCheckServlet(), null, null);
+        httpService.registerServlet(readinessCheckPath, new ReadinessCheckServlet(readinessCheckers), null, null);
+        httpService.registerServlet(healthCheckPath, new HealthCheckServlet(healthCheckers), null, null);
     }
 
     @Deactivate
@@ -63,5 +74,19 @@ public class ChecksService {
     }
     void unbindHttpService(HttpService service) {
         this.httpService = null;
+    }
+
+    void bindReadinessCheckers(ReadinessChecker value) {
+        readinessCheckers.add(value);
+    }
+    void unbindReadinessCheckers(ReadinessChecker value) {
+        readinessCheckers.remove(value);
+    }
+
+    void bindHealthCheckers(HealthChecker value) {
+        healthCheckers.add(value);
+    }
+    void unbindHealthCheckers(HealthChecker value) {
+        healthCheckers.remove(value);
     }
 }

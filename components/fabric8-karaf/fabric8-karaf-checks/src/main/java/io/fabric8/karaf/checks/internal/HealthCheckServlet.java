@@ -31,13 +31,22 @@
  */
 package io.fabric8.karaf.checks.internal;
 
+import io.fabric8.karaf.checks.HealthChecker;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HealthCheckServlet extends HttpServlet {
+
+    private final CopyOnWriteArrayList<HealthChecker> checkers;
+
+    public HealthCheckServlet(CopyOnWriteArrayList<HealthChecker> checkers) {
+        this.checkers = checkers;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -50,6 +59,11 @@ public class HealthCheckServlet extends HttpServlet {
     }
 
     public boolean isHealthy() {
-        return false;
+        for (HealthChecker checker : checkers) {
+            if( !checker.getFailingHeathChecks().isEmpty() ) {
+                return false;
+            }
+        }
+        return true;
     }
 }

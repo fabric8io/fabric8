@@ -31,13 +31,22 @@
  */
 package io.fabric8.karaf.checks.internal;
 
+import io.fabric8.karaf.checks.ReadinessChecker;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReadinessCheckServlet extends HttpServlet {
+
+    private final CopyOnWriteArrayList<ReadinessChecker> checkers;
+
+    public ReadinessCheckServlet(CopyOnWriteArrayList<ReadinessChecker> readinessCheckers) {
+        this.checkers = readinessCheckers;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -50,6 +59,11 @@ public class ReadinessCheckServlet extends HttpServlet {
     }
 
     public boolean isReady() {
+        for (ReadinessChecker checker : checkers) {
+            if( !checker.getFailingReadinessChecks().isEmpty() ) {
+                return false;
+            }
+        }
         return true;
     }
 }
