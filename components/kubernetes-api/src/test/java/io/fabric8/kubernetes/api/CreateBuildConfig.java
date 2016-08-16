@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.utils.Strings;
 
 /**
  * Tests creating a build config
@@ -33,14 +34,26 @@ public class CreateBuildConfig {
             KubernetesClient kube = new DefaultKubernetesClient();
             String name = args[0];
 
+            String namespace = kube.getNamespace();
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = KubernetesHelper.defaultNamespace();
+            }
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = "default";
+            }
+            System.out.println("Creating a BuildConfig for name: " + name + " in namespace: " + namespace);
+
             BuildConfig buildConfig = new BuildConfigBuilder().
-                    withNewMetadata().withName(name).endMetadata().
+                    withNewMetadata().withName(name).withNamespace(namespace).endMetadata().
                     withNewSpec().
                     withNewSource().withType("Git").withNewGit().withUri("http://gogs.vagrant.f8/gogsadmin/" + name + ".git").endGit().endSource().endSpec().
                     build();
 
             System.out.println("Creating BuildConfig: " + buildConfig);
             Controller controller = new Controller(kube);
+            if (controller.getNamespace() == null) {
+                controller.setNamespace(namespace);
+            }
             controller.applyBuildConfig(buildConfig, "Generated!");
 
             System.out.println("Applied!: " + name);
