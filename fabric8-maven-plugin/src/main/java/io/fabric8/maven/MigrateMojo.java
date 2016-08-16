@@ -355,6 +355,9 @@ public class MigrateMojo extends AbstractFabric8Mojo {
         if (fmpPlugin == null) {
             fmpPlugin = findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
             updated = true;
+        } else {
+            fmpPlugin.appendChild(configuration);
+            fmpPlugin.appendChild(doc.createTextNode("\n      "));
         }
         if (updateExecutions) {
             Element executions = firstChild(fmpPlugin, "executions");
