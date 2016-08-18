@@ -45,8 +45,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.configadmin</artifactId>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -90,7 +90,6 @@
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>io.fabric8.karaf.cm;version=${project.version};-noimport:=true</Export-Package>
                         <Import-Package>
-                            org.apache.felix.cm;version="[1,2)",
                             *
                         </Import-Package>
                         <Private-Package></Private-Package>
