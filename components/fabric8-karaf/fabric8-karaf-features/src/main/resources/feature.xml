@@ -15,6 +15,11 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name="fabric8-karaf-features-${project.version}">
 
+  <feature name="fabric8-karaf-checks" description="Fabric8 Karaf Checks" version="${project.version}">
+    <feature>scr</feature>
+    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-checks/${project.version}</bundle>
+  </feature>
+
   <feature name="fabric8-karaf-blueprint" description="Fabric8 Karaf Blueprint" version="${project.version}">
     <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
     <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-blueprint/${project.version}</bundle>
