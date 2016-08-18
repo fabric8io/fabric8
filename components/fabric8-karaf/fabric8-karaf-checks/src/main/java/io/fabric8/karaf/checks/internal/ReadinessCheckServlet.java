@@ -31,14 +31,17 @@
  */
 package io.fabric8.karaf.checks.internal;
 
-import io.fabric8.karaf.checks.ReadinessChecker;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.fabric8.karaf.checks.Check;
+import io.fabric8.karaf.checks.ReadinessChecker;
 
 public class ReadinessCheckServlet extends HttpServlet {
 
@@ -50,20 +53,19 @@ public class ReadinessCheckServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if( isReady() ) {
-            resp.getWriter().print("READY");
+        List<Check> checks = new ArrayList<>();
+        for (ReadinessChecker checker : checkers) {
+            checks.addAll(checker.getFailingReadinessChecks());
+        }
+        if (checks.isEmpty()) {
+            resp.getWriter().println("READY");
         } else {
             resp.setStatus(503);
-            resp.getWriter().print("NOT READY");
+            resp.getWriter().println("NOT READY");
+            for (Check check : checks) {
+                resp.getWriter().println(check.getName() + ": " + check.getLongDescription());
+            }
         }
     }
 
-    public boolean isReady() {
-        for (ReadinessChecker checker : checkers) {
-            if( !checker.getFailingReadinessChecks().isEmpty() ) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

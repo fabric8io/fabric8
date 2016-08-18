@@ -17,10 +17,12 @@
 
 package io.fabric8.karaf.checks.internal;
 
+import javax.servlet.ServletException;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import io.fabric8.karaf.checks.HealthChecker;
 import io.fabric8.karaf.checks.ReadinessChecker;
-import io.fabric8.karaf.checks.internal.HealthCheckServlet;
-import io.fabric8.karaf.checks.internal.ReadinessCheckServlet;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -30,11 +32,6 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
-
-import javax.servlet.ServletException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(
     name      = "io.fabric8.karaf.k8s.check",
@@ -58,6 +55,31 @@ public class ChecksService {
     // TODO: perhaps allow these to be configured via pid?
     String readinessCheckPath = "/readiness-check";
     String healthCheckPath = "/health-check";
+
+    public ChecksService() {
+        bind(new FrameworkState());
+        bind(new BundleState());
+        bind(new BootFeaturesState());
+        try {
+            bind(new BlueprintState());
+        } catch (Throwable t) {
+            // Ignore
+        }
+        try {
+            bind(new ScrState());
+        } catch (Throwable t) {
+            // Ignore
+        }
+    }
+
+    private void bind(Object checker) {
+        if (checker instanceof ReadinessChecker) {
+            bindReadinessCheckers((ReadinessChecker) checker);
+        }
+        if (checker instanceof HealthChecker) {
+            bindHealthCheckers((HealthChecker) checker);
+        }
+    }
 
     @Activate
     void activate(Map<String, ?> configuration) throws ServletException, NamespaceException {

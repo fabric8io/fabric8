@@ -22,6 +22,14 @@ public class Check {
     public String name;
     public String longDescription;
 
+    public Check() {
+    }
+
+    public Check(String name, String longDescription) {
+        this.name = name;
+        this.longDescription = longDescription;
+    }
+
     public String getLongDescription() {
         return longDescription;
     }

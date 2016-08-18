@@ -31,14 +31,17 @@
  */
 package io.fabric8.karaf.checks.internal;
 
-import io.fabric8.karaf.checks.HealthChecker;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.fabric8.karaf.checks.Check;
+import io.fabric8.karaf.checks.HealthChecker;
 
 public class HealthCheckServlet extends HttpServlet {
 
@@ -50,20 +53,19 @@ public class HealthCheckServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if( isHealthy() ) {
-            resp.getWriter().print("HEALTHY");
+        List<Check> checks = new ArrayList<>();
+        for (HealthChecker checker : checkers) {
+            checks.addAll(checker.getFailingHeathChecks());
+        }
+        if (checks.isEmpty()) {
+            resp.getWriter().println("HEALTHY");
         } else {
             resp.setStatus(503);
-            resp.getWriter().print("NOT HEALTHY");
+            resp.getWriter().println("NOT HEALTHY");
+            for (Check check : checks) {
+                resp.getWriter().println(check.getName() + ": " + check.getLongDescription());
+            }
         }
     }
 
-    public boolean isHealthy() {
-        for (HealthChecker checker : checkers) {
-            if( !checker.getFailingHeathChecks().isEmpty() ) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

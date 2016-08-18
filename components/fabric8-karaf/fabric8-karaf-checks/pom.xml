@@ -48,6 +48,12 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
+            <version>1.8.2</version>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -59,7 +65,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
@@ -82,6 +88,8 @@
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>io.fabric8.karaf.checks;version=${project.version};-noimport:=true</Export-Package>
                         <Import-Package>
+                            org.osgi.service.blueprint.*;resolution:=optional,
+                            org.apache.felix.scr.*;resolution:=optional;version="[1.8,1.9)",
                             *
                         </Import-Package>
                         <Private-Package>
