@@ -17,6 +17,7 @@
 
   <feature name="fabric8-karaf-checks" description="Fabric8 Karaf Checks" version="${project.version}">
     <feature>scr</feature>
+    <feature>http</feature>
     <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-checks/${project.version}</bundle>
   </feature>
 
