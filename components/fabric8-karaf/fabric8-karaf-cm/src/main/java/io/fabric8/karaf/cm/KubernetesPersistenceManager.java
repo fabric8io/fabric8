@@ -13,22 +13,6 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
-/**
- *  Copyright 2005-2016 Red Hat, Inc.
- *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
- */
 package io.fabric8.karaf.cm;
 
 import java.io.IOException;
@@ -55,6 +39,7 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 @Component(
     name      = "io.fabric8.karaf.k8s.cm",
@@ -116,11 +101,22 @@ public class KubernetesPersistenceManager implements PersistenceManager {
                 @Override
                 public Object nextElement() {
                     final ConfigMap map = it.next();
-                    final Hashtable dict = new Hashtable(map.getData());
+                    final Hashtable<String, String> dict = new Hashtable(map.getData());
+                    final String pid = map.getMetadata().getLabels().get(pidLabel);
 
-                    dict.put("kubernetes.metadata.name", map.getMetadata().getName());
-                    dict.put("kubernetes.metadata.namespace", map.getMetadata().getNamespace());
-                    dict.put(Constants.SERVICE_PID, map.getMetadata().getLabels().get(pidLabel));
+                    addToDictionary(dict, "kubernetes.metadata.name", map.getMetadata().getName());
+                    addToDictionary(dict, "kubernetes.metadata.namespace", map.getMetadata().getNamespace());
+                    addToDictionary(dict, "kubernetes.metadata.selfLink", map.getMetadata().getSelfLink());
+                    addToDictionary(dict, "kubernetes.metadata.uid", map.getMetadata().getUid());
+                    addToDictionary(dict, "kubernetes.metadata.resourceVersion", map.getMetadata().getResourceVersion());
+
+                    int n = pid.indexOf('-');
+                    if (n > 0) {
+                        addToDictionary(dict, Constants.SERVICE_PID, pid);
+                        addToDictionary(dict, ConfigurationAdmin.SERVICE_FACTORYPID, pid.substring(0, n));
+                    } else {
+                        addToDictionary(dict, Constants.SERVICE_PID, pid);
+                    }
 
                     return dict;
                 }
@@ -184,13 +180,23 @@ public class KubernetesPersistenceManager implements PersistenceManager {
         filters = new HashMap<>();
 
         String filterList = Utils.getSystemPropertyOrEnvVar("fabric8.karaf.pid.filters");
-        if (!Utils.isNullOrEmpty(filterList)) {
+        if (Utils.isNotNullOrEmpty(filterList)) {
             for (String filter : filterList.split(",")) {
                 String[] kv = filter.split("=");
                 if (kv.length == 2) {
                     filters.put(kv[0].trim(), kv[1].trim());
                 }
             }
+        }
+    }
+
+    // ******************
+    // helpers
+    // ******************
+
+    private void addToDictionary(Hashtable<String, String> dict, String key, String value) {
+        if (!dict.contains(key) && value != null) {
+            dict.put(key, value);
         }
     }
 }
