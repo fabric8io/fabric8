@@ -15,6 +15,7 @@
  */
 package io.fabric8.karaf.cm;
 
+import java.io.StringReader;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     public static final String FABRIC8_CONFIG_MERGE_DEFAULT = "false";
     public static final String FABRIC8_CONFIG_META = "fabric8.config.meta";
     public static final String FABRIC8_CONFIG_META_DEFAULT = "true";
+    public static final String FABRIC8_CONFIG_PID_CFG = "fabric8.config.pid.cfg";
     public static final String FABRIC8_PID = "fabric8.pid";
     public static final String FABRIC8_PID_LABEL = "fabric8.pid.label";
     public static final String FABRIC8_PID_LABEL_DEFAULT = "pid";
@@ -180,26 +182,67 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         String[] p = parsePid(pid);
 
         try {
-            Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
+            final Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
+            final Map<String, String> configMapData = map.getData();
 
-            Dictionary<String, Object> props = config.getProperties();
-            Hashtable<String, Object> old = props != null ? new Hashtable<String, Object>() : null;
-
-            Hashtable<String, Object> cnf = new Hashtable<>();
-            for (Map.Entry<String, String> entry : map.getData().entrySet()) {
-                cnf.put(entry.getKey(), entry.getValue());
+            if (configMapData == null) {
+                LOGGER.debug("Ignoring configuration pid={}, (empty)", config.getPid());
+                return;
             }
 
-            String meta = (String)cnf.get(FABRIC8_CONFIG_META);
+            final Dictionary<String, Object> props = config.getProperties();
+            final Hashtable<String, Object> configAdminOldCfg = props != null ? new Hashtable<String, Object>() : null;
+            Hashtable<String, Object> configAdminCfg = new Hashtable<>();
+
+            /*
+             * If there is a key named as pid + ".cfg" (as the pid file on karaf)
+             * it will be used as source of configuration instead of the content
+             * of the data field. The name of the key can be changed by setting
+             * the key fabric8.config.pid.cfg
+             *
+             * i.e.
+             *   apiVersion: v1
+             *   data:
+             *     org.ops4j.pax.logging.cfg: |+
+             *       log4j.rootLogger=DEBUG, out
+             */
+            String pidCfg = configMapData.get(FABRIC8_CONFIG_PID_CFG);
+            if (pidCfg == null) {
+                pidCfg = pid + ".cfg";
+            }
+
+            String cfgString = configMapData.get(pidCfg);
+            if (Utils.isNotNullOrEmpty(cfgString)) {
+                java.util.Properties cfg = new java.util.Properties();
+                cfg.load(new StringReader(cfgString));
+
+                for(Map.Entry<Object, Object>  entry: cfg.entrySet()) {
+                    configAdminCfg.put((String)entry.getKey(), entry.getValue());
+                }
+            }  else {
+                for (Map.Entry<String, String> entry : map.getData().entrySet()) {
+                    configAdminCfg.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            /*
+             * Configure if mete-data should be added to the Config Admin or not
+             */
+            String meta = configMapData.get(FABRIC8_CONFIG_META);
             if (meta == null) {
                 meta = configMeta;
             }
-            String merge = (String)cnf.get(FABRIC8_CONFIG_MERGE);
+
+            /*
+             * Configure if ConfigMap data should be merge with ConfigAdmin or it
+             * should override it.
+             */
+            String merge = configMapData.get(FABRIC8_CONFIG_MERGE);
             if (merge == null) {
                 merge = configMerge;
             }
 
-            if (old != null) {
+            if (configAdminOldCfg != null) {
                 Long oldVer = (Long)props.get(FABRIC8_K8S_META_RESOURCE_VERSION);
                 if (oldVer != null && oldVer.equals(ver)) {
                     LOGGER.debug("Ignoring configuration pid={}, resourceVersion={} (no changes)", config.getPid(), oldVer);
@@ -209,29 +252,29 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
                 for (Enumeration<String> e = props.keys(); e.hasMoreElements();) {
                     String key = e.nextElement();
                     Object val = props.get(key);
-                    old.put(key, val);
+                    configAdminOldCfg.put(key, val);
                 }
             }
 
-            cleanDictionaryMeta(old);
-            cleanDictionaryMeta(cnf);
+            cleanDictionaryMeta(configAdminOldCfg);
+            cleanDictionaryMeta(configAdminCfg);
 
-            if (!cnf.equals(old)) {
+            if (!configAdminCfg.equals(configAdminOldCfg)) {
                 LOGGER.debug("Updating configuration pid={}", config.getPid());
 
                 if ("true".equals(meta)) {
-                    cnf.put(FABRIC8_PID, pid);
-                    cnf.put(FABRIC8_K8S_META_RESOURCE_VERSION, ver);
-                    cnf.put(FABRIC8_K8S_META_NAME, map.getMetadata().getName());
-                    cnf.put(FABRIC8_K8S_META_NAMESPACE, map.getMetadata().getNamespace());
+                    configAdminCfg.put(FABRIC8_PID, pid);
+                    configAdminCfg.put(FABRIC8_K8S_META_RESOURCE_VERSION, ver);
+                    configAdminCfg.put(FABRIC8_K8S_META_NAME, map.getMetadata().getName());
+                    configAdminCfg.put(FABRIC8_K8S_META_NAMESPACE, map.getMetadata().getNamespace());
                 }
 
-                if ("true".equals(merge) && old != null) {
-                    old.putAll(cnf);
-                    cnf = old;
+                if ("true".equals(merge) && configAdminOldCfg != null) {
+                    configAdminOldCfg.putAll(configAdminCfg);
+                    configAdminCfg = configAdminOldCfg;
                 }
                 
-                config.update(cnf);
+                config.update(configAdminCfg);
             } else {
                 LOGGER.debug("Ignoring configuration pid={} (no changes)", config.getPid());
             }
@@ -317,6 +360,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             table.remove(FABRIC8_PID);
             table.remove(FABRIC8_CONFIG_MERGE);
             table.remove(FABRIC8_CONFIG_META);
+            table.remove(FABRIC8_CONFIG_PID_CFG);
             table.remove(FABRIC8_K8S_META_RESOURCE_VERSION);
             table.remove(FABRIC8_K8S_META_NAME);
             table.remove(FABRIC8_K8S_META_NAMESPACE);
