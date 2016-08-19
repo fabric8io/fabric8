@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
     createPid = false
 )
 public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
+    public static final String FABRIC8_CONFIG_WATCH = "fabric8.config.watch";
+    public static final String FABRIC8_CONFIG_WATCH_DEFAULT = "true";
     public static final String FABRIC8_CONFIG_MERGE = "fabric8.config.merge";
     public static final String FABRIC8_CONFIG_MERGE_DEFAULT = "false";
     public static final String FABRIC8_CONFIG_META = "fabric8.config.meta";
@@ -76,6 +78,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     private Watch watch;
     private String configMerge;
     private String configMeta;
+    private String configWatch;
 
     public KubernetesConfigAdminBridge() {
         this.lock = new Object();
@@ -83,6 +86,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         this.kubernetesClient = new AtomicReference<>();
         this.configMerge = null;
         this.configMeta = null;
+        this.configWatch = null;
         this.watch = null;
         this.pidLabel = null;
         this.filters = null;
@@ -97,6 +101,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         pidLabel = Utils.getSystemPropertyOrEnvVar(FABRIC8_PID_LABEL, FABRIC8_PID_LABEL_DEFAULT);
         configMerge = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_MERGE, FABRIC8_CONFIG_MERGE_DEFAULT);
         configMeta = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_META, FABRIC8_CONFIG_META_DEFAULT);
+        configWatch = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_WATCH, FABRIC8_CONFIG_WATCH_DEFAULT);
         filters = new HashMap<>();
 
         String filterList = Utils.getSystemPropertyOrEnvVar(FABRIC8_PID_FILTERS);
@@ -331,12 +336,14 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     }
 
     private void watchConfigMapList() {
-        KubernetesClient client = kubernetesClient.get();
+        if ("true".equals(configWatch)) {
+            KubernetesClient client = kubernetesClient.get();
 
-        if (client != null) {
-            watch = client.configMaps().withLabel(pidLabel).withLabels(filters).watch(this);
-        } else {
-            throw new RuntimeException("KubernetesClient not set");
+            if (client != null) {
+                watch = client.configMaps().withLabel(pidLabel).withLabels(filters).watch(this);
+            } else {
+                throw new RuntimeException("KubernetesClient not set");
+            }
         }
     }
 
