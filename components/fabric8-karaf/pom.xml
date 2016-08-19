@@ -51,5 +51,6 @@
     <module>fabric8-karaf-checks</module>
     <module>fabric8-karaf-cm</module>
     <module>fabric8-karaf-features</module>
+    <module>fabric8-karaf-itests</module>
   </modules>
 </project>
