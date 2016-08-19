@@ -353,13 +353,21 @@ public class MigrateMojo extends AbstractFabric8Mojo {
         }
         Element fmpPlugin = findPlugin(doc, "io.fabric8", "fabric8-maven-plugin");
         if (fmpPlugin == null) {
-            fmpPlugin = findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
-            updated = true;
+            if (configuration != null) {
+                fmpPlugin = findOrAddPlugin(doc, "io.fabric8", "fabric8-maven-plugin", "${fabric8.maven.plugin.version}", configuration);
+                updated = true;
+            }
         } else {
-            fmpPlugin.appendChild(configuration);
-            fmpPlugin.appendChild(doc.createTextNode("\n      "));
+            if (configuration != null) {
+                Element oldConfig = firstChild(fmpPlugin, "configuration");
+                DomHelper.detach(oldConfig);
+                fmpPlugin.appendChild(configuration);
+                if (oldConfig == null) {
+                    fmpPlugin.appendChild(doc.createTextNode("\n      "));
+                }
+            }
         }
-        if (updateExecutions) {
+        if (updateExecutions && fmpPlugin != null) {
             Element executions = firstChild(fmpPlugin, "executions");
             if (executions == null) {
                 executions = DomHelper.addChildElement(fmpPlugin, "executions");
