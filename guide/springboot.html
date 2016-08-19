@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>docker:build | Fabric8 Documentation</title>
+        <title>Spring Boot | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./mavenDockerPush.html" />
+    <link rel="next" href="./karaf.html" />
     
     
-    <link rel="prev" href="./mavenFabric8Migrate.html" />
+    <link rel="prev" href="./testing.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.2" data-basepath="." data-revision="Fri Aug 19 2016 16:06:34 GMT+0000 (UTC)">
+    <div class="book" data-level="4.1" data-basepath="." data-revision="Fri Aug 19 2016 16:06:34 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -572,7 +572,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="4.1" data-path="springboot.html">
+        <li class="chapter active" data-level="4.1" data-path="springboot.html">
             
                 
                     <a href="./springboot.html">
@@ -1102,7 +1102,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8.2.1.2" data-path="mavenDockerBuild.html">
+        <li class="chapter " data-level="8.2.1.2" data-path="mavenDockerBuild.html">
             
                 
                     <a href="./mavenDockerBuild.html">
@@ -1711,14 +1711,59 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="docker-build"><a name="docker-build" class="plugin-anchor" href="#docker-build"><span class="fa fa-link"></span></a>docker:build</h2>
-<p>The maven <code>fabric8:build</code> goal pushes the docker image generated via <a href="mavenDockerBuild.html">mvn docker:build</a> to either the global docker registry or a local docker registry.</p>
-<p>To create a container on Kubernetes you need to create a docker image. To enable the creation of a docker image use a maven plugin such as the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md" target="_blank">docker-maven-plugin</a></p>
-<p>Then to build the docker image locally its</p>
-<pre><code>mvn install docker:build
-</code></pre><h3 id="reference"><a name="reference" class="plugin-anchor" href="#reference"><span class="fa fa-link"></span></a>Reference</h3>
-<p>See the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#dockerbuild" target="_blank">reference docs for docker:build</a></p>
-
+                        <h2 id="spring-boot"><a name="spring-boot" class="plugin-anchor" href="#spring-boot"><span class="fa fa-link"></span></a>Spring Boot</h2>
+<p>Fabric8 provides support for Spring Boot which is meant to make developing spring boot apps for kubernetes easier.</p>
+<p>Using Fabric8 it is possible to:</p>
+<ul>
+<li>Inject a fabric8 managed kubernetes client.</li>
+<li>Inject URL to kubernetes service using the @ServiceName.</li>
+<li>Inject a client for a kubernetes service using the @ServiceName and converter beans.</li>
+<li>Inject a client for a kubernetes service using the @ServiceName and @Factory.</li>
+</ul>
+<p>fabric8-springboot works for application that live both inside and outside of kubernetes. So it can be used safely in kubernetes and hybrid deployments for easier consumption of kubernetes managed services.</p>
+<h3 id="the-servicename-annotation"><a name="the-servicename-annotation" class="plugin-anchor" href="#the-servicename-annotation"><span class="fa fa-link"></span></a>The @ServiceName annotation</h3>
+<p>In kubernetes, each service has a host and a port and they are passed to container as environment variable. Containers that live inside Kubernetes
+can lookup for services using their environment variables. Application that live outside of kubernetes need to use the kubernetes API in order to perform lookups.</p>
+<p>The fabric8 extension provides a unified approach in looking up for service coordinates. It provides the @ServiceName qualifier which can be used to inject the coordinates as a String or as a URL by just referring to the id of the service.</p>
+<pre><code>@Inject
+@ServiceName(&quot;my-service&quot;)
+private String service.
+</code></pre><p>All available services are registered as io.fabric8.kubernetes.api.model.Service objects. But there are out of the box converter to String and URL.
+The URL converter will convert the Service to a URL and the string converter to its string representation.</p>
+<h3 id="the-portname-annotation"><a name="the-portname-annotation" class="plugin-anchor" href="#the-portname-annotation"><span class="fa fa-link"></span></a>The @PortName annotation</h3>
+<p>In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;my-service&quot;)
+    @PortName(&quot;my-port&quot;)
+    private String service.
+</code></pre><h3 id="running-inside-and-outside-of-kubernetes"><a name="running-inside-and-outside-of-kubernetes" class="plugin-anchor" href="#running-inside-and-outside-of-kubernetes"><span class="fa fa-link"></span></a>Running inside and outside of Kubernetes</h3>
+<p>Under the covers the code will default to using the <strong>MY_SERVICE_SERVICE_HOST</strong> and <strong>MY_SERVICE_SERVICE_PORT</strong> environment variables exposed by <a href="services.html">kubernetes services</a> to discover the IP and port to use to connect to the service. Kubernetes sets those environment variables automatically when your pod is run inside Kubernetes.</p>
+<p>If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable <strong>KUBERNETES_MASTER</strong> to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.</p>
+<h3 id="the-protocol-annotation"><a name="the-protocol-annotation" class="plugin-anchor" href="#the-protocol-annotation"><span class="fa fa-link"></span></a>The @Protocol annotation</h3>
+<p>Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that its really smelly.</p>
+<p>The extension supports the @Protocol annotation which allows the user to specify the application protocol to use.</p>
+<pre><code>    @Inject
+    @ServiceName(&quot;my-ftp-service&quot;)
+    @Protocol(&quot;ftp&quot;)
+    private String service.
+</code></pre><h3 id="using-converters-and-factories"><a name="using-converters-and-factories" class="plugin-anchor" href="#using-converters-and-factories"><span class="fa fa-link"></span></a>Using Converters and Factories</h3>
+<p>Using the service coordinates, like the URL is handy. Many times one needs to inject a client/consumer of the service.
+Spring is using Converters when it needs to inject a bean and there is a type mismatch. It will look for a converter bean
+that can convert from the type of the matching bean in the registry to the type need. If converter is available it will be automatically used.</p>
+<p>This module takes things a step further. It provides the @Factory annotation that can automatically create and register a converter for the job.
+Here&apos;s an example:</p>
+<pre><code>   @Factory
+   @ServiceName
+   public MyClient create(@ServiceName String url) {
+       return new MyClient(url);
+   }
+</code></pre><p>Note, that using converters should be enough and that this feature is here for compatibility with fabric8-cdi.</p>
+<h4 id="injection-of-optional-services"><a name="injection-of-optional-services" class="plugin-anchor" href="#injection-of-optional-services"><span class="fa fa-link"></span></a>Injection of Optional Services</h4>
+<p>If you need to inject optional services or objects, you can use the @Autowired annotation and set the required parameter to false. For example:</p>
+<pre><code>@Autowire(required=false)
+MyClient instance;
+</code></pre>
                     
                     </section>
                 
@@ -1728,10 +1773,10 @@
         </div>
 
         
-        <a href="./mavenFabric8Migrate.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:migrate"><i class="fa fa-angle-left"></i></a>
+        <a href="./testing.html" class="navigation navigation-prev " aria-label="Previous page: Testing"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./mavenDockerPush.html" class="navigation navigation-next " aria-label="Next page: docker:push"><i class="fa fa-angle-right"></i></a>
+        <a href="./karaf.html" class="navigation navigation-next " aria-label="Next page: Apache Karaf"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
