@@ -70,6 +70,12 @@ public class ChecksService {
         } catch (Throwable t) {
             // Ignore
         }
+        try {
+            bind(new WarState());
+        } catch (Throwable t) {
+            // Ignore
+        }
+        bind(new CamelState());
     }
 
     private void bind(Object checker) {

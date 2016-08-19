@@ -54,6 +54,12 @@
             <version>1.8.2</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-spi</artifactId>
+            <version>4.2.6</version>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -90,6 +96,7 @@
                         <Import-Package>
                             org.osgi.service.blueprint.*;resolution:=optional,
                             org.apache.felix.scr.*;resolution:=optional;version="[1.8,1.9)",
+                            org.ops4j.pax.web.*;resolution:=optional;version="[4,7)",
                             *
                         </Import-Package>
                         <Private-Package>

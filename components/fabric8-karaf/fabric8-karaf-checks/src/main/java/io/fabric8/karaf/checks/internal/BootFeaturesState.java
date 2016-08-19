@@ -34,7 +34,7 @@ public class BootFeaturesState extends AbstractChecker {
     @Override
     protected List<Check> doCheck() {
         for (Bundle bundle : systemBundleContext.getBundles()) {
-            if (bundle.getSymbolicName().equals("org.apache.karaf.features.core")) {
+            if ("org.apache.karaf.features.core".equals(bundle.getSymbolicName())) {
                 if (!bootFeaturesInstalled(bundle)) {
                     return Collections.singletonList(new Check("boot-features-state", "Boot Features are not yet installed"));
                 }
