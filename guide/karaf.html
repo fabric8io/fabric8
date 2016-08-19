@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Fri Aug 19 2016 16:06:34 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Fri Aug 19 2016 17:30:46 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1719,10 +1719,74 @@
 <li>Use Kubernetes config maps to dynamically update the OSGi config admin</li>
 <li>Provides sensible Kubernetes heath checks for OSGi services</li>
 </ul>
-<h3 id="fabric8-blueprint-support"><a name="fabric8-blueprint-support" class="plugin-anchor" href="#fabric8-blueprint-support"><span class="fa fa-link"></span></a>Fabric8 Blueprint Support</h3>
+<h3 id="adding-the-features-file"><a name="adding-the-features-file" class="plugin-anchor" href="#adding-the-features-file"><span class="fa fa-link"></span></a>Adding the Features File</h3>
+<p>To use any of the features described in document you should add the <code>fabric8-karaf-features</code> dependency to your project pom so that it&apos;s feature can be installed into your Karaf server.</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;fabric8-karaf-features&lt;/artifactId&gt;
+  &lt;version&gt;${fabric8.version}&lt;/version&gt;
+  &lt;classifier&gt;features&lt;/classifier&gt;
+  &lt;type&gt;xml&lt;/type&gt;
+&lt;/dependency&gt;
+</code></pre><h3 id="fabric8-blueprint-support"><a name="fabric8-blueprint-support" class="plugin-anchor" href="#fabric8-blueprint-support"><span class="fa fa-link"></span></a>Fabric8 Blueprint Support</h3>
 <h3 id="fabric8-config-admin-support"><a name="fabric8-config-admin-support" class="plugin-anchor" href="#fabric8-config-admin-support"><span class="fa fa-link"></span></a>Fabric8 Config Admin Support</h3>
 <h3 id="fabric8-karaf-health-checks"><a name="fabric8-karaf-health-checks" class="plugin-anchor" href="#fabric8-karaf-health-checks"><span class="fa fa-link"></span></a>Fabric8 Karaf Health Checks</h3>
+<p>It is recommended you always install the <code>fabric8-karaf-checks</code> as a startup feature. With it enabled, your Karaf server will expose
+<code>http://0.0.0.0:8181/readiness-check</code> and <code>http://0.0.0.0:8181/health-check</code> URLs which can be used by Kubernetes for readiness and liveness probes.  Those URLs will only respond with a HTTP 200 status code when the following is true:</p>
+<ul>
+<li>OSGi Framework is started</li>
+<li>All OSGi bundles are started</li>
+<li>All boot features are installed</li>
+<li>All deployed BluePrint bundles are in the created state.</li>
+<li>All deployed SCR bundles are in the active, registered or factory state.</li>
+<li>All web bundles are deployed to the web server.</li>
+<li>All created Camel contexts are in the started state.</li>
+</ul>
+<p>Adding the feature to your project&apos;s pom.xml:</p>
+<pre><code>      &lt;startupFeatures&gt;
+        ...
+        &lt;feature&gt;fabric8-karaf-checks&lt;/feature&gt;
+        ...
+      &lt;/startupFeatures&gt;
+</code></pre><p>The <code>fabric8-maven-plugin:resources</code> goal will detect if your using the <code>fabric8-karaf-checks</code> feature and automatically add the Kubernetes for readiness and liveness probes to your container&apos;s configuration.</p>
+<h4 id="add-custom-heath-checks"><a name="add-custom-heath-checks" class="plugin-anchor" href="#add-custom-heath-checks"><span class="fa fa-link"></span></a>Add Custom Heath Checks</h4>
+<p>You may want to provide additional custom heath checks so that your Karaf server does not start receiving user traffic before it&apos;s ready to process the requests.  To do this, you just need to implement the <code>io.fabric8.karaf.checks.HealthChecker</code> or <code>io.fabric8.karaf.checks.ReadinessChecker</code> interfaces and register those objects in the OSGi registry.</p>
+<p>Your project will need to add the following mvn dependency to the project pom.xml:</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;fabric8-karaf-checks&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre><p>The easiest way to create and registered an object in the OSGi registry is to use SCR.  Here is an example that performs a health check to make sure you have some free disk space:</p>
+<pre><code>import io.fabric8.karaf.checks.*;
+import org.apache.felix.scr.annotations.*;
+import org.apache.commons.io.FileSystemUtils;
+import java.util.Collections;
+import java.util.List;
 
+@Component(
+    name = &quot;example.TimeChecker&quot;,
+    immediate = true,
+    enabled = true,
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = false
+)
+@Service({HealthChecker.class, ReadinessChecker.class})
+public class DiskChecker implements HealthChecker, ReadinessChecker {
+
+    public List&lt;Check&gt; getFailingReadinessChecks() {
+        // lets just use the same checks for both readiness and health
+        return getFailingHeathChecks();
+    }
+
+    public List&lt;Check&gt; getFailingHeathChecks() {
+        long free = FileSystemUtils.freeSpaceKb(&quot;/&quot;);
+        if (free &lt; 1024 * 500) {
+            return Collections.singletonList(new Check(&quot;disk-space-low&quot;, &quot;Only &quot; + free + &quot;kb of disk space left.&quot;));
+        }
+        return Collections.emptyList();
+    }
+}
+</code></pre>
                     
                     </section>
                 
