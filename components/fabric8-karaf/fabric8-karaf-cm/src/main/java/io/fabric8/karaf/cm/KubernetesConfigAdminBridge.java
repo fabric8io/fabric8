@@ -35,11 +35,30 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.osgi.framework.Constants;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.fabric8.karaf.cm.KubernetesConstants.CM_META_KEYS;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_MERGE;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_MERGE_DEFAULT;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_META;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_META_DEFAULT;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_PID_CFG;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_WATCH;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_WATCH_DEFAULT;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_K8S_META_NAME;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_K8S_META_NAMESPACE;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_K8S_META_RESOURCE_VERSION;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_META_KEYS;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_PID;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_PID_FILTERS;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_PID_LABEL;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_PID_LABEL_DEFAULT;
+import static io.fabric8.kubernetes.client.utils.Utils.getSystemPropertyOrEnvVar;
 
 @Component(
     name      = "io.fabric8.karaf.k8s.configadmin.bridge",
@@ -49,28 +68,20 @@ import org.slf4j.LoggerFactory;
     createPid = false
 )
 public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
-    public static final String FABRIC8_CONFIG_WATCH = "fabric8.config.watch";
-    public static final String FABRIC8_CONFIG_WATCH_DEFAULT = "true";
-    public static final String FABRIC8_CONFIG_MERGE = "fabric8.config.merge";
-    public static final String FABRIC8_CONFIG_MERGE_DEFAULT = "false";
-    public static final String FABRIC8_CONFIG_META = "fabric8.config.meta";
-    public static final String FABRIC8_CONFIG_META_DEFAULT = "true";
-    public static final String FABRIC8_CONFIG_PID_CFG = "fabric8.config.pid.cfg";
-    public static final String FABRIC8_PID = "fabric8.pid";
-    public static final String FABRIC8_PID_LABEL = "fabric8.pid.label";
-    public static final String FABRIC8_PID_LABEL_DEFAULT = "pid";
-    public static final String FABRIC8_PID_FILTERS = "fabric8.pid.filters";
-    public static final String FABRIC8_K8S_META_RESOURCE_VERSION = "fabric8.k8s.meta.resourceVersion";
-    public static final String FABRIC8_K8S_META_NAME = "fabric8.k8s.meta.name";
-    public static final String FABRIC8_K8S_META_NAMESPACE = "fabric8.k8s.meta.namespace";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesConfigAdminBridge.class);
 
     private final Object lock;
 
-    @Reference(referenceInterface = ConfigurationAdmin.class)
+    @Reference(
+        referenceInterface = ConfigurationAdmin.class,
+        policy = ReferencePolicy.STATIC,
+        cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private final AtomicReference<ConfigurationAdmin> configAdmin;
-    @Reference(referenceInterface = KubernetesClient.class)
+
+    @Reference(
+        referenceInterface = KubernetesClient.class,
+        policy = ReferencePolicy.STATIC,
+        cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private final AtomicReference<KubernetesClient> kubernetesClient;
 
     private String pidLabel;
@@ -98,13 +109,13 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
 
     @Activate
     void activate() {
-        pidLabel = Utils.getSystemPropertyOrEnvVar(FABRIC8_PID_LABEL, FABRIC8_PID_LABEL_DEFAULT);
-        configMerge = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_MERGE, FABRIC8_CONFIG_MERGE_DEFAULT);
-        configMeta = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_META, FABRIC8_CONFIG_META_DEFAULT);
-        configWatch = Utils.getSystemPropertyOrEnvVar(FABRIC8_CONFIG_WATCH, FABRIC8_CONFIG_WATCH_DEFAULT);
+        pidLabel = getSystemPropertyOrEnvVar(FABRIC8_PID_LABEL, FABRIC8_PID_LABEL_DEFAULT);
+        configMerge = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_MERGE, FABRIC8_CONFIG_MERGE_DEFAULT);
+        configMeta = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_META, FABRIC8_CONFIG_META_DEFAULT);
+        configWatch = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_WATCH, FABRIC8_CONFIG_WATCH_DEFAULT);
         filters = new HashMap<>();
 
-        String filterList = Utils.getSystemPropertyOrEnvVar(FABRIC8_PID_FILTERS);
+        String filterList = getSystemPropertyOrEnvVar(FABRIC8_PID_FILTERS);
         if (!Utils.isNullOrEmpty(filterList)) {
             for (String filter : filterList.split(",")) {
                 String[] kv = filter.split("=");
@@ -196,8 +207,8 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             }
 
             final Dictionary<String, Object> props = config.getProperties();
-            final Hashtable<String, Object> configAdminOldCfg = props != null ? new Hashtable<String, Object>() : null;
-            Hashtable<String, Object> configAdminCfg = new Hashtable<>();
+            final Hashtable<String, Object> configAdmCfg = props != null ? new Hashtable<String, Object>() : null;
+            Hashtable<String, Object> configMapCfg = new Hashtable<>();
 
             /*
              * If there is a key named as pid + ".cfg" (as the pid file on karaf)
@@ -222,11 +233,11 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
                 cfg.load(new StringReader(cfgString));
 
                 for(Map.Entry<Object, Object>  entry: cfg.entrySet()) {
-                    configAdminCfg.put((String)entry.getKey(), entry.getValue());
+                    configMapCfg.put((String)entry.getKey(), entry.getValue());
                 }
             }  else {
                 for (Map.Entry<String, String> entry : map.getData().entrySet()) {
-                    configAdminCfg.put(entry.getKey(), entry.getValue());
+                    configMapCfg.put(entry.getKey(), entry.getValue());
                 }
             }
 
@@ -247,39 +258,41 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
                 merge = configMerge;
             }
 
-            if (configAdminOldCfg != null) {
+            if (configAdmCfg != null) {
                 Long oldVer = (Long)props.get(FABRIC8_K8S_META_RESOURCE_VERSION);
-                if (oldVer != null && oldVer.equals(ver)) {
-                    LOGGER.debug("Ignoring configuration pid={}, resourceVersion={} (no changes)", config.getPid(), oldVer);
+                if (oldVer != null && (oldVer >= ver)) {
+                    LOGGER.debug("Ignoring configuration pid={}, oldVersion={} newVersion={} (no changes)", config.getPid(), oldVer, ver);
                     return;
                 }
 
                 for (Enumeration<String> e = props.keys(); e.hasMoreElements();) {
                     String key = e.nextElement();
                     Object val = props.get(key);
-                    configAdminOldCfg.put(key, val);
+                    configAdmCfg.put(key, val);
                 }
             }
 
-            cleanDictionaryMeta(configAdminOldCfg);
-            cleanDictionaryMeta(configAdminCfg);
-
-            if (!configAdminCfg.equals(configAdminOldCfg)) {
+            if (shouldUpdate(configAdmCfg, configMapCfg)) {
                 LOGGER.debug("Updating configuration pid={}", config.getPid());
 
                 if ("true".equals(meta)) {
-                    configAdminCfg.put(FABRIC8_PID, pid);
-                    configAdminCfg.put(FABRIC8_K8S_META_RESOURCE_VERSION, ver);
-                    configAdminCfg.put(FABRIC8_K8S_META_NAME, map.getMetadata().getName());
-                    configAdminCfg.put(FABRIC8_K8S_META_NAMESPACE, map.getMetadata().getNamespace());
+                    configMapCfg.put(FABRIC8_PID, pid);
+                    configMapCfg.put(FABRIC8_K8S_META_RESOURCE_VERSION, ver);
+                    configMapCfg.put(FABRIC8_K8S_META_NAME, map.getMetadata().getName());
+                    configMapCfg.put(FABRIC8_K8S_META_NAMESPACE, map.getMetadata().getNamespace());
                 }
 
-                if ("true".equals(merge) && configAdminOldCfg != null) {
-                    configAdminOldCfg.putAll(configAdminCfg);
-                    configAdminCfg = configAdminOldCfg;
+                if ("true".equals(merge) && configAdmCfg != null) {
+                    for(Map.Entry<String, Object> entry : configMapCfg.entrySet()) {
+                        // Do not override ConfigAdmin meta data
+                        if (!CM_META_KEYS.contains(entry.getKey())) {
+                            configAdmCfg.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    configMapCfg = configAdmCfg;
                 }
                 
-                config.update(configAdminCfg);
+                config.update(configMapCfg);
             } else {
                 LOGGER.debug("Ignoring configuration pid={} (no changes)", config.getPid());
             }
@@ -360,18 +373,27 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         }
     }
 
-    private void cleanDictionaryMeta(Hashtable<String, Object> table) {
-        if (table != null) {
-            table.remove(Constants.SERVICE_PID);
-            table.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
-            table.remove(FABRIC8_PID);
-            table.remove(FABRIC8_CONFIG_MERGE);
-            table.remove(FABRIC8_CONFIG_META);
-            table.remove(FABRIC8_CONFIG_PID_CFG);
-            table.remove(FABRIC8_K8S_META_RESOURCE_VERSION);
-            table.remove(FABRIC8_K8S_META_NAME);
-            table.remove(FABRIC8_K8S_META_NAMESPACE);
+    private boolean shouldUpdate(Hashtable<String, Object> configAdmCfg, Hashtable<String, Object> configMapCfg) {
+        if (configAdmCfg == null) {
+            return true;
         }
+
+        for(Map.Entry<String, Object> entry : configMapCfg.entrySet()) {
+            // Do not compare meta data
+            if (FABRIC8_META_KEYS.contains(entry.getKey())) {
+                continue;
+            }
+
+            Object value = configAdmCfg.get(entry.getKey());
+            if (value == null) {
+                return true;
+            }
+            if (!value.equals(entry.getValue())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
