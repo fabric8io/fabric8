@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fabric8-karaf-cm</artifactId>
+    <artifactId>fabric8-karaf-common</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Karaf :: CM</name>
+    <name>Fabric8 :: Karaf :: Common</name>
 
     <dependencies>
         <dependency>
@@ -36,21 +36,13 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-karaf-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
-        </dependency>
-
-        <!-- osgi -->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -100,12 +92,10 @@
                     <instructions>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>io.fabric8.karaf.cm;version=${project.version};-noimport:=true</Export-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
+                        <Export-Package>io.fabric8.karaf.common.*;version=${project.version};-noimport:=true</Export-Package>
+                        <Import-Package>*</Import-Package>
                         <Private-Package></Private-Package>
-                        <Implementation-Title>Fabric8 Karaf ConfigAdmin Support</Implementation-Title>
+                        <Implementation-Title>Fabric8 Karaf Blueprint Support</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
                         <Include-Resource>{maven-resources}</Include-Resource>
                         <_failok>false</_failok>

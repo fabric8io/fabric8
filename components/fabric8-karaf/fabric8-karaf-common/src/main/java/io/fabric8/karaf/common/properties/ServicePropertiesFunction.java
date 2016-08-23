@@ -14,9 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.blueprint;
+package io.fabric8.karaf.common.properties;
 
 import java.util.Locale;
+
+import io.fabric8.karaf.common.Support;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Service;
 
 /**
  * A {@link PropertiesFunction} that lookup the property value from
@@ -28,19 +33,21 @@ import java.util.Locale;
  *   <li><tt>NAME_SERVICE_PORT</tt></li>
  * </ul>
  * in other words the service uses <tt>_SERVICE_HOST</tt> and <tt>_SERVICE_PORT</tt> as prefix.
- * <p/>
- * This implementation is to return the host part only.
- *
- * @see ServicePropertiesFunction
- * @see ServicePortPropertiesFunction
  */
-public class ServiceHostPropertiesFunction implements PropertiesFunction {
+@Component(
+    immediate = true,
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = false
+)
+@Service(PropertiesFunction.class)
+public class ServicePropertiesFunction implements PropertiesFunction {
 
     private static final String HOST_PREFIX = "_SERVICE_HOST";
+    private static final String PORT_PREFIX = "_SERVICE_PORT";
 
     @Override
     public String getName() {
-        return "service.host";
+        return "service";
     }
 
     @Override
@@ -60,9 +67,10 @@ public class ServiceHostPropertiesFunction implements PropertiesFunction {
 
             // a service should have both the host and port defined
             String host = System.getenv(key + HOST_PREFIX);
+            String port = System.getenv(key + PORT_PREFIX);
 
-            if (host != null) {
-                return host;
+            if (host != null && port != null) {
+                return host + ":" + port;
             } else {
                 return defaultValue;
             }

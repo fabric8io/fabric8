@@ -44,11 +44,26 @@
         <artifactId>org.apache.aries.blueprint.core</artifactId>
         <scope>test</scope>
       </dependency>
-      
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.core</artifactId>
-        <version>${osgi.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-karaf-blueprint</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-karaf-cm</artifactId>
+        <version>${project.version}</version>
         <scope>test</scope>
       </dependency>
 

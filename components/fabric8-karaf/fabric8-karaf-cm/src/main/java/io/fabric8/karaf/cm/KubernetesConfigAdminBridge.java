@@ -37,6 +37,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -61,27 +62,26 @@ import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_PID_LABEL_DEFAULT;
 import static io.fabric8.kubernetes.client.utils.Utils.getSystemPropertyOrEnvVar;
 
 @Component(
-    name      = "io.fabric8.karaf.k8s.configadmin.bridge",
     immediate = true,
-    enabled   = true,
-    policy    = ConfigurationPolicy.IGNORE,
-    createPid = false
-)
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = false)
+@References({
+    @Reference(
+        name = "configAdmin",
+        referenceInterface = ConfigurationAdmin.class,
+        policy = ReferencePolicy.STATIC,
+        cardinality = ReferenceCardinality.MANDATORY_UNARY),
+    @Reference(
+        name = "kubernetesClient",
+        referenceInterface = KubernetesClient.class,
+        policy = ReferencePolicy.STATIC,
+        cardinality = ReferenceCardinality.MANDATORY_UNARY)
+})
 public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesConfigAdminBridge.class);
 
     private final Object lock;
-
-    @Reference(
-        referenceInterface = ConfigurationAdmin.class,
-        policy = ReferencePolicy.STATIC,
-        cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private final AtomicReference<ConfigurationAdmin> configAdmin;
-
-    @Reference(
-        referenceInterface = KubernetesClient.class,
-        policy = ReferencePolicy.STATIC,
-        cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private final AtomicReference<KubernetesClient> kubernetesClient;
 
     private String pidLabel;
@@ -148,19 +148,19 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     // References
     // ***********************
 
-    void bindConfigAdmin(ConfigurationAdmin service) {
+    protected void bindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.set(service);
     }
 
-    void unbindConfigAdmin(ConfigurationAdmin service) {
+    protected void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.compareAndSet(service, null);
     }
 
-    void bindKubernetesClient(KubernetesClient service) {
+    protected void bindKubernetesClient(KubernetesClient service) {
         this.kubernetesClient.set(service);
     }
 
-    void unbindKubernetesClient(KubernetesClient service) {
+    protected void unbindKubernetesClient(KubernetesClient service) {
         this.kubernetesClient.compareAndSet(service, null);
     }
 

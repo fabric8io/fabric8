@@ -15,9 +15,36 @@
  * limitations under the License.
  */
 
-package io.fabric8.karaf.blueprint;
+package io.fabric8.karaf.common;
+
+import java.lang.ref.WeakReference;
 
 public class Support {
+    private static final ThreadLocal<WeakReference<StringBuilder>> SBPOOL = new ThreadLocal<>();
+
+    public static StringBuilder acquireStringBuilder() {
+        WeakReference<StringBuilder> ref = SBPOOL.get();
+        StringBuilder sb = null;
+
+        if (ref != null) {
+            sb = ref.get();
+        }
+
+        if (sb == null) {
+            sb = new StringBuilder(1024);
+            SBPOOL.set(new WeakReference<>(sb));
+        }
+
+        return sb;
+    }
+
+    public static StringBuilder acquireStringBuilder(String value) {
+        StringBuilder sb = acquireStringBuilder();
+        sb.setLength(0);
+        sb.append(value);
+
+        return sb;
+    }
 
     /**
      * Returns the string before the given token
@@ -46,5 +73,4 @@ public class Support {
         }
         return text.substring(text.indexOf(after) + after.length());
     }
-
 }
