@@ -14,12 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.blueprint;
+package io.fabric8.karaf.common.properties;
 
 import java.util.Locale;
 
+import io.fabric8.karaf.common.Support;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Service;
+
 /**
- * A {@link org.apache.camel.component.properties.PropertiesFunction} that lookup the property value from
+ * A {@link PropertiesFunction} that lookup the property value from
  * OS environment variables using the service idiom.
  * <p/>
  * A service is defined using two environment variables where name is name of the service:
@@ -28,15 +33,25 @@ import java.util.Locale;
  *   <li><tt>NAME_SERVICE_PORT</tt></li>
  * </ul>
  * in other words the service uses <tt>_SERVICE_HOST</tt> and <tt>_SERVICE_PORT</tt> as prefix.
+ * <p/>
+ * This implementation is to return the host part only.
+ *
+ * @see ServicePropertiesFunction
+ * @see ServicePortPropertiesFunction
  */
-public class ServicePropertiesFunction implements PropertiesFunction {
+@Component(
+    immediate = true,
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = false
+)
+@Service(PropertiesFunction.class)
+public class ServiceHostPropertiesFunction implements PropertiesFunction {
 
     private static final String HOST_PREFIX = "_SERVICE_HOST";
-    private static final String PORT_PREFIX = "_SERVICE_PORT";
 
     @Override
     public String getName() {
-        return "service";
+        return "service.host";
     }
 
     @Override
@@ -56,10 +71,9 @@ public class ServicePropertiesFunction implements PropertiesFunction {
 
             // a service should have both the host and port defined
             String host = System.getenv(key + HOST_PREFIX);
-            String port = System.getenv(key + PORT_PREFIX);
 
-            if (host != null && port != null) {
-                return host + ":" + port;
+            if (host != null) {
+                return host;
             } else {
                 return defaultValue;
             }

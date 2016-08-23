@@ -23,6 +23,8 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 final class KubernetesConstants {
+    public static final String FABRIC8_CONFIG_PLUGIN_ENABLED = "fabric8.config.plugin.enabled";
+    public static final String FABRIC8_CONFIG_PLUGIN_ENABLED_DEFAULT = "false";
     public static final String FABRIC8_CONFIG_WATCH = "fabric8.config.watch";
     public static final String FABRIC8_CONFIG_WATCH_DEFAULT = "true";
     public static final String FABRIC8_CONFIG_MERGE = "fabric8.config.merge";

@@ -20,7 +20,7 @@
   <feature name="fabric8-karaf-checks" description="Fabric8 Karaf Checks" version="${project.version}">
     <feature>scr</feature>
     <feature>http</feature>
-    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-checks/${project.version}</bundle>
+    <bundle start-level="65">mvn:io.fabric8/fabric8-karaf-checks/${project.version}</bundle>
   </feature>
 
   <feature name="fabric8-karaf-blueprint" description="Fabric8 Karaf Blueprint" version="${project.version}">
@@ -28,13 +28,17 @@
     <feature>aries-blueprint</feature>
     <feature>kubernetes-client</feature>
     <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
-    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-blueprint/${project.version}</bundle>
+    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-common/${project.version}</bundle>
+    <bundle start-level="65">mvn:io.fabric8/fabric8-karaf-blueprint/${project.version}</bundle>
   </feature>
 
   <feature name="fabric8-karaf-cm" description="Fabric8 Karaf ConfigAdmin Bridge" version="${project.version}">
     <feature>scr</feature>
     <feature>kubernetes-client</feature>
-    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-cm/${project.version}</bundle>
+    <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+    <bundle start-level="60">mvn:io.fabric8/fabric8-karaf-common/${project.version}</bundle>
+    <bundle start-level="65">mvn:io.fabric8/fabric8-karaf-cm/${project.version}</bundle>
   </feature>
 
 </features>

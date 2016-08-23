@@ -14,12 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.blueprint;
+package io.fabric8.karaf.common.properties;
 
 import java.util.Locale;
 
+import io.fabric8.karaf.common.Support;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Service;
+
 /**
- * A {@link org.apache.camel.component.properties.PropertiesFunction} that lookup the property value from
+ * A {@link PropertiesFunction} that lookup the property value from
  * OS environment variables using the service idiom.
  * <p/>
  * A service is defined using two environment variables where name is name of the service:
@@ -34,6 +39,12 @@ import java.util.Locale;
  * @see ServicePropertiesFunction
  * @see ServiceHostPropertiesFunction
  */
+@Component(
+    immediate = true,
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = false
+)
+@Service(PropertiesFunction.class)
 public class ServicePortPropertiesFunction implements PropertiesFunction {
 
     private static final String PORT_PREFIX = "_SERVICE_PORT";

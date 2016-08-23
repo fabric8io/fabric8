@@ -20,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import javax.inject.Inject;
 
+import io.fabric8.karaf.blueprint.Fabric8PropertyEvaluator;
+import io.fabric8.karaf.cm.PlaceholderResolverConfigurationPlugin;
 import org.apache.aries.blueprint.ext.evaluator.PropertyEvaluator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,14 +32,13 @@ import org.ops4j.pax.exam.ProbeBuilder;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
-import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationPlugin;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureSecurity;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
@@ -46,7 +47,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -56,16 +56,20 @@ public class ServiceTest extends TestBase {
     protected BundleContext bundleContext;
 
     @Inject
-    @Filter("(org.apache.aries.blueprint.ext.evaluator.name=camel)")
-    PropertyEvaluator camelPropertyEvaluator;
+    @Filter("(component.name=io.fabric8.karaf.blueprint.Fabric8PropertyEvaluator)")
+    PropertyEvaluator propertyEvaluator;
+
     @Inject
-    @Filter("(org.apache.aries.blueprint.ext.evaluator.name=k8s)")
-    PropertyEvaluator k8sPropertyEvaluator;
+    @Filter("(component.name=io.fabric8.karaf.cm.PlaceholderResolverConfigurationPlugin)")
+    ConfigurationPlugin configurationPlugin;
 
     @Test
     public void testServiceAvailability() throws Exception {
-        Assert.assertNotNull(camelPropertyEvaluator);
-        Assert.assertNotNull(k8sPropertyEvaluator);
+        Assert.assertNotNull(propertyEvaluator);
+        Assert.assertTrue(propertyEvaluator instanceof Fabric8PropertyEvaluator);
+
+        Assert.assertNotNull(configurationPlugin);
+        Assert.assertTrue(configurationPlugin instanceof PlaceholderResolverConfigurationPlugin);
     }
 
     @ProbeBuilder
@@ -84,7 +88,10 @@ public class ServiceTest extends TestBase {
             configureSecurity()
                 .disableKarafMBeanServerBuilder(),
             keepRuntimeFolder(),
-            features(getFeaturesUrl().toString(), "fabric8-karaf-blueprint"),
+            features(
+                getFeaturesUrl().toString(),
+                "fabric8-karaf-blueprint",
+                "fabric8-karaf-cm"),
             editConfigurationFilePut(
                 "etc/system.properties", 
                 "features.xml", 
