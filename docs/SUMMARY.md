@@ -3,9 +3,9 @@
   * Kubernetes
     * [MiniKube](getStarted/minikube.md)
     * [Vagrant](getStarted/vagrant-kubernetes.md)
-    * [Google Container Engine](getStarted/gke.md)
-    * [AWS](getStarted/aws.md)
-    * [Kubernetes](getStarted/kubernetes.md) 
+    * [Google Container Engine (GKE)](getStarted/gke.md)
+    * [Amazon Web Services (AWS)](getStarted/aws.md)
+    * [Kubernetes](getStarted/kubernetes.md)
   * OpenShift
     * [MiniShift](getStarted/minishift.md)
     * [Vagrant](getStarted/vagrant.md)
@@ -71,7 +71,7 @@
           * [fabric8:delete-pods](mavenFabric8DeletePods.md)
           * [fabric8:devops](mavenFabric8DevOps.md)
           * [fabric8:helm](mavenFabric8Helm.md)
-          * [fabric8:helm-push](mavenFabric8HelmPush.md) 
+          * [fabric8:helm-push](mavenFabric8HelmPush.md)
           * [fabric8:json](mavenFabric8Json.md)
             * [annotation processors](annotationProcessors.md)
           * [fabric8:recreate](mavenFabric8Recreate.md)
