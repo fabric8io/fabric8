@@ -20,7 +20,7 @@ or follow this [short video](https://www.youtube.com/watch?v=lNRpGJTSMKA)
 
 <div class="row">
   <p class="text-center">
-      <iframe src="https://www.youtube.com/embed/lNRpGJTSMKA width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/lNRpGJTSMKA" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
   </p>
 </div>
 
