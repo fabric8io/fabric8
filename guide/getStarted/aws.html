@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1.4" data-basepath=".." data-revision="Mon Aug 22 2016 16:26:00 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1.4" data-basepath=".." data-revision="Wed Aug 24 2016 17:47:18 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1712,34 +1712,52 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="getting-started-with-kubernetes-on-aws"><a name="getting-started-with-kubernetes-on-aws" class="plugin-anchor" href="#getting-started-with-kubernetes-on-aws"><span class="fa fa-link"></span></a>Getting Started with Kubernetes on AWS</h2>
-<p>It is very easy to get up and running with AWS and the docs are extremely well structured. </p>
+<p>It is very easy to get up and running with AWS and the docs are extremely well structured. You will probably want to familiarise youself with the AWS procing model <a href="https://aws.amazon.com/ec2/pricing/" target="_blank">https://aws.amazon.com/ec2/pricing/</a></p>
 <h3 id="before-you-begin"><a name="before-you-begin" class="plugin-anchor" href="#before-you-begin"><span class="fa fa-link"></span></a>Before you begin</h3>
 <p>To start you will need to sign up for an account and obtain your AWS Access Key ID and Secret Access Key as well as get the AWS CLI client.  Follow the prerequisits in the Kubernetes docs.</p>
 <ul>
 <li><a href="http://kubernetes.io/docs/getting-started-guides/aws/#prerequisites" target="_blank">prerequisites</a></li>
 </ul>
 <h3 id="creating-a-container-cluster"><a name="creating-a-container-cluster" class="plugin-anchor" href="#creating-a-container-cluster"><span class="fa fa-link"></span></a>Creating a container cluster</h3>
-<p>Now you are ready to create a cluster on AWS.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.  We&apos;ll also set a few more environment variables that the Kubernetes install script will use.  </p>
+<p>Now you are ready to create a cluster on AWS.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.   </p>
+<p>In order to run the CD pipelines features you&apos;ll probably want your nodes to have 8-16GiB so that multiple Jenkins Agents can be scheduled</p>
+<h4 id="stackpoint-io"><a name="stackpoint-io" class="plugin-anchor" href="#stackpoint-io"><span class="fa fa-link"></span></a>stackpoint.io</h4>
+<p>We recommend using <a href="https://stackpoint.io/" target="_blank">stackpoint.io</a> as the easiest way to spin up a Kubernetes cluster on AWS.</p>
+<p>Follow the simple stackpoint guide until you have a running cluster then <a href="#install_the_fabric8_microservices_platform_default_applications">Install the fabric8 microservices platform default applications</a></p>
+<p>or follow this <a href="https://www.youtube.com/watch?v=lNRpGJTSMKA" target="_blank">short video</a></p>
+<div class="row">
+  <p class="text-center">
+      <iframe src="https://www.youtube.com/watch?v=lNRpGJTSMKA" width="1000" height="562" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
+  </p>
+</div>
+
+<h4 id="kubernetes-ansible-scripts"><a name="kubernetes-ansible-scripts" class="plugin-anchor" href="#kubernetes-ansible-scripts"><span class="fa fa-link"></span></a>Kubernetes Ansible scripts</h4>
 <pre><code>export KUBERNETES_PROVIDER=aws # use the AWS specific scripts
 export KUBE_AWS_ZONE=eu-west-1c # choose your region, the default is us-west-2
-export NUM_NODES=4 # choose the number of nodes you want  
-export MASTER_SIZE=m3.medium
-export NODE_SIZE=m3.medium
+export NUM_NODES=3 # choose the number of nodes you want  
+export MASTER_SIZE=m3.large
+export NODE_SIZE=m3.xlarge
 export KUBE_ENABLE_INSECURE_REGISTRY=true # required to set the insecure registry flag on each node so we can push images to the cluster docker registry
-wget -q -O - https://get.k8s.io | bash
+</code></pre><p>Now lets run the Kubernetes install script</p>
+<pre><code>wget -q -O - https://get.k8s.io | bash
 </code></pre><p>Check your nodes are running</p>
 <pre><code>kubectl get nodes
 </code></pre><h3 id="install-the-fabric8-microservices-platform-default-applications"><a name="install-the-fabric8-microservices-platform-default-applications" class="plugin-anchor" href="#install-the-fabric8-microservices-platform-default-applications"><span class="fa fa-link"></span></a>Install the fabric8 microservices platform default applications</h3>
 <p>Next we want to deploy the fabric8 microservices platform components on top of Kubernetes, get the latest <code>gofabric8</code> binary from  <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> and run</p>
-<pre><code>gofabric8 deploy
+<pre><code>gofabric8 deploy --domain replace.me.io
 </code></pre><p>gofabric8 will use the local credentials on your remote machine from <code>~/.kube/config</code> after the authentication script above</p>
 <p>It may make a few minutes to download a number of docker images but to track progress you can watch progress using</p>
 <pre><code>kubectl get pod -w
-</code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console using the external service address.  Here&apos;s a quick command to get the console URL and open it.</p>
-<pre><code>open http://$(kubectl get svc -o=wide| grep -w &apos;fabric8 &apos; |  awk &apos;{print $3}&apos;)
-</code></pre><h3 id="load-balancer"><a name="load-balancer" class="plugin-anchor" href="#load-balancer"><span class="fa fa-link"></span></a>Load Balancer</h3>
-<p>The AWS Load Balancer can take a minute or two to create an external IP that can be used to access your services.  If you cannot access services using the external loadbalancer you might need to leave it a minute or two before retrying.  We are moving to using the NGINX ingress controller instead of exteral loadbalancer IPs so this is a short term issue. </p>
-
+</code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console using the fabric8 ingress rule.</p>
+<p><a href="http://fabric8.default.replace.me.io" target="_blank">http://fabric8.default.replace.me.io</a></p>
+<h3 id="ingress"><a name="ingress" class="plugin-anchor" href="#ingress"><span class="fa fa-link"></span></a>Ingress</h3>
+<p>fabric8&apos;s preferred approach to accessing applications and services running on Kubernetes is to use the <a href="https://github.com/nginxinc/kubernetes-ingress/tree/master/nginx-controller" target="_blank">NGINX Ingress Controller</a>.  By default we deploy an Ingress NGINX controller on the first scheduble node we can find using the node label <code>externalIP=true</code>.  gofabric8 sets this so if you want your ingress controller on another node which has an externally accessible IP (used to configure your wildcard DNS) then move the label</p>
+<pre><code>kubectl label node $EXISTINGNODE  externalIP-
+kubectl label node $NEWINGNODE  externalIP=true
+</code></pre><p>By default <a href="https://github.com/fabric8io/exposecontroller" target="_blank">exposecontroller</a> is also deployed which will watch for services across you namespaces and automatically create Ingress rules so you can access you applications.  We use <code>[service-name].[namespace].[domain]</code></p>
+<p>e.g.</p>
+<pre><code>http://fabric8.default.fabric8.io
+</code></pre>
                     
                     </section>
                 

@@ -112,12 +112,15 @@ function Parser(cbs, options){
 									!!this._options.lowerCaseAttributeNames :
 									!this._options.xmlMode;
 
+	if(this._options.Tokenizer) {
+		Tokenizer = this._options.Tokenizer;
+	}
 	this._tokenizer = new Tokenizer(this._options, this);
 
 	if(this._cbs.onparserinit) this._cbs.onparserinit(this);
 }
 
-require("util").inherits(Parser, require("events").EventEmitter);
+require("inherits")(Parser, require("events").EventEmitter);
 
 Parser.prototype._updatePosition = function(initialOffset){
 	if(this.endIndex === null){
