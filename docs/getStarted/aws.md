@@ -1,26 +1,26 @@
 # Getting Started with Kubernetes on AWS
 
-It is very easy to get up and running with AWS and the docs are extremely well structured. You will probably want to familiarise youself with the AWS pricing model https://aws.amazon.com/ec2/pricing/
+It has been very easy to get up and running with AWS using Ansible but now there's an even easier way using [stackpoint.io](https://stackpoint.io/). Before beginning you'll probably want to familiarise yourself with the AWS pricing model https://aws.amazon.com/ec2/pricing/
 
 ## Creating a container cluster
 
 Now you are ready to create a cluster on AWS.  To start with we recommend creating a cluster of two or three instances which can be used to familiarise yourself with the architecture and components without incurring too much cost.  You can easily build up the cluster later.   
 
-In order to run the CD pipelines features you'll probably want your nodes to have 8-16GiB so that multiple Jenkins Agents can be scheduled
+In order to run the fabric8 CD pipelines features you'll probably want your nodes to have 8-16GiB so that we can schedule multiple Jenkins Agents at the same time.
 
-You now have two options to create you Kubernetes cluster on AWS:
+We now have two options to create you Kubernetes cluster on AWS:
 
 ### 1. stackpoint.io
 
-We recommend using [stackpoint.io](https://stackpoint.io/) as the easiest way to spin up a Kubernetes cluster on AWS.
+Our recommended approach is to use [stackpoint.io](https://stackpoint.io/) as the easiest way to spin up a Kubernetes cluster on AWS.
 
-Follow the simple stackpoint guide until you have a running cluster then [Install the fabric8 microservices platform default applications](#install-the-fabric8-microservices-platform)
+Follow the simple stackpoint.io guide until you have a running cluster then [Install the fabric8 microservices platform default applications](#install-the-fabric8-microservices-platform)
 
 or follow this [short video](https://www.youtube.com/watch?v=lNRpGJTSMKA)
 
 <div class="row">
   <p class="text-center">
-      <iframe src="https://youtu.be/lNRpGJTSMKA" width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/lNRpGJTSMKA width="1000" height="562" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
   </p>
 </div>
 

@@ -3,8 +3,8 @@
   * Kubernetes
     * [MiniKube](getStarted/minikube.md)
     * [Vagrant](getStarted/vagrant-kubernetes.md)
-    * [Google Container Engine (GKE)](getStarted/gke.md)
-    * [Amazon Web Services (AWS)](getStarted/aws.md)
+    * [Google Container Engine](getStarted/gke.md)
+    * [Amazon Web Services](getStarted/aws.md)
     * [Kubernetes](getStarted/kubernetes.md)
   * OpenShift
     * [MiniShift](getStarted/minishift.md)
