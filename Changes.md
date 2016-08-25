@@ -2,15 +2,15 @@
 ### 2.2.16
 
 * [Fabric8 DevOps](http://fabric8.io/guide/fabric8DevOps.html) has new [chat based](http://fabric8.io/guide/chat.html) [workflow steps](https://github.com/fabric8io/fabric8-jenkins-workflow-steps) for notification and approval of Jenkins Workflow based [Continuous Deployment pipelines](http://fabric8.io/guide/cdelivery.html) inside the chat application like Lets Chat or Slack. Here's [an example so you can see how it looks](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove) using the [Fabric8 DevOps library of reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library)
-* All generated [Kuberentes integration tests](http://fabric8.io/guide/testing.html) are now invoked by default in the [Fabric8 DevOps reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library) 
+* All generated [Kuberentes integration tests](http://fabric8.io/guide/testing.html) are now invoked by default in the [Fabric8 DevOps reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library)
 * Fixes [these 10 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.16)
 
-* **Note** we highly recommend all fabric8 users to upgrade to this release ASAP. This release fixes [a bug](https://github.com/fabric8io/fabric8/issues/4520) which showed up in recent versions of Chrome where we used the wrong URL during OpenShift OAuth login causing folks not to be able to login with the [console](http://fabric8.io/guide/console.html)  unless explicitly trusting the certificate. 
+* **Note** we highly recommend all fabric8 users to upgrade to this release ASAP. This release fixes [a bug](https://github.com/fabric8io/fabric8/issues/4520) which showed up in recent versions of Chrome where we used the wrong URL during OpenShift OAuth login causing folks not to be able to login with the [console](http://fabric8.io/guide/console.html)  unless explicitly trusting the certificate.
 
 ### 2.2.14
 
-* This release fixes some regressions found in OpenShift 1.0.2 or later when using [Continuous Deliver with Fabric8 DevOps](http://fabric8.io/guide/cdelivery.html) 
-* Adds nicer links to [Continuous Deployment environments](http://fabric8.io/guide/cdelivery.html) in the [console](http://fabric8.io/guide/console.html) 
+* This release fixes some regressions found in OpenShift 1.0.2 or later when using [Continuous Deliver with Fabric8 DevOps](http://fabric8.io/guide/cdelivery.html)
+* Adds nicer links to [Continuous Deployment environments](http://fabric8.io/guide/cdelivery.html) in the [console](http://fabric8.io/guide/console.html)
 * Fixes [these 2 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.14)
 
 ### 2.2.12
@@ -30,7 +30,7 @@
 
 * first release of the new [Jenkins Docker Workflow based](http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html) [Continuus Integration / Continuous Delivery system](http://fabric8.io/guide/cdelivery.html)
 * integrated support for the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) to connect various DevOps services like git hosting, chat, issue tracking and jenkins for a project reusing the optional `fabric8.yml` file via JBoss Forge, Maven or in a JVM.
-* The `fabric8:create-build-config` goal is now renamed to `fabric8:devops` to reflect the more generic nature of updating the DevOps configuration via the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector) 
+* The `fabric8:create-build-config` goal is now renamed to `fabric8:devops` to reflect the more generic nature of updating the DevOps configuration via the [fabric8-devops-connector](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-devops-connector)
 * Fixes [these 16 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.7)
 
 ### 2.2.5
@@ -40,7 +40,7 @@
 
 ### 2.2.3
 
-* The [Metrics](http://fabric8.io/guide/metrics.html) and [Logging](http://fabric8.io/guide/chat.html) now work out of the box if you run them by pressing the `Run...` button on the `Apps` tab in the [console](http://fabric8.io/guide/console.html) when using the [vagrant image](http://fabric8.io/guide/getStartedVagrant.html) 
+* The [Metrics](http://fabric8.io/guide/metrics.html) and [Logging](http://fabric8.io/guide/chat.html) now work out of the box if you run them by pressing the `Run...` button on the `Apps` tab in the [console](http://fabric8.io/guide/console.html) when using the [vagrant image](http://fabric8.io/guide/getStartedVagrant.html)
 * The [Chat](http://fabric8.io/guide/chat.html) now works out of the box without having to manually figure out rooms and tokens and pass them on the command line so that Hubot can connect to Let's Chat
 * Fixes [these 3 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.3)
 
@@ -48,7 +48,7 @@
 
 * New getting started guide based on a new easier to use [vagrant image](http://fabric8.io/guide/getStartedVagrant.html)
 * The vagrant domain is now `vagrant.f8` getting ready for DNS support inside the vagrant image
-* You can now easily run the [fabric8 apps](http://fabric8.io/guide/fabric8Apps.html) from the `Run...` button on the [console](http://fabric8.io/guide/console.html) 
+* You can now easily run the [fabric8 apps](http://fabric8.io/guide/fabric8Apps.html) from the `Run...` button on the [console](http://fabric8.io/guide/console.html)
 * Fixes [these 39 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.2.2)
 
 ### 2.2.0
@@ -69,9 +69,9 @@
 
 * Fixes [these 39 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.1.6)
 
-### 2.1.1 
+### 2.1.1
 
-* Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide/fabric8OnOpenShift.html) 
+* Improved [user guide](http://fabric8.io/guide/) which is hopefully more clear along with instructions on how to [Install Fabric8 on OpenShift V3](http://fabric8.io/guide/fabric8OnOpenShift.html)
 * migrates to the v1beta3 version of the Kubernetes schema by default including much better validation
 * [Fabric8 Apps](http://fabric8.io/guide/fabric8Apps.html) are now easier to [install on an existing Kubernetes or OpenShift environment](http://fabric8.io/guide/fabric8OnOpenShift.html) via a [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html) JSON file.
 * Maven [fabric8:json](http://fabric8.io/guide/mavenFabric8Json.html) goal now supports the generation of [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html)
@@ -231,7 +231,6 @@ Note that until we move to CXF 3.x the REST API is at http://localhost:8181/cxf/
 * First spike of Fabric DNS support
 * [AutoScaler](http://fabric8.io/gitbook/requirements.html) can now properly recreate  [Java Container](http://fabric8.io/gitbook/javaContainer.html) and [Process Container](http://fabric8.io/gitbook/processContainer.html) instances if the process is explicitly killed
 * The feature name for the [amq: endpoint](http://fabric8.io/gitbook/camelEndpointAmq.html), mq-fabric-camel has been renamed to camel-amq which is more usual name for camel feature names
-* Deploying WARs to Tomcat, TomEE, Jetty or WildFly can now have their context path configured via the [webContextPath](http://fabric8.io/gitbook/mavenPlugin.html#property-reference) property in the maven plugin or in the [io.fabric8.web.contextPath.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/drools/execution.server.profile/io.fabric8.web.contextPath.properties#L2-2) in a profile
 * Fixes [these 132 issues and enhancements](https://github.com/fabric8io/fabric8/issues?milestone=10&page=1&state=closed)
 
 ### 1.1.0.CR2

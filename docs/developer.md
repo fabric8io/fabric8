@@ -6,13 +6,16 @@ There's also a [more in depth screencast](http://www.christianposta.com/blog/?p=
 
 ### To start create an archetype
 
-We've got lots of [quickstarts](https://github.com/fabric8io/fabric8/tree/master/quickstarts) and [examples](https://github.com/fabric8io/fabric8/tree/master/tooling/examples) which we've converted into [Maven Archetypes](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html).
+We've got lots of [quickstarts](https://github.com/fabric8-quickstarts) which we've converted into [Maven Archetypes](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html).
 
 So if you have [installed Maven](http://maven.apache.org/download.cgi#Installation), type the following:
 
     mvn org.apache.maven.plugins:maven-archetype-plugin:2.2:generate -Dfilter=io.fabric8:
 
-This will list all the various archetypes. Pick one that suits your fancy, e.g. **io.fabric8.archetypes:cbr-archetype** for the [Camel Content Based Router Quickstart](https://github.com/fabric8io/fabric8/tree/master/quickstarts/cbr).
+This will list all the various archetypes. Pick one that suits your fancy, e.g. **io.fabric8.archetypes:springboot-camel-archetype**
+    mvn org.apache.maven.plugins:maven-archetype-plugin:2.2:generate -Dfilter=io.fabric8:spring-boot-camel-archetype
+
+for the [Camel Spring Boot Quickstart](https://github.com/fabric8-quickstarts/spring-boot-camel).
 
 Then enter these values:
 
@@ -23,6 +26,18 @@ Then enter these values:
 
 And confirm with 'Y'.
 
-### Building on OpenShift
+Now change directory in to the project
 
-TODO
+    cd mydemo
+
+build the java quickstart, generate the Kubernetes resources, build the docker image and deploy it to Kubernetes
+
+    mvn fabric8:run
+
+or if not working on minikube and deploying to a cluster
+
+    mvn fabric8:run fabri8:push -Ddocker.push.registry=my.registry.io
+
+Now check your pods and wait for your cool demo pod to start
+
+    kubectl get pods -w

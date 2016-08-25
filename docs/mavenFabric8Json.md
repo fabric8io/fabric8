@@ -10,7 +10,7 @@ You have various options for how to create the `kubernetes.json`
 
 * hand craft yourself and put it into **src/main/resources** so that you can use Maven's default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)
 * let the fabric8:json goal generate it for you using its default rules and maven properties (see below)
-* use the [annotation processors and typesafe builders](annotationProcessors.html) to create the metadata yourself; or enrich the default created metadata 
+* use the [annotation processors and typesafe builders](annotationProcessors.html) to create the metadata yourself; or enrich the default created metadata
 * you can enrich the generated JSON with additional metadata JSON file (using the `fabric8.extra.json` property which defaults to the file `target/classes/kubernetes-extra.json`)
 
 If you have a maven project which is a typical Microservice style application with a single [replication controller](replicationControllers.html) and [service](services.html) then we recommend just using the defaults that get generated; otherwise try the [annotation processors and typesafe builders](annotationProcessors.html) to create, edit or enrich the generated metadata (e.g. to add extra services).
@@ -28,7 +28,7 @@ You'll then see the generated kubernetes JSON file.
 
 [OpenShift templates](http://docs.openshift.org/latest/dev_guide/templates.html) are an extension to Kubernetes JSON to allow parameters to be specified which are then specified by a user or generated as the template gets processed and applied.
 
-To generate an OpenShift Template for your Maven project you just need to define one or more _parameters_ for your project using the maven properties `fabric8.parameter.FOO.description` and `fabric8.parameter.FOO.value`. Refer to the [Maven Property Reference](#maven-properties) for more details. 
+To generate an OpenShift Template for your Maven project you just need to define one or more _parameters_ for your project using the maven properties `fabric8.parameter.FOO.description` and `fabric8.parameter.FOO.value`. Refer to the [Maven Property Reference](#maven-properties) for more details.
 
 ### Specifying environment variables
 
@@ -47,7 +47,7 @@ You can use maven properties to specify environment variables to pass into the g
 
 The above will then be the equivalent in docker terms of running...
 ```
-docker run -d -e FOO=bar ${DOCKER_IMAGE} 
+docker run -d -e FOO=bar ${DOCKER_IMAGE}
 ```
 
 #### Templates and parameters
@@ -56,8 +56,8 @@ When using [OpenShift templates](http://docs.openshift.org/latest/dev_guide/temp
 
 One issue with this is that maven properties tend to expand expressions of the form `${FOO}` if there is a maven property or environment variable of that name. There is currently no way to escape those expressions inside maven property elements in the pom.xml `<properties/>` element.
 
-So to make it easier to configure environment variables while bypassing maven's property expansion, you can use a file specified via `fabric8.envProperties` property which defaults to the file `src/main/fabric8/env.properties`. 
- 
+So to make it easier to configure environment variables while bypassing maven's property expansion, you can use a file specified via `fabric8.envProperties` property which defaults to the file `src/main/fabric8/env.properties`.
+
 i.e. if you create a file called `src/main/fabric8/env.properties` in your project that looks like this
 
 ```
@@ -70,19 +70,19 @@ Note that you can mix and match both approaches. The nice thing about maven prop
 
 ### Combining JSON files
 
-The `fabric8:json` goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you'll have lots of fine grained generated `kubernetes.json` files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume. 
+The `fabric8:json` goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you'll have lots of fine grained generated `kubernetes.json` files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume.
 
 Another advantage of combining the JSON files together is that the `fabric8:json` goal automatically moves `Service` objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).
 
 By default a `List` of items is created; unless the pom.xml defines any [OpenShift template](http://docs.openshift.org/latest/dev_guide/templates.html) parameters (see [Creating OpenShift Templates](##creating-openshift-templates) for more detail) or any of the dependent JSON files are `Template`. The `fabric8:json` goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined `Template`.
 
 You can generate a separate JSON file with the dependencies of the current project, use <code>fabric8.combineJson.target</code> property for that. If you want to create a Template of the current project and its dependencies, you can set `fabric8.extra.json` property to `${fabric8.combineJson.target}`, and don’t forget to change the name of the Template (because "Combining JSON files" feature uses the names of templates for filtering duplicate), for example: `<fabric8.combineJson.project>${project.artifactId}Combine</fabric8.combineJson.project>`
- 
+
 #### Examples
 
 The fabric8 project defines a number of different [application modules](https://github.com/fabric8io/quickstarts/tree/master/app-groups) for all the various parts of fabric8.
 
-If you enable the `fabric8.combineDependencies` property then the `fabric8:json` goal will scan the maven dependencies for any dependency of `<classifier>kubernetes</classifier>` and `<type>json</type>` and combine them into the resulting JSON. 
+If you enable the `fabric8.combineDependencies` property then the `fabric8:json` goal will scan the maven dependencies for any dependency of `<classifier>kubernetes</classifier>` and `<type>json</type>` and combine them into the resulting JSON.
 
 See [this example](https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35) to see how we can configure this in a pom.xml.
 
@@ -103,9 +103,9 @@ You define the maven properties in the `pom.xml` file using the `<properties>` t
 If you wish to override or add a property from the command line, you can do this by using Java JVM system properties. A property from the command line will override any existing option configured in the `pom.xml` file. For example to add a 3rd label and change the icon, you can do:
 
     mvn fabric8:json -Dfabric8.label.foo=bar -Dfabric8.iconRef=java
-  
+
 There are many options as listed in the following table:
-  
+
 <table class="table table-striped">
 <tr>
 <th>Parameter</th>
@@ -341,8 +341,8 @@ There are many options as listed in the following table:
 </tr>
 <tr>
 <td>fabric8.service.type</td>
-<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
-  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created.</td>
+<td>The <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
+  <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer"></a>external load balancer</a> to be created.</td>
 </tr>
 <tr>
 <td>fabric8.service.containerPort</td>
@@ -374,8 +374,8 @@ There are many options as listed in the following table:
 </tr>
 <tr>
 <td>fabric8.service.&lt;name&gt;.type</td>
-<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
-  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer"></a>external load balancer</a> to be created.</td>
+<td>The <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer">type of the service</a>. Set to <code>"LoadBalancer"</code> if you wish an
+  <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer"></a>external load balancer</a> to be created.</td>
 </tr>
 <tr>
 <td>fabric8.service.&lt;name&gt;.containerPort</td>
@@ -422,4 +422,3 @@ There are many options as listed in the following table:
 <td>Defines the secret name to be BAR for the FOO volume.</td>
 </tr>
 </table>
-

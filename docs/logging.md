@@ -8,7 +8,7 @@ With fabric8 we recommend using:
 * [Kibana](http://www.elasticsearch.com/products/kibana/) as the console to view, query and analyze the logs
 * to collect the logs we recommend fluentd
 
-Using [Elasticsearch](http://www.elasticsearch.com/products/elasticsearch/) on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using [Kubernetes Services](http://kubernetes.io/v1.0/docs/user-guide/services.html). Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like [fluentd](http://www.fluentd.org)
+Using [Elasticsearch](http://www.elasticsearch.com/products/elasticsearch/) on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using [Kubernetes Services](http://kubernetes.io/docs/user-guide/services/). Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like [fluentd](http://www.fluentd.org)
 
 ### How to use Logging in fabric8
 
@@ -17,20 +17,20 @@ If you are running Fabric8 with the [Fabric8 Console](console.html) then go to t
 ![run button in apps tab](images/logging/apps-run.png)
 
 
-Then click on the "Logging" App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the `Route host name suffix` field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube [#5567](https://github.com/fabric8io/fabric8/issues/5567)). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at `vagrant.f8` then the App will be set up with services at `kibana.vagrant.f8` and `elasticsearch.vagrant.f8`. 
+Then click on the "Logging" App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the `Route host name suffix` field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube [#5567](https://github.com/fabric8io/fabric8/issues/5567)). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at `vagrant.f8` then the App will be set up with services at `kibana.vagrant.f8` and `elasticsearch.vagrant.f8`.
 
 ![run button in apps tab](images/logging/run-logging-app.png)
 
 
 Once the Logging App is running (watch the pods start up in the fabric8 console!) you can find the service you'd like to access and navigate to it. You can do this by selecting the `Services` tab, or the little vertical ellipses that has a Services drop-down chooser:
- 
-![run button in apps tab](images/logging/click-services.png) 
+
+![run button in apps tab](images/logging/click-services.png)
 
 ### Setting up Fluentd
 
-If you're using the [Fabric8 Vagrant Image](getStarted/vagrant.html), you're in luck! fluentd is [already configured as a static pod](https://github.com/fabric8io/fabric8-installer/blob/master/vagrant/openshift/Vagrantfile#L233). 
+If you're using the [Fabric8 Vagrant Image](getStarted/vagrant.html), you're in luck! fluentd is [already configured as a static pod](https://github.com/fabric8io/fabric8-installer/blob/master/vagrant/openshift/Vagrantfile#L233).
 
-If not, you'll need to set up the fluentd pod on each node in your Kubernetes/OpenShift cluster. 
+If not, you'll need to set up the fluentd pod on each node in your Kubernetes/OpenShift cluster.
 
 There are many ways to set up fluentd, but there are a couple fluentd plugins we recommend you use so that you have more kubernetes-context available in your log structures:
 
@@ -71,8 +71,5 @@ We also have [a docker image that can be used which combines these plugins out o
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
-          
+
 This will create a pod that bind-mount the Node's docker container folders so that it can slurp up the logs from STDOUT from the docker containers.
-
-
-

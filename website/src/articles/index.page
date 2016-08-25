@@ -5,9 +5,8 @@ title: fabric8 articles and videos
     <div class="row">
       <div class="col-md-12">
 
-${unescape(loadText(new FileInputStream("../docs/articles.md")))}
+${unescape(loadText(new FileInputStream("../articles.md")))}
 
   </div>
     </div>
       </div>
-

@@ -21,7 +21,7 @@ If you wish to push docker images to a private or public registry you will need 
   </servers>
 ```
 
-For more details [see the docker maven plugin docs](https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication)
+For more details [see the docker maven plugin docs](https://dmp.fabric8.io/#authentication)
 
 ### Specifying the location of your local docker registry
 
@@ -53,4 +53,4 @@ e.g. add this to the &lt;servers&gt; element:
 
 ### Reference
 
-See the [reference docs for docker:push](https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#dockerpush)
+See the [reference docs for docker:push](https://dmp.fabric8.io/#docker:push)

@@ -1,12 +1,12 @@
 ## Service
 
-A [Service](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels) is a kubernetes abstraction to provide a network connection to one or more [pods](pods.html). For more detail see the [background on how services work](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md).
+A [Service](http://kubernetes.io/docs/user-guide/services) is a kubernetes abstraction to provide a network connection to one or more [pods](pods.html). For more detail see the [background on how services work](http://kubernetes.io/docs/user-guide/services).
 
 A service uses a _label selector_ to find all the pods running which provide a certain network service on a port. You can add labels to a [pod](pods.html) which are just a set of key/value pairs. Then a _selector_ is just a set of key/value pairs used to match pods which have those same key/value pairs.
 
-Each service is given its own IP address and port which remains constant for the lifetime of the service. So to access the service from inside your application or container you just bind to the IP address and port number for the service. 
+Each service is given its own IP address and port which remains constant for the lifetime of the service. So to access the service from inside your application or container you just bind to the IP address and port number for the service.
 
-Note make sure the services are created before any of your pods which use them; otherwise the service won't have its IP address defined and you'll have to restart those pods. 
+Note make sure the services are created before any of your pods which use them; otherwise the service won't have its IP address defined and you'll have to restart those pods.
 
 ### Discovering services from your application
 
@@ -16,7 +16,7 @@ The simplest way to discover things inside Kubernetes is via DNS which does not 
 
 For a service named `foo-bar` you can just hard code the host name `foo-bar` in your application code.
 
-e.g. to access a HTTP URL use `http://foo-bar/` or for HTTPS use  `https://foo-bar/` (assuming the service is using the port 80 or 443 respectively). 
+e.g. to access a HTTP URL use `http://foo-bar/` or for HTTPS use  `https://foo-bar/` (assuming the service is using the port 80 or 443 respectively).
 
 If you use a non standard port number, say, 1234, then append that port number to your URL such as `http://foo-bar:1234/`.
 
@@ -34,24 +34,24 @@ So for a service named `foo-bar` you can use these 2 environment variables to ac
 e.g. you could access a web site or service via:
 
     http://${FOO_BAR_SERVICE_HOST}:${FOO_BAR_SERVICE_PORT}/
-    
+
 The value of the host and port are fixed for the lifetime of the service; so you can just resolve the environment variables on startup and you're all set!
-    
+
 Under the covers Kubernetes will load balance over all the service endpoints for you.
-    
+
 Note a [pod](pod.html) can terminate at any time; so its recommended that any network code should retry requests if a socket fails; then kubernetes will failover to a pod for you.
-        
+
 ### Discovering external services
 
-You can use the Kubernetes [service discovery mechanism](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md) with DNS or environment variables to discover services which are internal and running inside Kubernetes, running in a different namespace or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.
+You can use the Kubernetes [service discovery mechanism](http://kubernetes.io/docs/user-guide/services) with DNS or environment variables to discover services which are internal and running inside Kubernetes, running in a different namespace or running outside of Kubernetes such as services on the internet, SaaS providers or provisioned by other means etc.
 
 Basically you just need to create the Service metadata for external services; the difference is you list the actual `Endpoints` rather than letting Kubernetes discover them by using a `pod selector` and watching the running pods.
- 
+
 For more detail see [integrating external services](http://docs.openshift.org/latest/dev_guide/integrating_external_services.html).
 
 ### Exposing services externally
- 
-Kubernetes service discovery is designed for containers running inside the Kubernetes cluster. The host/ports of services and pods typically are only visible to containers running inside the Kubernetes cluster. 
+
+Kubernetes service discovery is designed for containers running inside the Kubernetes cluster. The host/ports of services and pods typically are only visible to containers running inside the Kubernetes cluster.
 
 So for software running outside of a Kubernetes cluster (such as web browsers) to access the services and web applications you need to expose the services externally.
 
@@ -69,7 +69,7 @@ In addition in OpenShift you can [create Route resources directly](http://docs.o
 If you use Maven you can also use these goals:
 
 * [fabric8:apply](mavenFabric8Apply.html) applies the kubernetes json into a namespace in a kubernetes cluster and by default automatically create any required routes for services
-* [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services in the current namespace 
+* [fabric8:create-routes](mavenFabric8CreateRoutes.html) generates any missing [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) for the current services in the current namespace
 
 
 ### Discovery when outside of Kubernetes
@@ -92,5 +92,5 @@ This is extremely handy in development; though once you've commit your changes t
 
 ### See also
 
-* [how services work](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md)
+* [how services work](http://kubernetes.io/docs/user-guide/services/)
 * [integrating external services](http://docs.openshift.org/latest/dev_guide/integrating_external_services.html)
