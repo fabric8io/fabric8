@@ -14,25 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.common.properties;
+package io.fabric8.karaf.core.properties.function;
 
-import java.util.Locale;
-
-import io.fabric8.karaf.common.Support;
+import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Service;
 
 /**
  * A {@link PropertiesFunction} that lookup the property value from
- * OS environment variables using the service idiom.
- * <p/>
- * A service is defined using two environment variables where name is name of the service:
- * <ul>
- *   <li><tt>NAME_SERVICE_HOST</tt></li>
- *   <li><tt>NAME_SERVICE_PORT</tt></li>
- * </ul>
- * in other words the service uses <tt>_SERVICE_HOST</tt> and <tt>_SERVICE_PORT</tt> as prefix.
+ * OS environment variables.
  */
 @Component(
     immediate = true,
@@ -40,14 +31,11 @@ import org.apache.felix.scr.annotations.Service;
     createPid = false
 )
 @Service(PropertiesFunction.class)
-public class ServicePropertiesFunction implements PropertiesFunction {
-
-    private static final String HOST_PREFIX = "_SERVICE_HOST";
-    private static final String PORT_PREFIX = "_SERVICE_PORT";
+public class EnvPropertiesFunction implements PropertiesFunction {
 
     @Override
     public String getName() {
-        return "service";
+        return "env";
     }
 
     @Override
@@ -60,23 +48,9 @@ public class ServicePropertiesFunction implements PropertiesFunction {
             defaultValue = Support.after(remainder, ":");
         }
 
-        // make sure to use upper case
-        if (key != null) {
-            // make sure to use underscore as dash is not supported as ENV variables
-            key = key.toUpperCase(Locale.ENGLISH).replace('-', '_');
-
-            // a service should have both the host and port defined
-            String host = System.getenv(key + HOST_PREFIX);
-            String port = System.getenv(key + PORT_PREFIX);
-
-            if (host != null && port != null) {
-                return host + ":" + port;
-            } else {
-                return defaultValue;
-            }
-        }
-
-        return defaultValue;
+        String value = System.getenv(key);
+        return value != null ? value : defaultValue;
     }
-}
 
+
+}

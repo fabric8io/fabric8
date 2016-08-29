@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.common.properties;
+package io.fabric8.karaf.core.properties.function;
 
-import io.fabric8.karaf.common.Support;
+import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Service;
 
 /**
  * A {@link PropertiesFunction} that lookup the property value from
- * OS environment variables.
+ * JVM system property.
  */
 @Component(
     immediate = true,
@@ -31,11 +31,11 @@ import org.apache.felix.scr.annotations.Service;
     createPid = false
 )
 @Service(PropertiesFunction.class)
-public class EnvPropertiesFunction implements PropertiesFunction {
+public class SysPropertiesFunction implements PropertiesFunction {
 
     @Override
     public String getName() {
-        return "env";
+        return "sys";
     }
 
     @Override
@@ -48,9 +48,8 @@ public class EnvPropertiesFunction implements PropertiesFunction {
             defaultValue = Support.after(remainder, ":");
         }
 
-        String value = System.getenv(key);
+        String value = System.getProperty(key);
         return value != null ? value : defaultValue;
     }
-
 
 }

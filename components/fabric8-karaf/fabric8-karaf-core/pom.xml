@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fabric8-karaf-common</artifactId>
+    <artifactId>fabric8-karaf-core</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Karaf :: Common</name>
+    <name>Fabric8 :: Karaf :: Core</name>
 
     <dependencies>
         <dependency>
@@ -38,6 +38,11 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -92,7 +97,7 @@
                     <instructions>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>io.fabric8.karaf.common.*;version=${project.version};-noimport:=true</Export-Package>
+                        <Export-Package>io.fabric8.karaf.core.*;version=${project.version};-noimport:=true</Export-Package>
                         <Import-Package>*</Import-Package>
                         <Private-Package></Private-Package>
                         <Implementation-Title>Fabric8 Karaf Blueprint Support</Implementation-Title>

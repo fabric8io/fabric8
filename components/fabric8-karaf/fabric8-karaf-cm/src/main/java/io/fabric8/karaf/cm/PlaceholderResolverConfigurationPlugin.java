@@ -16,13 +16,9 @@
 package io.fabric8.karaf.cm;
 
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.fabric8.karaf.common.Support;
-import io.fabric8.karaf.common.properties.Fabric8PlaceholderResolver;
-import org.apache.commons.lang3.text.StrLookup;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import io.fabric8.karaf.core.properties.PlaceholderResolver;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -50,7 +46,7 @@ import static io.fabric8.kubernetes.client.utils.Utils.getSystemPropertyOrEnvVar
     name = "resolver",
     cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
     policy = ReferencePolicy.DYNAMIC,
-    referenceInterface = Fabric8PlaceholderResolver.class
+    referenceInterface = PlaceholderResolver.class
 )
 @Properties({
     @Property(name = ConfigurationPlugin.CM_RANKING, value = "10", classValue = Integer.class)
@@ -59,31 +55,12 @@ import static io.fabric8.kubernetes.client.utils.Utils.getSystemPropertyOrEnvVar
 public class PlaceholderResolverConfigurationPlugin implements ConfigurationPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaceholderResolverConfigurationPlugin.class);
 
-    // TODO: make prefix/suffix configurable
-    private static final String PLACEHOLDER_PREFIX =  "$[";
-    private static final String PLACEHOLDER_SUFFIX =  "]";
-
-    private final AtomicReference<Fabric8PlaceholderResolver> resolver;
-    private final StrSubstitutor substitutor;
-
+    private final AtomicReference<PlaceholderResolver> resolver;
     private boolean enabled;
 
     public PlaceholderResolverConfigurationPlugin() {
         this.resolver = new AtomicReference<>();
-
-        this.substitutor = new StrSubstitutor();
-        this.substitutor.setEnableSubstitutionInVariables(true);
-        this.substitutor.setVariablePrefix(PLACEHOLDER_PREFIX);
-        this.substitutor.setVariableSuffix(PLACEHOLDER_SUFFIX);
-        this.substitutor.setVariableResolver(new StrLookup<String>() {
-            @Override
-            public String lookup(String value) {
-                Fabric8PlaceholderResolver res = resolver.get();
-                return res != null ? res.resolve(value) : null;
-            }
-        });
-
-        this.enabled = false;
+        this.enabled = FABRIC8_CONFIG_PLUGIN_ENABLED_DEFAULT;
     }
 
     // ***********************
@@ -92,12 +69,7 @@ public class PlaceholderResolverConfigurationPlugin implements ConfigurationPlug
 
     @Activate
     void activate() {
-        enabled = Boolean.valueOf(
-            getSystemPropertyOrEnvVar(
-                FABRIC8_CONFIG_PLUGIN_ENABLED,
-                FABRIC8_CONFIG_PLUGIN_ENABLED_DEFAULT)
-        );
-
+        enabled = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_PLUGIN_ENABLED, enabled);
         LOGGER.debug("Configuration update is {}", enabled ? "ENABLED" : "DISABLED");
     }
 
@@ -105,11 +77,11 @@ public class PlaceholderResolverConfigurationPlugin implements ConfigurationPlug
     // Binding
     // ****************************
 
-    protected void bindResolver(Fabric8PlaceholderResolver resolver) {
+    protected void bindResolver(PlaceholderResolver resolver) {
         this.resolver.set(resolver);
     }
 
-    protected void unbindResolver(Fabric8PlaceholderResolver resolver) {
+    protected void unbindResolver(PlaceholderResolver resolver) {
         this.resolver.compareAndSet(resolver, null);
     }
 
@@ -119,20 +91,9 @@ public class PlaceholderResolverConfigurationPlugin implements ConfigurationPlug
 
     @Override
     public void modifyConfiguration(ServiceReference<?> reference, Dictionary<String, Object> dictionary) {
-        if (!enabled) {
-            return;
-        }
-
-        for(Enumeration<String> keys = dictionary.keys(); keys.hasMoreElements(); ) {
-            final String key = keys.nextElement();
-            final Object val = dictionary.get(key);
-
-            if (val instanceof String) {
-                StringBuilder sb = Support.acquireStringBuilder((String)val);
-                if (substitutor.replaceIn(sb)) {
-                    dictionary.put(key, sb.toString());
-                }
-            }
+        PlaceholderResolver res = resolver.get();
+        if (enabled && res != null) {
+            res.replaceAll(dictionary);
         }
     }
 }

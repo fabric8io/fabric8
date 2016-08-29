@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-karaf-common</artifactId>
+            <artifactId>fabric8-karaf-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

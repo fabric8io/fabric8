@@ -44,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.fabric8.karaf.cm.KubernetesConstants.CM_META_KEYS;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CM_BRIDGE_ENABLED;
+import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CM_BRIDGE_ENABLED_DEFAULT;
 import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_MERGE;
 import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_MERGE_DEFAULT;
 import static io.fabric8.karaf.cm.KubernetesConstants.FABRIC8_CONFIG_META;
@@ -84,22 +86,24 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     private final AtomicReference<ConfigurationAdmin> configAdmin;
     private final AtomicReference<KubernetesClient> kubernetesClient;
 
+    private boolean enabled;
     private String pidLabel;
     private Map<String, String> filters;
     private Watch watch;
-    private String configMerge;
-    private String configMeta;
-    private String configWatch;
+    private boolean configMerge;
+    private boolean configMeta;
+    private boolean configWatch;
 
     public KubernetesConfigAdminBridge() {
+        this.enabled = FABRIC8_CM_BRIDGE_ENABLED_DEFAULT;
         this.lock = new Object();
         this.configAdmin = new AtomicReference<>();
         this.kubernetesClient = new AtomicReference<>();
-        this.configMerge = null;
-        this.configMeta = null;
-        this.configWatch = null;
+        this.configMerge = FABRIC8_CONFIG_MERGE_DEFAULT;
+        this.configMeta = FABRIC8_CONFIG_META_DEFAULT;
+        this.configWatch = FABRIC8_CONFIG_WATCH_DEFAULT;
         this.watch = null;
-        this.pidLabel = null;
+        this.pidLabel = FABRIC8_PID_LABEL_DEFAULT;
         this.filters = null;
     }
 
@@ -109,10 +113,11 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
 
     @Activate
     void activate() {
-        pidLabel = getSystemPropertyOrEnvVar(FABRIC8_PID_LABEL, FABRIC8_PID_LABEL_DEFAULT);
-        configMerge = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_MERGE, FABRIC8_CONFIG_MERGE_DEFAULT);
-        configMeta = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_META, FABRIC8_CONFIG_META_DEFAULT);
-        configWatch = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_WATCH, FABRIC8_CONFIG_WATCH_DEFAULT);
+        enabled = getSystemPropertyOrEnvVar(FABRIC8_CM_BRIDGE_ENABLED, enabled);
+        pidLabel = getSystemPropertyOrEnvVar(FABRIC8_PID_LABEL, pidLabel);
+        configMerge = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_MERGE, configMerge);
+        configMeta = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_META, configMeta);
+        configWatch = getSystemPropertyOrEnvVar(FABRIC8_CONFIG_WATCH, configWatch);
         filters = new HashMap<>();
 
         String filterList = getSystemPropertyOrEnvVar(FABRIC8_PID_FILTERS);
@@ -125,13 +130,15 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             }
         }
 
-        synchronized (lock) {
-            watchConfigMapList();
+        if (enabled) {
+            synchronized (lock) {
+                watchConfigMapList();
 
-            ConfigMapList list = getConfigMapList();
-            if (list != null) {
-                for (ConfigMap map : list.getItems()) {
-                    updateConfig(map);
+                ConfigMapList list = getConfigMapList();
+                if (list != null) {
+                    for (ConfigMap map : list.getItems()) {
+                        updateConfig(map);
+                    }
                 }
             }
         }
@@ -244,19 +251,17 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             /*
              * Configure if mete-data should be added to the Config Admin or not
              */
-            String meta = configMapData.get(FABRIC8_CONFIG_META);
-            if (meta == null) {
-                meta = configMeta;
-            }
+            boolean meta = configMapData.containsKey(FABRIC8_CONFIG_META)
+                ? Boolean.valueOf(configMapData.get(FABRIC8_CONFIG_META))
+                : configMeta;
 
             /*
              * Configure if ConfigMap data should be merge with ConfigAdmin or it
              * should override it.
              */
-            String merge = configMapData.get(FABRIC8_CONFIG_MERGE);
-            if (merge == null) {
-                merge = configMerge;
-            }
+            boolean merge = configMapData.containsKey(FABRIC8_CONFIG_MERGE)
+                ? Boolean.valueOf(configMapData.get(FABRIC8_CONFIG_MERGE))
+                : configMerge;
 
             if (configAdmCfg != null) {
                 Long oldVer = (Long)props.get(FABRIC8_K8S_META_RESOURCE_VERSION);
@@ -275,14 +280,14 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             if (shouldUpdate(configAdmCfg, configMapCfg)) {
                 LOGGER.debug("Updating configuration pid={}", config.getPid());
 
-                if ("true".equals(meta)) {
+                if (meta) {
                     configMapCfg.put(FABRIC8_PID, pid);
                     configMapCfg.put(FABRIC8_K8S_META_RESOURCE_VERSION, ver);
                     configMapCfg.put(FABRIC8_K8S_META_NAME, map.getMetadata().getName());
                     configMapCfg.put(FABRIC8_K8S_META_NAMESPACE, map.getMetadata().getNamespace());
                 }
 
-                if ("true".equals(merge) && configAdmCfg != null) {
+                if (merge && configAdmCfg != null) {
                     for(Map.Entry<String, Object> entry : configMapCfg.entrySet()) {
                         // Do not override ConfigAdmin meta data
                         if (!CM_META_KEYS.contains(entry.getKey())) {
@@ -306,16 +311,15 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         String[] p = parsePid(pid);
 
         try {
+            Map<String, String> configMapData = map.getData();
             Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
-            Dictionary<String, Object> props = config.getProperties();
 
-            if (props != null) {
-                String merge = (String)props.get(FABRIC8_CONFIG_MERGE);
-                if (merge == null) {
-                    merge = configMerge;
-                }
+            if (configMapData != null) {
+                boolean merge = configMapData.containsKey(FABRIC8_CONFIG_MERGE)
+                    ? Boolean.valueOf(configMapData.get(FABRIC8_CONFIG_MERGE))
+                    : configMerge;
 
-                if ("false".equals(merge)) {
+                if (!merge) {
                     LOGGER.debug("Delete configuration {}", config.getPid());
                     config.delete();
                 }
@@ -349,7 +353,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
     }
 
     private void watchConfigMapList() {
-        if ("true".equals(configWatch)) {
+        if (configWatch) {
             KubernetesClient client = kubernetesClient.get();
 
             if (client != null) {
