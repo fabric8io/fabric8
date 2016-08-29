@@ -19,7 +19,7 @@ package io.fabric8.karaf.blueprint;
 import java.util.Dictionary;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.fabric8.karaf.common.properties.Fabric8PlaceholderResolver;
+import io.fabric8.karaf.core.properties.PlaceholderResolver;
 import org.apache.aries.blueprint.ext.evaluator.PropertyEvaluator;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -52,11 +52,11 @@ import org.apache.felix.scr.annotations.Service;
     name  = "resolver",
     cardinality = ReferenceCardinality.MANDATORY_UNARY,
     policy = ReferencePolicy.STATIC,
-    referenceInterface  = Fabric8PlaceholderResolver.class
+    referenceInterface  = PlaceholderResolver.class
 )
 @Service(PropertyEvaluator.class)
 public class Fabric8PropertyEvaluator implements PropertyEvaluator {
-    private final AtomicReference<Fabric8PlaceholderResolver> resolver;
+    private final AtomicReference<PlaceholderResolver> resolver;
 
     public Fabric8PropertyEvaluator() {
         resolver = new AtomicReference<>();
@@ -64,7 +64,7 @@ public class Fabric8PropertyEvaluator implements PropertyEvaluator {
 
     @Override
     public String evaluate(String key, Dictionary<String, String> dictionary) {
-        Fabric8PlaceholderResolver res = resolver.get();
+        PlaceholderResolver res = resolver.get();
         String value = null;
 
         if (res != null) {
@@ -78,11 +78,11 @@ public class Fabric8PropertyEvaluator implements PropertyEvaluator {
     // Binding
     // ****************************
 
-    protected void bindResolver(Fabric8PlaceholderResolver resolver) {
+    protected void bindResolver(PlaceholderResolver resolver) {
         this.resolver.set(resolver);
     }
 
-    protected void unbindResolver(Fabric8PlaceholderResolver resolver) {
+    protected void unbindResolver(PlaceholderResolver resolver) {
         this.resolver.compareAndSet(resolver, null);
     }
 }

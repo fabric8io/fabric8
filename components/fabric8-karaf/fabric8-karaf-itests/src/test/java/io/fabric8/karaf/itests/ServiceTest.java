@@ -22,6 +22,8 @@ import javax.inject.Inject;
 
 import io.fabric8.karaf.blueprint.Fabric8PropertyEvaluator;
 import io.fabric8.karaf.cm.PlaceholderResolverConfigurationPlugin;
+import io.fabric8.karaf.core.properties.PlaceholderResolver;
+import io.fabric8.karaf.core.properties.PlaceholderResolverImpl;
 import org.apache.aries.blueprint.ext.evaluator.PropertyEvaluator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,6 +58,10 @@ public class ServiceTest extends TestBase {
     protected BundleContext bundleContext;
 
     @Inject
+    @Filter("(component.name=io.fabric8.karaf.core.properties.PlaceholderResolverImpl)")
+    PlaceholderResolver placeholderResolver;
+
+    @Inject
     @Filter("(component.name=io.fabric8.karaf.blueprint.Fabric8PropertyEvaluator)")
     PropertyEvaluator propertyEvaluator;
 
@@ -65,6 +71,9 @@ public class ServiceTest extends TestBase {
 
     @Test
     public void testServiceAvailability() throws Exception {
+        Assert.assertNotNull(placeholderResolver);
+        Assert.assertTrue(placeholderResolver instanceof PlaceholderResolverImpl);
+
         Assert.assertNotNull(propertyEvaluator);
         Assert.assertTrue(propertyEvaluator instanceof Fabric8PropertyEvaluator);
 

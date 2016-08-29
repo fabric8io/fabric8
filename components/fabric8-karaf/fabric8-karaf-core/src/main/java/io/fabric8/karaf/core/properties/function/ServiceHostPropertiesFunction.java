@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.karaf.common.properties;
+package io.fabric8.karaf.core.properties.function;
 
 import java.util.Locale;
 
-import io.fabric8.karaf.common.Support;
+import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Service;
@@ -34,10 +34,10 @@ import org.apache.felix.scr.annotations.Service;
  * </ul>
  * in other words the service uses <tt>_SERVICE_HOST</tt> and <tt>_SERVICE_PORT</tt> as prefix.
  * <p/>
- * This implementation is to return the port part only.
+ * This implementation is to return the host part only.
  *
  * @see ServicePropertiesFunction
- * @see ServiceHostPropertiesFunction
+ * @see ServicePortPropertiesFunction
  */
 @Component(
     immediate = true,
@@ -45,13 +45,13 @@ import org.apache.felix.scr.annotations.Service;
     createPid = false
 )
 @Service(PropertiesFunction.class)
-public class ServicePortPropertiesFunction implements PropertiesFunction {
+public class ServiceHostPropertiesFunction implements PropertiesFunction {
 
-    private static final String PORT_PREFIX = "_SERVICE_PORT";
+    private static final String HOST_PREFIX = "_SERVICE_HOST";
 
     @Override
     public String getName() {
-        return "service.port";
+        return "service.host";
     }
 
     @Override
@@ -70,10 +70,10 @@ public class ServicePortPropertiesFunction implements PropertiesFunction {
             key = key.toUpperCase(Locale.ENGLISH).replace('-', '_');
 
             // a service should have both the host and port defined
-            String port = System.getenv(key + PORT_PREFIX);
+            String host = System.getenv(key + HOST_PREFIX);
 
-            if (port != null) {
-                return port;
+            if (host != null) {
+                return host;
             } else {
                 return defaultValue;
             }

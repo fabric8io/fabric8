@@ -182,6 +182,8 @@
             <systemPropertyVariables>
               <features.xml>${project.build.directory}/features.xml</features.xml>
               <features.repo>${project.build.directory}/features-repo</features.repo>
+              <fabric8.config.plugin.enabled>false</fabric8.config.plugin.enabled>
+              <fabric8.cm.bridge.enabled>false</fabric8.cm.bridge.enabled>
             </systemPropertyVariables>
           </configuration>
         </plugin>

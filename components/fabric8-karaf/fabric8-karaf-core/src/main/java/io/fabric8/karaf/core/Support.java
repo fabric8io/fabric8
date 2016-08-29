@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.fabric8.karaf.common;
+package io.fabric8.karaf.core;
 
 import java.lang.ref.WeakReference;
 

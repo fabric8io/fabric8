@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.karaf.common.properties;
+package io.fabric8.karaf.core.properties.function;
 
 import java.util.HashMap;
 import java.util.Map;
