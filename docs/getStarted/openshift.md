@@ -33,29 +33,25 @@ oc adm policy add-cluster-role-to-group cluster-reader system:serviceaccounts
 Now type the following:
 
 ```sh
-gofabric8 deploy -y
-gofabric8 secrets -y
+gofabric8 deploy
 ```
 
 **Note:** If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:
 
 ```
-gofabric8 deploy -d mydomain.com -y
-gofabric8 secrets -y
+gofabric8 deploy -d mydomain.com
 ```
 
 **Note:** If your router lives on another domain/host then your openshift api, you will need to provide the --api-server parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:
 
 ```
-gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
-gofabric8 secrets -y
+gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com
 ```
 
-If you wish to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) or any other app you can add the `--app` command line argument:
+By default the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) is installed.  If you want just install the fabrric8 console then you can add the `--app` command line argument and leaving the value blank
 
 ```
-gofabric8 deploy -y -d mydomain.com --app=cd-pipeline
-gofabric8 secrets -y
+gofabric8 deploy -y -d mydomain.com --app=
 ```
 
 
