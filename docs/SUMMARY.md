@@ -9,6 +9,7 @@
   * OpenShift
     * [MiniShift](getStarted/minishift.md)
     * [Vagrant](getStarted/vagrant.md)
+    * [oc cluster up](getStarted/ocClusterUp.md)
     * [Red Hat CDK](getStarted/cdk.md)
     * [OpenShift](getStarted/openshift.md)
       * [Install OpenShift](getStarted/installOpenShift.md)
