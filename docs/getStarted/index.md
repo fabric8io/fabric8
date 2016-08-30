@@ -27,6 +27,11 @@ If you already have a cluster installed try this:
   You just need to download 2 small binaries ([minishift](https://github.com/jimmidyson/minishift/releases) and [gofabric8](https://github.com/fabric8io/gofabric8/releases)) - no need for VirtualBox or Vagrant!
   Check out how to [Install Fabric8 on a MiniShift created cluster of OpenShift Origin](minishift.html)
 
+* [**oc cluster up**](ocClusterUp.html)
+
+  The [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#overview) command starts a local OpenShift  all-in-one cluster with a configured registry, router, image streams, and default templates.
+  Check out how to [Install Fabric8 on a oc cluster up created cluster of OpenShift Origin](ocClusterUp.html)
+
 * [**Vagrant with Kubernetes**](vagrant-kubernetes.html)
 
   If you already have Vagrant and VirtualBox installed and want to use it to work with Fabric8 and Kubernetes locally then this option is for you.
