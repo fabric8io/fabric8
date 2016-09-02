@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.fabric8.karaf.core;
 
 import java.lang.ref.WeakReference;
+
+import org.apache.commons.lang3.text.StrLookup;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 public class Support {
     private static final ThreadLocal<WeakReference<StringBuilder>> SBPOOL = new ThreadLocal<>();
@@ -44,6 +46,16 @@ public class Support {
         sb.append(value);
 
         return sb;
+    }
+
+    public static StrSubstitutor createStrSubstitutor(String prefix, String suffix, StrLookup<String> lookup) {
+        StrSubstitutor substitutor = new StrSubstitutor();
+        substitutor.setEnableSubstitutionInVariables(true);
+        substitutor.setVariablePrefix(prefix);
+        substitutor.setVariableSuffix(suffix);
+        substitutor.setVariableResolver(lookup);
+
+        return substitutor;
     }
 
     /**

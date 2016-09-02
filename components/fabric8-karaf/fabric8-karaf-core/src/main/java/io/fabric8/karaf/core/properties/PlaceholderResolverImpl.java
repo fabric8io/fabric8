@@ -56,25 +56,14 @@ public class PlaceholderResolverImpl implements PlaceholderResolver {
 
     public PlaceholderResolverImpl() {
         this.functions = new CopyOnWriteArrayList<>();
-
-        this.substitutor = new StrSubstitutor();
-        this.substitutor.setEnableSubstitutionInVariables(true);
-        this.substitutor.setVariablePrefix(
-            getSystemPropertyOrEnvVar(
-                PLACEHOLDER_PREFIX,
-                DEFAULT_PLACEHOLDER_PREFIX)
-        );
-        this.substitutor.setVariableSuffix(
-            getSystemPropertyOrEnvVar(
-                PLACEHOLDER_SUFFIX,
-                DEFAULT_PLACEHOLDER_SUFFIX)
-        );
-
-        this.substitutor.setVariableResolver(new StrLookup<String>() {
-            @Override
-            public String lookup(String value) {
-                return resolve(value);
-            }
+        this.substitutor = Support.createStrSubstitutor(
+            getSystemPropertyOrEnvVar(PLACEHOLDER_PREFIX, DEFAULT_PLACEHOLDER_PREFIX),
+            getSystemPropertyOrEnvVar(PLACEHOLDER_SUFFIX, DEFAULT_PLACEHOLDER_SUFFIX),
+            new StrLookup<String>() {
+                @Override
+                public String lookup(String value) {
+                    return resolve(value);
+                }
         });
     }
 
