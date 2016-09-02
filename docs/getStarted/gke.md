@@ -58,7 +58,7 @@ open https://$KUBERNETES_SERVER/api/v1/proxy/namespaces/default/services/fabric8
 
 ### Using the console
 
-Here is a [video showing you what you can do with the console on Google Container Engine](https://vimeo.com/172948055)
+Here is a [video showing you what you can do with the console on Google Container Engine](https://vimeo.com/173353537)
 
 
 <div class="row">
