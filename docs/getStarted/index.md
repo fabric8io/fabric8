@@ -55,6 +55,9 @@ If you already have a cluster installed try this:
 
   [Google Container Engine](https://cloud.google.com/container-engine/) (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes [Getting Started](http://kubernetes.io/gettingstarted/) page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This [guide](gke.html) will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.
 
+#### Persistence
+
+New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on [creating the necessary persistent volumes or opting out of persistence](persistence.html) 
 
 #### Local client setup
 

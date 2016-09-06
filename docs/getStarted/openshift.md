@@ -48,12 +48,19 @@ gofabric8 deploy -d mydomain.com
 gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com
 ```
 
-By default the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) is installed.  If you want just install the fabrric8 console then you can add the `--app` command line argument and leaving the value blank
+By default the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) is installed.  If you want just install the fabric8 console then you can add the `--app` command line argument and leaving the value blank
 
 ```
 gofabric8 deploy -y -d mydomain.com --app=
 ```
 
+
+#### Persistence
+
+New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on [creating the necessary persistent volumes or opting out of persistence](persistence.html) 
+
+
+#### Validating your install
 
 At any point you can validate your installation via:
 
