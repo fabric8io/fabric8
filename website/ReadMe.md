@@ -2,9 +2,11 @@
 
 This maven project builds the fabric8 website content. Its mostly consists of markdown files you can view/edit directly or via github.
 
-If you want to build the HTML yourself try:
+If you want to build the HTML yourself try the following. 
 
-    mvn install jetty:run
+**NOTE** only Java 7 is supported right now :( 
+
+    mvn jetty:run
 
 
 The website can be accessed from a web browser using the following url:
