@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.11" data-basepath="." data-revision="Wed Aug 24 2016 21:06:00 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2.1.11" data-basepath="." data-revision="Tue Sep 06 2016 12:36:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -227,13 +227,28 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.3" data-path="getStarted/cdk.html">
+        <li class="chapter " data-level="2.2.3" data-path="getStarted/ocClusterUp.html">
+            
+                
+                    <a href="./getStarted/ocClusterUp.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.3.</b>
+                        
+                        oc cluster up
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="getStarted/cdk.html">
             
                 
                     <a href="./getStarted/cdk.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.3.</b>
+                            <b>2.2.4.</b>
                         
                         Red Hat CDK
                     </a>
@@ -242,13 +257,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.4" data-path="getStarted/openshift.html">
+        <li class="chapter " data-level="2.2.5" data-path="getStarted/openshift.html">
             
                 
                     <a href="./getStarted/openshift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.</b>
+                            <b>2.2.5.</b>
                         
                         OpenShift
                     </a>
@@ -258,13 +273,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.2.4.1" data-path="getStarted/installOpenShift.html">
+        <li class="chapter " data-level="2.2.5.1" data-path="getStarted/installOpenShift.html">
             
                 
                     <a href="./getStarted/installOpenShift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.1.</b>
+                            <b>2.2.5.1.</b>
                         
                         Install OpenShift
                     </a>
@@ -278,13 +293,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.5" data-path="getStarted/browserCertificates.html">
+        <li class="chapter " data-level="2.2.6" data-path="getStarted/browserCertificates.html">
             
                 
                     <a href="./getStarted/browserCertificates.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.5.</b>
+                            <b>2.2.6.</b>
                         
                         Accept self-signed certs
                     </a>
@@ -293,13 +308,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.6" data-path="getStarted/local.html">
+        <li class="chapter " data-level="2.2.7" data-path="getStarted/local.html">
             
                 
                     <a href="./getStarted/local.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.6.</b>
+                            <b>2.2.7.</b>
                         
                         Setup Local OpenShift Client
                     </a>
@@ -313,13 +328,43 @@
             
         </li>
     
-        <li class="chapter " data-level="2.3" data-path="getStarted/apps.html">
+        <li class="chapter " data-level="2.3" data-path="getStarted/persistence.html">
+            
+                
+                    <a href="./getStarted/persistence.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Persistence
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="getStarted/troubleshooting.html">
+            
+                
+                    <a href="./getStarted/troubleshooting.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Troubleshooting
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="getStarted/apps.html">
             
                 
                     <a href="./getStarted/apps.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.3.</b>
+                            <b>2.5.</b>
                         
                         Installing apps
                     </a>
@@ -328,30 +373,15 @@
             
         </li>
     
-        <li class="chapter " data-level="2.4" data-path="getStarted/develop.html">
+        <li class="chapter " data-level="2.6" data-path="getStarted/develop.html">
             
                 
                     <a href="./getStarted/develop.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.4.</b>
+                            <b>2.6.</b>
                         
                         Develop locally
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.5" data-path="getStarted/troubleshooting.html">
-            
-                
-                    <a href="./getStarted/troubleshooting.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.5.</b>
-                        
-                        Troubleshooting
                     </a>
                 
             
@@ -1719,7 +1749,7 @@
 <ul>
 <li>hand craft yourself and put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number)</li>
 <li>let the fabric8:json goal generate it for you using its default rules and maven properties (see below)</li>
-<li>use the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create the metadata yourself; or enrich the default created metadata </li>
+<li>use the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create the metadata yourself; or enrich the default created metadata</li>
 <li>you can enrich the generated JSON with additional metadata JSON file (using the <code>fabric8.extra.json</code> property which defaults to the file <code>target/classes/kubernetes-extra.json</code>)</li>
 </ul>
 <p>If you have a maven project which is a typical Microservice style application with a single <a href="replicationControllers.html">replication controller</a> and <a href="services.html">service</a> then we recommend just using the defaults that get generated; otherwise try the <a href="annotationProcessors.html">annotation processors and typesafe builders</a> to create, edit or enrich the generated metadata (e.g. to add extra services).</p>
@@ -1730,7 +1760,7 @@ open target/classes/kubernetes.json
 </code></pre><p>You&apos;ll then see the generated kubernetes JSON file.</p>
 <h3 id="creating-openshift-templates"><a name="creating-openshift-templates" class="plugin-anchor" href="#creating-openshift-templates"><span class="fa fa-link"></span></a>Creating OpenShift Templates</h3>
 <p><a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> are an extension to Kubernetes JSON to allow parameters to be specified which are then specified by a user or generated as the template gets processed and applied.</p>
-<p>To generate an OpenShift Template for your Maven project you just need to define one or more <em>parameters</em> for your project using the maven properties <code>fabric8.parameter.FOO.description</code> and <code>fabric8.parameter.FOO.value</code>. Refer to the <a href="#maven-properties">Maven Property Reference</a> for more details. </p>
+<p>To generate an OpenShift Template for your Maven project you just need to define one or more <em>parameters</em> for your project using the maven properties <code>fabric8.parameter.FOO.description</code> and <code>fabric8.parameter.FOO.value</code>. Refer to the <a href="#maven-properties">Maven Property Reference</a> for more details.</p>
 <h3 id="specifying-environment-variables"><a name="specifying-environment-variables" class="plugin-anchor" href="#specifying-environment-variables"><span class="fa fa-link"></span></a>Specifying environment variables</h3>
 <p>You can use maven properties to specify environment variables to pass into the generated PodSpec in the ReplicationController as follows...</p>
 <pre><code>&lt;project&gt;
@@ -1746,20 +1776,20 @@ open target/classes/kubernetes.json
 </code></pre><h4 id="templates-and-parameters"><a name="templates-and-parameters" class="plugin-anchor" href="#templates-and-parameters"><span class="fa fa-link"></span></a>Templates and parameters</h4>
 <p>When using <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift templates</a> you want to parameterize things so users can more easily configure things. This means using expressions like <code>${FOO}</code> inside environment variable names or values.</p>
 <p>One issue with this is that maven properties tend to expand expressions of the form <code>${FOO}</code> if there is a maven property or environment variable of that name. There is currently no way to escape those expressions inside maven property elements in the pom.xml <code>&lt;properties/&gt;</code> element.</p>
-<p>So to make it easier to configure environment variables while bypassing maven&apos;s property expansion, you can use a file specified via <code>fabric8.envProperties</code> property which defaults to the file <code>src/main/fabric8/env.properties</code>. </p>
+<p>So to make it easier to configure environment variables while bypassing maven&apos;s property expansion, you can use a file specified via <code>fabric8.envProperties</code> property which defaults to the file <code>src/main/fabric8/env.properties</code>.</p>
 <p>i.e. if you create a file called <code>src/main/fabric8/env.properties</code> in your project that looks like this</p>
 <pre><code>FOO = bar
 ANOTHER = some ${CHEESE}
 </code></pre><p>In the above example there will be 2 environment variables defined, <code>FOO</code> and <code>ANOTHER</code> with <code>ANOTHER</code> using a template parameter expression for <code>CHEESE</code></p>
 <p>Note that you can mix and match both approaches. The nice thing about maven properties is they can be inherited from parent projects. The nice thing about the <code>env.properties</code> file approach is you have more fine grained control over property expansion and dealing better with OpenShift template parameter expressions.</p>
 <h3 id="combining-json-files"><a name="combining-json-files" class="plugin-anchor" href="#combining-json-files"><span class="fa fa-link"></span></a>Combining JSON files</h3>
-<p>The <code>fabric8:json</code> goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you&apos;ll have lots of fine grained generated <code>kubernetes.json</code> files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume. </p>
+<p>The <code>fabric8:json</code> goal generates a kubernetes.json for each maven project which is enabled. Often maven projects are multi-module which means you&apos;ll have lots of fine grained generated <code>kubernetes.json</code> files. This is useful; but you often want to combine files together to make courser grained JSON files that are easier for users to consume.</p>
 <p>Another advantage of combining the JSON files together is that the <code>fabric8:json</code> goal automatically moves <code>Service</code> objects first; so that if you have cyclical apps which depend on each other, the combined JSON will force the services to be created up front before any Pods to avoid breaking links. (Services must be defined first so that their environment variables become available if using those for service discovery).</p>
 <p>By default a <code>List</code> of items is created; unless the pom.xml defines any <a href="http://docs.openshift.org/latest/dev_guide/templates.html" target="_blank">OpenShift template</a> parameters (see <a href="##creating-openshift-templates">Creating OpenShift Templates</a> for more detail) or any of the dependent JSON files are <code>Template</code>. The <code>fabric8:json</code> goal automatically combines OpenShift Templates together; unifying the list of template parameters to create a single combined <code>Template</code>.</p>
 <p>You can generate a separate JSON file with the dependencies of the current project, use <code>fabric8.combineJson.target</code> property for that. If you want to create a Template of the current project and its dependencies, you can set <code>fabric8.extra.json</code> property to <code>${fabric8.combineJson.target}</code>, and don&#x2019;t forget to change the name of the Template (because &quot;Combining JSON files&quot; feature uses the names of templates for filtering duplicate), for example: <code>&lt;fabric8.combineJson.project&gt;${project.artifactId}Combine&lt;/fabric8.combineJson.project&gt;</code></p>
 <h4 id="examples"><a name="examples" class="plugin-anchor" href="#examples"><span class="fa fa-link"></span></a>Examples</h4>
 <p>The fabric8 project defines a number of different <a href="https://github.com/fabric8io/quickstarts/tree/master/app-groups" target="_blank">application modules</a> for all the various parts of fabric8.</p>
-<p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> and combine them into the resulting JSON. </p>
+<p>If you enable the <code>fabric8.combineDependencies</code> property then the <code>fabric8:json</code> goal will scan the maven dependencies for any dependency of <code>&lt;classifier&gt;kubernetes&lt;/classifier&gt;</code> and <code>&lt;type&gt;json&lt;/type&gt;</code> and combine them into the resulting JSON.</p>
 <p>See <a href="https://github.com/fabric8io/quickstarts/blob/master/app-groups/base/pom.xml#L35" target="_blank">this example</a> to see how we can configure this in a pom.xml.</p>
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>You can use maven properties to customize the generation of the JSON:</p>
@@ -2007,8 +2037,8 @@ ANOTHER = some ${CHEESE}
 </tr>
 <tr>
 <td>fabric8.service.type</td>
-<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
-  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
+<td>The <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
+  <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
 </tr>
 <tr>
 <td>fabric8.service.containerPort</td>
@@ -2040,8 +2070,8 @@ ANOTHER = some ${CHEESE}
 </tr>
 <tr>
 <td>fabric8.service.&lt;name&gt;.type</td>
-<td>The <a href="http://releases.k8s.io/HEAD/docs/user-guide/services.md#external-services" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
-  <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/user-guide/services.md#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
+<td>The <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer" target="_blank">type of the service</a>. Set to <code>&quot;LoadBalancer&quot;</code> if you wish an
+  <a href="http://kubernetes.io/docs/user-guide/services/#type-loadbalancer" target="_blank"></a>external load balancer to be created.</td>
 </tr>
 <tr>
 <td>fabric8.service.&lt;name&gt;.containerPort</td>
@@ -2088,7 +2118,6 @@ ANOTHER = some ${CHEESE}
 <td>Defines the secret name to be BAR for the FOO volume.</td>
 </tr>
 </table>
-
 
                     
                     </section>

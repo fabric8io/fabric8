@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="5.3.1" data-basepath="." data-revision="Wed Aug 24 2016 21:06:00 GMT+0000 (UTC)">
+    <div class="book" data-level="5.3.1" data-basepath="." data-revision="Tue Sep 06 2016 12:36:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -227,13 +227,28 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.3" data-path="getStarted/cdk.html">
+        <li class="chapter " data-level="2.2.3" data-path="getStarted/ocClusterUp.html">
+            
+                
+                    <a href="./getStarted/ocClusterUp.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.3.</b>
+                        
+                        oc cluster up
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="getStarted/cdk.html">
             
                 
                     <a href="./getStarted/cdk.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.3.</b>
+                            <b>2.2.4.</b>
                         
                         Red Hat CDK
                     </a>
@@ -242,13 +257,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.4" data-path="getStarted/openshift.html">
+        <li class="chapter " data-level="2.2.5" data-path="getStarted/openshift.html">
             
                 
                     <a href="./getStarted/openshift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.</b>
+                            <b>2.2.5.</b>
                         
                         OpenShift
                     </a>
@@ -258,13 +273,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.2.4.1" data-path="getStarted/installOpenShift.html">
+        <li class="chapter " data-level="2.2.5.1" data-path="getStarted/installOpenShift.html">
             
                 
                     <a href="./getStarted/installOpenShift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.1.</b>
+                            <b>2.2.5.1.</b>
                         
                         Install OpenShift
                     </a>
@@ -278,13 +293,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.5" data-path="getStarted/browserCertificates.html">
+        <li class="chapter " data-level="2.2.6" data-path="getStarted/browserCertificates.html">
             
                 
                     <a href="./getStarted/browserCertificates.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.5.</b>
+                            <b>2.2.6.</b>
                         
                         Accept self-signed certs
                     </a>
@@ -293,13 +308,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.6" data-path="getStarted/local.html">
+        <li class="chapter " data-level="2.2.7" data-path="getStarted/local.html">
             
                 
                     <a href="./getStarted/local.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.6.</b>
+                            <b>2.2.7.</b>
                         
                         Setup Local OpenShift Client
                     </a>
@@ -313,13 +328,43 @@
             
         </li>
     
-        <li class="chapter " data-level="2.3" data-path="getStarted/apps.html">
+        <li class="chapter " data-level="2.3" data-path="getStarted/persistence.html">
+            
+                
+                    <a href="./getStarted/persistence.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Persistence
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="getStarted/troubleshooting.html">
+            
+                
+                    <a href="./getStarted/troubleshooting.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Troubleshooting
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="getStarted/apps.html">
             
                 
                     <a href="./getStarted/apps.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.3.</b>
+                            <b>2.5.</b>
                         
                         Installing apps
                     </a>
@@ -328,30 +373,15 @@
             
         </li>
     
-        <li class="chapter " data-level="2.4" data-path="getStarted/develop.html">
+        <li class="chapter " data-level="2.6" data-path="getStarted/develop.html">
             
                 
                     <a href="./getStarted/develop.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.4.</b>
+                            <b>2.6.</b>
                         
                         Develop locally
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.5" data-path="getStarted/troubleshooting.html">
-            
-                
-                    <a href="./getStarted/troubleshooting.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.5.</b>
-                        
-                        Troubleshooting
                     </a>
                 
             
@@ -1719,17 +1749,17 @@
 <li><a href="http://www.elasticsearch.com/products/kibana/" target="_blank">Kibana</a> as the console to view, query and analyze the logs</li>
 <li>to collect the logs we recommend fluentd</li>
 </ul>
-<p>Using <a href="http://www.elasticsearch.com/products/elasticsearch/" target="_blank">Elasticsearch</a> on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using <a href="http://kubernetes.io/v1.0/docs/user-guide/services.html" target="_blank">Kubernetes Services</a>. Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like <a href="http://www.fluentd.org" target="_blank">fluentd</a></p>
+<p>Using <a href="http://www.elasticsearch.com/products/elasticsearch/" target="_blank">Elasticsearch</a> on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using <a href="http://kubernetes.io/docs/user-guide/services/" target="_blank">Kubernetes Services</a>. Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like <a href="http://www.fluentd.org" target="_blank">fluentd</a></p>
 <h3 id="how-to-use-logging-in-fabric8"><a name="how-to-use-logging-in-fabric8" class="plugin-anchor" href="#how-to-use-logging-in-fabric8"><span class="fa fa-link"></span></a>How to use Logging in fabric8</h3>
 <p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab and click <strong>Run</strong>:</p>
 <p><img src="images/logging/apps-run.png" alt="run button in apps tab"></p>
-<p>Then click on the &quot;Logging&quot; App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the <code>Route host name suffix</code> field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube <a href="https://github.com/fabric8io/fabric8/issues/5567" target="_blank">#5567</a>). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at <code>vagrant.f8</code> then the App will be set up with services at <code>kibana.vagrant.f8</code> and <code>elasticsearch.vagrant.f8</code>. </p>
+<p>Then click on the &quot;Logging&quot; App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the <code>Route host name suffix</code> field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube <a href="https://github.com/fabric8io/fabric8/issues/5567" target="_blank">#5567</a>). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at <code>vagrant.f8</code> then the App will be set up with services at <code>kibana.vagrant.f8</code> and <code>elasticsearch.vagrant.f8</code>.</p>
 <p><img src="images/logging/run-logging-app.png" alt="run button in apps tab"></p>
 <p>Once the Logging App is running (watch the pods start up in the fabric8 console!) you can find the service you&apos;d like to access and navigate to it. You can do this by selecting the <code>Services</code> tab, or the little vertical ellipses that has a Services drop-down chooser:</p>
-<p><img src="images/logging/click-services.png" alt="run button in apps tab"> </p>
+<p><img src="images/logging/click-services.png" alt="run button in apps tab"></p>
 <h3 id="setting-up-fluentd"><a name="setting-up-fluentd" class="plugin-anchor" href="#setting-up-fluentd"><span class="fa fa-link"></span></a>Setting up Fluentd</h3>
-<p>If you&apos;re using the <a href="getStarted/vagrant.html">Fabric8 Vagrant Image</a>, you&apos;re in luck! fluentd is <a href="https://github.com/fabric8io/fabric8-installer/blob/master/vagrant/openshift/Vagrantfile#L233" target="_blank">already configured as a static pod</a>. </p>
-<p>If not, you&apos;ll need to set up the fluentd pod on each node in your Kubernetes/OpenShift cluster. </p>
+<p>If you&apos;re using the <a href="getStarted/vagrant.html">Fabric8 Vagrant Image</a>, you&apos;re in luck! fluentd is <a href="https://github.com/fabric8io/fabric8-installer/blob/master/vagrant/openshift/Vagrantfile#L233" target="_blank">already configured as a static pod</a>.</p>
+<p>If not, you&apos;ll need to set up the fluentd pod on each node in your Kubernetes/OpenShift cluster.</p>
 <p>There are many ways to set up fluentd, but there are a couple fluentd plugins we recommend you use so that you have more kubernetes-context available in your log structures:</p>
 <ul>
 <li><a href="https://github.com/uken/fluent-plugin-elasticsearch" target="_blank">fluent-plugin-elasticsearch</a></li>

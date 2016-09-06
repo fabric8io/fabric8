@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.4" data-basepath=".." data-revision="Wed Aug 24 2016 21:06:00 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2.5" data-basepath=".." data-revision="Tue Sep 06 2016 12:36:19 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -227,13 +227,28 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.3" data-path="getStarted/cdk.html">
+        <li class="chapter " data-level="2.2.3" data-path="getStarted/ocClusterUp.html">
+            
+                
+                    <a href="../getStarted/ocClusterUp.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.3.</b>
+                        
+                        oc cluster up
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="getStarted/cdk.html">
             
                 
                     <a href="../getStarted/cdk.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.3.</b>
+                            <b>2.2.4.</b>
                         
                         Red Hat CDK
                     </a>
@@ -242,13 +257,13 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.2.4" data-path="getStarted/openshift.html">
+        <li class="chapter active" data-level="2.2.5" data-path="getStarted/openshift.html">
             
                 
                     <a href="../getStarted/openshift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.</b>
+                            <b>2.2.5.</b>
                         
                         OpenShift
                     </a>
@@ -258,13 +273,13 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.2.4.1" data-path="getStarted/installOpenShift.html">
+        <li class="chapter " data-level="2.2.5.1" data-path="getStarted/installOpenShift.html">
             
                 
                     <a href="../getStarted/installOpenShift.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.4.1.</b>
+                            <b>2.2.5.1.</b>
                         
                         Install OpenShift
                     </a>
@@ -278,13 +293,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.5" data-path="getStarted/browserCertificates.html">
+        <li class="chapter " data-level="2.2.6" data-path="getStarted/browserCertificates.html">
             
                 
                     <a href="../getStarted/browserCertificates.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.5.</b>
+                            <b>2.2.6.</b>
                         
                         Accept self-signed certs
                     </a>
@@ -293,13 +308,13 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2.6" data-path="getStarted/local.html">
+        <li class="chapter " data-level="2.2.7" data-path="getStarted/local.html">
             
                 
                     <a href="../getStarted/local.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.2.6.</b>
+                            <b>2.2.7.</b>
                         
                         Setup Local OpenShift Client
                     </a>
@@ -313,13 +328,43 @@
             
         </li>
     
-        <li class="chapter " data-level="2.3" data-path="getStarted/apps.html">
+        <li class="chapter " data-level="2.3" data-path="getStarted/persistence.html">
+            
+                
+                    <a href="../getStarted/persistence.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Persistence
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="getStarted/troubleshooting.html">
+            
+                
+                    <a href="../getStarted/troubleshooting.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Troubleshooting
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="getStarted/apps.html">
             
                 
                     <a href="../getStarted/apps.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.3.</b>
+                            <b>2.5.</b>
                         
                         Installing apps
                     </a>
@@ -328,30 +373,15 @@
             
         </li>
     
-        <li class="chapter " data-level="2.4" data-path="getStarted/develop.html">
+        <li class="chapter " data-level="2.6" data-path="getStarted/develop.html">
             
                 
                     <a href="../getStarted/develop.html">
                         <i class="fa fa-check"></i>
                         
-                            <b>2.4.</b>
+                            <b>2.6.</b>
                         
                         Develop locally
-                    </a>
-                
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.5" data-path="getStarted/troubleshooting.html">
-            
-                
-                    <a href="../getStarted/troubleshooting.html">
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.5.</b>
-                        
-                        Troubleshooting
                     </a>
                 
             
@@ -1732,19 +1762,18 @@
 <p><a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> is a useful installer for fabric8.</p>
 <p><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary</a>, extract it and add it to your <code>$PATH</code></p>
 <p>Now type the following:</p>
-<pre><code class="lang-sh">gofabric8 deploy -y
-gofabric8 secrets -y
+<pre><code class="lang-sh">gofabric8 deploy
 </code></pre>
 <p><strong>Note:</strong> If you install not locally you might have to pass the domain name to the -d option so you can access any app later in the browser. E.g.:</p>
-<pre><code>gofabric8 deploy -d mydomain.com -y
-gofabric8 secrets -y
+<pre><code>gofabric8 deploy -d mydomain.com
 </code></pre><p><strong>Note:</strong> If your router lives on another domain/host then your openshift api, you will need to provide the --api-server parameter to point to the api. So if you have your router made accessible by mydomain.com but your openshift master (api) lives at master.mydomain.com run:</p>
-<pre><code>gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com -y
-gofabric8 secrets -y
-</code></pre><p>If you wish to install the full <a href="../cdelivery.html">Fabric8 Microservices Platform with CI / CD support</a> or any other app you can add the <code>--app</code> command line argument:</p>
-<pre><code>gofabric8 deploy -y -d mydomain.com --app=cd-pipeline
-gofabric8 secrets -y
-</code></pre><p>At any point you can validate your installation via:</p>
+<pre><code>gofabric8 deploy -d mydomain.com --api-server=master.mydomain.com
+</code></pre><p>By default the full <a href="../cdelivery.html">Fabric8 Microservices Platform with CI / CD support</a> is installed.  If you want just install the fabric8 console then you can add the <code>--app</code> command line argument and leaving the value blank</p>
+<pre><code>gofabric8 deploy -y -d mydomain.com --app=
+</code></pre><h4 id="persistence"><a name="persistence" class="plugin-anchor" href="#persistence"><span class="fa fa-link"></span></a>Persistence</h4>
+<p>New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on <a href="persistence.html">creating the necessary persistent volumes or opting out of persistence</a> </p>
+<h4 id="validating-your-install"><a name="validating-your-install" class="plugin-anchor" href="#validating-your-install"><span class="fa fa-link"></span></a>Validating your install</h4>
+<p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
 </code></pre>
 <p>You can also eagerly pull docker images for a Fabric8 template via the <code>pull</code> command</p>

@@ -64,7 +64,7 @@
 
     <!-- begin header -->
     <div class="top-bar navbar navbar-default" role="navigation">
-      <!-- begin inner container --> 
+      <!-- begin inner container -->
       <div class="container">
         <!-- begin inner row -->
         <div class="row">
@@ -97,7 +97,7 @@
         </div>
         <!-- end inner row -->
       </div>
-      <!-- end inner container --> 
+      <!-- end inner container -->
     </div>
     <!-- end header -->
 
@@ -115,13 +115,16 @@
 
 <h3 id = "To_start_create_an_archetype">To start create an archetype</h3>
 
-<p>We've got lots of <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts">quickstarts</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/tooling/examples">examples</a> which we've converted into <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html">Maven Archetypes</a>.</p>
+<p>We've got lots of <a href="https://github.com/fabric8-quickstarts">quickstarts</a> which we've converted into <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html">Maven Archetypes</a>.</p>
 
 <p>So if you have <a href="http://maven.apache.org/download.cgi#Installation">installed Maven</a>, type the following:</p>
 
 <pre><code>mvn org.apache.maven.plugins:maven-archetype-plugin:2.2:generate -Dfilter=io.fabric8:</code></pre>
 
-<p>This will list all the various archetypes. Pick one that suits your fancy, e.g. <strong>io.fabric8.archetypes:cbr-archetype</strong> for the <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/cbr">Camel Content Based Router Quickstart</a>.</p>
+<p>This will list all the various archetypes. Pick one that suits your fancy, e.g. <strong>io.fabric8.archetypes:springboot-camel-archetype</strong>
+    mvn org.apache.maven.plugins:maven-archetype-plugin:2.2:generate -Dfilter=io.fabric8:spring-boot-camel-archetype</p>
+
+<p>for the <a href="https://github.com/fabric8-quickstarts/spring-boot-camel">Camel Spring Boot Quickstart</a>.</p>
 
 <p>Then enter these values:</p>
 
@@ -132,9 +135,21 @@ package:    cool</code></pre>
 
 <p>And confirm with 'Y'.</p>
 
-<h3 id = "Building_on_OpenShift">Building on OpenShift</h3>
+<p>Now change directory in to the project</p>
 
-<p>TODO</p>
+<pre><code>cd mydemo</code></pre>
+
+<p>build the java quickstart, generate the Kubernetes resources, build the docker image and deploy it to Kubernetes</p>
+
+<pre><code>mvn fabric8:run</code></pre>
+
+<p>or if not working on minikube and deploying to a cluster</p>
+
+<pre><code>mvn fabric8:run fabri8:push -Ddocker.push.registry=my.registry.io</code></pre>
+
+<p>Now check your pods and wait for your cool demo pod to start</p>
+
+<pre><code>kubectl get pods -w</code></pre>
 
 <p>  </div>
     </div>
@@ -175,7 +190,7 @@ package:    cool</code></pre>
                 <a href="/getstarted/index.html">Get Started</a>
               </li>
               <li>
-                <a href="articles/index.html">Articles and Demos</a>
+                <a href="/articles/index.html">Articles and Demos</a>
               </li>
               <li>
                 <a href="/gitbook/FAQ.html">FAQ</a>
