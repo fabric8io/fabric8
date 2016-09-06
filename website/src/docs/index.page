@@ -13,15 +13,15 @@ title: read up on fabric8!
           <a href="http://fabric8.io/guide/getStarted/index.html">Getting Started</a>
         </dt>
         <dd>
-          Read the getting started guide to find out how to download and install fabric8 in your own environment.
+          Read how to <a href="http://fabric8.io/guide/getStarted/index.html">get started and install fabric8</a> in your own environment.
         </dd>
       </dl>
       <dl>
         <dt>
-          <a href="http://fabric8.io/guide/index.html">User Guide (2.2.101)</a>
+          <a href="http://spring.fabric8.io/">Fabric8 Spring</a>
         </dt>
         <dd>
-          Read the user guide of the fabric8 microservices platform
+          Read how to develop <a href="http://projects.spring.io/spring-boot/">Spring Boot</a> microservices on Kubernetes or OpenShift the fabric8 microservices platform
         </dd>
       </dl>
       <dl>
@@ -30,14 +30,6 @@ title: read up on fabric8!
         </dt>
         <dd>
           Read the documentation for the Fabric8 Maven Plugin
-        </dd>
-      </dl>
-      <dl>
-        <dt>
-          <a href="https://fabric8io.github.io/docker-maven-plugin/">Docker Maven Plugin Documentation</a>
-        </dt>
-        <dd>
-          Read the documentation for the Docker Maven Plugin (only required for standalone Docker! For Kubernetes or OpenShift please use the <a href="http://maven.fabric8.io/">Fabric8 Maven Plugin</a>
         </dd>
       </dl>
       <dl>
@@ -58,14 +50,6 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
-          <a href="/developers/index.html">Developers</a>
-        </dt>
-        <dd>
-          Read how to get started building fabric8 and work with the code
-        </dd>
-      </dl>
-      <dl>
-        <dt>
           <a href="/contributing/index.html">Contributing</a>
         </dt>
         <dd>
@@ -74,10 +58,10 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
-          <a href="/articles/index.html">Articles</a>
+          <a href="/community/index.html">Commnity</a>
         </dt>
         <dd>
-          View articles, presentations, blog posts and view recorded screencast demonstrations by fabric8 developers and users.
+          Join the fabric8 community!
         </dd>
       </dl>
     </div>
