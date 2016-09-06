@@ -1257,6 +1257,10 @@ public final class KubernetesHelper {
      */
     public static String getServiceURL(Service service) {
         if (service != null) {
+            String answer = getOrCreateAnnotations(service).get(Annotations.Service.EXPOSE_URL);
+            if (Strings.isNotBlank(answer)) {
+                return answer;
+            }
             ServiceSpec spec = service.getSpec();
             if (spec != null) {
                 String portalIP = spec.getClusterIP();
@@ -1324,6 +1328,11 @@ public final class KubernetesHelper {
             throw new IllegalArgumentException("No kubernetes service could be found for name: " + serviceName + " in namespace: " + actualNamespace);
         }
 
+        String answer = getOrCreateAnnotations(srv).get(Annotations.Service.EXPOSE_URL);
+        if (Strings.isNotBlank(answer)) {
+            return answer;
+        }
+
         try {
             if (Strings.isNullOrBlank(servicePortName) && isOpenShift(client)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
@@ -1388,7 +1397,7 @@ public final class KubernetesHelper {
                                                                     }
                                                                 }
                                                             }
-                                                            String answer = rule.getHost();
+                                                            answer = rule.getHost();
                                                             if (Strings.isNotBlank(answer)) {
                                                                 if (Strings.isNullOrBlank(pathPostfix)) {
                                                                     pathPostfix = "/";

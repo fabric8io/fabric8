@@ -23,6 +23,10 @@ public class Annotations {
         public static final String JSON_SCHEMA = "fabric8.io/json-schema";
     }
 
+    public static class Service {
+        public static final String EXPOSE_URL = "fabric8.io/exposeUrl";
+    }
+
     public static class Secrets {
         public static final String SSH_KEY = "fabric8.io/secret-ssh-key";
         public static final String SSH_PUBLIC_KEY = "fabric8.io/secret-ssh-public-key";
