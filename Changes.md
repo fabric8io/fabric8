@@ -1,4 +1,14 @@
 
+### 2.3.19
+
+* Adds support for persistence to various apps (gogs, nexus, jenkins). To create persistent volumes or opt out of persistence check the [persistence guide](persistence.html)  
+* Includes documentation on [how to create Spring Boot microservices on kubernetes with fabric8](https://spring.fabric8.io/)
+
+### 2.2.234
+      
+* We now use the [exposecontroller](https://github.com/fabric8io/exposecontroller/) to decide whether to create Ingress resources on Kubernetes, Route resources on OpenShift, use external IPs via LoadBalancer types on public cloud or use nodePorts on local single node installations.      
+* All quickstarts and archetypes have moved to the new 3.x version of the [fabric8 maven plugin](https://maven.fabric8.io/)
+
 ### 2.2.16
 
 * [Fabric8 DevOps](http://fabric8.io/guide/fabric8DevOps.html) has new [chat based](http://fabric8.io/guide/chat.html) [workflow steps](https://github.com/fabric8io/fabric8-jenkins-workflow-steps) for notification and approval of Jenkins Workflow based [Continuous Deployment pipelines](http://fabric8.io/guide/cdelivery.html) inside the chat application like Lets Chat or Slack. Here's [an example so you can see how it looks](https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove) using the [Fabric8 DevOps library of reusable Jenkins Workflows](https://github.com/fabric8io/jenkins-workflow-library)
