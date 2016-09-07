@@ -11,6 +11,7 @@ mkdir -p helm && \
 cp ../fabric8/helm-index.yaml helm/index.yaml && \
 cp ../fabric8/helm-index.html helm/index.html && \
 git add *.yaml && \
+git add *.html && \    
 git commit -m "updated helm index" && \
 git push origin gh-pages
 
