@@ -34,7 +34,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <fabric8.maven.plugin.version>3.1.32</fabric8.maven.plugin.version>
+    <fabric8.maven.plugin.version>3.1.33</fabric8.maven.plugin.version>
   </properties>
 
   <developers>
@@ -73,6 +73,10 @@
               <key>https://cdn.rawgit.com/fabric8io/fabric8-ipaas/elasticsearch-v1/master/elasticsearch/src/main/fabric8/icon.png</key>
               <value>https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/elasticsearch/src/main/fabric8/icon.png</value>
             </mapping>
+            <mapping>
+              <key>https://cdn.rawgit.com/fabric8io/kubeflix/examples/loanbroker-example/loanbroker-broker/master/examples/loanbroker/broker/src/main/fabric8/icon.png</key>
+              <value>https://cdn.rawgit.com/fabric8io/kubeflix/master/examples/loanbroker/broker/src/main/fabric8/icon.png</value>
+            </mapping>
           </iconMappings>
         </configuration>
       </plugin>
@@ -90,7 +94,7 @@
               <outputDirectory>${project.build.directory}/fabric8/site/helm</outputDirectory>
               <resources>
                 <resource>
-                  <directory>src/main/css</directory>
+                  <directory>src/main/assets</directory>
                   <filtering>false</filtering>
                 </resource>
               </resources>
@@ -106,7 +110,7 @@
               <outputDirectory>${project.build.directory}/fabric8/site/manifests</outputDirectory>
               <resources>
                 <resource>
-                  <directory>src/main/css</directory>
+                  <directory>src/main/assets</directory>
                   <filtering>false</filtering>
                 </resource>
               </resources>
@@ -117,4 +121,13 @@
 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>snapshot</id>
+      <properties>
+        <fabric8.maven.plugin.version>3.1-SNAPSHOT</fabric8.maven.plugin.version>
+      </properties>
+    </profile>
+  </profiles>
 </project>
