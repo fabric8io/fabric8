@@ -18,7 +18,7 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
-          <a href="http://spring.fabric8.io/">Fabric8 Spring</a>
+          <a href="http://spring.fabric8.io/">Spring Boot User Guide</a>
         </dt>
         <dd>
           Read how to develop <a href="http://projects.spring.io/spring-boot/">Spring Boot</a> microservices on Kubernetes or OpenShift the fabric8 microservices platform
@@ -26,10 +26,34 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
-          <a href="http://maven.fabric8.io/">Fabric8 Maven Plugin Documentation</a>
+          <a href="http://maven.fabric8.io/">Maven Plugin Documentation</a>
         </dt>
         <dd>
           Read the documentation for the Fabric8 Maven Plugin
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="http://fabric8.io/manifests/kubernetes.html">Kubernetes Manifests</a>
+        </dt>
+        <dd>
+          Browse the <a href="http://kubernetes.io/">Kubernetes</a> manifests for fabric8 microservices
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="http://fabric8.io/manifests/openshift.html">OpenShift Manifests</a>
+        </dt>
+          <dd>
+          Browse the <a href="http://www.openshift.org/">OpenShift</a> manifests for fabric8 microservices
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="http://fabric8.io/helm/">Helm Chart Repository</a>
+        </dt>
+        <dd>
+          Browse the <a href="https://github.com/kubernetes/helm/">Helm</a> repository of Charts for fabric8 microservices
         </dd>
       </dl>
       <dl>
