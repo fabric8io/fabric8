@@ -34,7 +34,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <fabric8.maven.plugin.version>3.1.31</fabric8.maven.plugin.version>
+    <fabric8.maven.plugin.version>3.1.32</fabric8.maven.plugin.version>
   </properties>
 
   <developers>
@@ -48,7 +48,7 @@
   </developers>
 
   <build>
-    <defaultGoal>fabric8:helm-index</defaultGoal>
+    <defaultGoal>package</defaultGoal>
 
     <plugins>
       <plugin>
@@ -57,15 +57,64 @@
         <version>${fabric8.maven.plugin.version}</version>
         <executions>
           <execution>
+            <id>fabric8-site</id>
+            <phase>package</phase>
             <goals>
               <goal>helm-index</goal>
+              <goal>manifest-index</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <title>Fabric8 Chart Repository</title>
+          <helmTitle>Fabric8 Chart Repository</helmTitle>
+          <manifestTitle>Fabric8 Manifests</manifestTitle>
+          <iconMappings>
+            <mapping>
+              <key>https://cdn.rawgit.com/fabric8io/fabric8-ipaas/elasticsearch-v1/master/elasticsearch/src/main/fabric8/icon.png</key>
+              <value>https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/elasticsearch/src/main/fabric8/icon.png</value>
+            </mapping>
+          </iconMappings>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>copy-helm-css</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/fabric8/site/helm</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/css</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-manifest-css</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/fabric8/site/manifests</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/css</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 </project>

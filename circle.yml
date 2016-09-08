@@ -1,6 +1,6 @@
 dependencies:
   override:
-    - mvn fabric8:helm-index -U
+    - mvn package -U
     - git config --global user.email "circleci@mail.com"
     - git config --global user.name "CircleCI"
     - ./update-website.sh

@@ -1,0 +1,17 @@
+img.logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+td span.chart-name {
+    text-align: left;
+    vertical-align: middle;
+}
+td.versions a {
+    text-align: left;
+    vertical-align: middle;
+}
+body {
+    padding: 20px;
+}
