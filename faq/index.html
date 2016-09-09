@@ -158,23 +158,23 @@
 
 <p>Having said all that; with the  <a href="ipaas.html">Fabric8 iPaaS)</a> focus, we have optimised Fabric8 so that folks who do use Java have an optimised experience of working with Docker, Kubernetes, OpenShift and Fabric8. Though we hope to continue to improve tooling, management and visualisation for other languages and runtimes too.</p>
 
-<h4 id = "Is_Jenkins_Workflow_Java_centric_">Is Jenkins Workflow Java centric?</h4>
+<h4 id = "Is_Jenkins_Pipeline_Java_centric_">Is Jenkins Pipeline Java centric?</h4>
 
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Workflow plugin</a> with <a href="https://jenkins.io/">Jenkins</a>.</p>
+<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Pipeline plugin</a> with <a href="https://jenkins.io/">Jenkins</a>.</p>
 
-<p>Jenkins Workflow provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the <a href="http://groovy-lang.org/">Groovy programming language</a>.</p>
+<p>Jenkins Pipeline provides a domain specific language for orchestrating long running build tasks such as building, testing, approving, promoting and deploying steps using the <a href="http://groovy-lang.org/">Groovy programming language</a>.</p>
 
-<p>The preferred approach to using Jenkins Workflow is to reuse docker images for all your build and testing tools; so that most of the details in your <strong>Jenkinsfile</strong> tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.</p>
+<p>The preferred approach to using Jenkins Pipeline is to reuse docker images for all your build and testing tools; so that most of the details in your <strong>Jenkinsfile</strong> tends to be running commands inside docker images. So your CD pipeline definition is usually a list of commands using whatever tools you use (Maven, Grunt, Gulp, Make, bash, python, ruby, whatever) which is completely language, tool and framework agnostic.</p>
 
 <h4 id = "Can_Microservices_Platform_work_with_my_CI_server_">Can Microservices Platform work with my CI server?</h4>
 
-<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Workflow plugin</a> with <a href="https://jenkins.io/">Jenkins</a>.</p>
+<p>Our preferred tool for <a href="cdelivery.html">Continuous Delivery</a> is to use the <a href="https://github.com/jenkinsci/workflow-plugin">Jenkins Pipeline plugin</a> with <a href="https://jenkins.io/">Jenkins</a>.</p>
 
 <p>However this is for <em>orchestrating delivery pipelines</em> which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.</p>
 
-<p>For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Workflow pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.</p>
+<p>For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Pipeline pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.</p>
 
-<p>Our preferred approach is to use Jenkins Workflow pipelines as the core orchestration layer when trying to implement  <a href="cdelivery.html">Continuous Delivery, Continous Deployment or Continous Improvement</a> then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift <a href="https://docs.openshift.com/enterprise/3.0/architecture/core&#95;concepts/builds&#95;and&#95;image&#95;streams.html#source-build">Source to Image builds</a> or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.</p>
+<p>Our preferred approach is to use Jenkins Pipeline pipelines as the core orchestration layer when trying to implement  <a href="cdelivery.html">Continuous Delivery, Continous Deployment or Continous Improvement</a> then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift <a href="https://docs.openshift.com/enterprise/3.0/architecture/core&#95;concepts/builds&#95;and&#95;image&#95;streams.html#source-build">Source to Image builds</a> or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.</p>
 
 <h4 id = "Where_do_I_look_for_the_source_code_">Where do I look for the source code?</h4>
 
@@ -189,6 +189,22 @@
 <p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/">Docker</a> and <a href="http://kubernetes.io">Kubernetes</a> or <a href="https://github.com/openshift/origin">OpenShift Origin V3</a>.</p>
 
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
+
+<h4 id = "How_do_I_configure_a_HTTP_proxy_">How do I configure a HTTP proxy?</h4>
+
+<p>If you are behind a corporate firewall then maven builds may fail to download jars from maven central.</p>
+
+<p>This <a href="https://maven.apache.org/guides/mini/guide-proxies.html">guide describes how to configure maven to use HTTP proxies</a>. </p>
+
+<p>To configure a HTTP Proxy in fabric8 open the [fabric8 console(console.html) then:</p>
+
+<ul>
+<li>click on your <code>Team</code> page</li>
+<li>now select the <code>Runtime</code> page on the left tab</li>
+<li>select <code>Secrets</code> then the <code>jenkins-maven-settings</code> secret</li>
+<li>edit this file - its the <code>~/.m2/settings.xml</code> used by default on all maven builds in Jenkins - based on the <a href="https://maven.apache.org/guides/mini/guide-proxies.html">this document</a></li>
+<li>once you've saved your changes re-run your build in Jenkins</li>
+</ul>
 
 <h4 id = "What_maven_plugin_goals_are_available_">What maven plugin goals are available?</h4>
 
@@ -221,10 +237,9 @@ without keeping the configuration in any central repository (like Git).</p>
 
 <h4 id = "Is_Fabric8_server_required_to_provision_applications_">Is Fabric8 server required to provision applications?</h4>
 
-<p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
-managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like 
-<a href="mavenPlugin.html">Fabric8 Maven plugin</a>
-or <a href="http://hawt.io">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
+<p>No. Kubernetes is responsible for providing the runtime registry for the managed applications. It means that you don't have to start any dedicated Fabric8 software in production. </p>
+
+<p>Tools like <a href="mavenPlugin.html">Fabric8 Maven plugin</a> or the <a href="console">fabric8 developer console</a> can connect directly to the Kubernetes and deploy/manage it.</p>
 
 <h4 id = "If_there_is_no_Fabric8_server__how_can_I_use_Fabric8_shell_">If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
 
