@@ -17,6 +17,9 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.WebHookTrigger;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 /**
  * Triggers a build using the Java API
@@ -33,12 +36,10 @@ public class TriggerBuild {
             namespace = args[1];
         }
 
-        KubernetesClient client = new DefaultKubernetesClient();
+        OpenShiftClient client = new DefaultOpenShiftClient();
 
         try {
-            //TODO: This is currently broken
-            //String uuid = client.triggerBuildAndGetUuid(name, namespace);
-            //System.out.println("Build triggered: got UUID: " + uuid);
+            client.buildConfigs().inNamespace(namespace).withName(name).trigger(new WebHookTrigger(true, null));
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
