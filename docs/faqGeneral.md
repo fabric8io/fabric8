@@ -8,35 +8,43 @@ fabric8 uses the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0
 
 Fabric8 is an integrated open source [DevOps](fabric8DevOps.html) and [Integration Platform](ipaas.html) which works out of the box on any [Kubernetes](http://kubernetes.io/) or [OpenShift](http://www.openshift.org/) environment and provides [Continuous Delivery](cdelivery.html), [Management](management.html), [ChatOps](chat.html) and a [Chaos Monkey](chaosMonkey.html).
 
-
-
 #### What does fabric8 do?
 
 Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building Microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/).
 
+#### What is Kubernetes?
+
+[Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) based _Container As A Service_ (orchestrates docker containers)
+
+#### How does Fabric8 relate to other open source projects?
+
+Fabric8 provides upstream innovation on concepts and features, once validated, make their way into other open source projects such as [OpenShift Origin](https://github.com/openshift/origin), [Kubernetes](http://kubernetes.io) and [Jenkins](https://jenkins.io/) (as examples). Fabric8 contributors work in the various other open source communities to align a unified developer experience.
+
 #### What value does fabric8 add over OpenShift?
 
-* [Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) based _Container As A Service_ (orchestrates docker containers)
 * [OpenShift V3](https://github.com/openshift/origin) extends Kubernetes to support a full _Platform As A Service_
-  * hosting source code in git repositories
-  * performing builds and hosting private docker images
-  * supporting the git-push style model of kicking off new builds
+  * isolation of source code [builds within containers](https://docs.openshift.org/latest/dev_guide/builds.html)
+  * providing a [simple console](https://docs.openshift.org/latest/getting_started/developers_console.html) so you can create, view, modify and remove all of your Kubernetes and OpenShift resources
+  * ease of use for [creating and deploy from source or docker formatted image](https://docs.openshift.org/latest/getting_started/developers_cli.html#developers-cli-creating-an-application)
+  * supporting the [git-push style model](https://docs.openshift.org/latest/dev_guide/builds.html#build-triggers) of kicking off new builds
+  * keep base container layers current with [automatic rebuilds on image changes](https://docs.openshift.org/latest/dev_guide/builds.html#build-triggers)
+  * integrated application [metrics](https://docs.openshift.org/latest/install_config/cluster_metrics.html) and [logging](https://docs.openshift.org/latest/install_config/aggregate_logging.html)
+  * large set of [builder images](https://docs.openshift.org/latest/using_images/s2i_images/index.html) and [quick starts](https://github.com/openshift/origin/tree/master/examples)
+  * flexible [deployment models](https://docs.openshift.org/latest/dev_guide/deployments.html): rolling, blue/green and [load balancing for A/B testing](https://docs.openshift.org/latest/dev_guide/routes.html#routes-load-balancing-for-AB-testing)
 * Fabric8 is focused on:
-  * providing a great [Kubernetes Console](console.html) based on [hawtio](http://hawt.io/) so you can view all of the kubernetes resources, understand whats going on and see the big picture or zoom inside inside individual containers and link to logs and metrics
-  * being an **Integration Platform As A Service** and a **Java Application Platform As A Service**
-  * adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:
-    * [Fabric8 Apps](fabric8Apps.html) to provide reusable [logging](logging.html), [metrics](metrics.html) and make it easier to consume integration and messaging services
+  * being an **Integration Platform As A Service** and a **Java Application Platform As A Service**, which encompasses modern Microservices and legacy application architectures
+  * adding extra services, focused around Java tooling &amp; quickstarts:
+    * [Fabric8 Apps](fabric8Apps.html) to provide JVM specific metrics
     * deep and rich [tooling](http://fabric8.io/guide/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as the [Maven Plugin](http://fabric8.io/guide/mavenPlugin.html) and [Forge Addons](http://fabric8.io/guide/forge.html)
     * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
     * [Testing with Arquillian](testing.html) helps you perform integration tests of your [apps](apps.html)
-    * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
 
 #### Is Fabric8 Java centric?
 
 The short answer is no ;).
 
 * [Fabric8 Management](management.html) works with any Docker images on [Kubernetes](http://kubernetes.io/) - so its completely language, framework and runtime agnostic. The [console](console.html) has added extra introspection and visualisation for Java docker containers which contain a [Jolokia](http://jolokia.org/) but we hope to add more deep introspection tools for other languages. Certainly you can always use any language, framework or runtime specific diagnostic or visualiation tools on Kubernetes directly
-* [Microservices Platform](fabric8DevOps.html) focusses on working with any project with any build mechanism running Docker images on [Kubernetes](http://kubernetes.io/). So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift's [Source to image build mechanism](https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build), or our preferred [Continuous Delivery](cdelivery.html) using [Jenkins Workflow](https://github.com/jenkinsci/workflow-plugin). 
+* [Microservices Platform](fabric8DevOps.html) focusses on working with any project with any build mechanism running Docker images on [Kubernetes](http://kubernetes.io/). So any language, framework and runtime is supported with any build tooling. Whether thats using OpenShift's [Source to image build mechanism](https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build), or our preferred [Continuous Delivery](cdelivery.html) using [Jenkins Workflow](https://github.com/jenkinsci/workflow-plugin).
 * [Fabric8 iPaaS (Integration Platform](ipaas.html) is more Java centric in the sense that integration flows tend to be implemented using [Apache Camel](http://camel.apache.org/) which runs inside a Java virtual machine (JVM) but the services that Camel integrates with can be any technology, language, runtime, on premise or SaaS etc.
 * [Fabric8 API Management](apiManagement.html) works with any API implemented in any language or runtime; currently only HTTP based APIs are supported though.
 
@@ -55,18 +63,18 @@ The preferred approach to using Jenkins Pipeline is to reuse docker images for a
 Our preferred tool for [Continuous Delivery](cdelivery.html) is to use the [Jenkins Pipeline plugin](https://github.com/jenkinsci/workflow-plugin) with [Jenkins](https://jenkins.io/).
 
 However this is for _orchestrating delivery pipelines_ which typically involves many tasks such as building, testing, approving, promoting and deploying. How each of those parts work is completely up to you.
- 
+
 For example you can reuse your existing CI server (Jenkins, Bamboo, TeamCity or whatever) to build your code then use a Jenkins Pipeline pipeline to move the build through environments, orchestrate system tests, soak tests, acceptance tests, approvals, promotions and so forth.
 
 Our preferred approach is to use Jenkins Pipeline pipelines as the core orchestration layer when trying to implement  [Continuous Delivery, Continous Deployment or Continous Improvement](cdelivery.html) then for that pipeline to trigger whatever is required to complete the pipeline; whether its one or more builds in an existing CI server, triggering OpenShift [Source to Image builds](https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/builds_and_image_streams.html#source-build) or other existing build or test services then orchestrating those along with approval and promotion through Jenkins workflow. It also then means its easier to get a holistic view of your CD pipelines across all projects; irrespective of how each build or test works or what tools are used to build or test projects etc.
- 
+
 #### Where do I look for the source code?
 
-Fabric8 is comprised of a collection of projects written in Java and Golang and packaged up as Docker containers. The git repos for each of these projects/containers can be found in detail in the [project documentation pages](projects.md) 
+Fabric8 is comprised of a collection of projects written in Java and Golang and packaged up as Docker containers. The git repos for each of these projects/containers can be found in detail in the [project documentation pages](projects.md)
 
 #### Are Docker and Kubernetes required to run Fabric8?
 
-Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.
+Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as OpenShift, Google Compute Engine, Azure etc.
 
 #### Is Windows supported
 
@@ -79,7 +87,7 @@ Windows is currently only partially supported. Windows users may consider using 
 
 If you are behind a corporate firewall then maven builds may fail to download jars from maven central.
 
-This [guide describes how to configure maven to use HTTP proxies](https://maven.apache.org/guides/mini/guide-proxies.html). 
+This [guide describes how to configure maven to use HTTP proxies](https://maven.apache.org/guides/mini/guide-proxies.html).
 
 To configure a HTTP Proxy in fabric8 open the [fabric8 console(console.html) then:
 
@@ -90,8 +98,8 @@ To configure a HTTP Proxy in fabric8 open the [fabric8 console(console.html) the
 * once you've saved your changes re-run your build in Jenkins
 
 #### What maven plugin goals are available?
- 
-See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html) 
+
+See the [list of maven plugin goals](http://fabric8.io/guide/mavenPlugin.html)
 
 #### What Java versions are supported?
 
@@ -106,12 +114,12 @@ However certain services will still require master slave election and partitioni
 #### Does Fabric8 still use profiles to configure application deployment?
 
 No, not anymore. Starting from v2 Fabric8 uses [app](apps.html) JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
-to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
+to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be
 added to the file system of the application's Docker image.
 
 #### Is Git repository still used to store the applications' configuration?
 
-Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use 
+Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use
 profiles (but app templates instead), the Git repository is not needed anymore. You can just store application's configuration (app file)
 in the Maven project and use the [Fabric8 Maven plugin to start](mavenPlugin.html#running) the application in Kubernetes
 without keeping the configuration in any central repository (like Git).
@@ -120,7 +128,7 @@ However keeping app files in Git for easier configuration management is recommen
 
 #### Is Fabric8 server required to provision applications?
 
-No. Kubernetes is responsible for providing the runtime registry for the managed applications. It means that you don't have to start any dedicated Fabric8 software in production. 
+No. Kubernetes is responsible for providing the runtime registry for the managed applications. It means that you don't have to start any dedicated Fabric8 software in production.
 
 Tools like [Fabric8 Maven plugin](mavenPlugin.html) or the [fabric8 developer console](console) can connect directly to the Kubernetes and deploy/manage it.
 
@@ -135,4 +143,3 @@ Kubernetes will be included in [Red Hat Enterprise Linux](http://www.redhat.com/
 #### Deprecations
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.
-
