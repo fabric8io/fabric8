@@ -35,7 +35,7 @@ For example **fabric8.foo.bar.baz** will be converted to **FABRIC8_FOO_BAR_BAZ**
 
 
 | Option                              | Type         | Env | Description                                                                  |
-|-------------------------------------|--------------|------------------------------------------------------------------------------------|
+|-------------------------------------|--------------|-----|------------------------------------------------------------------------------|
 | kubernetes.master                   | URL          | Any | The URL to the Kubernetes master                                             |
 | kubernetes.domain                   | String       | OSE | Domain to use for creating routes for services                               |
 | fabric8.environment                 | String       | Any | The testing environment to use (used for selecting namespace)                |
