@@ -55,6 +55,10 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -130,6 +134,7 @@ public class GitUtils {
         }
         return null;
     }
+
     public static void configureBranch(Git git, String branch, String origin, String remoteRepository) {
         // lets update the merge config
         if (!Strings.isNullOrBlank(branch)) {
@@ -308,5 +313,33 @@ public class GitUtils {
         } else {
             return new HashMap<>();
         }
+    }
+
+    public static String getGitHostName(String gitUrl) {
+        try {
+            URI uri = new URI(gitUrl);
+            return uri.getHost();
+        } catch (URISyntaxException e) {
+            // ignore
+        }
+/*
+        try {
+            URL url = new URL(gitUrl);
+            return url.getHost();
+        } catch (MalformedURLException e) {
+            // ignore
+        }
+*/
+        String[] split = gitUrl.split(":");
+        if (split.length > 1) {
+            String prefix = split[0];
+            int idx = prefix.indexOf('@');
+            if (idx >= 0) {
+                return prefix.substring(idx + 1);
+            } else {
+                return prefix;
+            }
+        }
+        return null;
     }
 }

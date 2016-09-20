@@ -38,4 +38,20 @@ public class GitUtilsTest {
         assertThat(url).isNotEmpty().contains(".git");
     }
 
+    @Test
+    public void testGitHostName() throws Exception {
+        assertHostName("ssh://user@server/project.git", "server");
+        assertHostName("user@cheese:project.git", "cheese");
+        assertHostName("git@github.com:fabric8-quickstarts/spring-boot-webmvc.git", "github.com");
+        assertHostName("https://github.com/fabric8-quickstarts/spring-boot-webmvc.git", "github.com");
+        assertHostName("foo/bar", null);
+    }
+
+    public static void assertHostName(String gitUrl, String expectedHostName) {
+        String actual = GitUtils.getGitHostName(gitUrl);
+        assertThat(actual).describedAs("getGitHostName: " + gitUrl).isEqualTo(expectedHostName);
+
+    }
+
+
 }
