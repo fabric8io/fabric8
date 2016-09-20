@@ -36,7 +36,7 @@ final class KubernetesConstants {
     public static final String FABRIC8_CONFIG_PID_CFG = "fabric8.config.pid.cfg";
     public static final String FABRIC8_PID = "fabric8.pid";
     public static final String FABRIC8_PID_LABEL = "fabric8.pid.label";
-    public static final String FABRIC8_PID_LABEL_DEFAULT = "fabric8.pid";
+    public static final String FABRIC8_PID_LABEL_DEFAULT = "karaf.pid";
     public static final String FABRIC8_PID_FILTERS = "fabric8.pid.filters";
     public static final String FABRIC8_K8S_META_RESOURCE_VERSION = "fabric8.k8s.meta.resourceVersion";
     public static final String FABRIC8_K8S_META_NAME = "fabric8.k8s.meta.name";
