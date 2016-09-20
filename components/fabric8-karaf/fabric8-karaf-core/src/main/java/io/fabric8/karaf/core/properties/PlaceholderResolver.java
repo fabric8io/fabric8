@@ -19,14 +19,43 @@ import java.util.Dictionary;
 import java.util.Map;
 
 public interface PlaceholderResolver {
-
+   /**
+     * Resolve a placeholder using the strategy indicated by the prefix
+     *
+     * @param value the placeholder to resolve
+     * @return the resolved value, default the input value
+     */
     String resolve(String value);
 
+   /**
+     * Replaces all the occurrences of variables with their matching values from the resolver using the given source string as a template.
+     *
+     * @param source the string to replace in
+     * @return the result of the replace operation
+     */
     String replace(String value);
 
+    /**
+     * Replaces all the occurrences of variables within the given source builder with their matching values from the resolver.
+     *
+     * @param value the builder to replace in
+     * @rerurn true if altered
+     */
     boolean replaceIn(StringBuilder value);
 
+    /**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     * @param dictionary the dictionary to replace in
+     * @rerurn true if altered
+     */
     boolean replaceAll(Dictionary<String, Object> dictionary);
 
+    /**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     * @param dictionary the dictionary to replace in
+     * @rerurn true if altered
+     */
     boolean replaceAll(Map<String, Object> dictionary);
 }
