@@ -45,6 +45,8 @@ public class ServiceNames {
     public static final String GERRIT = "gerrit";
     public static final String SONARQUBE = "sonarqube";
 
+    // for the OpenShift like BuildConfig REST API when not running on openshift
+    public static final String JENKINSHIFT = "jenkinshift";
 
     // Social
     //-------------------------------------------------------------------------

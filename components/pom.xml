@@ -67,6 +67,7 @@
     <module>fabric8-devops-connector</module>
     <module>fabric8-jgroups</module>
     <module>fabric8-profiles</module>
+    <module>fabric8-project-utils</module>
     <module>fabric8-selenium</module>
     <module>fabric8-spring-boot</module>
 
