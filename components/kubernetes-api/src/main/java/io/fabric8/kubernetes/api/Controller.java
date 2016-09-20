@@ -37,10 +37,8 @@ import io.fabric8.kubernetes.api.model.extensions.DaemonSet;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
-import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
@@ -52,7 +50,6 @@ import io.fabric8.openshift.api.model.ProjectRequest;
 import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftNotAvailableException;
 import io.fabric8.utils.Files;
@@ -60,19 +57,11 @@ import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
-import okhttp3.Credentials;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -80,7 +69,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getKind;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
@@ -90,7 +78,6 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getOrCreateMetadata;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.summaryText;
 import static io.fabric8.kubernetes.api.KubernetesHelper.toItemList;
-import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -399,10 +386,15 @@ public class Controller {
 
     public OpenShiftClient getOpenShiftClientOrNull() {
         OpenShiftClient openShiftClient = null;
-        try {
-            openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
-        } catch (OpenShiftNotAvailableException e) {
-            // ignore
+        if (kubernetesClient instanceof OpenShiftClient) {
+            openShiftClient = (OpenShiftClient) kubernetesClient;
+        }
+        if (openShiftClient == null) {
+            try {
+                openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+            } catch (OpenShiftNotAvailableException e) {
+                // ignore
+            }
         }
         return openShiftClient;
     }
@@ -414,111 +406,9 @@ public class Controller {
             // for when using vanilla Kubernetes
             String jenkinshiftUrl = Systems.getEnvVar("JENKINSHIFT_URL", "http://jenkinshift/");
             LOG.debug("Using jenknshift URL: " + jenkinshiftUrl);
-            Config config = createJenkinshiftConfig(jenkinshiftUrl);
-
-            // TODO until jenkinshift supports HTTPS lets disable HTTPS by default
-            // openShiftClient = new DefaultOpenShiftClient(jenkinshiftUrl);
-            JenkinShiftClient jenkinShiftClient = new JenkinShiftClient(config);
-            jenkinShiftClient.updateHttpClient(config);
-            openShiftClient = jenkinShiftClient;
+            openShiftClient = KubernetesHelper.createJenkinshiftOpenShiftClient(jenkinshiftUrl);
         }
         return openShiftClient;
-    }
-
-    protected static class JenkinShiftClient extends DefaultOpenShiftClient {
-        public JenkinShiftClient(Config config) throws KubernetesClientException {
-            super(config);
-            updateHttpClient(config);
-        }
-
-        protected void updateHttpClient(Config config) {
-            this.httpClient = createHttpClient(config);
-        }
-
-        // TODO until jenkinshift supports HTTPS lets disable HTTPS by default
-        private OkHttpClient createHttpClient(final Config config) {
-            try {
-                OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-
-                // Follow any redirects
-                httpClientBuilder.followRedirects(true);
-                httpClientBuilder.followSslRedirects(true);
-
-                if (config.isTrustCerts()) {
-                    httpClientBuilder.hostnameVerifier(new HostnameVerifier() {
-                        @Override
-                        public boolean verify(String s, SSLSession sslSession) {
-                            return true;
-                        }
-                    });
-                }
-
-                if (isNotNullOrEmpty(config.getUsername()) && isNotNullOrEmpty(config.getPassword())) {
-                    httpClientBuilder.addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request authReq = chain.request().newBuilder().addHeader("Authorization", Credentials.basic(config.getUsername(), config.getPassword())).build();
-                            return chain.proceed(authReq);
-                        }
-                    });
-                } else if (config.getOauthToken() != null) {
-                    httpClientBuilder.addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request authReq = chain.request().newBuilder().addHeader("Authorization", "Bearer " + config.getOauthToken()).build();
-                            return chain.proceed(authReq);
-                        }
-                    });
-                }
-
-                Logger reqLogger = LoggerFactory.getLogger(HttpLoggingInterceptor.class);
-                if (reqLogger.isTraceEnabled()) {
-                    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-                    loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-                    httpClientBuilder.addNetworkInterceptor(loggingInterceptor);
-                }
-
-                if (config.getConnectionTimeout() > 0) {
-                    httpClientBuilder.connectTimeout(config.getConnectionTimeout(), TimeUnit.MILLISECONDS);
-                }
-
-                if (config.getRequestTimeout() > 0) {
-                    httpClientBuilder.readTimeout(config.getRequestTimeout(), TimeUnit.MILLISECONDS);
-                }
-
-                // Only check proxy if it's a full URL with protocol
-/*
-                        if (config.getMasterUrl().toLowerCase().startsWith(Config.HTTP_PROTOCOL_PREFIX) || config.getMasterUrl().startsWith(Config.HTTPS_PROTOCOL_PREFIX)) {
-                            try {
-                                URL proxyUrl = getProxyUrl(config);
-                                if (proxyUrl != null) {
-                                    httpClientBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUrl.getHost(), proxyUrl.getPort())));
-                                }
-                            } catch (MalformedURLException e) {
-                                throw new KubernetesClientException("Invalid proxy server configuration", e);
-                            }
-                        }
-*/
-
-                if (config.getUserAgent() != null && !config.getUserAgent().isEmpty()) {
-                    httpClientBuilder.addNetworkInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request agent = chain.request().newBuilder().header("User-Agent", config.getUserAgent()).build();
-                            return chain.proceed(agent);
-                        }
-                    });
-                }
-                return httpClientBuilder.build();
-            } catch (Exception e) {
-                throw KubernetesClientException.launderThrowable(e);
-            }
-        }
-    }
-    private Config createJenkinshiftConfig(String jenkinshiftUrl) {
-        Config config = new Config();
-        config.setMasterUrl(jenkinshiftUrl);
-        return config;
     }
 
     protected void doCreateTemplate(Template entity, String namespace, String sourceName) {

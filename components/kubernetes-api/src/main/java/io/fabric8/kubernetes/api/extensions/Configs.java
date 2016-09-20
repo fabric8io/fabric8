@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api.extensions;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,25 @@ public class Configs {
     public static final String KUBERNETES_CONFIG_FILE_PROPERTY = "kubernetes.config.file";
     public static final String KUBERNETES_CONFIG_FILE_ENV_VAR = "KUBECONFIG";
     private static final transient Logger LOG = LoggerFactory.getLogger(Configs.class);
+    private static final String defaultUserName = "admin";
+
+    public static String currentUserName() {
+        Config config = parseConfigs();
+        if (config != null) {
+            Context context = getCurrentContext(config);
+            if (context != null) {
+                String user = context.getUser();
+                if (user != null) {
+                    String[] parts = user.split("/");
+                    if (parts != null && parts.length > 0) {
+                        return parts[0];
+                    }
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
 
     public static Config parseConfigs() {
         File file = getKubernetesConfigFile();

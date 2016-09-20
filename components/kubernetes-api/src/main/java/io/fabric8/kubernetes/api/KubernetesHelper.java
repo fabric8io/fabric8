@@ -46,6 +46,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
@@ -57,6 +58,12 @@ import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
 import io.fabric8.utils.ssl.TrustEverythingSSLTrustManager;
+import okhttp3.Credentials;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.ARecord;
@@ -66,11 +73,13 @@ import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.tools.FileObject;
 import java.io.File;
@@ -100,7 +109,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
+import static io.fabric8.kubernetes.client.utils.Utils.isNotNullOrEmpty;
 import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.utils.Strings.isNullOrBlank;
 
@@ -2270,5 +2281,112 @@ public final class KubernetesHelper {
             return count == 0;
         }
         return false;
+    }
+
+    public static OpenShiftClient createJenkinshiftOpenShiftClient(String jenkinshiftUrl) {
+        Config config = createJenkinshiftConfig(jenkinshiftUrl);
+
+        // TODO until jenkinshift supports HTTPS lets disable HTTPS by default
+        // openShiftClient = new DefaultOpenShiftClient(jenkinshiftUrl);
+        JenkinShiftClient jenkinShiftClient = new JenkinShiftClient(config);
+        jenkinShiftClient.updateHttpClient(config);
+        return jenkinShiftClient;
+    }
+
+    private static Config createJenkinshiftConfig(String jenkinshiftUrl) {
+        Config config = new Config();
+        config.setMasterUrl(jenkinshiftUrl);
+        return config;
+    }
+
+    protected static class JenkinShiftClient extends DefaultOpenShiftClient {
+        public JenkinShiftClient(Config config) throws KubernetesClientException {
+            super(config);
+            updateHttpClient(config);
+        }
+
+        protected void updateHttpClient(Config config) {
+            this.httpClient = createHttpClient(config);
+        }
+
+        // TODO until jenkinshift supports HTTPS lets disable HTTPS by default
+        private OkHttpClient createHttpClient(final Config config) {
+            try {
+                OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+
+                // Follow any redirects
+                httpClientBuilder.followRedirects(true);
+                httpClientBuilder.followSslRedirects(true);
+
+                if (config.isTrustCerts()) {
+                    httpClientBuilder.hostnameVerifier(new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String s, SSLSession sslSession) {
+                            return true;
+                        }
+                    });
+                }
+
+                if (isNotNullOrEmpty(config.getUsername()) && isNotNullOrEmpty(config.getPassword())) {
+                    httpClientBuilder.addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request authReq = chain.request().newBuilder().addHeader("Authorization", Credentials.basic(config.getUsername(), config.getPassword())).build();
+                            return chain.proceed(authReq);
+                        }
+                    });
+                } else if (config.getOauthToken() != null) {
+                    httpClientBuilder.addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request authReq = chain.request().newBuilder().addHeader("Authorization", "Bearer " + config.getOauthToken()).build();
+                            return chain.proceed(authReq);
+                        }
+                    });
+                }
+
+                Logger reqLogger = LoggerFactory.getLogger(HttpLoggingInterceptor.class);
+                if (reqLogger.isTraceEnabled()) {
+                    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+                    loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+                    httpClientBuilder.addNetworkInterceptor(loggingInterceptor);
+                }
+
+                if (config.getConnectionTimeout() > 0) {
+                    httpClientBuilder.connectTimeout(config.getConnectionTimeout(), TimeUnit.MILLISECONDS);
+                }
+
+                if (config.getRequestTimeout() > 0) {
+                    httpClientBuilder.readTimeout(config.getRequestTimeout(), TimeUnit.MILLISECONDS);
+                }
+
+                // Only check proxy if it's a full URL with protocol
+/*
+                        if (config.getMasterUrl().toLowerCase().startsWith(Config.HTTP_PROTOCOL_PREFIX) || config.getMasterUrl().startsWith(Config.HTTPS_PROTOCOL_PREFIX)) {
+                            try {
+                                URL proxyUrl = getProxyUrl(config);
+                                if (proxyUrl != null) {
+                                    httpClientBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUrl.getHost(), proxyUrl.getPort())));
+                                }
+                            } catch (MalformedURLException e) {
+                                throw new KubernetesClientException("Invalid proxy server configuration", e);
+                            }
+                        }
+*/
+
+                if (config.getUserAgent() != null && !config.getUserAgent().isEmpty()) {
+                    httpClientBuilder.addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request agent = chain.request().newBuilder().header("User-Agent", config.getUserAgent()).build();
+                            return chain.proceed(agent);
+                        }
+                    });
+                }
+                return httpClientBuilder.build();
+            } catch (Exception e) {
+                throw KubernetesClientException.launderThrowable(e);
+            }
+        }
     }
 }
