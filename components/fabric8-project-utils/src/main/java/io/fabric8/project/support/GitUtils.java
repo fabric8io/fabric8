@@ -322,14 +322,6 @@ public class GitUtils {
         } catch (URISyntaxException e) {
             // ignore
         }
-/*
-        try {
-            URL url = new URL(gitUrl);
-            return url.getHost();
-        } catch (MalformedURLException e) {
-            // ignore
-        }
-*/
         String[] split = gitUrl.split(":");
         if (split.length > 1) {
             String prefix = split[0];
@@ -338,6 +330,24 @@ public class GitUtils {
                 return prefix.substring(idx + 1);
             } else {
                 return prefix;
+            }
+        }
+        return null;
+    }
+
+    public static String getGitProtocol(String gitUrl) {
+        try {
+            URI uri = new URI(gitUrl);
+            return uri.getScheme();
+        } catch (URISyntaxException e) {
+            // ignore
+        }
+        String[] split = gitUrl.split(":");
+        if (split.length > 1) {
+            String prefix = split[0];
+            int idx = prefix.indexOf('@');
+            if (idx >= 0) {
+                return "ssh";
             }
         }
         return null;

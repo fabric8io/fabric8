@@ -47,10 +47,23 @@ public class GitUtilsTest {
         assertHostName("foo/bar", null);
     }
 
+    @Test
+    public void testGitProtocol() throws Exception {
+        assertGitProtocol("ssh://user@server/project.git", "ssh");
+        assertGitProtocol("user@cheese:project.git", "ssh");
+        assertGitProtocol("git@github.com:fabric8-quickstarts/spring-boot-webmvc.git", "ssh");
+        assertGitProtocol("https://github.com/fabric8-quickstarts/spring-boot-webmvc.git", "https");
+        assertGitProtocol("foo/bar", null);
+    }
+
     public static void assertHostName(String gitUrl, String expectedHostName) {
         String actual = GitUtils.getGitHostName(gitUrl);
         assertThat(actual).describedAs("getGitHostName: " + gitUrl).isEqualTo(expectedHostName);
+    }
 
+    public static void assertGitProtocol(String gitUrl, String expected) {
+        String actual = GitUtils.getGitProtocol(gitUrl);
+        assertThat(actual).describedAs("getGitProtocol: " + gitUrl).isEqualTo(expected);
     }
 
 
