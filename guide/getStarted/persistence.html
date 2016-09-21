@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3" data-basepath=".." data-revision="Tue Sep 20 2016 20:36:58 GMT+0000 (UTC)">
+    <div class="book" data-level="2.3" data-basepath=".." data-revision="Wed Sep 21 2016 07:37:05 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1746,7 +1746,7 @@
 <p>So when you deploy fabric8 via <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> by default this will create a number (5-6) of <code>PersistentVolumeClaim</code> resources.</p>
 <p>If you are using <a href="https://github.com/jimmidyson/minikube" target="_blank">minikube</a> or <a href="https://github.com/jimmidyson/minishift" target="_blank">minishift</a> then <code>gofabric8</code> automatically spins up the equivalent <code>PersistentVolume</code> resources for you using <code>HostPath</code> based PersistentVolumes - so things should just work!</p>
 <p>However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azuer, or NFS/Gluster/Ceph when on premise etc).</p>
-<p>We hope to take advantage of kubernetes 1.4 dynamic <code>PersistentVolume</code> provisioning to automatically spin these up to simplify installation. </p>
+<p>We hope to take advantage of kubernetes 1.4 dynamic <code>PersistentVolume</code> provisioning to automatically spin these up to simplify installation.</p>
 <h3 id="viewing-the-pv-and-pvcs"><a name="viewing-the-pv-and-pvcs" class="plugin-anchor" href="#viewing-the-pv-and-pvcs"><span class="fa fa-link"></span></a>Viewing the PV and PVCs</h3>
 <p>To see the current <code>PersistentVolumeClaim</code> and <code>PersistentVolume</code> resources use the following commands</p>
 <pre><code>kubectl get pvc
@@ -1754,8 +1754,8 @@ kubectl get pv
 </code></pre><p>When things are working correctly you should see all the <code>PersistentVolumeClaim</code> resources bound to some <code>PersistentVolume</code> resource. When thats true then all the various persistent apps in fabric8 will startup.</p>
 <h3 id="disabling-persistence"><a name="disabling-persistence" class="plugin-anchor" href="#disabling-persistence"><span class="fa fa-link"></span></a>Disabling persistence</h3>
 <p>If you want to try out fabric8 without setting up all the <code>PersistentVolume</code> instances for your cluster you can just disable persistence</p>
-<p>To disable persistence just add the <code>--no-pvc</code> command argument when using <code>gofabric8 deploy</code></p>
-<pre><code>gofabric8 deploy -y --no-pvc
+<p>To disable persistence just add the <code>--pv=false</code> command argument when using <code>gofabric8 deploy</code></p>
+<pre><code>gofabric8 deploy -y --pv=false
 </code></pre><p>Then all <code>PersistentVolumeClaim</code> volumes will be converted to <code>EmptyDir</code> volumes instead to avoid needing any <code>PersistentVolume</code> resources to be created.</p>
 <h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
 <p>If you hit any issues with this please <a href="https://github.com/fabric8io/gofabric8/issues" target="_blank">create up an issue</a> immediately and we&apos;ll do our best to get you going.</p>
