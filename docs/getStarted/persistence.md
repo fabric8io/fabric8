@@ -8,7 +8,7 @@ If you are using [minikube](https://github.com/jimmidyson/minikube) or [minishif
 
 However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azuer, or NFS/Gluster/Ceph when on premise etc).
 
-We hope to take advantage of kubernetes 1.4 dynamic `PersistentVolume` provisioning to automatically spin these up to simplify installation. 
+We hope to take advantage of kubernetes 1.4 dynamic `PersistentVolume` provisioning to automatically spin these up to simplify installation.
 
 ### Viewing the PV and PVCs
 
@@ -23,9 +23,9 @@ When things are working correctly you should see all the `PersistentVolumeClaim`
 
 If you want to try out fabric8 without setting up all the `PersistentVolume` instances for your cluster you can just disable persistence
 
-To disable persistence just add the `--no-pvc` command argument when using `gofabric8 deploy`
+To disable persistence just add the `--pv=false` command argument when using `gofabric8 deploy`
 
-    gofabric8 deploy -y --no-pvc
+    gofabric8 deploy -y --pv=false
 
 Then all `PersistentVolumeClaim` volumes will be converted to `EmptyDir` volumes instead to avoid needing any `PersistentVolume` resources to be created.
 
