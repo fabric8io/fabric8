@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Fri Sep 23 2016 06:45:59 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Sat Sep 24 2016 06:51:36 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1745,21 +1745,346 @@
 <p>Fabric8 provides support for Apache Karaf which is meant to make developing OSGi apps for Kubernetes easier.</p>
 <p>Using Fabric8 it is possible to:</p>
 <ul>
-<li>Use environment variable values in Blueprint XML files.</li>
+<li>Use a number of strategies to resolve placeholders in Blueprint XML files, like:<ul>
+<li>Environment variables</li>
+<li>System properties</li>
+<li>Services</li>
+<li>Kubernetes ConfigMap</li>
+<li>Kubernetes Secrets</li>
+</ul>
+</li>
 <li>Use Kubernetes config maps to dynamically update the OSGi config admin</li>
 <li>Provides sensible Kubernetes heath checks for OSGi services</li>
 </ul>
 <h3 id="adding-the-features-file"><a name="adding-the-features-file" class="plugin-anchor" href="#adding-the-features-file"><span class="fa fa-link"></span></a>Adding the Features File</h3>
 <p>To use any of the features described in document you should add the <code>fabric8-karaf-features</code> dependency to your project pom so that it&apos;s feature can be installed into your Karaf server.</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;fabric8-karaf-features&lt;/artifactId&gt;
-  &lt;version&gt;${fabric8.version}&lt;/version&gt;
-  &lt;classifier&gt;features&lt;/classifier&gt;
-  &lt;type&gt;xml&lt;/type&gt;
-&lt;/dependency&gt;
-</code></pre><h3 id="fabric8-blueprint-support"><a name="fabric8-blueprint-support" class="plugin-anchor" href="#fabric8-blueprint-support"><span class="fa fa-link"></span></a>Fabric8 Blueprint Support</h3>
-<h3 id="fabric8-config-admin-support"><a name="fabric8-config-admin-support" class="plugin-anchor" href="#fabric8-config-admin-support"><span class="fa fa-link"></span></a>Fabric8 Config Admin Support</h3>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">dependency</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">groupId</span>&gt;</span>io.fabric8<span class="hljs-tag">&lt;/<span class="hljs-title">groupId</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">artifactId</span>&gt;</span>fabric8-karaf-features<span class="hljs-tag">&lt;/<span class="hljs-title">artifactId</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">version</span>&gt;</span>${fabric8.version}<span class="hljs-tag">&lt;/<span class="hljs-title">version</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">classifier</span>&gt;</span>features<span class="hljs-tag">&lt;/<span class="hljs-title">classifier</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">type</span>&gt;</span>xml<span class="hljs-tag">&lt;/<span class="hljs-title">type</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">dependency</span>&gt;</span>
+</code></pre>
+<h3 id="fabric8-karaf-core"><a name="fabric8-karaf-core" class="plugin-anchor" href="#fabric8-karaf-core"><span class="fa fa-link"></span></a>Fabric8 Karaf Core</h3>
+<p>The bundle fabric8-karaf-core provides functionalities used by Blueprint and Config Admin extensions.</p>
+<p>To include the feature in your custom Karaf distribution, add it to startupFeatures in your project&apos;s pom.xml:</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">startupFeatures</span>&gt;</span>
+  ...
+  <span class="hljs-tag">&lt;<span class="hljs-title">feature</span>&gt;</span>fabric8-karaf-core<span class="hljs-tag">&lt;/<span class="hljs-title">feature</span>&gt;</span>
+  ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">startupFeatures</span>&gt;</span>
+</code></pre>
+<h4 id="property-placeholders-resolvers"><a name="property-placeholders-resolvers" class="plugin-anchor" href="#property-placeholders-resolvers"><span class="fa fa-link"></span></a>Property placeholders resolvers</h4>
+<p>fabric8-karaf-core provides the following strategies to resolve placeholders:</p>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>env</td>
+<td>env:JAVA_HOME</td>
+<td>to lookup the property from OS environment variables.</td>
+</tr>
+<tr>
+<td>sys</td>
+<td>sys:java.version</td>
+<td>to lookup the property from Java JVM system properties.</td>
+</tr>
+<tr>
+<td>service</td>
+<td>service:amq</td>
+<td>to lookup the property from OS environment variables using the service naming idiom.</td>
+</tr>
+<tr>
+<td>service.host</td>
+<td>service.host:amq</td>
+<td>to lookup the property from OS environment variables using the service naming idiom returning the hostname part only.</td>
+</tr>
+<tr>
+<td>service.port</td>
+<td>service.port:amq</td>
+<td>to lookup the property from OS environment variables using the service naming idiom returning the port part only.</td>
+</tr>
+<tr>
+<td>k8s:map</td>
+<td>k8s:map:myMap/myKey</td>
+<td>to lookup the property from a Kubernetes ConfigMap</td>
+</tr>
+<tr>
+<td>k8s:secret</td>
+<td>k8s:secrets:amq/password</td>
+<td>to lookup the property from a Kubernetes Secrets</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p>The property placeholder service supports the following options:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fabric8.placeholder.prefix</td>
+<td>$[</td>
+<td>The prefix for the placeholder</td>
+</tr>
+<tr>
+<td>fabric8.placeholder.suffix</td>
+<td>]</td>
+<td>The suffix for the placeholder</td>
+</tr>
+</tbody>
+</table>
+<p>Note:</p>
+<ul>
+<li>Options can be set via system properties and/or environment variables</li>
+</ul>
+<p><br>  </p>
+<p>The bundle exports the following service:</p>
+<pre><code class="lang-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">PlaceholderResolver</span> </span>{
+    <span class="hljs-javadoc">/**
+     * Resolve a placeholder using the strategy indicated by the prefix
+     *
+     *<span class="hljs-javadoctag"> @param</span> value the placeholder to resolve
+     *<span class="hljs-javadoctag"> @return</span> the resolved value or null if not resolved
+     */</span>
+    <span class="hljs-function">String <span class="hljs-title">resolve</span><span class="hljs-params">(String value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables with their matching values from the resolver using the given source string as a template.
+     *
+     *<span class="hljs-javadoctag"> @param</span> source the string to replace in
+     *<span class="hljs-javadoctag"> @return</span> the result of the replace operation
+     */</span>
+    <span class="hljs-function">String <span class="hljs-title">replace</span><span class="hljs-params">(String value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given source builder with their matching values from the resolver.
+     *
+     *<span class="hljs-javadoctag"> @param</span> value the builder to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceIn</span><span class="hljs-params">(StringBuilder value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Dictionary&lt;String, Object&gt; dictionary)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Map&lt;String, Object&gt; dictionary)</span></span>;
+}
+</code></pre>
+<p><br></p>
+<h4 id="add-a-custom-property-placeholders-resolvers"><a name="add-a-custom-property-placeholders-resolvers" class="plugin-anchor" href="#add-a-custom-property-placeholders-resolvers"><span class="fa fa-link"></span></a>Add a custom property placeholders resolvers</h4>
+<p>Your project will need to add the following mvn dependency to the project pom.xml:</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">dependency</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">groupId</span>&gt;</span>io.fabric8<span class="hljs-tag">&lt;/<span class="hljs-title">groupId</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">artifactId</span>&gt;</span>fabric8-karaf-core<span class="hljs-tag">&lt;/<span class="hljs-title">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">dependency</span>&gt;</span>
+</code></pre>
+<p>The easiest way to create and registered an object in the OSGi registry is to use SCR.</p>
+<pre><code class="lang-java"><span class="hljs-keyword">import</span> io.fabric8.karaf.core.properties.function.PropertiesFunction;
+<span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.Component;
+<span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.ConfigurationPolicy;
+<span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.Service;
+
+<span class="hljs-annotation">@Component</span>(
+    immediate = <span class="hljs-keyword">true</span>,
+    policy = ConfigurationPolicy.IGNORE,
+    createPid = <span class="hljs-keyword">false</span>
+)
+<span class="hljs-annotation">@Service</span>(PropertiesFunction.class)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyPropertiesFunction</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">PropertiesFunction</span> </span>{
+    <span class="hljs-annotation">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;myResolver&quot;</span>;
+    }
+
+    <span class="hljs-annotation">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">apply</span><span class="hljs-params">(String remainder)</span> </span>{
+        <span class="hljs-comment">// Parse and resolve remainder        </span>
+        <span class="hljs-keyword">return</span> remainder;
+    }
+}
+</code></pre>
+<h3 id="fabric8-karaf-config-admin-support"><a name="fabric8-karaf-config-admin-support" class="plugin-anchor" href="#fabric8-karaf-config-admin-support"><span class="fa fa-link"></span></a>Fabric8 Karaf Config Admin Support</h3>
+<p>To include the feature in your custom Karaf distribution, add it to startupFeatures in your project&apos;s pom.xml:</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">startupFeatures</span>&gt;</span>
+  ...
+  <span class="hljs-tag">&lt;<span class="hljs-title">feature</span>&gt;</span>fabric8-karaf-cm<span class="hljs-tag">&lt;/<span class="hljs-title">feature</span>&gt;</span>
+  ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">startupFeatures</span>&gt;</span>
+</code></pre>
+<h4 id="configmap-injection"><a name="configmap-injection" class="plugin-anchor" href="#configmap-injection"><span class="fa fa-link"></span></a>ConfigMap injection</h4>
+<p>fabric8-karaf-cm provides a ConfigAdmin bridge that inject ConfigMap values in Karaf&apos;s ConfigAdmin.</p>
+<p>To be taken into account by the ConfigAdmin bridge, a ConfigMap has to be labeled with &quot;karaf.pid&quot;, where its values corresponds to the pid of your component:</p>
+<pre><code class="lang-yaml">kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: myconfig
+  namespace: default
+  labels:
+    karaf.pid: com.mycompany.bundle
+data:
+  example.property.1: my property one
+  example.property.2: my property two
+</code></pre>
+<p>Individual properties work fine for most cases but sometimes you may want more freedom to define your configuration sou you can use a single property names as it would be your pid file in karaf/etc:</p>
+<pre><code class="lang-yaml">kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: myconfig
+  namespace: default
+  labels:
+    karaf.pid: com.mycompany.bundle
+data:
+  com.mycompany.bundle.cfg: |
+    example.property.1: my property one
+    example.property.2: my property two
+</code></pre>
+<p><br></p>
+<h4 id="configuration-plugin"><a name="configuration-plugin" class="plugin-anchor" href="#configuration-plugin"><span class="fa fa-link"></span></a>Configuration plugin</h4>
+<p>fabric8-karaf-cm provides a ConfigurationPlugin which resolves configuration&apos;s property placeholders before they reach your service so you do not need any special configuration to resolve placeholders in Blueprint XML or in any Managed Service.</p>
+<p>Example:</p>
+<ul>
+<li><p>my.service.cfg</p>
+<pre><code class="lang-properties">  amq.usr = $[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/username]
+  amq.pwd = $[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/password]
+  amq.url = tcp://$[env+service:ACTIVEMQ_SERVICE_NAME]
+</code></pre>
+</li>
+<li><p>my-service.xml</p>
+<pre><code class="lang-xml">  <span class="hljs-pi">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-title">blueprint</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;http://www.osgi.org/xmlns/blueprint/v1.0.0&quot;</span>
+             <span class="hljs-attribute">xmlns:xsi</span>=<span class="hljs-value">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+             <span class="hljs-attribute">xmlns:cm</span>=<span class="hljs-value">&quot;http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0&quot;</span>
+             <span class="hljs-attribute">xsi:schemaLocation</span>=<span class="hljs-value">&quot;
+               http://www.osgi.org/xmlns/blueprint/v1.0.0
+               https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+               http://camel.apache.org/schema/blueprint
+               http://camel.apache.org/schema/blueprint/camel-blueprint.xsd&quot;</span>&gt;</span>
+
+     <span class="hljs-tag">&lt;<span class="hljs-title">cm:property-placeholder</span> <span class="hljs-attribute">persistent-id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">update-strategy</span>=<span class="hljs-value">&quot;reload&quot;</span>/&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">bean</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;activemq&quot;</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;org.apache.activemq.camel.component.ActiveMQComponent&quot;</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;userName&quot;</span>  <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;${amq.usr}&quot;</span>/&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;password&quot;</span>  <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;${amq.pwd}&quot;</span>/&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;brokerURL&quot;</span> <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;${amq.url}&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">bean</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">blueprint</span>&gt;</span>
+</code></pre>
+</li>
+</ul>
+<p><br></p>
+<p>Fabric8 Karaf Config Admin supports the following options:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fabric8.config.plugin.enabled</td>
+<td>false</td>
+<td>Enable ConfigurationPlugin</td>
+</tr>
+<tr>
+<td>fabric8.cm.bridge.enabled</td>
+<td>true</td>
+<td>Enable ConfigAdmin bridge</td>
+</tr>
+<tr>
+<td>fabric8.config.watch</td>
+<td>true</td>
+<td>Enable watching for ConfigMap changes</td>
+</tr>
+<tr>
+<td>fabric8.config.merge</td>
+<td>false</td>
+<td>Enable merge ConfigMap values in ConfigAdmin</td>
+</tr>
+<tr>
+<td>fabric8.config.meta</td>
+<td>true</td>
+<td>Enable injecting ConfigMap meta in ConfigAdmin bridge</td>
+</tr>
+<tr>
+<td>fabric8.pid.label</td>
+<td>karaf.pid</td>
+<td>Define the label the ConfigAdmin bridge looks for</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ul>
+<li>Otions can be set via system properties and/or environment variables</li>
+<li>ConfigurationPlugin requires Aries Bleuprint CM 1.0.9 or above</li>
+<li><p>To use ConfigMap as source of properties on OpenShift, the OSE service account needs to have at least view role added.</p>
+<pre><code>oc policy add-role-to-user view system:serviceaccount:&lt;namespace&gt;:default
+</code></pre></li>
+</ul>
+<p><br></p>
+<h3 id="fabric8-karaf-blueprint-support"><a name="fabric8-karaf-blueprint-support" class="plugin-anchor" href="#fabric8-karaf-blueprint-support"><span class="fa fa-link"></span></a>Fabric8 Karaf Blueprint Support</h3>
+<p>fabric8-karaf-blueprint leverages <a href="https://github.com/apache/aries/blob/trunk/blueprint/blueprint-core/src/main/java/org/apache/aries/blueprint/ext/evaluator/PropertyEvaluator.java" target="_blank">Aries PropertyEvaluator</a> and property placeholders resolvers from fabric8-karaf-core to let you resolve placeholders in your Blueprint XML file.</p>
+<p>To include the feature in your custom Karaf distribution, add it to startupFeatures in your project&apos;s pom.xml:</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">startupFeatures</span>&gt;</span>
+  ...
+  <span class="hljs-tag">&lt;<span class="hljs-title">feature</span>&gt;</span>fabric8-karaf-blueprint<span class="hljs-tag">&lt;/<span class="hljs-title">feature</span>&gt;</span>
+  ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">startupFeatures</span>&gt;</span>
+</code></pre>
+<p>The fabric8 evaluator supports chained evaluators i.e ${env+service:MY_ENV_VAR} where the first step is to resolve MY_ENV_VAR against environment variables then the result is resolved using service function.</p>
+<p>Example:</p>
+<pre><code class="lang-xml"><span class="hljs-pi">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">blueprint</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;http://www.osgi.org/xmlns/blueprint/v1.0.0&quot;</span>
+           <span class="hljs-attribute">xmlns:xsi</span>=<span class="hljs-value">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+           <span class="hljs-attribute">xmlns:ext</span>=<span class="hljs-value">&quot;http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0&quot;</span>
+           <span class="hljs-attribute">xsi:schemaLocation</span>=<span class="hljs-value">&quot;
+             http://www.osgi.org/xmlns/blueprint/v1.0.0
+             https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint
+             http://camel.apache.org/schema/blueprint/camel-blueprint.xsd
+             http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.3.0
+             http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.3.xsd&quot;</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-title">ext:property-placeholder</span> <span class="hljs-attribute">evaluator</span>=<span class="hljs-value">&quot;fabric8&quot;</span> <span class="hljs-attribute">placeholder-prefix</span>=<span class="hljs-value">&quot;$[&quot;</span> <span class="hljs-attribute">placeholder-suffix</span>=<span class="hljs-value">&quot;]&quot;</span>/&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-title">bean</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;activemq&quot;</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;org.apache.activemq.camel.component.ActiveMQComponent&quot;</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;userName&quot;</span>  <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;$[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/username]&quot;</span>/&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;password&quot;</span>  <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;$[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/password]&quot;</span>/&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;brokerURL&quot;</span> <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;tcp://$[env+service:ACTIVEMQ_SERVICE_NAME]&quot;</span>/&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">bean</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">blueprint</span>&gt;</span>
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li>Nested property placeholder substitution requires Aries Blueprint Core 1.7.0 or above</li>
+</ul>
 <h3 id="fabric8-karaf-health-checks"><a name="fabric8-karaf-health-checks" class="plugin-anchor" href="#fabric8-karaf-health-checks"><span class="fa fa-link"></span></a>Fabric8 Karaf Health Checks</h3>
 <p>It is recommended you always install the <code>fabric8-karaf-checks</code> as a startup feature. With it enabled, your Karaf server will expose
 <code>http://0.0.0.0:8181/readiness-check</code> and <code>http://0.0.0.0:8181/health-check</code> URLs which can be used by Kubernetes for readiness and liveness probes.  Those URLs will only respond with a HTTP 200 status code when the following is true:</p>
@@ -1773,50 +2098,53 @@
 <li>All created Camel contexts are in the started state.</li>
 </ul>
 <p>Adding the feature to your project&apos;s pom.xml:</p>
-<pre><code>      &lt;startupFeatures&gt;
-        ...
-        &lt;feature&gt;fabric8-karaf-checks&lt;/feature&gt;
-        ...
-      &lt;/startupFeatures&gt;
-</code></pre><p>The <code>fabric8-maven-plugin:resources</code> goal will detect if your using the <code>fabric8-karaf-checks</code> feature and automatically add the Kubernetes for readiness and liveness probes to your container&apos;s configuration.</p>
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">startupFeatures</span>&gt;</span>
+  ...
+  <span class="hljs-tag">&lt;<span class="hljs-title">feature</span>&gt;</span>fabric8-karaf-checks<span class="hljs-tag">&lt;/<span class="hljs-title">feature</span>&gt;</span>
+  ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">startupFeatures</span>&gt;</span>
+</code></pre>
+<p>The <code>fabric8-maven-plugin:resources</code> goal will detect if your using the <code>fabric8-karaf-checks</code> feature and automatically add the Kubernetes for readiness and liveness probes to your container&apos;s configuration.</p>
 <h4 id="add-custom-heath-checks"><a name="add-custom-heath-checks" class="plugin-anchor" href="#add-custom-heath-checks"><span class="fa fa-link"></span></a>Add Custom Heath Checks</h4>
 <p>You may want to provide additional custom heath checks so that your Karaf server does not start receiving user traffic before it&apos;s ready to process the requests.  To do this, you just need to implement the <code>io.fabric8.karaf.checks.HealthChecker</code> or <code>io.fabric8.karaf.checks.ReadinessChecker</code> interfaces and register those objects in the OSGi registry.</p>
 <p>Your project will need to add the following mvn dependency to the project pom.xml:</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;fabric8-karaf-checks&lt;/artifactId&gt;
-&lt;/dependency&gt;
-</code></pre><p>The easiest way to create and registered an object in the OSGi registry is to use SCR.  Here is an example that performs a health check to make sure you have some free disk space:</p>
-<pre><code>import io.fabric8.karaf.checks.*;
-import org.apache.felix.scr.annotations.*;
-import org.apache.commons.io.FileSystemUtils;
-import java.util.Collections;
-import java.util.List;
+<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">dependency</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">groupId</span>&gt;</span>io.fabric8<span class="hljs-tag">&lt;/<span class="hljs-title">groupId</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">artifactId</span>&gt;</span>fabric8-karaf-checks<span class="hljs-tag">&lt;/<span class="hljs-title">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">dependency</span>&gt;</span>
+</code></pre>
+<p>The easiest way to create and registered an object in the OSGi registry is to use SCR.  Here is an example that performs a health check to make sure you have some free disk space:</p>
+<pre><code class="lang-java"><span class="hljs-keyword">import</span> io.fabric8.karaf.checks.*;
+<span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.*;
+<span class="hljs-keyword">import</span> org.apache.commons.io.FileSystemUtils;
+<span class="hljs-keyword">import</span> java.util.Collections;
+<span class="hljs-keyword">import</span> java.util.List;
 
-@Component(
-    name = &quot;example.TimeChecker&quot;,
-    immediate = true,
-    enabled = true,
+<span class="hljs-annotation">@Component</span>(
+    name = <span class="hljs-string">&quot;example.DiskChecker&quot;</span>,
+    immediate = <span class="hljs-keyword">true</span>,
+    enabled = <span class="hljs-keyword">true</span>,
     policy = ConfigurationPolicy.IGNORE,
-    createPid = false
+    createPid = <span class="hljs-keyword">false</span>
 )
-@Service({HealthChecker.class, ReadinessChecker.class})
-public class DiskChecker implements HealthChecker, ReadinessChecker {
+<span class="hljs-annotation">@Service</span>({HealthChecker.class, ReadinessChecker.class})
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DiskChecker</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">HealthChecker</span>, <span class="hljs-title">ReadinessChecker</span> </span>{
 
-    public List&lt;Check&gt; getFailingReadinessChecks() {
-        // lets just use the same checks for both readiness and health
-        return getFailingHeathChecks();
+    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Check&gt; <span class="hljs-title">getFailingReadinessChecks</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-comment">// lets just use the same checks for both readiness and health</span>
+        <span class="hljs-keyword">return</span> getFailingHeathChecks();
     }
 
-    public List&lt;Check&gt; getFailingHeathChecks() {
-        long free = FileSystemUtils.freeSpaceKb(&quot;/&quot;);
-        if (free &lt; 1024 * 500) {
-            return Collections.singletonList(new Check(&quot;disk-space-low&quot;, &quot;Only &quot; + free + &quot;kb of disk space left.&quot;));
+    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Check&gt; <span class="hljs-title">getFailingHeathChecks</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">long</span> free = FileSystemUtils.freeSpaceKb(<span class="hljs-string">&quot;/&quot;</span>);
+        <span class="hljs-keyword">if</span> (free &lt; <span class="hljs-number">1024</span> * <span class="hljs-number">500</span>) {
+            <span class="hljs-keyword">return</span> Collections.singletonList(<span class="hljs-keyword">new</span> Check(<span class="hljs-string">&quot;disk-space-low&quot;</span>, <span class="hljs-string">&quot;Only &quot;</span> + free + <span class="hljs-string">&quot;kb of disk space left.&quot;</span>));
         }
-        return Collections.emptyList();
+        <span class="hljs-keyword">return</span> Collections.emptyList();
     }
 }
 </code></pre>
+
                     
                     </section>
                 
