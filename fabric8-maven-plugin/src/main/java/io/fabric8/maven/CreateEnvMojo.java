@@ -40,6 +40,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteListBuilder;
 import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.api.model.RouteTargetReference;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
@@ -520,7 +521,7 @@ public class CreateEnvMojo extends AbstractFabric8Mojo {
         for (Route route : routeList.getItems()) {
             RouteSpec spec = route.getSpec();
             if (spec != null) {
-                ObjectReference to = spec.getTo();
+                RouteTargetReference to = spec.getTo();
                 if (to != null) {
                     String name = to.getName();
                     if (serviceId.equals(name)) {
