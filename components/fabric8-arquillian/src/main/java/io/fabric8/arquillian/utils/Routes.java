@@ -22,6 +22,8 @@ import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteSpec;
+import io.fabric8.openshift.api.model.RouteTargetReference;
+import io.fabric8.openshift.api.model.RouteTargetReferenceBuilder;
 import io.fabric8.utils.Strings;
 
 import java.util.Set;
@@ -38,9 +40,8 @@ public class Routes {
             String routeId = id;
             KubernetesHelper.setName(route, namespace, routeId);
             RouteSpec routeSpec = new RouteSpec();
-            ObjectReference objectRef = new ObjectReference();
-            objectRef.setName(id);
-            objectRef.setNamespace(namespace);
+            RouteTargetReference objectRef = new RouteTargetReferenceBuilder().withName(id).build();
+            //objectRef.setNamespace(namespace);
             routeSpec.setTo(objectRef);
             String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
             routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
