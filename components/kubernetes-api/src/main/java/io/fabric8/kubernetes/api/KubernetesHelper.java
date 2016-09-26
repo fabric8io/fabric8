@@ -216,6 +216,14 @@ public final class KubernetesHelper {
         }
     }
 
+    public static String getQualifiedName(HasMetadata entity) {
+        if (entity != null) {
+            return "" + getNamespace(entity) + "/" + getName(entity);
+        } else {
+            return null;
+        }
+    }
+
     public static String getName(HasMetadata entity) {
         if (entity != null) {
             return getName(entity.getMetadata());
