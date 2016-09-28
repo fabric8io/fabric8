@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Sep 28 2016 12:25:52 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Sep 28 2016 15:31:55 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1806,7 +1806,50 @@
 <span class="hljs-tag">&lt;/<span class="hljs-title">startupFeatures</span>&gt;</span>
 </code></pre>
 <h4 id="property-placeholders-resolvers"><a name="property-placeholders-resolvers" class="plugin-anchor" href="#property-placeholders-resolvers"><span class="fa fa-link"></span></a>Property placeholders resolvers</h4>
-<p>fabric8-karaf-core provides the following strategies to resolve placeholders:</p>
+<p>fabric8-karaf-core exports a service with the following interface:</p>
+<pre><code class="lang-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">PlaceholderResolver</span> </span>{
+    <span class="hljs-javadoc">/**
+     * Resolve a placeholder using the strategy indicated by the prefix
+     *
+     *<span class="hljs-javadoctag"> @param</span> value the placeholder to resolve
+     *<span class="hljs-javadoctag"> @return</span> the resolved value or null if not resolved
+     */</span>
+    <span class="hljs-function">String <span class="hljs-title">resolve</span><span class="hljs-params">(String value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables with their matching values from the resolver using the given source string as a template.
+     *
+     *<span class="hljs-javadoctag"> @param</span> source the string to replace in
+     *<span class="hljs-javadoctag"> @return</span> the result of the replace operation
+     */</span>
+    <span class="hljs-function">String <span class="hljs-title">replace</span><span class="hljs-params">(String value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given source builder with their matching values from the resolver.
+     *
+     *<span class="hljs-javadoctag"> @param</span> value the builder to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceIn</span><span class="hljs-params">(StringBuilder value)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Dictionary&lt;String, Object&gt; dictionary)</span></span>;
+
+    <span class="hljs-javadoc">/**
+     * Replaces all the occurrences of variables within the given dictionary
+     *
+     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
+     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Map&lt;String, Object&gt; dictionary)</span></span>;
+}
+</code></pre>
+<p>The PlaceholderResolver service acts as a collector for different property placeholder resolution strategies and by default it provides:</p>
 <table>
 <thead>
 <tr>
@@ -1881,58 +1924,15 @@
 <li>Options can be set via system properties and/or environment variables</li>
 </ul>
 <p><br>  </p>
-<p>The bundle exports the following service:</p>
-<pre><code class="lang-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">PlaceholderResolver</span> </span>{
-    <span class="hljs-javadoc">/**
-     * Resolve a placeholder using the strategy indicated by the prefix
-     *
-     *<span class="hljs-javadoctag"> @param</span> value the placeholder to resolve
-     *<span class="hljs-javadoctag"> @return</span> the resolved value or null if not resolved
-     */</span>
-    <span class="hljs-function">String <span class="hljs-title">resolve</span><span class="hljs-params">(String value)</span></span>;
-
-    <span class="hljs-javadoc">/**
-     * Replaces all the occurrences of variables with their matching values from the resolver using the given source string as a template.
-     *
-     *<span class="hljs-javadoctag"> @param</span> source the string to replace in
-     *<span class="hljs-javadoctag"> @return</span> the result of the replace operation
-     */</span>
-    <span class="hljs-function">String <span class="hljs-title">replace</span><span class="hljs-params">(String value)</span></span>;
-
-    <span class="hljs-javadoc">/**
-     * Replaces all the occurrences of variables within the given source builder with their matching values from the resolver.
-     *
-     *<span class="hljs-javadoctag"> @param</span> value the builder to replace in
-     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
-     */</span>
-    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceIn</span><span class="hljs-params">(StringBuilder value)</span></span>;
-
-    <span class="hljs-javadoc">/**
-     * Replaces all the occurrences of variables within the given dictionary
-     *
-     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
-     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
-     */</span>
-    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Dictionary&lt;String, Object&gt; dictionary)</span></span>;
-
-    <span class="hljs-javadoc">/**
-     * Replaces all the occurrences of variables within the given dictionary
-     *
-     *<span class="hljs-javadoctag"> @param</span> dictionary the dictionary to replace in
-     *<span class="hljs-javadoctag"> @rerurn</span> true if altered
-     */</span>
-    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replaceAll</span><span class="hljs-params">(Map&lt;String, Object&gt; dictionary)</span></span>;
-}
-</code></pre>
-<p><br></p>
 <h4 id="add-a-custom-property-placeholders-resolvers"><a name="add-a-custom-property-placeholders-resolvers" class="plugin-anchor" href="#add-a-custom-property-placeholders-resolvers"><span class="fa fa-link"></span></a>Add a custom property placeholders resolvers</h4>
-<p>Your project will need to add the following mvn dependency to the project pom.xml:</p>
+<p>You may need to add a custom placeholder resolver to support a specific need (i.e. custom encryption) and you can leverage PlaceholderResolver service to make such resolver available to Blueprint and ConfigAdmin with a single implementation.
+To do so, you will need to add the following mvn dependency to the project pom.xml:</p>
 <pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">dependency</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">groupId</span>&gt;</span>io.fabric8<span class="hljs-tag">&lt;/<span class="hljs-title">groupId</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">artifactId</span>&gt;</span>fabric8-karaf-core<span class="hljs-tag">&lt;/<span class="hljs-title">artifactId</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-title">dependency</span>&gt;</span>
 </code></pre>
-<p>The easiest way to create and registered an object in the OSGi registry is to use SCR.</p>
+<p>You then need to implement the <a href="https://github.com/fabric8io/fabric8/blob/master/components/fabric8-karaf/fabric8-karaf-core/src/main/java/io/fabric8/karaf/core/properties/function/PropertiesFunction.java" target="_blank">PropertiesFunction</a> interface and register it as OSGi service (the easiest way is to use SCR).</p>
 <pre><code class="lang-java"><span class="hljs-keyword">import</span> io.fabric8.karaf.core.properties.function.PropertiesFunction;
 <span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.Component;
 <span class="hljs-keyword">import</span> org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -1957,6 +1957,13 @@
     }
 }
 </code></pre>
+<p>You can then reference your resolver in CM like:</p>
+<pre><code class="lang-properties">my.property = $[myResolver:value-to-resolve]
+</code></pre>
+<p>Note:</p>
+<ul>
+<li>Details about Blueprint/CM integration will be shown in the following sections</li>
+</ul>
 <h3 id="fabric8-karaf-config-admin-support"><a name="fabric8-karaf-config-admin-support" class="plugin-anchor" href="#fabric8-karaf-config-admin-support"><span class="fa fa-link"></span></a>Fabric8 Karaf Config Admin Support</h3>
 <p>To include the feature in your custom Karaf distribution, add it to startupFeatures in your project&apos;s pom.xml:</p>
 <pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">startupFeatures</span>&gt;</span>
@@ -2015,7 +2022,7 @@ data:
                http://camel.apache.org/schema/blueprint
                http://camel.apache.org/schema/blueprint/camel-blueprint.xsd&quot;</span>&gt;</span>
 
-     <span class="hljs-tag">&lt;<span class="hljs-title">cm:property-placeholder</span> <span class="hljs-attribute">persistent-id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">update-strategy</span>=<span class="hljs-value">&quot;reload&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">cm:property-placeholder</span> <span class="hljs-attribute">persistent-id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;my.service&quot;</span> <span class="hljs-attribute">update-strategy</span>=<span class="hljs-value">&quot;reload&quot;</span>/&gt;</span>
 
     <span class="hljs-tag">&lt;<span class="hljs-title">bean</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">&quot;activemq&quot;</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;org.apache.activemq.camel.component.ActiveMQComponent&quot;</span>&gt;</span>
        <span class="hljs-tag">&lt;<span class="hljs-title">property</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;userName&quot;</span>  <span class="hljs-attribute">value</span>=<span class="hljs-value">&quot;${amq.usr}&quot;</span>/&gt;</span>
