@@ -6,4 +6,4 @@ For example Team A may not be able to change Team B's microservices and vice ver
 
 In Kubernetes if a team wishes to consume services from other teams, it creates a [Kubernetes Service](service.html) for each required microservice - but without selectors. Then Endpoints can be created to implement the Service by pointing to services implemented by other teams.
 
-There is work going on with the [Service Catalog]() to improve the usability and human workflow of the service linking.
+There is work going on with the [Service Catalog](https://github.com/kubernetes-incubator/service-catalog) to improve the usability and human workflow of the service linking.
