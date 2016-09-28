@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>fabric8:migrate | Fabric8 Documentation</title>
+        <title>Terminology | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./mavenDockerBuild.html" />
+    <link rel="next" href="./pods.html" />
     
     
-    <link rel="prev" href="./mavenPlugin2x.html" />
+    <link rel="prev" href="./architecture.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.1" data-basepath="." data-revision="Wed Sep 28 2016 10:07:43 GMT+0000 (UTC)">
+    <div class="book" data-level="10.1" data-basepath="." data-revision="Wed Sep 28 2016 10:07:43 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1117,7 +1117,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="8.2.1.1" data-path="mavenFabric8Migrate.html">
+        <li class="chapter " data-level="8.2.1.1" data-path="mavenFabric8Migrate.html">
             
                 
                     <a href="./mavenFabric8Migrate.html">
@@ -1415,7 +1415,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="10.1" data-path="terminology.html">
+        <li class="chapter active" data-level="10.1" data-path="terminology.html">
             
                 
                     <a href="./terminology.html">
@@ -1771,39 +1771,23 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-migrate"><a name="fabric8-migrate" class="plugin-anchor" href="#fabric8-migrate"><span class="fa fa-link"></span></a>fabric8:migrate</h2>
-<p>The maven <code>fabric8:migrate</code> goal helps migrate your project from 2.x of the <code>fabric8-maven-plugin</code> to version 3.x.</p>
-<p>This goal takes the generated Kubernetes manifest in <code>target/classes/kubernetes.yml</code> and generates the source files in <code>src/main/fabric8</code> that will be detected by the 3.x plugin.</p>
-<h3 id="prerequisites"><a name="prerequisites" class="plugin-anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
-<p><strong>Note</strong> before using this goal please make sure you have checked in all your changes to source control as it will overwrite and modify your source code! Namely the <code>pom.xml</code> file and files in <code>src/main/fabric8/*.yml</code></p>
-<h2 id="example"><a name="example" class="plugin-anchor" href="#example"><span class="fa fa-link"></span></a>Example</h2>
-<p>To migrate your <code>fabric8-maven-plugin</code> 2.x project to 3.x try:</p>
-<pre><code>mvn fabric8:migrate
-</code></pre><p>Now you might want to do a diff using your IDE or git to check what new files have been created and the changes to your <code>pom.xml</code>. Also you may want to reformat the <code>pom.xml</code> file in your IDE to ensure that all the indentation is just right.</p>
-<p>The <code>fabric8:migrate</code> goal will add the <code>&lt;executions&gt;</code> element to the plugin. If you have a multi module project and configure the maven plugin in a parent pom you could supply the <code>fabric8.migrate.updateExecutions</code> property to disable this feature:</p>
-<pre><code>mvn fabric8:migrate -Dfabric8.migrate.updateExecutions=false
-</code></pre><p>If you are feeling brave you can migrate and try deploy the project using the new maven plugin all via these lines:</p>
-<pre><code>mvn fabric8:migrate 
-mvn clean io.fabric8:fabric8-maven-plugin:3.1.11:run
-</code></pre><p>Then your new app should be built and applied.</p>
-<p>You can compare the difference between the old and new manifests by comparing these files</p>
-<ul>
-<li><code>target/classes/kubernetes.yml</code> is the 2.x generated manifest    </li>
-<li><code>target/classes/META-INF/fabric8/kubernetes.yml</code> is the 3.x generated manifest</li>
-</ul>
-<p>Note that if you use any OpenShift Template parameters in your manifest then the YAML files will be considerably different; there will be no OpenShift Template and the parameters will be replaced by a <code>ConfigMap</code> and the property expression environment variables of the form <code>${BAR}</code></p>
-<pre><code class="lang-yaml">        - env:
-          - name: &quot;FOO&quot;
-            value: &quot;${BAR}&quot;
-</code></pre>
-<p>will be replaced with a <code>configMapKeyRef</code> instead, referring to the <code>bar</code> key in the <code>ConfigMap</code>:</p>
-<pre><code class="lang-yaml">      - env:
-        - name: &quot;FOO&quot;
-          valueFrom:
-            configMapKeyRef:
-              key: &quot;bar&quot;
-              name: &quot;${project.artifactId}&quot;
-</code></pre>
+                        <h2 id="terminology"><a name="terminology" class="plugin-anchor" href="#terminology"><span class="fa fa-link"></span></a>Terminology</h2>
+<p>The Fabric8 Microservices Platform uses the following terms:</p>
+<h3 id="team"><a name="team" class="plugin-anchor" href="#team"><span class="fa fa-link"></span></a>Team</h3>
+<p>A team is a collection of people working together on one or more <code>microservices</code>.</p>
+<p>A team has a number of <code>environments</code> such as Dev, Test, Staging, Production. Each team can decide whatever environments it requires. A team always has a <code>Development</code> environment where the development tools run such as Jenkins, Nexus and the <a href="console.html">developer console</a>.</p>
+<h3 id="environment"><a name="environment" class="plugin-anchor" href="#environment"><span class="fa fa-link"></span></a>Environment</h3>
+<p>An environment is a logical place that a team can run their microservices.</p>
+<p>An environment usually maps to a single namespace in a kubernetes cluster; but could map to multiple namespaces in multiple clusters. </p>
+<p>e.g. the <code>Development</code> environment for team <code>Foo</code> could be namespace <code>foo-dev</code>. But their <code>Production</code> environment could map to multiple <code>foo-prod</code> namespaces in different kubernetes clusters in different data centres/regions.</p>
+<p>The <code>Development</code> environment is where developer tools run such as Jenkins, Nexus, Forge and the <a href="console.html">developer console</a>. A team always has a development environment. Its up to the team to decide what other environments are required. There is usually something like Test, Staging, Production as well.</p>
+<p>Different teams could map environments to the same underlying kubernetes namespace and cluster if they wish. e.g. Staging for team A and team B could share the same underlying namespace if required. Though its usually simpler to adminster and secure if each team have their own namespaces for each environment; then we use <a href="serviceLinking.html">service linking</a> to share services between teams in environments.</p>
+<h3 id="app"><a name="app" class="plugin-anchor" href="#app"><span class="fa fa-link"></span></a>App</h3>
+<p>We often use the term <code>App</code> to mean an application or microservice. i.e. its something that is built, tested, released and deployed. Usually an App has a build in Jenkins and deploys one or more microservices into environments.</p>
+<p>When you create or import an App in the Fabric8 Microservices Platform that will have a release pipeline in Jenkins that will build it in the Development environment and then promote it (with optional human approva) through whatever environments are defined by your pipeline.</p>
+<h3 id="setting-up-teams"><a name="setting-up-teams" class="plugin-anchor" href="#setting-up-teams"><span class="fa fa-link"></span></a>Setting up teams</h3>
+<p>One of the core ideas of microservices is about going fast, iterating and continuous improvement. The idea is to make each team operate in parallel with minimal contention.</p>
+<p>So we prefer each team to have its own version of the Farbic8 Microservices Platform; so that each team can upgrade at their own pace and have their own Jenkins so that they only see their own builds and pipelines.</p>
 
                     
                     </section>
@@ -1814,10 +1798,10 @@ mvn clean io.fabric8:fabric8-maven-plugin:3.1.11:run
         </div>
 
         
-        <a href="./mavenPlugin2x.html" class="navigation navigation-prev " aria-label="Previous page: Old 2.x plugin"><i class="fa fa-angle-left"></i></a>
+        <a href="./architecture.html" class="navigation navigation-prev " aria-label="Previous page: Architecture"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./mavenDockerBuild.html" class="navigation navigation-next " aria-label="Next page: docker:build"><i class="fa fa-angle-right"></i></a>
+        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
