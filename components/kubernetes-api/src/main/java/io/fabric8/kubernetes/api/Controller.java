@@ -273,6 +273,14 @@ public class Controller {
             applyResource((Ingress) dto, sourceName, kubernetesClient.extensions().ingresses());
         } else if (dto instanceof PersistentVolumeClaim) {
             applyResource((PersistentVolumeClaim) dto, sourceName, kubernetesClient.persistentVolumeClaims());
+        } else if (dto instanceof HasMetadata) {
+            HasMetadata entity = (HasMetadata) dto;
+            try {
+                LOG.info("Applying " + getKind(entity) + " " + getName(entity) + " from " + sourceName);
+                kubernetesClient.resource(entity).inNamespace(getNamespace()).apply();
+            } catch (Exception e) {
+                onApplyError("Failed to create " + getKind(entity) + " from " + sourceName + ". " + e, e);
+            }
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -730,9 +738,10 @@ public class Controller {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
         if (openShiftClient != null) {
             try {
-                openShiftClient.imageStreams().inNamespace(getNamespace()).create(entity);
+                LOG.info("Applying " + getKind(entity) + " " + getName(entity) + " from " + sourceName);
+                openShiftClient.resource(entity).inNamespace(getNamespace()).apply();
             } catch (Exception e) {
-                onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+                onApplyError("Failed to create " + getKind(entity) + " from " + sourceName + ". " + e, e);
             }
         }
     }
