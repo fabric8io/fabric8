@@ -43,33 +43,7 @@ To include the feature in your custom Karaf distribution, add it to startupFeatu
 
 #### Property placeholders resolvers
 
-fabric8-karaf-core provides the following strategies to resolve placeholders:
-
-| Prefix       | Example                  | Description
-| ------------ | ------------------------ | ---
-| env          | env:JAVA_HOME            | to lookup the property from OS environment variables.
-| sys          | sys:java.version         | to lookup the property from Java JVM system properties.
-| service      | service:amq              | to lookup the property from OS environment variables using the service naming idiom.
-| service.host | service.host:amq         | to lookup the property from OS environment variables using the service naming idiom returning the hostname part only.
-| service.port | service.port:amq         | to lookup the property from OS environment variables using the service naming idiom returning the port part only.
-| k8s:map      | k8s:map:myMap/myKey      | to lookup the property from a Kubernetes ConfigMap
-| k8s:secret   | k8s:secrets:amq/password | to lookup the property from a Kubernetes Secrets
-
-</br>
-
-The property placeholder service supports the following options:
-
-| Name                          | Default     | Description
-| ----------------------------- | ----------- | -----------
-| fabric8.placeholder.prefix    | $[          | The prefix for the placeholder
-| fabric8.placeholder.suffix    | ]           | The suffix for the placeholder
-
-Note:
-  * Options can be set via system properties and/or environment variables
-
-</br>  
-
-The bundle exports the following service:
+fabric8-karaf-core exports a service with the following interface:
 
 ```java
 public interface PlaceholderResolver {
@@ -115,11 +89,37 @@ public interface PlaceholderResolver {
 }
 ```
 
+The PlaceholderResolver service acts as a collector for different property placeholder resolution strategies and by default it provides:
+
+| Prefix       | Example                  | Description
+| ------------ | ------------------------ | ---
+| env          | env:JAVA_HOME            | to lookup the property from OS environment variables.
+| sys          | sys:java.version         | to lookup the property from Java JVM system properties.
+| service      | service:amq              | to lookup the property from OS environment variables using the service naming idiom.
+| service.host | service.host:amq         | to lookup the property from OS environment variables using the service naming idiom returning the hostname part only.
+| service.port | service.port:amq         | to lookup the property from OS environment variables using the service naming idiom returning the port part only.
+| k8s:map      | k8s:map:myMap/myKey      | to lookup the property from a Kubernetes ConfigMap
+| k8s:secret   | k8s:secrets:amq/password | to lookup the property from a Kubernetes Secrets
+
 </br>
+
+The property placeholder service supports the following options:
+
+| Name                          | Default     | Description
+| ----------------------------- | ----------- | -----------
+| fabric8.placeholder.prefix    | $[          | The prefix for the placeholder
+| fabric8.placeholder.suffix    | ]           | The suffix for the placeholder
+
+Note:
+  * Options can be set via system properties and/or environment variables
+
+</br>  
+
 
 #### Add a custom property placeholders resolvers
 
-Your project will need to add the following mvn dependency to the project pom.xml:
+You may need to add a custom placeholder resolver to support a specific need (i.e. custom encryption) and you can leverage PlaceholderResolver service to make such resolver available to Blueprint and ConfigAdmin with a single implementation.
+To do so, you will need to add the following mvn dependency to the project pom.xml:
 
 ```xml
 <dependency>
@@ -128,7 +128,7 @@ Your project will need to add the following mvn dependency to the project pom.xm
 </dependency>
 ```
 
-The easiest way to create and registered an object in the OSGi registry is to use SCR.
+You then need to implement the [PropertiesFunction](https://github.com/fabric8io/fabric8/blob/master/components/fabric8-karaf/fabric8-karaf-core/src/main/java/io/fabric8/karaf/core/properties/function/PropertiesFunction.java) interface and register it as OSGi service (the easiest way is to use SCR).
 
 ```java
 import io.fabric8.karaf.core.properties.function.PropertiesFunction;
@@ -155,6 +155,14 @@ public class MyPropertiesFunction implements PropertiesFunction {
     }
 }
 ```
+
+You can then reference your resolver in CM like:
+```properties
+my.property = $[myResolver:value-to-resolve]
+```
+
+Note:
+  * Details about Blueprint/CM integration will be shown in the following sections
 
 ### Fabric8 Karaf Config Admin Support
 
@@ -213,6 +221,7 @@ fabric8-karaf-cm provides a ConfigurationPlugin which resolves configuration's p
 Example:
 
 * my.service.cfg
+
     ```properties
     amq.usr = $[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/username]
     amq.pwd = $[k8s:secret:$[env:ACTIVEMQ_SERVICE_NAME]/password]
@@ -233,7 +242,7 @@ Example:
                  http://camel.apache.org/schema/blueprint
                  http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-       <cm:property-placeholder persistent-id="my.service" id="my.service" update-strategy="reload"/>
+      <cm:property-placeholder persistent-id="my.service" id="my.service" update-strategy="reload"/>
 
       <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
          <property name="userName"  value="${amq.usr}"/>
