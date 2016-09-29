@@ -158,7 +158,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.2.7.RELEASE</spring.version>
         <spring.boot.version>1.3.7.RELEASE</spring.boot.version>
-        <sundrio.version>0.3.7</sundrio.version>
+        <sundrio.version>0.3.8</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.8</zookeeper.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -204,6 +204,10 @@
         <fuse.osgi.require.bundle />
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
+
+        <!-- Properties related to the per-stack BOMS -->
+        <camel-spring-boot-bom.camel.version>2.17.3</camel-spring-boot-bom.camel.version>
+        <camel-spring-boot-bom.spring-boot.version>1.3.7.RELEASE</camel-spring-boot-bom.spring-boot.version>
     </properties>
 
     <distributionManagement>
@@ -1391,6 +1395,62 @@
                                   <include>xml-apis:xml-apis</include>
                               </includes>
                           </dependencies>
+                          <plugins>
+                              <includes>
+                                  <include>io.fabric8:*</include>
+                              </includes>
+                          </plugins>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                          <inheritDependencyManagement>true</inheritDependencyManagement>
+                          <inheritPluginManagement>true</inheritPluginManagement>
+                      </bom>
+                      <bom>
+                          <artifactId>fabric8-project-bom-camel-spring-boot</artifactId>
+                          <name>Fabric8 :: Project :: Bom for Camel and Spring-Boot</name>
+                          <dependencies>
+                              <includes>
+                                  <!-- The kubernetes Client and Model -->
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+                              </includes>
+                          </dependencies>
+                          <imports>
+                              <import>
+                                  <groupId>org.springframework.boot</groupId>
+                                  <artifactId>spring-boot-dependencies</artifactId>
+                                  <version>${camel-spring-boot-bom.spring-boot.version}</version>
+                                  <dependencyManagement>
+                                      <includes>
+                                          <include>*:*</include>
+                                      </includes>
+                                  </dependencyManagement>
+                              </import>
+                              <import>
+                                  <groupId>org.apache.camel</groupId>
+                                  <artifactId>camel-parent</artifactId>
+                                  <version>${camel-spring-boot-bom.camel.version}</version>
+                                  <dependencyManagement>
+                                      <includes>
+                                          <include>*:*</include>
+                                      </includes>
+                                      <excludes>
+                                          <exclude>com.fasterxml.jackson*:*</exclude>
+                                          <exclude>de.flapdoodle*:*</exclude>
+                                          <exclude>junit*:*</exclude>
+                                          <exclude>org.apache.activemq*:*</exclude>
+                                          <exclude>org.apache.derby*:*</exclude>
+                                          <exclude>org.apache.httpcomponents*:*</exclude>
+                                          <exclude>org.codehaus.groovy*:*</exclude>
+                                          <exclude>org.hibernate:hibernate-entitymanager</exclude>
+                                          <exclude>org.mockito*:*</exclude>
+                                          <exclude>org.springframework*:*</exclude>
+                                          <exclude>net.sf.ehcache*:*</exclude>
+                                      </excludes>
+                                  </dependencyManagement>
+                              </import>
+                          </imports>
                           <plugins>
                               <includes>
                                   <include>io.fabric8:*</include>
