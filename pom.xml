@@ -1414,6 +1414,14 @@
                                   <!-- The kubernetes Client and Model -->
                                   <include>io.fabric8:kubernetes-*</include>
                                   <include>io.fabric8:openshift-*</include>
+
+                                  <include>javax*:*</include>
+
+                                  <include>org.jboss.arquillian*:*</include>
+                                  <include>org.jboss.shrinkwrap*:*</include>
+
+                                  <include>org.codehaus.plexus:plexus-utils</include>
+                                  <include>xml-apis:xml-apis</include>
                               </includes>
                           </dependencies>
                           <imports>
