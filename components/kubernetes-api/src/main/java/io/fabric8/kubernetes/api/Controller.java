@@ -43,12 +43,17 @@ import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DoneableImageStream;
 import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamSpec;
+import io.fabric8.openshift.api.model.ImageStreamStatus;
+import io.fabric8.openshift.api.model.NamedTagEventList;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.ProjectRequest;
 import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.TagReference;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftNotAvailableException;
@@ -67,6 +72,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -737,14 +743,71 @@ public class Controller {
     public void applyImageStream(ImageStream entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
         if (openShiftClient != null) {
+            String kind = getKind(entity);
+            String name = getName(entity);
+            String namespace = getNamespace();
             try {
-                LOG.info("Applying " + getKind(entity) + " " + getName(entity) + " from " + sourceName);
-                openShiftClient.resource(entity).inNamespace(getNamespace()).apply();
+                ClientResource<ImageStream, DoneableImageStream> resource = openShiftClient.imageStreams().inNamespace(namespace).withName(name);
+                ImageStream old = resource.get();
+                if (old == null) {
+                    LOG.info("Creating " + kind + " " + name + " from " + sourceName);
+                    resource.create(entity);
+                } else {
+                    LOG.info("Updating " + kind + " " + name + " from " + sourceName);
+                    copyAllImageStreamTags(entity, old);
+                    resource.replace(old);
+                }
+                openShiftClient.resource(entity).inNamespace(namespace).apply();
             } catch (Exception e) {
-                onApplyError("Failed to create " + getKind(entity) + " from " + sourceName + ". " + e, e);
+                onApplyError("Failed to create " + kind + " from " + sourceName + ". " + e, e);
             }
         }
     }
+
+    protected void copyAllImageStreamTags(ImageStream from, ImageStream to) {
+        ImageStreamSpec toSpec = to.getSpec();
+        if (toSpec == null) {
+            toSpec = new ImageStreamSpec();
+            to.setSpec(toSpec);
+        }
+        List<TagReference> toTags = toSpec.getTags();
+        if (toTags == null) {
+            toTags = new ArrayList<>();
+            toSpec.setTags(toTags);
+        }
+
+        ImageStreamSpec fromSpec = from.getSpec();
+        if (fromSpec != null) {
+            List<TagReference> fromTags = fromSpec.getTags();
+            if (fromTags != null) {
+                // lets remove all the tags with these names first
+                for (TagReference tag : fromTags) {
+                    removeTagByName(toTags, tag.getName());
+                }
+
+                // now lets add them all in case 2 tags have the same name
+                for (TagReference tag : fromTags) {
+                    toTags.add(tag);
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes all the tags with the given name
+     * @return the number of tags removed
+     */
+    private int removeTagByName(List<TagReference> tags, String tagName) {
+        List<TagReference> removeTags = new ArrayList<>();
+        for (TagReference tag : tags) {
+            if (Objects.equal(tagName, tag.getName())) {
+                removeTags.add(tag);
+            }
+        }
+        tags.removeAll(removeTags);
+        return removeTags.size();
+    }
+
 
     public void applyList(KubernetesList list, String sourceName) throws Exception {
         List<HasMetadata> entities = list.getItems();
