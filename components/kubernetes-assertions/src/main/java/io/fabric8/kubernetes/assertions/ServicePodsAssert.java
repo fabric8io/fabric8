@@ -22,9 +22,6 @@ import io.fabric8.kubernetes.api.model.EndpointsList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAssert;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
-import io.fabric8.kubernetes.api.model.extensions.Deployment;
-import io.fabric8.kubernetes.api.model.extensions.DeploymentAssert;
-import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
 import io.fabric8.kubernetes.api.model.extensions.LabelSelector;
 import io.fabric8.kubernetes.api.model.extensions.LabelSelectorRequirement;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -33,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getLabels;
-import static io.fabric8.kubernetes.assertions.PodSelectionAssert.DEFAULT_NOT_READY_TIMEOUT_MS;
-import static io.fabric8.kubernetes.assertions.PodSelectionAssert.DEFAULT_READY_PERIOD_MS;
+import static io.fabric8.kubernetes.assertions.PodSelectionAssert.getDefaultNotReadyTimeoutMs;
+import static io.fabric8.kubernetes.assertions.PodSelectionAssert.getDefaultReadyPeriodMs;
 
 /**
  * Adds assertions for asserting that a Service has ready pods etc
@@ -63,7 +60,7 @@ public class ServicePodsAssert extends ServiceAssert implements HasPodSelectionA
      * Asserts that either this service has a valid Endpoint or that a pod is Ready for a period of time
      */
     public ServicePodsAssert hasEndpointOrReadyPod() {
-        return hasEndpointOrReadyPod(DEFAULT_NOT_READY_TIMEOUT_MS, DEFAULT_READY_PERIOD_MS);
+        return hasEndpointOrReadyPod(getDefaultNotReadyTimeoutMs(), getDefaultReadyPeriodMs());
     }
 
     /**
