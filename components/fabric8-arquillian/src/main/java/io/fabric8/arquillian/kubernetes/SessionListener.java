@@ -39,6 +39,7 @@ import io.fabric8.kubernetes.client.BaseClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.internal.HasMetadataComparator;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
@@ -68,6 +69,7 @@ import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
+import static io.fabric8.kubernetes.api.KubernetesHelper.isOpenShift;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadYaml;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
@@ -258,12 +260,17 @@ public class SessionListener {
             entities.addAll(enhance(session, configuration ,c).getItems());
         }
 
-        String registry = getLocalDockerRegistry();
-        if (Strings.isNotBlank(registry)){
-            log.status("Adapting resources to pull images from registry: " + registry);
-            addRegistryToImageNameIfNotPresent(entities, registry);
+        if (isOpenShift(client) && containsImageStreamResources(entities)) {
+            // no need to use a local image registry
+            // as we are using OpenShift and
         } else {
-	    log.status("No local fabric8 docker registry found");
+            String registry = getLocalDockerRegistry();
+            if (Strings.isNotBlank(registry)) {
+                log.status("Adapting resources to pull images from registry: " + registry);
+                addRegistryToImageNameIfNotPresent(entities, registry);
+            } else {
+                log.status("No local fabric8 docker registry found");
+            }
         }
 
         List<Object> items = new ArrayList<>();
@@ -391,6 +398,15 @@ public class SessionListener {
         }
 
         return true;
+    }
+
+    private boolean containsImageStreamResources(Iterable<HasMetadata> entities) {
+        for (HasMetadata entity : entities) {
+            if (entity instanceof ImageStream) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void preprocessEnvironment(KubernetesClient client, Controller controller, Configuration configuration, Session session) {
