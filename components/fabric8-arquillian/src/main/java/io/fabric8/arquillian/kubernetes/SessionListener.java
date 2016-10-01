@@ -260,7 +260,7 @@ public class SessionListener {
             entities.addAll(enhance(session, configuration ,c).getItems());
         }
 
-        if (isOpenShift(client) && containsImageStreamResources(entities)) {
+        if (client != null && isOpenShift(client) && containsImageStreamResources(entities)) {
             // no need to use a local image registry
             // as we are using OpenShift and
         } else {
@@ -401,9 +401,11 @@ public class SessionListener {
     }
 
     private boolean containsImageStreamResources(Iterable<HasMetadata> entities) {
-        for (HasMetadata entity : entities) {
-            if (entity instanceof ImageStream) {
-                return true;
+        if (entities != null) {
+            for (HasMetadata entity : entities) {
+                if (entity instanceof ImageStream) {
+                    return true;
+                }
             }
         }
         return false;
