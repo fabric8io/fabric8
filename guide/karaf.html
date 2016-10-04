@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Mon Oct 03 2016 11:06:50 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Tue Oct 04 2016 11:19:16 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1887,12 +1887,12 @@
 <tr>
 <td>k8s:map</td>
 <td>k8s:map:myMap/myKey</td>
-<td>to lookup the property from a Kubernetes ConfigMap</td>
+<td>to lookup the property from a Kubernetes ConfigMap (via API)</td>
 </tr>
 <tr>
 <td>k8s:secret</td>
 <td>k8s:secrets:amq/password</td>
-<td>to lookup the property from a Kubernetes Secrets</td>
+<td>to lookup the property from a Kubernetes Secrets (via API or volume mounts)</td>
 </tr>
 </tbody>
 </table>
@@ -1917,13 +1917,50 @@
 <td>]</td>
 <td>The suffix for the placeholder</td>
 </tr>
+<tr>
+<td>fabric8.k8s.secrets.path</td>
+<td>null</td>
+<td>A comma delimited list of paths were secrets are mapped</td>
+</tr>
+<tr>
+<td>fabric8.k8s.secrets.api.enabled</td>
+<td>true</td>
+<td>Enable/Disable consuming secrets via APIs</td>
+</tr>
 </tbody>
 </table>
 <p>Note:</p>
 <ul>
 <li>Options can be set via system properties and/or environment variables</li>
-</ul>
+<li><p>To access ConfigMaps on OpenShift the service account needs at least view permissions i.e.:</p>
+<p><code>oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)</code></p>
+</li>
+<li><p>Access to secrets on OpenShift via API may not be possible so you may disable usage of Secrets APIs to avoid warnings by setting fabric8.k8s.secrets.api.enabled=false</p>
+</li>
+<li><p>Secrets available on the image as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:</p>
+<pre><code class="lang-yaml">  containers:
+    - 
+      env:
+      - name: FABRIC8_K8S_SECRETS_PATH
+        value: /etc/secrets
+      volumeMounts:
+      - name: activemq-secret-volume
+        mountPath: /etc/secrets/activemq
+        readOnly: true  
+      - name: postgres-secret-volume
+        mountPath: /etc/secrets/postgres
+        readOnly: true 
+  volumes:
+    - name: activemq-secret-volume
+      secret:
+        secretName: activemq
+    - name: postgres-secret-volume
+      secret:
+        secretName: postgres
+</code></pre>
 <p><br>  </p>
+</li>
+</ul>
 <h4 id="add-a-custom-property-placeholders-resolvers"><a name="add-a-custom-property-placeholders-resolvers" class="plugin-anchor" href="#add-a-custom-property-placeholders-resolvers"><span class="fa fa-link"></span></a>Add a custom property placeholders resolvers</h4>
 <p>You may need to add a custom placeholder resolver to support a specific need (i.e. custom encryption) and you can leverage PlaceholderResolver service to make such resolver available to Blueprint and ConfigAdmin with a single implementation.
 To do so, you will need to add the following mvn dependency to the project pom.xml:</p>
@@ -2079,10 +2116,7 @@ data:
 <p>Notes:</p>
 <ul>
 <li>Otions can be set via system properties and/or environment variables</li>
-<li>ConfigurationPlugin requires Aries Bleuprint CM 1.0.9 or above</li>
-<li><p>To use ConfigMap as source of properties on OpenShift, the OSE service account needs to have at least view role added.</p>
-<pre><code>oc policy add-role-to-user view system:serviceaccount:&lt;namespace&gt;:default
-</code></pre></li>
+<li>ConfigurationPlugin requires Aries Blueprint CM 1.0.9 or above</li>
 </ul>
 <p><br></p>
 <h3 id="fabric8-karaf-blueprint-support"><a name="fabric8-karaf-blueprint-support" class="plugin-anchor" href="#fabric8-karaf-blueprint-support"><span class="fa fa-link"></span></a>Fabric8 Karaf Blueprint Support</h3>
