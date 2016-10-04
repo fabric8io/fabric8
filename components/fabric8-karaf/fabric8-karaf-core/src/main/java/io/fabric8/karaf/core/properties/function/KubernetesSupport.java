@@ -57,7 +57,7 @@ final class KubernetesSupport {
         private final List<Path> paths;
 
         public SecretsResource() {
-            this.useApi = Utils.getSystemPropertyOrEnvVar(FABRIC8_K8S_SECRET_API_ENABLED, true);
+            this.useApi = Utils.getSystemPropertyOrEnvVar(FABRIC8_K8S_SECRET_API_ENABLED, false);
             this.paths = new ArrayList<>();
 
             String secretPaths = Utils.getSystemPropertyOrEnvVar(FABRIC8_K8S_SECRET_PATHS);

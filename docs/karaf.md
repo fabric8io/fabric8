@@ -110,7 +110,7 @@ The property placeholder service supports the following options:
 | fabric8.placeholder.prefix      | $[          | The prefix for the placeholder
 | fabric8.placeholder.suffix      | ]           | The suffix for the placeholder
 | fabric8.k8s.secrets.path        | null        | A comma delimited list of paths were secrets are mapped
-| fabric8.k8s.secrets.api.enabled | true        | Enable/Disable consuming secrets via APIs
+| fabric8.k8s.secrets.api.enabled | false       | Enable/Disable consuming secrets via APIs
 
 Note:
   * Options can be set via system properties and/or environment variables
@@ -118,8 +118,8 @@ Note:
     
     ```oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)```
 
-  * Access to secrets on OpenShift via API may not be possible so you may disable usage of Secrets APIs to avoid warnings by setting fabric8.k8s.secrets.api.enabled=false
-  * Secrets available on the image as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:
+  * Access to secrets via API may be restricted, the preferred way is to mount secret to the POD
+  * Secrets available on the POD as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:
   
     ```yaml
       containers:
