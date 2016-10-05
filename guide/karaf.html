@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Tue Oct 04 2016 11:19:16 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Oct 05 2016 12:05:26 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1924,7 +1924,7 @@
 </tr>
 <tr>
 <td>fabric8.k8s.secrets.api.enabled</td>
-<td>true</td>
+<td>false</td>
 <td>Enable/Disable consuming secrets via APIs</td>
 </tr>
 </tbody>
@@ -1935,9 +1935,9 @@
 <li><p>To access ConfigMaps on OpenShift the service account needs at least view permissions i.e.:</p>
 <p><code>oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)</code></p>
 </li>
-<li><p>Access to secrets on OpenShift via API may not be possible so you may disable usage of Secrets APIs to avoid warnings by setting fabric8.k8s.secrets.api.enabled=false</p>
+<li><p>Access to secrets via API may be restricted, the preferred way is to mount secret to the POD</p>
 </li>
-<li><p>Secrets available on the image as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:</p>
+<li><p>Secrets available on the POD as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:</p>
 <pre><code class="lang-yaml">  containers:
     - 
       env:
