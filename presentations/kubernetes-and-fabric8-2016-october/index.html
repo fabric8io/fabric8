@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>fabric8'ing continuous improvement with Kubernetes &amp; Jenkins Pipeline</title>
+
+  <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+  <meta name="author" content="Hakim El Hattab">
+
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="css/reveal.min.css">
+  <link rel="stylesheet" href="css/theme/simple.css" id="theme">
+  <!--
+      <link rel="stylesheet" href="css/theme/default.css" id="theme">
+  -->
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="lib/css/zenburn.css">
+
+  <style>
+    .reveal section img {
+      border: 0px;
+      box-shadow: 0 0 0px;
+    }
+  </style>
+
+
+  <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+  <script>
+    document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+  </script>
+
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+  <!-- Any section element inside of this container is displayed as a slide -->
+  <div class="slides">
+    <section>
+      <h3>Kubernetes and Fabric8</h3>
+
+      <h3>create value faster with microservices</h3>
+
+      <div align="centre">
+              <img src="images/fabric8.svg" height="200" width="200">
+            </div>
+      <p>
+        <a href="https://fabric8.io/">https://fabric8.io/</a>
+      </p>
+
+      <p>
+        <small><a href="https://medium.com/@jstrachan/">James Strachan</a> from <a href="http://redhat.com/">Red Hat</a></small>
+      </p>
+    </section>
+
+
+    <section>
+      <h2><i>Software is eating the world</i></h2>
+      <p>Marc Andreessen - 2011</p>
+    </section>
+
+    <section>
+      <h2><i>It is not necessary to change.</i></h2>
+      <h2><i>Survival is not mandatory.</i></h2>
+      <p>W. Edwards Deming</p>
+    </section>
+
+    <section>
+      <h2>
+          creating value through software is all about speed, iteration and Continuous Improvement
+      </h2>
+    </section>
+    
+    <section>
+      <h2>Continuous Improvement</h2>
+      <div align="centre">
+        <img src="images/continuous.jpg" width="763" height="408">
+      </div>
+    </section>
+    
+    <section>
+      <h2>Continuous Delivery of</h2>
+      <h2>Containerised Microservices</h2>
+    </section>
+
+    <section>
+      <h4>microservices, microservices, ...</h4>
+      <div align="centre">
+        <img src="images/say-microservices.jpg" width="763" height="600">
+      </div>
+    </section>
+    
+    <section>
+      <h3>microservices are a way to develop software <b>faster</b></h3>
+      <ul>
+        <li>
+            split monoliths into smaller microservices which release <b>independently</b>
+        </li>
+        <li>
+            have small teams which look after the <b>entire lifecycle</b> of each microservice
+        </li>
+      </ul>
+    </section>
+
+
+
+    <section>
+      <h3>we need a <b>microservice platform</b></h3>
+      <ul>
+        <li>create, develop, test, release and operate microservices</li>
+        <li>self service for speed and autonomous teams</li>
+      </ul>
+      <div align="centre">
+        <img src="images/automate-all-the-things.jpg" width="400" height="400">
+      </div>
+
+    </section>
+
+    <section>
+      <h3>fabric8 microservices platform</h3>
+      <div align="centre">
+        <img src="images/fabric8.svg" height="500" width="500">
+      </div>
+      <p>
+        <a href="https://fabric8.io/">https://fabric8.io/</a>
+      </p>
+    </section>
+
+    <section>
+      <h3>Fabric8: Features</h3>
+      <table cellspacing="20">
+        <tbody>
+        <tr>
+          <td><b>Create</b></td>
+          <td>wizards to create microservices</td>
+        </tr>
+        <tr>
+          <td><b>Build</b></td>
+          <td>packaging into immutable container images</td>
+        </tr>
+        <tr>
+          <td><b>Release</b></td>
+          <td>rolling upgrades across different environments</td>
+        </tr>
+        <tr>
+          <td><b>Runtime</b></td>
+          <td>service discovery, scaling, failover, load balancing</td>
+        </tr>
+        <tr>
+          <td><b>Manage</b></td>
+          <td>centralise logs, metrics, alerts, tracing, circuit breakers</td>
+        </tr>
+        <tr>
+          <td><b>Feedback</b></td>
+          <td>dashboards and metrics to get feedback!</td>
+        </tr>
+        <tr>
+          <td><b>Platform</b></td>
+          <td>on premise, public or hybrid cloud</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+
+    <section>
+      <h2>Fabric8 Overview</h2>
+      <ul>
+        <li>Easy to install on a Kubernetes/Openshift cluster</li>
+        <li>Containerized Microservices all the way down</li>
+      </ul>
+      <div align="centre">
+        <img src="images/run.png" height="500" width="800">
+      </div>
+    </section>
+
+    <section>
+      <h2>Fabric8 Core Technologies</h2>
+      <p>Fabric8 stands on the shoulders of these giants:</p>
+
+      <table cellspacing="20">
+        <tbody>
+        <tr>
+          <td><b>Docker</b></td>
+          <td>immutable images that run anywhere</td>
+        </tr>
+        <tr>
+          <td><b>Kubernetes</b></td>
+          <td>runs containers on a number of nodes</td>
+        </tr>
+        <tr>
+          <td><b>Jenkins</b></td>
+          <td>provides CI / CD through Jenkins Pipelines</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Docker</h2>
+      <p>
+        package your microservice into a shipping container
+      </p>
+      <div align="centre">
+        <img src="images/docker.png">
+      </div>
+      <p>
+        <a href="https://www.docker.com/">https://www.docker.com/</a>
+      </p>
+    </section>
+
+    <section>
+      <h2>Docker</h2>
+      <ul>
+        <li>
+          packaging for a linux process
+          <ul>
+            <li>immutable images</li>
+            <li>run everywhere</li>
+            <li>images are small and easy to cache</li>
+          </ul>
+        </li>
+        <li>
+          isolate processes
+          <ul>
+            <li>each container has its own file system and ports</li>
+            <ul>
+              <li>avoids conflicts between containers</li>
+            </ul>
+            <li>set limits: IO, CPU, memory, ...</li>
+            <ul>
+              <li>helps pack containers onto hosts</li>
+            </ul>
+            <li>run 1000s of containers per node rather than 10s of VMs</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Docker</h2>
+      <div align="centre">
+        <code>docker run -itP myuser/myservice</code>
+      </div>
+    </section>
+
+
+    <section>
+      <h2>Kubernetes</h2>
+      <p>
+        orchestrate your containers!
+      </p>
+      <div align="centre">
+        <img src="images/kubernetes.svg" height="500" width="800">
+      </div>
+      <p>
+        <a href="https://kubernetes.io/">https://kubernetes.io/</a>
+      </p>
+    </section>
+
+    <section>
+      <h2>Kubernetes</h2>
+      <div align="centre">
+        <code>
+          kubectl run someName
+          --image=myuser/myservice
+          --replicas=5
+        </code>
+      </div>
+    </section>
+
+    <section>
+      <h2>Kubernetes Overview</h2>
+      <div align="centre">
+        <img src="images/kubernetes-overview.png" height="500" width="500">
+      </div>
+      <p>
+        <a href="https://kubernetes.io/">https://kubernetes.io/</a>
+      </p>
+    </section>
+
+    <section>
+      <div align="centre">
+        <img src="images/jenkins.svg">
+      </div>
+      <p>
+        <a href="https://jenkins.io/">https://jenkins.io/</a>
+      </p>
+    </section>
+
+
+    <section>
+      <h3><i>Continuous Delivery</i> is based on <b>pipelines</b></h3>
+      <ul>
+        <li>Build an image and kubernetes manifest once</li>
+        <li>Run integration, system, soak tests</li>
+        <li>Promote the build to different <b>Environments</b>
+          <ul>
+            <li>(Dev, Test, UAT, Staging, Prod)</li>
+          </ul>
+        <li>Human approval at key stages</li>
+        <li>Sequential, Parallel, Fork/Join of steps along with state sharing (e.g. version numbers)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Jenkins for Continuous Delivery</h3>
+      <p>
+      <ul>
+        <li><b>Jenkins Pipeline</b> implements CD:
+          <ul>
+            <li>orchestrator of build, test, promote, approve <i>steps</i></li>
+            <li>old name is <i>Jenkins Workflow plugin</i></li>
+          </ul>
+        </li>
+        <li>A <b>Jenkinsfile</b>
+          <ul>
+            <li>a Groovy DSL for defining the pipeline steps, pods, docker images, secrets</li>
+            <li>maps to a single Jenkins job with minimal configuration</li>
+            <li>Label parts of the pipeline with <i>stages</i> to simplify pipeline progress visualisation</li>
+            <li>Pipeline as code!</li>
+          </ul>
+        </li>
+      </ul>
+      </p>
+    </section>
+
+    <section>
+      <h2>Fabric8 CD</h2>
+      <p>
+      <ul>
+        <li>Each project copies a <b>Jenkinsfile</b> into their project source code; or points at a shared Jenkinsfile
+        </li>
+        <li>Reusable library of Pipeline flows:
+          <ul>
+            <li>lets you share Jenkinsfiles between projects to bootstrap projects faster</li>
+            <li>reusable library of common build steps available as DSL extensions and reusable functions</li>
+            <li>over time you can refactor your Jenkinsfiles to share common steps</li>
+          </ul>
+        </li>
+      </ul>
+      </p>
+    </section>
+
+    <section>
+      <h2>Fabric8 Technologies</h2>
+      <p>Fabric8 stands on the shoulders of these giants:</p>
+
+      <table cellspacing="20">
+        <tbody>
+        <tr>
+          <td><b>Docker</b></td>
+          <td>immutable images that run anywhere</td>
+        </tr>
+        <tr>
+          <td><b>Kubernetes</b></td>
+          <td>runs containers on a number of nodes</td>
+        </tr>
+        <tr>
+          <td><b>Jenkins</b></td>
+          <td>provides CI / CD through Jenkins Pipelines</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Fabric8 Technologies: more giants!</h3>
+      <div align="centre">
+        <img src="images/projects.png" height="700" width="800">
+      </div>
+    </section>
+
+    <section>
+      <h3>Logging and Events, Metrics and Alerts</h3>
+      <div align="centre">
+        <img src="images/management.png">
+      </div>
+    </section>
+
+    <section>
+      <h3>Kibana Dashboards for events</h3>
+      <div align="centre">
+        <img src="images/kibana.png">
+      </div>
+    </section>
+
+    <section>
+      <h3>Grafana Dashboards for metrics</h3>
+      <div align="centre">
+        <img src="images/grafana.png">
+      </div>
+    </section>
+
+    <section>
+      <h3>Tracing with Zipkin</h3>
+      <div align="centre">
+        <img src="images/loanbroker-dependencies.png">
+      </div>
+      <div align="centre">
+        <img src="images/zipkin-console.png">
+      </div>
+      <p>
+        <a href="http://zipkin.io/">http://zipkin.io/</a>
+      </p>
+    </section>
+
+    <section>
+      <h3>Circuit breakers with Hystrix</h3>
+      <div align="centre">
+        <img src="images/hystrix-code.png">
+      </div>
+      <div align="centre">
+        <img src="images/loanbroker-dashboard.png">
+      </div>
+      <p>
+        <a href="https://github.com/Netflix/Hystrix">https://github.com/Netflix/Hystrix/</a>
+      </p>
+    </section>
+
+    <section>
+      <h3>ChatOps</h3>
+      <div align="centre">
+        <img src="images/letschat.png">
+      </div>
+    </section>
+
+    <section>
+      <h2>How to develop on fabric8?</h2>
+      <div align="centre">
+        <img src="images/fabric8.svg" height="500" width="500">
+      </div>
+    </section>
+
+    <section>
+      <h2>Developing Microservices</h2>
+      <ul>
+        <li>elasticity and resilience</li>
+        <li>service discovery and load balancing</li>
+        <li>logging and monitoring</li>
+        <li>tracing &amp; circuit breakers</li>
+        <li>configuration</li>
+        <li>testing</li>
+      </ul>
+    </section>
+    
+
+      <section>
+        <h2>Maven</h2>
+        <p>
+            fabric8 maven plugin: <a href="https://maven.fabric8.io/">https://maven.fabric8.io/</a>
+        </p>
+
+        <p>
+        setup your existing maven project for kubernetes:
+        </p>
+        <pre><code>
+        mvn io.fabric8:fabric8-maven-plugin:3.1.62:setup
+    </code></pre>
+
+        <p>
+        create a local cluster for development:
+    </p>
+        <pre><code>
+        mvn fabric8:cluster-start
+    </code></pre>
+
+        <p>
+        build and deploy your project into kubernetes:
+    </p>
+        <pre><code>
+        mvn fabric8:run
+    </code></pre>
+      
+        <p>
+          see: <a href="http://bit.ly/javakube">http://bit.ly/javakube</a>
+        </p>
+      </section>
+
+    <section>
+      <h3>elasticity and resilience</h3>
+  <pre class="stretch"><code data-trim>
+apiVersion: "extensions/v1beta1"
+kind: "Deployment"
+metadata:
+  name: "elasticsearch"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: "elasticsearch"
+      provider: "fabric8"
+  template:
+    metadata:
+      labels:
+        component: "elasticsearch"
+        provider: "fabric8"
+    spec:
+      containers:
+        -
+          name: "elasticsearch"
+          image: "fabric8/elasticsearch-k8s:1.5.2"
+          env:
+            -
+              name: "SERVICE_DNS"
+              value: "elasticsearch-cluster"
+          ports:
+            -
+              containerPort: 9200
+              name: "http"
+</code></pre>
+      </section>
+
+      <section>
+        <h3>service discovery and load balancing</h3>
+  <pre><code data-trim>
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "elasticsearch"
+  labels:
+    component: "elasticsearch"
+    provider: "fabric8"
+spec:
+  ports:
+    -
+      port: 80
+      targetPort: 9200
+  selector:
+    component: "elasticsearch"
+    provider: "fabric8"
+</code></pre>
+      </section>
+
+    <section>
+      <h2>Service Discovery</h2>
+      <p>
+        for a service called <b>foo-bar</b> here is how you discover to it:
+      <ul>
+        <li>http://foo-bar/</li>
+        <li>https://foo-bar/</li>
+      </ul>
+      </p>
+      <p>
+        Works nicely for different namespaces / environments without code or config change!
+      </p>
+      <p>
+        DNS FTW!
+      </p>
+    </section>
+
+      <section>
+        <h3>service discovery and load balancing</h3>
+        <ul>
+          <li>services can be implemented:
+            <ul>
+              <li>internally using <b>selectors</b></li>
+              <li>externally or aliased by creating <b>Endpoints</b></li>
+            </ul>
+          </li>
+          <li>services are visible internally and can be exposed externally</li>
+          <ul>
+            <li>Kubernetes: &nbsp;<code>Ingress</code></li>
+            <li>OpenShift: &nbsp;<code>Route</code></li>
+            <li>GKE: &nbsp;&nbsp;<code>type: LoadBalancer</code></li>
+          </ul>
+          </li>
+        </ul>
+      </section>
+
+
+    <section>
+      <h2>logging and monitoring</h2>
+      <ul>
+        <li>Logging:
+          <ul>
+            <li>Write to stdout</li>
+            <li>Ideally in JSON!</li>
+          </ul>
+        </li>
+        <li>Metrics:
+          <ul>
+            <li>if Java use fabric8 base images</li>
+            <li>or add Prometheus exporter endpoint</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>tracing &amp; circuit breakers</h3>
+      <ul>
+        <li>today:
+          <ul>
+            <li>add hystrix or zipkin libraries to your Java</li>
+          </ul>
+        </li>
+        <li>soon:
+          <ul>
+            <li>platform will do it for you!</li>
+            <li>via smart proxies or sidecars</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>configuration</h2>
+      <ul>
+        <li>put most configuration inside the image!
+          <ul>
+            <li>Services</li>
+            <li>Secrets</li>
+          </ul>
+        </li>
+        <li>when really required:
+          <ul>
+            <li>Config Maps</li>
+            <li>GitRepo Volumes</li>
+          </ul>
+        </li>
+        <li>consume via:
+          <ul>
+            <li>files</li>
+            <li>env vars</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+
+
+    <section>
+      <h2>Testing</h2>
+      <div align="centre">
+        <img src="images/arqtest.png" height="350" width="3000">
+      </div>
+      <p>
+        <a href="http://fabric8.io/guide/testing.html">http://fabric8.io/guide/testing.html</a>
+      </p>
+    </section>
+
+
+
+    <section>
+      <h2>Any questions?</h2>
+      <div align="centre">
+              <img src="images/fabric8.svg" height="200" width="200">
+            </div>
+      <table cellspacing="20">
+        <tr>
+          <td>
+            <a href="http://fabric8.io/">fabric8.io</a>
+          </td>
+          <td>
+            Fabric8 Microservices Platform
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="http://fabric8.io/guide/getStarted/">get started</a>
+          </td>
+          <td>
+            create a kubernetes cluster with fabric8
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://www.docker.com/">docker.com</a>
+          </td>
+          <td>
+            create and run container images
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://kubernetes.io/">kubernetes.io</a>
+          </td>
+          <td>
+            container based cloud
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://www.openshift.org/">openshift.org</a>
+          </td>
+          <td>
+            Red Hat's product based on kubernetes
+          </td>
+        </tr>
+
+      </table>
+
+      <!--
+      <li>
+        <a href="http://hawt.io/">http://hawt.io/</a>
+      </li>
+    -->
+
+      <div align="center">
+        <a href="http://twitter.com/jstrachan">@jstrachan</a>
+      </div>
+
+    </section>
+
+
+    <!--- TODO other slides -->
+    <!--
+      <section>
+        <h2>Kubernetes: sub atomic particles</h2>
+        <p>
+        <ul>
+          <li>Pods</li>
+          <li>Replication Controllers</li>
+          <li>Services</li>
+        </ul>
+        </p>
+      </section>
+
+      <section>
+        <h2>Pod</h2>
+        <p>
+        <ul>
+          <li>for a Java person, just think a JVM with:</li>
+          <ul>
+            <li>environment variables</li>
+            <li>ports</li>
+            <li>volumes</li>
+          </ul>
+          <li>each Pod has its own unique IP address</li>
+        </ul>
+        </p>
+      </section>
+
+
+
+      <section>
+        <h2>Tools</h2>
+        <ul>
+          <li>kubectl get pods</li>
+          <li>kubectl delete pod foo-abc234</li>
+          <li>kubectl create -f foo.json</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Kubernetes: sub atomic particles</h2>
+        <p>
+        <ul>
+          <li>Pods</li>
+          <li>Replication Controllers</li>
+          <li>Services</li>
+        </ul>
+        </p>
+      </section>
+
+      <section>
+        <h2>Microservice on Kubernetes?</h2>
+        <p>
+          each microservice typically has:
+        <ul>
+          <li>Replication Controller</li>
+          <li>Service</li>
+        </ul>
+        </p>
+      </section>
+
+      <section>
+        <h2>Develop microservices on Kubernetes</h2>
+        <p>
+        <ul>
+          <li>Write some code</li>
+          <li>Put code into docker image</li>
+          <li>Create kubernetes manifest YAML/JSON</li>
+          <li>Apply the manifest to an environment</li>
+          <li>Resize and rolling upgrades</li>
+          <li>CI / CD can automate the above ;)</li>
+        </ul>
+        </p>
+      </section>
+
+      <section>
+        <h2>Fabric8: Java Tools</h2>
+        <p>
+        <ul>
+          <li>Maven plugin</li>
+          <li>Java Libraries for working with Kubernetes</li>
+          <li>Integration Testing
+            <ul>
+              <li>Arquillian plugin for JUnit</li>
+            </ul>
+          </li>
+        </ul>
+        </p>
+      </section>
+
+
+      <section>
+        <h2>Fabric8: Maven Plugin</h2>
+        <p>
+          build docker image:
+        </p>
+        <div align="left">
+<pre>
+<code>
+$  mvn docker:build
+
+</code>
+</pre>
+        </div>
+        <p>
+          generate kubernetes json:
+        </p>
+        <div align="left">
+<pre>
+<code>
+$  mvn fabric8:json
+
+</code>
+</pre>
+        </div>
+        <p>
+          apply kubernetes json and image to kubernetes:
+        </p>
+        <div align="left">
+<pre>
+<code>
+$  mvn fabric8:apply
+
+</code>
+</pre>
+        </div>
+      </section>
+
+
+      <section>
+        <h2>Fabric8 Continous Delivery: Example</h2>
+        <div align="centre">
+          <img src="images/sample-jenkinsfile.png" height="650" width="1600">
+        </div>
+      </section>
+
+-->
+
+  </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    //transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+    transition: 'linear',
+
+    // Parallax scrolling
+    // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+    // parallaxBackgroundSize: '2100px 900px',
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      {
+        src: 'lib/js/classList.js', condition: function () {
+        return !document.body.classList;
+      }
+      },
+      {
+        src: 'plugin/markdown/marked.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: 'plugin/markdown/markdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+        hljs.initHighlightingOnLoad();
+      }
+      },
+      {
+        src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      },
+      {
+        src: 'plugin/notes/notes.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
