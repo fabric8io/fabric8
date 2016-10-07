@@ -60,7 +60,10 @@ public class SessionPodsAreReady implements Callable<Boolean> {
                 result = false;
                 PodStatus podStatus = pod.getStatus();
                 int restartCount = 0;
-                if (podStatus != null) {
+
+                // Skip waiting for "Succeeded" pods, since could see pods like s2i builds
+                // that are done.  see: OSFUSE-317
+                if (podStatus != null && !"Succeeded".equals(podStatus.getPhase()) ) {
                     List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
                     for (ContainerStatus containerStatus : containerStatuses) {
                         if (restartCount == 0) {
