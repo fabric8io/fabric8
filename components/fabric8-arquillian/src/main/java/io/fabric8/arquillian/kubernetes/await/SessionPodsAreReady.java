@@ -57,13 +57,16 @@ public class SessionPodsAreReady implements Callable<Boolean> {
 
         for (Pod pod : pods) {
             if (!KubernetesHelper.isPodReady(pod)) {
-                result = false;
                 PodStatus podStatus = pod.getStatus();
                 int restartCount = 0;
 
-                // Skip waiting for "Succeeded" pods, since could see pods like s2i builds
-                // that are done.  see: OSFUSE-317
-                if (podStatus != null && !"Succeeded".equals(podStatus.getPhase()) ) {
+                if (podStatus != null ) {
+                    if( "Succeeded".equals(podStatus.getPhase()) ) {
+                        // Skip waiting for "Succeeded" pods, since this could see pods like s2i builds
+                        // that have finished.  see: OSFUSE-317
+                        continue;
+                    }
+
                     List<ContainerStatus> containerStatuses = podStatus.getContainerStatuses();
                     for (ContainerStatus containerStatus : containerStatuses) {
                         if (restartCount == 0) {
@@ -84,6 +87,8 @@ public class SessionPodsAreReady implements Callable<Boolean> {
                         }
                     }
                 }
+
+                result = false;
                 String name = KubernetesHelper.getName(pod);
                 File yamlFile = new File(session.getBaseDir(), "target/test-pod-status/" + name + ".yml");
                 yamlFile.getParentFile().mkdirs();
