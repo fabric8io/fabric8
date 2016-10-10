@@ -34,7 +34,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <fabric8.maven.plugin.version>3.1.36</fabric8.maven.plugin.version>
+    <fabric8.maven.plugin.version>3.1.67</fabric8.maven.plugin.version>
   </properties>
 
   <developers>
@@ -119,6 +119,25 @@
         </executions>
       </plugin>
 
+      <plugin>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-maven-plugin</artifactId>
+         <version>9.2.3.v20140905</version>
+         <configuration>
+             <scanIntervalSeconds>10</scanIntervalSeconds>
+             <webAppSourceDirectory>target/fabric8/site</webAppSourceDirectory>
+             <contextHandlers>
+                 <contextHandler implementation="org.eclipse.jetty.server.handler.ContextHandler">
+                     <contextPath>/</contextPath>
+                     <resourceBase>target/fabric8/site</resourceBase>
+                     <handler implementation="org.eclipse.jetty.server.handler.ResourceHandler" />
+                 </contextHandler>
+             </contextHandlers>
+             <stopPort>9966</stopPort>
+             <stopKey>foo</stopKey>
+             <stopWait>10</stopWait>
+         </configuration>
+     </plugin>
     </plugins>
   </build>
 
