@@ -11,7 +11,6 @@ The [Fabric8 Microservices Platform](fabric8DevOps.html) provides:
   reliably using [Jenkins](https://jenkins.io/) with a
   [Jenkins Workflow Library](jenkinsWorkflowLibrary.html) for reusable
   CD pipelines 
-
 * [Management](http://fabric8.io/guide/management.html) of your
   applications with centralised
   [Logging](http://fabric8.io/guide/logging.html) and 
@@ -19,8 +18,6 @@ The [Fabric8 Microservices Platform](fabric8DevOps.html) provides:
   and [Chaos Monkey](http://fabric8.io/guide/chaosMonkey.html) along with deep
   management of Java Containers using [Hawtio](http://hawt.io/) and
   [Jolokia](http://jolokia.org/)
-  
-
 * [Integration](ipaas.html) *Integration Platform As A
 Service* with [deep visualisation](http://fabric8.io/guide/console.html) of your
 [Apache Camel](http://camel.apache.org/) integration services, an
@@ -29,7 +26,6 @@ all your RESTful and SOAP APIs and
 [Fabric8 MQ](http://fabric8.io/guide/fabric8MQ.html) provides
 *Messaging As A Service* based on
 [Apache ActiveMQ](http://activemq.apache.org/)
-
 * [Java Tools](http://fabric8.io/guide/tools.html) helps the
 Java community take full advantage of
 [Kubernetes](http://kubernetes.io/):

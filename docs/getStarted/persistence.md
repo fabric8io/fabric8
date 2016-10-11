@@ -6,7 +6,7 @@ So when you deploy fabric8 via [gofabric8](https://github.com/fabric8io/gofabric
 
 If you are using [minikube](https://github.com/jimmidyson/minikube) or [minishift](https://github.com/jimmidyson/minishift) then `gofabric8` automatically spins up the equivalent `PersistentVolume` resources for you using `HostPath` based PersistentVolumes - so things should just work!
 
-However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azuer, or NFS/Gluster/Ceph when on premise etc).
+However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azure, or NFS/Gluster/Ceph when on premise etc).
 
 We hope to take advantage of kubernetes 1.4 dynamic `PersistentVolume` provisioning to automatically spin these up to simplify installation.
 

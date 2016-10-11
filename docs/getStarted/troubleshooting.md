@@ -1,6 +1,6 @@
 ### Troubleshooting
 
-Be sure to check how to  [create ersistent volumes or opt out of persistence](persistence.html) 
+Be sure to check how to  [create persistent volumes or opt out of persistence](persistence.html) 
 
 With Linux, Docker, Kubernetes / OpenShift plus optionally Vagrant / VirtualBox / VMs there are various things that can go wrong unfortunately! We really try to make stuff Just Work (tm) but now and again things fall through the cracks.
 
