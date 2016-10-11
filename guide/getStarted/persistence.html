@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3" data-basepath=".." data-revision="Mon Oct 10 2016 10:55:08 GMT+0000 (UTC)">
+    <div class="book" data-level="2.3" data-basepath=".." data-revision="Tue Oct 11 2016 11:46:36 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1775,7 +1775,7 @@
 <p>Various apps in the fabric8 microservice platform require persistence (e.g.gogs, nexus, jenkins). The apps use the kubernetes resource <code>PersistentVolumeClaim</code> to specify their needs for a <code>PersistentVolume</code></p>
 <p>So when you deploy fabric8 via <a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> by default this will create a number (5-6) of <code>PersistentVolumeClaim</code> resources.</p>
 <p>If you are using <a href="https://github.com/jimmidyson/minikube" target="_blank">minikube</a> or <a href="https://github.com/jimmidyson/minishift" target="_blank">minishift</a> then <code>gofabric8</code> automatically spins up the equivalent <code>PersistentVolume</code> resources for you using <code>HostPath</code> based PersistentVolumes - so things should just work!</p>
-<p>However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azuer, or NFS/Gluster/Ceph when on premise etc).</p>
+<p>However on any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azure, or NFS/Gluster/Ceph when on premise etc).</p>
 <p>We hope to take advantage of kubernetes 1.4 dynamic <code>PersistentVolume</code> provisioning to automatically spin these up to simplify installation.</p>
 <h3 id="viewing-the-pv-and-pvcs"><a name="viewing-the-pv-and-pvcs" class="plugin-anchor" href="#viewing-the-pv-and-pvcs"><span class="fa fa-link"></span></a>Viewing the PV and PVCs</h3>
 <p>To see the current <code>PersistentVolumeClaim</code> and <code>PersistentVolume</code> resources use the following commands</p>
