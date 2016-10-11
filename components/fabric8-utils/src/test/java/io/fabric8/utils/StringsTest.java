@@ -236,6 +236,8 @@ public class StringsTest {
     public void testReplaceAllWithoutRegex() throws Exception {
         assertEquals("bar-123-bar-bar", Strings.replaceAllWithoutRegex("foo-123-foo-foo", "foo","bar"));
         assertEquals("-barbar-", Strings.replaceAllWithoutRegex("-foofoo-", "foo","bar"));
+        assertEquals("foo {{'{{'}} bar {{'{{'}} whatnot", Strings.replaceAllWithoutRegex("foo {{ bar {{ whatnot", "{{", "{{'{{'}}"));
+        assertEquals("-bar-barbar-bar", Strings.replaceAllWithoutRegex("-foo-foofoo-foo", "foo","bar"));
     }
 
 

@@ -406,9 +406,12 @@ public class Strings {
         }
         int idx = 0;
         while (true) {
-            idx = text.indexOf(from, 0);
+            idx = text.indexOf(from, idx);
             if (idx >= 0) {
                 text = text.substring(0, idx) + to + text.substring(idx + from.length());
+
+                // lets start searching after the end of the `to` to avoid possible infinite recursion
+                idx += to.length();
             } else {
                 break;
             }
