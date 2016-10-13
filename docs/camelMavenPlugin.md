@@ -16,10 +16,10 @@ To enable this plugin add the following to your pom.xml:
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>2.2.208</version>
+        <version>2.3.52</version>
       </plugin>
 
-Notice the version number (current 2.2.208) is the fabric8-forge release. You can find the [latest release number](https://github.com/fabric8io/fabric8-forge/releases) on github. 
+Notice the version number (current 2.3.52) is the fabric8-forge release. You can find the [latest release number](https://github.com/fabric8io/fabric8-forge/releases) on github. 
 
 Then you can run the validate goal from the command line or from within your Java editor such as IDEA or Eclipse.
 
@@ -30,7 +30,7 @@ You can also enable the plugin to automatic run as part of the build to catch th
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>2.2.208</version>
+        <version>2.3.52</version>
         <executions>
           <execution>
             <phase>process-classes</phase>      
@@ -48,7 +48,7 @@ The maven plugin can also be configured to validate the test source code , which
       <plugin>
         <groupId>io.fabric8.forge</groupId>
         <artifactId>fabric8-camel-maven-plugin</artifactId>
-        <version>2.2.208</version>
+        <version>2.3.52</version>
         <executions>
           <execution>
             <configuration>
@@ -68,7 +68,7 @@ The maven plugin can also be configured to validate the test source code , which
 You can also run the validate goal on any Maven project without having to add the plugin to the `pom.xml` file. Doing so requires to specify the plugin using its fully qualified name. For example to run the goal on the camel-example-cdi from Apache Camel you can run
 
     $cd camel-example-cdi
-    $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate
+    $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.3.52:validate
 
 which then runs and outputs the following:
 
@@ -77,7 +77,7 @@ which then runs and outputs the following:
 [INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
-[INFO] --- fabric8-camel-maven-plugin:2.2.208:validate (default-cli) @ camel-example-cdi ---
+[INFO] --- fabric8-camel-maven-plugin:2.3.52:validate (default-cli) @ camel-example-cdi ---
 [INFO] Endpoint validation success: (4 = passed, 0 = invalid, 0 = incapable, 0 = unknown components)
 [INFO] Simple validation success: (0 = passed, 0 = invalid)
 [INFO] ------------------------------------------------------------------------
@@ -100,7 +100,7 @@ And when running the validate goal again reports the following:
 [INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
-[INFO] --- fabric8-camel-maven-plugin:2.2.208:validate (default-cli) @ camel-example-cdi ---
+[INFO] --- fabric8-camel-maven-plugin:2.3.52:validate (default-cli) @ camel-example-cdi ---
 [WARNING] Endpoint validation error at: org.apache.camel.example.cdi.MyRoutes(MyRoutes.java:32)
 
 	timer:foo?perid=5000
@@ -125,6 +125,11 @@ The maven plugin supports the following options which can be configured from the
 <th>Parameter</th>
 <th>Default Value</th>
 <th>Description</th>
+</tr>
+<tr>
+<td>downloadVersion</td>
+<td>true</td>
+<td>Whether to allow downloading Camel catalog version from the internet. This is needed if the project uses a different Camel version than this plugin is using by default.</td>
 </tr>
 <tr>
 <td>failOnError</td>
@@ -188,5 +193,5 @@ The maven plugin supports the following options which can be configured from the
 If you have a Maven project then you can run the plugin to validate the endpoints in the unit test source code as well. You can pass in the options using `-D` style as shown:
 
     $cd myproject
-    $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate -DincludeTest=true
+    $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.3.52:validate -DincludeTest=true
 
