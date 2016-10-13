@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.1.1" data-basepath="." data-revision="Thu Oct 13 2016 08:47:42 GMT+0000 (UTC)">
+    <div class="book" data-level="8.1.1" data-basepath="." data-revision="Thu Oct 13 2016 10:38:29 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1783,16 +1783,16 @@
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;2.2.208&lt;/version&gt;
+    &lt;version&gt;2.3.52&lt;/version&gt;
   &lt;/plugin&gt;
-</code></pre><p>Notice the version number (current 2.2.208) is the fabric8-forge release. You can find the <a href="https://github.com/fabric8io/fabric8-forge/releases" target="_blank">latest release number</a> on github. </p>
+</code></pre><p>Notice the version number (current 2.3.52) is the fabric8-forge release. You can find the <a href="https://github.com/fabric8io/fabric8-forge/releases" target="_blank">latest release number</a> on github. </p>
 <p>Then you can run the validate goal from the command line or from within your Java editor such as IDEA or Eclipse.</p>
 <pre><code> mvn fabric8-camel:validate
 </code></pre><p>You can also enable the plugin to automatic run as part of the build to catch these errors.</p>
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;2.2.208&lt;/version&gt;
+    &lt;version&gt;2.3.52&lt;/version&gt;
     &lt;executions&gt;
       &lt;execution&gt;
         &lt;phase&gt;process-classes&lt;/phase&gt;      
@@ -1807,7 +1807,7 @@
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8.forge&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-camel-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;2.2.208&lt;/version&gt;
+    &lt;version&gt;2.3.52&lt;/version&gt;
     &lt;executions&gt;
       &lt;execution&gt;
         &lt;configuration&gt;
@@ -1823,13 +1823,13 @@
 </code></pre><h3 id="running-the-goal-on-any-maven-project"><a name="running-the-goal-on-any-maven-project" class="plugin-anchor" href="#running-the-goal-on-any-maven-project"><span class="fa fa-link"></span></a>Running the goal on any Maven project</h3>
 <p>You can also run the validate goal on any Maven project without having to add the plugin to the <code>pom.xml</code> file. Doing so requires to specify the plugin using its fully qualified name. For example to run the goal on the camel-example-cdi from Apache Camel you can run</p>
 <pre><code>$cd camel-example-cdi
-$mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate
+$mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.3.52:validate
 </code></pre><p>which then runs and outputs the following:</p>
 <pre><code>[INFO] ------------------------------------------------------------------------
 [INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
-[INFO] --- fabric8-camel-maven-plugin:2.2.208:validate (default-cli) @ camel-example-cdi ---
+[INFO] --- fabric8-camel-maven-plugin:2.3.52:validate (default-cli) @ camel-example-cdi ---
 [INFO] Endpoint validation success: (4 = passed, 0 = invalid, 0 = incapable, 0 = unknown components)
 [INFO] Simple validation success: (0 = passed, 0 = invalid)
 [INFO] ------------------------------------------------------------------------
@@ -1844,7 +1844,7 @@ $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate
 [INFO] Building Camel :: Example :: CDI 2.16.2
 [INFO] ------------------------------------------------------------------------
 [INFO]
-[INFO] --- fabric8-camel-maven-plugin:2.2.208:validate (default-cli) @ camel-example-cdi ---
+[INFO] --- fabric8-camel-maven-plugin:2.3.52:validate (default-cli) @ camel-example-cdi ---
 [WARNING] Endpoint validation error at: org.apache.camel.example.cdi.MyRoutes(MyRoutes.java:32)
 
     timer:foo?perid=5000
@@ -1864,6 +1864,11 @@ $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate
 <th>Parameter</th>
 <th>Default Value</th>
 <th>Description</th>
+</tr>
+<tr>
+<td>downloadVersion</td>
+<td>true</td>
+<td>Whether to allow downloading Camel catalog version from the internet. This is needed if the project uses a different Camel version than this plugin is using by default.</td>
 </tr>
 <tr>
 <td>failOnError</td>
@@ -1925,7 +1930,7 @@ $mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate
 <h3 id="validating-include-test"><a name="validating-include-test" class="plugin-anchor" href="#validating-include-test"><span class="fa fa-link"></span></a>Validating include test</h3>
 <p>If you have a Maven project then you can run the plugin to validate the endpoints in the unit test source code as well. You can pass in the options using <code>-D</code> style as shown:</p>
 <pre><code>$cd myproject
-$mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.2.208:validate -DincludeTest=true
+$mvn io.fabric8.forge:fabric8-camel-maven-plugin:2.3.52:validate -DincludeTest=true
 </code></pre>
                     
                     </section>
