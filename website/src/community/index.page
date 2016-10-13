@@ -74,18 +74,23 @@ title: join the fabric8 community!
   </div>
   <!-- end stack overflow -->
 
-  <!-- begin IRC -->
+  <!-- begin Slack -->
   <div class="row">
     <div class="col-md-12">
-      <h2><img style="max-width: 48px; max-height: 48px;" src="/images/irc.png"/>
+      <h2><img style="max-width: 48px; max-height: 48px;" src="/images/logos/slack.png"/>
         Chat</h2>
 
-      <p>Come and chat with our team and community!</p>
+      <p>Come and chat with our team and community on Slack!</p>
       <p><a class="btn btn-primary"
-            href="https://riot.im/app/#/room/#freenode_#fabric8:matrix.org">Chat</a>
+            href="https://fabric8.slack.com/">Slack</a>
       </p>
 
-      <p>If you prefer IRC then join the <b>#fabric8</b> channel on <b>irc.freenode.net</b> </p>
+      <p>Or if you prefer web based IRC</p>
+      <p><a class="btn btn-primary"
+            href="https://riot.im/app/#/room/#freenode_#fabric8:matrix.org">IRC</a>
+      </p>
+
+      <p>If you use an IRC client then join the <b>#fabric8</b> channel on <b>irc.freenode.net</b> </p>
 
       <p><a class="btn btn-primary"
             href="http://transcripts.jboss.org/channel/irc.freenode.org/%23fabric8/latest.log.html">History</a>
