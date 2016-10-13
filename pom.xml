@@ -159,6 +159,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.2.7.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
+        <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
         <sundrio.version>0.3.9</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.8</zookeeper.version>
@@ -1460,6 +1461,21 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                  </dependencyManagement>
+                              </import>
+                              <import>
+                                  <groupId>io.fabric8</groupId>
+                                  <artifactId>spring-cloud-kubernetes-bom-with-platform-deps</artifactId>
+                                  <version>${spring-cloud-kubernetes.version}</version>
+                                  <dependencyManagement>
+                                      <includes>
+                                          <include>*:*</include>
+                                      </includes>
+                                      <excludes>
+                                          <exclude>org.springframework:*</exclude>
+                                          <exclude>org.springframework.boot:*</exclude>
+                                          <exclude>commons-lang:commons-lang</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                           </imports>
