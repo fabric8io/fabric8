@@ -20,6 +20,20 @@ Fabric8 (pronounced _fabricate_) gives you out of the box services that assist y
 
 Fabric8 provides upstream innovation on concepts and features, once validated, make their way into other open source projects such as [OpenShift Origin](https://github.com/openshift/origin), [Kubernetes](http://kubernetes.io) and [Jenkins](https://jenkins.io/) (as examples). Fabric8 contributors work in the various other open source communities to align a unified developer experience.
 
+#### What is the overlap with oc/kubectl/webconsole and fabric8-maven-plugin
+
+None!
+
+`oc`/`kubectl`/`webconsnole` are all great tools that end up operating on the same resources through the Kubernetes/OpenShift API. They can be used at any point to help manage your applications. The [fabric8-maven-plugin](http://maven.fabric8.io) is intended for Java developers developing applications "pre git-commit" on their laptops. It gives Java developers a familiar way of building/deploying their applications as well as logging, debugging, and live-reloading their applications using Kubernetes as an application cloud. Developers can use their favorite IDE which typically has great maven integration. The sweet spot of Kubernetes/OpenShift is dealing with the build, deploy, and management of applications *after* a git commit/push. The CLI/webconsole is great at working with API resources, import projects from git, or spin up new projects from a template. 
+
+The fabric8-maven-plugin helps Java developers migrate existing maven projects to Kubernetes/OpenShift as well. We're all [busy Java developers](https://blog.fabric8.io/a-busy-java-developers-guide-to-developing-microservices-on-kubernetes-and-docker-98b7b9816fdf#.gns2q8wle) and although it would be great to learn the ins/outs of kubectl, oc, Docker, Rkt, CNCF, OCI, Kubernetes, etc, the fabric8-maven-plugin helps abstract some of that away so we can be productive using tooling similar to others (any application-server maven plugin, spring-boot plugin, etc. fabric8-maven-plugin feels just like those others)
+
+#### How should we create the Kubernetes/OpenShift manifest files
+
+However you'd like. The fabric8-maven-plugin does help automatically generate this for you as part of your builds and even attach these resource files as build artifacts so they can be versioned and pushed to a central artifact repository. 
+
+The fabric8-maven-plugin generates the JSON/YAML resource files and can be customized using maven configurations. See the [documentation for fabric8-maven-plugin for more details](http://maven.fabric8.io). It can also introspect your projects and be a lot smarter about what resources to include (eg, health/liveness checks can automatically be enabled in the Kubernetes resource files if you've got, for example, spring-boot actuator or some other http endpoint that can expose liveness information).
+
 #### What value does fabric8 add over OpenShift?
 
 * [OpenShift V3](https://github.com/openshift/origin) extends Kubernetes to support a full _Platform As A Service_
