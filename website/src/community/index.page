@@ -4,21 +4,6 @@ title: join the fabric8 community!
 <!-- begin container -->
 <div class="container community">
 
-  <!-- begin community header -->
-  <div class="row">
-    <div class="col-md-12">
-      <h1>Community</h1>
-      <div id="intro">
-        <p>Welcome to the <b>fabric8</b> community! We love contributions!</p>
-
-        <p><a class="btn btn-primary" href="/contributing/index.html">How To Contribute</a></p>
-
-        <p>Please dive in wherever takes your fancy! Or check out the following blogs and videos for inspiration:</p>
-      </div>
-    </div>
-  </div>
-  <!-- end community header -->
-
   <!-- begin blog -->
   <div class="row">
     <div class="col-md-12">
@@ -93,16 +78,18 @@ title: join the fabric8 community!
   <div class="row">
     <div class="col-md-12">
       <h2><img style="max-width: 48px; max-height: 48px;" src="/images/irc.png"/>
-        Chat (IRC)</h2>
+        Chat</h2>
 
-      <p>We invite you to join us in the <b>#fabric8</b> channel on <b>irc.freenode.net</b> to chat about fabric8</p>
+      <p>Come and chat with our team and community!</p>
+      <p><a class="btn btn-primary"
+            href="https://riot.im/app/#/room/#freenode_#fabric8:matrix.org">Chat</a>
+      </p>
 
-      <p>If you want to watch git activity for the fabric8 related github repositories you can lurk in the <b>#fabric8git</b> channel on <b>irc.freenode.net</b></p>
+      <p>If you prefer IRC then join the <b>#fabric8</b> channel on <b>irc.freenode.net</b> </p>
 
       <p><a class="btn btn-primary"
-            href="http://transcripts.jboss.org/channel/irc.freenode.org/%23fabric8/latest.log.html">IRC History</a>
+            href="http://transcripts.jboss.org/channel/irc.freenode.org/%23fabric8/latest.log.html">History</a>
       </p>
-      <p>This channel is logged by JBossBot. The JBossBot is also present to expand issue numbers from the issue tracker.</p>
     </div>
   </div>
   <!-- end IRC -->
@@ -149,7 +136,7 @@ title: join the fabric8 community!
       <p>All the fabric8 source code is managed using the distributed version system <a href="http://git-scm.com">git</a>
         and hosted on <a href="http://github.com/">github</a>.</p>
 
-      <p><a class="btn btn-primary" href="http://github.com/fabric8io/fabric8">fabric8 @ github</a></p>
+      <p><a class="btn btn-primary" href="http://github.com/fabric8io/fabric8">github</a></p>
 
 
       <p>Both git and Github are awesome for collaboration! To make improvements or bug fixes to the fabric8 project,
@@ -158,6 +145,21 @@ title: join the fabric8 community!
     </div>
   </div>
   <!-- end source repository -->
+
+  <!-- begin community -->
+  <div class="row">
+    <div class="col-md-12">
+      <h2><img style="max-width: 48px; max-height: 48px;" src="/images/contribute.png"/> Contributing</h2>
+      <div id="intro">
+        <p>We love contributions!</p>
+
+        <p><a class="btn btn-primary" href="/contributing/index.html">How To Contribute</a></p>
+
+        <p>Please dive in wherever takes your fancy!</p>
+      </div>
+    </div>
+  </div>
+  <!-- end community -->
 
 </div>
 <!-- end container -->
