@@ -24,6 +24,9 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
+
+import static io.fabric8.arquillian.kubernetes.enricher.EnricherUtils.getLabels;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.PodList}.
@@ -46,6 +49,12 @@ public class PodListResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-        return client.pods().inNamespace(session.getNamespace()).list();
+
+        Map<String, String> labels = getLabels(qualifiers);
+        if( labels.isEmpty() ) {
+            return client.pods().inNamespace(session.getNamespace()).list();
+        } else{
+            return client.pods().inNamespace(session.getNamespace()).withLabels(labels).list();
+        }
     }
 }
