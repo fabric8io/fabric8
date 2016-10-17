@@ -15,11 +15,11 @@
  */
 package io.fabric8.arquillian.kubernetes.enricher;
 
-import io.fabric8.annotations.PodName;
-import io.fabric8.annotations.ReplicationControllerName;
-import io.fabric8.annotations.ServiceName;
+import io.fabric8.annotations.*;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EnricherUtils {
 
@@ -50,5 +50,21 @@ public final class EnricherUtils {
             }
         }
         return null;
+    }
+
+    static Map<String, String> getLabels(Annotation... qualifiers) {
+        HashMap<String, String> rc = new HashMap<String, String>();
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof WithLabel) {
+                WithLabel l = (WithLabel) annotation;
+                rc.put(l.name(), l.value());
+            } else if (annotation instanceof WithLabels) {
+                WithLabels ls = (WithLabels) annotation;
+                for (WithLabel l : ls.value()) {
+                    rc.put(l.name(), l.value());
+                }
+            }
+        }
+        return rc;
     }
 }
