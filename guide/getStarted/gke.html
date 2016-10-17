@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1.3" data-basepath=".." data-revision="Mon Oct 17 2016 16:42:54 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1.3" data-basepath=".." data-revision="Mon Oct 17 2016 20:55:44 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1791,15 +1791,16 @@ kubectl config set-context demo --user=demo --namespace=default --cluster=demo
 kubectl config use-context demo
 </code></pre><p>Check your nodes are running</p>
 <pre><code>kubectl get nodes
+</code></pre><p>We will be deploying an NGINX Ingress controller so that we can access our applications running on Kubernetes.  In order to access the contoller we will need to open up two firewalls on Google Cloud:</p>
+<pre><code>gcloud compute firewall-rules create fabric8-http --allow tcp:80,icmp
+gcloud compute firewall-rules create fabric8-https --allow tcp:443,icmp
 </code></pre><h3 id="install-the-fabric8-microservices-platform-default-applications"><a name="install-the-fabric8-microservices-platform-default-applications" class="plugin-anchor" href="#install-the-fabric8-microservices-platform-default-applications"><span class="fa fa-link"></span></a>Install the fabric8 microservices platform default applications</h3>
+<p><strong>WARNING</strong> fabric8 has recently added support for persistent volumes but we don&apos;t have this available on GKE yet.  Pods that run on GKE with the OOTB configuration will loose data if a pod is restarted.</p>
 <p>Next we want to deploy the fabric8 microservices platform components on top of Kubernetes, get the latest <code>gofabric8</code> binary from  <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> and run</p>
 <pre><code>gofabric8 deploy
 </code></pre><p>gofabric8 will use the local credentials on your remote machine from <code>~/.kube/config</code> after the authentication script above</p>
-<p>It may make a few minutes to download a number of docker images but to track progress you can watch progress using</p>
-<pre><code>kubectl get pod -w
-</code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console</p>
-<pre><code>open https://$KUBERNETES_SERVER/api/v1/proxy/namespaces/default/services/fabric8/
-</code></pre><h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
+<p>It may make a few minutes to download a number of docker images but once the console is available the your browser should open and be taken to the dashboard.</p>
+<h3 id="using-the-console"><a name="using-the-console" class="plugin-anchor" href="#using-the-console"><span class="fa fa-link"></span></a>Using the console</h3>
 <p>Here is a <a href="https://vimeo.com/173353537" target="_blank">video showing you what you can do with the console on Google Container Engine</a></p>
 <div class="row">
   <p class="text-center">
@@ -1813,11 +1814,15 @@ kubectl config use-context demo
 <p>For example if your Google Container Engine project ID is <code>fabric8-984</code>, to Docker build, tag and push to your Google projects container registry</p>
 <pre><code>docker build --rm -t gcr.io/fabric8-984/fabric8-console .
 gcloud docker push gcr.io/fabric8-984/fabric8-console
-</code></pre><h3 id="load-balancer"><a name="load-balancer" class="plugin-anchor" href="#load-balancer"><span class="fa fa-link"></span></a>Load Balancer</h3>
-<p>The Google Container Load Balancer can take a minute or two to create an external IP that can be used to access your services.  Best way to check is to wait for your Kubernetes services to display an <code>EXTERNAL_IP</code> using</p>
-<pre><code>kubectl get svc -w
 </code></pre><h3 id="google-container-engine-quotas"><a name="google-container-engine-quotas" class="plugin-anchor" href="#google-container-engine-quotas"><span class="fa fa-link"></span></a>Google Container Engine Quotas</h3>
-<p>It&apos;s easy to exceed the default limits provided by Google Container Engine when starting out.  Navigating to the Google Container Engine Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP&apos;s and firewalls.  Here are a few <code>gcloud</code> commands that can help clean up after tearing down a cluster and GC your resources</p>
+<p>It&apos;s easy to exceed the default limits provided by Google Container Engine when starting out.  Navigating to the Google Container Engine Admin dashboard allows you to see how you are doing with your quotas.  For example it was easy to exceed the basic number of forwarding rules, static IP&apos;s and firewalls.  Here are a few <code>gcloud</code> commands that can help find and optionally delete ALL resources</p>
+<pre><code>gcloud compute addresses list
+gcloud compute target-pools list
+gcloud compute firewall-rules list
+gcloud compute forwarding-rules list
+</code></pre><p>then you can delete any resources using the UID, e.g.</p>
+<pre><code>gcloud compute addresses delete ae1a489594dc311e6876942010af0009
+</code></pre><p>or to delete ALL resources</p>
 <pre><code>gcloud compute addresses delete $(gcloud compute addresses list | cut -f 1 -d &apos; &apos;)
 gcloud compute target-pools delete $(gcloud compute target-pools list | cut -f 1 -d &apos; &apos;)
 gcloud compute firewall-rules delete $(gcloud compute firewall-rules list | cut -f 1 -d &apos; &apos;)
