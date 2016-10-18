@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.2.3" data-basepath=".." data-revision="Tue Oct 18 2016 22:40:10 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2.3" data-basepath=".." data-revision="Tue Oct 18 2016 23:16:43 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1775,6 +1775,16 @@
 <p>The <a href="https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#overview" target="_blank">oc cluster up</a> command starts a local OpenShift all-in-one cluster with a configured registry, router, image streams, and default templates. By default, the command requires a working Docker connection. However, if running in an environment with Docker Machine installed, it can create a Docker machine for you.</p>
 <h3 id="start-the-cluster"><a name="start-the-cluster" class="plugin-anchor" href="#start-the-cluster"><span class="fa fa-link"></span></a>Start the cluster</h3>
 <p>Follow the <a href="https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#getting-started" target="_blank">getting started guide</a> to start the cluster</p>
+<h3 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h3>
+<ul>
+<li><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
+</ul>
+<p>Now type the following:</p>
+<pre><code class="lang-sh">gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
+</code></pre>
+<p>At any point you can validate your installation via:</p>
+<pre><code class="lang-sh">gofabric8 validate
+</code></pre>
 <h3 id="extra-setup"><a name="extra-setup" class="plugin-anchor" href="#extra-setup"><span class="fa fa-link"></span></a>Extra setup</h3>
 <p>As this is using the OpenShift all-in-one cluster we have to update the origin master config so that the fabric8 console can work.  These steps are a little fiddly so hopefully we can find a better way to automate this.</p>
 <p>get the fabric8 console hostname</p>
@@ -1797,16 +1807,6 @@ sudo vi /var/lib/origin/openshift.local.config/master/master-config.yaml
 </code></pre>
 <p>oc cluster up suggests to use the <code>developer:developer</code> username and password to login. If you use this account then you&apos;ll need to give it permissions to see the default team that gets created. Easiest way to do this is run:</p>
 <pre><code class="lang-sh">oc adm policy add-cluster-role-to-user cluster-admin developer
-</code></pre>
-<h3 id="run-the-gofabric8-installer"><a name="run-the-gofabric8-installer" class="plugin-anchor" href="#run-the-gofabric8-installer"><span class="fa fa-link"></span></a>Run the gofabric8 installer</h3>
-<ul>
-<li><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
-</ul>
-<p>Now type the following:</p>
-<pre><code class="lang-sh">gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
-</code></pre>
-<p>At any point you can validate your installation via:</p>
-<pre><code class="lang-sh">gofabric8 validate
 </code></pre>
 <h3 id="access-the-fabric8-developer-console"><a name="access-the-fabric8-developer-console" class="plugin-anchor" href="#access-the-fabric8-developer-console"><span class="fa fa-link"></span></a>Access the Fabric8 Developer Console</h3>
 <p>To open the <a href="../console.html">Fabric8 Developer Console</a> then type the following:</p>
