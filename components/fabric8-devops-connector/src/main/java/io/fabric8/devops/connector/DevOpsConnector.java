@@ -40,6 +40,7 @@ import io.fabric8.openshift.api.model.BuildConfigSpec;
 import io.fabric8.openshift.api.model.BuildSource;
 import io.fabric8.openshift.api.model.GitBuildSource;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.project.support.GitUtils;
 import io.fabric8.repo.git.GitRepoClient;
 import io.fabric8.repo.git.GitRepoKubernetes;
 import io.fabric8.taiga.ModuleDTO;
@@ -50,6 +51,7 @@ import io.fabric8.taiga.TaigaModule;
 import io.fabric8.utils.DomHelper;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.fabric8.utils.URLUtils;
@@ -97,6 +99,8 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1084,6 +1088,16 @@ public class DevOpsConnector {
                     triggerElement = DomHelper.addChildElement(rootElement, "triggers");
                 } else {
                     triggerElement = (Element) triggers.item(0);
+                }
+                String hostName = GitUtils.getGitHostName(gitUrl);
+                getLog().info("using git host: " + hostName);
+                if (Objects.equal("github.com", hostName)) {
+                    Element githubTrigger = DomHelper.firstChild(triggerElement, "com.cloudbees.jenkins.GitHubPushTrigger");
+                    if (githubTrigger == null) {
+                        githubTrigger = DomHelper.addChildElement(triggerElement, "com.cloudbees.jenkins.GitHubPushTrigger");
+                        githubTrigger.setAttribute("plugin", "github@1.14.0");
+                        DomHelper.addChildElement(githubTrigger, "spec");
+                    }
                 }
                 Element scmTrigger = DomHelper.addChildElement(triggerElement, "hudson.triggers.SCMTrigger");
                 DomHelper.addChildElement(scmTrigger, "spec", "* * * * * ");

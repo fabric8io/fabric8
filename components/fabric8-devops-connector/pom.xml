@@ -51,6 +51,10 @@
         -->
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-project-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>letschat-api</artifactId>
         </dependency>
         <dependency>
