@@ -158,7 +158,7 @@
         <servlet-api.version>2.5</servlet-api.version>
         <shrinkwrap-resolver.version>2.2.2</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <spring.version>4.2.7.RELEASE</spring.version>
+        <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
         <sundrio.version>0.3.10</sundrio.version>
