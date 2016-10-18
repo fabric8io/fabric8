@@ -19,7 +19,7 @@ and it'll install/upgrade the [CD Pipeline chart](cdelivery.html).
 Just [download the binary for your platform](https://bintray.com/fabric8io/helm-ci/helm/view#files/), add it to your `$PATH` and type:
 
     helm update
-    helm repo add fabric8 https://github.com/fabric8io/charts.git
+    helm repo add fabric8 https://fabric8.io/helm/
 
 Now helm will be pointed at the [fabric8 chart repository](https://github.com/fabric8io/charts) so you can `search`, `install`or `upgrade` the fabric8 charts.
 
