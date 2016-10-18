@@ -161,7 +161,7 @@
         <spring.version>4.2.7.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
-        <sundrio.version>0.3.9</sundrio.version>
+        <sundrio.version>0.3.10</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.8</zookeeper.version>
         <commons-codec.version>1.10</commons-codec.version>
