@@ -6,6 +6,22 @@ The [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster
 
 Follow the [getting started guide](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#getting-started) to start the cluster
 
+### Run the gofabric8 installer
+
+* [Download a gofabric8 binary for your platform](https://github.com/fabric8io/gofabric8/releases), extract it and add it to your `$PATH`
+
+Now type the following:
+
+```sh
+gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
+```
+
+At any point you can validate your installation via:
+
+```sh
+gofabric8 validate
+```
+
 ### Extra setup
 
 As this is using the OpenShift all-in-one cluster we have to update the origin master config so that the fabric8 console can work.  These steps are a little fiddly so hopefully we can find a better way to automate this.
@@ -50,23 +66,6 @@ oc cluster up suggests to use the `developer:developer` username and password to
 ```sh
 oc adm policy add-cluster-role-to-user cluster-admin developer
 ```
-
-### Run the gofabric8 installer
-
-* [Download a gofabric8 binary for your platform](https://github.com/fabric8io/gofabric8/releases), extract it and add it to your `$PATH`
-
-Now type the following:
-
-```sh
-gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
-```
-
-At any point you can validate your installation via:
-
-```sh
-gofabric8 validate
-```
-
 
 ### Access the Fabric8 Developer Console
 
