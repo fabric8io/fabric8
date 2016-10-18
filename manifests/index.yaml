@@ -62,6 +62,90 @@ app-catalog-1.0.19:
   version: "1.0.19"
   id: "app_catalog_1_0_19"
   valid: false
+app-catalog-1.0.20:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.20/app-catalog-1.0.20-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.20/app-catalog-1.0.20-openshift.yml"
+  name: "app-catalog"
+  version: "1.0.20"
+  id: "app_catalog_1_0_20"
+  valid: false
+app-catalog-1.0.21:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.21/app-catalog-1.0.21-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.21/app-catalog-1.0.21-openshift.yml"
+  name: "app-catalog"
+  version: "1.0.21"
+  id: "app_catalog_1_0_21"
+  valid: false
+app-catalog-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.22/app-catalog-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.22/app-catalog-1.0.22-openshift.yml"
+  name: "app-catalog"
+  version: "1.0.22"
+  id: "app_catalog_1_0_22"
+  valid: false
+app-catalog-2.2.1:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.1/app-catalog-2.2.1-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.1/app-catalog-2.2.1-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.1"
+  id: "app_catalog_2_2_1"
+  valid: false
+app-catalog-2.2.10:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.10/app-catalog-2.2.10-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.10/app-catalog-2.2.10-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.10"
+  id: "app_catalog_2_2_10"
+  valid: false
+app-catalog-2.2.2:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.2/app-catalog-2.2.2-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.2/app-catalog-2.2.2-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.2"
+  id: "app_catalog_2_2_2"
+  valid: false
+app-catalog-2.2.3:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.3/app-catalog-2.2.3-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.3/app-catalog-2.2.3-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.3"
+  id: "app_catalog_2_2_3"
+  valid: false
+app-catalog-2.2.4:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.4/app-catalog-2.2.4-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.4/app-catalog-2.2.4-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.4"
+  id: "app_catalog_2_2_4"
+  valid: false
+app-catalog-2.2.5:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.5/app-catalog-2.2.5-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.5/app-catalog-2.2.5-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.5"
+  id: "app_catalog_2_2_5"
+  valid: false
+app-catalog-2.2.6:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.6/app-catalog-2.2.6-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.6/app-catalog-2.2.6-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.6"
+  id: "app_catalog_2_2_6"
+  valid: false
+app-catalog-2.2.8:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.8/app-catalog-2.2.8-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.8/app-catalog-2.2.8-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.8"
+  id: "app_catalog_2_2_8"
+  valid: false
+app-catalog-2.2.9:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.9/app-catalog-2.2.9-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.2.9/app-catalog-2.2.9-openshift.yml"
+  name: "app-catalog"
+  version: "2.2.9"
+  id: "app_catalog_2_2_9"
+  valid: false
 artifactory-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.223/artifactory-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.223/artifactory-2.2.223-openshift.yml"
@@ -285,6 +369,48 @@ artifactory-2.2.265:
   name: "artifactory"
   version: "2.2.265"
   id: "artifactory_2_2_265"
+  valid: false
+artifactory-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.267/artifactory-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.267/artifactory-2.2.267-openshift.yml"
+  name: "artifactory"
+  version: "2.2.267"
+  id: "artifactory_2_2_267"
+  valid: false
+artifactory-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.268/artifactory-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.268/artifactory-2.2.268-openshift.yml"
+  name: "artifactory"
+  version: "2.2.268"
+  id: "artifactory_2_2_268"
+  valid: false
+artifactory-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.270/artifactory-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.270/artifactory-2.2.270-openshift.yml"
+  name: "artifactory"
+  version: "2.2.270"
+  id: "artifactory_2_2_270"
+  valid: false
+artifactory-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.271/artifactory-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.271/artifactory-2.2.271-openshift.yml"
+  name: "artifactory"
+  version: "2.2.271"
+  id: "artifactory_2_2_271"
+  valid: false
+artifactory-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.272/artifactory-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.272/artifactory-2.2.272-openshift.yml"
+  name: "artifactory"
+  version: "2.2.272"
+  id: "artifactory_2_2_272"
+  valid: false
+artifactory-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.273/artifactory-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.273/artifactory-2.2.273-openshift.yml"
+  name: "artifactory"
+  version: "2.2.273"
+  id: "artifactory_2_2_273"
   valid: false
 brackets-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.223/brackets-2.2.223-kubernetes.yml"
@@ -510,6 +636,48 @@ brackets-2.2.265:
   version: "2.2.265"
   id: "brackets_2_2_265"
   valid: false
+brackets-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.267/brackets-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.267/brackets-2.2.267-openshift.yml"
+  name: "brackets"
+  version: "2.2.267"
+  id: "brackets_2_2_267"
+  valid: false
+brackets-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.268/brackets-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.268/brackets-2.2.268-openshift.yml"
+  name: "brackets"
+  version: "2.2.268"
+  id: "brackets_2_2_268"
+  valid: false
+brackets-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.270/brackets-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.270/brackets-2.2.270-openshift.yml"
+  name: "brackets"
+  version: "2.2.270"
+  id: "brackets_2_2_270"
+  valid: false
+brackets-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.271/brackets-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.271/brackets-2.2.271-openshift.yml"
+  name: "brackets"
+  version: "2.2.271"
+  id: "brackets_2_2_271"
+  valid: false
+brackets-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.272/brackets-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.272/brackets-2.2.272-openshift.yml"
+  name: "brackets"
+  version: "2.2.272"
+  id: "brackets_2_2_272"
+  valid: false
+brackets-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.273/brackets-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.273/brackets-2.2.273-openshift.yml"
+  name: "brackets"
+  version: "2.2.273"
+  id: "brackets_2_2_273"
+  valid: false
 camel-amq-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.148/camel-amq-2.2.148-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.148/camel-amq-2.2.148-openshift.yml"
@@ -670,6 +838,20 @@ cassandra-2.2.154:
   name: "cassandra"
   version: "2.2.154"
   id: "cassandra_2_2_154"
+  valid: false
+cd-pipeline-2.2.10:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.2.10/cd-pipeline-2.2.10-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.2.10/cd-pipeline-2.2.10-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.2.10"
+  id: "cd_pipeline_2_2_10"
+  valid: false
+cd-pipeline-2.2.9:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.2.9/cd-pipeline-2.2.9-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.2.9/cd-pipeline-2.2.9-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.2.9"
+  id: "cd_pipeline_2_2_9"
   valid: false
 cd-pipeline-2.3.10:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.10/cd-pipeline-2.3.10-kubernetes.yml"
@@ -838,6 +1020,41 @@ cd-pipeline-2.3.48:
   name: "cd-pipeline"
   version: "2.3.48"
   id: "cd_pipeline_2_3_48"
+  valid: false
+cd-pipeline-2.3.49:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.49/cd-pipeline-2.3.49-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.49/cd-pipeline-2.3.49-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.3.49"
+  id: "cd_pipeline_2_3_49"
+  valid: false
+cd-pipeline-2.3.50:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.50/cd-pipeline-2.3.50-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.50/cd-pipeline-2.3.50-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.3.50"
+  id: "cd_pipeline_2_3_50"
+  valid: false
+cd-pipeline-2.3.52:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.52/cd-pipeline-2.3.52-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.52/cd-pipeline-2.3.52-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.3.52"
+  id: "cd_pipeline_2_3_52"
+  valid: false
+cd-pipeline-2.3.53:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.53/cd-pipeline-2.3.53-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.53/cd-pipeline-2.3.53-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.3.53"
+  id: "cd_pipeline_2_3_53"
+  valid: false
+cd-pipeline-2.3.54:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.54/cd-pipeline-2.3.54-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.54/cd-pipeline-2.3.54-openshift.yml"
+  name: "cd-pipeline"
+  version: "2.3.54"
+  id: "cd_pipeline_2_3_54"
   valid: false
 cd-pipeline-2.3.8:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.8/cd-pipeline-2.3.8-kubernetes.yml"
@@ -1077,6 +1294,48 @@ chaos-monkey-2.2.265:
   version: "2.2.265"
   id: "chaos_monkey_2_2_265"
   valid: false
+chaos-monkey-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.267/chaos-monkey-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.267/chaos-monkey-2.2.267-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.267"
+  id: "chaos_monkey_2_2_267"
+  valid: false
+chaos-monkey-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.268/chaos-monkey-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.268/chaos-monkey-2.2.268-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.268"
+  id: "chaos_monkey_2_2_268"
+  valid: false
+chaos-monkey-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.270/chaos-monkey-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.270/chaos-monkey-2.2.270-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.270"
+  id: "chaos_monkey_2_2_270"
+  valid: false
+chaos-monkey-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.271/chaos-monkey-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.271/chaos-monkey-2.2.271-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.271"
+  id: "chaos_monkey_2_2_271"
+  valid: false
+chaos-monkey-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.272/chaos-monkey-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.272/chaos-monkey-2.2.272-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.272"
+  id: "chaos_monkey_2_2_272"
+  valid: false
+chaos-monkey-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.273/chaos-monkey-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.273/chaos-monkey-2.2.273-openshift.yml"
+  name: "chaos-monkey"
+  version: "2.2.273"
+  id: "chaos_monkey_2_2_273"
+  valid: false
 chat-irc-2.2.233:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.233/chat-irc-2.2.233-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.233/chat-irc-2.2.233-openshift.yml"
@@ -1272,6 +1531,48 @@ chat-irc-2.2.265:
   name: "chat-irc"
   version: "2.2.265"
   id: "chat_irc_2_2_265"
+  valid: false
+chat-irc-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.267/chat-irc-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.267/chat-irc-2.2.267-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.267"
+  id: "chat_irc_2_2_267"
+  valid: false
+chat-irc-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.268/chat-irc-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.268/chat-irc-2.2.268-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.268"
+  id: "chat_irc_2_2_268"
+  valid: false
+chat-irc-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.270/chat-irc-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.270/chat-irc-2.2.270-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.270"
+  id: "chat_irc_2_2_270"
+  valid: false
+chat-irc-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.271/chat-irc-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.271/chat-irc-2.2.271-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.271"
+  id: "chat_irc_2_2_271"
+  valid: false
+chat-irc-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.272/chat-irc-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.272/chat-irc-2.2.272-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.272"
+  id: "chat_irc_2_2_272"
+  valid: false
+chat-irc-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.273/chat-irc-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.273/chat-irc-2.2.273-openshift.yml"
+  name: "chat-irc"
+  version: "2.2.273"
+  id: "chat_irc_2_2_273"
   valid: false
 chat-letschat-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.223/chat-letschat-2.2.223-kubernetes.yml"
@@ -1497,6 +1798,48 @@ chat-letschat-2.2.265:
   version: "2.2.265"
   id: "chat_letschat_2_2_265"
   valid: false
+chat-letschat-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.267/chat-letschat-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.267/chat-letschat-2.2.267-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.267"
+  id: "chat_letschat_2_2_267"
+  valid: false
+chat-letschat-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.268/chat-letschat-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.268/chat-letschat-2.2.268-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.268"
+  id: "chat_letschat_2_2_268"
+  valid: false
+chat-letschat-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.270/chat-letschat-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.270/chat-letschat-2.2.270-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.270"
+  id: "chat_letschat_2_2_270"
+  valid: false
+chat-letschat-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.271/chat-letschat-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.271/chat-letschat-2.2.271-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.271"
+  id: "chat_letschat_2_2_271"
+  valid: false
+chat-letschat-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.272/chat-letschat-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.272/chat-letschat-2.2.272-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.272"
+  id: "chat_letschat_2_2_272"
+  valid: false
+chat-letschat-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.273/chat-letschat-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.273/chat-letschat-2.2.273-openshift.yml"
+  name: "chat-letschat"
+  version: "2.2.273"
+  id: "chat_letschat_2_2_273"
+  valid: false
 chat-slack-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.223/chat-slack-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.223/chat-slack-2.2.223-openshift.yml"
@@ -1720,6 +2063,125 @@ chat-slack-2.2.265:
   name: "chat-slack"
   version: "2.2.265"
   id: "chat_slack_2_2_265"
+  valid: false
+chat-slack-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.267/chat-slack-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.267/chat-slack-2.2.267-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.267"
+  id: "chat_slack_2_2_267"
+  valid: false
+chat-slack-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.268/chat-slack-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.268/chat-slack-2.2.268-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.268"
+  id: "chat_slack_2_2_268"
+  valid: false
+chat-slack-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.270/chat-slack-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.270/chat-slack-2.2.270-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.270"
+  id: "chat_slack_2_2_270"
+  valid: false
+chat-slack-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.271/chat-slack-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.271/chat-slack-2.2.271-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.271"
+  id: "chat_slack_2_2_271"
+  valid: false
+chat-slack-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.272/chat-slack-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.272/chat-slack-2.2.272-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.272"
+  id: "chat_slack_2_2_272"
+  valid: false
+chat-slack-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.273/chat-slack-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.273/chat-slack-2.2.273-openshift.yml"
+  name: "chat-slack"
+  version: "2.2.273"
+  id: "chat_slack_2_2_273"
+  valid: false
+console-1.0.21:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.21/console-1.0.21-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.21/console-1.0.21-openshift.yml"
+  name: "console"
+  version: "1.0.21"
+  id: "console_1_0_21"
+  valid: false
+console-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.22/console-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.22/console-1.0.22-openshift.yml"
+  name: "console"
+  version: "1.0.22"
+  id: "console_1_0_22"
+  valid: false
+console-2.2.1:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.1/console-2.2.1-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.1/console-2.2.1-openshift.yml"
+  name: "console"
+  version: "2.2.1"
+  id: "console_2_2_1"
+  valid: false
+console-2.2.10:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.10/console-2.2.10-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.10/console-2.2.10-openshift.yml"
+  name: "console"
+  version: "2.2.10"
+  id: "console_2_2_10"
+  valid: false
+console-2.2.2:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.2/console-2.2.2-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.2/console-2.2.2-openshift.yml"
+  name: "console"
+  version: "2.2.2"
+  id: "console_2_2_2"
+  valid: false
+console-2.2.3:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.3/console-2.2.3-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.3/console-2.2.3-openshift.yml"
+  name: "console"
+  version: "2.2.3"
+  id: "console_2_2_3"
+  valid: false
+console-2.2.4:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.4/console-2.2.4-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.4/console-2.2.4-openshift.yml"
+  name: "console"
+  version: "2.2.4"
+  id: "console_2_2_4"
+  valid: false
+console-2.2.5:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.5/console-2.2.5-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.5/console-2.2.5-openshift.yml"
+  name: "console"
+  version: "2.2.5"
+  id: "console_2_2_5"
+  valid: false
+console-2.2.6:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.6/console-2.2.6-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.6/console-2.2.6-openshift.yml"
+  name: "console"
+  version: "2.2.6"
+  id: "console_2_2_6"
+  valid: false
+console-2.2.8:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.8/console-2.2.8-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.8/console-2.2.8-openshift.yml"
+  name: "console"
+  version: "2.2.8"
+  id: "console_2_2_8"
+  valid: false
+console-2.2.9:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.9/console-2.2.9-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.2.9/console-2.2.9-openshift.yml"
+  name: "console"
+  version: "2.2.9"
+  id: "console_2_2_9"
   valid: false
 content-repository-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.223/content-repository-2.2.223-kubernetes.yml"
@@ -1945,6 +2407,48 @@ content-repository-2.2.265:
   version: "2.2.265"
   id: "content_repository_2_2_265"
   valid: false
+content-repository-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.267/content-repository-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.267/content-repository-2.2.267-openshift.yml"
+  name: "content-repository"
+  version: "2.2.267"
+  id: "content_repository_2_2_267"
+  valid: false
+content-repository-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.268/content-repository-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.268/content-repository-2.2.268-openshift.yml"
+  name: "content-repository"
+  version: "2.2.268"
+  id: "content_repository_2_2_268"
+  valid: false
+content-repository-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.270/content-repository-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.270/content-repository-2.2.270-openshift.yml"
+  name: "content-repository"
+  version: "2.2.270"
+  id: "content_repository_2_2_270"
+  valid: false
+content-repository-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.271/content-repository-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.271/content-repository-2.2.271-openshift.yml"
+  name: "content-repository"
+  version: "2.2.271"
+  id: "content_repository_2_2_271"
+  valid: false
+content-repository-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.272/content-repository-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.272/content-repository-2.2.272-openshift.yml"
+  name: "content-repository"
+  version: "2.2.272"
+  id: "content_repository_2_2_272"
+  valid: false
+content-repository-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.273/content-repository-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.273/content-repository-2.2.273-openshift.yml"
+  name: "content-repository"
+  version: "2.2.273"
+  id: "content_repository_2_2_273"
+  valid: false
 elasticsearch-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.223/elasticsearch-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.223/elasticsearch-2.2.223-openshift.yml"
@@ -2168,6 +2672,48 @@ elasticsearch-2.2.265:
   name: "elasticsearch"
   version: "2.2.265"
   id: "elasticsearch_2_2_265"
+  valid: false
+elasticsearch-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.267/elasticsearch-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.267/elasticsearch-2.2.267-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.267"
+  id: "elasticsearch_2_2_267"
+  valid: false
+elasticsearch-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.268/elasticsearch-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.268/elasticsearch-2.2.268-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.268"
+  id: "elasticsearch_2_2_268"
+  valid: false
+elasticsearch-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.270/elasticsearch-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.270/elasticsearch-2.2.270-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.270"
+  id: "elasticsearch_2_2_270"
+  valid: false
+elasticsearch-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.271/elasticsearch-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.271/elasticsearch-2.2.271-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.271"
+  id: "elasticsearch_2_2_271"
+  valid: false
+elasticsearch-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.272/elasticsearch-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.272/elasticsearch-2.2.272-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.272"
+  id: "elasticsearch_2_2_272"
+  valid: false
+elasticsearch-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.273/elasticsearch-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.273/elasticsearch-2.2.273-openshift.yml"
+  name: "elasticsearch"
+  version: "2.2.273"
+  id: "elasticsearch_2_2_273"
   valid: false
 elasticsearch-v1-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/apps/elasticsearch-v1/2.2.148/elasticsearch-v1-2.2.148-kubernetes.yml"
@@ -2533,6 +3079,48 @@ exposecontroller-2.2.265:
   version: "2.2.265"
   id: "exposecontroller_2_2_265"
   valid: false
+exposecontroller-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.267/exposecontroller-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.267/exposecontroller-2.2.267-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.267"
+  id: "exposecontroller_2_2_267"
+  valid: false
+exposecontroller-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.268/exposecontroller-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.268/exposecontroller-2.2.268-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.268"
+  id: "exposecontroller_2_2_268"
+  valid: false
+exposecontroller-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.270/exposecontroller-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.270/exposecontroller-2.2.270-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.270"
+  id: "exposecontroller_2_2_270"
+  valid: false
+exposecontroller-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.271/exposecontroller-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.271/exposecontroller-2.2.271-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.271"
+  id: "exposecontroller_2_2_271"
+  valid: false
+exposecontroller-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.272/exposecontroller-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.272/exposecontroller-2.2.272-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.272"
+  id: "exposecontroller_2_2_272"
+  valid: false
+exposecontroller-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.273/exposecontroller-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.273/exposecontroller-2.2.273-openshift.yml"
+  name: "exposecontroller"
+  version: "2.2.273"
+  id: "exposecontroller_2_2_273"
+  valid: false
 fabric8-camel-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.148/fabric8-camel-2.2.148-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.148/fabric8-camel-2.2.148-openshift.yml"
@@ -2581,6 +3169,13 @@ fabric8-camel-2.2.154:
   name: "fabric8-camel"
   version: "2.2.154"
   id: "fabric8_camel_2_2_154"
+  valid: false
+fabric8-console-2.2.183:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/console/fabric8-console/2.2.183/fabric8-console-2.2.183-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/console/fabric8-console/2.2.183/fabric8-console-2.2.183-openshift.yml"
+  name: "fabric8-console"
+  version: "2.2.183"
+  id: "fabric8_console_2_2_183"
   valid: false
 fabric8-docker-registry-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.223/fabric8-docker-registry-2.2.223-kubernetes.yml"
@@ -2806,6 +3401,48 @@ fabric8-docker-registry-2.2.265:
   version: "2.2.265"
   id: "fabric8_docker_registry_2_2_265"
   valid: false
+fabric8-docker-registry-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.267/fabric8-docker-registry-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.267/fabric8-docker-registry-2.2.267-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.267"
+  id: "fabric8_docker_registry_2_2_267"
+  valid: false
+fabric8-docker-registry-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.268/fabric8-docker-registry-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.268/fabric8-docker-registry-2.2.268-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.268"
+  id: "fabric8_docker_registry_2_2_268"
+  valid: false
+fabric8-docker-registry-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.270/fabric8-docker-registry-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.270/fabric8-docker-registry-2.2.270-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.270"
+  id: "fabric8_docker_registry_2_2_270"
+  valid: false
+fabric8-docker-registry-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.271/fabric8-docker-registry-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.271/fabric8-docker-registry-2.2.271-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.271"
+  id: "fabric8_docker_registry_2_2_271"
+  valid: false
+fabric8-docker-registry-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.272/fabric8-docker-registry-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.272/fabric8-docker-registry-2.2.272-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.272"
+  id: "fabric8_docker_registry_2_2_272"
+  valid: false
+fabric8-docker-registry-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.273/fabric8-docker-registry-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.273/fabric8-docker-registry-2.2.273-openshift.yml"
+  name: "fabric8-docker-registry"
+  version: "2.2.273"
+  id: "fabric8_docker_registry_2_2_273"
+  valid: false
 fabric8-forge-2.3.10:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.10/fabric8-forge-2.3.10-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.10/fabric8-forge-2.3.10-openshift.yml"
@@ -2974,6 +3611,41 @@ fabric8-forge-2.3.48:
   version: "2.3.48"
   id: "fabric8_forge_2_3_48"
   valid: false
+fabric8-forge-2.3.49:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.49/fabric8-forge-2.3.49-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.49/fabric8-forge-2.3.49-openshift.yml"
+  name: "fabric8-forge"
+  version: "2.3.49"
+  id: "fabric8_forge_2_3_49"
+  valid: false
+fabric8-forge-2.3.50:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.50/fabric8-forge-2.3.50-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.50/fabric8-forge-2.3.50-openshift.yml"
+  name: "fabric8-forge"
+  version: "2.3.50"
+  id: "fabric8_forge_2_3_50"
+  valid: false
+fabric8-forge-2.3.52:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.52/fabric8-forge-2.3.52-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.52/fabric8-forge-2.3.52-openshift.yml"
+  name: "fabric8-forge"
+  version: "2.3.52"
+  id: "fabric8_forge_2_3_52"
+  valid: false
+fabric8-forge-2.3.53:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.53/fabric8-forge-2.3.53-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.53/fabric8-forge-2.3.53-openshift.yml"
+  name: "fabric8-forge"
+  version: "2.3.53"
+  id: "fabric8_forge_2_3_53"
+  valid: false
+fabric8-forge-2.3.54:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.54/fabric8-forge-2.3.54-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.54/fabric8-forge-2.3.54-openshift.yml"
+  name: "fabric8-forge"
+  version: "2.3.54"
+  id: "fabric8_forge_2_3_54"
+  valid: false
 fabric8-forge-2.3.8:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.8/fabric8-forge-2.3.8-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.8/fabric8-forge-2.3.8-openshift.yml"
@@ -3015,6 +3687,69 @@ fabric8-platform-1.0.1:
   name: "fabric8-platform"
   version: "1.0.1"
   id: "fabric8_platform_1_0_1"
+  valid: false
+fabric8-platform-2.2.1:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.1/fabric8-platform-2.2.1-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.1/fabric8-platform-2.2.1-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.1"
+  id: "fabric8_platform_2_2_1"
+  valid: false
+fabric8-platform-2.2.10:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.10/fabric8-platform-2.2.10-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.10/fabric8-platform-2.2.10-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.10"
+  id: "fabric8_platform_2_2_10"
+  valid: false
+fabric8-platform-2.2.2:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.2/fabric8-platform-2.2.2-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.2/fabric8-platform-2.2.2-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.2"
+  id: "fabric8_platform_2_2_2"
+  valid: false
+fabric8-platform-2.2.3:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.3/fabric8-platform-2.2.3-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.3/fabric8-platform-2.2.3-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.3"
+  id: "fabric8_platform_2_2_3"
+  valid: false
+fabric8-platform-2.2.4:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.4/fabric8-platform-2.2.4-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.4/fabric8-platform-2.2.4-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.4"
+  id: "fabric8_platform_2_2_4"
+  valid: false
+fabric8-platform-2.2.5:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.5/fabric8-platform-2.2.5-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.5/fabric8-platform-2.2.5-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.5"
+  id: "fabric8_platform_2_2_5"
+  valid: false
+fabric8-platform-2.2.6:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.6/fabric8-platform-2.2.6-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.6/fabric8-platform-2.2.6-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.6"
+  id: "fabric8_platform_2_2_6"
+  valid: false
+fabric8-platform-2.2.8:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.8/fabric8-platform-2.2.8-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.8/fabric8-platform-2.2.8-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.8"
+  id: "fabric8_platform_2_2_8"
+  valid: false
+fabric8-platform-2.2.9:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.9/fabric8-platform-2.2.9-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.9/fabric8-platform-2.2.9-openshift.yml"
+  name: "fabric8-platform"
+  version: "2.2.9"
+  id: "fabric8_platform_2_2_9"
   valid: false
 fluentd-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.223/fluentd-2.2.223-kubernetes.yml"
@@ -3240,6 +3975,48 @@ fluentd-2.2.265:
   version: "2.2.265"
   id: "fluentd_2_2_265"
   valid: false
+fluentd-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.267/fluentd-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.267/fluentd-2.2.267-openshift.yml"
+  name: "fluentd"
+  version: "2.2.267"
+  id: "fluentd_2_2_267"
+  valid: false
+fluentd-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.268/fluentd-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.268/fluentd-2.2.268-openshift.yml"
+  name: "fluentd"
+  version: "2.2.268"
+  id: "fluentd_2_2_268"
+  valid: false
+fluentd-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.270/fluentd-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.270/fluentd-2.2.270-openshift.yml"
+  name: "fluentd"
+  version: "2.2.270"
+  id: "fluentd_2_2_270"
+  valid: false
+fluentd-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.271/fluentd-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.271/fluentd-2.2.271-openshift.yml"
+  name: "fluentd"
+  version: "2.2.271"
+  id: "fluentd_2_2_271"
+  valid: false
+fluentd-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.272/fluentd-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.272/fluentd-2.2.272-openshift.yml"
+  name: "fluentd"
+  version: "2.2.272"
+  id: "fluentd_2_2_272"
+  valid: false
+fluentd-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.273/fluentd-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.273/fluentd-2.2.273-openshift.yml"
+  name: "fluentd"
+  version: "2.2.273"
+  id: "fluentd_2_2_273"
+  valid: false
 gerrit-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.223/gerrit-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.223/gerrit-2.2.223-openshift.yml"
@@ -3463,6 +4240,48 @@ gerrit-2.2.265:
   name: "gerrit"
   version: "2.2.265"
   id: "gerrit_2_2_265"
+  valid: false
+gerrit-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.267/gerrit-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.267/gerrit-2.2.267-openshift.yml"
+  name: "gerrit"
+  version: "2.2.267"
+  id: "gerrit_2_2_267"
+  valid: false
+gerrit-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.268/gerrit-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.268/gerrit-2.2.268-openshift.yml"
+  name: "gerrit"
+  version: "2.2.268"
+  id: "gerrit_2_2_268"
+  valid: false
+gerrit-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.270/gerrit-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.270/gerrit-2.2.270-openshift.yml"
+  name: "gerrit"
+  version: "2.2.270"
+  id: "gerrit_2_2_270"
+  valid: false
+gerrit-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.271/gerrit-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.271/gerrit-2.2.271-openshift.yml"
+  name: "gerrit"
+  version: "2.2.271"
+  id: "gerrit_2_2_271"
+  valid: false
+gerrit-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.272/gerrit-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.272/gerrit-2.2.272-openshift.yml"
+  name: "gerrit"
+  version: "2.2.272"
+  id: "gerrit_2_2_272"
+  valid: false
+gerrit-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.273/gerrit-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.273/gerrit-2.2.273-openshift.yml"
+  name: "gerrit"
+  version: "2.2.273"
+  id: "gerrit_2_2_273"
   valid: false
 git-collector-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.223/git-collector-2.2.223-kubernetes.yml"
@@ -3688,6 +4507,48 @@ git-collector-2.2.265:
   version: "2.2.265"
   id: "git_collector_2_2_265"
   valid: false
+git-collector-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.267/git-collector-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.267/git-collector-2.2.267-openshift.yml"
+  name: "git-collector"
+  version: "2.2.267"
+  id: "git_collector_2_2_267"
+  valid: false
+git-collector-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.268/git-collector-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.268/git-collector-2.2.268-openshift.yml"
+  name: "git-collector"
+  version: "2.2.268"
+  id: "git_collector_2_2_268"
+  valid: false
+git-collector-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.270/git-collector-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.270/git-collector-2.2.270-openshift.yml"
+  name: "git-collector"
+  version: "2.2.270"
+  id: "git_collector_2_2_270"
+  valid: false
+git-collector-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.271/git-collector-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.271/git-collector-2.2.271-openshift.yml"
+  name: "git-collector"
+  version: "2.2.271"
+  id: "git_collector_2_2_271"
+  valid: false
+git-collector-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.272/git-collector-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.272/git-collector-2.2.272-openshift.yml"
+  name: "git-collector"
+  version: "2.2.272"
+  id: "git_collector_2_2_272"
+  valid: false
+git-collector-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.273/git-collector-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.273/git-collector-2.2.273-openshift.yml"
+  name: "git-collector"
+  version: "2.2.273"
+  id: "git_collector_2_2_273"
+  valid: false
 gitlab-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.223/gitlab-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.223/gitlab-2.2.223-openshift.yml"
@@ -3911,6 +4772,48 @@ gitlab-2.2.265:
   name: "gitlab"
   version: "2.2.265"
   id: "gitlab_2_2_265"
+  valid: false
+gitlab-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.267/gitlab-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.267/gitlab-2.2.267-openshift.yml"
+  name: "gitlab"
+  version: "2.2.267"
+  id: "gitlab_2_2_267"
+  valid: false
+gitlab-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.268/gitlab-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.268/gitlab-2.2.268-openshift.yml"
+  name: "gitlab"
+  version: "2.2.268"
+  id: "gitlab_2_2_268"
+  valid: false
+gitlab-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.270/gitlab-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.270/gitlab-2.2.270-openshift.yml"
+  name: "gitlab"
+  version: "2.2.270"
+  id: "gitlab_2_2_270"
+  valid: false
+gitlab-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.271/gitlab-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.271/gitlab-2.2.271-openshift.yml"
+  name: "gitlab"
+  version: "2.2.271"
+  id: "gitlab_2_2_271"
+  valid: false
+gitlab-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.272/gitlab-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.272/gitlab-2.2.272-openshift.yml"
+  name: "gitlab"
+  version: "2.2.272"
+  id: "gitlab_2_2_272"
+  valid: false
+gitlab-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.273/gitlab-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.273/gitlab-2.2.273-openshift.yml"
+  name: "gitlab"
+  version: "2.2.273"
+  id: "gitlab_2_2_273"
   valid: false
 gogs-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.223/gogs-2.2.223-kubernetes.yml"
@@ -4136,6 +5039,48 @@ gogs-2.2.265:
   version: "2.2.265"
   id: "gogs_2_2_265"
   valid: false
+gogs-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.267/gogs-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.267/gogs-2.2.267-openshift.yml"
+  name: "gogs"
+  version: "2.2.267"
+  id: "gogs_2_2_267"
+  valid: false
+gogs-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.268/gogs-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.268/gogs-2.2.268-openshift.yml"
+  name: "gogs"
+  version: "2.2.268"
+  id: "gogs_2_2_268"
+  valid: false
+gogs-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.270/gogs-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.270/gogs-2.2.270-openshift.yml"
+  name: "gogs"
+  version: "2.2.270"
+  id: "gogs_2_2_270"
+  valid: false
+gogs-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.271/gogs-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.271/gogs-2.2.271-openshift.yml"
+  name: "gogs"
+  version: "2.2.271"
+  id: "gogs_2_2_271"
+  valid: false
+gogs-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.272/gogs-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.272/gogs-2.2.272-openshift.yml"
+  name: "gogs"
+  version: "2.2.272"
+  id: "gogs_2_2_272"
+  valid: false
+gogs-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.273/gogs-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.273/gogs-2.2.273-openshift.yml"
+  name: "gogs"
+  version: "2.2.273"
+  id: "gogs_2_2_273"
+  valid: false
 grafana-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.223/grafana-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.223/grafana-2.2.223-openshift.yml"
@@ -4360,6 +5305,48 @@ grafana-2.2.265:
   version: "2.2.265"
   id: "grafana_2_2_265"
   valid: false
+grafana-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.267/grafana-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.267/grafana-2.2.267-openshift.yml"
+  name: "grafana"
+  version: "2.2.267"
+  id: "grafana_2_2_267"
+  valid: false
+grafana-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.268/grafana-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.268/grafana-2.2.268-openshift.yml"
+  name: "grafana"
+  version: "2.2.268"
+  id: "grafana_2_2_268"
+  valid: false
+grafana-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.270/grafana-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.270/grafana-2.2.270-openshift.yml"
+  name: "grafana"
+  version: "2.2.270"
+  id: "grafana_2_2_270"
+  valid: false
+grafana-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.271/grafana-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.271/grafana-2.2.271-openshift.yml"
+  name: "grafana"
+  version: "2.2.271"
+  id: "grafana_2_2_271"
+  valid: false
+grafana-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.272/grafana-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.272/grafana-2.2.272-openshift.yml"
+  name: "grafana"
+  version: "2.2.272"
+  id: "grafana_2_2_272"
+  valid: false
+grafana-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.273/grafana-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.273/grafana-2.2.273-openshift.yml"
+  name: "grafana"
+  version: "2.2.273"
+  id: "grafana_2_2_273"
+  valid: false
 hello-hystrix-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/hello-hystrix/1.0.18/hello-hystrix-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/hello-hystrix/1.0.18/hello-hystrix-1.0.18-openshift.yml"
@@ -4373,6 +5360,13 @@ hello-hystrix-1.0.20:
   name: "hello-hystrix"
   version: "1.0.20"
   id: "hello_hystrix_1_0_20"
+  valid: false
+hello-hystrix-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/hello-hystrix/1.0.22/hello-hystrix-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/hello-hystrix/1.0.22/hello-hystrix-1.0.22-openshift.yml"
+  name: "hello-hystrix"
+  version: "1.0.22"
+  id: "hello_hystrix_1_0_22"
   valid: false
 hello-ribbon-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon/1.0.18/hello-ribbon-1.0.18-kubernetes.yml"
@@ -4388,6 +5382,13 @@ hello-ribbon-1.0.20:
   version: "1.0.20"
   id: "hello_ribbon_1_0_20"
   valid: false
+hello-ribbon-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon/1.0.22/hello-ribbon-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon/1.0.22/hello-ribbon-1.0.22-openshift.yml"
+  name: "hello-ribbon"
+  version: "1.0.22"
+  id: "hello_ribbon_1_0_22"
+  valid: false
 hello-ribbon-spring-boot-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon-spring-boot/1.0.18/hello-ribbon-spring-boot-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon-spring-boot/1.0.18/hello-ribbon-spring-boot-1.0.18-openshift.yml"
@@ -4401,6 +5402,13 @@ hello-ribbon-spring-boot-1.0.20:
   name: "hello-ribbon-spring-boot"
   version: "1.0.20"
   id: "hello_ribbon_spring_boot_1_0_20"
+  valid: false
+hello-ribbon-spring-boot-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon-spring-boot/1.0.22/hello-ribbon-spring-boot-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hello-ribbon-spring-boot/1.0.22/hello-ribbon-spring-boot-1.0.22-openshift.yml"
+  name: "hello-ribbon-spring-boot"
+  version: "1.0.22"
+  id: "hello_ribbon_spring_boot_1_0_22"
   valid: false
 hubot-irc-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.223/hubot-irc-2.2.223-kubernetes.yml"
@@ -4626,6 +5634,48 @@ hubot-irc-2.2.265:
   version: "2.2.265"
   id: "hubot_irc_2_2_265"
   valid: false
+hubot-irc-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.267/hubot-irc-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.267/hubot-irc-2.2.267-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.267"
+  id: "hubot_irc_2_2_267"
+  valid: false
+hubot-irc-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.268/hubot-irc-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.268/hubot-irc-2.2.268-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.268"
+  id: "hubot_irc_2_2_268"
+  valid: false
+hubot-irc-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.270/hubot-irc-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.270/hubot-irc-2.2.270-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.270"
+  id: "hubot_irc_2_2_270"
+  valid: false
+hubot-irc-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.271/hubot-irc-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.271/hubot-irc-2.2.271-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.271"
+  id: "hubot_irc_2_2_271"
+  valid: false
+hubot-irc-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.272/hubot-irc-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.272/hubot-irc-2.2.272-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.272"
+  id: "hubot_irc_2_2_272"
+  valid: false
+hubot-irc-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.273/hubot-irc-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.273/hubot-irc-2.2.273-openshift.yml"
+  name: "hubot-irc"
+  version: "2.2.273"
+  id: "hubot_irc_2_2_273"
+  valid: false
 hubot-letschat-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.223/hubot-letschat-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.223/hubot-letschat-2.2.223-openshift.yml"
@@ -4849,6 +5899,48 @@ hubot-letschat-2.2.265:
   name: "hubot-letschat"
   version: "2.2.265"
   id: "hubot_letschat_2_2_265"
+  valid: false
+hubot-letschat-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.267/hubot-letschat-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.267/hubot-letschat-2.2.267-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.267"
+  id: "hubot_letschat_2_2_267"
+  valid: false
+hubot-letschat-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.268/hubot-letschat-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.268/hubot-letschat-2.2.268-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.268"
+  id: "hubot_letschat_2_2_268"
+  valid: false
+hubot-letschat-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.270/hubot-letschat-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.270/hubot-letschat-2.2.270-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.270"
+  id: "hubot_letschat_2_2_270"
+  valid: false
+hubot-letschat-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.271/hubot-letschat-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.271/hubot-letschat-2.2.271-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.271"
+  id: "hubot_letschat_2_2_271"
+  valid: false
+hubot-letschat-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.272/hubot-letschat-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.272/hubot-letschat-2.2.272-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.272"
+  id: "hubot_letschat_2_2_272"
+  valid: false
+hubot-letschat-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.273/hubot-letschat-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.273/hubot-letschat-2.2.273-openshift.yml"
+  name: "hubot-letschat"
+  version: "2.2.273"
+  id: "hubot_letschat_2_2_273"
   valid: false
 hubot-notifier-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.223/hubot-notifier-2.2.223-kubernetes.yml"
@@ -5074,6 +6166,48 @@ hubot-notifier-2.2.265:
   version: "2.2.265"
   id: "hubot_notifier_2_2_265"
   valid: false
+hubot-notifier-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.267/hubot-notifier-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.267/hubot-notifier-2.2.267-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.267"
+  id: "hubot_notifier_2_2_267"
+  valid: false
+hubot-notifier-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.268/hubot-notifier-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.268/hubot-notifier-2.2.268-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.268"
+  id: "hubot_notifier_2_2_268"
+  valid: false
+hubot-notifier-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.270/hubot-notifier-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.270/hubot-notifier-2.2.270-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.270"
+  id: "hubot_notifier_2_2_270"
+  valid: false
+hubot-notifier-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.271/hubot-notifier-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.271/hubot-notifier-2.2.271-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.271"
+  id: "hubot_notifier_2_2_271"
+  valid: false
+hubot-notifier-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.272/hubot-notifier-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.272/hubot-notifier-2.2.272-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.272"
+  id: "hubot_notifier_2_2_272"
+  valid: false
+hubot-notifier-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.273/hubot-notifier-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.273/hubot-notifier-2.2.273-openshift.yml"
+  name: "hubot-notifier"
+  version: "2.2.273"
+  id: "hubot_notifier_2_2_273"
+  valid: false
 hubot-slack-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.223/hubot-slack-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.223/hubot-slack-2.2.223-openshift.yml"
@@ -5298,6 +6432,48 @@ hubot-slack-2.2.265:
   version: "2.2.265"
   id: "hubot_slack_2_2_265"
   valid: false
+hubot-slack-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.267/hubot-slack-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.267/hubot-slack-2.2.267-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.267"
+  id: "hubot_slack_2_2_267"
+  valid: false
+hubot-slack-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.268/hubot-slack-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.268/hubot-slack-2.2.268-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.268"
+  id: "hubot_slack_2_2_268"
+  valid: false
+hubot-slack-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.270/hubot-slack-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.270/hubot-slack-2.2.270-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.270"
+  id: "hubot_slack_2_2_270"
+  valid: false
+hubot-slack-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.271/hubot-slack-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.271/hubot-slack-2.2.271-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.271"
+  id: "hubot_slack_2_2_271"
+  valid: false
+hubot-slack-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.272/hubot-slack-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.272/hubot-slack-2.2.272-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.272"
+  id: "hubot_slack_2_2_272"
+  valid: false
+hubot-slack-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.273/hubot-slack-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.273/hubot-slack-2.2.273-openshift.yml"
+  name: "hubot-slack"
+  version: "2.2.273"
+  id: "hubot_slack_2_2_273"
+  valid: false
 hystrix-dashboard-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hystrix-dashboard/1.0.18/hystrix-dashboard-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hystrix-dashboard/1.0.18/hystrix-dashboard-1.0.18-openshift.yml"
@@ -5311,6 +6487,13 @@ hystrix-dashboard-1.0.20:
   name: "hystrix-dashboard"
   version: "1.0.20"
   id: "hystrix_dashboard_1_0_20"
+  valid: false
+hystrix-dashboard-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hystrix-dashboard/1.0.22/hystrix-dashboard-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/hystrix-dashboard/1.0.22/hystrix-dashboard-1.0.22-openshift.yml"
+  name: "hystrix-dashboard"
+  version: "1.0.22"
+  id: "hystrix_dashboard_1_0_22"
   valid: false
 image-linker-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.223/image-linker-2.2.223-kubernetes.yml"
@@ -5536,6 +6719,48 @@ image-linker-2.2.265:
   version: "2.2.265"
   id: "image_linker_2_2_265"
   valid: false
+image-linker-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.267/image-linker-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.267/image-linker-2.2.267-openshift.yml"
+  name: "image-linker"
+  version: "2.2.267"
+  id: "image_linker_2_2_267"
+  valid: false
+image-linker-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.268/image-linker-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.268/image-linker-2.2.268-openshift.yml"
+  name: "image-linker"
+  version: "2.2.268"
+  id: "image_linker_2_2_268"
+  valid: false
+image-linker-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.270/image-linker-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.270/image-linker-2.2.270-openshift.yml"
+  name: "image-linker"
+  version: "2.2.270"
+  id: "image_linker_2_2_270"
+  valid: false
+image-linker-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.271/image-linker-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.271/image-linker-2.2.271-openshift.yml"
+  name: "image-linker"
+  version: "2.2.271"
+  id: "image_linker_2_2_271"
+  valid: false
+image-linker-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.272/image-linker-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.272/image-linker-2.2.272-openshift.yml"
+  name: "image-linker"
+  version: "2.2.272"
+  id: "image_linker_2_2_272"
+  valid: false
+image-linker-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.273/image-linker-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.273/image-linker-2.2.273-openshift.yml"
+  name: "image-linker"
+  version: "2.2.273"
+  id: "image_linker_2_2_273"
+  valid: false
 ingress-nginx-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.223/ingress-nginx-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.223/ingress-nginx-2.2.223-openshift.yml"
@@ -5760,6 +6985,48 @@ ingress-nginx-2.2.265:
   version: "2.2.265"
   id: "ingress_nginx_2_2_265"
   valid: false
+ingress-nginx-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.267/ingress-nginx-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.267/ingress-nginx-2.2.267-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.267"
+  id: "ingress_nginx_2_2_267"
+  valid: false
+ingress-nginx-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.268/ingress-nginx-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.268/ingress-nginx-2.2.268-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.268"
+  id: "ingress_nginx_2_2_268"
+  valid: false
+ingress-nginx-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.270/ingress-nginx-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.270/ingress-nginx-2.2.270-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.270"
+  id: "ingress_nginx_2_2_270"
+  valid: false
+ingress-nginx-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.271/ingress-nginx-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.271/ingress-nginx-2.2.271-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.271"
+  id: "ingress_nginx_2_2_271"
+  valid: false
+ingress-nginx-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.272/ingress-nginx-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.272/ingress-nginx-2.2.272-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.272"
+  id: "ingress_nginx_2_2_272"
+  valid: false
+ingress-nginx-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.273/ingress-nginx-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.273/ingress-nginx-2.2.273-openshift.yml"
+  name: "ingress-nginx"
+  version: "2.2.273"
+  id: "ingress_nginx_2_2_273"
+  valid: false
 ipaas-platform-1.0.14:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.14/ipaas-platform-1.0.14-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.14/ipaas-platform-1.0.14-openshift.yml"
@@ -5794,6 +7061,27 @@ ipaas-platform-1.0.19:
   name: "ipaas-platform"
   version: "1.0.19"
   id: "ipaas_platform_1_0_19"
+  valid: false
+ipaas-platform-1.0.20:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.20/ipaas-platform-1.0.20-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.20/ipaas-platform-1.0.20-openshift.yml"
+  name: "ipaas-platform"
+  version: "1.0.20"
+  id: "ipaas_platform_1_0_20"
+  valid: false
+ipaas-platform-1.0.21:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.21/ipaas-platform-1.0.21-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.21/ipaas-platform-1.0.21-openshift.yml"
+  name: "ipaas-platform"
+  version: "1.0.21"
+  id: "ipaas_platform_1_0_21"
+  valid: false
+ipaas-platform-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.22/ipaas-platform-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.22/ipaas-platform-1.0.22-openshift.yml"
+  name: "ipaas-platform"
+  version: "1.0.22"
+  id: "ipaas_platform_1_0_22"
   valid: false
 jenkins-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.223/jenkins-2.2.223-kubernetes.yml"
@@ -6019,6 +7307,48 @@ jenkins-2.2.265:
   version: "2.2.265"
   id: "jenkins_2_2_265"
   valid: false
+jenkins-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.267/jenkins-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.267/jenkins-2.2.267-openshift.yml"
+  name: "jenkins"
+  version: "2.2.267"
+  id: "jenkins_2_2_267"
+  valid: false
+jenkins-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.268/jenkins-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.268/jenkins-2.2.268-openshift.yml"
+  name: "jenkins"
+  version: "2.2.268"
+  id: "jenkins_2_2_268"
+  valid: false
+jenkins-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.270/jenkins-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.270/jenkins-2.2.270-openshift.yml"
+  name: "jenkins"
+  version: "2.2.270"
+  id: "jenkins_2_2_270"
+  valid: false
+jenkins-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.271/jenkins-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.271/jenkins-2.2.271-openshift.yml"
+  name: "jenkins"
+  version: "2.2.271"
+  id: "jenkins_2_2_271"
+  valid: false
+jenkins-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.272/jenkins-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.272/jenkins-2.2.272-openshift.yml"
+  name: "jenkins"
+  version: "2.2.272"
+  id: "jenkins_2_2_272"
+  valid: false
+jenkins-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.273/jenkins-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.273/jenkins-2.2.273-openshift.yml"
+  name: "jenkins"
+  version: "2.2.273"
+  id: "jenkins_2_2_273"
+  valid: false
 jenkins-openshift-2.2.258:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.258/jenkins-openshift-2.2.258-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.258/jenkins-openshift-2.2.258-openshift.yml"
@@ -6074,6 +7404,48 @@ jenkins-openshift-2.2.265:
   name: "jenkins-openshift"
   version: "2.2.265"
   id: "jenkins_openshift_2_2_265"
+  valid: false
+jenkins-openshift-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.267/jenkins-openshift-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.267/jenkins-openshift-2.2.267-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.267"
+  id: "jenkins_openshift_2_2_267"
+  valid: false
+jenkins-openshift-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.268/jenkins-openshift-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.268/jenkins-openshift-2.2.268-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.268"
+  id: "jenkins_openshift_2_2_268"
+  valid: false
+jenkins-openshift-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.270/jenkins-openshift-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.270/jenkins-openshift-2.2.270-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.270"
+  id: "jenkins_openshift_2_2_270"
+  valid: false
+jenkins-openshift-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.271/jenkins-openshift-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.271/jenkins-openshift-2.2.271-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.271"
+  id: "jenkins_openshift_2_2_271"
+  valid: false
+jenkins-openshift-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.272/jenkins-openshift-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.272/jenkins-openshift-2.2.272-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.272"
+  id: "jenkins_openshift_2_2_272"
+  valid: false
+jenkins-openshift-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.273/jenkins-openshift-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.273/jenkins-openshift-2.2.273-openshift.yml"
+  name: "jenkins-openshift"
+  version: "2.2.273"
+  id: "jenkins_openshift_2_2_273"
   valid: false
 jnatsd-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/apps/jnatsd/2.2.148/jnatsd-2.2.148-kubernetes.yml"
@@ -6397,6 +7769,48 @@ keycloak-2.2.265:
   version: "2.2.265"
   id: "keycloak_2_2_265"
   valid: false
+keycloak-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.267/keycloak-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.267/keycloak-2.2.267-openshift.yml"
+  name: "keycloak"
+  version: "2.2.267"
+  id: "keycloak_2_2_267"
+  valid: false
+keycloak-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.268/keycloak-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.268/keycloak-2.2.268-openshift.yml"
+  name: "keycloak"
+  version: "2.2.268"
+  id: "keycloak_2_2_268"
+  valid: false
+keycloak-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.270/keycloak-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.270/keycloak-2.2.270-openshift.yml"
+  name: "keycloak"
+  version: "2.2.270"
+  id: "keycloak_2_2_270"
+  valid: false
+keycloak-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.271/keycloak-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.271/keycloak-2.2.271-openshift.yml"
+  name: "keycloak"
+  version: "2.2.271"
+  id: "keycloak_2_2_271"
+  valid: false
+keycloak-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.272/keycloak-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.272/keycloak-2.2.272-openshift.yml"
+  name: "keycloak"
+  version: "2.2.272"
+  id: "keycloak_2_2_272"
+  valid: false
+keycloak-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.273/keycloak-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.273/keycloak-2.2.273-openshift.yml"
+  name: "keycloak"
+  version: "2.2.273"
+  id: "keycloak_2_2_273"
+  valid: false
 kibana-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.223/kibana-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.223/kibana-2.2.223-openshift.yml"
@@ -6620,6 +8034,48 @@ kibana-2.2.265:
   name: "kibana"
   version: "2.2.265"
   id: "kibana_2_2_265"
+  valid: false
+kibana-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.267/kibana-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.267/kibana-2.2.267-openshift.yml"
+  name: "kibana"
+  version: "2.2.267"
+  id: "kibana_2_2_267"
+  valid: false
+kibana-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.268/kibana-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.268/kibana-2.2.268-openshift.yml"
+  name: "kibana"
+  version: "2.2.268"
+  id: "kibana_2_2_268"
+  valid: false
+kibana-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.270/kibana-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.270/kibana-2.2.270-openshift.yml"
+  name: "kibana"
+  version: "2.2.270"
+  id: "kibana_2_2_270"
+  valid: false
+kibana-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.271/kibana-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.271/kibana-2.2.271-openshift.yml"
+  name: "kibana"
+  version: "2.2.271"
+  id: "kibana_2_2_271"
+  valid: false
+kibana-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.272/kibana-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.272/kibana-2.2.272-openshift.yml"
+  name: "kibana"
+  version: "2.2.272"
+  id: "kibana_2_2_272"
+  valid: false
+kibana-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.273/kibana-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.273/kibana-2.2.273-openshift.yml"
+  name: "kibana"
+  version: "2.2.273"
+  id: "kibana_2_2_273"
   valid: false
 kiwiirc-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.223/kiwiirc-2.2.223-kubernetes.yml"
@@ -6845,6 +8301,48 @@ kiwiirc-2.2.265:
   version: "2.2.265"
   id: "kiwiirc_2_2_265"
   valid: false
+kiwiirc-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.267/kiwiirc-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.267/kiwiirc-2.2.267-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.267"
+  id: "kiwiirc_2_2_267"
+  valid: false
+kiwiirc-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.268/kiwiirc-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.268/kiwiirc-2.2.268-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.268"
+  id: "kiwiirc_2_2_268"
+  valid: false
+kiwiirc-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.270/kiwiirc-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.270/kiwiirc-2.2.270-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.270"
+  id: "kiwiirc_2_2_270"
+  valid: false
+kiwiirc-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.271/kiwiirc-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.271/kiwiirc-2.2.271-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.271"
+  id: "kiwiirc_2_2_271"
+  valid: false
+kiwiirc-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.272/kiwiirc-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.272/kiwiirc-2.2.272-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.272"
+  id: "kiwiirc_2_2_272"
+  valid: false
+kiwiirc-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.273/kiwiirc-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.273/kiwiirc-2.2.273-openshift.yml"
+  name: "kiwiirc"
+  version: "2.2.273"
+  id: "kiwiirc_2_2_273"
+  valid: false
 kubeflix-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/packages/kubeflix/1.0.18/kubeflix-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/packages/kubeflix/1.0.18/kubeflix-1.0.18-openshift.yml"
@@ -6858,6 +8356,13 @@ kubeflix-1.0.20:
   name: "kubeflix"
   version: "1.0.20"
   id: "kubeflix_1_0_20"
+  valid: false
+kubeflix-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/packages/kubeflix/1.0.22/kubeflix-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/packages/kubeflix/1.0.22/kubeflix-1.0.22-openshift.yml"
+  name: "kubeflix"
+  version: "1.0.22"
+  id: "kubeflix_1_0_22"
   valid: false
 letschat-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.223/letschat-2.2.223-kubernetes.yml"
@@ -7083,6 +8588,48 @@ letschat-2.2.265:
   version: "2.2.265"
   id: "letschat_2_2_265"
   valid: false
+letschat-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.267/letschat-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.267/letschat-2.2.267-openshift.yml"
+  name: "letschat"
+  version: "2.2.267"
+  id: "letschat_2_2_267"
+  valid: false
+letschat-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.268/letschat-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.268/letschat-2.2.268-openshift.yml"
+  name: "letschat"
+  version: "2.2.268"
+  id: "letschat_2_2_268"
+  valid: false
+letschat-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.270/letschat-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.270/letschat-2.2.270-openshift.yml"
+  name: "letschat"
+  version: "2.2.270"
+  id: "letschat_2_2_270"
+  valid: false
+letschat-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.271/letschat-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.271/letschat-2.2.271-openshift.yml"
+  name: "letschat"
+  version: "2.2.271"
+  id: "letschat_2_2_271"
+  valid: false
+letschat-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.272/letschat-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.272/letschat-2.2.272-openshift.yml"
+  name: "letschat"
+  version: "2.2.272"
+  id: "letschat_2_2_272"
+  valid: false
+letschat-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.273/letschat-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.273/letschat-2.2.273-openshift.yml"
+  name: "letschat"
+  version: "2.2.273"
+  id: "letschat_2_2_273"
+  valid: false
 loanbroker-bank-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-bank/1.0.18/loanbroker-bank-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-bank/1.0.18/loanbroker-bank-1.0.18-openshift.yml"
@@ -7096,6 +8643,13 @@ loanbroker-bank-1.0.20:
   name: "loanbroker-bank"
   version: "1.0.20"
   id: "loanbroker_bank_1_0_20"
+  valid: false
+loanbroker-bank-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-bank/1.0.22/loanbroker-bank-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-bank/1.0.22/loanbroker-bank-1.0.22-openshift.yml"
+  name: "loanbroker-bank"
+  version: "1.0.22"
+  id: "loanbroker_bank_1_0_22"
   valid: false
 loanbroker-broker-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-broker/1.0.18/loanbroker-broker-1.0.18-kubernetes.yml"
@@ -7111,6 +8665,13 @@ loanbroker-broker-1.0.20:
   version: "1.0.20"
   id: "loanbroker_broker_1_0_20"
   valid: false
+loanbroker-broker-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-broker/1.0.22/loanbroker-broker-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-broker/1.0.22/loanbroker-broker-1.0.22-openshift.yml"
+  name: "loanbroker-broker"
+  version: "1.0.22"
+  id: "loanbroker_broker_1_0_22"
+  valid: false
 loanbroker-credit-bureau-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-credit-bureau/1.0.18/loanbroker-credit-bureau-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-credit-bureau/1.0.18/loanbroker-credit-bureau-1.0.18-openshift.yml"
@@ -7125,6 +8686,13 @@ loanbroker-credit-bureau-1.0.20:
   version: "1.0.20"
   id: "loanbroker_credit_bureau_1_0_20"
   valid: false
+loanbroker-credit-bureau-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-credit-bureau/1.0.22/loanbroker-credit-bureau-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-credit-bureau/1.0.22/loanbroker-credit-bureau-1.0.22-openshift.yml"
+  name: "loanbroker-credit-bureau"
+  version: "1.0.22"
+  id: "loanbroker_credit_bureau_1_0_22"
+  valid: false
 loanbroker-generator-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-generator/1.0.18/loanbroker-generator-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-generator/1.0.18/loanbroker-generator-1.0.18-openshift.yml"
@@ -7138,6 +8706,13 @@ loanbroker-generator-1.0.20:
   name: "loanbroker-generator"
   version: "1.0.20"
   id: "loanbroker_generator_1_0_20"
+  valid: false
+loanbroker-generator-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-generator/1.0.22/loanbroker-generator-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/examples/loanbroker-generator/1.0.22/loanbroker-generator-1.0.22-openshift.yml"
+  name: "loanbroker-generator"
+  version: "1.0.22"
+  id: "loanbroker_generator_1_0_22"
   valid: false
 logging-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.223/logging-2.2.223-kubernetes.yml"
@@ -7363,6 +8938,48 @@ logging-2.2.265:
   version: "2.2.265"
   id: "logging_2_2_265"
   valid: false
+logging-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.267/logging-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.267/logging-2.2.267-openshift.yml"
+  name: "logging"
+  version: "2.2.267"
+  id: "logging_2_2_267"
+  valid: false
+logging-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.268/logging-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.268/logging-2.2.268-openshift.yml"
+  name: "logging"
+  version: "2.2.268"
+  id: "logging_2_2_268"
+  valid: false
+logging-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.270/logging-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.270/logging-2.2.270-openshift.yml"
+  name: "logging"
+  version: "2.2.270"
+  id: "logging_2_2_270"
+  valid: false
+logging-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.271/logging-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.271/logging-2.2.271-openshift.yml"
+  name: "logging"
+  version: "2.2.271"
+  id: "logging_2_2_271"
+  valid: false
+logging-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.272/logging-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.272/logging-2.2.272-openshift.yml"
+  name: "logging"
+  version: "2.2.272"
+  id: "logging_2_2_272"
+  valid: false
+logging-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.273/logging-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.273/logging-2.2.273-openshift.yml"
+  name: "logging"
+  version: "2.2.273"
+  id: "logging_2_2_273"
+  valid: false
 manageiq-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.223/manageiq-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.223/manageiq-2.2.223-openshift.yml"
@@ -7586,6 +9203,48 @@ manageiq-2.2.265:
   name: "manageiq"
   version: "2.2.265"
   id: "manageiq_2_2_265"
+  valid: false
+manageiq-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.267/manageiq-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.267/manageiq-2.2.267-openshift.yml"
+  name: "manageiq"
+  version: "2.2.267"
+  id: "manageiq_2_2_267"
+  valid: false
+manageiq-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.268/manageiq-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.268/manageiq-2.2.268-openshift.yml"
+  name: "manageiq"
+  version: "2.2.268"
+  id: "manageiq_2_2_268"
+  valid: false
+manageiq-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.270/manageiq-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.270/manageiq-2.2.270-openshift.yml"
+  name: "manageiq"
+  version: "2.2.270"
+  id: "manageiq_2_2_270"
+  valid: false
+manageiq-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.271/manageiq-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.271/manageiq-2.2.271-openshift.yml"
+  name: "manageiq"
+  version: "2.2.271"
+  id: "manageiq_2_2_271"
+  valid: false
+manageiq-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.272/manageiq-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.272/manageiq-2.2.272-openshift.yml"
+  name: "manageiq"
+  version: "2.2.272"
+  id: "manageiq_2_2_272"
+  valid: false
+manageiq-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.273/manageiq-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.273/manageiq-2.2.273-openshift.yml"
+  name: "manageiq"
+  version: "2.2.273"
+  id: "manageiq_2_2_273"
   valid: false
 management-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.223/management-2.2.223-kubernetes.yml"
@@ -7811,6 +9470,48 @@ management-2.2.265:
   version: "2.2.265"
   id: "management_2_2_265"
   valid: false
+management-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.267/management-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.267/management-2.2.267-openshift.yml"
+  name: "management"
+  version: "2.2.267"
+  id: "management_2_2_267"
+  valid: false
+management-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.268/management-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.268/management-2.2.268-openshift.yml"
+  name: "management"
+  version: "2.2.268"
+  id: "management_2_2_268"
+  valid: false
+management-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.270/management-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.270/management-2.2.270-openshift.yml"
+  name: "management"
+  version: "2.2.270"
+  id: "management_2_2_270"
+  valid: false
+management-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.271/management-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.271/management-2.2.271-openshift.yml"
+  name: "management"
+  version: "2.2.271"
+  id: "management_2_2_271"
+  valid: false
+management-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.272/management-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.272/management-2.2.272-openshift.yml"
+  name: "management"
+  version: "2.2.272"
+  id: "management_2_2_272"
+  valid: false
+management-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.273/management-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.273/management-2.2.273-openshift.yml"
+  name: "management"
+  version: "2.2.273"
+  id: "management_2_2_273"
+  valid: false
 maven-shell-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.223/maven-shell-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.223/maven-shell-2.2.223-openshift.yml"
@@ -8034,6 +9735,48 @@ maven-shell-2.2.265:
   name: "maven-shell"
   version: "2.2.265"
   id: "maven_shell_2_2_265"
+  valid: false
+maven-shell-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.267/maven-shell-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.267/maven-shell-2.2.267-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.267"
+  id: "maven_shell_2_2_267"
+  valid: false
+maven-shell-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.268/maven-shell-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.268/maven-shell-2.2.268-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.268"
+  id: "maven_shell_2_2_268"
+  valid: false
+maven-shell-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.270/maven-shell-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.270/maven-shell-2.2.270-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.270"
+  id: "maven_shell_2_2_270"
+  valid: false
+maven-shell-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.271/maven-shell-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.271/maven-shell-2.2.271-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.271"
+  id: "maven_shell_2_2_271"
+  valid: false
+maven-shell-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.272/maven-shell-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.272/maven-shell-2.2.272-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.272"
+  id: "maven_shell_2_2_272"
+  valid: false
+maven-shell-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.273/maven-shell-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.273/maven-shell-2.2.273-openshift.yml"
+  name: "maven-shell"
+  version: "2.2.273"
+  id: "maven_shell_2_2_273"
   valid: false
 message-broker-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-broker/2.2.148/message-broker-2.2.148-kubernetes.yml"
@@ -8406,6 +10149,48 @@ metrics-2.2.265:
   version: "2.2.265"
   id: "metrics_2_2_265"
   valid: false
+metrics-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.267/metrics-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.267/metrics-2.2.267-openshift.yml"
+  name: "metrics"
+  version: "2.2.267"
+  id: "metrics_2_2_267"
+  valid: false
+metrics-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.268/metrics-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.268/metrics-2.2.268-openshift.yml"
+  name: "metrics"
+  version: "2.2.268"
+  id: "metrics_2_2_268"
+  valid: false
+metrics-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.270/metrics-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.270/metrics-2.2.270-openshift.yml"
+  name: "metrics"
+  version: "2.2.270"
+  id: "metrics_2_2_270"
+  valid: false
+metrics-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.271/metrics-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.271/metrics-2.2.271-openshift.yml"
+  name: "metrics"
+  version: "2.2.271"
+  id: "metrics_2_2_271"
+  valid: false
+metrics-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.272/metrics-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.272/metrics-2.2.272-openshift.yml"
+  name: "metrics"
+  version: "2.2.272"
+  id: "metrics_2_2_272"
+  valid: false
+metrics-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.273/metrics-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.273/metrics-2.2.273-openshift.yml"
+  name: "metrics"
+  version: "2.2.273"
+  id: "metrics_2_2_273"
+  valid: false
 mq-client-2.2.148:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.148/mq-client-2.2.148-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.148/mq-client-2.2.148-openshift.yml"
@@ -8679,6 +10464,48 @@ nexus-2.2.265:
   version: "2.2.265"
   id: "nexus_2_2_265"
   valid: false
+nexus-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.267/nexus-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.267/nexus-2.2.267-openshift.yml"
+  name: "nexus"
+  version: "2.2.267"
+  id: "nexus_2_2_267"
+  valid: false
+nexus-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.268/nexus-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.268/nexus-2.2.268-openshift.yml"
+  name: "nexus"
+  version: "2.2.268"
+  id: "nexus_2_2_268"
+  valid: false
+nexus-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.270/nexus-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.270/nexus-2.2.270-openshift.yml"
+  name: "nexus"
+  version: "2.2.270"
+  id: "nexus_2_2_270"
+  valid: false
+nexus-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.271/nexus-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.271/nexus-2.2.271-openshift.yml"
+  name: "nexus"
+  version: "2.2.271"
+  id: "nexus_2_2_271"
+  valid: false
+nexus-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.272/nexus-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.272/nexus-2.2.272-openshift.yml"
+  name: "nexus"
+  version: "2.2.272"
+  id: "nexus_2_2_272"
+  valid: false
+nexus-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.273/nexus-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.273/nexus-2.2.273-openshift.yml"
+  name: "nexus"
+  version: "2.2.273"
+  id: "nexus_2_2_273"
+  valid: false
 nexus3-2.2.258:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.258/nexus3-2.2.258-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.258/nexus3-2.2.258-openshift.yml"
@@ -8734,6 +10561,48 @@ nexus3-2.2.265:
   name: "nexus3"
   version: "2.2.265"
   id: "nexus3_2_2_265"
+  valid: false
+nexus3-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.267/nexus3-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.267/nexus3-2.2.267-openshift.yml"
+  name: "nexus3"
+  version: "2.2.267"
+  id: "nexus3_2_2_267"
+  valid: false
+nexus3-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.268/nexus3-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.268/nexus3-2.2.268-openshift.yml"
+  name: "nexus3"
+  version: "2.2.268"
+  id: "nexus3_2_2_268"
+  valid: false
+nexus3-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.270/nexus3-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.270/nexus3-2.2.270-openshift.yml"
+  name: "nexus3"
+  version: "2.2.270"
+  id: "nexus3_2_2_270"
+  valid: false
+nexus3-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.271/nexus3-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.271/nexus3-2.2.271-openshift.yml"
+  name: "nexus3"
+  version: "2.2.271"
+  id: "nexus3_2_2_271"
+  valid: false
+nexus3-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.272/nexus3-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.272/nexus3-2.2.272-openshift.yml"
+  name: "nexus3"
+  version: "2.2.272"
+  id: "nexus3_2_2_272"
+  valid: false
+nexus3-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.273/nexus3-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.273/nexus3-2.2.273-openshift.yml"
+  name: "nexus3"
+  version: "2.2.273"
+  id: "nexus3_2_2_273"
   valid: false
 orion-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.223/orion-2.2.223-kubernetes.yml"
@@ -8959,6 +10828,48 @@ orion-2.2.265:
   version: "2.2.265"
   id: "orion_2_2_265"
   valid: false
+orion-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.267/orion-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.267/orion-2.2.267-openshift.yml"
+  name: "orion"
+  version: "2.2.267"
+  id: "orion_2_2_267"
+  valid: false
+orion-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.268/orion-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.268/orion-2.2.268-openshift.yml"
+  name: "orion"
+  version: "2.2.268"
+  id: "orion_2_2_268"
+  valid: false
+orion-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.270/orion-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.270/orion-2.2.270-openshift.yml"
+  name: "orion"
+  version: "2.2.270"
+  id: "orion_2_2_270"
+  valid: false
+orion-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.271/orion-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.271/orion-2.2.271-openshift.yml"
+  name: "orion"
+  version: "2.2.271"
+  id: "orion_2_2_271"
+  valid: false
+orion-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.272/orion-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.272/orion-2.2.272-openshift.yml"
+  name: "orion"
+  version: "2.2.272"
+  id: "orion_2_2_272"
+  valid: false
+orion-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.273/orion-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.273/orion-2.2.273-openshift.yml"
+  name: "orion"
+  version: "2.2.273"
+  id: "orion_2_2_273"
+  valid: false
 prometheus-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.223/prometheus-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.223/prometheus-2.2.223-openshift.yml"
@@ -9182,6 +11093,48 @@ prometheus-2.2.265:
   name: "prometheus"
   version: "2.2.265"
   id: "prometheus_2_2_265"
+  valid: false
+prometheus-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.267/prometheus-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.267/prometheus-2.2.267-openshift.yml"
+  name: "prometheus"
+  version: "2.2.267"
+  id: "prometheus_2_2_267"
+  valid: false
+prometheus-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.268/prometheus-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.268/prometheus-2.2.268-openshift.yml"
+  name: "prometheus"
+  version: "2.2.268"
+  id: "prometheus_2_2_268"
+  valid: false
+prometheus-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.270/prometheus-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.270/prometheus-2.2.270-openshift.yml"
+  name: "prometheus"
+  version: "2.2.270"
+  id: "prometheus_2_2_270"
+  valid: false
+prometheus-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.271/prometheus-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.271/prometheus-2.2.271-openshift.yml"
+  name: "prometheus"
+  version: "2.2.271"
+  id: "prometheus_2_2_271"
+  valid: false
+prometheus-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.272/prometheus-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.272/prometheus-2.2.272-openshift.yml"
+  name: "prometheus"
+  version: "2.2.272"
+  id: "prometheus_2_2_272"
+  valid: false
+prometheus-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.273/prometheus-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.273/prometheus-2.2.273-openshift.yml"
+  name: "prometheus"
+  version: "2.2.273"
+  id: "prometheus_2_2_273"
   valid: false
 prometheus-blackbox-exporter-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.223/prometheus-blackbox-exporter-2.2.223-kubernetes.yml"
@@ -9407,6 +11360,48 @@ prometheus-blackbox-exporter-2.2.265:
   version: "2.2.265"
   id: "prometheus_blackbox_exporter_2_2_265"
   valid: false
+prometheus-blackbox-exporter-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.267/prometheus-blackbox-exporter-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.267/prometheus-blackbox-exporter-2.2.267-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.267"
+  id: "prometheus_blackbox_exporter_2_2_267"
+  valid: false
+prometheus-blackbox-exporter-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.268/prometheus-blackbox-exporter-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.268/prometheus-blackbox-exporter-2.2.268-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.268"
+  id: "prometheus_blackbox_exporter_2_2_268"
+  valid: false
+prometheus-blackbox-exporter-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.270/prometheus-blackbox-exporter-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.270/prometheus-blackbox-exporter-2.2.270-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.270"
+  id: "prometheus_blackbox_exporter_2_2_270"
+  valid: false
+prometheus-blackbox-exporter-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.271/prometheus-blackbox-exporter-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.271/prometheus-blackbox-exporter-2.2.271-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.271"
+  id: "prometheus_blackbox_exporter_2_2_271"
+  valid: false
+prometheus-blackbox-exporter-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.272/prometheus-blackbox-exporter-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.272/prometheus-blackbox-exporter-2.2.272-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.272"
+  id: "prometheus_blackbox_exporter_2_2_272"
+  valid: false
+prometheus-blackbox-exporter-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.273/prometheus-blackbox-exporter-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.273/prometheus-blackbox-exporter-2.2.273-openshift.yml"
+  name: "prometheus-blackbox-exporter"
+  version: "2.2.273"
+  id: "prometheus_blackbox_exporter_2_2_273"
+  valid: false
 prometheus-node-exporter-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.223/prometheus-node-exporter-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.223/prometheus-node-exporter-2.2.223-openshift.yml"
@@ -9630,6 +11625,48 @@ prometheus-node-exporter-2.2.265:
   name: "prometheus-node-exporter"
   version: "2.2.265"
   id: "prometheus_node_exporter_2_2_265"
+  valid: false
+prometheus-node-exporter-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.267/prometheus-node-exporter-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.267/prometheus-node-exporter-2.2.267-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.267"
+  id: "prometheus_node_exporter_2_2_267"
+  valid: false
+prometheus-node-exporter-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.268/prometheus-node-exporter-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.268/prometheus-node-exporter-2.2.268-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.268"
+  id: "prometheus_node_exporter_2_2_268"
+  valid: false
+prometheus-node-exporter-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.270/prometheus-node-exporter-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.270/prometheus-node-exporter-2.2.270-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.270"
+  id: "prometheus_node_exporter_2_2_270"
+  valid: false
+prometheus-node-exporter-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.271/prometheus-node-exporter-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.271/prometheus-node-exporter-2.2.271-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.271"
+  id: "prometheus_node_exporter_2_2_271"
+  valid: false
+prometheus-node-exporter-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.272/prometheus-node-exporter-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.272/prometheus-node-exporter-2.2.272-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.272"
+  id: "prometheus_node_exporter_2_2_272"
+  valid: false
+prometheus-node-exporter-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.273/prometheus-node-exporter-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.273/prometheus-node-exporter-2.2.273-openshift.yml"
+  name: "prometheus-node-exporter"
+  version: "2.2.273"
+  id: "prometheus_node_exporter_2_2_273"
   valid: false
 social-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.223/social-2.2.223-kubernetes.yml"
@@ -9855,6 +11892,48 @@ social-2.2.265:
   version: "2.2.265"
   id: "social_2_2_265"
   valid: false
+social-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.267/social-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.267/social-2.2.267-openshift.yml"
+  name: "social"
+  version: "2.2.267"
+  id: "social_2_2_267"
+  valid: false
+social-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.268/social-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.268/social-2.2.268-openshift.yml"
+  name: "social"
+  version: "2.2.268"
+  id: "social_2_2_268"
+  valid: false
+social-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.270/social-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.270/social-2.2.270-openshift.yml"
+  name: "social"
+  version: "2.2.270"
+  id: "social_2_2_270"
+  valid: false
+social-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.271/social-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.271/social-2.2.271-openshift.yml"
+  name: "social"
+  version: "2.2.271"
+  id: "social_2_2_271"
+  valid: false
+social-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.272/social-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.272/social-2.2.272-openshift.yml"
+  name: "social"
+  version: "2.2.272"
+  id: "social_2_2_272"
+  valid: false
+social-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.273/social-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.273/social-2.2.273-openshift.yml"
+  name: "social"
+  version: "2.2.273"
+  id: "social_2_2_273"
+  valid: false
 sonarqube-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.223/sonarqube-2.2.223-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.223/sonarqube-2.2.223-openshift.yml"
@@ -10078,6 +12157,48 @@ sonarqube-2.2.265:
   name: "sonarqube"
   version: "2.2.265"
   id: "sonarqube_2_2_265"
+  valid: false
+sonarqube-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.267/sonarqube-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.267/sonarqube-2.2.267-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.267"
+  id: "sonarqube_2_2_267"
+  valid: false
+sonarqube-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.268/sonarqube-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.268/sonarqube-2.2.268-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.268"
+  id: "sonarqube_2_2_268"
+  valid: false
+sonarqube-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.270/sonarqube-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.270/sonarqube-2.2.270-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.270"
+  id: "sonarqube_2_2_270"
+  valid: false
+sonarqube-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.271/sonarqube-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.271/sonarqube-2.2.271-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.271"
+  id: "sonarqube_2_2_271"
+  valid: false
+sonarqube-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.272/sonarqube-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.272/sonarqube-2.2.272-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.272"
+  id: "sonarqube_2_2_272"
+  valid: false
+sonarqube-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.273/sonarqube-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.273/sonarqube-2.2.273-openshift.yml"
+  name: "sonarqube"
+  version: "2.2.273"
+  id: "sonarqube_2_2_273"
   valid: false
 taiga-2.2.223:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.223/taiga-2.2.223-kubernetes.yml"
@@ -10303,6 +12424,48 @@ taiga-2.2.265:
   version: "2.2.265"
   id: "taiga_2_2_265"
   valid: false
+taiga-2.2.267:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.267/taiga-2.2.267-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.267/taiga-2.2.267-openshift.yml"
+  name: "taiga"
+  version: "2.2.267"
+  id: "taiga_2_2_267"
+  valid: false
+taiga-2.2.268:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.268/taiga-2.2.268-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.268/taiga-2.2.268-openshift.yml"
+  name: "taiga"
+  version: "2.2.268"
+  id: "taiga_2_2_268"
+  valid: false
+taiga-2.2.270:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.270/taiga-2.2.270-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.270/taiga-2.2.270-openshift.yml"
+  name: "taiga"
+  version: "2.2.270"
+  id: "taiga_2_2_270"
+  valid: false
+taiga-2.2.271:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.271/taiga-2.2.271-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.271/taiga-2.2.271-openshift.yml"
+  name: "taiga"
+  version: "2.2.271"
+  id: "taiga_2_2_271"
+  valid: false
+taiga-2.2.272:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.272/taiga-2.2.272-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.272/taiga-2.2.272-openshift.yml"
+  name: "taiga"
+  version: "2.2.272"
+  id: "taiga_2_2_272"
+  valid: false
+taiga-2.2.273:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.273/taiga-2.2.273-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.273/taiga-2.2.273-openshift.yml"
+  name: "taiga"
+  version: "2.2.273"
+  id: "taiga_2_2_273"
+  valid: false
 turbine-server-1.0.18:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/turbine-server/1.0.18/turbine-server-1.0.18-kubernetes.yml"
   openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/turbine-server/1.0.18/turbine-server-1.0.18-openshift.yml"
@@ -10316,6 +12479,13 @@ turbine-server-1.0.20:
   name: "turbine-server"
   version: "1.0.20"
   id: "turbine_server_1_0_20"
+  valid: false
+turbine-server-1.0.22:
+  kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/turbine-server/1.0.22/turbine-server-1.0.22-kubernetes.yml"
+  openShiftUrl: "http://central.maven.org/maven2/io/fabric8/kubeflix/turbine-server/1.0.22/turbine-server-1.0.22-openshift.yml"
+  name: "turbine-server"
+  version: "1.0.22"
+  id: "turbine_server_1_0_22"
   valid: false
 zipkin-0.1.0:
   kubernetesUrl: "http://central.maven.org/maven2/io/fabric8/zipkin/packages/zipkin/0.1.0/zipkin-0.1.0-kubernetes.yml"
