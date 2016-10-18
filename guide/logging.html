@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="5.3.1" data-basepath="." data-revision="Tue Oct 18 2016 21:06:08 GMT+0000 (UTC)">
+    <div class="book" data-level="5.3.1" data-basepath="." data-revision="Tue Oct 18 2016 22:40:10 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1777,57 +1777,16 @@
 <ul>
 <li><a href="http://www.elasticsearch.com/products/elasticsearch/" target="_blank">Elasticsearch</a> as the back end storage of logs and events in your system as its easy to scale, provides replicated data for resilience and is very easy to query using complex structural and textual queries</li>
 <li><a href="http://www.elasticsearch.com/products/kibana/" target="_blank">Kibana</a> as the console to view, query and analyze the logs</li>
-<li>to collect the logs we recommend fluentd</li>
+<li><a href="http://www.fluentd.org" target="_blank">fluentd</a> for automated log spooling from Docker containers directly to Elasticsearch </li>
 </ul>
-<p>Using <a href="http://www.elasticsearch.com/products/elasticsearch/" target="_blank">Elasticsearch</a> on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using <a href="http://kubernetes.io/docs/user-guide/services/" target="_blank">Kubernetes Services</a>. Your existing methods of logging directly to an ES cluster will work just fine, however, consider automated log spooling from Docker containers directly to ES using something like <a href="http://www.fluentd.org" target="_blank">fluentd</a></p>
+<p>Using <a href="http://www.elasticsearch.com/products/elasticsearch/" target="_blank">Elasticsearch</a> on Kubernetes makes it easy to scale the ES cluster on the server side as well as discover the cluster for clients using <a href="http://kubernetes.io/docs/user-guide/services/" target="_blank">Kubernetes Services</a>.</p>
 <h3 id="how-to-use-logging-in-fabric8"><a name="how-to-use-logging-in-fabric8" class="plugin-anchor" href="#how-to-use-logging-in-fabric8"><span class="fa fa-link"></span></a>How to use Logging in fabric8</h3>
 <p>If you are running Fabric8 with the <a href="console.html">Fabric8 Console</a> then go to the <strong>Apps</strong> tab and click <strong>Run</strong>:</p>
 <p><img src="images/logging/apps-run.png" alt="run button in apps tab"></p>
-<p>Then click on the &quot;Logging&quot; App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the <code>Route host name suffix</code> field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube <a href="https://github.com/fabric8io/fabric8/issues/5567" target="_blank">#5567</a>). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at <code>vagrant.f8</code> then the App will be set up with services at <code>kibana.vagrant.f8</code> and <code>elasticsearch.vagrant.f8</code>.</p>
+<p>Then click on the &quot;Logging&quot; App. You can then enter the base domain name for your Kubernetes/OpenShift cluster for the <code>Route host name suffix</code> field (this will generate an OpenShift route for you. We are working generating the Kubernetes Ingress definition for vanilla Kube <a href="https://github.com/fabric8io/fabric8/issues/5567" target="_blank">#5567</a>). You can optionally turn this off by clicking the checkbox. This should install Elasticsearch Master nodes and the Kibana UI as Kubernetes pods and fluentd as a Kubernetes Daemon set. It will also set up Kubernetes replication controllers and Services for you. For example, if your base Kubernetes cluster is at <code>vagrant.f8</code> then the App will be set up with services at <code>kibana.vagrant.f8</code> and <code>elasticsearch.vagrant.f8</code>.</p>
 <p><img src="images/logging/run-logging-app.png" alt="run button in apps tab"></p>
 <p>Once the Logging App is running (watch the pods start up in the fabric8 console!) you can find the service you&apos;d like to access and navigate to it. You can do this by selecting the <code>Services</code> tab, or the little vertical ellipses that has a Services drop-down chooser:</p>
 <p><img src="images/logging/click-services.png" alt="run button in apps tab"></p>
-<h3 id="setting-up-fluentd"><a name="setting-up-fluentd" class="plugin-anchor" href="#setting-up-fluentd"><span class="fa fa-link"></span></a>Setting up Fluentd</h3>
-<p>If you&apos;re using the <a href="getStarted/vagrant.html">Fabric8 Vagrant Image</a>, you&apos;re in luck! fluentd is <a href="https://github.com/fabric8io/fabric8-installer/blob/master/vagrant/openshift/Vagrantfile#L233" target="_blank">already configured as a static pod</a>.</p>
-<p>If not, you&apos;ll need to set up the fluentd pod on each node in your Kubernetes/OpenShift cluster.</p>
-<p>There are many ways to set up fluentd, but there are a couple fluentd plugins we recommend you use so that you have more kubernetes-context available in your log structures:</p>
-<ul>
-<li><a href="https://github.com/uken/fluent-plugin-elasticsearch" target="_blank">fluent-plugin-elasticsearch</a></li>
-<li><a href="https://github.com/fabric8io/fluent-plugin-kubernetes_metadata_filter" target="_blank">fluent-plugin-kubernetes_metadata_filter</a></li>
-</ul>
-<p>We also have <a href="https://hub.docker.com/r/fabric8/fluentd-kubernetes/" target="_blank">a docker image that can be used which combines these plugins out of the box with a rich set of configuration options</a> so you don&apos;t have to muck around with fluentd yourself. The easiest way to install fluentd like this on your Kubernetes cluster is to create a <a href="http://kubernetes.io/v1.1/docs/admin/static-pods.html" target="_blank">static pod</a> (although static pods are soon deprecated in favor of <a href="http://kubernetes.io/v1.1/docs/admin/daemons.html" target="_blank">Daemon Sets</a>) using a pod manifest like this:</p>
-<pre><code>apiVersion: v1
-kind: Pod
-metadata:
-  name: fluentd-elasticsearch
-spec:
-  containers:
-  - name: fluentd-elasticsearch
-    image: fabric8/fluentd-kubernetes:v1.9
-    securityContext:
-      privileged: true
-    resources:
-      limits:
-        cpu: 100m
-    volumeMounts:
-    - name: varlog
-      mountPath: /var/log
-    - name: varlibdockercontainers
-      mountPath: /var/lib/docker/containers
-      readOnly: true
-    env:
-    - name: ELASTICSEARCH_HOST
-      value: elasticsearch
-    - name: ELASTICSEARCH_PORT
-      value: &quot;9200&quot;
-  volumes:
-  - name: varlog
-    hostPath:
-      path: /var/log
-  - name: varlibdockercontainers
-    hostPath:
-      path: /var/lib/docker/containers
-</code></pre><p>This will create a pod that bind-mount the Node&apos;s docker container folders so that it can slurp up the logs from STDOUT from the docker containers.</p>
 
                     
                     </section>
