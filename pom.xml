@@ -1543,25 +1543,6 @@
                           <inheritDependencyManagement>true</inheritDependencyManagement>
                           <inheritPluginManagement>true</inheritPluginManagement>
                       </bom>
-                      <bom>
-                          <artifactId>fabric8-project-bom-full</artifactId>
-                          <name>Fabric8 :: Project :: Bom with Eveything</name>
-                          <dependencies>
-                              <includes>
-                                  <include>*:*</include>
-                              </includes>
-                          </dependencies>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritDependencyManagement>true</inheritDependencyManagement>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
                   </boms>
               </configuration>
               <executions>
