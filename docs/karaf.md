@@ -99,7 +99,7 @@ The PlaceholderResolver service acts as a collector for different property place
 | service.host | service.host:amq         | to lookup the property from OS environment variables using the service naming idiom returning the hostname part only.
 | service.port | service.port:amq         | to lookup the property from OS environment variables using the service naming idiom returning the port part only.
 | k8s:map      | k8s:map:myMap/myKey      | to lookup the property from a Kubernetes ConfigMap (via API)
-| k8s:secret   | k8s:secrets:amq/password | to lookup the property from a Kubernetes Secrets (via API or volume mounts)
+| k8s:secret   | k8s:secret:amq/password  | to lookup the property from a Kubernetes Secrets (via API or volume mounts)
 
 </br>
 
@@ -115,15 +115,15 @@ The property placeholder service supports the following options:
 Note:
   * Options can be set via system properties and/or environment variables
   * To access ConfigMaps on OpenShift the service account needs at least view permissions i.e.:
-    
+
     ```oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)```
 
   * Access to secrets via API may be restricted, the preferred way is to mount secret to the POD
   * Secrets available on the POD as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:
-  
+
     ```yaml
       containers:
-        - 
+        -
           env:
           - name: FABRIC8_K8S_SECRETS_PATH
             value: /etc/secrets
@@ -133,7 +133,7 @@ Note:
             readOnly: true  
           - name: postgres-secret-volume
             mountPath: /etc/secrets/postgres
-            readOnly: true 
+            readOnly: true
       volumes:
         - name: activemq-secret-volume
           secret:
