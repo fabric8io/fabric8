@@ -55,7 +55,7 @@ public class HealthCheckServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Check> checks = new ArrayList<>();
         for (HealthChecker checker : checkers) {
-            checks.addAll(checker.getFailingHeathChecks());
+            checks.addAll(checker.getFailingHealthChecks());
         }
         if (checks.isEmpty()) {
             resp.getWriter().println("HEALTHY");
