@@ -40,7 +40,7 @@ public abstract class AbstractChecker implements io.fabric8.karaf.checks.HealthC
     }
 
     @Override
-    public List<Check> getFailingHeathChecks() {
+    public List<Check> getFailingHealthChecks() {
         return doCheck();
     }
 

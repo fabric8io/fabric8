@@ -410,7 +410,7 @@ public class DiskChecker implements HealthChecker, ReadinessChecker {
         return getFailingHeathChecks();
     }
 
-    public List<Check> getFailingHeathChecks() {
+    public List<Check> getFailingHealthChecks() {
         long free = FileSystemUtils.freeSpaceKb("/");
         if (free < 1024 * 500) {
             return Collections.singletonList(new Check("disk-space-low", "Only " + free + "kb of disk space left."));
