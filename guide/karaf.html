@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Oct 26 2016 10:29:13 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Oct 26 2016 10:32:59 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1891,7 +1891,7 @@
 </tr>
 <tr>
 <td>k8s:secret</td>
-<td>k8s:secrets:amq/password</td>
+<td>k8s:secret:amq/password</td>
 <td>to lookup the property from a Kubernetes Secrets (via API or volume mounts)</td>
 </tr>
 </tbody>
@@ -1939,7 +1939,7 @@
 </li>
 <li><p>Secrets available on the POD as volume mounts are supposed to be mapped to a directory named as the secret itself, i.e:</p>
 <pre><code class="lang-yaml">  containers:
-    - 
+    -
       env:
       - name: FABRIC8_K8S_SECRETS_PATH
         value: /etc/secrets
@@ -1949,7 +1949,7 @@
         readOnly: true  
       - name: postgres-secret-volume
         mountPath: /etc/secrets/postgres
-        readOnly: true 
+        readOnly: true
   volumes:
     - name: activemq-secret-volume
       secret:
