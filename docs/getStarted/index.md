@@ -8,7 +8,7 @@ Before you start using fabric8 you will need a Kubernetes or OpenShift cluster. 
 
 If you already have a cluster installed try this:
 
-* [**Kubernetes**](kubernetes.html): If you have a working [Kubernetes](http://kuberentes.io) cluster use [this guide to install fabric8](kubernetes.html)
+* [**Kubernetes**](kubernetes.html): If you have a working [Kubernetes](http://kubernetes.io) cluster use [this guide to install fabric8](kubernetes.html)
 
 * [**OpenShift**](openshift.html): If you have a working [OpenShift V3](http://www.openshift.com) cluster use [this guide to install fabric8](openshift.html)
 
