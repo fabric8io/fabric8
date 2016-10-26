@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="4.2" data-basepath="." data-revision="Sun Oct 23 2016 07:42:25 GMT+0000 (UTC)">
+    <div class="book" data-level="4.2" data-basepath="." data-revision="Wed Oct 26 2016 10:29:13 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -2206,7 +2206,7 @@ data:
         <span class="hljs-keyword">return</span> getFailingHeathChecks();
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Check&gt; <span class="hljs-title">getFailingHeathChecks</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Check&gt; <span class="hljs-title">getFailingHealthChecks</span><span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">long</span> free = FileSystemUtils.freeSpaceKb(<span class="hljs-string">&quot;/&quot;</span>);
         <span class="hljs-keyword">if</span> (free &lt; <span class="hljs-number">1024</span> * <span class="hljs-number">500</span>) {
             <span class="hljs-keyword">return</span> Collections.singletonList(<span class="hljs-keyword">new</span> Check(<span class="hljs-string">&quot;disk-space-low&quot;</span>, <span class="hljs-string">&quot;Only &quot;</span> + free + <span class="hljs-string">&quot;kb of disk space left.&quot;</span>));
