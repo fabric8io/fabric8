@@ -46,11 +46,11 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DoneableImageStream;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamSpec;
-import io.fabric8.openshift.api.model.ImageStreamStatus;
-import io.fabric8.openshift.api.model.NamedTagEventList;
 import io.fabric8.openshift.api.model.OAuthClient;
+import io.fabric8.openshift.api.model.PolicyBinding;
 import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.ProjectRequest;
+import io.fabric8.openshift.api.model.Role;
 import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.TagReference;
@@ -249,11 +249,15 @@ public class Controller {
             } else {
                 LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
             }
+        } else if (dto instanceof PolicyBinding) {
+            applyPolicyBinding((PolicyBinding) dto, sourceName);
         } else if (dto instanceof RoleBinding) {
-            RoleBinding resource = (RoleBinding) dto;
+            applyRoleBinding((RoleBinding) dto, sourceName);
+        } else if (dto instanceof Role) {
+            Role resource = (Role) dto;
             OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
             if (openShiftClient != null) {
-                applyResource(resource, sourceName, openShiftClient.roleBindings());
+                applyResource(resource, sourceName, openShiftClient.roles());
             } else {
                 LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
             }
@@ -278,7 +282,7 @@ public class Controller {
         } else if (dto instanceof Ingress) {
             applyResource((Ingress) dto, sourceName, kubernetesClient.extensions().ingresses());
         } else if (dto instanceof PersistentVolumeClaim) {
-            applyResource((PersistentVolumeClaim) dto, sourceName, kubernetesClient.persistentVolumeClaims());
+            applyPersistentVolumeClaim((PersistentVolumeClaim) dto, sourceName);
         } else if (dto instanceof HasMetadata) {
             HasMetadata entity = (HasMetadata) dto;
             try {
@@ -489,6 +493,58 @@ public class Controller {
             logGeneratedEntity("Created ServiceAccount: ", namespace, serviceAccount, answer);
         } catch (Exception e) {
             onApplyError("Failed to create ServiceAccount from " + sourceName + ". " + e + ". " + serviceAccount, e);
+        }
+    }
+
+    public void applyPersistentVolumeClaim(PersistentVolumeClaim entity, String sourceName) throws Exception {
+        // we cannot update PVCs
+        boolean alwaysRecreate = true;
+        String namespace = getNamespace();
+        String id = getName(entity);
+        Objects.notNull(id, "No name for " + entity + " " + sourceName);
+        if (isServicesOnlyMode()) {
+            LOG.debug("Only processing Services right now so ignoring PersistentVolumeClaim: " + id);
+            return;
+        }
+        PersistentVolumeClaim old = kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withName(id).get();
+        if (isRunning(old)) {
+            if (UserConfigurationCompare.configEqual(entity, old)) {
+                LOG.info("PersistentVolumeClaim has not changed so not doing anything");
+            } else {
+                if (alwaysRecreate || isRecreateMode()) {
+                    kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withName(id).delete();
+                    doCreatePersistentVolumeClaim(entity, namespace, sourceName);
+                } else {
+                    LOG.info("Updating a PersistentVolumeClaim from " + sourceName);
+                    try {
+                        Object answer = kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withName(id).replace(entity);
+                        logGeneratedEntity("Updated PersistentVolumeClaim: ", namespace, entity, answer);
+                    } catch (Exception e) {
+                        onApplyError("Failed to update PersistentVolumeClaim from " + sourceName + ". " + e + ". " + entity, e);
+                    }
+                }
+            }
+        } else {
+            if (!isAllowCreate()) {
+                LOG.warn("Creation disabled so not creating a PersistentVolumeClaim from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+            } else {
+                doCreatePersistentVolumeClaim(entity, namespace, sourceName);
+            }
+        }
+    }
+
+    protected void doCreatePersistentVolumeClaim(PersistentVolumeClaim entity, String namespace, String sourceName) {
+        LOG.info("Creating a PersistentVolumeClaim from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+        try {
+            Object answer;
+            if (Strings.isNotBlank(namespace)) {
+                answer = kubernetesClient.persistentVolumeClaims().inNamespace(namespace).create(entity);
+            } else {
+                answer = kubernetesClient.persistentVolumeClaims().inNamespace(getNamespace()).create(entity);
+            }
+            logGeneratedEntity("Created PersistentVolumeClaim: ", namespace, entity, answer);
+        } catch (Exception e) {
+            onApplyError("Failed to create PersistentVolumeClaim from " + sourceName + ". " + e + ". " + entity, e);
         }
     }
 
@@ -736,6 +792,116 @@ public class Controller {
                 openShiftClient.buildConfigs().inNamespace(namespace).create(entity);
             } catch (Exception e) {
                 onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
+            }
+        }
+    }
+
+    public void applyRoleBinding(RoleBinding entity, String sourceName) {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
+        if (openShiftClient != null) {
+            String id = getName(entity);
+
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            String namespace = KubernetesHelper.getNamespace(entity);
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = getNamespace();
+            }
+            applyNamespace(namespace);
+            RoleBinding old = openShiftClient.roleBindings().inNamespace(namespace).withName(id).get();
+            if (isRunning(old)) {
+                if (UserConfigurationCompare.configEqual(entity, old)) {
+                    LOG.info("RoleBinding has not changed so not doing anything");
+                } else {
+                    if (isRecreateMode()) {
+                        LOG.info("Deleting RoleBinding: " + id);
+                        openShiftClient.roleBindings().inNamespace(namespace).withName(id).delete();
+                        doCreateRoleBinding(entity, namespace, sourceName);
+                    } else {
+                        LOG.info("Updating RoleBinding from " + sourceName);
+                        try {
+                            String resourceVersion = KubernetesHelper.getResourceVersion(old);
+                            ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
+                            metadata.setNamespace(namespace);
+                            metadata.setResourceVersion(resourceVersion);
+                            Object answer = openShiftClient.roleBindings().inNamespace(namespace).withName(id).replace(entity);
+                            logGeneratedEntity("Updated RoleBinding: ", namespace, entity, answer);
+                        } catch (Exception e) {
+                            onApplyError("Failed to update RoleBinding from " + sourceName + ". " + e + ". " + entity, e);
+                        }
+                    }
+                }
+            } else {
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating RoleBinding from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+                } else {
+                    doCreateRoleBinding(entity, namespace, sourceName);
+                }
+            }
+        }
+    }
+
+    public void doCreateRoleBinding(RoleBinding entity, String namespace ,String sourceName) {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
+        if (openShiftClient != null) {
+            try {
+                openShiftClient.roleBindings().inNamespace(namespace).create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create RoleBinding from " + sourceName + ". " + e, e);
+            }
+        }
+    }
+
+    public void applyPolicyBinding(PolicyBinding entity, String sourceName) {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
+        if (openShiftClient != null) {
+            String id = getName(entity);
+
+            Objects.notNull(id, "No name for " + entity + " " + sourceName);
+            String namespace = KubernetesHelper.getNamespace(entity);
+            if (Strings.isNullOrBlank(namespace)) {
+                namespace = getNamespace();
+            }
+            applyNamespace(namespace);
+            PolicyBinding old = openShiftClient.policyBindings().inNamespace(namespace).withName(id).get();
+            if (isRunning(old)) {
+                if (UserConfigurationCompare.configEqual(entity, old)) {
+                    LOG.info("PolicyBinding has not changed so not doing anything");
+                } else {
+                    if (isRecreateMode()) {
+                        LOG.info("Deleting PolicyBinding: " + id);
+                        openShiftClient.policyBindings().inNamespace(namespace).withName(id).delete();
+                        doCreatePolicyBinding(entity, namespace, sourceName);
+                    } else {
+                        LOG.info("Updating PolicyBinding from " + sourceName);
+                        try {
+                            String resourceVersion = KubernetesHelper.getResourceVersion(old);
+                            ObjectMeta metadata = KubernetesHelper.getOrCreateMetadata(entity);
+                            metadata.setNamespace(namespace);
+                            metadata.setResourceVersion(resourceVersion);
+                            Object answer = openShiftClient.policyBindings().inNamespace(namespace).withName(id).replace(entity);
+                            logGeneratedEntity("Updated PolicyBinding: ", namespace, entity, answer);
+                        } catch (Exception e) {
+                            onApplyError("Failed to update PolicyBinding from " + sourceName + ". " + e + ". " + entity, e);
+                        }
+                    }
+                }
+            } else {
+                if (!isAllowCreate()) {
+                    LOG.warn("Creation disabled so not creating PolicyBinding from " + sourceName + " namespace " + namespace + " name " + getName(entity));
+                } else {
+                    doCreatePolicyBinding(entity, namespace, sourceName);
+                }
+            }
+        }
+    }
+
+    public void doCreatePolicyBinding(PolicyBinding entity, String namespace ,String sourceName) {
+        OpenShiftClient openShiftClient = getOpenShiftClientOrJenkinshift();
+        if (openShiftClient != null) {
+            try {
+                openShiftClient.policyBindings().inNamespace(namespace).create(entity);
+            } catch (Exception e) {
+                onApplyError("Failed to create PolicyBinding from " + sourceName + ". " + e, e);
             }
         }
     }
