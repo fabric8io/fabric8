@@ -18,9 +18,13 @@ package io.fabric8.cdi.weld.nonamespace;
 import io.fabric8.cdi.Fabric8Extension;
 import io.fabric8.cdi.MockConfigurer;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Strings;
 import org.hamcrest.CoreMatchers;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +47,11 @@ public class NoNamespaceTest {
 
     @Test
     public void testServiceInjection() {
+        KubernetesClient client = new DefaultKubernetesClient();
+        String namespace = client.getNamespace();
+
+        //If namespace not null or empty then don't fail if the result is unexpected.
+        Assume.assumeTrue(Strings.isNullOrBlank(namespace));
         expectedException.expect(ThrowableMessageMatcher.hasMessage(CoreMatchers.equalTo("No kubernetes service could be found for name: notfound in namespace: null")));
         createInstance(MyBean.class);
     }
