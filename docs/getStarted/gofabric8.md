@@ -4,17 +4,31 @@ The easiest way to get started with Fabric8 on your laptop or against an existin
 
 ### Prerequisites
 
-Depending on your platform you also need to install the following drivers:
+When running on OSX, gofabric8 will automatically attempt to install xhyve if it's not found.  So you can skip this prerequisite.
+
+Depending on your platform you may also need to install the following drivers:  
 
 * Windows users will need to run this command as Adminstrator and will need to [enable Hyper-V on Windows 10](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/quick_start/walkthrough_install) or [Windows 7](https://blogs.technet.microsoft.com/schadinio/2010/07/09/installing-hyper-v-manager-on-windows-7/).
 * OS X users  will need to [install the xhyve driver](https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#xhyve-driver) which we try to automatically install via `brew` but you may want to install it just in case ;)
 * Linux will need to [install the kvm driver](https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#kvm-driver)
 
+
 ### Starting the cluster
 
-* download the [gofabric8 binary for your platform](https://github.com/fabric8io/gofabric8/releases)
-* run the following command:
+* download gofabric8 
+* start the local cluster
 
+OSX and Linux: 
+```
+curl -sS https://get.fabric8.io/download.txt | bash
+```
+On Windows you can download gofabric8 from https://github.com/fabric8io/gofabric8/releases
+
+add it to your PATH, for example:
+```sh
+export PATH=$PATH:$HOME/.fabric8/bin
+```
+Now start it:
 ```sh
 gofabric8 start
 ```
