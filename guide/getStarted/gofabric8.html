@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Oct 27 2016 17:06:45 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Oct 27 2016 21:19:58 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1825,25 +1825,20 @@
                         <h2 id="install-fabric8"><a name="install-fabric8" class="plugin-anchor" href="#install-fabric8"><span class="fa fa-link"></span></a>Install Fabric8</h2>
 <p>The easiest way to get started with Fabric8 on your laptop or against an existing Kubernetes or OpenShift cluster is via <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a></p>
 <h3 id="prerequisites"><a name="prerequisites" class="plugin-anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
-<p>When running on OSX, gofabric8 will automatically attempt to install xhyve if it&apos;s not found.  So you can skip this prerequisite.</p>
 <p>Depending on your platform you may also need to install the following drivers:  </p>
 <ul>
 <li>Windows users will need to run this command as Adminstrator and will need to <a href="https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/quick_start/walkthrough_install" target="_blank">enable Hyper-V on Windows 10</a> or <a href="https://blogs.technet.microsoft.com/schadinio/2010/07/09/installing-hyper-v-manager-on-windows-7/" target="_blank">Windows 7</a>.</li>
 <li>OS X users  will need to <a href="https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#xhyve-driver" target="_blank">install the xhyve driver</a> which we try to automatically install via <code>brew</code> but you may want to install it just in case ;)</li>
 <li>Linux will need to <a href="https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#kvm-driver" target="_blank">install the kvm driver</a></li>
 </ul>
-<h3 id="starting-the-cluster"><a name="starting-the-cluster" class="plugin-anchor" href="#starting-the-cluster"><span class="fa fa-link"></span></a>Starting the cluster</h3>
-<ul>
-<li>download gofabric8 </li>
-<li>start the local cluster</li>
-</ul>
-<p>OSX and Linux: </p>
+<h3 id="installing-gofabric8"><a name="installing-gofabric8" class="plugin-anchor" href="#installing-gofabric8"><span class="fa fa-link"></span></a>Installing gofabric8</h3>
+<p>For OS X and Linux: </p>
 <pre><code>curl -sS https://get.fabric8.io/download.txt | bash
-</code></pre><p>On Windows you can download gofabric8 from <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">https://github.com/fabric8io/gofabric8/releases</a></p>
-<p>add it to your PATH, for example:</p>
+</code></pre><p>Or you can <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">download the gofabric8 binary for your platform</a> and add it to your <code>PATH</code> </p>
 <pre><code class="lang-sh"><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$HOME</span>/.fabric8/bin
 </code></pre>
-<p>Now start it:</p>
+<h3 id="starting-the-cluster"><a name="starting-the-cluster" class="plugin-anchor" href="#starting-the-cluster"><span class="fa fa-link"></span></a>Starting the cluster</h3>
+<p>Now start the cluster via:</p>
 <pre><code class="lang-sh">gofabric8 start
 </code></pre>
 <p>This will download the necessary tools such as <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8.</p>
