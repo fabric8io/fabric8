@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Troubleshooting | Fabric8 Documentation</title>
+        <title>Other Install Options | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="../getStarted/apps.html" />
+    <link rel="next" href="../getStarted/minikube.html" />
     
     
-    <link rel="prev" href="../getStarted/persistence.html" />
+    <link rel="prev" href="../faqKubernetes.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Oct 27 2016 16:47:15 GMT+0000 (UTC)">
+    <div class="book" data-level="14" data-basepath=".." data-revision="Thu Oct 27 2016 16:47:15 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -146,7 +146,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.4" data-path="getStarted/troubleshooting.html">
+        <li class="chapter " data-level="2.4" data-path="getStarted/troubleshooting.html">
             
                 
                     <a href="../getStarted/troubleshooting.html">
@@ -1469,7 +1469,7 @@
             
         </li>
     
-        <li class="chapter " data-level="14" data-path="getStarted/others.html">
+        <li class="chapter active" data-level="14" data-path="getStarted/others.html">
             
                 
                     <a href="../getStarted/others.html">
@@ -1822,138 +1822,58 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
-<p>Be sure to check how to  <a href="persistence.html">create persistent volumes or opt out of persistence</a> </p>
-<p>With Linux, Docker, Kubernetes / OpenShift plus optionally Vagrant / VirtualBox / VMs there are various things that can go wrong unfortunately! We really try to make stuff Just Work (tm) but now and again things fall through the cracks.</p>
-<p>This page tries to describe all the things you can do to try figure out why things are not working.</p>
-<p>The <code>oc</code> command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so they get recreated, looking at logs etc.</p>
-<p>You can view the current state of pods via:</p>
-<pre><code>oc get pods
-</code></pre><p>Or watch for when they change (e.g. start Running or become Ready or Terminate) via:</p>
-<pre><code>oc get pods -w
-</code></pre><p>If you have issues with the <a href="../console.html">console</a> its worth checking that the <code>fabric8</code> and <code>router</code> pods are running and in a Ready state.</p>
-<p>If things are not quite running then this can give more help</p>
-<pre><code>oc describe pod fabric8-abcd
-</code></pre><p>Where <code>fabric8-abcd</code> is the name of the pod you are diagnosing. </p>
-<p>If there&apos;s no pod but there is a <a href="../replicationControllers.html">Replication Controller</a> then try this for an RC called <code>foo</code>:</p>
-<pre><code>oc describe rc foo
-</code></pre><p>If you add the <code>fabric8-installer/bin</code> folder to your <code>$PATH</code> then
-there are a few handy shell scripts</p>
+                        <h2 id="other-install-options"><a name="other-install-options" class="plugin-anchor" href="#other-install-options"><span class="fa fa-link"></span></a>Other Install Options</h2>
+<p>The easiest way to install fabric8 is either <a href="gofabric8.html">locally on your laptop or a local cluster</a> or  <a href="cloud.html">on the public cloud</a>. However there are various other options too:</p>
+<h4 id="already-have-a-working-kubernetes-cluster"><a name="already-have-a-working-kubernetes-cluster" class="plugin-anchor" href="#already-have-a-working-kubernetes-cluster"><span class="fa fa-link"></span></a>Already have a working Kubernetes cluster?</h4>
+<p>If you already have a cluster installed try this:</p>
 <ul>
-<li><code>oc-bash name</code> finds the first pod with the given name pattern and
-runs a bash shell in the docker container</li>
-<li><code>oc-log name</code> finds the first pod with the given name pattern and
-shows the container&apos;s log</li>
+<li><p><a href="kubernetes.html"><strong>Kubernetes</strong></a>: If you have a working <a href="http://kubernetes.io" target="_blank">Kubernetes</a> cluster use <a href="kubernetes.html">this guide to install fabric8</a></p>
+</li>
+<li><p><a href="openshift.html"><strong>OpenShift</strong></a>: If you have a working <a href="http://www.openshift.com" target="_blank">OpenShift V3</a> cluster use <a href="openshift.html">this guide to install fabric8</a></p>
+</li>
 </ul>
-<p>On your host machine or inside the vagrant image you should have
-access to docker thanks to the environment variable:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> DOCKER_HOST=tcp://vagrant.f8:<span class="hljs-number">2375</span>
-</code></pre>
-<p>So you should be able to run things like</p>
-<pre><code class="lang-sh">docker ps
-docker logs nameOfContainer
-</code></pre>
-<p>You can SSH into the vagrant image using:</p>
-<pre><code class="lang-sh">vagrant ssh
-</code></pre>
-<p>Then you can look around.</p>
-<h4 id="cannot-access-services-from-your-browser"><a name="cannot-access-services-from-your-browser" class="plugin-anchor" href="#cannot-access-services-from-your-browser"><span class="fa fa-link"></span></a>Cannot access services from your browser</h4>
-<p>Sometimes services are working along with pods but you can&apos;t access them from your host. </p>
-<p>Its worth checking on OpenShift to see if there&apos;s a route for your service and what the host name is:</p>
-<pre><code>oc get route
-</code></pre><p>On OS X sometimes DNS gets a bit confused, so if things are running but you can&apos;t access them from your laptop try:</p>
-<pre><code> sudo dscacheutil -flushcache sudo killall -HUP mDNSResponder
-</code></pre><p>I&apos;ve sometimes seen landrush plugin for vagrant get confused too - wonder if this helps?</p>
-<pre><code>vagrant landrush restart
-</code></pre><p>If its DNS related you can cheat and add something like this to your /etc/hosts</p>
-<pre><code>172.28.128.4 vagrant.f8 fabric8.vagrant.f8 gogs.vagrant.f8 jenkins.vagrant.f8 nexus.vagrant.f8
-</code></pre><h4 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h4>
-<p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -u openshift
-</code></pre>
-<p>Or you can tail the logs via</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -fu openshift
-</code></pre>
-<p>You can watch the docker daemon too via</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -fu docker
-</code></pre>
-<h4 id="docker-pull-issues"><a name="docker-pull-issues" class="plugin-anchor" href="#docker-pull-issues"><span class="fa fa-link"></span></a>Docker pull issues</h4>
-<p>If you have issues with docker pull; you can pre-download the docker
-images you need before you try running the app from the OpenShift
-Template or via the <code>Run...</code> button in the <a href="console.html">console</a>.</p>
-<p>To pull the images for one or more templates use the following
-<a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> command:</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo bash
-gofabric8 pull logging
-</code></pre>
-<p>where <code>logging</code> is the name of the template to download (you can list
-as many template names as you like).</p>
-<h4 id="errors-like-tcp-lookup-index-docker-io-no-such-host"><a name="errors-like-tcp-lookup-index-docker-io-no-such-host" class="plugin-anchor" href="#errors-like-tcp-lookup-index-docker-io-no-such-host"><span class="fa fa-link"></span></a>Errors like &quot;tcp: lookup index.docker.io: no such host&quot;</h4>
-<p>If you shut your laptop and open it later or switch WiFi networks then
-the docker daemon can struggle to connect to the upstream docker
-registry to download images. There must be some issue with
-Vagrant/VirtualBox DNS or something.</p>
-<p>If this ever happens the simplest thing to do is just type this:</p>
-<pre><code class="lang-sh">vagrant reload
-</code></pre>
-<p>This will then reload the box; you should have OpenShift running with
-all your images and the DNS issue should hopefully go away!</p>
-<h4 id="tracing-the-openshift-binaries-download"><a name="tracing-the-openshift-binaries-download" class="plugin-anchor" href="#tracing-the-openshift-binaries-download"><span class="fa fa-link"></span></a>Tracing the openshift binaries download</h4>
-<p>The provision script in the VagrantFile includes a curl command to
-download the openshift binaries. To observe that the download is
-functioning correctly, remove the silent options from the curl
-command. Replace:</p>
-<pre><code class="lang-sh">curl ... <span class="hljs-operator">-s</span>SL https://github.com/openshift/origin/..../openshift-origin.....tar.gz | tar xzv -C /tmp/openshift
-</code></pre>
-<p>with</p>
-<pre><code class="lang-sh">curl ... -L https://github.com/openshift/origin/..../openshift-origin.....tar.gz | tar xzv -C /tmp/openshift
-</code></pre>
-<h4 id="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><a name="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin" class="plugin-anchor" href="#ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><span class="fa fa-link"></span></a>Ensuring celluloid gem version not incompatible with landrush vagrant plugin</h4>
-<p>If you experience DNS issues during vagrant provisioning of the VM
-then ensure that you do not have landrush vagrant plugin
-version 0.18.0 installed with celluloid gem version 0.16.1.</p>
-<p>Display the landrush version:</p>
-<pre><code class="lang-sh">vagrant plugin list
-</code></pre>
-<p>Display the celluloid version:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
-gem list
-</code></pre>
-<p>If the landrush version is 0.18.0 and the celluloid version is 0.16.1
-then downgrade celluloid to version 0.16.0:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
-gem uninstall celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">1</span>
-gem install celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">0</span>
-</code></pre>
-<p>For further information see:
-<a href="https://github.com/fabric8io/fabric8/issues/4294" target="_blank">fabric8io/fabric8#4294</a>,
-<a href="https://github.com/phinze/landrush/issues/120" target="_blank">phinze/landrush#120</a>
-and
-<a href="https://github.com/ioquatix/rubydns/issues/55" target="_blank">ioquatix/rubydns#55</a>.</p>
-<h4 id="can-not-find-ping-vagrant-f8-from-os-x"><a name="can-not-find-ping-vagrant-f8-from-os-x" class="plugin-anchor" href="#can-not-find-ping-vagrant-f8-from-os-x"><span class="fa fa-link"></span></a>Can not find / ping &quot;vagrant.f8&quot; from OS X</h4>
-<p>In some rare case the DNS cache can get stale when you are updating
-your Vagrant or when doing restarts of the VM on OS X. In that case OS
-X will refuse to resolve host addresses like <code>vagrant.f8</code>. In that
-case, flushing the DNS cache helps:</p>
-<pre><code>    sudo dscacheutil -flushcache
-    sudo killall -HUP mDNSResponder
-</code></pre><h4 id="updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release"><a name="updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release" class="plugin-anchor" href="#updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release"><span class="fa fa-link"></span></a>Updating: tear down fabric8 and re-install after a new fabric8 release</h4>
-<p>If you want to avoid performing a <code>vagrant destroy &amp;&amp; vagrant up</code> when a new release is available you should be able to follow these commands from within the fabric8-installer dir..</p>
-<pre><code>    git pull
-    cd vagrant/openshift
-    vagrant provision
-    vagrant ssh
-    sudo su
-    oc login --username=admin --password=any
-    oc delete all -l provider=fabric8
-    oc delete templates --all
-    gofabric8 deploy -y
-    gofabric8 secrets -y
-</code></pre><p><strong>NOTE</strong> after a <code>vagrant reload</code> you may run into the DNS cache <a href="#can-not-find--ping-vagratf8-from-os-x">issue above</a></p>
+<h4 id="don-t-have-a-kubernetes-cluster-yet"><a name="don-t-have-a-kubernetes-cluster-yet" class="plugin-anchor" href="#don-t-have-a-kubernetes-cluster-yet"><span class="fa fa-link"></span></a>Don&apos;t have a Kubernetes cluster yet?</h4>
+<ul>
+<li><p><a href="minikube.html"><strong>MiniKube</strong></a></p>
+<p>This is the easiest and fastest way to get started with Fabric8 and Kubernetes locally.
+You just need to download 2 small binaries (<a href="https://github.com/kubernetes/minikube/releases" target="_blank">minikube</a> and <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a>) - no need for VirtualBox or Vagrant!
+Check out how to <a href="minikube.html">Install Fabric8 on a MiniKube created cluster of Kuberetes</a></p>
+</li>
+<li><p><a href="minishift.html"><strong>MiniShift</strong></a></p>
+<p>This is the easiest and fastest way to get started with Fabric8 and OpenShift Origin locally.
+You just need to download 2 small binaries (<a href="https://github.com/jimmidyson/minishift/releases" target="_blank">minishift</a> and <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a>) - no need for VirtualBox or Vagrant!
+Check out how to <a href="minishift.html">Install Fabric8 on a MiniShift created cluster of OpenShift Origin</a></p>
+</li>
+<li><p><a href="ocClusterUp.html"><strong>oc cluster up</strong></a></p>
+<p>The <a href="https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#overview" target="_blank">oc cluster up</a> command starts a local OpenShift  all-in-one cluster with a configured registry, router, image streams, and default templates.
+Check out how to <a href="ocClusterUp.html">Install Fabric8 on a oc cluster up created cluster of OpenShift Origin</a></p>
+</li>
+<li><p><a href="vagrant-kubernetes.html"><strong>Vagrant with Kubernetes</strong></a></p>
+<p>If you already have Vagrant and VirtualBox installed and want to use it to work with Fabric8 and Kubernetes locally then this option is for you.
+All you need is <a href="https://www.vagrantup.com/" target="_blank">Vagrant</a> and <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a> installed locally.
+Check out how to <a href="vagrant-kubernetes.html">Create the Fabric8 Vagrant Image for Kubernetes</a></p>
+</li>
+<li><p><a href="vagrant.html"><strong>Vagrant with OpenShift Origin</strong></a></p>
+<p>If you already have Vagrant and VirtualBox installed and want to use it to work with Fabric8 and OpenShift Origin locally then this option is for you.
+All you need is <a href="https://www.vagrantup.com/" target="_blank">Vagrant</a> and <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a> installed locally.
+Check out how to <a href="vagrant.html">Create the Fabric8 Vagrant Image for OpenShift Origin</a></p>
+</li>
+<li><p><a href="cdk.html"><strong>CDK</strong></a> - Using the Red Hat Container Development Kit</p>
+<p>You will need is <a href="https://www.vagrantup.com/" target="_blank">Vagrant</a> and <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a> installed locally along with a <a href="https://github.com/redhat-developer-tooling/openshift-vagrant#prerequisites" target="_blank">number of prerequisites</a>.
+Check out <a href="cdk.html">Installing Fabric8 inside the CDK Vagrant Image</a></p>
+</li>
+</ul>
+<h4 id="use-the-public-cloud"><a name="use-the-public-cloud" class="plugin-anchor" href="#use-the-public-cloud"><span class="fa fa-link"></span></a>Use the public cloud?</h4>
+<ul>
+<li><p><a href="gke.html"><strong>Google Container Engine</strong></a> - Kubernetes</p>
+<p><a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine</a> (GKE) is a Google hosted Kubernetes platform. There are many other ways to install Kubernetes as listed on the Kubernetes <a href="http://kubernetes.io/gettingstarted/" target="_blank">Getting Started</a> page however if you want to get up and running quickly without having to setup infrastructure and run through installations then GKE is a great option.  This <a href="gke.html">guide</a> will help you step-by-step install fabric8 using vanilla Kubernetes hosted on GKE.</p>
+</li>
+</ul>
+<h4 id="persistence"><a name="persistence" class="plugin-anchor" href="#persistence"><span class="fa fa-link"></span></a>Persistence</h4>
+<p>New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on <a href="persistence.html">creating the necessary persistent volumes or opting out of persistence</a> </p>
+<h4 id="local-client-setup"><a name="local-client-setup" class="plugin-anchor" href="#local-client-setup"><span class="fa fa-link"></span></a>Local client setup</h4>
+<p>For a smooth developer experience and for using the fabric8 <a href="../tools.html">tools</a> a local OpenShift client needs to be setup.
+How this is done is described in this <a href="local.html">recipe</a>.</p>
 
                     
                     </section>
@@ -1964,10 +1884,10 @@ case, flushing the DNS cache helps:</p>
         </div>
 
         
-        <a href="../getStarted/persistence.html" class="navigation navigation-prev " aria-label="Previous page: Persistence"><i class="fa fa-angle-left"></i></a>
+        <a href="../faqKubernetes.html" class="navigation navigation-prev " aria-label="Previous page: Kubernetes Questions"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/apps.html" class="navigation navigation-next " aria-label="Next page: Installing apps"><i class="fa fa-angle-right"></i></a>
+        <a href="../getStarted/minikube.html" class="navigation navigation-next " aria-label="Next page: MiniKube"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

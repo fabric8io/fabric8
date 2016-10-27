@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Troubleshooting | Fabric8 Documentation</title>
+        <title>Install on the cloud | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="../getStarted/apps.html" />
+    <link rel="next" href="../getStarted/persistence.html" />
     
     
-    <link rel="prev" href="../getStarted/persistence.html" />
+    <link rel="prev" href="../getStarted/gofabric8.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.4" data-basepath=".." data-revision="Thu Oct 27 2016 16:47:15 GMT+0000 (UTC)">
+    <div class="book" data-level="2.2" data-basepath=".." data-revision="Thu Oct 27 2016 16:47:15 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -116,7 +116,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="getStarted/cloud.html">
+        <li class="chapter active" data-level="2.2" data-path="getStarted/cloud.html">
             
                 
                     <a href="../getStarted/cloud.html">
@@ -146,7 +146,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.4" data-path="getStarted/troubleshooting.html">
+        <li class="chapter " data-level="2.4" data-path="getStarted/troubleshooting.html">
             
                 
                     <a href="../getStarted/troubleshooting.html">
@@ -1822,138 +1822,9 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
-<p>Be sure to check how to  <a href="persistence.html">create persistent volumes or opt out of persistence</a> </p>
-<p>With Linux, Docker, Kubernetes / OpenShift plus optionally Vagrant / VirtualBox / VMs there are various things that can go wrong unfortunately! We really try to make stuff Just Work (tm) but now and again things fall through the cracks.</p>
-<p>This page tries to describe all the things you can do to try figure out why things are not working.</p>
-<p>The <code>oc</code> command can be really useful for viewing resources (pods, services, RCs, templates etc) and deleting pods so they get recreated, looking at logs etc.</p>
-<p>You can view the current state of pods via:</p>
-<pre><code>oc get pods
-</code></pre><p>Or watch for when they change (e.g. start Running or become Ready or Terminate) via:</p>
-<pre><code>oc get pods -w
-</code></pre><p>If you have issues with the <a href="../console.html">console</a> its worth checking that the <code>fabric8</code> and <code>router</code> pods are running and in a Ready state.</p>
-<p>If things are not quite running then this can give more help</p>
-<pre><code>oc describe pod fabric8-abcd
-</code></pre><p>Where <code>fabric8-abcd</code> is the name of the pod you are diagnosing. </p>
-<p>If there&apos;s no pod but there is a <a href="../replicationControllers.html">Replication Controller</a> then try this for an RC called <code>foo</code>:</p>
-<pre><code>oc describe rc foo
-</code></pre><p>If you add the <code>fabric8-installer/bin</code> folder to your <code>$PATH</code> then
-there are a few handy shell scripts</p>
-<ul>
-<li><code>oc-bash name</code> finds the first pod with the given name pattern and
-runs a bash shell in the docker container</li>
-<li><code>oc-log name</code> finds the first pod with the given name pattern and
-shows the container&apos;s log</li>
-</ul>
-<p>On your host machine or inside the vagrant image you should have
-access to docker thanks to the environment variable:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> DOCKER_HOST=tcp://vagrant.f8:<span class="hljs-number">2375</span>
-</code></pre>
-<p>So you should be able to run things like</p>
-<pre><code class="lang-sh">docker ps
-docker logs nameOfContainer
-</code></pre>
-<p>You can SSH into the vagrant image using:</p>
-<pre><code class="lang-sh">vagrant ssh
-</code></pre>
-<p>Then you can look around.</p>
-<h4 id="cannot-access-services-from-your-browser"><a name="cannot-access-services-from-your-browser" class="plugin-anchor" href="#cannot-access-services-from-your-browser"><span class="fa fa-link"></span></a>Cannot access services from your browser</h4>
-<p>Sometimes services are working along with pods but you can&apos;t access them from your host. </p>
-<p>Its worth checking on OpenShift to see if there&apos;s a route for your service and what the host name is:</p>
-<pre><code>oc get route
-</code></pre><p>On OS X sometimes DNS gets a bit confused, so if things are running but you can&apos;t access them from your laptop try:</p>
-<pre><code> sudo dscacheutil -flushcache sudo killall -HUP mDNSResponder
-</code></pre><p>I&apos;ve sometimes seen landrush plugin for vagrant get confused too - wonder if this helps?</p>
-<pre><code>vagrant landrush restart
-</code></pre><p>If its DNS related you can cheat and add something like this to your /etc/hosts</p>
-<pre><code>172.28.128.4 vagrant.f8 fabric8.vagrant.f8 gogs.vagrant.f8 jenkins.vagrant.f8 nexus.vagrant.f8
-</code></pre><h4 id="looking-at-the-openshift-logs"><a name="looking-at-the-openshift-logs" class="plugin-anchor" href="#looking-at-the-openshift-logs"><span class="fa fa-link"></span></a>Looking at the OpenShift logs</h4>
-<p>If you hit any issues then try look at the logs for the <code>openshift</code> master:</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -u openshift
-</code></pre>
-<p>Or you can tail the logs via</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -fu openshift
-</code></pre>
-<p>You can watch the docker daemon too via</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo journalctl -fu docker
-</code></pre>
-<h4 id="docker-pull-issues"><a name="docker-pull-issues" class="plugin-anchor" href="#docker-pull-issues"><span class="fa fa-link"></span></a>Docker pull issues</h4>
-<p>If you have issues with docker pull; you can pre-download the docker
-images you need before you try running the app from the OpenShift
-Template or via the <code>Run...</code> button in the <a href="console.html">console</a>.</p>
-<p>To pull the images for one or more templates use the following
-<a href="https://github.com/fabric8io/gofabric8" target="_blank">gofabric8</a> command:</p>
-<pre><code class="lang-sh">vagrant ssh
-sudo bash
-gofabric8 pull logging
-</code></pre>
-<p>where <code>logging</code> is the name of the template to download (you can list
-as many template names as you like).</p>
-<h4 id="errors-like-tcp-lookup-index-docker-io-no-such-host"><a name="errors-like-tcp-lookup-index-docker-io-no-such-host" class="plugin-anchor" href="#errors-like-tcp-lookup-index-docker-io-no-such-host"><span class="fa fa-link"></span></a>Errors like &quot;tcp: lookup index.docker.io: no such host&quot;</h4>
-<p>If you shut your laptop and open it later or switch WiFi networks then
-the docker daemon can struggle to connect to the upstream docker
-registry to download images. There must be some issue with
-Vagrant/VirtualBox DNS or something.</p>
-<p>If this ever happens the simplest thing to do is just type this:</p>
-<pre><code class="lang-sh">vagrant reload
-</code></pre>
-<p>This will then reload the box; you should have OpenShift running with
-all your images and the DNS issue should hopefully go away!</p>
-<h4 id="tracing-the-openshift-binaries-download"><a name="tracing-the-openshift-binaries-download" class="plugin-anchor" href="#tracing-the-openshift-binaries-download"><span class="fa fa-link"></span></a>Tracing the openshift binaries download</h4>
-<p>The provision script in the VagrantFile includes a curl command to
-download the openshift binaries. To observe that the download is
-functioning correctly, remove the silent options from the curl
-command. Replace:</p>
-<pre><code class="lang-sh">curl ... <span class="hljs-operator">-s</span>SL https://github.com/openshift/origin/..../openshift-origin.....tar.gz | tar xzv -C /tmp/openshift
-</code></pre>
-<p>with</p>
-<pre><code class="lang-sh">curl ... -L https://github.com/openshift/origin/..../openshift-origin.....tar.gz | tar xzv -C /tmp/openshift
-</code></pre>
-<h4 id="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><a name="ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin" class="plugin-anchor" href="#ensuring-celluloid-gem-version-not-incompatible-with-landrush-vagrant-plugin"><span class="fa fa-link"></span></a>Ensuring celluloid gem version not incompatible with landrush vagrant plugin</h4>
-<p>If you experience DNS issues during vagrant provisioning of the VM
-then ensure that you do not have landrush vagrant plugin
-version 0.18.0 installed with celluloid gem version 0.16.1.</p>
-<p>Display the landrush version:</p>
-<pre><code class="lang-sh">vagrant plugin list
-</code></pre>
-<p>Display the celluloid version:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
-gem list
-</code></pre>
-<p>If the landrush version is 0.18.0 and the celluloid version is 0.16.1
-then downgrade celluloid to version 0.16.0:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> GEM_HOME=~/.vagrant.d/gems
-gem uninstall celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">1</span>
-gem install celluloid -v <span class="hljs-number">0.16</span>.<span class="hljs-number">0</span>
-</code></pre>
-<p>For further information see:
-<a href="https://github.com/fabric8io/fabric8/issues/4294" target="_blank">fabric8io/fabric8#4294</a>,
-<a href="https://github.com/phinze/landrush/issues/120" target="_blank">phinze/landrush#120</a>
-and
-<a href="https://github.com/ioquatix/rubydns/issues/55" target="_blank">ioquatix/rubydns#55</a>.</p>
-<h4 id="can-not-find-ping-vagrant-f8-from-os-x"><a name="can-not-find-ping-vagrant-f8-from-os-x" class="plugin-anchor" href="#can-not-find-ping-vagrant-f8-from-os-x"><span class="fa fa-link"></span></a>Can not find / ping &quot;vagrant.f8&quot; from OS X</h4>
-<p>In some rare case the DNS cache can get stale when you are updating
-your Vagrant or when doing restarts of the VM on OS X. In that case OS
-X will refuse to resolve host addresses like <code>vagrant.f8</code>. In that
-case, flushing the DNS cache helps:</p>
-<pre><code>    sudo dscacheutil -flushcache
-    sudo killall -HUP mDNSResponder
-</code></pre><h4 id="updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release"><a name="updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release" class="plugin-anchor" href="#updating-tear-down-fabric8-and-re-install-after-a-new-fabric8-release"><span class="fa fa-link"></span></a>Updating: tear down fabric8 and re-install after a new fabric8 release</h4>
-<p>If you want to avoid performing a <code>vagrant destroy &amp;&amp; vagrant up</code> when a new release is available you should be able to follow these commands from within the fabric8-installer dir..</p>
-<pre><code>    git pull
-    cd vagrant/openshift
-    vagrant provision
-    vagrant ssh
-    sudo su
-    oc login --username=admin --password=any
-    oc delete all -l provider=fabric8
-    oc delete templates --all
-    gofabric8 deploy -y
-    gofabric8 secrets -y
-</code></pre><p><strong>NOTE</strong> after a <code>vagrant reload</code> you may run into the DNS cache <a href="#can-not-find--ping-vagratf8-from-os-x">issue above</a></p>
+                        <h2 id="install-fabric8-on-the-public-cloud"><a name="install-fabric8-on-the-public-cloud" class="plugin-anchor" href="#install-fabric8-on-the-public-cloud"><span class="fa fa-link"></span></a>Install Fabric8 on the Public Cloud</h2>
+<p>The easiest way to install fabric8 on the public cloud (Amazon, Google, Azure, Digital Ocean) is via <a href="http://stackpoint.io" target="_blank">stackpoint</a></p>
+<p><a href="https://stackpoint.io/#/clusters/new?provider=aws&amp;solution=fabric8" target="_blank">Install Fabric8 on the Public Cloud</a></p>
 
                     
                     </section>
@@ -1964,10 +1835,10 @@ case, flushing the DNS cache helps:</p>
         </div>
 
         
-        <a href="../getStarted/persistence.html" class="navigation navigation-prev " aria-label="Previous page: Persistence"><i class="fa fa-angle-left"></i></a>
+        <a href="../getStarted/gofabric8.html" class="navigation navigation-prev " aria-label="Previous page: Install on your laptop"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/apps.html" class="navigation navigation-next " aria-label="Next page: Installing apps"><i class="fa fa-angle-right"></i></a>
+        <a href="../getStarted/persistence.html" class="navigation navigation-next " aria-label="Next page: Persistence"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
