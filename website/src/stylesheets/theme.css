@@ -162,8 +162,11 @@ h2:first-child {
 .btn-huge {
   font-size: 30px;
   margin-top: 30px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 table.services {
@@ -190,3 +193,23 @@ td.icon-desc-column {
   padding-right: 25px !important;
 }
 
+
+p.intro-para, p.other-para, p.last-para {
+  font-size: 18px;
+}
+
+p.other-para {
+  padding-top: 20px;
+}
+
+p.last-para {
+  padding-top: 6px;
+}
+p.intro-para {
+  padding-top: 6px;
+  padding-bottom: 20px;
+}
+
+h1, h4 {
+  text-align: center;
+}
