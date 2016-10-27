@@ -15,15 +15,19 @@
  */
 package io.fabric8.cdi.weld.external;
 
+import io.fabric8.cdi.MockConfigurer;
 import io.fabric8.cdi.deltaspike.DeltaspikeTestBase;
-import io.fabric8.cdi.weld.ClientProducer;
 import io.fabric8.cdi.weld.NestingFactoryBean;
 import io.fabric8.cdi.weld.SimpleBean;
 import io.fabric8.cdi.weld.StringToURL;
 import io.fabric8.cdi.weld.URLToConnection;
 import io.fabric8.cdi.weld.UrlBean;
-import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsBuilder;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.server.mock.OpenShiftMockServer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -45,10 +49,12 @@ import java.util.Set;
 @RunWith(Arquillian.class)
 public class ExtensionExternalTest {
 
+    private static final OpenShiftMockServer MOCK = new OpenShiftMockServer();
+
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, SimpleBean.class, UrlBean.class, ClientProducer.class)
+                .addClasses(StringToURL.class, URLToConnection.class, NestingFactoryBean.class, SimpleBean.class, UrlBean.class)
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
                 .addAsWebInfResource("META-INF/beans.xml")
                 .addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml")
@@ -64,6 +70,7 @@ public class ExtensionExternalTest {
         System.setProperty("CONFIG2_TEST", "value2");
         System.setProperty("SERVICE1_SOURCE_PROTOCOL", "http");
         System.setProperty("SERVICE1_TARGET_PROTOCOL", "https");
+        MockConfigurer.configure();
     }
 
     @Inject

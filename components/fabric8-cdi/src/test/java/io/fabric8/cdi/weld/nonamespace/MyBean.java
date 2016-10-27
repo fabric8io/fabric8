@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 class MyBean {
 
     @Inject
-    @ServiceName("service1")
+    @ServiceName("notfound")
     private String service;
 
 }

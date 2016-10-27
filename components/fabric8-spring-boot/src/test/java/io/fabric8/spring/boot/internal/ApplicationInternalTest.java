@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.net.URLConnection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ClientFactory.class, URLToConnection.class, Fabric8Application.class})
+@SpringApplicationConfiguration(classes = {URLToConnection.class, Fabric8Application.class})
 public class ApplicationInternalTest {
 
     @BeforeClass
@@ -43,6 +43,7 @@ public class ApplicationInternalTest {
         System.setProperty("SERVICE2_PROTOCOL", "https");
         System.setProperty("SERVICE3_PROTOCOL", "https");
 
+        MockConfigurer.configure();
         System.setProperty(KubernetesHelper.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, KubernetesHelper.DEFAULT_NAMESPACE);
         System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
     }

@@ -16,11 +16,13 @@
 package io.fabric8.cdi.weld.internal.endpoints;
 
 import io.fabric8.cdi.Fabric8Extension;
-import io.fabric8.cdi.weld.ClientProducer;
+import io.fabric8.cdi.MockConfigurer;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,12 +32,32 @@ import javax.enterprise.inject.spi.Bean;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnpointsInternalTest {
+public class EndpointsInternalTest {
 
-    private WeldContainer weld;
+    private static WeldContainer weld;
 
-    @After
-    public void cleanUp() {
+    @BeforeClass
+    public static void setUpClass() {
+        MockConfigurer.configure();
+
+        weld = new Weld()
+                .disableDiscovery()
+                .extensions(new Fabric8Extension())
+                .beanClasses(RandomEndpointToUrl.class,
+                        ServiceListInstanceWithEndpoint.class,
+                        ServiceInstanceWithEndpoint.class,
+                        ServiceListWithoutEndpoint.class,
+                        ServiceListInstanceWithEndpoint2.class,
+                        ServiceListInstanceWithEndpoint.class,
+                        ServiceListInstanceWithEndpoint2.class,
+                        ServiceInstanceWithMultiPortEndpoint.class,
+                        ServiceInstanceUsingFactoryAndEndpoints.class)
+                .initialize();
+
+    }
+
+    @AfterClass
+    public static void cleanUp() {
         if (weld != null) {
             weld.shutdown();
         }
@@ -95,14 +117,7 @@ public class EnpointsInternalTest {
     }
 
 
-    <T> T createInstance(Class<T> type) {
-        weld = new Weld()
-                .disableDiscovery()
-                .extensions(new Fabric8Extension())
-                .beanClasses(ClientProducer.class, RandomEndpointToUrl.class, type)
-                .alternatives(ClientProducer.class)
-                .initialize();
-
+    static <T> T createInstance(Class<T> type) {
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
             return (T) weld.getBeanManager().getReference(bean, type, ctx);

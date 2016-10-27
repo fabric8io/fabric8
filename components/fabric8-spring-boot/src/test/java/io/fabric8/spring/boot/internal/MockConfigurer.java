@@ -13,51 +13,21 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.spring.boot.external;
+package io.fabric8.spring.boot.internal;
 
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
-import io.fabric8.kubernetes.api.model.RootPathsBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
-import io.fabric8.openshift.api.model.RouteListBuilder;
-import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.openshift.client.mock.OpenShiftMockClient;
-import io.fabric8.spring.boot.Fabric8Application;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.openshift.api.model.RouteBuilder;
+import io.fabric8.openshift.server.mock.OpenShiftMockServer;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+public class MockConfigurer {
 
-@Configuration
-@AutoConfigureBefore(Fabric8Application.class)
-public class ClientFactory {
+    private static final OpenShiftMockServer MOCK = new OpenShiftMockServer();
 
-    @Bean
-    public KubernetesClient getKubernetesClient() throws MalformedURLException {
-        KubernetesMockClient mock = new KubernetesMockClient();
-
-        mock.getMasterUrl().andReturn(new URL("https://kubernetes.default.svc")).anyTimes();
-        mock.rootPaths().andReturn(new RootPathsBuilder()
-                .addToPaths("/api",
-                        "/api/v1beta3",
-                        "/api/v1",
-                        "/controllers",
-                        "/healthz",
-                        "/healthz/ping",
-                        "/logs/",
-                        "/metrics",
-                        "/ready",
-                        "/osapi",
-                        "/osapi/v1beta3",
-                        "/oapi",
-                        "/oapi/v1",
-                        "/swaggerapi/")
-                .build()).anyTimes();
+    public static void configure() {
 
         Service service1 = new ServiceBuilder()
                 .withNewMetadata().withName("service1").endMetadata()
@@ -119,22 +89,21 @@ public class ClientFactory {
                 .endSpec()
                 .build();
 
-        mock.services().withName("service1").get().andReturn(service1).anyTimes();
-        mock.services().withName("service2").get().andReturn(service2).anyTimes();
-        mock.services().withName("service3").get().andReturn(service3).anyTimes();
-        mock.services().withName("multiport").get().andReturn(multiport).anyTimes();
 
-        mock.services().list().andReturn(new ServiceListBuilder().addToItems(service1, service2, service3, multiport).build()).anyTimes();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/services/service1").andReturn(200, service1).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/services/service2").andReturn(200, service2).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/services/service3").andReturn(200, service3).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/services/multiport").andReturn(200, multiport).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/services").andReturn(200, new ServiceListBuilder()
+            .withItems(service1, service2, service3, multiport).build()
+        ).always();
 
-        mock.endpoints().list().andReturn(new EndpointsListBuilder().build()).anyTimes();
-        mock.adapt(OpenShiftClient.class).andReturn(getOpenShiftClient()).anyTimes();
-        return mock.replay();
+        MOCK.expect().get().withPath("/api/v1/namespaces/default/endpoints").andReturn(200, new EndpointsListBuilder().build()).always();
+
+        MOCK.expect().get().withPath("/oapi/v1/namespaces/default/routes").andReturn(200, new RouteBuilder().build()).always();
+
+        String masterUrl = MOCK.getServer().url("/").toString();
+        System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, masterUrl);
     }
 
-    public OpenShiftClient getOpenShiftClient() {
-        OpenShiftMockClient mock = new OpenShiftMockClient();
-        mock.routes().list().andReturn(new RouteListBuilder().build()).anyTimes();
-        mock.routes().inNamespace("default").list().andReturn(new RouteListBuilder().build()).anyTimes();
-        return mock.replay();
-    }
 }

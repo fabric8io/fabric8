@@ -21,6 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -31,11 +32,16 @@ import javax.inject.Inject;
 @RunWith(Arquillian.class)
 public class HubotTest {
 
+    @BeforeClass
+    public static void setUp() {
+        MockConfigurer.configure();
+    }
+
     @Deployment
     public static WebArchive createDeployment() {
         return DeltaspikeTestBase.createDeployment()
                 .addClasses(DeltaspikeTestBase.getDeltaSpikeHolders())
-                .addClasses(HubotRestApi.class, HubotNotifier.class, ClientProducer.class,
+                .addClasses(HubotRestApi.class, HubotNotifier.class,
                         //We need that so that deltaspike can see our @ConfigProperty annotated classes
                         DefaultConfigPropertyProducer.class)
                 .addAsWebInfResource("META-INF/beans.xml");

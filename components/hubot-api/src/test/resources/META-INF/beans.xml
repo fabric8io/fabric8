@@ -17,7 +17,7 @@
 -->
 <beans>
      <alternatives>
-          <class>io.fabric8.hubot.ClientProducer</class>
+          <class>io.fabric8.hubot.MockConfigurer</class>
      </alternatives>
      <scan>
           <exclude name="org.apache.cxf.**" />

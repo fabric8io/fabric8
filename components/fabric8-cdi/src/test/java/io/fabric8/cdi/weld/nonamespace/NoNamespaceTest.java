@@ -16,10 +16,12 @@
 package io.fabric8.cdi.weld.nonamespace;
 
 import io.fabric8.cdi.Fabric8Extension;
-import io.fabric8.cdi.weld.ClientProducer;
+import io.fabric8.cdi.MockConfigurer;
+import io.fabric8.kubernetes.client.Config;
 import org.hamcrest.CoreMatchers;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.ThrowableMessageMatcher;
@@ -33,9 +35,15 @@ public class NoNamespaceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @BeforeClass
+    public static void setUpClass() {
+        MockConfigurer.configure();
+        System.clearProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY);
+    }
+
     @Test
     public void testServiceInjection() {
-        expectedException.expect(ThrowableMessageMatcher.hasMessage(CoreMatchers.equalTo("No kubernetes service could be found for name: service1 in namespace: null")));
+        expectedException.expect(ThrowableMessageMatcher.hasMessage(CoreMatchers.equalTo("No kubernetes service could be found for name: notfound in namespace: null")));
         createInstance(MyBean.class);
     }
 
@@ -44,9 +52,9 @@ public class NoNamespaceTest {
         WeldContainer weld = new Weld()
                 .disableDiscovery()
                 .extensions(new Fabric8Extension())
-                .beanClasses(ClientProducer.class, MyBean.class)
-                .alternatives(ClientProducer.class)
+                .beanClasses(MyBean.class)
                 .initialize();
+
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
             weld.getBeanManager().getReference(bean, type, ctx);

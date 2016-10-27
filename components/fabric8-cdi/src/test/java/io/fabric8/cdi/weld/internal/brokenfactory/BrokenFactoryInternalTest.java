@@ -16,10 +16,11 @@
 package io.fabric8.cdi.weld.internal.brokenfactory;
 
 import io.fabric8.cdi.Fabric8Extension;
-import io.fabric8.cdi.weld.ClientProducer;
+import io.fabric8.cdi.MockConfigurer;
 import org.hamcrest.CoreMatchers;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.ThrowableMessageMatcher;
@@ -33,6 +34,12 @@ public class BrokenFactoryInternalTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @BeforeClass
+    public static void setUpClass() {
+        MockConfigurer.configure();
+    }
+
+
     @Test
     public void testServiceInjection() {
         expectedException.expect(ThrowableMessageMatcher.hasMessage(CoreMatchers.startsWith("Failed to process @Factory annotated method")));
@@ -44,8 +51,7 @@ public class BrokenFactoryInternalTest {
         WeldContainer weld = new Weld()
                 .disableDiscovery()
                 .extensions(new Fabric8Extension())
-                .beanClasses(ClientProducer.class, MyFactory.class, MyBean.class)
-                .alternatives(ClientProducer.class)
+                .beanClasses(MyFactory.class, MyBean.class)
                 .initialize();
         CreationalContext ctx = weld.getBeanManager().createCreationalContext(null);
         for (Bean bean : weld.getBeanManager().getBeans(type)) {
