@@ -4,6 +4,12 @@
 
 Before you start using fabric8 you will need a Kubernetes or OpenShift cluster. Here are some recipes:
 
+#### Want to install on your laptop?
+
+* [**install on your laptop**](gofabric8.html)
+
+  This is the easiest and fastest way to get started with Fabric8 and Kubernetes locally!
+
 #### Already have a working Kubernetes cluster?
 
 If you already have a cluster installed try this:

@@ -1,5 +1,6 @@
 * [Overview](overview.md)
 * [Getting Started](getStarted/index.md)
+  * [gofabric8](getStarted/gofabric8.md)
   * Kubernetes
     * [MiniKube](getStarted/minikube.md)
     * [Vagrant](getStarted/vagrant-kubernetes.md)
