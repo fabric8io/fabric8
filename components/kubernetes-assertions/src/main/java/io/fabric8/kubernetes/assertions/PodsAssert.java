@@ -69,7 +69,9 @@ public class PodsAssert extends HasMetadatasAssert<Pod, PodsAssert> {
                 if (Strings.isNotBlank(namespace)) {
                     key = namespace + "/" + name;
                 }
-                String log = client.pods().inNamespace(namespace).withName(name).getLog(containerName, true);
+                // TODO deal with more than one container!!!
+                //String log = client.pods().inNamespace(namespace).withName(name).getLog(containerName, true);
+                String log = client.pods().inNamespace(namespace).withName(name).getLog(true);
                 if (log != null) {
                     logs.put(key, log);
                 }
