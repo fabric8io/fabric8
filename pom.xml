@@ -161,7 +161,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
-        <sundrio.version>0.3.10</sundrio.version>
+        <sundrio.plugin.version>0.3.10</sundrio.plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -1360,7 +1360,7 @@
           <plugin>
               <groupId>io.sundr</groupId>
               <artifactId>sundr-maven-plugin</artifactId>
-              <version>${sundrio.version}</version>
+              <version>${sundrio.plugin.version}</version>
               <configuration>
                   <boms>
                       <bom>
