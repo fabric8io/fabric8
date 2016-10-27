@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Install OpenShift | Fabric8 Documentation</title>
+        <title>gofabric8 | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="../getStarted/browserCertificates.html" />
+    <link rel="next" href="../getStarted/minikube.html" />
     
     
-    <link rel="prev" href="../getStarted/openshift.html" />
+    <link rel="prev" href="../getStarted/index.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3.5.1" data-basepath=".." data-revision="Thu Oct 27 2016 16:39:09 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Oct 27 2016 16:39:09 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -101,7 +101,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="2.1" data-path="getStarted/gofabric8.html">
+        <li class="chapter active" data-level="2.1" data-path="getStarted/gofabric8.html">
             
                 
                     <a href="../getStarted/gofabric8.html">
@@ -288,7 +288,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="2.3.5.1" data-path="getStarted/installOpenShift.html">
+        <li class="chapter " data-level="2.3.5.1" data-path="getStarted/installOpenShift.html">
             
                 
                     <a href="../getStarted/installOpenShift.html">
@@ -1786,43 +1786,67 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="install-openshift"><a name="install-openshift" class="plugin-anchor" href="#install-openshift"><span class="fa fa-link"></span></a>Install OpenShift</h2>
-<p>If you don&apos;t have an OpenShift cluster yet then please check out the <a href="https://www.openshift.com/" target="_blank">various options</a> or check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" target="_blank">OpenShift Origin getting started guide</a> or try <a href="installOpenShift.html">these OpenShift setup tips</a>.</p>
-<h4 id="openshift-origin-installation"><a name="openshift-origin-installation" class="plugin-anchor" href="#openshift-origin-installation"><span class="fa fa-link"></span></a>OpenShift Origin installation</h4>
-<p>We recommend you check out the <a href="https://docs.openshift.org/latest/getting_started/administrators.html" target="_blank">OpenShift Origin Installation documentation</a>
-as the default way to install <a href="http://www.openshift.org/" target="_blank">OpenShift V3</a> before trying the alternative approach. Be sure that you
-install the router and registry as described <a href="#openshift-configuration">below</a> which has to be done in any case.</p>
-<h4 id="alternative-installation-route"><a name="alternative-installation-route" class="plugin-anchor" href="#alternative-installation-route"><span class="fa fa-link"></span></a>Alternative Installation route</h4>
-<p>Here&apos;s an alternative installation approach which could be tried if the guide in the previous section doesn&apos;t work
-for you.</p>
+                        <h2 id="install-fabric8"><a name="install-fabric8" class="plugin-anchor" href="#install-fabric8"><span class="fa fa-link"></span></a>Install Fabric8</h2>
+<p>The easiest way to get started with Fabric8 on your laptop or against an existing Kubernetes or OpenShift cluster is via <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a></p>
+<h3 id="prerequisites"><a name="prerequisites" class="plugin-anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
+<p>Depending on your platform you also need to install the following drivers:</p>
 <ul>
-<li>You should have installed <a href="https://docs.docker.com/installation/#installation" target="_blank">Docker 1.6 or later</a> and have
-the docker daemon running (see instructions for <a href="https://docs.docker.com/installation/centos/" target="_blank">CentOs</a>,
-<a href="https://docs.docker.com/installation/fedora/" target="_blank">Fedora</a> or <a href="https://docs.docker.com/installation/ubuntulinux/" target="_blank">Ubuntu</a>)</li>
-<li>Download and unpack a <a href="https://github.com/openshift/origin/releases/" target="_blank">release of OpenShift 1.0 or later</a>:</li>
+<li>Windows users will need to run this command as Adminstrator and will need to <a href="https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/quick_start/walkthrough_install" target="_blank">enable Hyper-V on Windows 10</a> or <a href="https://blogs.technet.microsoft.com/schadinio/2010/07/09/installing-hyper-v-manager-on-windows-7/" target="_blank">Windows 7</a>.</li>
+<li>OS X users  will need to <a href="https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#xhyve-driver" target="_blank">install the xhyve driver</a> which we try to automatically install via <code>brew</code> but you may want to install it just in case ;)</li>
+<li>Linux will need to <a href="https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#kvm-driver" target="_blank">install the kvm driver</a></li>
 </ul>
-<pre><code class="lang-sh">curl -L https://github.com/openshift/origin/releases/download/v1.<span class="hljs-number">1.1</span>/openshift-origin-server-v1.<span class="hljs-number">1.1</span><span class="hljs-operator">-e</span>1d9873-linux-<span class="hljs-number">64</span>bit.tar.gz | tar xzv
+<h3 id="starting-the-cluster"><a name="starting-the-cluster" class="plugin-anchor" href="#starting-the-cluster"><span class="fa fa-link"></span></a>Starting the cluster</h3>
+<ul>
+<li>download the <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8 binary for your platform</a></li>
+<li>run the following command:</li>
+</ul>
+<pre><code class="lang-sh">gofabric8 start
 </code></pre>
-<p>Now setup <code>$OPENSHIFT_MASTER</code> to point to the IP address or host name of the OpenShift master:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> OPENSHIFT_MASTER=https://<span class="hljs-variable">$HOST_IP</span>:<span class="hljs-number">8443</span>
+<p>This will download the necessary tools such as <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8.</p>
+<h3 id="using-openshift"><a name="using-openshift" class="plugin-anchor" href="#using-openshift"><span class="fa fa-link"></span></a>Using OpenShift</h3>
+<p>If you&apos;d like to use <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin</a> instead of <a href="https://github.com/kubernetes/kubernetes/" target="_blank">Kubernetes</a> then just add the <code>--minishift</code> argument like this:</p>
+<pre><code class="lang-sh">gofabric8 start --minishift
 </code></pre>
-<p><strong>Note</strong> Be sure to use the host ip instead of localhost or 127.0.0.1. This ip will be used from inside a container to connect to the openshift api. Therefor localhost would point to the container itself and it won&apos;t be able to connect.</p>
-<p>Move the extracted folder to be <code>/var/lib/openshift/</code> and cd into that directory.</p>
-<p>Then start OpenShift:</p>
-<pre><code class="lang-sh">nohup ./openshift start \
-        --cors-allowed-origins=<span class="hljs-string">&apos;.*&apos;</span> \
-        --master=<span class="hljs-variable">$OPENSHIFT_MASTER</span> \
-        --volume-dir=/var/lib/openshift/openshift.local.volumes \
-        --etcd-dir=/var/lib/openshift/openshift.local.etcd \
-        &gt; /var/lib/openshift/openshift.log &amp;
+<p>This will then use <a href="https://github.com/jimmidyson/minishift" target="_blank">MiniShift</a> instead of <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to create the VM and setup a single node cluster.</p>
+<h3 id="changing-the-vm-driver"><a name="changing-the-vm-driver" class="plugin-anchor" href="#changing-the-vm-driver"><span class="fa fa-link"></span></a>Changing the VM Driver</h3>
+<p>By default the VM drivers used will be <code>hyperv</code> on Windows, <code>xhyve</code> on OS X and <code>kvm</code> on Linux.</p>
+<p>If you wish to switch to a different VM driver you can specify the <code>--vm-driver</code> property. </p>
+<p>For example if you have installed <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox</a> and wish to use that then type:</p>
+<pre><code class="lang-sh">gofabric8 start --vm-driver=virtualbox
 </code></pre>
-<p>When running commands on the OpenShift master type the following to avoid you having to add <code>--config=....</code> arguments:</p>
-<pre><code class="lang-sh">mkdir -p ~/.kube
-ln <span class="hljs-operator">-s</span> `<span class="hljs-built_in">pwd</span>`/openshift.local.config/master/admin.kubeconfig ~/.kube/config
+<p>Note that we highly recommend using the default VM drivers (<code>hyperv</code> on Windows, <code>xhyve</code> on OS X and <code>kvm</code> on Linux) as they tend to work better and use less resources on your laptop than the alternatives.</p>
+<h3 id="changing-memory-or-cpus"><a name="changing-memory-or-cpus" class="plugin-anchor" href="#changing-memory-or-cpus"><span class="fa fa-link"></span></a>Changing memory or cpus</h3>
+<p>You can configure the number of cpus or memory for the VM via arguments. To see all the possible arguments type:</p>
+<pre><code class="lang-sh">gofabric8 <span class="hljs-built_in">help</span> start
 </code></pre>
-<p>In order to be able to run <code>oadm</code> command add <code>/var/lib/openshift</code> to your <code>$PATH</code>:</p>
-<pre><code class="lang-sh"><span class="hljs-built_in">export</span> PATH=<span class="hljs-string">&quot;<span class="hljs-variable">$PATH</span>:/var/lib/openshift&quot;</span>
+<p>e.g. to configure the memory in MB or number of CPUs:</p>
+<pre><code class="lang-sh">gofabric8 start --memory=<span class="hljs-number">6000</span> --cpus=<span class="hljs-number">2</span>
 </code></pre>
+<h3 id="validating-your-cluster"><a name="validating-your-cluster" class="plugin-anchor" href="#validating-your-cluster"><span class="fa fa-link"></span></a>Validating your cluster</h3>
+<p>At any point you can validate your cluster via:</p>
+<pre><code class="lang-sh">gofabric8 validate
+</code></pre>
+<h3 id="access-the-fabric8-developer-console"><a name="access-the-fabric8-developer-console" class="plugin-anchor" href="#access-the-fabric8-developer-console"><span class="fa fa-link"></span></a>Access the Fabric8 Developer Console</h3>
+<p>To open the <a href="../console.html">Fabric8 Developer Console</a>  type the following:</p>
+<pre><code class="lang-sh">gofabric8 console
+</code></pre>
+<p>Then a browse window will open for the console. </p>
+<p>To see the URL so you can open it in another browser you can type:</p>
+<pre><code class="lang-sh">gofabric8 service fabric8 --url
+</code></pre>
+<p>You can use the same command to open other consoles too like gogs, Jenkins or Nexus</p>
+<pre><code class="lang-sh">gofabric8 service gogs
+gofabric8 service jenkins
+gofabric8 service nexus
+</code></pre>
+<p>Though from the <a href="../console.html">Fabric8 Developer Console</a> you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:</p>
+<p><img src="../images/console-tools.png" alt="clicking on the tools drop down"></p>
+<h4 id="configuring-docker"><a name="configuring-docker" class="plugin-anchor" href="#configuring-docker"><span class="fa fa-link"></span></a>Configuring Docker</h4>
+<p>To use docker on your host communicating with the docker daemon inside your MiniKube cluster type:</p>
+<pre><code class="lang-sh"><span class="hljs-built_in">eval</span> $(gofabric8 docker-env)
+</code></pre>
+<h2 id="troubleshooting"><a name="troubleshooting" class="plugin-anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
+<p>Check out the <a href="troubleshooting.html">troubleshooting guide</a> for more help.</p>
 
                     
                     </section>
@@ -1833,10 +1857,10 @@ ln <span class="hljs-operator">-s</span> `<span class="hljs-built_in">pwd</span>
         </div>
 
         
-        <a href="../getStarted/openshift.html" class="navigation navigation-prev " aria-label="Previous page: OpenShift"><i class="fa fa-angle-left"></i></a>
+        <a href="../getStarted/index.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../getStarted/browserCertificates.html" class="navigation navigation-next " aria-label="Next page: Accept self-signed certs"><i class="fa fa-angle-right"></i></a>
+        <a href="../getStarted/minikube.html" class="navigation navigation-next " aria-label="Next page: MiniKube"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
