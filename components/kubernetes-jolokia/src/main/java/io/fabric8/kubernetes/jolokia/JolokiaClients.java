@@ -19,10 +19,14 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.internal.SSLUtils;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.jolokia.client.BasicAuthenticator;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
@@ -32,6 +36,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.net.ssl.SSLContext;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
 import static io.fabric8.utils.Objects.assertNotNull;
@@ -43,10 +49,26 @@ public class JolokiaClients {
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaClients.class);
 
     private final KubernetesClient kubernetes;
+
     private String user = Systems.getEnvVarOrSystemProperty("JOLOKIA_USER", "JOLOKIA_USER", "admin");
-    private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");;
+
+    private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");
+
+    /**
+     * The protocol used by the Jolokia server (http or https).
+     * It is detected automatically when left empty.
+     */
+    private String protocol = Systems.getEnvVarOrSystemProperty("JOLOKIA_PROTOCOL");
+
     private Filter<Pod> podFilter = null;
+
     private boolean useKubeProxy = true;
+
+    /**
+     * The authentication mode.
+     * Autodetected when left empty;
+     */
+    private AuthenticationMode authenticationMode;
 
     public JolokiaClients() {
         this(new DefaultKubernetesClient());
@@ -54,6 +76,10 @@ public class JolokiaClients {
 
     public JolokiaClients(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
+
+        if (Systems.hasEnvVarOrSystemProperty("JOLOKIA_AUTHENTICATION_MODE")) {
+            authenticationMode = AuthenticationMode.valueOf(Systems.getEnvVarOrSystemProperty("JOLOKIA_AUTHENTICATION_MODE"));
+        }
     }
 
     public KubernetesClient getKubernetes() {
@@ -282,7 +308,7 @@ public class JolokiaClients {
                             ObjectMeta metadata = pod.getMetadata();
                             String namespace = metadata.getNamespace();
                             String podName = metadata.getName();
-                            String jolokiaUrl = URLUtils.join(masterUrl.toString(), "/api/v1/namespaces/" + namespace + "/pods/https:" + podName + ":8778/proxy/jolokia/");
+                            String jolokiaUrl = URLUtils.join(masterUrl.toString(), "/api/v1/namespaces/" + namespace + "/pods/" + locateJolokiaProtocol() + ":" + podName + ":8778/proxy/jolokia/");
                             LOG.info("Using jolokia URL: " + jolokiaUrl);
                             return createJolokiaClient(container, jolokiaUrl);
                         }
@@ -314,7 +340,7 @@ public class JolokiaClients {
     }
 
     protected J4pClient createJolokiaClientFromHostAndPort(Container container, String host, Integer hostPort) {
-        String jolokiaUrl = "http://" + host + ":" + hostPort + "/jolokia/";
+        String jolokiaUrl = locateJolokiaProtocol() + "://" + host + ":" + hostPort + "/jolokia/";
         return createJolokiaClient(container, jolokiaUrl);
     }
 
@@ -390,17 +416,92 @@ public class JolokiaClients {
         this.podFilter = podFilter;
     }
 
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public AuthenticationMode getAuthenticationMode() {
+        return authenticationMode;
+    }
+
+    public void setAuthenticationMode(AuthenticationMode authenticationMode) {
+        this.authenticationMode = authenticationMode;
+    }
+
     protected J4pClient createJolokiaClient(Container container, String jolokiaUrl) {
         String name = container.getName();
         LOG.debug("Creating jolokia client for : " + name + " at URL: " + jolokiaUrl);
         J4pClientBuilder builder = J4pClient.url(jolokiaUrl);
-        if (Strings.isNotBlank(user)) {
-            builder = builder.user(user);
+
+        if (useKubeProxy) {
+            // When using the https proxy, inject the Kubernetes client's SSL context
+            URL masterUrl = getKubernetes().getMasterUrl();
+            if (masterUrl != null && masterUrl.toString().startsWith("https")) {
+                try {
+                    SSLContext sslCtx = SSLUtils.sslContext(kubernetes.getConfiguration());
+                    ConnectionSocketFactory factory = new SSLConnectionSocketFactory(sslCtx);
+                    builder = builder.sslConnectionSocketFactory(factory);
+                } catch (Exception e) {
+                    LOG.warn("Unable to inject the Kubernetes SSL context into the Jolokia client. Using the default context", e);
+                }
+            }
         }
-        if (Strings.isNotBlank(password)) {
-            builder = builder.password(password);
+
+        AuthenticationMode mode = locateAuthenticationMode();
+        switch (mode) {
+        case BEARER:
+            builder = builder.authenticator(new BearerTokenAuthenticator());
+
+            String token = kubernetes.getConfiguration().getOauthToken();
+            builder = builder.user(token);
+            break;
+        case BASIC:
+            builder = builder.authenticator(new BasicAuthenticator());
+            if (Strings.isNotBlank(user)) {
+                builder = builder.user(user);
+            }
+            if (Strings.isNotBlank(password)) {
+                builder = builder.password(password);
+            }
+            break;
+        default:
+            throw new IllegalStateException("Unsupported authentication mode: " + mode);
         }
+
         return builder.build();
+    }
+
+    /**
+     * Returns the jolokia protocol or detects it from the environment.
+     */
+    protected String locateJolokiaProtocol() {
+        if (this.protocol != null) {
+            return protocol;
+        }
+
+        if (KubernetesHelper.isOpenShift(kubernetes)) {
+            // Jolokia is secured by default on Openshift
+            return "https";
+        }
+
+        return "http";
+    }
+
+    protected AuthenticationMode locateAuthenticationMode() {
+        if (this.authenticationMode != null) {
+            return this.authenticationMode;
+        }
+
+        if (KubernetesHelper.isOpenShift(kubernetes)) {
+            // Jolokia needs the Bearer token by default on Openshift
+            return AuthenticationMode.BEARER;
+        }
+
+        return AuthenticationMode.BASIC;
     }
 
     protected ReplicationController requireReplicationController(String replicationControllerName, String namespace) {
@@ -419,5 +520,12 @@ public class JolokiaClients {
         Service answer = kubernetes.services().inNamespace(namespace).withName(serviceName).get();
         Objects.requireNonNull(answer, "No Service found for namespace: " + namespace + " name: " + serviceName);
         return answer;
+    }
+
+    // =================================================================================================
+
+    public enum AuthenticationMode {
+        BASIC,
+        BEARER
     }
 }
