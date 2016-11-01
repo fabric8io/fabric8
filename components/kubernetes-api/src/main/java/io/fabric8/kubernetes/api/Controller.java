@@ -410,6 +410,8 @@ public class Controller {
         if (openShiftClient == null) {
             try {
                 openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+            } catch (KubernetesClientException e) {
+                // ignore
             } catch (OpenShiftNotAvailableException e) {
                 // ignore
             }
