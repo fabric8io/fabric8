@@ -39,6 +39,7 @@ import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
