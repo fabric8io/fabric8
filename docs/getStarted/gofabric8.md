@@ -13,7 +13,7 @@ Depending on your platform you may also need to install the following drivers:
 
 ### Installing gofabric8
 
-For OS X and Linux: 
+For OS X and Linux you can either install [gofabric8](https://github.com/fabric8io/gofabric8/releases) via this command: 
 
 ```
 curl -sS https://get.fabric8.io/download.txt | bash
@@ -27,12 +27,14 @@ export PATH=$PATH:$HOME/.fabric8/bin
 
 ### Starting the cluster
 
-Now start the cluster via:
+Start the cluster via this command:
 ```sh
 gofabric8 start
 ```
 
-This will download the necessary tools such as [MiniKube](https://github.com/kubernetes/minikube) to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8.
+This will download the necessary tools such as [MiniKube](https://github.com/kubernetes/minikube) to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8. 
+
+This will also install [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) which is the main CLI tool for interacting with kubernetes clusters.
 
 ### Using OpenShift
 
@@ -43,6 +45,8 @@ gofabric8 start --minishift
 ```
 
 This will then use [MiniShift](https://github.com/jimmidyson/minishift) instead of [MiniKube](https://github.com/kubernetes/minikube) to create the VM and setup a single node cluster.
+
+This will also install [oc](hhttps://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html) which is the CLI tool for interacting with OpenShift specific resources in OpenShift clusters - you can also use [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) for interacting with Kubernetes resources on OpenShift clusters.
 
 ### Changing the VM Driver
 
