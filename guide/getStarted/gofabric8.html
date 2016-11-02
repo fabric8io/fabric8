@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Tue Nov 01 2016 14:45:18 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Wed Nov 02 2016 06:13:10 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1832,21 +1832,23 @@
 <li>Linux will need to <a href="https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#kvm-driver" target="_blank">install the kvm driver</a></li>
 </ul>
 <h3 id="installing-gofabric8"><a name="installing-gofabric8" class="plugin-anchor" href="#installing-gofabric8"><span class="fa fa-link"></span></a>Installing gofabric8</h3>
-<p>For OS X and Linux: </p>
+<p>For OS X and Linux you can either install <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> via this command: </p>
 <pre><code>curl -sS https://get.fabric8.io/download.txt | bash
 </code></pre><p>Or you can <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">download the gofabric8 binary for your platform</a> and add it to your <code>PATH</code> </p>
 <pre><code class="lang-sh"><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$HOME</span>/.fabric8/bin
 </code></pre>
 <h3 id="starting-the-cluster"><a name="starting-the-cluster" class="plugin-anchor" href="#starting-the-cluster"><span class="fa fa-link"></span></a>Starting the cluster</h3>
-<p>Now start the cluster via:</p>
+<p>Start the cluster via this command:</p>
 <pre><code class="lang-sh">gofabric8 start
 </code></pre>
-<p>This will download the necessary tools such as <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8.</p>
+<p>This will download the necessary tools such as <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8. </p>
+<p>This will also install <a href="http://kubernetes.io/docs/user-guide/kubectl-overview/" target="_blank">kubectl</a> which is the main CLI tool for interacting with kubernetes clusters.</p>
 <h3 id="using-openshift"><a name="using-openshift" class="plugin-anchor" href="#using-openshift"><span class="fa fa-link"></span></a>Using OpenShift</h3>
 <p>If you&apos;d like to use <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin</a> instead of <a href="https://github.com/kubernetes/kubernetes/" target="_blank">Kubernetes</a> then just add the <code>--minishift</code> argument like this:</p>
 <pre><code class="lang-sh">gofabric8 start --minishift
 </code></pre>
 <p>This will then use <a href="https://github.com/jimmidyson/minishift" target="_blank">MiniShift</a> instead of <a href="https://github.com/kubernetes/minikube" target="_blank">MiniKube</a> to create the VM and setup a single node cluster.</p>
+<p>This will also install <a href="hhttps://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html" target="_blank">oc</a> which is the CLI tool for interacting with OpenShift specific resources in OpenShift clusters - you can also use <a href="http://kubernetes.io/docs/user-guide/kubectl-overview/" target="_blank">kubectl</a> for interacting with Kubernetes resources on OpenShift clusters.</p>
 <h3 id="changing-the-vm-driver"><a name="changing-the-vm-driver" class="plugin-anchor" href="#changing-the-vm-driver"><span class="fa fa-link"></span></a>Changing the VM Driver</h3>
 <p>By default the VM drivers used will be <code>hyperv</code> on Windows, <code>xhyve</code> on OS X and <code>kvm</code> on Linux.</p>
 <p>If you wish to switch to a different VM driver you can specify the <code>--vm-driver</code> property. </p>
