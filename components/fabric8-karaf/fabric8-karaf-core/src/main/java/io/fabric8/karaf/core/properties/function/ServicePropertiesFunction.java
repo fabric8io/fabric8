@@ -21,6 +21,7 @@ import java.util.Locale;
 import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 
 /**
@@ -39,15 +40,16 @@ import org.apache.felix.scr.annotations.Service;
     policy = ConfigurationPolicy.IGNORE,
     createPid = false
 )
+@Property(name = "function.name", value = ServicePropertiesFunction.FUNCTION_NAME)
 @Service(PropertiesFunction.class)
 public class ServicePropertiesFunction implements PropertiesFunction {
-
+    public static final String FUNCTION_NAME = "service";
     private static final String HOST_PREFIX = "_SERVICE_HOST";
     private static final String PORT_PREFIX = "_SERVICE_PORT";
 
     @Override
     public String getName() {
-        return "service";
+        return FUNCTION_NAME;
     }
 
     @Override

@@ -19,6 +19,7 @@ package io.fabric8.karaf.core.properties.function;
 import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 
 /**
@@ -30,12 +31,14 @@ import org.apache.felix.scr.annotations.Service;
     policy = ConfigurationPolicy.IGNORE,
     createPid = false
 )
+@Property(name = "function.name", value = SysPropertiesFunction.FUNCTION_NAME)
 @Service(PropertiesFunction.class)
 public class SysPropertiesFunction implements PropertiesFunction {
+    public static final String FUNCTION_NAME = "sys";
 
     @Override
     public String getName() {
-        return "sys";
+        return FUNCTION_NAME;
     }
 
     @Override

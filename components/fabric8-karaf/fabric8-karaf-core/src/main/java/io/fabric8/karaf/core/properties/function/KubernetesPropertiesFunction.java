@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -38,8 +39,11 @@ import org.apache.felix.scr.annotations.Service;
     policy = ReferencePolicy.STATIC,
     referenceInterface = KubernetesClient.class
 )
+@Property(name = "function.name", value = KubernetesPropertiesFunction.FUNCTION_NAME)
 @Service(PropertiesFunction.class)
-public class KubernetesPropertiesFunction implements PropertiesFunction{
+public class KubernetesPropertiesFunction implements PropertiesFunction {
+    public static final String FUNCTION_NAME = "k8s";
+
     private final AtomicReference<KubernetesClient> kubernetesClient;
     private final Map<String, KubernetesSupport.Resource> kubernetesResources;
 
@@ -58,7 +62,7 @@ public class KubernetesPropertiesFunction implements PropertiesFunction{
 
     @Override
     public String getName() {
-        return "k8s";
+        return FUNCTION_NAME;
     }
 
     @Override

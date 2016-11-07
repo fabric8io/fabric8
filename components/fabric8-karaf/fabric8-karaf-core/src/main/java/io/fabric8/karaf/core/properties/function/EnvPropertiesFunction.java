@@ -19,6 +19,7 @@ package io.fabric8.karaf.core.properties.function;
 import io.fabric8.karaf.core.Support;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 
 /**
@@ -30,12 +31,14 @@ import org.apache.felix.scr.annotations.Service;
     policy = ConfigurationPolicy.IGNORE,
     createPid = false
 )
+@Property(name = "function.name", value = EnvPropertiesFunction.FUNCTION_NAME)
 @Service(PropertiesFunction.class)
 public class EnvPropertiesFunction implements PropertiesFunction {
+    public static final String FUNCTION_NAME = "env";
 
     @Override
     public String getName() {
-        return "env";
+        return FUNCTION_NAME;
     }
 
     @Override
