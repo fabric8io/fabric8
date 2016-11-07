@@ -1,3 +1,10 @@
+### 2.4.1
+* Upgrade to Jenkins2.x alpine base image
+* Include the very cool Jenkins [Blue Ocean](https://jenkins.io/projects/blueocean/)
+* Use the new @Library to import [fabric8 Jenkins CPS Shared library](https://github.com/fabric8io/fabric8-pipeline-library) in Jenkinsfiles  
+* Add experimental Keycloak app
+* Upgrade experimental Taiga 3.0.0 and add persistence
+* Define multiple containers to include in a build pod from a Jenkinsfile https://github.com/jenkinsci/kubernetes-plugin#pipeline-support
 
 ### 2.3.19
 
@@ -5,7 +12,7 @@
 * Includes documentation on [how to create Spring Boot microservices on kubernetes with fabric8](https://spring.fabric8.io/)
 
 ### 2.2.234
-      
+
 * We now use the [exposecontroller](https://github.com/fabric8io/exposecontroller/) to decide whether to create Ingress resources on Kubernetes, Route resources on OpenShift, use external IPs via LoadBalancer types on public cloud or use nodePorts on local single node installations.      
 * All quickstarts and archetypes have moved to the new 3.x version of the [fabric8 maven plugin](https://maven.fabric8.io/)
 
