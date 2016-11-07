@@ -1,10 +1,12 @@
+
 ### 2.4.1
+
 * Upgrade to Jenkins2.x alpine base image
 * Include the very cool Jenkins [Blue Ocean](https://jenkins.io/projects/blueocean/)
 * Use the new @Library to import [fabric8 Jenkins CPS Shared library](https://github.com/fabric8io/fabric8-pipeline-library) in Jenkinsfiles  
 * Add experimental Keycloak app
 * Upgrade experimental Taiga 3.0.0 and add persistence
-* Define multiple containers to include in a build pod from a Jenkinsfile https://github.com/jenkinsci/kubernetes-plugin#pipeline-support
+* Define multiple containers to include in a build pod from a Jenkinsfile.  Detailed blog by Ioannis https://blog.fabric8.io/jenkins-kubernetes-plugin-adds-pipeline-capabilities-2d43f934c580#.iaht2qp1y
 
 ### 2.3.19
 
