@@ -17,7 +17,7 @@ When things are working correctly you should see all the `PersistentVolumeClaim`
 
 If you are using [minikube](https://github.com/jimmidyson/minikube) or [minishift](https://github.com/jimmidyson/minishift) then `gofabric8` automatically spins up the equivalent `PersistentVolume` resources for you using `HostPath` based PersistentVolumes - so things should just work!
 
-Though if you create new apps on the fly that uses persistence after you have ran the [gofabric8 start](gofabric8.html) command then you may have `PersistentVolumeClaim` resources which are not `Bound` to a `PersistentVolume`.
+Though if you create new apps on the fly that uses persistence after you have ran the [gofabric8 start](gofabric8.html) command then you may have `PersistentVolumeClaim` resources which are stuck `Pending`.
 
 If so then you can dynamically create new `PersistentVolume` resources for any pending `PersistentVolumeClaim` resources via the command:
 
@@ -28,13 +28,54 @@ Ultimately we will enable dynamic `PersistentVolume` creation in [minikube](http
 
 ### Other clusters
 
-On any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. 
+We use Kubernetes dynamic `PersistentVolume` provisioning to automatically create PVs when a `PersistentVolumeClaim` needs one.
 
+This is done by creating a [StorageClass](http://kubernetes.io/docs/user-guide/persistent-volumes/#storageclasses) which is configured to point to cloud persistence implementations like EBS, GlusterFS, Cinder etc
 
-Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azure, or NFS/Gluster/Ceph when on premise etc).
+All fabric8 related `PersistentVolumeClaim` resources have a `volume.beta.kubernetes.io/storage-class=standard` annotation that is used to match which StorageClass to use.
 
-We hope to take advantage of kubernetes 1.4 dynamic `PersistentVolume` provisioning to automatically spin these up to simplify installation.
+Example:
 
+    apiVersion: "v1"
+    kind: "PersistentVolumeClaim"
+    metadata:
+    annotations:
+        volume.beta.kubernetes.io/storage-class: "standard"
+    name: "jenkins-jobs"
+    spec:
+    accessModes:
+    - "ReadWriteOnce"
+    resources:
+        requests:
+        storage: "100Mi"
+
+So when setting up a cluster we just need to choose which PV implemenation to use and add it to your `StorageClass` e.g.
+
+__GKE__
+
+    cat <<EOF | kubectl create -f -
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1beta1
+    metadata:
+      name: standard
+    provisioner: kubernetes.io/gce-pd
+    parameters:
+      type: pd-standard
+    EOF
+
+__AWS__
+
+      cat <<EOF | kubectl create -f -
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1beta1
+      metadata:
+        name: standard
+      provisioner: kubernetes.io/aws-ebs
+      parameters:
+        type: gp2
+      EOF
+
+For a full list of StorageClass examples take a look at the kubernetes docs http://kubernetes.io/docs/user-guide/persistent-volumes/#parameters
 
 ### Disabling persistence
 

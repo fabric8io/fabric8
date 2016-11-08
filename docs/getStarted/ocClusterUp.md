@@ -13,13 +13,7 @@ Follow the [getting started guide](https://github.com/openshift/origin/blob/mast
 Now type the following:
 
 ```sh
-gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
-```
-
-At any point you can validate your installation via:
-
-```sh
-gofabric8 validate
+gofabric8 deploy
 ```
 
 ### Extra setup

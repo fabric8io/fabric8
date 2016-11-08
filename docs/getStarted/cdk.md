@@ -42,16 +42,15 @@ You will probably want to login so you can use the `oc` command line tool from O
 oc login 10.1.2.2:8443 -u=admin -p=admin
 ```
 
-Now install the [fabric8 developer console](../console.html):
-```
-gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io
-gofabric8 secrets -y
-```
-
 If you wish to install the full [Fabric8 Microservices Platform with CI / CD support](../cdelivery.html) then try this command instead
 ```
-gofabric8 deploy -y --domain=openshift.10.1.2.2.xip.io --app=cd-pipeline
-gofabric8 secrets -y
+gofabric8 deploy
+```
+
+We don't automatically create `PersistentVolumes` when using VMs created by Vagrant so we need to run this step after the initial gofabric8 deploy and after any app is run that has a `PersistentVolumeClaim`.  This will create `HostPath` PV for each `PersistentVolumeClaim` that's found: 
+
+```
+gofabric8 volumes
 ```
 
 It will take a few moments to startup and download the [Fabric8 Developer Console](../console.html), you should see the pod startup in the OpenShift console or via the commmand:

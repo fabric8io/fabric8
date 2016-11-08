@@ -50,22 +50,36 @@ Check your nodes are running
 kubectl get nodes
 ```
 
+### Persisence
+
+A number of fabric8 applications require persistent storage so that we don't loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.
+
+We use Kubernetes dynamic `PersistentVolume` provisioning to automatically create PVs when a `PersistentVolumeClaim` needs one.
+
+Create a StorageClass that points to a persistence implementation for your cloud ensuring your `StorageClass` has a name `name: standard` see examples below.  For a full explaination see [persistence](getStarted/persistence.md)
+
+Run:
+
+    cat <<EOF | kubectl create -f -
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1beta1
+    metadata:
+      name: standard
+    provisioner: kubernetes.io/aws-ebs
+    parameters:
+      type: gp2
+    EOF
+
 ## Install the fabric8 microservices platform
 
 Next we want to deploy the fabric8 microservices platform default components on top of Kubernetes, get the latest `gofabric8` binary from  [gofabric8](https://github.com/fabric8io/gofabric8/releases) and run
 
 ```
-gofabric8 deploy --domain replace.me.io
+gofabric8 deploy
 ```
 gofabric8 will use the local credentials on your remote machine from `~/.kube/config` after the authentication script above
 
-It may make a few minutes to download a number of docker images but to track progress you can watch progress using
-```
-kubectl get pod -w
-```
-As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console using the fabric8 ingress rule.
-
-http://fabric8.default.replace.me.io
+It may make a few minutes to download a number of docker images but once done your broswer will open to the fabric8 console
 
 ### Ingress
 

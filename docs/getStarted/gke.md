@@ -45,9 +45,27 @@ gcloud compute firewall-rules create fabric8-http --allow tcp:80,icmp
 gcloud compute firewall-rules create fabric8-https --allow tcp:443,icmp
 ```
 
-### Install the fabric8 microservices platform default applications
+### Persisence
 
-__WARNING__ fabric8 has recently added support for persistent volumes but we don't have this available on GKE yet.  Pods that run on GKE with the OOTB configuration will loose data if a pod is restarted.
+A number of fabric8 applications require persistent storage so that we don't loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.
+
+We use Kubernetes dynamic `PersistentVolume` provisioning to automatically create PVs when a `PersistentVolumeClaim` needs one.
+
+Create a StorageClass that points to a persistence implementation for your cloud ensuring your `StorageClass` has a name `name: standard` see examples below.  For a full explaination see [persistence](getStarted/persistence.md)
+
+Run:
+
+    cat <<EOF | kubectl create -f -
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1beta1
+    metadata:
+      name: standard
+    provisioner: kubernetes.io/gce-pd
+    parameters:
+      type: pd-standard
+    EOF
+
+### Install the fabric8 microservices platform default applications
 
 Next we want to deploy the fabric8 microservices platform components on top of Kubernetes, get the latest `gofabric8` binary from  [gofabric8](https://github.com/fabric8io/gofabric8/releases) and run
 
@@ -61,7 +79,6 @@ It may make a few minutes to download a number of docker images but once the con
 ### Using the console
 
 Here is a [video showing you what you can do with the console on Google Container Engine](https://vimeo.com/173353537)
-
 
 <div class="row">
   <p class="text-center">
