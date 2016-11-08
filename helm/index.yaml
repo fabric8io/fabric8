@@ -3,6 +3,75 @@ apiVersion: "v1"
 entries:
   apiman:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/apiman/2.2.162/apiman-2.2.162-helm.tar.gz"
+    name: "apiman"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/apiman/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman/2.2.162/apiman-2.2.162-helm.tar.gz"
+    name: "apiman"
+    description: "Apiman deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman/2.2.161/apiman-2.2.161-helm.tar.gz"
+    name: "apiman"
+    description: "Apiman deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/apiman/2.2.161/apiman-2.2.161-helm.tar.gz"
+    name: "apiman"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/apiman/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/apiman/2.2.159/apiman-2.2.159-helm.tar.gz"
+    name: "apiman"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/apiman/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman/2.2.159/apiman-2.2.159-helm.tar.gz"
+    name: "apiman"
+    description: "Apiman deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/apiman/2.2.158/apiman-2.2.158-helm.tar.gz"
     name: "apiman"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -73,6 +142,39 @@ entries:
     home: "http://fabric8.io/packages/apiman/"
   apiman-gateway:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman-gateway/2.2.162/apiman-gateway-2.2.162-helm.tar.gz"
+    name: "apiman-gateway"
+    description: "Apiman Gateway deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman-gateway"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman-gateway/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman-gateway/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman-gateway/2.2.161/apiman-gateway-2.2.161-helm.tar.gz"
+    name: "apiman-gateway"
+    description: "Apiman Gateway deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman-gateway"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman-gateway/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman-gateway/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman-gateway/2.2.159/apiman-gateway-2.2.159-helm.tar.gz"
+    name: "apiman-gateway"
+    description: "Apiman Gateway deployed on Jetty"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/apiman-gateway"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman-gateway/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/apiman-gateway/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/apiman-gateway/2.2.158/apiman-gateway-2.2.158-helm.tar.gz"
     name: "apiman-gateway"
     description: "Apiman Gateway deployed on Jetty"
@@ -106,6 +208,58 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/apiman-gateway/"
   app-catalog:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.29/app-catalog-1.0.29-helm.tar.gz"
+    name: "app-catalog"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/app-catalog"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "1.0.29"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/app-catalog/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/app-catalog/2.4.1/app-catalog-2.4.1-helm.tar.gz"
+    name: "app-catalog"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/app-catalog"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/apiman/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/app-catalog/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.28/app-catalog-1.0.28-helm.tar.gz"
+    name: "app-catalog"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/app-catalog"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "1.0.28"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/app-catalog/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.27/app-catalog-1.0.27-helm.tar.gz"
+    name: "app-catalog"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/app-catalog"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "1.0.27"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/app-catalog/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/app-catalog/1.0.26/app-catalog-1.0.26-helm.tar.gz"
     name: "app-catalog"
@@ -632,6 +786,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/app-catalog/"
   artifactory:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.296/artifactory-2.2.296-helm.tar.gz"
+    name: "artifactory"
+    description: "[Artifactory](http://www.jfrog.com/open-source/) Open Source Maven\
+      \ Repository Manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/artifactory"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/artifactory/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/artifactory/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.295/artifactory-2.2.295-helm.tar.gz"
+    name: "artifactory"
+    description: "[Artifactory](http://www.jfrog.com/open-source/) Open Source Maven\
+      \ Repository Manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/artifactory"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/artifactory/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/artifactory/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.294/artifactory-2.2.294-helm.tar.gz"
+    name: "artifactory"
+    description: "[Artifactory](http://www.jfrog.com/open-source/) Open Source Maven\
+      \ Repository Manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/artifactory"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/artifactory/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/artifactory/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.290/artifactory-2.2.290-helm.tar.gz"
+    name: "artifactory"
+    description: "[Artifactory](http://www.jfrog.com/open-source/) Open Source Maven\
+      \ Repository Manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/artifactory"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/artifactory/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/artifactory/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/artifactory/2.2.289/artifactory-2.2.289-helm.tar.gz"
     name: "artifactory"
@@ -1295,6 +1501,58 @@ entries:
     home: "http://fabric8.io/artifactory/"
   brackets:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.296/brackets-2.2.296-helm.tar.gz"
+    name: "brackets"
+    description: "[Brackets](http://brackets.io/) editor for working with files in\
+      \ git"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/brackets"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxMjBweCIgaGVpZ2h0PSIxMjBweCI+Cgk8ZGVmcz4KCQk8bGluZWFyR3JhZGllbnQgaWQ9ImZyYW1lIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjQzMy41IiB5MT0iLTE4NSIgeDI9IjQzMy41IiB5Mj0iLTI3NyIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxIDAgMCAtMSAtMzczLjUgLTE3NykiPgoJCQk8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyOUFCRTIiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjQ3NTciIHN0b3AtY29sb3I9IiMyOEE5RTEiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjY2MzkiIHN0b3AtY29sb3I9IiMyM0EyREMiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjgwMTIiIHN0b3AtY29sb3I9IiMxQTk2RDQiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjkxMyIgc3RvcC1jb2xvcj0iIzBFODVDOSIvPgoJCQk8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDcxQkMiLz4KCQk8L2xpbmVhckdyYWRpZW50PgoJCTxmaWx0ZXIgaWQ9ImJsdXIiIHg9Ii0xMCIgeT0iLTEwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiPgoJCQk8ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUdyYXBoaWMiIHN0ZERldmlhdGlvbj0iMSIvPgoJCTwvZmlsdGVyPgoJPC9kZWZzPgoJPHJlY3QgaWQ9InNoYWRvdyIgeD0iMTAiIHk9IjkiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIHJ5PSIyMCIgb3BhY2l0eT0iLjUiIGZpbHRlcj0idXJsKCNibHVyKSIvPgoJPHJlY3QgeD0iMTAiIHk9IjU4IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iIzExNUE5MSIvPgoJPHJlY3QgeD0iMTAiIHk9IjgiIHdpZHRoPSIxMDAiIGhlaWdodD0iOTIiIHJ4PSIyMCIgcnk9IjIwIiBmaWxsPSJ1cmwoI2ZyYW1lKSIvPgoJPHJlY3QgeD0iMjIiIHk9IjIwIiB3aWR0aD0iNzYiIGhlaWdodD0iNjgiIHJ4PSIxMCIgcnk9IjEwIiBmaWxsPSIjZmZmIi8+Cgk8cGF0aCBpZD0ic2hhZG93MiIgb3BhY2l0eT0iLjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDEpIiBmaWx0ZXI9InVybCgjYmx1cikiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cgk8cGF0aCBpZD0iYnJhY2tldHMiIGZpbGw9IiM0RDRENEQiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cjwvc3ZnPgo="
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/brackets/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.295/brackets-2.2.295-helm.tar.gz"
+    name: "brackets"
+    description: "[Brackets](http://brackets.io/) editor for working with files in\
+      \ git"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/brackets"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxMjBweCIgaGVpZ2h0PSIxMjBweCI+Cgk8ZGVmcz4KCQk8bGluZWFyR3JhZGllbnQgaWQ9ImZyYW1lIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjQzMy41IiB5MT0iLTE4NSIgeDI9IjQzMy41IiB5Mj0iLTI3NyIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxIDAgMCAtMSAtMzczLjUgLTE3NykiPgoJCQk8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyOUFCRTIiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjQ3NTciIHN0b3AtY29sb3I9IiMyOEE5RTEiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjY2MzkiIHN0b3AtY29sb3I9IiMyM0EyREMiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjgwMTIiIHN0b3AtY29sb3I9IiMxQTk2RDQiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjkxMyIgc3RvcC1jb2xvcj0iIzBFODVDOSIvPgoJCQk8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDcxQkMiLz4KCQk8L2xpbmVhckdyYWRpZW50PgoJCTxmaWx0ZXIgaWQ9ImJsdXIiIHg9Ii0xMCIgeT0iLTEwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiPgoJCQk8ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUdyYXBoaWMiIHN0ZERldmlhdGlvbj0iMSIvPgoJCTwvZmlsdGVyPgoJPC9kZWZzPgoJPHJlY3QgaWQ9InNoYWRvdyIgeD0iMTAiIHk9IjkiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIHJ5PSIyMCIgb3BhY2l0eT0iLjUiIGZpbHRlcj0idXJsKCNibHVyKSIvPgoJPHJlY3QgeD0iMTAiIHk9IjU4IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iIzExNUE5MSIvPgoJPHJlY3QgeD0iMTAiIHk9IjgiIHdpZHRoPSIxMDAiIGhlaWdodD0iOTIiIHJ4PSIyMCIgcnk9IjIwIiBmaWxsPSJ1cmwoI2ZyYW1lKSIvPgoJPHJlY3QgeD0iMjIiIHk9IjIwIiB3aWR0aD0iNzYiIGhlaWdodD0iNjgiIHJ4PSIxMCIgcnk9IjEwIiBmaWxsPSIjZmZmIi8+Cgk8cGF0aCBpZD0ic2hhZG93MiIgb3BhY2l0eT0iLjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDEpIiBmaWx0ZXI9InVybCgjYmx1cikiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cgk8cGF0aCBpZD0iYnJhY2tldHMiIGZpbGw9IiM0RDRENEQiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cjwvc3ZnPgo="
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/brackets/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.294/brackets-2.2.294-helm.tar.gz"
+    name: "brackets"
+    description: "[Brackets](http://brackets.io/) editor for working with files in\
+      \ git"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/brackets"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxMjBweCIgaGVpZ2h0PSIxMjBweCI+Cgk8ZGVmcz4KCQk8bGluZWFyR3JhZGllbnQgaWQ9ImZyYW1lIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjQzMy41IiB5MT0iLTE4NSIgeDI9IjQzMy41IiB5Mj0iLTI3NyIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxIDAgMCAtMSAtMzczLjUgLTE3NykiPgoJCQk8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyOUFCRTIiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjQ3NTciIHN0b3AtY29sb3I9IiMyOEE5RTEiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjY2MzkiIHN0b3AtY29sb3I9IiMyM0EyREMiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjgwMTIiIHN0b3AtY29sb3I9IiMxQTk2RDQiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjkxMyIgc3RvcC1jb2xvcj0iIzBFODVDOSIvPgoJCQk8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDcxQkMiLz4KCQk8L2xpbmVhckdyYWRpZW50PgoJCTxmaWx0ZXIgaWQ9ImJsdXIiIHg9Ii0xMCIgeT0iLTEwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiPgoJCQk8ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUdyYXBoaWMiIHN0ZERldmlhdGlvbj0iMSIvPgoJCTwvZmlsdGVyPgoJPC9kZWZzPgoJPHJlY3QgaWQ9InNoYWRvdyIgeD0iMTAiIHk9IjkiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIHJ5PSIyMCIgb3BhY2l0eT0iLjUiIGZpbHRlcj0idXJsKCNibHVyKSIvPgoJPHJlY3QgeD0iMTAiIHk9IjU4IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iIzExNUE5MSIvPgoJPHJlY3QgeD0iMTAiIHk9IjgiIHdpZHRoPSIxMDAiIGhlaWdodD0iOTIiIHJ4PSIyMCIgcnk9IjIwIiBmaWxsPSJ1cmwoI2ZyYW1lKSIvPgoJPHJlY3QgeD0iMjIiIHk9IjIwIiB3aWR0aD0iNzYiIGhlaWdodD0iNjgiIHJ4PSIxMCIgcnk9IjEwIiBmaWxsPSIjZmZmIi8+Cgk8cGF0aCBpZD0ic2hhZG93MiIgb3BhY2l0eT0iLjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDEpIiBmaWx0ZXI9InVybCgjYmx1cikiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cgk8cGF0aCBpZD0iYnJhY2tldHMiIGZpbGw9IiM0RDRENEQiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cjwvc3ZnPgo="
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/brackets/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.290/brackets-2.2.290-helm.tar.gz"
+    name: "brackets"
+    description: "[Brackets](http://brackets.io/) editor for working with files in\
+      \ git"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/brackets"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxMjBweCIgaGVpZ2h0PSIxMjBweCI+Cgk8ZGVmcz4KCQk8bGluZWFyR3JhZGllbnQgaWQ9ImZyYW1lIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjQzMy41IiB5MT0iLTE4NSIgeDI9IjQzMy41IiB5Mj0iLTI3NyIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxIDAgMCAtMSAtMzczLjUgLTE3NykiPgoJCQk8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyOUFCRTIiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjQ3NTciIHN0b3AtY29sb3I9IiMyOEE5RTEiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjY2MzkiIHN0b3AtY29sb3I9IiMyM0EyREMiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjgwMTIiIHN0b3AtY29sb3I9IiMxQTk2RDQiLz4KCQkJPHN0b3Agb2Zmc2V0PSIwLjkxMyIgc3RvcC1jb2xvcj0iIzBFODVDOSIvPgoJCQk8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDcxQkMiLz4KCQk8L2xpbmVhckdyYWRpZW50PgoJCTxmaWx0ZXIgaWQ9ImJsdXIiIHg9Ii0xMCIgeT0iLTEwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiPgoJCQk8ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUdyYXBoaWMiIHN0ZERldmlhdGlvbj0iMSIvPgoJCTwvZmlsdGVyPgoJPC9kZWZzPgoJPHJlY3QgaWQ9InNoYWRvdyIgeD0iMTAiIHk9IjkiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIHJ5PSIyMCIgb3BhY2l0eT0iLjUiIGZpbHRlcj0idXJsKCNibHVyKSIvPgoJPHJlY3QgeD0iMTAiIHk9IjU4IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iIzExNUE5MSIvPgoJPHJlY3QgeD0iMTAiIHk9IjgiIHdpZHRoPSIxMDAiIGhlaWdodD0iOTIiIHJ4PSIyMCIgcnk9IjIwIiBmaWxsPSJ1cmwoI2ZyYW1lKSIvPgoJPHJlY3QgeD0iMjIiIHk9IjIwIiB3aWR0aD0iNzYiIGhlaWdodD0iNjgiIHJ4PSIxMCIgcnk9IjEwIiBmaWxsPSIjZmZmIi8+Cgk8cGF0aCBpZD0ic2hhZG93MiIgb3BhY2l0eT0iLjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDEpIiBmaWx0ZXI9InVybCgjYmx1cikiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cgk8cGF0aCBpZD0iYnJhY2tldHMiIGZpbGw9IiM0RDRENEQiIGQ9Ik01NywyOHYxMkg0M3YyNmgxNHYxM0gzMFYyOEg1N3pNOTAsMjh2NTFINjNWNjZoMTVWNDBINjNWMjhIOTB6Ii8+Cjwvc3ZnPgo="
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/brackets/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/brackets/2.2.289/brackets-2.2.289-helm.tar.gz"
     name: "brackets"
     description: "[Brackets](http://brackets.io/) editor for working with files in\
@@ -1957,6 +2215,39 @@ entries:
     home: "http://fabric8.io/brackets/"
   camel-amq:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.162/camel-amq-2.2.162-helm.tar.gz"
+    name: "camel-amq"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-amq"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-amq/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.161/camel-amq-2.2.161-helm.tar.gz"
+    name: "camel-amq"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-amq"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-amq/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.159/camel-amq-2.2.159-helm.tar.gz"
+    name: "camel-amq"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-amq"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-amq/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/camel-amq/2.2.158/camel-amq-2.2.158-helm.tar.gz"
     name: "camel-amq"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -2072,6 +2363,39 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/camel-amq/"
   camel-master:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/camel/camel-master/2.2.162/camel-master-2.2.162-helm.tar.gz"
+    name: "camel-master"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-master"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-master/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/camel/camel-master/2.2.161/camel-master-2.2.161-helm.tar.gz"
+    name: "camel-master"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-master"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-master/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/camel/camel-master/2.2.159/camel-master-2.2.159-helm.tar.gz"
+    name: "camel-master"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/camel-master"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/camel-master/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/camel/camel-master/2.2.158/camel-master-2.2.158-helm.tar.gz"
     name: "camel-master"
@@ -2189,6 +2513,42 @@ entries:
     home: "http://fabric8.io/camel-master/"
   cassandra:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/cassandra/2.2.162/cassandra-2.2.162-helm.tar.gz"
+    name: "cassandra"
+    description: "[Apache Cassandra](http://cassandra.apache.org/) provides a NoSQL\
+      \ Database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/cassandra"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/cassandra/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/cassandra/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/cassandra/2.2.161/cassandra-2.2.161-helm.tar.gz"
+    name: "cassandra"
+    description: "[Apache Cassandra](http://cassandra.apache.org/) provides a NoSQL\
+      \ Database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/cassandra"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/cassandra/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/cassandra/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/cassandra/2.2.159/cassandra-2.2.159-helm.tar.gz"
+    name: "cassandra"
+    description: "[Apache Cassandra](http://cassandra.apache.org/) provides a NoSQL\
+      \ Database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/cassandra"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/cassandra/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/cassandra/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/cassandra/2.2.158/cassandra-2.2.158-helm.tar.gz"
     name: "cassandra"
     description: "[Apache Cassandra](http://cassandra.apache.org/) provides a NoSQL\
@@ -2304,6 +2664,71 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/cassandra/"
   cd-pipeline:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.4.1/cd-pipeline-2.4.1-helm.tar.gz"
+    name: "cd-pipeline"
+    description: "Creates the Continuous Delivery Pipeline via: gogs, jenkins, nexus,\
+      \ gerrit and sonaqube"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/cd-pipeline"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/cd-pipeline/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.72/cd-pipeline-2.3.72-helm.tar.gz"
+    name: "cd-pipeline"
+    description: "Creates the Continuous Delivery Pipeline via: gogs, jenkins, nexus,\
+      \ gerrit and sonaqube"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/packages/cd-pipeline"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.3.72"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/cd-pipeline/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.70/cd-pipeline-2.3.70-helm.tar.gz"
+    name: "cd-pipeline"
+    description: "Creates the Continuous Delivery Pipeline via: gogs, jenkins, nexus,\
+      \ gerrit and sonaqube"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/packages/cd-pipeline"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.3.70"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/cd-pipeline/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.69/cd-pipeline-2.3.69-helm.tar.gz"
+    name: "cd-pipeline"
+    description: "Creates the Continuous Delivery Pipeline via: gogs, jenkins, nexus,\
+      \ gerrit and sonaqube"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/packages/cd-pipeline"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.3.69"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/cd-pipeline/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/packages/cd-pipeline/2.3.61/cd-pipeline-2.3.61-helm.tar.gz"
+    name: "cd-pipeline"
+    description: "Creates the Continuous Delivery Pipeline via: gogs, jenkins, nexus,\
+      \ gerrit and sonaqube"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/packages/cd-pipeline"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.3.61"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/cd-pipeline/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/platform/packages/cd-pipeline/2.2.28/cd-pipeline-2.2.28-helm.tar.gz"
     name: "cd-pipeline"
@@ -3007,6 +3432,54 @@ entries:
     home: "http://fabric8.io/packages/cd-pipeline/"
   chaos-monkey:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.296/chaos-monkey-2.2.296-helm.tar.gz"
+    name: "chaos-monkey"
+    description: "Kills random pods for chaos fun!"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/chaos-monkey"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/chaos-monkey/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.295/chaos-monkey-2.2.295-helm.tar.gz"
+    name: "chaos-monkey"
+    description: "Kills random pods for chaos fun!"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/chaos-monkey"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/chaos-monkey/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.294/chaos-monkey-2.2.294-helm.tar.gz"
+    name: "chaos-monkey"
+    description: "Kills random pods for chaos fun!"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/chaos-monkey"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/chaos-monkey/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.290/chaos-monkey-2.2.290-helm.tar.gz"
+    name: "chaos-monkey"
+    description: "Kills random pods for chaos fun!"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/chaos-monkey"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/chaos-monkey/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/chaos-monkey/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/chaos-monkey/2.2.289/chaos-monkey-2.2.289-helm.tar.gz"
     name: "chaos-monkey"
     description: "Kills random pods for chaos fun!"
@@ -3616,6 +4089,71 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/chaos-monkey/"
   chat-irc:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/chat-irc/2.4.1/chat-irc-2.4.1-helm.tar.gz"
+    name: "chat-irc"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/chat-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.296/chat-irc-2.2.296-helm.tar.gz"
+    name: "chat-irc"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.295/chat-irc-2.2.295-helm.tar.gz"
+    name: "chat-irc"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.294/chat-irc-2.2.294-helm.tar.gz"
+    name: "chat-irc"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.290/chat-irc-2.2.290-helm.tar.gz"
+    name: "chat-irc"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-irc/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-irc/2.2.289/chat-irc-2.2.289-helm.tar.gz"
     name: "chat-irc"
@@ -4412,6 +4950,71 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/chat-irc/"
   chat-letschat:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/chat-letschat/2.4.1/chat-letschat-2.4.1-helm.tar.gz"
+    name: "chat-letschat"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/chat-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.296/chat-letschat-2.2.296-helm.tar.gz"
+    name: "chat-letschat"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.295/chat-letschat-2.2.295-helm.tar.gz"
+    name: "chat-letschat"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.294/chat-letschat-2.2.294-helm.tar.gz"
+    name: "chat-letschat"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.290/chat-letschat-2.2.290-helm.tar.gz"
+    name: "chat-letschat"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-letschat/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-letschat/2.2.289/chat-letschat-2.2.289-helm.tar.gz"
     name: "chat-letschat"
@@ -5257,6 +5860,71 @@ entries:
     home: "http://fabric8.io/packages/chat-letschat/"
   chat-slack:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/chat-slack/2.4.1/chat-slack-2.4.1-helm.tar.gz"
+    name: "chat-slack"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/chat-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.296/chat-slack-2.2.296-helm.tar.gz"
+    name: "chat-slack"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.295/chat-slack-2.2.295-helm.tar.gz"
+    name: "chat-slack"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.294/chat-slack-2.2.294-helm.tar.gz"
+    name: "chat-slack"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.290/chat-slack-2.2.290-helm.tar.gz"
+    name: "chat-slack"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/chat-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/chat-slack/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/chat-slack/2.2.289/chat-slack-2.2.289-helm.tar.gz"
     name: "chat-slack"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -6101,6 +6769,54 @@ entries:
     home: "http://fabric8.io/packages/chat-slack/"
   configmapcontroller:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/configmapcontroller/2.2.296/configmapcontroller-2.2.296-helm.tar.gz"
+    name: "configmapcontroller"
+    description: "Performs Rolling Upgrades to Deployments when ConfigMaps are changed"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/configmapcontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/configmapcontroller/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/configmapcontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/configmapcontroller/2.2.295/configmapcontroller-2.2.295-helm.tar.gz"
+    name: "configmapcontroller"
+    description: "Performs Rolling Upgrades to Deployments when ConfigMaps are changed"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/configmapcontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/configmapcontroller/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/configmapcontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/configmapcontroller/2.2.294/configmapcontroller-2.2.294-helm.tar.gz"
+    name: "configmapcontroller"
+    description: "Performs Rolling Upgrades to Deployments when ConfigMaps are changed"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/configmapcontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/configmapcontroller/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/configmapcontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/configmapcontroller/2.2.290/configmapcontroller-2.2.290-helm.tar.gz"
+    name: "configmapcontroller"
+    description: "Performs Rolling Upgrades to Deployments when ConfigMaps are changed"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/configmapcontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/configmapcontroller/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/configmapcontroller/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/configmapcontroller/2.2.289/configmapcontroller-2.2.289-helm.tar.gz"
     name: "configmapcontroller"
     description: "Performs Rolling Upgrades to Deployments when ConfigMaps are changed"
@@ -6245,6 +6961,57 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/configmapcontroller/"
   console:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.29/console-1.0.29-helm.tar.gz"
+    name: "console"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/console"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-console/master/app-kubernetes/src/main/fabric8/icon.svg"
+    version: "1.0.29"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/console/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/console/2.4.1/console-2.4.1-helm.tar.gz"
+    name: "console"
+    description: "The Fabric8 Microservices Console"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/console"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-console/master/app-kubernetes/src/main/fabric8/icon.svg"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/console/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.28/console-1.0.28-helm.tar.gz"
+    name: "console"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/console"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-console/master/app-kubernetes/src/main/fabric8/icon.svg"
+    version: "1.0.28"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/console/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.27/console-1.0.27-helm.tar.gz"
+    name: "console"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/console"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-console/master/app-kubernetes/src/main/fabric8/icon.svg"
+    version: "1.0.27"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/console/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/console/1.0.26/console-1.0.26-helm.tar.gz"
     name: "console"
@@ -6624,6 +7391,54 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/console/"
   content-repository:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.296/content-repository-2.2.296-helm.tar.gz"
+    name: "content-repository"
+    description: "A Repository storing static HTML reports and content from releases"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/content-repository"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/content-repository/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/content-repository/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.295/content-repository-2.2.295-helm.tar.gz"
+    name: "content-repository"
+    description: "A Repository storing static HTML reports and content from releases"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/content-repository"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/content-repository/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/content-repository/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.294/content-repository-2.2.294-helm.tar.gz"
+    name: "content-repository"
+    description: "A Repository storing static HTML reports and content from releases"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/content-repository"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/content-repository/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/content-repository/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.290/content-repository-2.2.290-helm.tar.gz"
+    name: "content-repository"
+    description: "A Repository storing static HTML reports and content from releases"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/content-repository"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/content-repository/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/content-repository/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/content-repository/2.2.289/content-repository-2.2.289-helm.tar.gz"
     name: "content-repository"
@@ -7234,6 +8049,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/content-repository/"
   elasticsearch:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.296/elasticsearch-2.2.296-helm.tar.gz"
+    name: "elasticsearch"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/elasticsearch"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/elasticsearch/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.295/elasticsearch-2.2.295-helm.tar.gz"
+    name: "elasticsearch"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/elasticsearch"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/elasticsearch/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.294/elasticsearch-2.2.294-helm.tar.gz"
+    name: "elasticsearch"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/elasticsearch"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/elasticsearch/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.290/elasticsearch-2.2.290-helm.tar.gz"
+    name: "elasticsearch"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/elasticsearch"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/elasticsearch/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/elasticsearch/2.2.289/elasticsearch-2.2.289-helm.tar.gz"
     name: "elasticsearch"
@@ -7897,6 +8764,42 @@ entries:
     home: "http://fabric8.io/elasticsearch/"
   elasticsearch-v1:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/elasticsearch-v1/2.2.162/elasticsearch-v1-2.2.162-helm.tar.gz"
+    name: "elasticsearch-v1"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/elasticsearch-v1"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/elasticsearch-v1/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/elasticsearch-v1/2.2.161/elasticsearch-v1-2.2.161-helm.tar.gz"
+    name: "elasticsearch-v1"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/elasticsearch-v1"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/elasticsearch-v1/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/elasticsearch-v1/2.2.159/elasticsearch-v1-2.2.159-helm.tar.gz"
+    name: "elasticsearch-v1"
+    description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
+      \ RESTful search and analytics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/elasticsearch-v1"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/elasticsearch-v1/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/elasticsearch-v1/2.2.158/elasticsearch-v1-2.2.158-helm.tar.gz"
     name: "elasticsearch-v1"
     description: "[elasticsearch](http://elasticsearch.com/) provides distributed\
@@ -8013,6 +8916,39 @@ entries:
     home: "http://fabric8.io/elasticsearch-v1/"
   example-message-consumer:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-consumer/2.2.162/example-message-consumer-2.2.162-helm.tar.gz"
+    name: "example-message-consumer"
+    description: "Fabric8 Messaging Example Message Consumer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-consumer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-consumer/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-consumer/2.2.161/example-message-consumer-2.2.161-helm.tar.gz"
+    name: "example-message-consumer"
+    description: "Fabric8 Messaging Example Message Consumer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-consumer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-consumer/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-consumer/2.2.159/example-message-consumer-2.2.159-helm.tar.gz"
+    name: "example-message-consumer"
+    description: "Fabric8 Messaging Example Message Consumer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-consumer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-consumer/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-consumer/2.2.158/example-message-consumer-2.2.158-helm.tar.gz"
     name: "example-message-consumer"
     description: "Fabric8 Messaging Example Message Consumer"
@@ -8119,6 +9055,39 @@ entries:
     home: "http://fabric8.io/example-message-consumer/"
   example-message-producer:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-producer/2.2.162/example-message-producer-2.2.162-helm.tar.gz"
+    name: "example-message-producer"
+    description: "Fabric8 Messaging Example Message Producer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-producer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-producer/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-producer/2.2.161/example-message-producer-2.2.161-helm.tar.gz"
+    name: "example-message-producer"
+    description: "Fabric8 Messaging Example Message Producer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-producer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-producer/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-producer/2.2.159/example-message-producer-2.2.159-helm.tar.gz"
+    name: "example-message-producer"
+    description: "Fabric8 Messaging Example Message Producer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/example-message-producer"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/example-message-producer/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/example-message-producer/2.2.158/example-message-producer-2.2.158-helm.tar.gz"
     name: "example-message-producer"
     description: "Fabric8 Messaging Example Message Producer"
@@ -8224,6 +9193,54 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/example-message-producer/"
   exposecontroller:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.296/exposecontroller-2.2.296-helm.tar.gz"
+    name: "exposecontroller"
+    description: "Exposes services externally based on Kubernetes implementation"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/exposecontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/exposecontroller/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/exposecontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.295/exposecontroller-2.2.295-helm.tar.gz"
+    name: "exposecontroller"
+    description: "Exposes services externally based on Kubernetes implementation"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/exposecontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/exposecontroller/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/exposecontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.294/exposecontroller-2.2.294-helm.tar.gz"
+    name: "exposecontroller"
+    description: "Exposes services externally based on Kubernetes implementation"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/exposecontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/exposecontroller/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/exposecontroller/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.290/exposecontroller-2.2.290-helm.tar.gz"
+    name: "exposecontroller"
+    description: "Exposes services externally based on Kubernetes implementation"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/exposecontroller"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/exposecontroller/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/exposecontroller/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/exposecontroller/2.2.289/exposecontroller-2.2.289-helm.tar.gz"
     name: "exposecontroller"
@@ -8769,6 +9786,39 @@ entries:
     home: "http://fabric8.io/exposecontroller/"
   fabric8-camel:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.162/fabric8-camel-2.2.162-helm.tar.gz"
+    name: "fabric8-camel"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/fabric8-camel"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/fabric8-camel/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.161/fabric8-camel-2.2.161-helm.tar.gz"
+    name: "fabric8-camel"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/fabric8-camel"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/fabric8-camel/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.159/fabric8-camel-2.2.159-helm.tar.gz"
+    name: "fabric8-camel"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/fabric8-camel"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/fabric8-camel/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/fabric8-camel/2.2.158/fabric8-camel-2.2.158-helm.tar.gz"
     name: "fabric8-camel"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -8884,6 +9934,19 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/fabric8-camel/"
   fabric8-console:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/console/fabric8-console/2.2.192/fabric8-console-2.2.192-helm.tar.gz"
+    name: "fabric8-console"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fabric8-console"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-console/master/app-kubernetes/src/main/fabric8/icon.svg"
+    version: "2.2.192"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-console/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/platform/console/fabric8-console/2.2.191/fabric8-console-2.2.191-helm.tar.gz"
     name: "fabric8-console"
@@ -9002,6 +10065,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/fabric8-console/"
   fabric8-docker-registry:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.296/fabric8-docker-registry-2.2.296-helm.tar.gz"
+    name: "fabric8-docker-registry"
+    description: "[Docker Registry](https://github.com/docker/distribution) - A private\
+      \ docker registry"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fabric8-docker-registry"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-docker-registry/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-docker-registry/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.295/fabric8-docker-registry-2.2.295-helm.tar.gz"
+    name: "fabric8-docker-registry"
+    description: "[Docker Registry](https://github.com/docker/distribution) - A private\
+      \ docker registry"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fabric8-docker-registry"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-docker-registry/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-docker-registry/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.294/fabric8-docker-registry-2.2.294-helm.tar.gz"
+    name: "fabric8-docker-registry"
+    description: "[Docker Registry](https://github.com/docker/distribution) - A private\
+      \ docker registry"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fabric8-docker-registry"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-docker-registry/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-docker-registry/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.290/fabric8-docker-registry-2.2.290-helm.tar.gz"
+    name: "fabric8-docker-registry"
+    description: "[Docker Registry](https://github.com/docker/distribution) - A private\
+      \ docker registry"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fabric8-docker-registry"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fabric8-docker-registry/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-docker-registry/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/fabric8-docker-registry/2.2.289/fabric8-docker-registry-2.2.289-helm.tar.gz"
     name: "fabric8-docker-registry"
@@ -9665,6 +10780,54 @@ entries:
     home: "http://fabric8.io/fabric8-docker-registry/"
   fabric8-forge:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.72/fabric8-forge-2.3.72-helm.tar.gz"
+    name: "fabric8-forge"
+    description: "Fabric8 :: Forge"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/fabric8-forge"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "2.3.72"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-forge/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.70/fabric8-forge-2.3.70-helm.tar.gz"
+    name: "fabric8-forge"
+    description: "Fabric8 :: Forge"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/fabric8-forge"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "2.3.70"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-forge/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.69/fabric8-forge-2.3.69-helm.tar.gz"
+    name: "fabric8-forge"
+    description: "Fabric8 :: Forge"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/fabric8-forge"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "2.3.69"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-forge/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.61/fabric8-forge-2.3.61-helm.tar.gz"
+    name: "fabric8-forge"
+    description: "Fabric8 :: Forge"
+    sources:
+    - "http://github.com/fabric8io/fabric8-forge/fabric8-forge"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-forge/master/fabric8-forge/src/main/fabric8/icon.svg"
+    version: "2.3.61"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fabric8-forge/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/forge/apps/fabric8-forge/2.3.60/fabric8-forge-2.3.60-helm.tar.gz"
     name: "fabric8-forge"
     description: "Fabric8 :: Forge"
@@ -10096,6 +11259,18 @@ entries:
     home: "http://fabric8.io/fabric8-forge/"
   fabric8-platform:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.4.1/fabric8-platform-2.4.1-helm.tar.gz"
+    name: "fabric8-platform"
+    description: "The Fabric8 Microservices Platform"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/fabric8-platform"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/fabric8-platform/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/platform/packages/fabric8-platform/2.2.28/fabric8-platform-2.2.28-helm.tar.gz"
     name: "fabric8-platform"
     description: "The Fabric8 Microservices Platform"
@@ -10444,6 +11619,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/fabric8-platform/"
   fluentd:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.296/fluentd-2.2.296-helm.tar.gz"
+    name: "fluentd"
+    description: "[Fluentd](http://www.fluentd.org/) is an open source data collector\
+      \ for unified logging layer."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fluentd"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fluentd/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fluentd/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.295/fluentd-2.2.295-helm.tar.gz"
+    name: "fluentd"
+    description: "[Fluentd](http://www.fluentd.org/) is an open source data collector\
+      \ for unified logging layer."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fluentd"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fluentd/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fluentd/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.294/fluentd-2.2.294-helm.tar.gz"
+    name: "fluentd"
+    description: "[Fluentd](http://www.fluentd.org/) is an open source data collector\
+      \ for unified logging layer."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fluentd"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fluentd/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fluentd/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.290/fluentd-2.2.290-helm.tar.gz"
+    name: "fluentd"
+    description: "[Fluentd](http://www.fluentd.org/) is an open source data collector\
+      \ for unified logging layer."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/fluentd"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/fluentd/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/fluentd/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/fluentd/2.2.289/fluentd-2.2.289-helm.tar.gz"
     name: "fluentd"
@@ -11072,6 +12299,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/fluentd/"
   gerrit:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.296/gerrit-2.2.296-helm.tar.gz"
+    name: "gerrit"
+    description: "[Gerrit](https://code.google.com/p/gerrit/) Web based code review\
+      \ and project management for Git based projects"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gerrit"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gerrit/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.295/gerrit-2.2.295-helm.tar.gz"
+    name: "gerrit"
+    description: "[Gerrit](https://code.google.com/p/gerrit/) Web based code review\
+      \ and project management for Git based projects"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gerrit"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gerrit/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.294/gerrit-2.2.294-helm.tar.gz"
+    name: "gerrit"
+    description: "[Gerrit](https://code.google.com/p/gerrit/) Web based code review\
+      \ and project management for Git based projects"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gerrit"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gerrit/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.290/gerrit-2.2.290-helm.tar.gz"
+    name: "gerrit"
+    description: "[Gerrit](https://code.google.com/p/gerrit/) Web based code review\
+      \ and project management for Git based projects"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gerrit"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gerrit/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gerrit/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/gerrit/2.2.289/gerrit-2.2.289-helm.tar.gz"
     name: "gerrit"
@@ -11735,6 +13014,54 @@ entries:
     home: "http://fabric8.io/gerrit/"
   git-collector:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.296/git-collector-2.2.296-helm.tar.gz"
+    name: "git-collector"
+    description: "Collects events from git repositories from projects in OpenShift"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/git-collector"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHdpZHRoPSI5N3B4IiBoZWlnaHQ9Ijk3cHgiIHZpZXdCb3g9IjAgMCA5NyA5NyIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgOTcgOTciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxwYXRoIGZpbGw9IiNGMDUxMzMiIGQ9Ik05Mi43MSw0NC40MDhMNTIuNTkxLDQuMjkxYy0yLjMxLTIuMzExLTYuMDU3LTIuMzExLTguMzY5LDBsLTguMzMsOC4zMzJMNDYuNDU5LDIzLjE5CgkJYzIuNDU2LTAuODMsNS4yNzItMC4yNzMsNy4yMjksMS42ODVjMS45NjksMS45NywyLjUyMSw0LjgxLDEuNjcsNy4yNzVsMTAuMTg2LDEwLjE4NWMyLjQ2NS0wLjg1LDUuMzA3LTAuMyw3LjI3NSwxLjY3MQoJCWMyLjc1LDIuNzUsMi43NSw3LjIwNiwwLDkuOTU4Yy0yLjc1MiwyLjc1MS03LjIwOCwyLjc1MS05Ljk2MSwwYy0yLjA2OC0yLjA3LTIuNTgtNS4xMS0xLjUzMS03LjY1OGwtOS41LTkuNDk5djI0Ljk5NwoJCWMwLjY3LDAuMzMyLDEuMzAzLDAuNzc0LDEuODYxLDEuMzMyYzIuNzUsMi43NSwyLjc1LDcuMjA2LDAsOS45NTljLTIuNzUsMi43NDktNy4yMDksMi43NDktOS45NTcsMGMtMi43NS0yLjc1NC0yLjc1LTcuMjEsMC05Ljk1OQoJCWMwLjY4LTAuNjc5LDEuNDY3LTEuMTkzLDIuMzA3LTEuNTM3VjM2LjM2OWMtMC44NC0wLjM0NC0xLjYyNS0wLjg1My0yLjMwNy0xLjUzN2MtMi4wODMtMi4wODItMi41ODQtNS4xNC0xLjUxNi03LjY5OAoJCUwzMS43OTgsMTYuNzE1TDQuMjg4LDQ0LjIyMmMtMi4zMTEsMi4zMTMtMi4zMTEsNi4wNiwwLDguMzcxbDQwLjEyMSw0MC4xMThjMi4zMSwyLjMxMSw2LjA1NiwyLjMxMSw4LjM2OSwwTDkyLjcxLDUyLjc3OQoJCUM5NS4wMjEsNTAuNDY4LDk1LjAyMSw0Ni43MTksOTIuNzEsNDQuNDA4eiIvPgo8L2c+Cjwvc3ZnPgo="
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/git-collector/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.295/git-collector-2.2.295-helm.tar.gz"
+    name: "git-collector"
+    description: "Collects events from git repositories from projects in OpenShift"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/git-collector"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHdpZHRoPSI5N3B4IiBoZWlnaHQ9Ijk3cHgiIHZpZXdCb3g9IjAgMCA5NyA5NyIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgOTcgOTciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxwYXRoIGZpbGw9IiNGMDUxMzMiIGQ9Ik05Mi43MSw0NC40MDhMNTIuNTkxLDQuMjkxYy0yLjMxLTIuMzExLTYuMDU3LTIuMzExLTguMzY5LDBsLTguMzMsOC4zMzJMNDYuNDU5LDIzLjE5CgkJYzIuNDU2LTAuODMsNS4yNzItMC4yNzMsNy4yMjksMS42ODVjMS45NjksMS45NywyLjUyMSw0LjgxLDEuNjcsNy4yNzVsMTAuMTg2LDEwLjE4NWMyLjQ2NS0wLjg1LDUuMzA3LTAuMyw3LjI3NSwxLjY3MQoJCWMyLjc1LDIuNzUsMi43NSw3LjIwNiwwLDkuOTU4Yy0yLjc1MiwyLjc1MS03LjIwOCwyLjc1MS05Ljk2MSwwYy0yLjA2OC0yLjA3LTIuNTgtNS4xMS0xLjUzMS03LjY1OGwtOS41LTkuNDk5djI0Ljk5NwoJCWMwLjY3LDAuMzMyLDEuMzAzLDAuNzc0LDEuODYxLDEuMzMyYzIuNzUsMi43NSwyLjc1LDcuMjA2LDAsOS45NTljLTIuNzUsMi43NDktNy4yMDksMi43NDktOS45NTcsMGMtMi43NS0yLjc1NC0yLjc1LTcuMjEsMC05Ljk1OQoJCWMwLjY4LTAuNjc5LDEuNDY3LTEuMTkzLDIuMzA3LTEuNTM3VjM2LjM2OWMtMC44NC0wLjM0NC0xLjYyNS0wLjg1My0yLjMwNy0xLjUzN2MtMi4wODMtMi4wODItMi41ODQtNS4xNC0xLjUxNi03LjY5OAoJCUwzMS43OTgsMTYuNzE1TDQuMjg4LDQ0LjIyMmMtMi4zMTEsMi4zMTMtMi4zMTEsNi4wNiwwLDguMzcxbDQwLjEyMSw0MC4xMThjMi4zMSwyLjMxMSw2LjA1NiwyLjMxMSw4LjM2OSwwTDkyLjcxLDUyLjc3OQoJCUM5NS4wMjEsNTAuNDY4LDk1LjAyMSw0Ni43MTksOTIuNzEsNDQuNDA4eiIvPgo8L2c+Cjwvc3ZnPgo="
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/git-collector/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.294/git-collector-2.2.294-helm.tar.gz"
+    name: "git-collector"
+    description: "Collects events from git repositories from projects in OpenShift"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/git-collector"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHdpZHRoPSI5N3B4IiBoZWlnaHQ9Ijk3cHgiIHZpZXdCb3g9IjAgMCA5NyA5NyIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgOTcgOTciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxwYXRoIGZpbGw9IiNGMDUxMzMiIGQ9Ik05Mi43MSw0NC40MDhMNTIuNTkxLDQuMjkxYy0yLjMxLTIuMzExLTYuMDU3LTIuMzExLTguMzY5LDBsLTguMzMsOC4zMzJMNDYuNDU5LDIzLjE5CgkJYzIuNDU2LTAuODMsNS4yNzItMC4yNzMsNy4yMjksMS42ODVjMS45NjksMS45NywyLjUyMSw0LjgxLDEuNjcsNy4yNzVsMTAuMTg2LDEwLjE4NWMyLjQ2NS0wLjg1LDUuMzA3LTAuMyw3LjI3NSwxLjY3MQoJCWMyLjc1LDIuNzUsMi43NSw3LjIwNiwwLDkuOTU4Yy0yLjc1MiwyLjc1MS03LjIwOCwyLjc1MS05Ljk2MSwwYy0yLjA2OC0yLjA3LTIuNTgtNS4xMS0xLjUzMS03LjY1OGwtOS41LTkuNDk5djI0Ljk5NwoJCWMwLjY3LDAuMzMyLDEuMzAzLDAuNzc0LDEuODYxLDEuMzMyYzIuNzUsMi43NSwyLjc1LDcuMjA2LDAsOS45NTljLTIuNzUsMi43NDktNy4yMDksMi43NDktOS45NTcsMGMtMi43NS0yLjc1NC0yLjc1LTcuMjEsMC05Ljk1OQoJCWMwLjY4LTAuNjc5LDEuNDY3LTEuMTkzLDIuMzA3LTEuNTM3VjM2LjM2OWMtMC44NC0wLjM0NC0xLjYyNS0wLjg1My0yLjMwNy0xLjUzN2MtMi4wODMtMi4wODItMi41ODQtNS4xNC0xLjUxNi03LjY5OAoJCUwzMS43OTgsMTYuNzE1TDQuMjg4LDQ0LjIyMmMtMi4zMTEsMi4zMTMtMi4zMTEsNi4wNiwwLDguMzcxbDQwLjEyMSw0MC4xMThjMi4zMSwyLjMxMSw2LjA1NiwyLjMxMSw4LjM2OSwwTDkyLjcxLDUyLjc3OQoJCUM5NS4wMjEsNTAuNDY4LDk1LjAyMSw0Ni43MTksOTIuNzEsNDQuNDA4eiIvPgo8L2c+Cjwvc3ZnPgo="
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/git-collector/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.290/git-collector-2.2.290-helm.tar.gz"
+    name: "git-collector"
+    description: "Collects events from git repositories from projects in OpenShift"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/git-collector"
+    icon: "data:image/svg+xml;charset=UTF-8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHdpZHRoPSI5N3B4IiBoZWlnaHQ9Ijk3cHgiIHZpZXdCb3g9IjAgMCA5NyA5NyIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgOTcgOTciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxwYXRoIGZpbGw9IiNGMDUxMzMiIGQ9Ik05Mi43MSw0NC40MDhMNTIuNTkxLDQuMjkxYy0yLjMxLTIuMzExLTYuMDU3LTIuMzExLTguMzY5LDBsLTguMzMsOC4zMzJMNDYuNDU5LDIzLjE5CgkJYzIuNDU2LTAuODMsNS4yNzItMC4yNzMsNy4yMjksMS42ODVjMS45NjksMS45NywyLjUyMSw0LjgxLDEuNjcsNy4yNzVsMTAuMTg2LDEwLjE4NWMyLjQ2NS0wLjg1LDUuMzA3LTAuMyw3LjI3NSwxLjY3MQoJCWMyLjc1LDIuNzUsMi43NSw3LjIwNiwwLDkuOTU4Yy0yLjc1MiwyLjc1MS03LjIwOCwyLjc1MS05Ljk2MSwwYy0yLjA2OC0yLjA3LTIuNTgtNS4xMS0xLjUzMS03LjY1OGwtOS41LTkuNDk5djI0Ljk5NwoJCWMwLjY3LDAuMzMyLDEuMzAzLDAuNzc0LDEuODYxLDEuMzMyYzIuNzUsMi43NSwyLjc1LDcuMjA2LDAsOS45NTljLTIuNzUsMi43NDktNy4yMDksMi43NDktOS45NTcsMGMtMi43NS0yLjc1NC0yLjc1LTcuMjEsMC05Ljk1OQoJCWMwLjY4LTAuNjc5LDEuNDY3LTEuMTkzLDIuMzA3LTEuNTM3VjM2LjM2OWMtMC44NC0wLjM0NC0xLjYyNS0wLjg1My0yLjMwNy0xLjUzN2MtMi4wODMtMi4wODItMi41ODQtNS4xNC0xLjUxNi03LjY5OAoJCUwzMS43OTgsMTYuNzE1TDQuMjg4LDQ0LjIyMmMtMi4zMTEsMi4zMTMtMi4zMTEsNi4wNiwwLDguMzcxbDQwLjEyMSw0MC4xMThjMi4zMSwyLjMxMSw2LjA1NiwyLjMxMSw4LjM2OSwwTDkyLjcxLDUyLjc3OQoJCUM5NS4wMjEsNTAuNDY4LDk1LjAyMSw0Ni43MTksOTIuNzEsNDQuNDA4eiIvPgo8L2c+Cjwvc3ZnPgo="
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/git-collector/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/git-collector/2.2.289/git-collector-2.2.289-helm.tar.gz"
     name: "git-collector"
     description: "Collects events from git repositories from projects in OpenShift"
@@ -12345,6 +13672,54 @@ entries:
     home: "http://fabric8.io/git-collector/"
   gitlab:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.296/gitlab-2.2.296-helm.tar.gz"
+    name: "gitlab"
+    description: "[Gitlab](http://gitlab.com/) - A self-hosted Git service"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gitlab"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gitlab/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gitlab/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.295/gitlab-2.2.295-helm.tar.gz"
+    name: "gitlab"
+    description: "[Gitlab](http://gitlab.com/) - A self-hosted Git service"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gitlab"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gitlab/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gitlab/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.294/gitlab-2.2.294-helm.tar.gz"
+    name: "gitlab"
+    description: "[Gitlab](http://gitlab.com/) - A self-hosted Git service"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gitlab"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gitlab/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gitlab/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.290/gitlab-2.2.290-helm.tar.gz"
+    name: "gitlab"
+    description: "[Gitlab](http://gitlab.com/) - A self-hosted Git service"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gitlab"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gitlab/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gitlab/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/gitlab/2.2.289/gitlab-2.2.289-helm.tar.gz"
     name: "gitlab"
     description: "[Gitlab](http://gitlab.com/) - A self-hosted Git service"
@@ -12921,6 +14296,54 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/gitlab/"
   gogs:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.296/gogs-2.2.296-helm.tar.gz"
+    name: "gogs"
+    description: "[Gogs](http://gogs/) - A self-hosted Git service written in Go"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gogs"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gogs/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.295/gogs-2.2.295-helm.tar.gz"
+    name: "gogs"
+    description: "[Gogs](http://gogs/) - A self-hosted Git service written in Go"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gogs"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gogs/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.294/gogs-2.2.294-helm.tar.gz"
+    name: "gogs"
+    description: "[Gogs](http://gogs/) - A self-hosted Git service written in Go"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gogs"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gogs/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.290/gogs-2.2.290-helm.tar.gz"
+    name: "gogs"
+    description: "[Gogs](http://gogs/) - A self-hosted Git service written in Go"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/gogs"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/gogs/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/gogs/2.2.289/gogs-2.2.289-helm.tar.gz"
     name: "gogs"
@@ -13531,6 +14954,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/gogs/"
   grafana:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.296/grafana-2.2.296-helm.tar.gz"
+    name: "grafana"
+    description: "[Grafana](http://grafana.org/) console for viewing metrics stored\
+      \ in various storage backends"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/grafana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/grafana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.295/grafana-2.2.295-helm.tar.gz"
+    name: "grafana"
+    description: "[Grafana](http://grafana.org/) console for viewing metrics stored\
+      \ in various storage backends"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/grafana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/grafana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.294/grafana-2.2.294-helm.tar.gz"
+    name: "grafana"
+    description: "[Grafana](http://grafana.org/) console for viewing metrics stored\
+      \ in various storage backends"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/grafana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/grafana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.290/grafana-2.2.290-helm.tar.gz"
+    name: "grafana"
+    description: "[Grafana](http://grafana.org/) console for viewing metrics stored\
+      \ in various storage backends"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/grafana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/grafana/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/grafana/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/grafana/2.2.289/grafana-2.2.289-helm.tar.gz"
     name: "grafana"
@@ -14348,6 +15823,54 @@ entries:
     home: "http://fabric8.io/examples/hello-world-example/hello-ribbon-spring-boot/"
   hubot-irc:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.296/hubot-irc-2.2.296-helm.tar.gz"
+    name: "hubot-irc"
+    description: "[Hubot](http://hubot.github.com) IRC chat bot"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.295/hubot-irc-2.2.295-helm.tar.gz"
+    name: "hubot-irc"
+    description: "[Hubot](http://hubot.github.com) IRC chat bot"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.294/hubot-irc-2.2.294-helm.tar.gz"
+    name: "hubot-irc"
+    description: "[Hubot](http://hubot.github.com) IRC chat bot"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-irc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.290/hubot-irc-2.2.290-helm.tar.gz"
+    name: "hubot-irc"
+    description: "[Hubot](http://hubot.github.com) IRC chat bot"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-irc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-irc/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-irc/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-irc/2.2.289/hubot-irc-2.2.289-helm.tar.gz"
     name: "hubot-irc"
     description: "[Hubot](http://hubot.github.com) IRC chat bot"
@@ -14958,6 +16481,54 @@ entries:
     home: "http://fabric8.io/hubot-irc/"
   hubot-letschat:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.296/hubot-letschat-2.2.296-helm.tar.gz"
+    name: "hubot-letschat"
+    description: "[Hubot](http://hubot.github.com) chat bot for Lets Chat"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.295/hubot-letschat-2.2.295-helm.tar.gz"
+    name: "hubot-letschat"
+    description: "[Hubot](http://hubot.github.com) chat bot for Lets Chat"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.294/hubot-letschat-2.2.294-helm.tar.gz"
+    name: "hubot-letschat"
+    description: "[Hubot](http://hubot.github.com) chat bot for Lets Chat"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.290/hubot-letschat-2.2.290-helm.tar.gz"
+    name: "hubot-letschat"
+    description: "[Hubot](http://hubot.github.com) chat bot for Lets Chat"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-letschat/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-letschat/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-letschat/2.2.289/hubot-letschat-2.2.289-helm.tar.gz"
     name: "hubot-letschat"
     description: "[Hubot](http://hubot.github.com) chat bot for Lets Chat"
@@ -15567,6 +17138,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/hubot-letschat/"
   hubot-notifier:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.296/hubot-notifier-2.2.296-helm.tar.gz"
+    name: "hubot-notifier"
+    description: "Watches the OpenShift environment and notifies Hubot of events such\
+      \ as builds completing or failing"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-notifier"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-notifier/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-notifier/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.295/hubot-notifier-2.2.295-helm.tar.gz"
+    name: "hubot-notifier"
+    description: "Watches the OpenShift environment and notifies Hubot of events such\
+      \ as builds completing or failing"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-notifier"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-notifier/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-notifier/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.294/hubot-notifier-2.2.294-helm.tar.gz"
+    name: "hubot-notifier"
+    description: "Watches the OpenShift environment and notifies Hubot of events such\
+      \ as builds completing or failing"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-notifier"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-notifier/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-notifier/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.290/hubot-notifier-2.2.290-helm.tar.gz"
+    name: "hubot-notifier"
+    description: "Watches the OpenShift environment and notifies Hubot of events such\
+      \ as builds completing or failing"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-notifier"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-notifier/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-notifier/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-notifier/2.2.289/hubot-notifier-2.2.289-helm.tar.gz"
     name: "hubot-notifier"
@@ -16230,6 +17853,54 @@ entries:
     home: "http://fabric8.io/hubot-notifier/"
   hubot-slack:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.296/hubot-slack-2.2.296-helm.tar.gz"
+    name: "hubot-slack"
+    description: "[Hubot](https://hubot.github.com/) adapter to use with [Slack](https://slack.com/)"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.295/hubot-slack-2.2.295-helm.tar.gz"
+    name: "hubot-slack"
+    description: "[Hubot](https://hubot.github.com/) adapter to use with [Slack](https://slack.com/)"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.294/hubot-slack-2.2.294-helm.tar.gz"
+    name: "hubot-slack"
+    description: "[Hubot](https://hubot.github.com/) adapter to use with [Slack](https://slack.com/)"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-slack/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.290/hubot-slack-2.2.290-helm.tar.gz"
+    name: "hubot-slack"
+    description: "[Hubot](https://hubot.github.com/) adapter to use with [Slack](https://slack.com/)"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/hubot-slack"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/hubot-slack/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/hubot-slack/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/hubot-slack/2.2.289/hubot-slack-2.2.289-helm.tar.gz"
     name: "hubot-slack"
     description: "[Hubot](https://hubot.github.com/) adapter to use with [Slack](https://slack.com/)"
@@ -16891,6 +18562,54 @@ entries:
     home: "http://fabric8.io/hystrix-dashboard/"
   image-linker:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.296/image-linker-2.2.296-helm.tar.gz"
+    name: "image-linker"
+    description: "Provides embedded chat friendly links to images"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/image-linker"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/image-linker/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/image-linker/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.295/image-linker-2.2.295-helm.tar.gz"
+    name: "image-linker"
+    description: "Provides embedded chat friendly links to images"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/image-linker"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/image-linker/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/image-linker/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.294/image-linker-2.2.294-helm.tar.gz"
+    name: "image-linker"
+    description: "Provides embedded chat friendly links to images"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/image-linker"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/image-linker/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/image-linker/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.290/image-linker-2.2.290-helm.tar.gz"
+    name: "image-linker"
+    description: "Provides embedded chat friendly links to images"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/image-linker"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/image-linker/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/image-linker/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/image-linker/2.2.289/image-linker-2.2.289-helm.tar.gz"
     name: "image-linker"
     description: "Provides embedded chat friendly links to images"
@@ -17500,6 +19219,54 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/image-linker/"
   ingress-nginx:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.296/ingress-nginx-2.2.296-helm.tar.gz"
+    name: "ingress-nginx"
+    description: "Runs an nginx ingress load balancer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/ingress-nginx"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/ingress-nginx/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/ingress-nginx/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.295/ingress-nginx-2.2.295-helm.tar.gz"
+    name: "ingress-nginx"
+    description: "Runs an nginx ingress load balancer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/ingress-nginx"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/ingress-nginx/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/ingress-nginx/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.294/ingress-nginx-2.2.294-helm.tar.gz"
+    name: "ingress-nginx"
+    description: "Runs an nginx ingress load balancer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/ingress-nginx"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/ingress-nginx/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/ingress-nginx/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.290/ingress-nginx-2.2.290-helm.tar.gz"
+    name: "ingress-nginx"
+    description: "Runs an nginx ingress load balancer"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/ingress-nginx"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/ingress-nginx/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/ingress-nginx/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/ingress-nginx/2.2.289/ingress-nginx-2.2.289-helm.tar.gz"
     name: "ingress-nginx"
@@ -18172,6 +19939,42 @@ entries:
     home: "http://fabric8.io/"
   ipaas-platform:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.29/ipaas-platform-1.0.29-helm.tar.gz"
+    name: "ipaas-platform"
+    description: "The Fabric8 Microservices Platform"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/ipaas-platform"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "1.0.29"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/ipaas-platform/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.28/ipaas-platform-1.0.28-helm.tar.gz"
+    name: "ipaas-platform"
+    description: "The Fabric8 Microservices Platform"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/ipaas-platform"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "1.0.28"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/ipaas-platform/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.27/ipaas-platform-1.0.27-helm.tar.gz"
+    name: "ipaas-platform"
+    description: "The Fabric8 Microservices Platform"
+    sources:
+    - "http://github.com/fabric8io/ipaas-platform/packages/ipaas-platform"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/gogs/src/main/fabric8/icon.png"
+    version: "1.0.27"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/ipaas-platform/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/platform/packages/ipaas-platform/1.0.26/ipaas-platform-1.0.26-helm.tar.gz"
     name: "ipaas-platform"
     description: "The Fabric8 Microservices Platform"
@@ -18316,6 +20119,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/ipaas-platform/"
   jenkins:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.296/jenkins-2.2.296-helm.tar.gz"
+    name: "jenkins"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.295/jenkins-2.2.295-helm.tar.gz"
+    name: "jenkins"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.294/jenkins-2.2.294-helm.tar.gz"
+    name: "jenkins"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.290/jenkins-2.2.290-helm.tar.gz"
+    name: "jenkins"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins/2.2.289/jenkins-2.2.289-helm.tar.gz"
     name: "jenkins"
@@ -18979,6 +20834,58 @@ entries:
     home: "http://fabric8.io/jenkins/"
   jenkins-openshift:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.296/jenkins-openshift-2.2.296-helm.tar.gz"
+    name: "jenkins-openshift"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server using OpenShift Jenkins image"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins-openshift"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins-openshift/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins-openshift/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.295/jenkins-openshift-2.2.295-helm.tar.gz"
+    name: "jenkins-openshift"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server using OpenShift Jenkins image"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins-openshift"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins-openshift/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins-openshift/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.294/jenkins-openshift-2.2.294-helm.tar.gz"
+    name: "jenkins-openshift"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server using OpenShift Jenkins image"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins-openshift"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins-openshift/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins-openshift/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.290/jenkins-openshift-2.2.290-helm.tar.gz"
+    name: "jenkins-openshift"
+    description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
+      \ integration server using OpenShift Jenkins image"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/jenkins-openshift"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/jenkins-openshift/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/jenkins-openshift/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/jenkins-openshift/2.2.289/jenkins-openshift-2.2.289-helm.tar.gz"
     name: "jenkins-openshift"
     description: "[Jenkins](http://jenkins-ci.org/) extendable open source continuous\
@@ -19344,6 +21251,39 @@ entries:
     home: "http://fabric8.io/jenkins-openshift/"
   jnatsd:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/jnatsd/2.2.162/jnatsd-2.2.162-helm.tar.gz"
+    name: "jnatsd"
+    description: "Java broker for the NATS protocol"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/jnatsd"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/jnatsd/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/jnatsd/2.2.161/jnatsd-2.2.161-helm.tar.gz"
+    name: "jnatsd"
+    description: "Java broker for the NATS protocol"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/jnatsd"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/jnatsd/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/jnatsd/2.2.159/jnatsd-2.2.159-helm.tar.gz"
+    name: "jnatsd"
+    description: "Java broker for the NATS protocol"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/jnatsd"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/jnatsd/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/jnatsd/2.2.158/jnatsd-2.2.158-helm.tar.gz"
     name: "jnatsd"
     description: "Java broker for the NATS protocol"
@@ -19449,6 +21389,42 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/jnatsd/"
   kafka:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/kafka/2.2.162/kafka-2.2.162-helm.tar.gz"
+    name: "kafka"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/kafka"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/kafka/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/kafka/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/kafka/2.2.161/kafka-2.2.161-helm.tar.gz"
+    name: "kafka"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/kafka"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/kafka/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/kafka/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/kafka/2.2.159/kafka-2.2.159-helm.tar.gz"
+    name: "kafka"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/kafka"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/kafka/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/kafka/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/kafka/2.2.158/kafka-2.2.158-helm.tar.gz"
     name: "kafka"
@@ -19565,6 +21541,58 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/kafka/"
   keycloak:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.296/keycloak-2.2.296-helm.tar.gz"
+    name: "keycloak"
+    description: "Keycloack (security) - Integrated SSO and IDM for browser apps and\
+      \ RESTful services"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/keycloak"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/keycloak/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/keycloak/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.295/keycloak-2.2.295-helm.tar.gz"
+    name: "keycloak"
+    description: "Keycloack (security) - Integrated SSO and IDM for browser apps and\
+      \ RESTful services"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/keycloak"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/keycloak/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/keycloak/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.294/keycloak-2.2.294-helm.tar.gz"
+    name: "keycloak"
+    description: "Keycloack (security) - Integrated SSO and IDM for browser apps and\
+      \ RESTful services"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/keycloak"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/keycloak/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/keycloak/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.290/keycloak-2.2.290-helm.tar.gz"
+    name: "keycloak"
+    description: "Keycloack (security) - Integrated SSO and IDM for browser apps and\
+      \ RESTful services"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/keycloak"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/keycloak/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/keycloak/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/keycloak/2.2.289/keycloak-2.2.289-helm.tar.gz"
     name: "keycloak"
@@ -20228,6 +22256,54 @@ entries:
     home: "http://fabric8.io/keycloak/"
   kibana:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.296/kibana-2.2.296-helm.tar.gz"
+    name: "kibana"
+    description: "Awesome front-end for Elasticsearch"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kibana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kibana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.295/kibana-2.2.295-helm.tar.gz"
+    name: "kibana"
+    description: "Awesome front-end for Elasticsearch"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kibana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kibana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.294/kibana-2.2.294-helm.tar.gz"
+    name: "kibana"
+    description: "Awesome front-end for Elasticsearch"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kibana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kibana/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.290/kibana-2.2.290-helm.tar.gz"
+    name: "kibana"
+    description: "Awesome front-end for Elasticsearch"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kibana"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kibana/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kibana/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/kibana/2.2.289/kibana-2.2.289-helm.tar.gz"
     name: "kibana"
     description: "Awesome front-end for Elasticsearch"
@@ -20837,6 +22913,54 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/kibana/"
   kiwiirc:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.296/kiwiirc-2.2.296-helm.tar.gz"
+    name: "kiwiirc"
+    description: "[Kiwi IRC](https://kiwiirc.com/) KiwiIRC makes Web IRC easy"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kiwiirc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kiwiirc/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kiwiirc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.295/kiwiirc-2.2.295-helm.tar.gz"
+    name: "kiwiirc"
+    description: "[Kiwi IRC](https://kiwiirc.com/) KiwiIRC makes Web IRC easy"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kiwiirc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kiwiirc/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kiwiirc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.294/kiwiirc-2.2.294-helm.tar.gz"
+    name: "kiwiirc"
+    description: "[Kiwi IRC](https://kiwiirc.com/) KiwiIRC makes Web IRC easy"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kiwiirc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kiwiirc/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kiwiirc/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.290/kiwiirc-2.2.290-helm.tar.gz"
+    name: "kiwiirc"
+    description: "[Kiwi IRC](https://kiwiirc.com/) KiwiIRC makes Web IRC easy"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/kiwiirc"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/kiwiirc/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/kiwiirc/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/kiwiirc/2.2.289/kiwiirc-2.2.289-helm.tar.gz"
     name: "kiwiirc"
@@ -21511,6 +23635,58 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/spring-cloud-kubernetes-examples/kubernetes-reload-example/"
   letschat:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.296/letschat-2.2.296-helm.tar.gz"
+    name: "letschat"
+    description: "[Lets Chat](http://sdelements.github.io/lets-chat/) Self-hosted\
+      \ chat for small teams"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.295/letschat-2.2.295-helm.tar.gz"
+    name: "letschat"
+    description: "[Lets Chat](http://sdelements.github.io/lets-chat/) Self-hosted\
+      \ chat for small teams"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.294/letschat-2.2.294-helm.tar.gz"
+    name: "letschat"
+    description: "[Lets Chat](http://sdelements.github.io/lets-chat/) Self-hosted\
+      \ chat for small teams"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/letschat/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.290/letschat-2.2.290-helm.tar.gz"
+    name: "letschat"
+    description: "[Lets Chat](http://sdelements.github.io/lets-chat/) Self-hosted\
+      \ chat for small teams"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/letschat"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/letschat/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/letschat/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/letschat/2.2.289/letschat-2.2.289-helm.tar.gz"
     name: "letschat"
@@ -22382,6 +24558,71 @@ entries:
     home: "http://fabric8.io/examples/loanbroker-example/loanbroker-generator/"
   logging:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/logging/2.4.1/logging-2.4.1-helm.tar.gz"
+    name: "logging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/logging"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/logging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.296/logging-2.2.296-helm.tar.gz"
+    name: "logging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/logging"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/logging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.295/logging-2.2.295-helm.tar.gz"
+    name: "logging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/logging"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/logging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.294/logging-2.2.294-helm.tar.gz"
+    name: "logging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/logging"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/logging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.290/logging-2.2.290-helm.tar.gz"
+    name: "logging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/logging"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/elasticsearch/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/logging/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/logging/2.2.289/logging-2.2.289-helm.tar.gz"
     name: "logging"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -23226,6 +25467,58 @@ entries:
     home: "http://fabric8.io/packages/logging/"
   manageiq:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.296/manageiq-2.2.296-helm.tar.gz"
+    name: "manageiq"
+    description: "ManageIQ Cloud Management Platform http://manageiq.org - default\
+      \ username/password is admin/smartvm"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/manageiq"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/manageiq/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/manageiq/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.295/manageiq-2.2.295-helm.tar.gz"
+    name: "manageiq"
+    description: "ManageIQ Cloud Management Platform http://manageiq.org - default\
+      \ username/password is admin/smartvm"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/manageiq"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/manageiq/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/manageiq/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.294/manageiq-2.2.294-helm.tar.gz"
+    name: "manageiq"
+    description: "ManageIQ Cloud Management Platform http://manageiq.org - default\
+      \ username/password is admin/smartvm"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/manageiq"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/manageiq/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/manageiq/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.290/manageiq-2.2.290-helm.tar.gz"
+    name: "manageiq"
+    description: "ManageIQ Cloud Management Platform http://manageiq.org - default\
+      \ username/password is admin/smartvm"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/manageiq"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/manageiq/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/manageiq/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/manageiq/2.2.289/manageiq-2.2.289-helm.tar.gz"
     name: "manageiq"
     description: "ManageIQ Cloud Management Platform http://manageiq.org - default\
@@ -23887,6 +26180,71 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/manageiq/"
   management:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/management/2.4.1/management-2.4.1-helm.tar.gz"
+    name: "management"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/management"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/management/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.296/management-2.2.296-helm.tar.gz"
+    name: "management"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/management"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/management/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.295/management-2.2.295-helm.tar.gz"
+    name: "management"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/management"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/management/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.294/management-2.2.294-helm.tar.gz"
+    name: "management"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/management"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/management/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.290/management-2.2.290-helm.tar.gz"
+    name: "management"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/management"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/management/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/management/2.2.289/management-2.2.289-helm.tar.gz"
     name: "management"
@@ -24732,6 +27090,58 @@ entries:
     home: "http://fabric8.io/packages/management/"
   maven-shell:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.296/maven-shell-2.2.296-helm.tar.gz"
+    name: "maven-shell"
+    description: "Maven Shell is an app that contains java build tools and allows\
+      \ development inside kubernetes"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/maven-shell"
+    icon: "img/icons/java.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/maven-shell/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.295/maven-shell-2.2.295-helm.tar.gz"
+    name: "maven-shell"
+    description: "Maven Shell is an app that contains java build tools and allows\
+      \ development inside kubernetes"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/maven-shell"
+    icon: "img/icons/java.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/maven-shell/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.294/maven-shell-2.2.294-helm.tar.gz"
+    name: "maven-shell"
+    description: "Maven Shell is an app that contains java build tools and allows\
+      \ development inside kubernetes"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/maven-shell"
+    icon: "img/icons/java.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/maven-shell/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.290/maven-shell-2.2.290-helm.tar.gz"
+    name: "maven-shell"
+    description: "Maven Shell is an app that contains java build tools and allows\
+      \ development inside kubernetes"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/maven-shell"
+    icon: "img/icons/java.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/maven-shell/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/maven-shell/2.2.289/maven-shell-2.2.289-helm.tar.gz"
     name: "maven-shell"
     description: "Maven Shell is an app that contains java build tools and allows\
@@ -25394,6 +27804,39 @@ entries:
     home: "http://fabric8.io/maven-shell/"
   message-broker:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-broker/2.2.162/message-broker-2.2.162-helm.tar.gz"
+    name: "message-broker"
+    description: "Enterprise Message Broker based on Apache ActiveMQ Artemis"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-broker"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-broker/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-broker/2.2.161/message-broker-2.2.161-helm.tar.gz"
+    name: "message-broker"
+    description: "Enterprise Message Broker based on Apache ActiveMQ Artemis"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-broker"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-broker/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-broker/2.2.159/message-broker-2.2.159-helm.tar.gz"
+    name: "message-broker"
+    description: "Enterprise Message Broker based on Apache ActiveMQ Artemis"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-broker"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-broker/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-broker/2.2.158/message-broker-2.2.158-helm.tar.gz"
     name: "message-broker"
     description: "Enterprise Message Broker based on Apache ActiveMQ Artemis"
@@ -25499,6 +27942,42 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/message-broker/"
   message-gateway:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-gateway/2.2.162/message-gateway-2.2.162-helm.tar.gz"
+    name: "message-gateway"
+    description: "An Enterprise Messaging Gateway that can apply policies for discovery,\
+      \ load balancing, scalaing,\n    security, rate limiting etc."
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-gateway"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-gateway/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-gateway/2.2.161/message-gateway-2.2.161-helm.tar.gz"
+    name: "message-gateway"
+    description: "An Enterprise Messaging Gateway that can apply policies for discovery,\
+      \ load balancing, scalaing,\n    security, rate limiting etc."
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-gateway"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-gateway/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-gateway/2.2.159/message-gateway-2.2.159-helm.tar.gz"
+    name: "message-gateway"
+    description: "An Enterprise Messaging Gateway that can apply policies for discovery,\
+      \ load balancing, scalaing,\n    security, rate limiting etc."
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/message-gateway"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/message-gateway/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/message-gateway/2.2.158/message-gateway-2.2.158-helm.tar.gz"
     name: "message-gateway"
@@ -25616,6 +28095,42 @@ entries:
     home: "http://fabric8.io/message-gateway/"
   messaging:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/messaging/2.2.162/messaging-2.2.162-helm.tar.gz"
+    name: "messaging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/messaging"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/messaging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/messaging/2.2.161/messaging-2.2.161-helm.tar.gz"
+    name: "messaging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/messaging"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/messaging/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/messaging/2.2.159/messaging-2.2.159-helm.tar.gz"
+    name: "messaging"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/packages/messaging"
+    icon: "img/icons/activemq.svg"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/packages/messaging/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/packages/messaging/2.2.158/messaging-2.2.158-helm.tar.gz"
     name: "messaging"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -25731,6 +28246,71 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/packages/messaging/"
   metrics:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/metrics/2.4.1/metrics-2.4.1-helm.tar.gz"
+    name: "metrics"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/metrics"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/metrics/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.296/metrics-2.2.296-helm.tar.gz"
+    name: "metrics"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/metrics"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/metrics/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.295/metrics-2.2.295-helm.tar.gz"
+    name: "metrics"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/metrics"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/metrics/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.294/metrics-2.2.294-helm.tar.gz"
+    name: "metrics"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/metrics"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/metrics/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.290/metrics-2.2.290-helm.tar.gz"
+    name: "metrics"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/metrics"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/metrics/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/metrics/2.2.289/metrics-2.2.289-helm.tar.gz"
     name: "metrics"
@@ -26576,6 +29156,39 @@ entries:
     home: "http://fabric8.io/packages/metrics/"
   mq-client:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.162/mq-client-2.2.162-helm.tar.gz"
+    name: "mq-client"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/mq-client"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/mq-client/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.161/mq-client-2.2.161-helm.tar.gz"
+    name: "mq-client"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/mq-client"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/mq-client/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.159/mq-client-2.2.159-helm.tar.gz"
+    name: "mq-client"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/mq-client"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/mq-client/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/mq/mq-client/2.2.158/mq-client-2.2.158-helm.tar.gz"
     name: "mq-client"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -26686,6 +29299,54 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/mq-client/"
   nexus:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.296/nexus-2.2.296-helm.tar.gz"
+    name: "nexus"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.295/nexus-2.2.295-helm.tar.gz"
+    name: "nexus"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.294/nexus-2.2.294-helm.tar.gz"
+    name: "nexus"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.290/nexus-2.2.290-helm.tar.gz"
+    name: "nexus"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus/2.2.289/nexus-2.2.289-helm.tar.gz"
     name: "nexus"
@@ -27297,6 +29958,54 @@ entries:
     home: "http://fabric8.io/nexus/"
   nexus3:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.296/nexus3-2.2.296-helm.tar.gz"
+    name: "nexus3"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus3"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus3/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.295/nexus3-2.2.295-helm.tar.gz"
+    name: "nexus3"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus3"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus3/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.294/nexus3-2.2.294-helm.tar.gz"
+    name: "nexus3"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus3"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus3/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.290/nexus3-2.2.290-helm.tar.gz"
+    name: "nexus3"
+    description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/nexus3"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/nexus/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/nexus3/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/nexus3/2.2.289/nexus3-2.2.289-helm.tar.gz"
     name: "nexus3"
     description: "[Nexus](http://www.sonatype.org/nexus/) - A maven repository manager"
@@ -27633,6 +30342,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/nexus3/"
   orion:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.296/orion-2.2.296-helm.tar.gz"
+    name: "orion"
+    description: "[Orion](http://eclipse.org/orion/) is a web based IDE for working\
+      \ files in a git repository"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/orion"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/orion/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.295/orion-2.2.295-helm.tar.gz"
+    name: "orion"
+    description: "[Orion](http://eclipse.org/orion/) is a web based IDE for working\
+      \ files in a git repository"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/orion"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/orion/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.294/orion-2.2.294-helm.tar.gz"
+    name: "orion"
+    description: "[Orion](http://eclipse.org/orion/) is a web based IDE for working\
+      \ files in a git repository"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/orion"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/orion/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.290/orion-2.2.290-helm.tar.gz"
+    name: "orion"
+    description: "[Orion](http://eclipse.org/orion/) is a web based IDE for working\
+      \ files in a git repository"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/orion"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/orion/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/orion/2.2.289/orion-2.2.289-helm.tar.gz"
     name: "orion"
@@ -28296,6 +31057,58 @@ entries:
     home: "http://fabric8.io/orion/"
   prometheus:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.296/prometheus-2.2.296-helm.tar.gz"
+    name: "prometheus"
+    description: "[Prometheus](http://prometheus.io/) - an open-source service monitoring\
+      \ system and time series database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.295/prometheus-2.2.295-helm.tar.gz"
+    name: "prometheus"
+    description: "[Prometheus](http://prometheus.io/) - an open-source service monitoring\
+      \ system and time series database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.294/prometheus-2.2.294-helm.tar.gz"
+    name: "prometheus"
+    description: "[Prometheus](http://prometheus.io/) - an open-source service monitoring\
+      \ system and time series database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.290/prometheus-2.2.290-helm.tar.gz"
+    name: "prometheus"
+    description: "[Prometheus](http://prometheus.io/) - an open-source service monitoring\
+      \ system and time series database"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus/2.2.289/prometheus-2.2.289-helm.tar.gz"
     name: "prometheus"
     description: "[Prometheus](http://prometheus.io/) - an open-source service monitoring\
@@ -28957,6 +31770,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/prometheus/"
   prometheus-blackbox-exporter:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.296/prometheus-blackbox-exporter-2.2.296-helm.tar.gz"
+    name: "prometheus-blackbox-exporter"
+    description: "[Prometheus Blackbox Exporter](https://github.com/prometheus/blackbox_exporter)\
+      \ - blackbox probing of endpoints over HTTP, HTTPS and TCP."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-blackbox-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-blackbox-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.295/prometheus-blackbox-exporter-2.2.295-helm.tar.gz"
+    name: "prometheus-blackbox-exporter"
+    description: "[Prometheus Blackbox Exporter](https://github.com/prometheus/blackbox_exporter)\
+      \ - blackbox probing of endpoints over HTTP, HTTPS and TCP."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-blackbox-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-blackbox-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.294/prometheus-blackbox-exporter-2.2.294-helm.tar.gz"
+    name: "prometheus-blackbox-exporter"
+    description: "[Prometheus Blackbox Exporter](https://github.com/prometheus/blackbox_exporter)\
+      \ - blackbox probing of endpoints over HTTP, HTTPS and TCP."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-blackbox-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-blackbox-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.290/prometheus-blackbox-exporter-2.2.290-helm.tar.gz"
+    name: "prometheus-blackbox-exporter"
+    description: "[Prometheus Blackbox Exporter](https://github.com/prometheus/blackbox_exporter)\
+      \ - blackbox probing of endpoints over HTTP, HTTPS and TCP."
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-blackbox-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-blackbox-exporter/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-blackbox-exporter/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-blackbox-exporter/2.2.289/prometheus-blackbox-exporter-2.2.289-helm.tar.gz"
     name: "prometheus-blackbox-exporter"
@@ -29620,6 +32485,58 @@ entries:
     home: "http://fabric8.io/prometheus-blackbox-exporter/"
   prometheus-node-exporter:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.296/prometheus-node-exporter-2.2.296-helm.tar.gz"
+    name: "prometheus-node-exporter"
+    description: "[Prometheus](http://prometheus.io/) [Node Exporter](https://github.com/prometheus/node_exporter)\
+      \ - Exporter for machine metrics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-node-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-node-exporter/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-node-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.295/prometheus-node-exporter-2.2.295-helm.tar.gz"
+    name: "prometheus-node-exporter"
+    description: "[Prometheus](http://prometheus.io/) [Node Exporter](https://github.com/prometheus/node_exporter)\
+      \ - Exporter for machine metrics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-node-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-node-exporter/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-node-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.294/prometheus-node-exporter-2.2.294-helm.tar.gz"
+    name: "prometheus-node-exporter"
+    description: "[Prometheus](http://prometheus.io/) [Node Exporter](https://github.com/prometheus/node_exporter)\
+      \ - Exporter for machine metrics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-node-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-node-exporter/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-node-exporter/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.290/prometheus-node-exporter-2.2.290-helm.tar.gz"
+    name: "prometheus-node-exporter"
+    description: "[Prometheus](http://prometheus.io/) [Node Exporter](https://github.com/prometheus/node_exporter)\
+      \ - Exporter for machine metrics"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/prometheus-node-exporter"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/prometheus-node-exporter/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/prometheus-node-exporter/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/prometheus-node-exporter/2.2.289/prometheus-node-exporter-2.2.289-helm.tar.gz"
     name: "prometheus-node-exporter"
     description: "[Prometheus](http://prometheus.io/) [Node Exporter](https://github.com/prometheus/node_exporter)\
@@ -30248,6 +33165,71 @@ entries:
     home: "http://fabric8.io/prometheus-node-exporter/"
   social:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/platform/packages/social/2.4.1/social-2.4.1-helm.tar.gz"
+    name: "social"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-platform/packages/social"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.4.1"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/social/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.296/social-2.2.296-helm.tar.gz"
+    name: "social"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/social"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/social/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.295/social-2.2.295-helm.tar.gz"
+    name: "social"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/social"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/social/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.294/social-2.2.294-helm.tar.gz"
+    name: "social"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/social"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/social/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.290/social-2.2.290-helm.tar.gz"
+    name: "social"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/packages/social"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/orion/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/packages/social/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/packages/social/2.2.289/social-2.2.289-helm.tar.gz"
     name: "social"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -30699,6 +33681,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/packages/social/"
   sonarqube:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.296/sonarqube-2.2.296-helm.tar.gz"
+    name: "sonarqube"
+    description: "[SonarQube](http://www.sonarqube.org/) is an open platform to manage\
+      \ code quality"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/sonarqube"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/sonarqube/src/main/fabric8/icon.svg"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/sonarqube/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.295/sonarqube-2.2.295-helm.tar.gz"
+    name: "sonarqube"
+    description: "[SonarQube](http://www.sonarqube.org/) is an open platform to manage\
+      \ code quality"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/sonarqube"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/sonarqube/src/main/fabric8/icon.svg"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/sonarqube/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.294/sonarqube-2.2.294-helm.tar.gz"
+    name: "sonarqube"
+    description: "[SonarQube](http://www.sonarqube.org/) is an open platform to manage\
+      \ code quality"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/sonarqube"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/sonarqube/src/main/fabric8/icon.svg"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/sonarqube/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.290/sonarqube-2.2.290-helm.tar.gz"
+    name: "sonarqube"
+    description: "[SonarQube](http://www.sonarqube.org/) is an open platform to manage\
+      \ code quality"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/sonarqube"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/sonarqube/src/main/fabric8/icon.svg"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/sonarqube/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/sonarqube/2.2.289/sonarqube-2.2.289-helm.tar.gz"
     name: "sonarqube"
@@ -31361,6 +34395,58 @@ entries:
       email: "fabric8@googlegroups.com"
     home: "http://fabric8.io/sonarqube/"
   taiga:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.296/taiga-2.2.296-helm.tar.gz"
+    name: "taiga"
+    description: "[Taiga](https://github.com/taigaio) Your Agile, Free and Open Source\
+      \ Project Management Tool"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/taiga"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"
+    version: "2.2.296"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/taiga/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.295/taiga-2.2.295-helm.tar.gz"
+    name: "taiga"
+    description: "[Taiga](https://github.com/taigaio) Your Agile, Free and Open Source\
+      \ Project Management Tool"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/taiga"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"
+    version: "2.2.295"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/taiga/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.294/taiga-2.2.294-helm.tar.gz"
+    name: "taiga"
+    description: "[Taiga](https://github.com/taigaio) Your Agile, Free and Open Source\
+      \ Project Management Tool"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/taiga"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"
+    version: "2.2.294"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/taiga/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.290/taiga-2.2.290-helm.tar.gz"
+    name: "taiga"
+    description: "[Taiga](https://github.com/taigaio) Your Agile, Free and Open Source\
+      \ Project Management Tool"
+    sources:
+    - "http://github.com/fabric8io/fabric8-devops/taiga"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-devops/master/taiga/src/main/fabric8/icon.png"
+    version: "2.2.290"
+    maintainers:
+    - name: "Fabric8 Development Team"
+      email: "fabric8@googlegroups.com"
+    home: "http://fabric8.io/taiga/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/devops/apps/taiga/2.2.289/taiga-2.2.289-helm.tar.gz"
     name: "taiga"
@@ -32635,6 +35721,42 @@ entries:
     home: "http://fabric8.io/zipkin-starter-mysql/"
   zookeeper:
   - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper/2.2.162/zookeeper-2.2.162-helm.tar.gz"
+    name: "zookeeper"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper/2.2.161/zookeeper-2.2.161-helm.tar.gz"
+    name: "zookeeper"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper/2.2.159/zookeeper-2.2.159-helm.tar.gz"
+    name: "zookeeper"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper/"
+  - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper/2.2.158/zookeeper-2.2.158-helm.tar.gz"
     name: "zookeeper"
     description: "Sonatype helps open source projects to set up Maven repositories\
@@ -32750,6 +35872,42 @@ entries:
     - name: "Fabric8 Development Team"
     home: "http://fabric8.io/zookeeper/"
   zookeeper-ensemble:
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper-ensemble/2.2.162/zookeeper-ensemble-2.2.162-helm.tar.gz"
+    name: "zookeeper-ensemble"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper-ensemble"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.162"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper-ensemble/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper-ensemble/2.2.161/zookeeper-ensemble-2.2.161-helm.tar.gz"
+    name: "zookeeper-ensemble"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper-ensemble"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.161"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper-ensemble/"
+  - urls:
+    - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper-ensemble/2.2.159/zookeeper-ensemble-2.2.159-helm.tar.gz"
+    name: "zookeeper-ensemble"
+    description: "Sonatype helps open source projects to set up Maven repositories\
+      \ on https://oss.sonatype.org/"
+    sources:
+    - "http://github.com/fabric8io/fabric8-ipaas/zookeeper-ensemble"
+    icon: "https://cdn.rawgit.com/fabric8io/fabric8-ipaas/master/zookeeper/src/main/fabric8/icon.png"
+    version: "2.2.159"
+    maintainers:
+    - name: "Fabric8 Development Team"
+    home: "http://fabric8.io/zookeeper-ensemble/"
   - urls:
     - "http://central.maven.org/maven2/io/fabric8/ipaas/apps/zookeeper-ensemble/2.2.158/zookeeper-ensemble-2.2.158-helm.tar.gz"
     name: "zookeeper-ensemble"
