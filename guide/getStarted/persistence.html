@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.3" data-basepath=".." data-revision="Tue Nov 08 2016 12:14:36 GMT+0000 (UTC)">
+    <div class="book" data-level="2.3" data-basepath=".." data-revision="Wed Nov 09 2016 10:14:55 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1832,14 +1832,49 @@ kubectl get pv
 </code></pre><p>When things are working correctly you should see all the <code>PersistentVolumeClaim</code> resources are <code>Bound</code> to some <code>PersistentVolume</code> resource. When thats true then all the various persistent apps in fabric8 will startup.</p>
 <h3 id="minikube-and-minishift"><a name="minikube-and-minishift" class="plugin-anchor" href="#minikube-and-minishift"><span class="fa fa-link"></span></a>MiniKube and MiniShift</h3>
 <p>If you are using <a href="https://github.com/jimmidyson/minikube" target="_blank">minikube</a> or <a href="https://github.com/jimmidyson/minishift" target="_blank">minishift</a> then <code>gofabric8</code> automatically spins up the equivalent <code>PersistentVolume</code> resources for you using <code>HostPath</code> based PersistentVolumes - so things should just work!</p>
-<p>Though if you create new apps on the fly that uses persistence after you have ran the <a href="gofabric8.html">gofabric8 start</a> command then you may have <code>PersistentVolumeClaim</code> resources which are not <code>Bound</code> to a <code>PersistentVolume</code>.</p>
+<p>Though if you create new apps on the fly that uses persistence after you have ran the <a href="gofabric8.html">gofabric8 start</a> command then you may have <code>PersistentVolumeClaim</code> resources which are stuck <code>Pending</code>.</p>
 <p>If so then you can dynamically create new <code>PersistentVolume</code> resources for any pending <code>PersistentVolumeClaim</code> resources via the command:</p>
 <pre><code>gofabric8 volumes
 </code></pre><p>Ultimately we will enable dynamic <code>PersistentVolume</code> creation in <a href="https://github.com/jimmidyson/minikube" target="_blank">minikube</a> and <a href="https://github.com/jimmidyson/minishift" target="_blank">minishift</a> to avoid this command being necessary.    </p>
 <h3 id="other-clusters"><a name="other-clusters" class="plugin-anchor" href="#other-clusters"><span class="fa fa-link"></span></a>Other clusters</h3>
-<p>On any other kind of kubernetes or openshift cluster; the PVCs will be matched to any suitable PV resources that are already available. </p>
-<p>Otherwise you will need to create 5 or 6 PV instances using whatever PV implementation you wish to use (e.g. EBS on EC2 or the equivalent on GCE / Azure, or NFS/Gluster/Ceph when on premise etc).</p>
-<p>We hope to take advantage of kubernetes 1.4 dynamic <code>PersistentVolume</code> provisioning to automatically spin these up to simplify installation.</p>
+<p>We use Kubernetes dynamic <code>PersistentVolume</code> provisioning to automatically create PVs when a <code>PersistentVolumeClaim</code> needs one.</p>
+<p>This is done by creating a <a href="http://kubernetes.io/docs/user-guide/persistent-volumes/#storageclasses" target="_blank">StorageClass</a> which is configured to point to cloud persistence implementations like EBS, GlusterFS, Cinder etc</p>
+<p>All fabric8 related <code>PersistentVolumeClaim</code> resources have a <code>volume.beta.kubernetes.io/storage-class=standard</code> annotation that is used to match which StorageClass to use.</p>
+<p>Example:</p>
+<pre><code>apiVersion: &quot;v1&quot;
+kind: &quot;PersistentVolumeClaim&quot;
+metadata:
+annotations:
+    volume.beta.kubernetes.io/storage-class: &quot;standard&quot;
+name: &quot;jenkins-jobs&quot;
+spec:
+accessModes:
+- &quot;ReadWriteOnce&quot;
+resources:
+    requests:
+    storage: &quot;100Mi&quot;
+</code></pre><p>So when setting up a cluster we just need to choose which PV implemenation to use and add it to your <code>StorageClass</code> e.g.</p>
+<p><strong>GKE</strong></p>
+<pre><code>cat &lt;&lt;EOF | kubectl create -f -
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: standard
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+EOF
+</code></pre><p><strong>AWS</strong></p>
+<pre><code>  cat &lt;&lt;EOF | kubectl create -f -
+  kind: StorageClass
+  apiVersion: storage.k8s.io/v1beta1
+  metadata:
+    name: standard
+  provisioner: kubernetes.io/aws-ebs
+  parameters:
+    type: gp2
+  EOF
+</code></pre><p>For a full list of StorageClass examples take a look at the kubernetes docs <a href="http://kubernetes.io/docs/user-guide/persistent-volumes/#parameters" target="_blank">http://kubernetes.io/docs/user-guide/persistent-volumes/#parameters</a></p>
 <h3 id="disabling-persistence"><a name="disabling-persistence" class="plugin-anchor" href="#disabling-persistence"><span class="fa fa-link"></span></a>Disabling persistence</h3>
 <p>If you want to try out fabric8 without setting up all the <code>PersistentVolume</code> instances for your cluster you can just disable persistence</p>
 <p>To disable persistence just add the <code>--pv=false</code> command argument when using <code>gofabric8 deploy</code></p>

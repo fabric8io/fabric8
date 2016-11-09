@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="14.1.4" data-basepath=".." data-revision="Tue Nov 08 2016 12:14:36 GMT+0000 (UTC)">
+    <div class="book" data-level="14.1.4" data-basepath=".." data-revision="Wed Nov 09 2016 10:14:55 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1853,14 +1853,25 @@ export KUBE_ENABLE_INSECURE_REGISTRY=true # required to set the insecure registr
 <pre><code>wget -q -O - https://get.k8s.io | bash
 </code></pre><p>Check your nodes are running</p>
 <pre><code>kubectl get nodes
+</code></pre><h3 id="persisence"><a name="persisence" class="plugin-anchor" href="#persisence"><span class="fa fa-link"></span></a>Persisence</h3>
+<p>A number of fabric8 applications require persistent storage so that we don&apos;t loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.</p>
+<p>We use Kubernetes dynamic <code>PersistentVolume</code> provisioning to automatically create PVs when a <code>PersistentVolumeClaim</code> needs one.</p>
+<p>Create a StorageClass that points to a persistence implementation for your cloud ensuring your <code>StorageClass</code> has a name <code>name: standard</code> see examples below.  For a full explaination see <a href="getStarted/persistence.md">persistence</a></p>
+<p>Run:</p>
+<pre><code>cat &lt;&lt;EOF | kubectl create -f -
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: standard
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+EOF
 </code></pre><h2 id="install-the-fabric8-microservices-platform"><a name="install-the-fabric8-microservices-platform" class="plugin-anchor" href="#install-the-fabric8-microservices-platform"><span class="fa fa-link"></span></a>Install the fabric8 microservices platform</h2>
 <p>Next we want to deploy the fabric8 microservices platform default components on top of Kubernetes, get the latest <code>gofabric8</code> binary from  <a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">gofabric8</a> and run</p>
-<pre><code>gofabric8 deploy --domain replace.me.io
+<pre><code>gofabric8 deploy
 </code></pre><p>gofabric8 will use the local credentials on your remote machine from <code>~/.kube/config</code> after the authentication script above</p>
-<p>It may make a few minutes to download a number of docker images but to track progress you can watch progress using</p>
-<pre><code>kubectl get pod -w
-</code></pre><p>As soon as the fabric8-xxxx pod is running you can open a URL to the fabric8 console using the fabric8 ingress rule.</p>
-<p><a href="http://fabric8.default.replace.me.io" target="_blank">http://fabric8.default.replace.me.io</a></p>
+<p>It may make a few minutes to download a number of docker images but once done your broswer will open to the fabric8 console</p>
 <h3 id="ingress"><a name="ingress" class="plugin-anchor" href="#ingress"><span class="fa fa-link"></span></a>Ingress</h3>
 <p>fabric8&apos;s preferred approach to accessing applications and services running on Kubernetes is to use the <a href="https://github.com/nginxinc/kubernetes-ingress/tree/master/nginx-controller" target="_blank">NGINX Ingress Controller</a>.  By default we deploy an Ingress NGINX controller on the first scheduble node we can find using the node label <code>externalIP=true</code>.  gofabric8 sets this so if you want your ingress controller on another node which has an externally accessible IP (used to configure your wildcard DNS) then move the label</p>
 <pre><code>kubectl label node $EXISTINGNODE  externalIP-

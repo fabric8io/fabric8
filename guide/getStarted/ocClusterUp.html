@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="14.2.3" data-basepath=".." data-revision="Tue Nov 08 2016 12:14:36 GMT+0000 (UTC)">
+    <div class="book" data-level="14.2.3" data-basepath=".." data-revision="Wed Nov 09 2016 10:14:55 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1831,10 +1831,7 @@
 <li><a href="https://github.com/fabric8io/gofabric8/releases" target="_blank">Download a gofabric8 binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
 </ul>
 <p>Now type the following:</p>
-<pre><code class="lang-sh">gofabric8 deploy -y --domain=$(docker-machine ip openshift).xip.io --api-server=$(docker-machine ip openshift)
-</code></pre>
-<p>At any point you can validate your installation via:</p>
-<pre><code class="lang-sh">gofabric8 validate
+<pre><code class="lang-sh">gofabric8 deploy
 </code></pre>
 <h3 id="extra-setup"><a name="extra-setup" class="plugin-anchor" href="#extra-setup"><span class="fa fa-link"></span></a>Extra setup</h3>
 <p>As this is using the OpenShift all-in-one cluster we have to update the origin master config so that the fabric8 console can work.  These steps are a little fiddly so hopefully we can find a better way to automate this.</p>
