@@ -59,7 +59,9 @@ def updateDownstreamDependencies(stagedProject) {
             'fabric8io/fabric8-forge',
             'fabric8io/kubeflix',
             'fabric8io/kubernetes-zipkin',
-            'fabric8io/fabric8-maven-dependencies'
+            'fabric8io/fabric8-maven-dependencies',
+            'fabric8io/django'
+
     ]
     version = stagedProject[1]
   }
