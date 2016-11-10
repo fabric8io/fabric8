@@ -1,3 +1,23 @@
+<img src="https://cdn.rawgit.com/fabric8io/fabric8-installer/master/img/warning.png" alt="WARNING"
+     width="25" height="25">
+<img src="https://cdn.rawgit.com/fabric8io/fabric8-installer/master/img/warning.png" alt="WARNING"
+     width="25" height="25">
+<img src="https://cdn.rawgit.com/fabric8io/fabric8-installer/master/img/warning.png" alt="WARNING"
+     width="25" height="25">
+<img src="https://cdn.rawgit.com/fabric8io/fabric8-installer/master/img/warning.png" alt="WARNING"
+     width="25" height="25">
+<img src="https://cdn.rawgit.com/fabric8io/fabric8-installer/master/img/warning.png" alt="WARNING"
+     width="25" height="25">
+
+<h2>PLEASE NOTE: Using Vagrant is now deprecated and will not be maintained</h2>
+
+For the best local developer experience on Kubernetes and OpenShift fabric8 recommends minikube and minishift
+ - [minikube](https://github.com/kubernetes/minikube)
+ - [minishift](https://github.com/jimmidyson/minishift)
+ - [fabric8 getting started guide](http://fabric8.io/guide/getStarted/index.html#don-t-have-a-kubernetes-cluster-yet)
+
+---
+
 ## Fabric8 Vagrant Image for Kubernetes
 
 This is the fastest way to get going with Fabric8 and Kubernetes on your laptop.
