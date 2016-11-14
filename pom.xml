@@ -1466,6 +1466,9 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>org.optaplanner:*</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                               <import>
@@ -1529,6 +1532,12 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>org.apache.geronimo.specs:geronimo-interceptor_1.1_spec</exclude>
+                                          <exclude>org.apache.geronimo.specs:geronimo-jcdi_1.0_spec</exclude>
+                                          <exclude>org.apache.geronimo.specs:geronimo-el_2.2_spec</exclude>
+                                          <exclude>org.ops4j.pax.runner:pax-runner-no-jcl</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                           </imports>
