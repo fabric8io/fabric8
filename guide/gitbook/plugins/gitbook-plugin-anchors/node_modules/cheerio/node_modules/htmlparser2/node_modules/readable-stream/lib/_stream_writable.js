@@ -177,7 +177,7 @@ WritableState.prototype.getBuffer = function getBuffer() {
 // Test _writableState for inheritance to account for Duplex streams,
 // whose prototype chain only points to Readable.
 var realHasInstance;
-if (typeof Symbol === 'function' && Symbol.hasInstance) {
+if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === 'function') {
   realHasInstance = Function.prototype[Symbol.hasInstance];
   Object.defineProperty(Writable, Symbol.hasInstance, {
     value: function (object) {
