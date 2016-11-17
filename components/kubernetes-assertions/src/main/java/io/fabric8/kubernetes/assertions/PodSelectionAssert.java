@@ -22,26 +22,18 @@ import io.fabric8.kubernetes.api.model.LabelSelectorRequirement;
 import io.fabric8.kubernetes.assertions.support.PodWatcher;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.Systems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Long.getLong;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * Assertion helper for performing assertions on a selection of pods
  */
-public class PodSelectionAssert {
-    public static final String PROPERTY_ASSERT_NOT_READY_TIMEOUT_MILLIS = "fabric8.assert.notReadyTimeoutMills";
-    public static final String PROPERTY_ASSERT_READY_PERIOD_MILLIS = "fabric8.assert.readyPeriodMills";
-
-    public static final long DEFAULT_NOT_READY_TIMEOUT_MS = 5 * 60 * 1000;
-    public static final long DEFAULT_READY_PERIOD_MS = 10 * 1000;
+public class PodSelectionAssert extends AbstractPodSelectionAssert {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(PodSelectionAssert.class);
 
@@ -51,25 +43,6 @@ public class PodSelectionAssert {
     private final List<LabelSelectorRequirement> matchExpressions;
     private final String description;
 
-
-    public static long getDefaultReadyPeriodMs() {
-        return parseLongValue(Systems.getEnvVarOrSystemProperty(PROPERTY_ASSERT_READY_PERIOD_MILLIS), DEFAULT_READY_PERIOD_MS);
-    }
-
-    public static long getDefaultNotReadyTimeoutMs() {
-        return parseLongValue(Systems.getEnvVarOrSystemProperty(PROPERTY_ASSERT_NOT_READY_TIMEOUT_MILLIS), DEFAULT_NOT_READY_TIMEOUT_MS);
-    }
-
-    private static long parseLongValue(String text, long defaultValue) {
-        if (Strings.isNotBlank(text)) {
-            try {
-                return Long.parseLong(text);
-            } catch (NumberFormatException e) {
-                LOG.warn("Could not parse long value " + text + ": " + e, e);
-            }
-        }
-        return defaultValue;
-    }
 
     public PodSelectionAssert(KubernetesClient client, Integer replicas, Map<String, String> matchLabels, List<LabelSelectorRequirement> matchExpressions, String description) {
         this.client = client;
@@ -97,13 +70,6 @@ public class PodSelectionAssert {
 
     public List<LabelSelectorRequirement> getMatchExpressions() {
         return matchExpressions;
-    }
-
-    /**
-     * Asserts that a pod is ready for this deployment all become ready within the given time and that each one keeps being ready for the given time
-     */
-    public PodSelectionAssert isPodReadyForPeriod() {
-        return isPodReadyForPeriod(getDefaultNotReadyTimeoutMs(), getDefaultReadyPeriodMs());
     }
 
     /**

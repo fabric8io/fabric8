@@ -93,8 +93,11 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         }
         String message = "No pod selection kinds found on the classpath such as Deployment, DeploymentConfig, ReplicaSet, ReplicationController";
         // TODO we don't yet support size > 1
-        assertThat(asserters).describedAs(message).isNotEmpty().hasSize(1);
-        return asserters.get(0);
+        assertThat(asserters).describedAs(message).isNotEmpty();
+        if( asserters.size() == 1 ) {
+            return asserters.get(0);
+        }
+        return new MultiHasPodSelectionAssert(asserters);
     }
 
     protected HasPodSelectionAssert createPodSelectionAssert(HasMetadata resource) {
