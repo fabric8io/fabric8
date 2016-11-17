@@ -19,5 +19,5 @@ package io.fabric8.kubernetes.assertions;
 /**
  */
 public interface HasPodSelectionAssert {
-    PodSelectionAssert pods();
+    AbstractPodSelectionAssert pods();
 }
