@@ -1,6 +1,6 @@
 ### Working with Environments in Kubernetes
 
-Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a [Continuous Delivery](http://en.wikipedia.org/wiki/Continuous_delivery) pipeline setup to move containers and configurations from dev -> test -> UAT -> staging -> production. In an ideal world we'd reuse as much as possible (container images and [kubernetes app metadata](apps.md) between environments.
+Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a [Continuous Delivery](http://en.wikipedia.org/wiki/Continuous_delivery) pipeline setup to move containers and configurations from `dev -> test -> UAT -> staging -> production`. In an ideal world we'd reuse as much as possible (container images and kubernetes manifests between environments.
 
 In Kubernetes each environment is a **namespace**. Then [pods](pods.html) inside a namespace only see [services](services.html) defined in that namespace. So _prod_ pods only see _prod_ services, _test_ pods only see _test_ services etc.
 
