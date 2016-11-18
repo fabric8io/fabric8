@@ -40,6 +40,8 @@ public class ServiceNames {
     //-------------------------------------------------------------------------
     public static final String FABRIC8_FORGE = "fabric8-forge";
     public static final String GOGS = "gogs";
+    public static final String GITLAB = "gitlab";
+    public static final String GITHUB = "github";
     public static final String JENKINS = "jenkins";
     public static final String NEXUS = "nexus";
     public static final String GERRIT = "gerrit";

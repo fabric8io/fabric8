@@ -15,30 +15,6 @@
  */
 package io.fabric8.utils.cxf;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.RSAPrivateCrtKeySpec;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.WebApplicationException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -53,6 +29,33 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.auth.DigestAuthSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.RSAPrivateCrtKeySpec;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import static io.fabric8.utils.cxf.JsonHelper.createObjectMapper;
 
@@ -217,7 +220,18 @@ public class WebClients {
             conduit.getAuthorization().setPassword(password);
         }
     }
-    
+
+    public static ClientRequestFilter createPrivateTokenFilter(final String privateToken) {
+        ClientRequestFilter interceptor = new ClientRequestFilter() {
+
+            @Override
+            public void filter(ClientRequestContext requestContext) throws IOException {
+                requestContext.getHeaders().add("PRIVATE-TOKEN", privateToken);
+            }
+        };
+        return interceptor;
+    }
+
     public static void configureAuthorization(WebClient webClient, String username, String authorizationType, String authorization) {
         HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
         if (Strings.isNotBlank(username)) {
