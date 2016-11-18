@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="5.2" data-basepath="." data-revision="Mon Nov 14 2016 16:08:18 GMT+0000 (UTC)">
+    <div class="book" data-level="5.2" data-basepath="." data-revision="Fri Nov 18 2016 08:24:27 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1822,34 +1822,41 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="continuous-integration-and-continous-delivery"><a name="continuous-integration-and-continous-delivery" class="plugin-anchor" href="#continuous-integration-and-continous-delivery"><span class="fa fa-link"></span></a>Continuous Integration and Continous Delivery</h2>
-<p><strong>Microservices Platform</strong> provides a <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Integration and Continous Delivery</a> (CI and CD) infrastructure built as a set of Kubernetes resources which are easy to <a href="fabric8OnOpenShift.html">Install</a>.</p>
+                        <h2 id="continuous-integration-and-continuous-delivery"><a name="continuous-integration-and-continuous-delivery" class="plugin-anchor" href="#continuous-integration-and-continuous-delivery"><span class="fa fa-link"></span></a>Continuous Integration and Continuous Delivery</h2>
+<p><strong>fabric8</strong> provides <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Integration and Continuous Delivery</a> (CI and CD) infrastructure built as a set of Kubernetes resources which are easy to <a href="getStarted/index.html">Install</a>.</p>
 <p><img src="http://upload.wikimedia.org/wikipedia/commons/7/74/Continuous_Delivery_process_diagram.png" alt="Continous Delivery Diagram"></p>
 <h3 id="overview"><a name="overview" class="plugin-anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h3>
-<p>Continuous Integration and Continous Delivery in <strong>Microservices Platform</strong> consists of the following open source components:</p>
+<p>Continuous Integration and Continuous Delivery in <strong>fabric8</strong> consists of the following open source components:</p>
 <ul>
 <li><a href="https://jenkins.io/" target="_blank">Jenkins</a> for Building, Continuous Integration and creating Continuous Delivery pipelines.</li>
 <li><a href="http://www.sonatype.org/nexus/" target="_blank">Nexus</a> as the artifact repository for caching public artifacts and hosting canary and real release artifacts</li>
 <li><a href="http://gogs.io/" target="_blank">Gogs</a> for on premise git repository hosting and <a href="https://github.com/" target="_blank">GitHub</a> for public hosting</li>
-<li><a href="http://www.sonarqube.org/" target="_blank">SonarQube</a> provides a platform to maintain code quality</li>
 </ul>
 <p>In addition it adds the following optional capabilities:</p>
 <ul>
-<li><a href="jenkinsWorkflowLibrary.html">Jenkins Pipeline Library</a> to help reuse a <a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">library</a> of reusable <a href="https://github.com/fabric8io/jenkins-workflow-library" target="_blank">Jenkins Pipeline scripts</a> across projects</li>
-<li><a href="fabric8YmlFile.html">fabric8.yml file</a> as a per project configuration file to tie together the various projects, repositories, chat rooms, workflow script and issue tracker</li>
+<li><a href="https://github.com/fabric8io/fabric8-pipeline-library" target="_blank">Jenkins Pipeline Library</a> to help reuse Jenkins Pipeline functions and steps across projects. </li>
+</ul>
+<p>To use the functions and steps in this library just add the following to the top of your <code>Jenkinsfile</code>:</p>
+<pre><code class="lang-groovy"><span class="hljs-annotation">@Library</span>(<span class="hljs-string">&apos;github.com/fabric8io/fabric8-pipeline-library@master&apos;</span>)
+</code></pre>
+<ul>
+<li><p><a href="https://github.com/fabric8io/fabric8-jenkinsfile-library" target="_blank">Jenkinsfile Library</a> is a library of reusable <code>Jenkinsfile</code> files you can copy into your project. This library is also used by the <a href="console.html">developer console</a> to provide the choice of pipelines when creating a project (via the underlying JBoss Forge wizard)</p>
+</li>
+<li><p><a href="fabric8YmlFile.html">fabric8.yml file</a> as a per project configuration file to tie together the various projects, repositories, chat rooms, workflow script and issue tracker</p>
+</li>
 <li><a href="chat.html">ChatOps</a> via <a href="https://hubot.github.com/" target="_blank">hubot</a> lets your team embrace devops, have chat notifications of changes to the system and use chat for <a href="https://github.com/fabric8io/fabric8-jenkins-workflow-steps#hubotapprove" target="_blank">approval of release promotion</a></li>
 <li><a href="chaosMonkey.html">Chaos Monkey</a> to test the resilience of your system by killing <a href="pods.html">pods</a>!</li>
+<li><a href="http://www.sonarqube.org/" target="_blank">SonarQube</a> provides a platform to maintain code quality</li>
 </ul>
-<p>You can choose to opt in or out of any of the micro services within Microservices Platform; for example use any git repository hosting or Nexus installation. The <a href="chat.html">Chat</a> integration works with <a href="https://hubot.github.com/" target="_blank">hubot</a> so that it can work with any back end chat service such as IRC, Slack, HipChat, Campfire etc.</p>
-<p>By default we try and integrate all the components closely out of the box so <strong>Microservices Platform</strong> is an easy, 1 click install. e.g. by default Jenkins builds will use the local Nexus server for all downloads of maven artifacts and for all canary and full releases.</p>
-<p>Since <strong>Microservices Platform</strong> is built on top of Kubernetes we get an easy way to scale (e.g. Jenkins build slaves) together with letting us reuse <a href="services.html">Kubernetes services</a> for service discovery to wire up the various components (e.g. for Jenkins to discover Nexus). If you opt out of any of the default implementations; you just need to create a <a href="http://docs.openshift.org/latest/dev_guide/integrating_external_services.html" target="_blank">Kubernetes Service pointing to your external installation of the service</a>.</p>
-<h3 id="automate-jenkins-jobs"><a name="automate-jenkins-jobs" class="plugin-anchor" href="#automate-jenkins-jobs"><span class="fa fa-link"></span></a>Automate Jenkins Jobs</h3>
-<p>Teams often have many git repositories with many artifacts and docker container builds. Manually maintaining individual <a href="https://jenkins.io/" target="_blank">Jenkins</a> build configurations for each git repository can be time consuming and error prone.</p>
-<p>So we recommend the use of the <a href="https://github.com/jenkinsci/job-dsl-plugin/wiki" target="_blank">Jenkins Job DSL</a> to generate the Jenkins build jobs for your projects.</p>
-<p>The Jenkins app comes with a template parameter <strong>SEED_GIT_URL</strong> which is the location of the git repository to clone in Jenkins for the Jenkins Job DSL used to generate the Jenkins builds. Any change in that git repository results in the <code>seed</code> job being rerun which then regenerates any of its Jenkins jobs. </p>
-<p>The <code>SEED_GIT_URL</code> parameter defaults to the value <code>https://github.com/fabric8io/default-jenkins-dsl.git</code> for the <a href="https://github.com/fabric8io/default-jenkins-dsl" target="_blank">default-jenkins-dsl</a> project which provides an example set of scripts to iterate over your projects and create the necessary jobs for them. We hope soon those scripts will automatically setup CI / CD jobs for projects in the hosted <a href="http://gogs.io/" target="_blank">Gogs</a> repositories (for now it will iterate over a github organisation and generates builds for matching projects).</p>
-<h3 id="getting-started"><a name="getting-started" class="plugin-anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting started</h3>
-<p>For more information on getting started with Continous Delivery check out the <a href="getStarted/index.html">Fabric8 Getting Started Guide</a>.</p>
+<p>You can choose to opt in or out of any of the micro services within fabric8; for example use any git repository hosting or Nexus installation. The <a href="chat.html">Chat</a> integration works with <a href="https://hubot.github.com/" target="_blank">hubot</a> so that it can work with any back end chat service such as IRC, Slack, HipChat, Campfire etc.</p>
+<p>By default we try and integrate all the components closely out of the box so <strong>fabric8</strong> is an easy, 1 click install. e.g. by default Jenkins builds will use the local Nexus server for all downloads of maven artifacts and for all releases.</p>
+<p>Since <strong>fabric8</strong> is built on top of Kubernetes we get an easy way to scale (e.g. Jenkins build slaves) together with letting us reuse <a href="services.html">Kubernetes services</a> for service discovery to wire up the various components (e.g. for Jenkins to discover Nexus). If you opt out of any of the default implementations; you just need to create a <a href="http://docs.openshift.org/latest/dev_guide/integrating_external_services.html" target="_blank">Kubernetes Service pointing to your external installation of the service</a>.</p>
+<h3 id="discovering-jenkins-jobs"><a name="discovering-jenkins-jobs" class="plugin-anchor" href="#discovering-jenkins-jobs"><span class="fa fa-link"></span></a>Discovering Jenkins Jobs</h3>
+<p>With the advent of Jenkins Pipelines (included by default from version Jenkins 2.0) its considered good practice to define your pipline in a file called <code>Jenkinsfile</code> and to copy that into the root folder of your git repository.</p>
+<h4 id="github-organisation-plugin"><a name="github-organisation-plugin" class="plugin-anchor" href="#github-organisation-plugin"><span class="fa fa-link"></span></a>GitHub Organisation plugin</h4>
+<p>The <a href="https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Organization+Folder+Plugin" target="_blank">github organisation plugin</a> can be configured to automatically iterate through all repositories for a given organisation and then for each repository it will find all branches with a <code>Jenkinsfile</code> and automatically setup a build job for the pipeline. Then all the build jobs appear in the <a href="console.html">developer console</a>. </p>
+<h4 id="multibranch-plugin"><a name="multibranch-plugin" class="plugin-anchor" href="#multibranch-plugin"><span class="fa fa-link"></span></a>Multibranch plugin</h4>
+<p>The <a href="https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Multibranch+Plugin" target="_blank">pipeline multibranch plugin</a> automatically creates a jenkins job for every branch in a repository that has a <code>Jenkinsfile</code>. Then all the build jobs appear in the <a href="console.html">developer console</a>.  </p>
 <h3 id="demo"><a name="demo" class="plugin-anchor" href="#demo"><span class="fa fa-link"></span></a>Demo</h3>
 <p>Here is a <a href="https://vimeo.com/170830750" target="_blank">video demonstrating Fabric8 Continuous Delivery Pipelines</a></p>
 <div class="row">

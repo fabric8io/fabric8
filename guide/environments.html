@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="10.8" data-basepath="." data-revision="Mon Nov 14 2016 16:08:18 GMT+0000 (UTC)">
+    <div class="book" data-level="10.8" data-basepath="." data-revision="Fri Nov 18 2016 08:24:27 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1823,7 +1823,7 @@
                     <section class="normal" id="section-">
                     
                         <h3 id="working-with-environments-in-kubernetes"><a name="working-with-environments-in-kubernetes" class="plugin-anchor" href="#working-with-environments-in-kubernetes"><span class="fa fa-link"></span></a>Working with Environments in Kubernetes</h3>
-<p>Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Delivery</a> pipeline setup to move containers and configurations from dev -&gt; test -&gt; UAT -&gt; staging -&gt; production. In an ideal world we&apos;d reuse as much as possible (container images and <a href="apps.html">kubernetes app metadata</a> between environments.</p>
+<p>Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Delivery</a> pipeline setup to move containers and configurations from <code>dev -&gt; test -&gt; UAT -&gt; staging -&gt; production</code>. In an ideal world we&apos;d reuse as much as possible (container images and kubernetes manifests between environments.</p>
 <p>In Kubernetes each environment is a <strong>namespace</strong>. Then <a href="pods.html">pods</a> inside a namespace only see <a href="services.html">services</a> defined in that namespace. So <em>prod</em> pods only see <em>prod</em> services, <em>test</em> pods only see <em>test</em> services etc.</p>
 <p>So <a href="services.html">service discovery</a> takes care of finding the right database, message brokers, remote caches and other services for the environment (namespace) a pod is provisioned in.</p>
 <h3 id="reusing-json-yaml"><a name="reusing-json-yaml" class="plugin-anchor" href="#reusing-json-yaml"><span class="fa fa-link"></span></a>Reusing JSON/YAML</h3>
