@@ -91,6 +91,10 @@ public class BuildConfigHelper {
     }
 
     public static CreateGitProjectResults importNewGitProject(KubernetesClient kubernetesClient, UserDetails userDetails, File basedir, String namespace, String projectName, String origin, String message, boolean apply) throws GitAPIException, JsonProcessingException {
+        return importNewGitProject(kubernetesClient, userDetails, basedir, namespace, projectName, origin, message, apply, true);
+    }
+
+    public static CreateGitProjectResults importNewGitProject(KubernetesClient kubernetesClient, UserDetails userDetails, File basedir, String namespace, String projectName, String origin, String message, boolean apply, boolean useLocalGitAddress) throws GitAPIException, JsonProcessingException {
         GitUtils.disableSslCertificateChecks();
 
         InitCommand initCommand = Git.init();
@@ -123,24 +127,29 @@ public class BuildConfigHelper {
         }
 
         String htmlUrl = URLUtils.pathJoin(address, user, projectName);
-        String remoteUrl = URLUtils.pathJoin(internalAddress,  user, projectName + ".git");
+        String localCloneUrl = URLUtils.pathJoin(internalAddress,  user, projectName + ".git");
         String cloneUrl = htmlUrl + ".git";
 
+        String defaultCloneUrl = cloneUrl;
+        // lets default to using the local git clone URL
+        if (useLocalGitAddress && Strings.isNotBlank(internalAddress)) {
+            defaultCloneUrl = localCloneUrl;
+        }
+
         // now lets import the code and publish
-        LOG.info("Using remoteUrl: " + remoteUrl + " and remote name " + origin);
-        GitUtils.configureBranch(git, branch, origin, remoteUrl);
+        GitUtils.configureBranch(git, branch, origin, defaultCloneUrl);
 
         GitUtils.addDummyFileToEmptyFolders(basedir);
-        LOG.info("About to git commit and push to: " + remoteUrl + " and remote name " + origin);
+        LOG.info("About to git commit and push to: " + defaultCloneUrl + " and remote name " + origin);
         GitUtils.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, true);
 
         BuildConfig buildConfig;
         if (apply) {
-            buildConfig = createAndApplyBuildConfig(kubernetesClient, namespace, projectName, cloneUrl);
+            buildConfig = createAndApplyBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl);
         } else {
-            buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, cloneUrl);
+            buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl);
         }
-        return new CreateGitProjectResults(buildConfig, fullName, htmlUrl, remoteUrl, cloneUrl);
+        return new CreateGitProjectResults(buildConfig, fullName, htmlUrl, localCloneUrl, cloneUrl);
     }
 
     public static class CreateGitProjectResults {

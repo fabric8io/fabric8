@@ -76,6 +76,12 @@ public class DevOpsMojo extends AbstractNamespacedMojo {
     protected String gitUrl;
 
     /**
+     *
+     */
+    @Parameter(property = "fabric8.localGitUrl")
+    protected String localGitUrl;
+
+    /**
      * The webhook secret used for generic and github webhooks
      */
     @Parameter(property = "fabric8.webhookSecret", defaultValue = "secret101")
@@ -195,6 +201,7 @@ public class DevOpsMojo extends AbstractNamespacedMojo {
         connector.setRepoName(repoName);
         connector.setFullName(fullName);
         connector.setGitUrl(gitUrl);
+        connector.setLocalGitUrl(localGitUrl);
         connector.setSecret(secret);
         connector.setBuildImageStream(buildImageStream);
         connector.setBuildImageTag(buildImageTag);

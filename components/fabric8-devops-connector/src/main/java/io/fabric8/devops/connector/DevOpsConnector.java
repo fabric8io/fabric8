@@ -21,6 +21,7 @@ import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
 import io.fabric8.devops.ProjectRepositories;
 import io.fabric8.gerrit.CreateRepositoryDTO;
+import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -99,8 +100,6 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,6 +129,7 @@ public class DevOpsConnector {
     private String fullName;
 
     private String gitUrl;
+    private String localGitUrl;
     private String secret = Builds.DEFAULT_SECRET;
     private String buildImageStream = Builds.DEFAULT_BUILD_IMAGE_STREAM;
     private String buildImageTag = Builds.DEFAULT_IMAGE_TAG;
@@ -330,6 +330,7 @@ public class DevOpsConnector {
             log.info("Loaded build config for " + namespace + "/" + projectName + " " + buildConfig);
         }
 
+
         // if we have loaded a build config then lets assume its correct!
         boolean foundExistingGitUrl = false;
         if (buildConfig != null) {
@@ -359,10 +360,25 @@ public class DevOpsConnector {
         if (buildConfig == null) {
             buildConfig = new BuildConfig();
         }
+
         ObjectMeta metadata = getOrCreateMetadata(buildConfig);
         metadata.setName(projectName);
-        metadata.setAnnotations(annotations);
         metadata.setLabels(labels);
+        putAnnotations(metadata, annotations);
+
+        Map<String, String> currentAnnotations = metadata.getAnnotations();
+        if (!currentAnnotations.containsKey(Annotations.Builds.GIT_CLONE_URL)) {
+            currentAnnotations.put(Annotations.Builds.GIT_CLONE_URL, gitUrl);
+        }
+        String localGitUrl = getLocalGitUrl();
+        if (!currentAnnotations.containsKey(Annotations.Builds.LOCAL_GIT_CLONE_URL) && Strings.isNotBlank(localGitUrl)) {
+            currentAnnotations.put(Annotations.Builds.LOCAL_GIT_CLONE_URL, localGitUrl);
+        }
+
+        // lets switch to the local git URL to avoid DNS issues in forge or jenkins
+        if (Strings.isNotBlank(localGitUrl)) {
+            gitUrl = localGitUrl;
+        }
         Builds.configureDefaultBuildConfig(buildConfig, name, gitUrl, foundExistingGitUrl, buildImageStream, buildImageTag, s2iCustomBuilderImage, secret, jenkinsUrl);
 
         try {
@@ -390,6 +406,23 @@ public class DevOpsConnector {
                 }
             }
         }
+    }
+
+    private void putAnnotations(ObjectMeta metadata, Map<String, String> annotations) {
+        Map<String, String> current = metadata.getAnnotations();
+        if (current == null) {
+            current = new HashMap<>();
+        }
+        for (Map.Entry<String, String> entry : annotations.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            current.put(key, value);
+        }
+        metadata.setAnnotations(current);
+    }
+
+    protected String getLocalGitUrl() {
+        return localGitUrl;
     }
 
     public void updateEnvironmentConfigMap(Map<String, String> environments, KubernetesClient kubernetes, Map<String, String> annotations, String consoleUrl) {
@@ -579,6 +612,10 @@ public class DevOpsConnector {
 
     public void setGitUrl(String gitUrl) {
         this.gitUrl = gitUrl;
+    }
+
+    public void setLocalGitUrl(String localGitUrl) {
+        this.localGitUrl = localGitUrl;
     }
 
     public String getJenkinsJob() {

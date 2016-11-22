@@ -56,6 +56,17 @@ public class Annotations {
          * The URL of the icon to use for the microservice
          */
         public static final String ICON_URL = "fabric8.io/iconUrl";
+
+        /**
+         * The public URL to use when performing a git clone
+         */
+        public static final String GIT_CLONE_URL = "fabric8.io/git-clone-url";
+
+        /**
+         * The local URL which only works inside the kubernetes cluster to clone git
+         * if the git repository is hosted internally inside the cluster
+         */
+        public static final String LOCAL_GIT_CLONE_URL = "fabric8.io/local-git-url";
     }
 
     public static class Management {
