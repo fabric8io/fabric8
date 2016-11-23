@@ -17,6 +17,7 @@
 package io.fabric8.project.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.ServiceNames;
@@ -36,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespace;
@@ -49,18 +52,21 @@ public class BuildConfigHelper {
     /**
      * Returns the created BuildConfig for the given project name and git repository
      */
-    public static BuildConfig createAndApplyBuildConfig(KubernetesClient kubernetesClient, String namespace, String projectName, String cloneUrl) {
-        BuildConfig buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, cloneUrl);
+    public static BuildConfig createAndApplyBuildConfig(KubernetesClient kubernetesClient, String namespace, String projectName, String cloneUrl, Map<String, String> annotations) {
+        BuildConfig buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, cloneUrl, annotations);
         Controller controller = new Controller(kubernetesClient);
         controller.setNamespace(namespace);
         controller.applyBuildConfig(buildConfig, "from project " + projectName);
         return buildConfig;
     }
 
-    public static BuildConfig createBuildConfig(KubernetesClient kubernetesClient, String namespace, String projectName, String cloneUrl) {
+    public static BuildConfig createBuildConfig(KubernetesClient kubernetesClient, String namespace, String projectName, String cloneUrl, Map<String, String> annotations) {
         LOG.info("Creating a BuildConfig for namespace: " + namespace + " project: " + projectName);
         String jenkinsUrl = getJenkinsServiceUrl(kubernetesClient, namespace);
-        return Builds.createDefaultBuildConfig(projectName, cloneUrl, jenkinsUrl);
+        BuildConfig buildConfig = Builds.createDefaultBuildConfig(projectName, cloneUrl, jenkinsUrl);
+        Map<String, String> currentAnnotations = KubernetesHelper.getOrCreateAnnotations(buildConfig);
+        currentAnnotations.putAll(annotations);
+        return buildConfig;
     }
 
     /**
@@ -143,12 +149,17 @@ public class BuildConfigHelper {
         LOG.info("About to git commit and push to: " + defaultCloneUrl + " and remote name " + origin);
         GitUtils.doAddCommitAndPushFiles(git, userDetails, personIdent, branch, origin, message, true);
 
+        Map<String, String> annotations = new HashMap<>();
+        annotations.put(Annotations.Builds.GIT_CLONE_URL, cloneUrl);
+        annotations.put(Annotations.Builds.LOCAL_GIT_CLONE_URL, localCloneUrl);
+
         BuildConfig buildConfig;
         if (apply) {
-            buildConfig = createAndApplyBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl);
+            buildConfig = createAndApplyBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl, annotations);
         } else {
-            buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl);
+            buildConfig = createBuildConfig(kubernetesClient, namespace, projectName, defaultCloneUrl, annotations);
         }
+
         return new CreateGitProjectResults(buildConfig, fullName, htmlUrl, localCloneUrl, cloneUrl);
     }
 
