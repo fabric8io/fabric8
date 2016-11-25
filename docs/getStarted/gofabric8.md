@@ -46,7 +46,7 @@ gofabric8 start --minishift
 
 This will then use [MiniShift](https://github.com/jimmidyson/minishift) instead of [MiniKube](https://github.com/kubernetes/minikube) to create the VM and setup a single node cluster.
 
-This will also install [oc](hhttps://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html) which is the CLI tool for interacting with OpenShift specific resources in OpenShift clusters - you can also use [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) for interacting with Kubernetes resources on OpenShift clusters.
+This will also install [oc](https://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html) which is the CLI tool for interacting with OpenShift specific resources in OpenShift clusters - you can also use [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) for interacting with Kubernetes resources on OpenShift clusters.
 
 ### Changing the VM Driver
 
