@@ -23,7 +23,7 @@ podTemplate(label: label, serviceAccount: 'jenkins', containers: [
                 [$class: 'HostPathVolume', mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock']
         ]) {
   node(label) {
-    git 'https://github.com/fabric8io/fabric8.git' 'helm-index-build'
+    git 'https://github.com/fabric8io/fabric8.git', 'helm-index-build'
 
     container(name: 'maven') {
       sh "./update-website.sh"
