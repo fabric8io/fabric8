@@ -51,6 +51,15 @@ def mergePullRequest(prId){
 
 def updateDownstreamDependencies(stagedProject) {
   pushPomPropertyChangePR {
+    parentPomLocation = 'parent/pom.xml'
+    propertyName = 'version.fabric8'
+    projects = [
+            'fabric8io/fabric8-maven-plugin'
+    ]
+    version = stagedProject[1]
+  }
+
+  pushPomPropertyChangePR {
     propertyName = 'fabric8.version'
     projects = [
             'fabric8io/fabric8-devops',
@@ -71,15 +80,6 @@ def updateDownstreamDependencies(stagedProject) {
     propertyName = 'fabric8.version'
     projects = [
             'fabric8io/funktion'
-    ]
-    version = stagedProject[1]
-  }
-
-  pushPomPropertyChangePR {
-    parentPomLocation = 'parent/pom.xml'
-    propertyName = 'version.fabric8'
-    projects = [
-            'fabric8io/fabric8-maven-plugin'
     ]
     version = stagedProject[1]
   }
