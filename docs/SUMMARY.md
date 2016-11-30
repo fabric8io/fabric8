@@ -2,6 +2,7 @@
 * [Getting Started](getStarted/index.md)
   * [Install on your laptop](getStarted/gofabric8.md)
   * [Install on the cloud](getStarted/cloud.md)
+  * [Install via Helm](getStarted/helm.md)
   * [Persistence](getStarted/persistence.md)
   * [Troubleshooting](getStarted/troubleshooting.md)
   * [Installing apps](getStarted/apps.md)

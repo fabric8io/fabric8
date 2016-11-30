@@ -4,6 +4,7 @@ Here's how to install fabric8:
 
 * [**install on your laptop**](gofabric8.html) or a local cluster
 * [**install on the public cloud**](cloud.html)
+* [**install via helm**](helm.html)
 * [**various other options**](others.html)
 
 
