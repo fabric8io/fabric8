@@ -3,6 +3,7 @@
 
 * to make it easier to keep track of which fabric8 platform release version you are using [gofabric8](https://github.com/fabric8io/gofabric8/releases) now clearly outputs the platform version when you [install fabric8](http://fabric8.io/guide/getStarted/gofabric8.html)
 * we now default to use the internal git URL for gogs repositories (http://gogs/...) when creating projects and building them. This works around all kinds of DNS issues folks have seen; particularly when using the public cloud since the pods inside kubernetes now no longer need to be able to see the public DNS names to navigate into gogs.
+* support for [installing, upgrading and removing fabric8 via helm](http://fabric8.io/guide/helm.html)
 * on kubernetes we now support specifying a branch on the build settings form
 
 ### 2.4.1
