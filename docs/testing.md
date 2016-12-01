@@ -182,7 +182,7 @@ Supported options:
 * `masterUrl`: The url to the kubernetes master.
 * `configFileName`: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
 * `configUrl`: The url to the kubernetes configuration to be tested.
-* `connectToServices`: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)
+* `connectToServices`: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service ClusterIP / port cannot be opened by the JUnit test case (and may require authentication)
 * `env.dependencies`: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
 * `waitForServiceConnection`: Wait until a network connection to all applied services is possible.
 * `serviceConnectionTimeout`: The connection timeout for each attempt to "connect to the service".

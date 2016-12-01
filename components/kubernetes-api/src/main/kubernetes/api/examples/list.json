@@ -29,7 +29,7 @@
         "component": "console",
         "provider": "fabric8"
       },
-      "portalIP": "172.30.129.192",
+      "clusterIP": "172.30.129.192",
       "sessionAffinity": "None"
     },
     "status": {}
