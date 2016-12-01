@@ -32,7 +32,7 @@
           "component": "AppLibrary",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.156",
+        "clusterIP": "172.30.17.156",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -59,7 +59,7 @@
           "component": "AppLibrary",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.107",
+        "clusterIP": "172.30.17.107",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -90,7 +90,7 @@
           "component": "CDelivery",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.139",
+        "clusterIP": "172.30.17.139",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -119,7 +119,7 @@
         "selector": {
           "docker-registry": "default"
         },
-        "portalIP": "172.30.17.53",
+        "clusterIP": "172.30.17.53",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -150,7 +150,7 @@
           "component": "elasticsearch",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.153",
+        "clusterIP": "172.30.17.153",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -177,7 +177,7 @@
           "component": "elasticsearch",
           "provider": "fabric8"
         },
-        "portalIP": "None",
+        "clusterIP": "None",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -203,7 +203,7 @@
         "selector": {
           "component": "fabric8Console"
         },
-        "portalIP": "172.30.17.254",
+        "clusterIP": "172.30.17.254",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -234,7 +234,7 @@
           "component": "fabric8Forge",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.203",
+        "clusterIP": "172.30.17.203",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -265,7 +265,7 @@
           "component": "gogs",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.177",
+        "clusterIP": "172.30.17.177",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -292,7 +292,7 @@
           "component": "gogs",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.15",
+        "clusterIP": "172.30.17.15",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -318,7 +318,7 @@
         "selector": {
           "name": "hubot"
         },
-        "portalIP": "172.30.17.236",
+        "clusterIP": "172.30.17.236",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -344,7 +344,7 @@
         "selector": {
           "name": "hubot"
         },
-        "portalIP": "172.30.17.170",
+        "clusterIP": "172.30.17.170",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -375,7 +375,7 @@
           "component": "influxdb",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.149",
+        "clusterIP": "172.30.17.149",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -406,7 +406,7 @@
           "component": "jbpmDesigner",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.186",
+        "clusterIP": "172.30.17.186",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -437,7 +437,7 @@
           "component": "kibana",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.121",
+        "clusterIP": "172.30.17.121",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -465,7 +465,7 @@
           }
         ],
         "selector": null,
-        "portalIP": "172.30.17.2",
+        "clusterIP": "172.30.17.2",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -493,7 +493,7 @@
           }
         ],
         "selector": null,
-        "portalIP": "172.30.17.1",
+        "clusterIP": "172.30.17.1",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -519,7 +519,7 @@
         "selector": {
           "name": "letschat"
         },
-        "portalIP": "172.30.17.195",
+        "clusterIP": "172.30.17.195",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -550,7 +550,7 @@
           "component": "orion",
           "provider": "fabric8"
         },
-        "portalIP": "172.30.17.163",
+        "clusterIP": "172.30.17.163",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -579,7 +579,7 @@
         "selector": {
           "router": "router"
         },
-        "portalIP": "172.30.17.80",
+        "clusterIP": "172.30.17.80",
         "sessionAffinity": "None"
       },
       "status": {}
@@ -605,7 +605,7 @@
         "selector": {
           "name": "taiga"
         },
-        "portalIP": "172.30.17.251",
+        "clusterIP": "172.30.17.251",
         "sessionAffinity": "None"
       },
       "status": {}

@@ -106,7 +106,7 @@ There are many options as listed in the following table:
 </tr>
 <tr>
 <td>fabric8.apply.ignoreServices</td>
-<td>Ignore any services in the JSON. This is useful if you wish to recreate all the ReplicationControllers and Pods but not recreate Services (which can cause <code>PortalIP</code> addresses to change for services which can break some Pods and could cause problems for load balancers. Defaults to <code>false</code>.</td>
+<td>Ignore any services in the JSON. This is useful if you wish to recreate all the ReplicationControllers and Pods but not recreate Services (which can cause <code>ClusterIP</code> addresses to change for services which can break some Pods and could cause problems for load balancers. Defaults to <code>false</code>.</td>
 </tr>
 <tr>
 <td>fabric8.apply.createRoutes</td>
