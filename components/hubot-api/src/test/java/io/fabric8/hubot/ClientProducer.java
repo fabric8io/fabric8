@@ -63,7 +63,6 @@ public class ClientProducer {
                                 .withNewTargetPort(8080)
                             .endPort()
                         .withClusterIP("172.30.17.2")
-                        .withPortalIP("172.30.17.2")
                         .endSpec()
                 .build()
         ).anyTimes();

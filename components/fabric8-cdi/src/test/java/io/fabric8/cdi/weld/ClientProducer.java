@@ -71,7 +71,7 @@ public class ClientProducer {
                                 .withPort(80)
                                 .withNewTargetPort(9090)
                             .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                 .build()
         ).anyTimes();
@@ -86,7 +86,7 @@ public class ClientProducer {
                         .withPort(80)
                         .withNewTargetPort(8080)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).anyTimes();
@@ -100,7 +100,7 @@ public class ClientProducer {
                         .withPort(443)
                         .withNewTargetPort(443)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).anyTimes();
@@ -128,7 +128,7 @@ public class ClientProducer {
                             .withPort(8083)
                             .withNewTargetPort(8083)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).anyTimes();
