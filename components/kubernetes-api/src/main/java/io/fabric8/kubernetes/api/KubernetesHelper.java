@@ -1311,7 +1311,7 @@ public final class KubernetesHelper {
 
     /**
      * Returns the URL to access the service; using the environment variables, routes
-     * or service portalIP address
+     * or service clusterIP address
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
@@ -1372,12 +1372,14 @@ public final class KubernetesHelper {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
-        if ("None".equals(srv.getSpec().getClusterIP())) {
+
+        String clusterIP = srv.getSpec().getClusterIP();
+        if ("None".equals(clusterIP)) {
             throw new IllegalStateException("Service: " + serviceName + " in namespace:" + serviceNamespace + "is head-less. Search for endpoints instead.");
         }
-        String portalIP = srv.getSpec().getPortalIP();
+
         Integer portNumber = port.getPort();
-        if (Strings.isNullOrBlank(portalIP)) {
+        if (Strings.isNullOrBlank(clusterIP)) {
             IngressList ingresses = client.extensions().ingresses().inNamespace(serviceNamespace).list();
             if (ingresses != null) {
                 List<Ingress> items = ingresses.getItems();
@@ -1446,7 +1448,7 @@ public final class KubernetesHelper {
                         for (LoadBalancerIngress loadBalancerIngress : loadBalancerIngresses) {
                             String ip = loadBalancerIngress.getIp();
                             if (Strings.isNotBlank(ip)) {
-                                portalIP = ip;
+                                clusterIP = ip;
                                 break;
                             }
                         }
@@ -1455,7 +1457,7 @@ public final class KubernetesHelper {
             }
         }
 
-        if (Strings.isNullOrBlank(portalIP)) {
+        if (Strings.isNullOrBlank(clusterIP)) {
             // on vanilla kubernetes we can use nodePort to access things externally
             boolean found = false;
             Integer nodePort = port.getNodePort();
@@ -1473,7 +1475,7 @@ public final class KubernetesHelper {
                                         for (NodeAddress address : addresses) {
                                             String ip = address.getAddress();
                                             if (Strings.isNotBlank(ip)) {
-                                                portalIP = ip;
+                                                clusterIP = ip;
                                                 portNumber = nodePort;
                                                 found = true;
                                                 break;
@@ -1486,8 +1488,8 @@ public final class KubernetesHelper {
                                 if (!found) {
                                     NodeSpec spec = item.getSpec();
                                     if (spec != null) {
-                                        portalIP = spec.getExternalID();
-                                        if (Strings.isNotBlank(portalIP)) {
+                                        clusterIP = spec.getExternalID();
+                                        if (Strings.isNotBlank(clusterIP)) {
                                             portNumber = nodePort;
                                             break;
                                         }
@@ -1502,7 +1504,7 @@ public final class KubernetesHelper {
                 }
             }
         }
-        return (serviceProto + "://" + portalIP + ":" + portNumber).toLowerCase();
+        return (serviceProto + "://" + clusterIP + ":" + portNumber).toLowerCase();
     }
 
     /**
@@ -1528,7 +1530,7 @@ public final class KubernetesHelper {
 
     /**
      * Returns the URL to access the service; using the environment variables, routes
-     * or service portalIP address
+     * or service clusterIP address
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
@@ -1562,7 +1564,13 @@ public final class KubernetesHelper {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+
+        String clusterIP = srv.getSpec().getClusterIP();
+        if ("None".equals(clusterIP)) {
+            throw new IllegalStateException("Service: " + serviceName + " in current namespace is head-less. Search for endpoints instead.");
+        }
+
+        return (serviceProto + "://" + clusterIP + ":" + port.getPort()).toLowerCase();
     }
 
     /**
