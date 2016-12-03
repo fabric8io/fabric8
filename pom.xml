@@ -75,8 +75,8 @@
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.12.1</activemq.version>
         <camel.version>2.18.1</camel.version>
-        <cxf.version>3.1.6</cxf.version>
-        <cxf.plugin.version>3.1.5</cxf.plugin.version>
+        <cxf.version>3.1.7</cxf.version>
+        <cxf.plugin.version>3.1.7</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
         <fuse.version>6.3.0.redhat-187</fuse.version>
