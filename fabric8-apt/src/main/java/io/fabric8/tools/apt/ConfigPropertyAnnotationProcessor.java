@@ -29,7 +29,7 @@ import java.util.Set;
  * Processes all Camel {@link ConfigProperty}s and generate json schema and html documentation for the endpoint/component.
  */
 @SupportedAnnotationTypes({"*"})
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ConfigPropertyAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public boolean process(Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
