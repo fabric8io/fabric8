@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.12" data-basepath="." data-revision="Sat Dec 03 2016 08:14:22 GMT+0000 (UTC)">
+    <div class="book" data-level="3.12" data-basepath="." data-revision="Mon Dec 05 2016 10:03:54 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1968,7 +1968,7 @@ This means that the arquillian.xml configuration file is completely optional.</p
 <li><code>masterUrl</code>: The url to the kubernetes master.</li>
 <li><code>configFileName</code>: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
 <li><code>configUrl</code>: The url to the kubernetes configuration to be tested.</li>
-<li><code>connectToServices</code>: Whether or not an attempt is made to connect to a service port; failing the test if it can&apos;t be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)</li>
+<li><code>connectToServices</code>: Whether or not an attempt is made to connect to a service port; failing the test if it can&apos;t be connected. This is disabled by default since its likely a service ClusterIP / port cannot be opened by the JUnit test case (and may require authentication)</li>
 <li><code>env.dependencies</code>: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.</li>
 <li><code>waitForServiceConnection</code>: Wait until a network connection to all applied services is possible.</li>
 <li><code>serviceConnectionTimeout</code>: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
