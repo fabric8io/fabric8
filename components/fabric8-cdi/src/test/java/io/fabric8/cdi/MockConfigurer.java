@@ -23,7 +23,7 @@ public class MockConfigurer {
                         .withPort(80)
                         .withNewTargetPort(9090)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).always();
@@ -38,7 +38,7 @@ public class MockConfigurer {
                         .withPort(80)
                         .withNewTargetPort(8080)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).always();
@@ -52,7 +52,7 @@ public class MockConfigurer {
                         .withPort(443)
                         .withNewTargetPort(443)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).always();
@@ -80,7 +80,7 @@ public class MockConfigurer {
                         .withPort(8083)
                         .withNewTargetPort(8083)
                         .endPort()
-                        .withPortalIP("172.30.17.2")
+                        .withClusterIP("172.30.17.2")
                         .endSpec()
                         .build()
         ).always();

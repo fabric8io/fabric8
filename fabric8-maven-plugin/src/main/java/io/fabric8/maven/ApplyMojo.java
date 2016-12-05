@@ -114,7 +114,7 @@ public class ApplyMojo extends AbstractFabric8Mojo {
     /**
      * Do we want to ignore services. This is particularly useful when in recreate mode
      * to let you easily recreate all the ReplicationControllers and Pods but leave any service
-     * definitions alone to avoid changing the portalIP addresses and breaking existing pods using
+     * definitions alone to avoid changing the clusterIP addresses and breaking existing pods using
      * the service.
      */
     @Parameter(property = "fabric8.apply.ignoreServices", defaultValue = "false")

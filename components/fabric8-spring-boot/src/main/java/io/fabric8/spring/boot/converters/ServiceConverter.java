@@ -124,7 +124,13 @@ public class ServiceConverter implements GenericConverter {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+
+        String clusterIP = srv.getSpec().getClusterIP();
+        if ("None".equals(clusterIP)) {
+            throw new IllegalStateException("Service " + serviceName + " is head-less. Search for endpoints instead.");
+        }
+
+        return (serviceProto + "://" + clusterIP + ":" + port.getPort()).toLowerCase();
     }
 
     public KubernetesClient getKubernetesClient() {

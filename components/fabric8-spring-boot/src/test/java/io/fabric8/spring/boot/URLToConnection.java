@@ -33,7 +33,7 @@ public class URLToConnection {
     @Factory
     @ServiceName
     public URLConnection toUrlConnection(@ServiceName Service srv) throws IOException {
-        URL url = new URL( "http://" + srv.getSpec().getPortalIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort());
+        URL url = new URL( "http://" + srv.getSpec().getClusterIP() + ":" + srv.getSpec().getPorts().iterator().next().getPort());
         return url.openConnection();
     }
 }

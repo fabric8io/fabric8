@@ -74,7 +74,7 @@ public class InternalServiceRegistar extends AbstractServiceRegistar {
                     .withName(serviceName)
                 .endMetadata()
                 .withNewSpec()
-                .withPortalIP(serviceHost)
+                .withClusterIP(serviceHost)
                 .withPorts(servicePorts)
                 .endSpec()
                 .build();

@@ -1452,7 +1452,7 @@ public class Controller {
 
     /**
      * If enabled then all services are ignored to avoid them being recreated. This is useful if you want to
-     * recreate ReplicationControllers and Pods but leave Services as they are to avoid the portalIP addresses
+     * recreate ReplicationControllers and Pods but leave Services as they are to avoid the clusterIP addresses
      * changing
      */
     public boolean isIgnoreServiceMode() {
