@@ -84,7 +84,7 @@
         <jansi.version>1.11</jansi.version>
         <jolokia.version>1.3.5</jolokia.version>
         <jgroups.version>3.6.11.Final</jgroups.version>
-        <jsonschema2pojo.version>0.4.27</jsonschema2pojo.version>
+        <jsonschema2pojo.version>0.4.28</jsonschema2pojo.version>
         <snakeyaml.version>1.17</snakeyaml.version>
 	<!-- swagger 1.5.7 doesnt work with fabric8-cxf-plugin -->
         <swagger.jaxrs.version>1.5.5</swagger.jaxrs.version>

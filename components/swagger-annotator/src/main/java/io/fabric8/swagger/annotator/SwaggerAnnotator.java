@@ -22,13 +22,19 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.Jackson2Annotator;
 
 /**
  */
 public class SwaggerAnnotator extends Jackson2Annotator {
 
-    @Override
+    public SwaggerAnnotator(GenerationConfig generationConfig) {
+		super(generationConfig);
+	}
+
+	@Override
     public void propertyOrder(JDefinedClass clazz, JsonNode propertiesNode) {
 
         clazz.annotate(ToString.class);
