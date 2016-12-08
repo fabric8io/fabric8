@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.1" data-basepath=".." data-revision="Wed Dec 07 2016 13:57:26 GMT+0000 (UTC)">
+    <div class="book" data-level="2.1" data-basepath=".." data-revision="Thu Dec 08 2016 11:20:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1872,6 +1872,7 @@
 </code></pre>
 <p>Note that we highly recommend using the default VM drivers (<code>hyperv</code> on Windows, <code>xhyve</code> on OS X and <code>kvm</code> on Linux) as they tend to work better and use less resources on your laptop than the alternatives.</p>
 <h3 id="changing-memory-or-cpus"><a name="changing-memory-or-cpus" class="plugin-anchor" href="#changing-memory-or-cpus"><span class="fa fa-link"></span></a>Changing memory or cpus</h3>
+<p><em>Note</em> due to current limitations of mini* you cannot change the default settings once a VM has beed created.  Instead you will first need to delete the VM using <code>minishift delete</code> or <code>minikube delete</code>.</p>
 <p>You can configure the number of cpus or memory for the VM via arguments. To see all the possible arguments type:</p>
 <pre><code class="lang-sh">gofabric8 <span class="hljs-built_in">help</span> start
 </code></pre>
