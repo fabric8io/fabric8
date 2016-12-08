@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2015 Red Hat, Inc.
+ *  Copyright 2005-2016 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -39,7 +39,10 @@ import io.fabric8.kubernetes.client.dsl.ClientOperation;
 import io.fabric8.kubernetes.client.dsl.ClientResource;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DoneableImageStream;
 import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamSpec;
+import io.fabric8.openshift.api.model.NamedTagReference;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.Template;
@@ -58,6 +61,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -226,7 +230,13 @@ public class Controller {
         } else if (dto instanceof BuildConfig) {
             applyBuildConfig((BuildConfig) dto, sourceName);
         } else if (dto instanceof DeploymentConfig) {
-            applyDeploymentConfig((DeploymentConfig) dto, sourceName);
+            DeploymentConfig resource = (DeploymentConfig) dto;
+            OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+            if (openShiftClient != null) {
+                applyResource(resource, sourceName, openShiftClient.deploymentConfigs());
+            } else {
+                LOG.warn("Not connected to OpenShift cluster so cannot create entity " + dto);
+            }
         } else if (dto instanceof ImageStream) {
             applyImageStream((ImageStream) dto, sourceName);
         } else if (dto instanceof OAuthClient) {
@@ -391,7 +401,7 @@ public class Controller {
 
     protected void doCreateServiceAccount(ServiceAccount serviceAccount, String namespace, String sourceName) {
         LOG.info("Creating a ServiceAccount from " + sourceName + " namespace " + namespace + " name " + getName
-                (serviceAccount));
+            (serviceAccount));
         try {
             Object answer;
             if (Strings.isNotBlank(namespace)) {
@@ -520,12 +530,12 @@ public class Controller {
 
     public Object processTemplate(Template entity, String sourceName) {
 
-            try {
-                return Templates.processTemplatesLocally(entity, failOnMissingParameterValue);
-            } catch (IOException e) {
-                onApplyError("Failed to process template " + sourceName + ". " + e + ". " + entity, e);
-                return null;
-            }
+        try {
+            return Templates.processTemplatesLocally(entity, failOnMissingParameterValue);
+        } catch (IOException e) {
+            onApplyError("Failed to process template " + sourceName + ". " + e + ". " + entity, e);
+            return null;
+        }
 
         /* Let's do it in the client side.
 
@@ -656,11 +666,77 @@ public class Controller {
 
     public void applyImageStream(ImageStream entity, String sourceName) {
         try {
-            kubernetesClient.adapt(OpenShiftClient.class).imageStreams().inNamespace(getNamespace()).create(entity);
+            final OpenShiftClient openShiftClient = kubernetesClient.adapt(OpenShiftClient.class);
+            if (openShiftClient != null) {
+                String kind = getKind(entity);
+                String name = getName(entity);
+                String namespace = getNamespace();
+                try {
+                    ClientResource<ImageStream, DoneableImageStream> resource = openShiftClient.imageStreams().inNamespace(namespace).withName(name);
+                    ImageStream old = resource.get();
+                    if (old == null) {
+                        LOG.info("Creating " + kind + " " + name + " from " + sourceName);
+                        resource.create(entity);
+                    } else {
+                        LOG.info("Updating " + kind + " " + name + " from " + sourceName);
+                        copyAllImageStreamTags(entity, old);
+                        resource.replace(old);
+                    }
+                    openShiftClient.imageStreams().inNamespace(namespace).withName(name).replace(old);
+                } catch (Exception e) {
+                    onApplyError("Failed to create " + kind + " from " + sourceName + ". " + e, e);
+                }
+            }
         } catch (Exception e) {
             onApplyError("Failed to create BuildConfig from " + sourceName + ". " + e, e);
         }
     }
+
+    protected void copyAllImageStreamTags(ImageStream from, ImageStream to) {
+        ImageStreamSpec toSpec = to.getSpec();
+        if (toSpec == null) {
+            toSpec = new ImageStreamSpec();
+            to.setSpec(toSpec);
+        }
+        List<NamedTagReference> toTags = toSpec.getTags();
+        if (toTags == null) {
+            toTags = new ArrayList<>();
+            toSpec.setTags(toTags);
+        }
+
+        ImageStreamSpec fromSpec = from.getSpec();
+        if (fromSpec != null) {
+            List<NamedTagReference> fromTags = fromSpec.getTags();
+            if (fromTags != null) {
+                // lets remove all the tags with these names first
+                for (NamedTagReference tag : fromTags) {
+                    removeTagByName(toTags, tag.getName());
+                }
+
+                // now lets add them all in case 2 tags have the same name
+                for (NamedTagReference tag : fromTags) {
+                    toTags.add(tag);
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes all the tags with the given name
+     * @return the number of tags removed
+     */
+    private int removeTagByName(List<NamedTagReference> tags, String tagName) {
+        List<NamedTagReference> removeTags = new ArrayList<>();
+        for (NamedTagReference tag : tags) {
+            if (Objects.equal(tagName, tag.getName())) {
+                removeTags.add(tag);
+            }
+        }
+        tags.removeAll(removeTags);
+        return removeTags.size();
+    }
+
+
 
     public void applyList(KubernetesList list, String sourceName) throws Exception {
         List<HasMetadata> entities = list.getItems();
