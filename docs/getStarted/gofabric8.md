@@ -64,6 +64,8 @@ Note that we highly recommend using the default VM drivers (`hyperv` on Windows,
 
 ### Changing memory or cpus
 
+_Note_ due to current limitations of mini* you cannot change the default settings once a VM has beed created.  Instead you will first need to delete the VM using `minishift delete` or `minikube delete`.
+
 You can configure the number of cpus or memory for the VM via arguments. To see all the possible arguments type:
 
 ```sh
