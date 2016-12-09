@@ -76,6 +76,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getKind;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
@@ -1091,6 +1092,24 @@ public class Controller {
         }
     }
 
+    public boolean checkNamespace(String namespaceName) {
+        if (Strings.isNullOrBlank(namespaceName)) {
+            return false;
+        }
+        OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
+        if (openshiftClient != null) {
+            // It is preferable to iterate on the list of projects as regular user with the 'basic-role' bound
+            // are not granted permission get operation on non-existing project resource that returns 403
+            // instead of 404. Only more privileged roles like 'view' or 'cluster-reader' are granted this permission.
+            return openshiftClient.projects().list().getItems().stream()
+                .map(project -> project.getMetadata().getName())
+                .anyMatch(Predicate.isEqual(namespaceName));
+        }
+        else {
+            return kubernetesClient.namespaces().withName(namespaceName).get() != null;
+        }
+    }
+
     public void applyNamespace(String namespaceName) {
         applyNamespace(namespaceName, null);
 
@@ -1168,8 +1187,9 @@ public class Controller {
             LOG.warn("Cannot check for Project " + namespace + " as not running against OpenShift!");
             return false;
         }
-        Project old = openshiftClient.projects().withName(name).get();
-        if (!isRunning(old)) {
+        boolean exists = checkNamespace(name);
+        // We may want to be more fine-grained on the phase of the project
+        if (!exists) {
             try {
                 Object answer = openshiftClient.projectrequests().create(entity);
                 logGeneratedEntity("Created ProjectRequest: ", namespace, entity, answer);
