@@ -17,11 +17,12 @@ package io.fabric8.arquillian.server.mock;
 
 import io.fabric8.arquillian.ResourceInjection;
 import io.fabric8.arquillian.kubernetes.Constants;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.openshift.api.model.ProjectBuilder;
+import io.fabric8.openshift.api.model.ProjectListBuilder;
 import io.fabric8.openshift.server.mock.OpenShiftMockServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,10 +40,12 @@ public class ServerMockTestSuite {
 
     @BeforeClass
     public static void setUpClass() throws IOException {
-        MOCK.expect().withPath("/api/v1/namespaces/arquillian").andReturn(200, new NamespaceBuilder()
+        MOCK.expect().withPath("/oapi/v1/projects").andReturn(200, new ProjectListBuilder()
+            .withItems(new ProjectBuilder()
                 .withNewMetadata()
                 .withName("arquillian")
-                .and().build()).always();
+                .and().build())
+            .build()).always();
 
         MOCK.expect().withPath("/api/v1/namespaces/arquillian/replicationcontrollers").andReturn(200, new ReplicationControllerListBuilder()
                 .addNewItem()
