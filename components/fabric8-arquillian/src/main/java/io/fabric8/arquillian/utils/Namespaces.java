@@ -47,13 +47,14 @@ public class Namespaces {
     }
 
     public static void checkNamespace(KubernetesClient client, Controller controller, final Session session, Configuration configuration) {
-        Namespace result = client.namespaces().withName(session.getNamespace()).get();
-        if (result != null) {
+        boolean exists = controller.checkNamespace(session.getNamespace());
+        if (exists) {
             return;
-        } else if (configuration.isNamespaceLazyCreateEnabled()) {
+        }
+        if (configuration.isNamespaceLazyCreateEnabled()) {
             createNamespace(client, controller, session);
         } else {
-            throw new IllegalStateException("Namespace " + session.getNamespace() + "doesn't exists");
+            throw new IllegalStateException("Namespace " + session.getNamespace() + " doesn't exists");
         }
     }
 

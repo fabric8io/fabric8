@@ -18,6 +18,9 @@ package io.fabric8.arquillian.client.mock;
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.mock.KubernetesMockClient;
+import io.fabric8.openshift.api.model.ProjectBuilder;
+import io.fabric8.openshift.api.model.ProjectList;
+import io.fabric8.openshift.api.model.ProjectListBuilder;
 import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.mock.OpenShiftMockClient;
@@ -44,6 +47,17 @@ public class OpenshiftMockClientCreator extends VanillaMockClientCreator {
     OpenShiftClient createOpenshiftClient() throws MalformedURLException {
         OpenShiftMockClient mock = new OpenShiftMockClient();
         mock.routes().inNamespace("arquillian").withName("test-service").get().andReturn(new RouteBuilder().build());
+
+        ProjectList projects = new ProjectListBuilder()
+            .withItems(new ProjectBuilder()
+                .withNewMetadata()
+                .withName("arquillian")
+                .endMetadata()
+                .build())
+            .build();
+
+        mock.projects().list().andReturn(projects).anyTimes();
+
         return mock.replay();
     }
 }

@@ -47,15 +47,12 @@ public class VanillaMockClientCreator {
     @ApplicationScoped
     private InstanceProducer<KubernetesClient> kubernetes;
 
-
-
     public void createClient(@Observes Configuration config) throws MalformedURLException {
         KubernetesMockClient mock = createMock();
         mock.isAdaptable(OpenShiftClient.class).andReturn(false).anyTimes();
+        mock.adapt(OpenShiftClient.class).andReturn(null).anyTimes();
         kubernetes.set(mock.replay());
     }
-
-
 
     OpenShiftClient createOpenshiftClient() throws MalformedURLException {
         OpenShiftMockClient mock = new OpenShiftMockClient();
