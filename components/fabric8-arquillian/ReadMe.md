@@ -7,9 +7,9 @@ This library provides an [Arquillian](http://arquillian.org/) plugin for [integr
 
 ### Example
 
-There are lots of examples in the [quickstarts](http://fabric8.io/guide/quickstarts.html).
+There are lots of examples in the [quickstarts](https://github.com/fabric8-quickstarts).
 
-Here is an [example Arquillian Fabric8 integration test](https://github.com/fabric8io/ipaas-quickstarts/blob/master/sandbox/apps/jadvisor/src/test/java/io/fabric8/apps/jadvisor/JadvisorKubernetesTest.java#L41)
+Here is an [example Arquillian Fabric8 integration test](https://github.com/fabric8-quickstarts/spring-boot-camel/blob/master/src/test/java/io/fabric8/tests/integration/KubernetesIntegrationKT.java)
 
 ### Assertion libraries
 
@@ -26,7 +26,7 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-arquillian</artifactId>
-                <version>2.2.101</version>
+                <version>2.2.184</version>
                 <scope>test</scope>
             </dependency>
 
