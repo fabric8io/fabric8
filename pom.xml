@@ -86,8 +86,7 @@
         <jgroups.version>3.6.11.Final</jgroups.version>
         <jsonschema2pojo.version>0.4.29</jsonschema2pojo.version>
         <snakeyaml.version>1.17</snakeyaml.version>
-	<!-- swagger 1.5.7 doesnt work with fabric8-cxf-plugin -->
-        <swagger.jaxrs.version>1.5.5</swagger.jaxrs.version>
+        <swagger.jaxrs.version>1.5.10</swagger.jaxrs.version>
         <vertx.version>3.3.3</vertx.version>
         <weld.version>2.3.5.Final</weld.version>
 
