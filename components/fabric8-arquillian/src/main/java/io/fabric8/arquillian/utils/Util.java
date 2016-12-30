@@ -21,11 +21,11 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.GitHelpers;
 import io.fabric8.utils.IOHelpers;
@@ -54,14 +54,38 @@ public class Util {
     }
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
-        for (ReplicationController replicationController : client.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
-            session.getLogger().info("Replication controller:" + KubernetesHelper.getName(replicationController));
+        if (client.isAdaptable(OpenShiftClient.class)){
+            OpenShiftClient oClient = client.adapt(OpenShiftClient.class);
+            List<DeploymentConfig> deploymentConfigs =  oClient.deploymentConfigs().inNamespace(session.getNamespace()).list().getItems();
+            if (deploymentConfigs == null) {
+                throw new MultiException("No deployment configs found in namespace" + session.getNamespace());
+            }
+            for (DeploymentConfig deploymentConfig : deploymentConfigs) {
+                session.getLogger().info("Deployment config:" + KubernetesHelper.getName(deploymentConfig));
+            }
+        } else {
+            List<Deployment> deployments =  client.extensions().deployments().inNamespace(session.getNamespace()).list().getItems();
+            if (deployments == null) {
+                throw new MultiException("No deployments found in namespace" + session.getNamespace());
+            }
+            for (Deployment deployment : deployments) {
+                session.getLogger().info("Deployment:" + KubernetesHelper.getName(deployment));
+            }
         }
 
-        for (Pod pod : client.pods().inNamespace(session.getNamespace()).list().getItems()) {
+        List<Pod> pods =  client.pods().inNamespace(session.getNamespace()).list().getItems();
+        if (pods == null) {
+            throw new MultiException("No pods found in namespace" + session.getNamespace());
+        }
+        for (Pod pod : pods) {
             session.getLogger().info("Pod:" + KubernetesHelper.getName(pod) + " Status:" + pod.getStatus());
         }
-        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
+
+        List<Service> svcs =  client.services().inNamespace(session.getNamespace()).list().getItems();
+        if (svcs == null) {
+            throw new MultiException("No services found in namespace" + session.getNamespace());
+        }
+        for (Service service : svcs) {
             session.getLogger().info("Service:" + KubernetesHelper.getName(service) + " IP:" + getPortalIP(service) + " Port:" + getPorts(service));
         }
 

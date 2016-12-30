@@ -20,6 +20,7 @@ import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentListBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.openshift.api.model.ProjectBuilder;
 import io.fabric8.openshift.api.model.ProjectListBuilder;
@@ -47,10 +48,18 @@ public class ServerMockTestSuite {
                 .and().build())
             .build()).always();
 
-        MOCK.expect().withPath("/api/v1/namespaces/arquillian/replicationcontrollers").andReturn(200, new ReplicationControllerListBuilder()
+        MOCK.expect().withPath("/apis/extensions/v1beta1/namespaces/arquillian/deployments").andReturn(200, new DeploymentListBuilder()
                 .addNewItem()
                 .withNewMetadata()
-                .withName("repl1")
+                .withName("dep1")
+                .endMetadata()
+                .endItem()
+                .build()).always();
+
+        MOCK.expect().withPath("/oapi/v1/namespaces/arquillian/deploymentconfigs").andReturn(200, new ReplicationControllerListBuilder()
+                .addNewItem()
+                .withNewMetadata()
+                .withName("dep1")
                 .endMetadata()
                 .endItem()
                 .build()).always();
