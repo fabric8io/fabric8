@@ -51,4 +51,3 @@ Check out the [Community](http://fabric8.io/community/index.html)
 ### License
 
 This project is [Apache Licensed](license.txt)
-
