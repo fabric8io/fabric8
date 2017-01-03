@@ -69,17 +69,9 @@ def updateDownstreamDependencies(stagedProject) {
             'fabric8io/kubeflix',
             'fabric8io/kubernetes-zipkin',
             'fabric8io/fabric8-maven-dependencies',
-            'fabric8io/django'
-
-    ]
-    version = stagedProject[1]
-  }
-
-  pushPomPropertyChangePR {
-    parentPomLocation = 'parent/pom.xml'
-    propertyName = 'fabric8.version'
-    projects = [
+            'fabric8io/django',
             'fabric8io/funktion'
+
     ]
     version = stagedProject[1]
   }
