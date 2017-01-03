@@ -13,10 +13,7 @@ mavenNode {
 
     stage 'Promote'
     pipeline.release(stagedProject)
-    if (prId != null){
-      pipeline.mergePullRequest(prId)
-    }
-
+    
     stage 'Update downstream dependencies'
     pipeline.updateDownstreamDependencies(stagedProject)
   }
