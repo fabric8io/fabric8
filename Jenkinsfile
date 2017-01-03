@@ -8,9 +8,6 @@ mavenNode {
 
     def pipeline = load 'release.groovy'
 
-    stage 'Updating dependencies'
-    def prId = pipeline.updateDependencies('http://central.maven.org/maven2/')
-
     stage 'Stage'
     def stagedProject = pipeline.stage()
 
@@ -18,7 +15,7 @@ mavenNode {
     pipeline.release(stagedProject)
     if (prId != null){
       pipeline.mergePullRequest(prId)
-    }    
+    }
 
     stage 'Update downstream dependencies'
     pipeline.updateDownstreamDependencies(stagedProject)
