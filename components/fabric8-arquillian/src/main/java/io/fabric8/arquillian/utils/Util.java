@@ -224,7 +224,7 @@ public class Util {
 
             // lets see if there are any matching podList left
             List<Pod> filteredPods = client.pods().inNamespace(sessionNamespace).list().getItems();
-            if (filteredPods.isEmpty()) {
+            if (filteredPods == null || filteredPods.isEmpty()) {
                 return;
             } else {
                 try {
