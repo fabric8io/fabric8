@@ -130,9 +130,9 @@
         <jetty.version>8.1.17.v20150415</jetty.version>
 
 <!--
-        We've released a new version of gitective (0.9.17) with the latest jgit support (4.5.0.201609210915-r)
+        We've released a new version of gitective (0.9.18) with the latest jgit support (4.6.0.201612231935-r)
 -->
-        <jgit.version>4.5.0.201609210915-r</jgit.version>
+        <jgit.version>4.6.0.201612231935-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
         <!-- TODO 1.4.27 breaks fmp -->
