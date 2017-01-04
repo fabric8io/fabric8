@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static io.fabric8.arquillian.kubernetes.enricher.EnricherUtils.getLabels;
 import static io.fabric8.arquillian.kubernetes.enricher.EnricherUtils.getPodName;
+import static io.fabric8.utils.Lists.notNullList;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.PodList}.
@@ -60,7 +61,7 @@ public class PodResourceProvider implements ResourceProvider {
         // Gets the first pod found that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
         PodList list = client.pods().inNamespace(session.getNamespace()).withLabels(labels).list();
-        List<Pod> pods = list.getItems();
+        List<Pod> pods = notNullList(list.getItems());
         if( !pods.isEmpty() ) {
             return pods.get(0);
         }

@@ -35,6 +35,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import static io.fabric8.utils.Lists.notNullList;
+
 public class SessionPodsAreReady implements Callable<Boolean> {
     private final Session session;
     private final KubernetesClient kubernetesClient;
@@ -48,7 +50,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        List<Pod> pods = kubernetesClient.pods().inNamespace(session.getNamespace()).list().getItems();
+        List<Pod> pods = notNullList(kubernetesClient.pods().inNamespace(session.getNamespace()).list().getItems());
 
         if (pods.isEmpty()) {
             result = false;

@@ -42,6 +42,7 @@ import java.util.List;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPorts;
+import static io.fabric8.utils.Lists.notNullList;
 
 public class Util {
 
@@ -223,8 +224,8 @@ public class Util {
             }
 
             // lets see if there are any matching podList left
-            List<Pod> filteredPods = client.pods().inNamespace(sessionNamespace).list().getItems();
-            if (filteredPods == null || filteredPods.isEmpty()) {
+            List<Pod> filteredPods = notNullList(client.pods().inNamespace(sessionNamespace).list().getItems());
+            if (filteredPods.isEmpty()) {
                 return;
             } else {
                 try {
