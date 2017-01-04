@@ -70,7 +70,7 @@ def updateDownstreamDependencies(stagedProject) {
             'fabric8io/kubernetes-zipkin',
             'fabric8io/fabric8-maven-dependencies',
             'fabric8io/django',
-            'fabric8io/funktion'
+            'funktionio/funktion-connectors'
 
     ]
     version = stagedProject[1]
