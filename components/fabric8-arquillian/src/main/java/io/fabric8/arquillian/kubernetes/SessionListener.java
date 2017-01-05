@@ -190,6 +190,12 @@ public class SessionListener {
         dto = expandTemplate(controller, configuration, log, namespace, sourceName, dto);
         if (dto instanceof KubernetesList) {
             kubeConfigs.add((KubernetesList) dto);
+        } else if (dto instanceof HasMetadata) {
+            // Wrap it in a KubernetesList
+            KubernetesList wrappedItem = new KubernetesListBuilder().withItems((HasMetadata) dto).build();
+            kubeConfigs.add(wrappedItem);
+        } else {
+            throw new IllegalArgumentException("Unsupported object type in " + sourceName + ". Class: " + (dto != null ? dto.getClass().getName() : "null object"));
         }
     }
 
@@ -203,7 +209,7 @@ public class SessionListener {
         } else {
             String text = readAsString(createURL(dependency));
             Object resources;
-            if (text.trim().startsWith("---")) {
+            if (text.trim().startsWith("---") || dependency.endsWith(".yml") || dependency.endsWith(".yaml")) {
                 resources = loadYaml(text);
             }  else {
                 resources = loadJson(text);
@@ -224,13 +230,19 @@ public class SessionListener {
     protected void loadDependency(Logger log, List<KubernetesList> kubeConfigs, File file, Controller controller, Configuration configuration, Logger logger, String namespace) throws IOException {
         if (file.isFile()) {
             log.info("Loading file " + file);
-            addConfig(kubeConfigs, loadJson(file), controller, configuration, log, namespace, file.getPath());
+            Object content;
+            if (file.getName().endsWith(".yaml") || file.getName().endsWith(".yml")) {
+                content = loadYaml(file);
+            } else {
+                content = loadJson(file);
+            }
+            addConfig(kubeConfigs, content, controller, configuration, log, namespace, file.getPath());
         } else {
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
                     String name = child.getName().toLowerCase();
-                    if (name.endsWith(".json") || name.endsWith(".yaml")) {
+                    if (name.endsWith(".json") || name.endsWith(".yaml") || name.endsWith(".yml")) {
                         loadDependency(log, kubeConfigs, child, controller, configuration, log, namespace);
                     }
                 }
