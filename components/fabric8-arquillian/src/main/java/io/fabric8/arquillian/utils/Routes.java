@@ -43,8 +43,12 @@ public class Routes {
             RouteTargetReference objectRef = new RouteTargetReferenceBuilder().withName(id).build();
             //objectRef.setNamespace(namespace);
             routeSpec.setTo(objectRef);
-            String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
-            routeSpec.setHost(host + "." + Strings.stripPrefix(routeDomainPostfix, "."));
+            if (Strings.isNotBlank(routeDomainPostfix)) {
+                // Let Openshift determine the route host when the domain is not set
+                String host = Strings.stripSuffix(Strings.stripSuffix(id, "-service"), ".");
+                String namespaceSuffix = "-" + namespace;
+                routeSpec.setHost(host + namespaceSuffix + "." + Strings.stripPrefix(routeDomainPostfix, "."));
+            }
             route.setSpec(routeSpec);
             String json = null;
             try {
