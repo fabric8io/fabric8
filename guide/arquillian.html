@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>fabric8:delete-pods | Fabric8 Documentation</title>
+        <title>Arquillian | Fabric8 Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.1.0">
@@ -29,10 +29,10 @@
         
     
     
-    <link rel="next" href="./mavenFabric8DevOps.html" />
+    <link rel="next" href="./springboot.html" />
     
     
-    <link rel="prev" href="./mavenFabric8CreateRoutes.html" />
+    <link rel="prev" href="./testing.html" />
     
 
         
@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.7" data-basepath="." data-revision="Thu Jan 05 2017 10:06:57 GMT+0000 (UTC)">
+    <div class="book" data-level="3.13" data-basepath="." data-revision="Thu Jan 05 2017 10:06:57 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -407,7 +407,7 @@
             
         </li>
     
-        <li class="chapter " data-level="3.13" data-path="arquillian.html">
+        <li class="chapter active" data-level="3.13" data-path="arquillian.html">
             
                 
                     <a href="./arquillian.html">
@@ -1040,7 +1040,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="8.2.1.7" data-path="mavenFabric8DeletePods.html">
+        <li class="chapter " data-level="8.2.1.7" data-path="mavenFabric8DeletePods.html">
             
                 
                     <a href="./mavenFabric8DeletePods.html">
@@ -1852,21 +1852,271 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-delete-pods"><a name="fabric8-delete-pods" class="plugin-anchor" href="#fabric8-delete-pods"><span class="fa fa-link"></span></a>fabric8:delete-pods</h2>
-<p>The maven <code>fabric8:delete-pods</code> goal queries all the <a href="pods.html">Pods</a> in the current Kubernetes namespace to find all the pods using the current maven projects docker image and deletes them.</p>
-<p>This will then cause the <a href="replicationControllers.html">replication controllers</a> in Kubernetes to recreate the pods again.</p>
-<p>This is a useful way in development to quickly upgrade to a new docker image.</p>
-<h2 id="quickly-try-docker-images-locally"><a name="quickly-try-docker-images-locally" class="plugin-anchor" href="#quickly-try-docker-images-locally"><span class="fa fa-link"></span></a>Quickly try docker images locally</h2>
-<p>When running with <code>DOCKER_HOST</code> and <code>KUBERNETES_MASTER</code> pointing at your local <a href="getStarted/vagrant.html">fabric8 vagrant image</a> if you are inside a project you can run:</p>
-<pre><code>mvn clean install docker:build fabric8:delete-pods
-</code></pre><p>Then the following happens:</p>
+                        <h2 id="fabric8-arquillian-extension"><a name="fabric8-arquillian-extension" class="plugin-anchor" href="#fabric8-arquillian-extension"><span class="fa fa-link"></span></a>Fabric8 Arquillian Extension</h2>
+<p>Fabric8 provides an arquillian extension, which helps you write and run integration tests for your Kubernetes/Openshift application.</p>
+<h3 id="overview"><a name="overview" class="plugin-anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h3>
+<p>This extension, wll create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests.</p>
+<p>This extension, will not mutate neither your containers <em>(by deploying, reconfiguring etc)</em> nor your Kubernetes resources, and takes a black box approach to testing.</p>
+<h3 id="features"><a name="features" class="plugin-anchor" href="#features"><span class="fa fa-link"></span></a>Features</h3>
 <ul>
-<li>the maven project will be rebuilt</li>
-<li>the docker image is built inside the docker daemon in the <a href="getStarted/vagrant.html">fabric8 vagrant image</a> </li>
-<li>all current pods using this image are then deleted, causing the <a href="replicationControllers.html">replication controllers</a> to recreate the pods again using the newly created image.</li>
+<li>Hybrid <em>(in or out of Kubernetes/Openshift)</em></li>
+<li>Advanced namespace management</li>
+<li>Dependency management <em>(for maven based projects)</em></li>
+<li>Management of Secrets via <a href="secretAnnotations.html">Secret Annotations</a></li>
+<li>Enrichers for:<ul>
+<li>Kubernetes/Openshift client</li>
+<li>Pods</li>
+<li>Replication Controllers</li>
+<li>Services</li>
 </ul>
-<p>i.e. you should now have all the pods running in your vagrant image updated to the new docker image you just built.</p>
+</li>
+<li>Integration with Fabric8 Modules:<ul>
+<li><a href="mavenPlugin.html">Fabric8 Maven Plugin</a></li>
+<li><a href="fabric8DevOps.html">Microservices Platform</a></li>
+<li><a href="cdi.html">Fabric8 CDI</a></li>
+</ul>
+</li>
+<li>&quot;Bring your own client&quot; support</li>
+</ul>
+<h3 id="configuring-the-extension"><a name="configuring-the-extension" class="plugin-anchor" href="#configuring-the-extension"><span class="fa fa-link"></span></a>Configuring the extension</h3>
+<p>The plugin can be configured using the traditional arquillian.xml, via system properties or evnironment variables (in that particular order).
+Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn&apos;t contain an entry, the system properties will be used.
+If no result has been found so far the environment variables will be used.</p>
+<p><strong>Note:</strong> When checking for environment variables, property names will get capitalized, and symbols like &quot;.&quot; will be converted to &quot;_&quot;.
+For example <strong>fabric8.foo.bar.baz</strong> will be converted to <strong>FABRIC8_FOO_BAR_BAZ</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Env</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kubernetes.master</td>
+<td>URL</td>
+<td>Any</td>
+<td>The URL to the Kubernetes master</td>
+</tr>
+<tr>
+<td>kubernetes.domain</td>
+<td>String</td>
+<td>OSE</td>
+<td>Domain to use for creating routes for services</td>
+</tr>
+<tr>
+<td>fabric8.environment</td>
+<td>String</td>
+<td>Any</td>
+<td>The testing environment to use (used for selecting namespace)</td>
+</tr>
+<tr>
+<td>namespace.use.existing</td>
+<td>String</td>
+<td>Any</td>
+<td>Don&apos;t generate a namespace use the specified one instead</td>
+</tr>
+<tr>
+<td>namespace.lazy.enabled</td>
+<td>Bool (true)</td>
+<td>Any</td>
+<td>Should the specified namespace be created if not exists, or throw exception?</td>
+</tr>
+<tr>
+<td>namespace.cleanup.enabled</td>
+<td>Bool (true)</td>
+<td>Any</td>
+<td>Flag to destroy the namespace after the end of the test suite</td>
+</tr>
+<tr>
+<td>namespace.cleanup.confirm.enabled</td>
+<td>Bool (false)</td>
+<td>Any</td>
+<td>Flag to ask for confirmation to delete the namespace</td>
+</tr>
+<tr>
+<td>namespace.cleanup.timeout</td>
+<td>Long</td>
+<td>Any</td>
+<td>Time to wait when cleaning up the namespace</td>
+</tr>
+<tr>
+<td>env.init.enabled</td>
+<td>Bool (true)</td>
+<td>Any</td>
+<td>Flag to initialize the environment (apply kubernetes resources)</td>
+</tr>
+<tr>
+<td>env.config.url</td>
+<td>URL</td>
+<td>Any</td>
+<td>URL to the Kubernetes JSON (defaults to classpath resource kubernetes.json)</td>
+</tr>
+<tr>
+<td>env.config.resource.name</td>
+<td>String</td>
+<td>Any</td>
+<td>Option to select a different classpath resource (ohter than kubernetes.json)</td>
+</tr>
+<tr>
+<td>env.dependencies</td>
+<td>List</td>
+<td>Any</td>
+<td>Whitespace separated list of URLs to more dependency kubernetes.json</td>
+</tr>
+<tr>
+<td>wait.timeout</td>
+<td>Long (5mins)</td>
+<td>Any</td>
+<td>The total ammount of time to wait until the env is ready</td>
+</tr>
+<tr>
+<td>wait.poll.interval</td>
+<td>Long (5secs)</td>
+<td>Any</td>
+<td>The poll interval to use for checking if the environment is ready</td>
+</tr>
+<tr>
+<td>wait.for.service.list</td>
+<td>Long (5secs)</td>
+<td>Any</td>
+<td>Explicitly specify a list of service to wait upon</td>
+</tr>
+<tr>
+<td>wait.for.service.connection.enabled</td>
+<td>Bool (false)</td>
+<td>Any</td>
+<td>Flag to specify if we should wait for an actual connection to the service</td>
+</tr>
+<tr>
+<td>wait.for.service.connection.timeout</td>
+<td>Long (10secs)</td>
+<td>Any</td>
+<td>The amount of time we should wait for each socket connection.</td>
+</tr>
+<tr>
+<td>ansi.logger.enabled</td>
+<td>Bool (true)</td>
+<td>Any</td>
+<td>Flag to enable colorful output</td>
+</tr>
+<tr>
+<td>kubernetes.client.creator.class.name</td>
+<td>Bool (true)</td>
+<td>Any</td>
+<td>Fully qualified class name of a kubernetes client creator class (byon)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="namespaces"><a name="namespaces" class="plugin-anchor" href="#namespaces"><span class="fa fa-link"></span></a>Namespaces</h3>
+<p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
+For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> to false and keep the namespace around.</p>
+<p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>fabric8-arquillian</strong> do that for you.
+In this case you can use the <strong>namespace.use.existing</strong> option to select an existing namespace. This option goes hand in hand with <strong>env.init.enabled</strong> which can be
+used to prevent the extension from modifying the environment.</p>
+<p>Last but not least a namespace can be indirectly specified by selecting a <strong>fabric8.environment</strong>, e.g. <em>Testing</em>.
+In this case the extension will look for a <a href="fabric8YmlFile.html">fabric8.yml</a> and will try to find the namespace to use for the specified environment.</p>
+<h3 id="creating-the-environment"><a name="creating-the-environment" class="plugin-anchor" href="#creating-the-environment"><span class="fa fa-link"></span></a>Creating the environment</h3>
+<p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.
+Out of the box, the extension will use the classpath and try to find a resource named <strong>kubernetes.json</strong>. The name of the resource can be changed using the <strong>env.config.resource.name</strong>.
+Of course it is also possible to specify an external resource by URL using the <strong>env.config.url</strong>.</p>
+<p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
+To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
+<p><strong>Note:</strong> Out of the box mvn urls are supported, so you can use values like: <strong>mvn:my.groupId/artifactId/1.0.0/json/kubernetes</strong></p>
+<p><strong>Also:</strong> If your project is using maven and dependencies like the above are expressed in the pom, the will be used <em>automatically</em>.</p>
+<h3 id="readiness-and-waiting"><a name="readiness-and-waiting" class="plugin-anchor" href="#readiness-and-waiting"><span class="fa fa-link"></span></a>Readiness and waiting</h3>
+<p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
+Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything is ready.</p>
+<p>This extension will wait up to <strong>wait.timeout</strong> until everything is up and running. Everything? It will wait for all Pods and Service <em>(that were created during the test suite initialization)</em> to become ready.
+It will poll them every <strong>wait.poll.interval</strong> milliseconds. For services there is also the option to perform a simple &quot;connection test&quot;  by setting the flag <strong>wait.for.service.connection.enabled</strong> to true.
+In this case it will not just wait for the service to ready, but also to be usable/connectable.</p>
+<h3 id="immutable-infrastructure-and-integration-testing"><a name="immutable-infrastructure-and-integration-testing" class="plugin-anchor" href="#immutable-infrastructure-and-integration-testing"><span class="fa fa-link"></span></a>Immutable infrastructure and integration testing</h3>
+<p>As mentioned in the overview, this extension will not try to deploy your tests, inside an application container.
+It doesn&apos;t need nor want to know what runs inside your docker containers, nor will try to mess with it.
+It doesn&apos;t even need to run inside Kubernetes (it can just run in your laptop and talk to the kubernetes master).</p>
+<p>So what exactly is your test case going to test?</p>
+<p>The test cases are meant to consume and test the provided services and assert that the environment is in the expected state.</p>
+<p>The test case may obtain everything it needs, by accessing the Kubernetes resources that are provided by the plugin as @ArquillianResources (see resource providers below).</p>
+<h3 id="resource-providers"><a name="resource-providers" class="plugin-anchor" href="#resource-providers"><span class="fa fa-link"></span></a>Resource Providers</h3>
+<p>The resource providers available, can be used to inject to your test cases the following resources:</p>
+<ul>
+<li>A kubernetes client as an instance of KubernetesClient</li>
+<li>Session object that contains information (e.g. the namespace) or the uuid of the test session.</li>
+<li>Pods <em>(by id or as a list of all pods created during the session)</em></li>
+<li>Replication Controllers <em>(by id or as a list of all replication controllers created during the session)</em></li>
+<li>Services <em>(by id or as a list of all services created during the session)</em></li>
+<li><p>Jolokia Clients</p>
+<p>Here&apos;s a small example:</p>
+<p>  @RunWith(Arquillian.class)
+  public class ExampleTest {</p>
+<p>   @ArquillianResource
+   KubernetesClient client;</p>
+<p>   @ArquillianResource
+   Session session;</p>
+<pre><code>@Test
+public void testAtLeastOnePod() throws Exception {
+ assertThat(client).pods().runningStatus().filterNamespace(session.getNamespace()).hasSize(1);
+}
+</code></pre><p>  }</p>
+</li>
+</ul>
+<p>The test code above, demonstrates how you can inject an use inside your test the <em>KubernetesClient</em> and the <em>Session</em> object. It also demonstrates the use of <strong>kubernetes-assertions</strong> which is a nice little library based on <a href="http://assertj.org" target="_blank">assert4j</a> for performing assertions on top of the Kubernetes model.</p>
+<p>The next example is intended to how you can inject a resource by id.</p>
+<pre><code>@RunWith(Arquillian.class)
+public class ResourceByIdTest {
 
+ @ArquillianResouce
+ @ServiceName(&quot;my-serivce&quot;)
+ Service service;
+
+ @ArquillianResouce
+ @PodName(&quot;my-pod&quot;)
+ Pod pod;
+
+ @ArquillianResouce
+ @ReplicationControllerName(&quot;my-contoller&quot;)
+ ReplicationController controller;
+
+  @Test
+  public void testStuff() throws Exception {
+   //Do stuff...
+  }
+}
+</code></pre><p>The next example is intended to how you can inject a resource list.</p>
+<pre><code>@RunWith(Arquillian.class)
+public class ResourceListExample {
+
+ @ArquillianResouce
+ ServiceList services;
+
+ @ArquillianResouce
+ PodList pods;
+
+ @ArquillianResouce
+ ReplicationControllers controllers;
+
+  @Test
+  public void testStuff() throws Exception {
+   //Do stuff...
+  }
+}
+</code></pre><p>Using the service object one can create a URL to the service, connect to it and perform any kind of operations.
+For java based application in particular one can directly obtain a jolokia client for inspecting directly the target jvm. For example:</p>
+<pre><code>@RunWith(Arquillian.class)
+public class JolokiaClientTest {
+
+ @ArquillianResouce
+ @ServiceName(&quot;target-serivce&quot;)
+ J4pClient jolokia;
+
+  @Test
+  public void testWithJolokia() throws Exception {
+    assertThat(jolokia).doubleAttribute(&quot;java.lang:type=OperatingSystem&quot;, &quot;SystemCpuLoad&quot;).isGreaterThanOrEqualTo(0.0);
+  }
+}
+</code></pre>
                     
                     </section>
                 
@@ -1876,10 +2126,10 @@
         </div>
 
         
-        <a href="./mavenFabric8CreateRoutes.html" class="navigation navigation-prev " aria-label="Previous page: fabric8:create-routes"><i class="fa fa-angle-left"></i></a>
+        <a href="./testing.html" class="navigation navigation-prev " aria-label="Previous page: Testing"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./mavenFabric8DevOps.html" class="navigation navigation-next " aria-label="Next page: fabric8:devops"><i class="fa fa-angle-right"></i></a>
+        <a href="./springboot.html" class="navigation navigation-next " aria-label="Next page: Spring Boot"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
