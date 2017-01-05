@@ -55,6 +55,10 @@ public class Util {
     }
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
+        if (client == null) {
+            session.getLogger().warn("No KubernetesClient for session: " + session.getId());
+            return;
+        }
         if (client.isAdaptable(OpenShiftClient.class)){
             OpenShiftClient oClient = client.adapt(OpenShiftClient.class);
             List<DeploymentConfig> deploymentConfigs =  oClient.deploymentConfigs().inNamespace(session.getNamespace()).list().getItems();

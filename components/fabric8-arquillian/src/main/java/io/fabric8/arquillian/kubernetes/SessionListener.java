@@ -79,6 +79,7 @@ public class SessionListener {
     private DependencyResolver resolver = new DependencyResolver();
 
     public void start(final @Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
+        Objects.requireNonNull(client, "KubernetesClient most not be null!");
         Session session = event.getSession();
         final Logger log = session.getLogger();
         String namespace = session.getNamespace();
