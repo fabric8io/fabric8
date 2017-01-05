@@ -304,7 +304,10 @@ public class SessionListener {
 
         boolean isOpenshift = client.isAdaptable(OpenShiftClient.class);
         String namespace = session.getNamespace();
-        String routePrefix = namespace + "." + configuration.getKubernetesDomain();
+        String routeDomain = null;
+        if (Strings.isNotBlank(configuration.getKubernetesDomain())) {
+            routeDomain = configuration.getKubernetesDomain();
+        }
 
         preprocessEnvironment(client, controller, configuration, session);
 
@@ -328,7 +331,7 @@ public class SessionListener {
                 conditions.put(2, servicesReady);
 
                 if (isOpenshift) {
-                    Route route = Routes.createRouteForService(routePrefix, namespace, service, log);
+                    Route route = Routes.createRouteForService(routeDomain, namespace, service, log);
                     if (route != null) {
                         log.status("Applying route for:" + serviceName);
                         controller.applyRoute(route, "route for " + serviceName);
@@ -365,7 +368,11 @@ public class SessionListener {
                     boolean updated = false;
                     // lets add a new redirect entry
                     List<String> redirectURIs = current.getRedirectURIs();
-                    String redirectUri = "http://" + name + "." + routePrefix;
+                    String namespaceSuffix = "-" + namespace;
+                    String redirectUri = "http://" + name + namespaceSuffix;
+                    if (Strings.isNotBlank(routeDomain)) {
+                        redirectUri += "." + Strings.stripPrefix(routeDomain, ".");
+                    }
                     if (!redirectURIs.contains(redirectUri)) {
                         redirectURIs.add(redirectUri);
                         updated = true;

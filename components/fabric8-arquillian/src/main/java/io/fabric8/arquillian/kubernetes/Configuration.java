@@ -233,7 +233,7 @@ public class Configuration {
             configuration.waitForServiceConnectionTimeout = getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT);
 
             configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
-            configuration.kubernetesDomain = getStringProperty(KUBERNETES_DOMAIN, map, "vagrant.f8");
+            configuration.kubernetesDomain = getStringProperty(KUBERNETES_DOMAIN, map, "");
             configuration.gofabric8Enabled = getBooleanProperty(GOFABRIC8_ENABLED, map, false);
 
             configuration.properties = map;
