@@ -14,6 +14,7 @@ When developing Microservices you need to consider the following capabilities:
   * [Circuit Breakers](circuitBreakers.html)
   * [Configuration](configuration.html)
   * [Testing](../testing.html)
+  * [Arquillian](../arquillian.html)
 
 
 <!--  

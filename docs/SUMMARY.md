@@ -20,6 +20,7 @@
   * [Circuit Breakers](develop/circuitBreakers.md)
   * [Configuration](develop/configuration.md)
   * [Testing](testing.md)
+  * [Arquillian](arquillian.md)
 * Developer Reference
   * [Spring Boot](springboot.md)
   * [Apache Karaf](karaf.md)
