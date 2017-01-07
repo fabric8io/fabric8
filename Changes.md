@@ -1,4 +1,8 @@
 
+### 2.4.15
+
+This release fixes a number of gremlins using fabric8 with kubernetes 1.5.x and the latest minikube
+
 ### 2.4.5
 
 * to make it easier to keep track of which fabric8 platform release version you are using [gofabric8](https://github.com/fabric8io/gofabric8/releases) now clearly outputs the platform version when you [install fabric8](http://fabric8.io/guide/getStarted/gofabric8.html)
