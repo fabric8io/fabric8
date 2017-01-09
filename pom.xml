@@ -81,9 +81,11 @@
         <commons.collections.version>3.2.2</commons.collections.version>
         <fuse.version>6.3.0.redhat-187</fuse.version>
         <hibernate-validator.version>5.3.0.Final</hibernate-validator.version>
+        <hibernate-validator.bundle.version>${hibernate-validator.version}</hibernate-validator.bundle.version>
         <jansi.version>1.11</jansi.version>
         <jolokia.version>1.3.5</jolokia.version>
         <jgroups.version>3.6.11.Final</jgroups.version>
+        <jgroups.bundle.version>${jgroups.version}</jgroups.bundle.version>
         <jsonschema2pojo.version>0.4.27</jsonschema2pojo.version>
         <snakeyaml.version>1.17</snakeyaml.version>
 	<!-- swagger 1.5.7 doesnt work with fabric8-cxf-plugin -->
@@ -161,7 +163,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
-        <sundrio.version>0.3.10</sundrio.version>
+        <sundrio.version>0.4.4</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -1383,6 +1385,7 @@
               <groupId>io.sundr</groupId>
               <artifactId>sundr-maven-plugin</artifactId>
               <version>${sundrio.version}</version>
+              <inherited>false</inherited>
               <configuration>
                   <bomTemplateUrl>file://${project.basedir}/custom-bom.xml.vm</bomTemplateUrl>
                   <boms>
@@ -1448,8 +1451,11 @@
 
                                   <include>javax*:*</include>
 
+                                  <include>org.apache.httpcomponents:httpcore</include>
+                                  <include>org.jolokia:*</include>
                                   <include>org.jboss.arquillian*:*</include>
                                   <include>org.jboss.shrinkwrap*:*</include>
+                                  <include>org.yaml:snakeyaml</include>
 
                                   <include>xml-apis:xml-apis</include>
                               </includes>
@@ -1467,6 +1473,32 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>com.googlecode.json-simple:json-simple</exclude>
+                                          <exclude>commons-collections:commons-collections</exclude>
+                                          <exclude>commons-io:commons-io</exclude>
+                                          <exclude>commons-logging:commons-logging</exclude>
+                                          <exclude>commons-pool:commons-pool</exclude>
+                                          <exclude>com.sun.mail:*</exclude>
+                                          <exclude>io.undertow:*</exclude>
+                                          <exclude>javax.mail:javax.mail-api</exclude>
+                                          <exclude>javax.servlet:javax.servlet-api</exclude>
+                                          <exclude>javax.validation:validation-api</exclude>
+                                          <exclude>org.apache.tomcat*:*</exclude>
+                                          <exclude>org.apache.httpcomponents:httpcore</exclude>
+                                          <exclude>org.apache.velocity:*</exclude>
+                                          <exclude>org.eclipse.jetty*:*</exclude>
+                                          <exclude>org.freemarker:*</exclude>
+                                          <exclude>org.jboss.logging*:*</exclude>
+                                          <exclude>org.jboss.narayana*:*</exclude>
+                                          <exclude>org.hibernate:hibernate-validator*</exclude>
+                                          <exclude>org.hornetq:*</exclude>
+                                          <exclude>org.jolokia:*</exclude>
+                                          <exclude>org.slf4j:*</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jetty</exclude>
+                                          <exclude>org.yaml:snakeyaml</exclude>
+                                          <exclude>wsdl4j:wsdl4j</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                               <import>
@@ -1491,13 +1523,27 @@
                                           <include>*:*</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>commons-collections:commons-collections</exclude>
+                                          <exclude>commons-pool:commons-pool</exclude>
+                                          <exclude>javax.mail:javax.mail-api</exclude>
+                                          <exclude>javax.servlet:javax.servlet-api</exclude>
+                                          <exclude>javax.validation:validation-api</exclude>
                                           <exclude>org.springframework:*</exclude>
                                           <exclude>org.springframework.boot:*</exclude>
-                                          <exclude>commons-lang:commons-lang</exclude>
                                       </excludes>
                                   </dependencyManagement>
                               </import>
                           </imports>
+                          <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.apache.activemq:activemq-*</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${activemq.version}</version>
+                              </override>
+                          </overrides>
                           <plugins>
                               <includes>
                                   <include>io.fabric8:*</include>
@@ -1552,6 +1598,24 @@
                                   </dependencyManagement>
                               </import>
                           </imports>
+                          <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.hibernate:hibernate-validator</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${hibernate-validator.bundle.version}</version>
+                              </override>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.jgroups:*</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${jgroups.bundle.version}</version>
+                              </override>
+                          </overrides>
                           <plugins>
                               <includes>
                                   <include>io.fabric8:*</include>
