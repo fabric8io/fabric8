@@ -81,8 +81,14 @@ title: join the fabric8 community!
         Chat</h2>
 
       <p>Come and chat with our team and community on Slack!</p>
-      <p><a class="btn btn-primary"
-            href="https://fabric8.slack.com/">Slack</a>
+      <p>
+
+        <a class="btn btn-primary"
+            href="https://fabric8.slack.com/">Chat on Slack</a>
+        &nbsp;
+        &nbsp;
+        <a class="btn btn-primary"
+            href="https://slack.fabric8.io/">Join the fabric8 team</a>
       </p>
 
       <p>Or if you prefer web based IRC</p>
