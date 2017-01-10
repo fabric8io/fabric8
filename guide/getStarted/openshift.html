@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="14.2.5" data-basepath=".." data-revision="Mon Jan 09 2017 17:50:17 GMT+0000 (UTC)">
+    <div class="book" data-level="14.2.5" data-basepath=".." data-revision="Tue Jan 10 2017 22:30:08 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1862,7 +1862,7 @@
 <ul>
 <li>Enable the <code>cluster-admin</code> role to user <code>admin</code></li>
 </ul>
-<pre><code class="lang-sh">oadm policy add-cluster-role-to-user cluster-admin admin
+<pre><code class="lang-sh">oc adm policy add-cluster-role-to-user cluster-admin admin
 </code></pre>
 <ul>
 <li>Enable the <code>cluster-reader</code> role to Service Accounts</li>
@@ -1882,7 +1882,7 @@
 </code></pre><p>By default the full <a href="../cdelivery.html">Fabric8 Microservices Platform with CI / CD support</a> is installed.  If you want just install the fabric8 console then you can add the <code>--app</code> command line argument and leaving the value blank</p>
 <pre><code>gofabric8 deploy -y -d mydomain.com --app=
 </code></pre><h4 id="persistence"><a name="persistence" class="plugin-anchor" href="#persistence"><span class="fa fa-link"></span></a>Persistence</h4>
-<p>New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on <a href="persistence.html">creating the necessary persistent volumes or opting out of persistence</a> </p>
+<p>New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on <a href="persistence.html">creating the necessary persistent volumes or opting out of persistence</a></p>
 <h4 id="validating-your-install"><a name="validating-your-install" class="plugin-anchor" href="#validating-your-install"><span class="fa fa-link"></span></a>Validating your install</h4>
 <p>At any point you can validate your installation via:</p>
 <pre><code class="lang-sh">gofabric8 validate
