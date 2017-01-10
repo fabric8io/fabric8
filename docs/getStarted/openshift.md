@@ -15,7 +15,7 @@ The following commands assume you are on the OpenShift master machine :
 * Enable the `cluster-admin` role to user `admin`
 
 ```sh
-oadm policy add-cluster-role-to-user cluster-admin admin
+oc adm policy add-cluster-role-to-user cluster-admin admin
 ```
 
 * Enable the `cluster-reader` role to Service Accounts
@@ -57,7 +57,7 @@ gofabric8 deploy -y -d mydomain.com --app=
 
 #### Persistence
 
-New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on [creating the necessary persistent volumes or opting out of persistence](persistence.html) 
+New releases of fabric8 now have persistence enabled for some apps (like gogs, nexus, jenkins), so please see this guide on [creating the necessary persistent volumes or opting out of persistence](persistence.html)
 
 
 #### Validating your install
