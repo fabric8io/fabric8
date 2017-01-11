@@ -1110,6 +1110,18 @@ public class Controller {
         }
     }
 
+    public boolean deleteNamespace(String namespaceName) {
+        if (!checkNamespace(namespaceName)) {
+            return false;
+        }
+        OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
+        if (openshiftClient != null) {
+            return openshiftClient.projects().withName(namespaceName).delete();
+        } else {
+            return kubernetesClient.namespaces().withName(namespaceName).delete();
+        }
+    }
+
     public void applyNamespace(String namespaceName) {
         applyNamespace(namespaceName, null);
 
