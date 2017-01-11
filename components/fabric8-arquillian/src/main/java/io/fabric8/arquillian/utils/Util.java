@@ -67,13 +67,13 @@ public class Util {
 
     }
 
-    public static void cleanupSession(KubernetesClient client, Configuration configuration, Session session, String status) throws MultiException {
+    public static void cleanupSession(KubernetesClient client, Controller controller, Configuration configuration, Session session, String status) throws MultiException {
         if (configuration.isNamespaceCleanupEnabled()) {
             waitUntilWeCanDestroyNamespace(session);
             List<Throwable> errors = new ArrayList<>();
             cleanupAllMatching(client, session, errors);
             try {
-                client.namespaces().withName(session.getNamespace()).delete();
+                controller.deleteNamespace(session.getNamespace());
             } catch (Exception e) {
                 errors.add(e);
             }
@@ -84,7 +84,6 @@ public class Util {
             Namespaces.updateNamespaceStatus(client, session, status);
         }
     }
-
 
     protected static void waitUntilWeCanDestroyNamespace(Session session) {
         final Logger log = session.getLogger();
