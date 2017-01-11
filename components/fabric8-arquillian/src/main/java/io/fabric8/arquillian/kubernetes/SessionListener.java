@@ -35,7 +35,6 @@ import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
-import io.fabric8.kubernetes.client.BaseClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.internal.HasMetadataComparator;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -52,7 +51,6 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -69,7 +67,6 @@ import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
-import static io.fabric8.kubernetes.api.KubernetesHelper.isOpenShift;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadYaml;
 import static io.fabric8.kubernetes.api.extensions.Templates.overrideTemplateParameters;
@@ -106,7 +103,7 @@ public class SessionListener {
             controller.setNamespace(namespace);
         }
 
-        shutdownHook = new ShutdownHook(client, configuration, session);
+        shutdownHook = new ShutdownHook(client, controller, configuration, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
         try {
@@ -152,7 +149,7 @@ public class SessionListener {
             }
         } catch (Exception e) {
             try {
-                cleanupSession(client, configuration, session, Constants.ERROR_STATUS);
+                cleanupSession(client, controller, configuration, session, Constants.ERROR_STATUS);
             } catch (MultiException me) {
                 throw e;
             } finally {
@@ -250,10 +247,10 @@ public class SessionListener {
         }
     }
 
-    public void stop(@Observes Stop event, KubernetesClient client, Configuration configuration) throws Exception {
+    public void stop(@Observes Stop event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         try {
             Session session = event.getSession();
-            cleanupSession(client, configuration, session, Util.getSessionStatus(session));
+            cleanupSession(client, controller, configuration, session, Util.getSessionStatus(session));
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);

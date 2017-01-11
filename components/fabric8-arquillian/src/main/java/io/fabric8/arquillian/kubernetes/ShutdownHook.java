@@ -15,6 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.MultiException;
 
@@ -23,12 +24,13 @@ import static io.fabric8.arquillian.utils.Util.cleanupSession;
 public class ShutdownHook extends Thread {
 
     private final KubernetesClient client;
+    private final Controller controller;
     private final Configuration configuration;
     private final Session session;
 
-
-    public ShutdownHook(KubernetesClient client, Configuration configuration, Session session) {
+    public ShutdownHook(KubernetesClient client, Controller controller, Configuration configuration, Session session) {
         this.client = client;
+        this.controller = controller;
         this.configuration = configuration;
         this.session = session;
     }
@@ -37,7 +39,7 @@ public class ShutdownHook extends Thread {
     public void run() {
         session.getLogger().warn("Shutdown hook cleaning up the integration test!");
         try {
-            cleanupSession(client, configuration, session, Constants.ABORTED_STATUS);
+            cleanupSession(client, controller, configuration, session, Constants.ABORTED_STATUS);
         } catch (MultiException e) {
             session.getLogger().warn(e.getMessage());
         }
