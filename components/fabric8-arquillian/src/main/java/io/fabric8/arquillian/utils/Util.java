@@ -106,8 +106,19 @@ public class Util {
             } catch (Exception e) {
                 errors.add(e);
             }
-            if (!errors.isEmpty()) {
-                throw new MultiException("Error while cleaning up session.", errors);
+            List<Throwable> exceptions = new ArrayList<>();
+            for (Throwable exception : errors) {
+                if (exception instanceof KubernetesClientException) {
+                    if (((KubernetesClientException) exception).getCode() == 403) {
+                        // Log the exception message if that's a permission issue during clean-up
+                        session.getLogger().warn(exception.getMessage());
+                        continue;
+                    }
+                }
+                exceptions.add(exception);
+            }
+            if (!exceptions.isEmpty()) {
+                throw new MultiException("Error while cleaning up session.", exceptions);
             }
         } else {
             Namespaces.updateNamespaceStatus(client, session, status);
