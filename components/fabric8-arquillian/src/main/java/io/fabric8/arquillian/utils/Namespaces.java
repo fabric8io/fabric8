@@ -67,7 +67,9 @@ public class Namespaces {
                     .endMetadata()
                     .done();
         } catch (Exception e) {
-            LOG.warn("failed to update namespace: " + e, e);
+            // A user working on an existing namespace might not have access to
+            // update the metadata on the namespace.  So don't be verbose with this error.
+            LOG.debug("failed to update namespace: " + e, e);
             return null;
         }
     }
