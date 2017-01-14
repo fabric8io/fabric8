@@ -1,4 +1,14 @@
 
+### 2.4.19
+
+* Jenkins pipelines will now detect if running on OpenShift for non java application pipelines and avoid mounting the docker socket in build pods, handing off to [OpenShift binary source](https://docs.openshift.com/enterprise/3.2/dev_guide/builds.html#binary-source) to build docker images.
+* Pipeline start time improvements
+
+### 2.4.18
+
+* fix to fabric8-maven-plugin to avoid chmod'ing non persistent volume mounts https://github.com/fabric8io/fabric8-maven-plugin/issues/772
+
+
 ### 2.4.15
 
 This release fixes a number of gremlins using fabric8 with kubernetes 1.5.x and the latest minikube
@@ -17,7 +27,7 @@ This release fixes a number of gremlins using fabric8 with kubernetes 1.5.x and 
 * Use the new @Library to import [fabric8 Jenkins CPS Shared library](https://github.com/fabric8io/fabric8-pipeline-library) in Jenkinsfiles  
 * Add experimental Keycloak app
 * Upgrade experimental Taiga 3.0.0 and add persistence
-* Define multiple containers to include in a build pod from a Jenkinsfile.  [Excellent blog](https://blog.fabric8.io/jenkins-kubernetes-plugin-adds-pipeline-capabilities-2d43f934c580#.iaht2qp1y) by Ioannis 
+* Define multiple containers to include in a build pod from a Jenkinsfile.  [Excellent blog](https://blog.fabric8.io/jenkins-kubernetes-plugin-adds-pipeline-capabilities-2d43f934c580#.iaht2qp1y) by Ioannis
 
 ### 2.3.19
 
