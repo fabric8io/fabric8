@@ -108,6 +108,19 @@
       <div class="col-md-12">
       <h1>Change Log</h1></p>
 
+<h3 id = "2_4_19">2.4.19</h3>
+
+<ul>
+<li>Jenkins pipelines will now detect if running on OpenShift for non java application pipelines and avoid mounting the docker socket in build pods, handing off to <a href="https://docs.openshift.com/enterprise/3.2/dev&#95;guide/builds.html#binary-source">OpenShift binary source</a> to build docker images.</li>
+<li>Pipeline start time improvements</li>
+</ul>
+
+<h3 id = "2_4_18">2.4.18</h3>
+
+<ul>
+<li>fix to fabric8-maven-plugin to avoid chmod'ing non persistent volume mounts https://github.com/fabric8io/fabric8-maven-plugin/issues/772</li>
+</ul>
+
 <h3 id = "2_4_15">2.4.15</h3>
 
 <p>This release fixes a number of gremlins using fabric8 with kubernetes 1.5.x and the latest minikube</p>
