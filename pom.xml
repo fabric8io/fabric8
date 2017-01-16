@@ -1212,7 +1212,15 @@
                  <version>${cxf.version}</version>
              </dependency>
 
-             <dependency>
+            <!-- JBoss Fuse kar -->
+            <dependency>
+                <groupId>org.jboss.fuse</groupId>
+                <artifactId>fuse-karaf-framework</artifactId>
+                <type>kar</type>
+                <version>${fuse.version}</version>
+            </dependency>
+
+            <dependency>
                  <groupId>io.swagger</groupId>
                  <artifactId>swagger-jaxrs</artifactId>
                  <version>${swagger.jaxrs.version}</version>
@@ -1578,6 +1586,9 @@
                                   <include>org.jboss.shrinkwrap*:*</include>
 
                                   <include>xml-apis:xml-apis</include>
+
+                                  <!-- JBoss Fuse kar -->
+                                  <include>org.jboss.fuse:fuse-karaf-framework:${fuse.version}:kar</include>
                               </includes>
                               <excludes>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
