@@ -1685,6 +1685,59 @@
                           <inheritDependencyManagement>true</inheritDependencyManagement>
                           <inheritPluginManagement>true</inheritPluginManagement>
                       </bom>
+                      <bom>
+                          <artifactId>fabric8-project-bom-cxf-spring-boot</artifactId>
+                          <name>Fabric8 :: Project :: Bom for Cxf and Spring-Boot</name>
+                          <dependencies>
+                              <includes>
+                                  <!-- The kubernetes Client and Model -->
+                                  <include>io.fabric8:kubernetes-*</include>
+                                  <include>io.fabric8:openshift-*</include>
+
+                                  <include>javax*:*</include>
+
+                                  <include>org.jboss.arquillian*:*</include>
+                                  <include>org.jboss.shrinkwrap*:*</include>
+
+                                  <include>xml-apis:xml-apis</include>
+                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
+                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
+                                  <include>org.apache.cxf:cxf-rt-rs-service-description-swagger</include>
+                                  <include>io.swagger:*</include>
+                              </includes>
+                              <excludes>
+                                  <exclude>javax.servlet:javax.servlet-api</exclude>
+                                  <exclude>javax.activation:activation:1.1</exclude>
+                              </excludes>
+                          </dependencies>
+                          <imports>
+                              <import>
+                                  <groupId>io.fabric8</groupId>
+                                  <artifactId>spring-cloud-kubernetes-bom-with-platform-deps</artifactId>
+                                  <version>${spring-cloud-kubernetes.version}</version>
+                                  <dependencyManagement>
+                                      <includes>
+                                          <include>*:*</include>
+                                      </includes>
+                                      <excludes>
+                                          <exclude>org.springframework:*</exclude>
+                                          <exclude>org.springframework.boot:*</exclude>
+                                          <exclude>commons-lang:commons-lang</exclude>
+                                      </excludes>
+                                  </dependencyManagement>
+                              </import>
+                          </imports>
+                          <plugins>
+                              <includes>
+                                  <include>io.fabric8:*</include>
+                              </includes>
+                          </plugins>
+                          <properties>
+                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                          </properties>
+                          <inheritDependencyManagement>true</inheritDependencyManagement>
+                          <inheritPluginManagement>true</inheritPluginManagement>
+                      </bom>
                   </boms>
               </configuration>
               <executions>
