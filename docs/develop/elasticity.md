@@ -7,7 +7,7 @@ Your Microservices should be __highly available__ and resilient to failure. Idea
 
 Fabric8 solves these elasticity and resilience problems by using Kubernetes [Replica Sets](../replicationControllers.html) (which used to be called Replication Controllers). Just like most configurations for Kubernetes, a Replica Set is a way to reconcile a desired state: you tell Kubernetes what state the system should be and Kubernetes figures out how to make it so. A Replica Set controls the number of `replicas` or exact copies of the app that should be running at any time.    
 
-A _Replia Set_ defines a template for running on or more [pods](../pods.html) which then can be scaled either by an operator or automatically by Kubernetes based on some system high watermarks.
+A _Replica Set_ defines a template for running on or more [pods](../pods.html) which then can be scaled either by an operator or automatically by Kubernetes based on some system high watermarks.
 
 The Replica Set uses a _selector_ to keep watching the available pods matching the selectors labels. If there are not enough pods running it will spin up more; or if there are too many pods running it will terminate the extra pods.
 
