@@ -1537,6 +1537,7 @@
                                       </includes>
                                       <excludes>
                                           <exclude>commons-collections:commons-collections</exclude>
+                                          <exclude>commons-lang:commons-lang</exclude>
                                           <exclude>commons-pool:commons-pool</exclude>
                                           <exclude>javax.mail:javax.mail-api</exclude>
                                           <exclude>javax.servlet:javax.servlet-api</exclude>
