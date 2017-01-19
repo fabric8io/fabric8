@@ -141,6 +141,23 @@ public class SessionListener {
 
                     kubeConfigs.add(kubeList);
                 }
+
+                // Lets also try to load the image stream for the project.
+                if (controller.getOpenShiftClientOrNull() != null) {
+                    File targetDir = new File(System.getProperty("basedir", ".") +"/target");
+                    if( targetDir.exists() && targetDir.isDirectory() ) {
+                        File[] files = targetDir.listFiles();
+                        if( files!=null ) {
+                            for (File file : files) {
+                                if( file.getName().endsWith("-is.yml") ) {
+                                    loadDependency(log, kubeConfigs, file.toURI().toURL().toString(), controller, configuration, namespace);
+                                }
+                            }
+                        }
+                    }
+                    //
+                }
+
             }
             if (!configuration.isEnvironmentInitEnabled() || applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
                 displaySessionStatus(client, session);
