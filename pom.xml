@@ -1504,7 +1504,7 @@
                                           <exclude>org.freemarker:*</exclude>
                                           <exclude>org.jboss.logging*:*</exclude>
                                           <exclude>org.jboss.narayana*:*</exclude>
-                                          <exclude>org.hibernate:hibernate-validator*</exclude>
+                                          <exclude>org.hibernate:*</exclude>
                                           <exclude>org.hornetq:*</exclude>
                                           <exclude>org.jolokia:*</exclude>
                                           <exclude>org.slf4j:*</exclude>
