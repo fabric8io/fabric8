@@ -1,4 +1,9 @@
 
+### 2.4.21
+
+* Jenkins Pipelines now use [ImageStreams](https://docs.openshift.com/container-platform/3.4/architecture/core_concepts/builds_and_image_streams.html) when deploying to different environments on OpenShift
+* Jenkins master will run as a non privileged container
+
 ### 2.4.19
 
 * Jenkins pipelines will now detect if running on OpenShift for non java application pipelines and avoid mounting the docker socket in build pods, handing off to [OpenShift binary source](https://docs.openshift.com/enterprise/3.2/dev_guide/builds.html#binary-source) to build docker images.
