@@ -6,7 +6,7 @@ If you want to write any Java/JVM based tools to interact with [Kubernetes](http
 
 Kubernetes provides the main REST API for working with the [Kubernetes Platform](http://kubernetes.io). It should provide all you need for writing most services and plugins for Kubernetes.
 
-* [kubernetes-client](https://github.com/fabric8io/fubernetes-client) provides a Java API for working with the Kubernetes and OpenShift REST API (pods, replication controllers, services etc)
+* [kubernetes-client](https://github.com/fabric8io/kubernetes-client) provides a Java API for working with the Kubernetes and OpenShift REST API (pods, replication controllers, services etc)
 * [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) provides helper APIs around the [kubernetes-client](https://github.com/fabric8io/fubernetes-client) for working with Kubernetes and OpenShift
 * [kubernetes-jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) makes it easy to work with the [Jolokia Client API](http://jolokia.org/reference/html/clients.html#client-java) and Java containers running in [Pods](pods.html) inside Kubernetes which expose the Jolokia port
 
