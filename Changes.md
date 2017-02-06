@@ -1,7 +1,7 @@
 
 ### 2.4.24
 
-* We now release package metadata with the fabric8-platform so that we can use the [gofabric8 tool to upgrade and downgrade releases easily](https://fabric8.io/guide/getStarted/gofabric8.html#upgrading-fabric8) via `gofabric8 upgrade` along with `gofabric8 packages` and `gofabric8 package-versions`
+* We now release package metadata with the fabric8-platform so that we can use the [gofabric8 tool to upgrade and downgrade releases easily](https://fabric8.io/guide/getStarted/upgrading.html) via `gofabric8 upgrade` along with `gofabric8 packages` and `gofabric8 package-versions`
 
 ### 2.4.21
 
