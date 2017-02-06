@@ -1,4 +1,8 @@
 
+### 2.4.24
+
+* We now release package metadata with the fabric8-platform so that we can use the [gofabric8 tool to upgrade and downgrade releases easily](http://fabric8.io/guide/getStarted/gofabric8.html#upgrading-fabric8) via `gofabric8 upgrade` along with `gofabric8 packages` and `gofabric8 package-versions`
+
 ### 2.4.21
 
 * Jenkins Pipelines now use [ImageStreams](https://docs.openshift.com/container-platform/3.4/architecture/core_concepts/builds_and_image_streams.html) when deploying to different environments on OpenShift
