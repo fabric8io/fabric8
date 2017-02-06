@@ -1,45 +1,1928 @@
-## Upgrading Fabric8
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Upgrading | Fabric8 Documentation</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.1.0">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+        
+    
+    
 
-As of version `2.4.24` of the `fabric8 platform` we now release the necessary metadata for `gofabric8` to know what package(s) are installed, to list their available versions and how to upgrade/downgrade them.
+        
+    
+    
+    <link rel="next" href="../getStarted/helm.html" />
+    
+    
+    <link rel="prev" href="../getStarted/cloud.html" />
+    
 
-To list the packages and versions you have installed type:
+        
+    </head>
+    <body>
+        
+        
+    <div class="book" data-level="2.3" data-basepath=".." data-revision="Mon Feb 06 2017 09:02:10 GMT+0000 (UTC)">
+    
 
-```sh
-gofabric8 packages
-```
+<div class="book-summary">
+    <div class="book-search">
+        <input type="text" placeholder="Type to search" class="form-control" />
+    </div>
+    <ul class="summary">
+        
+        
+        
+        
 
-For a specific package, such as `fabric8-platform` to find all the available versions type:
+        
 
-```sh
-gofabric8 package-versions fabric8-platform
-```
+        
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../index.html">
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="overview.html">
+            
+                
+                    <a href="../overview.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Overview
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="getStarted/index.html">
+            
+                
+                    <a href="../getStarted/index.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Getting Started
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="getStarted/gofabric8.html">
+            
+                
+                    <a href="../getStarted/gofabric8.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Install on your laptop
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="getStarted/cloud.html">
+            
+                
+                    <a href="../getStarted/cloud.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.</b>
+                        
+                        Install on the cloud
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.3" data-path="getStarted/upgrading.html">
+            
+                
+                    <a href="../getStarted/upgrading.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Upgrading
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="getStarted/helm.html">
+            
+                
+                    <a href="../getStarted/helm.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Install via Helm
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="getStarted/persistence.html">
+            
+                
+                    <a href="../getStarted/persistence.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.5.</b>
+                        
+                        Persistence
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" data-path="getStarted/troubleshooting.html">
+            
+                
+                    <a href="../getStarted/troubleshooting.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.6.</b>
+                        
+                        Troubleshooting
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" data-path="getStarted/apps.html">
+            
+                
+                    <a href="../getStarted/apps.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.7.</b>
+                        
+                        Installing apps
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" data-path="getStarted/develop.html">
+            
+                
+                    <a href="../getStarted/develop.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.8.</b>
+                        
+                        Develop locally
+                    </a>
+                
+            
+            
+        </li>
+    
 
-Then to perform an upgrade to the latest version type:
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="develop/index.html">
+            
+                
+                    <a href="../develop/index.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Developing Microservices
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1" data-path="develop/createMicroservice.html">
+            
+                
+                    <a href="../develop/createMicroservice.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.1.</b>
+                        
+                        Create a microservice
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="develop/elasticity.html">
+            
+                
+                    <a href="../develop/elasticity.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.2.</b>
+                        
+                        Elasticity and Resilience
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="develop/designForFailure.html">
+            
+                
+                    <a href="../develop/designForFailure.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.3.</b>
+                        
+                        Design for Failure
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="develop/serviceDiscovery.html">
+            
+                
+                    <a href="../develop/serviceDiscovery.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.4.</b>
+                        
+                        Service Discovery
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5" data-path="develop/loadBalancing.html">
+            
+                
+                    <a href="../develop/loadBalancing.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.5.</b>
+                        
+                        Load balancing
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.6" data-path="develop/pipelines.html">
+            
+                
+                    <a href="../develop/pipelines.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.6.</b>
+                        
+                        Pipelines
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.7" data-path="develop/logging.html">
+            
+                
+                    <a href="../develop/logging.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.7.</b>
+                        
+                        Logging
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.8" data-path="develop/monitoring.html">
+            
+                
+                    <a href="../develop/monitoring.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.8.</b>
+                        
+                        Monitoring
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.9" data-path="develop/tracing.html">
+            
+                
+                    <a href="../develop/tracing.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.9.</b>
+                        
+                        Tracing
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.10" data-path="develop/circuitBreakers.html">
+            
+                
+                    <a href="../develop/circuitBreakers.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.10.</b>
+                        
+                        Circuit Breakers
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.11" data-path="develop/configuration.html">
+            
+                
+                    <a href="../develop/configuration.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.11.</b>
+                        
+                        Configuration
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.12" data-path="testing.html">
+            
+                
+                    <a href="../testing.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.12.</b>
+                        
+                        Testing
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.13" data-path="arquillian.html">
+            
+                
+                    <a href="../arquillian.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.13.</b>
+                        
+                        Arquillian
+                    </a>
+                
+            
+            
+        </li>
+    
 
-```sh
-gofabric8 upgrade --all
-```
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4" >
+            
+            <span><b>4.</b> Developer Reference</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1" data-path="springboot.html">
+            
+                
+                    <a href="../springboot.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.</b>
+                        
+                        Spring Boot
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.2" data-path="karaf.html">
+            
+                
+                    <a href="../karaf.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.2.</b>
+                        
+                        Apache Karaf
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3" data-path="cdi.html">
+            
+                
+                    <a href="../cdi.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.3.</b>
+                        
+                        CDI
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.4" data-path="javaLibraries.html">
+            
+                
+                    <a href="../javaLibraries.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.4.</b>
+                        
+                        Java Libraries
+                    </a>
+                
+            
+            
+        </li>
+    
 
-Which will iterate over all packages, check if there's a newer version available and if so upgrade to it.
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="fabric8DevOps.html">
+            
+                
+                    <a href="../fabric8DevOps.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Microservices Platform
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="5.1" data-path="console.html">
+            
+                
+                    <a href="../console.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.1.</b>
+                        
+                        Developer Console
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.2" data-path="cdelivery.html">
+            
+                
+                    <a href="../cdelivery.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.2.</b>
+                        
+                        CI and CD
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="5.2.1" data-path="jenkinsWorkflowLibrary.html">
+            
+                
+                    <a href="../jenkinsWorkflowLibrary.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.2.1.</b>
+                        
+                        Jenkins Pipeline Library
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.2.2" data-path="fabric8YmlFile.html">
+            
+                
+                    <a href="../fabric8YmlFile.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.2.2.</b>
+                        
+                        fabric8.yml file
+                    </a>
+                
+            
+            
+        </li>
+    
 
-You can upgrade a specific package by adding its name as a command line argument like this:
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3" data-path="management.html">
+            
+                
+                    <a href="../management.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.3.</b>
+                        
+                        Management
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="5.3.1" data-path="logging.html">
+            
+                
+                    <a href="../logging.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.3.1.</b>
+                        
+                        Logging
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3.2" data-path="metrics.html">
+            
+                
+                    <a href="../metrics.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.3.2.</b>
+                        
+                        Metrics
+                    </a>
+                
+            
+            
+        </li>
+    
 
-```sh
-gofabric8 upgrade fabric8-platform
-```
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="5.4" data-path="chat.html">
+            
+                
+                    <a href="../chat.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.4.</b>
+                        
+                        ChatOps
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.5" data-path="chaosMonkey.html">
+            
+                
+                    <a href="../chaosMonkey.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.5.</b>
+                        
+                        Chaos Monkey
+                    </a>
+                
+            
+            
+        </li>
+    
 
-You can also go back to an older version using the `--version` argument:
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="ipaas.html">
+            
+                
+                    <a href="../ipaas.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Integration
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="6.1" data-path="fabric8MQ.html">
+            
+                
+                    <a href="../fabric8MQ.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.1.</b>
+                        
+                        Messaging
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2" data-path="apiManagement.html">
+            
+                
+                    <a href="../apiManagement.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.</b>
+                        
+                        API Management
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="6.2.1" data-path="apimanComponents.html">
+            
+                
+                    <a href="../apimanComponents.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.1.</b>
+                        
+                        Apiman Components
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2.2" data-path="apimanGettingStarted.html">
+            
+                
+                    <a href="../apimanGettingStarted.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.2.</b>
+                        
+                        Getting Started
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2.3" data-path="apimanDataModel.html">
+            
+                
+                    <a href="../apimanDataModel.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.3.</b>
+                        
+                        Data Model
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2.4" data-path="apimanImportService.html">
+            
+                
+                    <a href="../apimanImportService.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.4.</b>
+                        
+                        Publish Service
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2.5" data-path="apimanConsumeService.html">
+            
+                
+                    <a href="../apimanConsumeService.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.2.5.</b>
+                        
+                        Consume a Service
+                    </a>
+                
+            
+            
+        </li>
+    
 
-```sh
-gofabric8 upgrade --version=2.4.24 fabric8-platform
-```
+            </ul>
+            
+        </li>
+    
 
-The `gofabric8` command will check for `Package` resources (which are `ConfigMap` with a label `fabric8.io/kind=package`) which have the version on a label and have the metadata to be able to find the available versions and download the YAML files.
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="quickstarts/index.html">
+            
+                
+                    <a href="../quickstarts/index.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        Quickstarts
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.1" data-path="quickstarts/archetypes.html">
+            
+                
+                    <a href="../quickstarts/archetypes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.1.</b>
+                        
+                        Archetypes
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2" data-path="quickstarts/running.html">
+            
+                
+                    <a href="../quickstarts/running.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.2.</b>
+                        
+                        Running
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.3" data-path="quickstarts/walkthrough.html">
+            
+                
+                    <a href="../quickstarts/walkthrough.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.3.</b>
+                        
+                        Walk-through
+                    </a>
+                
+            
+            
+        </li>
+    
 
-If you have an older version of fabric8 platform installed before version `2.4.24` then to upgrade you need to specify the name of the package to upgrade:
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8" data-path="tools.html">
+            
+                
+                    <a href="../tools.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.</b>
+                        
+                        Tools
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.1" data-path="forge.html">
+            
+                
+                    <a href="../forge.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.1.</b>
+                        
+                        Forge
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.1.1" data-path="camelMavenPlugin.html">
+            
+                
+                    <a href="../camelMavenPlugin.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.1.1.</b>
+                        
+                        Camel Maven Plugin
+                    </a>
+                
+            
+            
+        </li>
+    
 
-```sh
-gofabric8 upgrade fabric8-platform
-```
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2" data-path="mavenPlugin.html">
+            
+                
+                    <a href="../mavenPlugin.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.</b>
+                        
+                        Maven Plugin
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.2.1" data-path="mavenPlugin2x.html">
+            
+                
+                    <a href="../mavenPlugin2x.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.</b>
+                        
+                        Old 2.x plugin
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.2.1.1" data-path="mavenFabric8Migrate.html">
+            
+                
+                    <a href="../mavenFabric8Migrate.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.1.</b>
+                        
+                        fabric8:migrate
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.2" data-path="mavenDockerBuild.html">
+            
+                
+                    <a href="../mavenDockerBuild.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.2.</b>
+                        
+                        docker:build
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.3" data-path="mavenDockerPush.html">
+            
+                
+                    <a href="../mavenDockerPush.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.3.</b>
+                        
+                        docker:push
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.4" data-path="mavenFabric8Apply.html">
+            
+                
+                    <a href="../mavenFabric8Apply.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.4.</b>
+                        
+                        fabric8:apply
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.5" data-path="mavenFabric8CreateEnv.html">
+            
+                
+                    <a href="../mavenFabric8CreateEnv.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.5.</b>
+                        
+                        fabric8:create-env
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.6" data-path="mavenFabric8CreateRoutes.html">
+            
+                
+                    <a href="../mavenFabric8CreateRoutes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.6.</b>
+                        
+                        fabric8:create-routes
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.7" data-path="mavenFabric8DeletePods.html">
+            
+                
+                    <a href="../mavenFabric8DeletePods.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.7.</b>
+                        
+                        fabric8:delete-pods
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.8" data-path="mavenFabric8DevOps.html">
+            
+                
+                    <a href="../mavenFabric8DevOps.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.8.</b>
+                        
+                        fabric8:devops
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.9" data-path="mavenFabric8Helm.html">
+            
+                
+                    <a href="../mavenFabric8Helm.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.9.</b>
+                        
+                        fabric8:helm
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.10" data-path="mavenFabric8HelmPush.html">
+            
+                
+                    <a href="../mavenFabric8HelmPush.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.10.</b>
+                        
+                        fabric8:helm-push
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.11" data-path="mavenFabric8Json.html">
+            
+                
+                    <a href="../mavenFabric8Json.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.11.</b>
+                        
+                        fabric8:json
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.2.1.11.1" data-path="annotationProcessors.html">
+            
+                
+                    <a href="../annotationProcessors.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.11.1.</b>
+                        
+                        annotation processors
+                    </a>
+                
+            
+            
+        </li>
+    
 
-This will then ugprade to the latest version and install the necessary `Package` metadata so that `gofabric8` is now aware of what version of the package is installed to smooth the upgrade/downgrade process.
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.12" data-path="mavenFabric8Recreate.html">
+            
+                
+                    <a href="../mavenFabric8Recreate.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.12.</b>
+                        
+                        fabric8:recreate
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2.1.13" data-path="mavenFabric8Rolling.html">
+            
+                
+                    <a href="../mavenFabric8Rolling.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.1.13.</b>
+                        
+                        fabric8:rolling
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8.3" data-path="helm.html">
+            
+                
+                    <a href="../helm.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.3.</b>
+                        
+                        Helm
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="9" data-path="annotations.html">
+            
+                
+                    <a href="../annotations.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.</b>
+                        
+                        Annotations
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="9.1" data-path="secretAnnotations.html">
+            
+                
+                    <a href="../secretAnnotations.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.1.</b>
+                        
+                        Secret Annotations
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="10" data-path="architecture.html">
+            
+                
+                    <a href="../architecture.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.</b>
+                        
+                        Architecture
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="10.1" data-path="terminology.html">
+            
+                
+                    <a href="../terminology.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.1.</b>
+                        
+                        Terminology
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.2" data-path="pods.html">
+            
+                
+                    <a href="../pods.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.2.</b>
+                        
+                        Pods
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.3" data-path="replicationControllers.html">
+            
+                
+                    <a href="../replicationControllers.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.3.</b>
+                        
+                        Replication Controllers
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.4" data-path="labels.html">
+            
+                
+                    <a href="../labels.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.4.</b>
+                        
+                        Labels
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.5" data-path="services.html">
+            
+                
+                    <a href="../services.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.5.</b>
+                        
+                        Services
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.6" data-path="serviceLinking.html">
+            
+                
+                    <a href="../serviceLinking.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.6.</b>
+                        
+                        Service Linking
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.7" data-path="apps.html">
+            
+                
+                    <a href="../apps.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.7.</b>
+                        
+                        Apps
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.8" data-path="environments.html">
+            
+                
+                    <a href="../environments.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.8.</b>
+                        
+                        Environments
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.9" data-path="builds.html">
+            
+                
+                    <a href="../builds.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.9.</b>
+                        
+                        Builds
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="11" data-path="projects.html">
+            
+                
+                    <a href="../projects.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>11.</b>
+                        
+                        Source Code
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="12" data-path="v2-changes.html">
+            
+                
+                    <a href="../v2-changes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>12.</b>
+                        
+                        Changes from V1
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="13" data-path="FAQ.html">
+            
+                
+                    <a href="../FAQ.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>13.</b>
+                        
+                        FAQ
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="13.1" data-path="faqGeneral.html">
+            
+                
+                    <a href="../faqGeneral.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>13.1.</b>
+                        
+                        General Questions
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="13.2" data-path="faqFuse.html">
+            
+                
+                    <a href="../faqFuse.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>13.2.</b>
+                        
+                        JBoss Fuse Questions
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="13.3" data-path="faqKubernetes.html">
+            
+                
+                    <a href="../faqKubernetes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>13.3.</b>
+                        
+                        Kubernetes Questions
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="13.4" >
+            
+                
+                    <a target="_blank" href="https:/help.openshift.com/hc/en-us/categories/200177370-Frequently-Asked-Questions">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>13.4.</b>
+                        
+                        OpenShift Questions
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="14" data-path="getStarted/others.html">
+            
+                
+                    <a href="../getStarted/others.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.</b>
+                        
+                        Other Install Options
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="14.1" >
+            
+            <span><b>14.1.</b> Kubernetes</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="14.1.1" data-path="getStarted/minikube.html">
+            
+                
+                    <a href="../getStarted/minikube.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.1.1.</b>
+                        
+                        MiniKube
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.1.2" data-path="getStarted/vagrant-kubernetes.html">
+            
+                
+                    <a href="../getStarted/vagrant-kubernetes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.1.2.</b>
+                        
+                        Vagrant
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.1.3" data-path="getStarted/gke.html">
+            
+                
+                    <a href="../getStarted/gke.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.1.3.</b>
+                        
+                        Google Container Engine
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.1.4" data-path="getStarted/aws.html">
+            
+                
+                    <a href="../getStarted/aws.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.1.4.</b>
+                        
+                        Amazon Web Services
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.1.5" data-path="getStarted/kubernetes.html">
+            
+                
+                    <a href="../getStarted/kubernetes.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.1.5.</b>
+                        
+                        Kubernetes
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2" >
+            
+            <span><b>14.2.</b> OpenShift</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="14.2.1" data-path="getStarted/minishift.html">
+            
+                
+                    <a href="../getStarted/minishift.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.1.</b>
+                        
+                        MiniShift
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.2" data-path="getStarted/vagrant.html">
+            
+                
+                    <a href="../getStarted/vagrant.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.2.</b>
+                        
+                        Vagrant
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.3" data-path="getStarted/ocClusterUp.html">
+            
+                
+                    <a href="../getStarted/ocClusterUp.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.3.</b>
+                        
+                        oc cluster up
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.4" data-path="getStarted/cdk.html">
+            
+                
+                    <a href="../getStarted/cdk.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.4.</b>
+                        
+                        Red Hat CDK
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.5" data-path="getStarted/openshift.html">
+            
+                
+                    <a href="../getStarted/openshift.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.5.</b>
+                        
+                        OpenShift
+                    </a>
+                
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="14.2.5.1" data-path="getStarted/installOpenShift.html">
+            
+                
+                    <a href="../getStarted/installOpenShift.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.5.1.</b>
+                        
+                        Install OpenShift
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.6" data-path="getStarted/browserCertificates.html">
+            
+                
+                    <a href="../getStarted/browserCertificates.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.6.</b>
+                        
+                        Accept self-signed certs
+                    </a>
+                
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="14.2.7" data-path="getStarted/local.html">
+            
+                
+                    <a href="../getStarted/local.html">
+                        <i class="fa fa-check"></i>
+                        
+                            <b>14.2.7.</b>
+                        
+                        Setup Local OpenShift Client
+                    </a>
+                
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+
+        
+        <li class="divider"></li>
+        <li>
+            <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                Published with GitBook
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
+    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
+    
+    <div id="font-settings-wrapper" class="dropdown pull-left">
+        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="reduce-font-size" class="button size-2">A</button>
+        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
+    </div>
+
+    <div class="buttons font-family-list">
+        <button type="button" data-font="0" class="button">Serif</button>
+        <button type="button" data-font="1" class="button">Sans</button>
+    </div>
+
+    <div class="buttons color-theme-list">
+        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
+        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
+        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </div>
+
+    <!-- Actions Right -->
+    
+    <div class="dropdown pull-right">
+        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
+        </a>
+        <div class="dropdown-menu font-settings dropdown-left">
+            <div class="dropdown-caret">
+                <span class="caret-outer"></span>
+                <span class="caret-inner"></span>
+            </div>
+            <div class="buttons">
+                <button type="button" data-sharing="twitter" class="button">
+                    Share on Twitter
+                </button>
+                <button type="button" data-sharing="google-plus" class="button">
+                    Share on Google
+                </button>
+                <button type="button" data-sharing="facebook" class="button">
+                    Share on Facebook
+                </button>
+                <button type="button" data-sharing="weibo" class="button">
+                    Share on Weibo
+                </button>
+                <button type="button" data-sharing="instapaper" class="button">
+                    Share on Instapaper
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+    
+    
+    
+
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../" >Fabric8 Documentation</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <h2 id="upgrading-fabric8"><a name="upgrading-fabric8" class="plugin-anchor" href="#upgrading-fabric8"><span class="fa fa-link"></span></a>Upgrading Fabric8</h2>
+<p>As of version <code>2.4.24</code> of the <code>fabric8 platform</code> we now release the necessary metadata for <code>gofabric8</code> to know what package(s) are installed, to list their available versions and how to upgrade/downgrade them.</p>
+<p>To list the packages and versions you have installed type:</p>
+<pre><code class="lang-sh">gofabric8 packages
+</code></pre>
+<p>For a specific package, such as <code>fabric8-platform</code> to find all the available versions type:</p>
+<pre><code class="lang-sh">gofabric8 package-versions fabric8-platform
+</code></pre>
+<p>Then to perform an upgrade to the latest version type:</p>
+<pre><code class="lang-sh">gofabric8 upgrade --all
+</code></pre>
+<p>Which will iterate over all packages, check if there&apos;s a newer version available and if so upgrade to it.</p>
+<p>You can upgrade a specific package by adding its name as a command line argument like this:</p>
+<pre><code class="lang-sh">gofabric8 upgrade fabric8-platform
+</code></pre>
+<p>You can also go back to an older version using the <code>--version</code> argument:</p>
+<pre><code class="lang-sh">gofabric8 upgrade --version=<span class="hljs-number">2.4</span>.<span class="hljs-number">24</span> fabric8-platform
+</code></pre>
+<p>The <code>gofabric8</code> command will check for <code>Package</code> resources (which are <code>ConfigMap</code> with a label <code>fabric8.io/kind=package</code>) which have the version on a label and have the metadata to be able to find the available versions and download the YAML files.</p>
+<p>If you have an older version of fabric8 platform installed before version <code>2.4.24</code> then to upgrade you need to specify the name of the package to upgrade:</p>
+<pre><code class="lang-sh">gofabric8 upgrade fabric8-platform
+</code></pre>
+<p>This will then ugprade to the latest version and install the necessary <code>Package</code> metadata so that <code>gofabric8</code> is now aware of what version of the package is installed to smooth the upgrade/downgrade process.</p>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../getStarted/cloud.html" class="navigation navigation-prev " aria-label="Previous page: Install on the cloud"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../getStarted/helm.html" class="navigation navigation-next " aria-label="Next page: Install via Helm"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../gitbook/app.js"></script>
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-ga/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"fontSettings":{"theme":null,"family":"sans","size":2},"ga":{"token":"UA-36899203-2","configuration":"auto"}};
+    gitbook.start(config);
+});
+</script>
+
+        <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-36899203-2', 'auto');ga('send', 'pageview');</script>
+    </body>
+    
+</html>
