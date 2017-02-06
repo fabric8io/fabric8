@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2" data-basepath=".." data-revision="Mon Feb 06 2017 18:04:52 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2" data-basepath=".." data-revision="Mon Feb 06 2017 20:03:35 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1871,7 +1871,7 @@
 <p>Your Microservices should be <strong>highly available</strong> and resilient to failure. Ideally each Microservice should also be <em>elastic</em> so that you can easily scale up or down the number of containers used for each Microservice. Some Microservices may only require one container; others may require many.</p>
 <p> Many times when considering elasticity, you have to consider whether your app is stateless or stateful. Stateless apps should be trivial to scale up and down, however stateful apps require more care. For example, a stateful data store would need to shard and replicate its state across the members in the cluster and know how to rebalance itself during scaling events.</p>
 <p>Fabric8 solves these elasticity and resilience problems by using Kubernetes <a href="../replicationControllers.html">Replica Sets</a> (which used to be called Replication Controllers). Just like most configurations for Kubernetes, a Replica Set is a way to reconcile a desired state: you tell Kubernetes what state the system should be and Kubernetes figures out how to make it so. A Replica Set controls the number of <code>replicas</code> or exact copies of the app that should be running at any time.    </p>
-<p>A <em>Replica Set</em> defines a template for running on or more <a href="../pods.html">pods</a> which then can be scaled either by an operator or automatically by Kubernetes based on some system high watermarks.</p>
+<p>A <em>Replica Set</em> defines a template for running one or more <a href="../pods.html">pods</a> which then can be scaled either by an operator or automatically by Kubernetes based on some system high watermarks.</p>
 <p>The Replica Set uses a <em>selector</em> to keep watching the available pods matching the selectors labels. If there are not enough pods running it will spin up more; or if there are too many pods running it will terminate the extra pods.</p>
 <h3 id="operator-based-scaling"><a name="operator-based-scaling" class="plugin-anchor" href="#operator-based-scaling"><span class="fa fa-link"></span></a>Operator-based scaling</h3>
 <p>To scale your Replica Set you just need to specify how many <code>replicas</code> you wish by default in your Replica Set YAML file. The default value of 1 should ensure that there is always a pod running. If a pod terminates (or the host running the pod terminates) then Kubernetes will automatically spin up another pod for you.</p>
