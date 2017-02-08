@@ -119,7 +119,7 @@
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
         <guava.version>19.0</guava.version>
-        <httpclient.version>4.5.2</httpclient.version>
+        <httpclient.version>4.3.3</httpclient.version>
         <jackson2.version>2.7.4</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.cdi-api.version>1.2</javax.cdi-api.version>
@@ -642,6 +642,11 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient-osgi</artifactId>
                 <version>${httpclient.version}</version>
             </dependency>
             <dependency>
