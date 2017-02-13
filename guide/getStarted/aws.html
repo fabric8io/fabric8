@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="14.1.4" data-basepath=".." data-revision="Fri Feb 10 2017 14:15:32 GMT+0000 (UTC)">
+    <div class="book" data-level="14.1.4" data-basepath=".." data-revision="Mon Feb 13 2017 20:01:41 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1898,7 +1898,7 @@ export KUBE_ENABLE_INSECURE_REGISTRY=true # required to set the insecure registr
 <pre><code>wget -q -O - https://get.k8s.io | bash
 </code></pre><p>Check your nodes are running</p>
 <pre><code>kubectl get nodes
-</code></pre><h3 id="persisence"><a name="persisence" class="plugin-anchor" href="#persisence"><span class="fa fa-link"></span></a>Persisence</h3>
+</code></pre><h3 id="persistence"><a name="persistence" class="plugin-anchor" href="#persistence"><span class="fa fa-link"></span></a>Persistence</h3>
 <p>A number of fabric8 applications require persistent storage so that we don&apos;t loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.</p>
 <p>We use Kubernetes dynamic <code>PersistentVolume</code> provisioning to automatically create PVs when a <code>PersistentVolumeClaim</code> needs one.</p>
 <p>Create a StorageClass that points to a persistence implementation for your cloud ensuring your <code>StorageClass</code> has a name <code>name: standard</code> see examples below.  For a full explaination see <a href="getStarted/persistence.md">persistence</a></p>
