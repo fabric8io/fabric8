@@ -45,7 +45,7 @@ gcloud compute firewall-rules create fabric8-http --allow tcp:80,icmp
 gcloud compute firewall-rules create fabric8-https --allow tcp:443,icmp
 ```
 
-### Persisence
+### Persistence
 
 A number of fabric8 applications require persistent storage so that we don't loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.
 

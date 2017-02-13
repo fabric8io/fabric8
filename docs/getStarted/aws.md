@@ -50,7 +50,7 @@ Check your nodes are running
 kubectl get nodes
 ```
 
-### Persisence
+### Persistence
 
 A number of fabric8 applications require persistent storage so that we don't loose data when pods are restarted.  Examples are Gogs, Jenkins, Nexus and ElasticSearch.
 
