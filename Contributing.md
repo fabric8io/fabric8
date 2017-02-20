@@ -9,7 +9,7 @@ Here's some notes to help you get started:
 
 * Make sure you have a [GitHub account](https://github.com/signup/free) as you'll need it to submit issues, comments or pull requests.
 * Got any ideas for how we can improve fabric8? Please [submit an issue](https://github.com/fabric8io/fabric8/issues?state=open) with your thoughts. Constructive criticism is always greatly appreciated!
-* Fancy submitting a blog post, article or screencastwe can link to? Just [submit an issue](https://github.com/fabric8io/fabric8/issues?state=open) and we'll merge it into our website.
+* Fancy submitting a blog post, article, or screencast we can link to? Just [submit an issue](https://github.com/fabric8io/fabric8/issues?state=open) and we'll merge it into our website.
 * Search [our issue tracker](https://github.com/fabric8io/fabric8/issues?state=open) and see if there's been any ideas or issues reported for what you had in mind; if so please join the conversation in the comments.
 * Submit any issues, feature requests or improvement ideas [our issue tracker](https://github.com/fabric8io/fabric8/issues?state=open).
   * Clearly describe the issue including steps to reproduce when it is a bug.
