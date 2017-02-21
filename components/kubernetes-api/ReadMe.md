@@ -73,6 +73,9 @@ The `*_DATA` variants take precedence over the `*_FILE` variants.
 
 If no configuration is supplied through explicit code or environment variables, the `kubernetes-api` library will try to find the current login token and namespace by parsing the users `~/.kube/config` file.
 
+If needed, you can specify the path to `~/.kube/config` with the environment variable `KUBECONFIG`.
+(e.g. on Windows, `KUBECONFIG=U:\\.kube\\config`)
+
 This means that if you use the [OpenShift](http://www.openshift.org/) command line tool `oc` you can login and change projects (namespaces in kubernetes speak) and those will be used by default by the `kubernetes-api` library.
 
 e.g.
