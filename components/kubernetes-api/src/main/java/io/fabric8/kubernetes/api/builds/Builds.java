@@ -17,7 +17,6 @@ package io.fabric8.kubernetes.api.builds;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigSpec;
@@ -25,8 +24,8 @@ import io.fabric8.openshift.api.model.BuildSource;
 import io.fabric8.openshift.api.model.BuildStrategy;
 import io.fabric8.openshift.api.model.BuildTriggerPolicy;
 import io.fabric8.openshift.api.model.BuildTriggerPolicyBuilder;
-import io.fabric8.openshift.api.model.CustomBuildStrategy;
 import io.fabric8.openshift.api.model.GitBuildSource;
+import io.fabric8.openshift.api.model.JenkinsPipelineBuildStrategy;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.URLUtils;
@@ -94,20 +93,18 @@ public class Builds {
             }
 
             // TODO only do this if we are using Jenkins?
-            strategy.setType("Custom");
-            CustomBuildStrategy customStrategy = strategy.getCustomStrategy();
-            if (customStrategy == null) {
-                customStrategy = new CustomBuildStrategy();
-                strategy.setCustomStrategy(customStrategy);
+            strategy.setType("JenkinsPipeline");
+            JenkinsPipelineBuildStrategy buildStrategy = strategy.getJenkinsPipelineStrategy();
+            if (buildStrategy == null) {
+                buildStrategy = new JenkinsPipelineBuildStrategy();
+                strategy.setJenkinsPipelineStrategy(buildStrategy);
             }
 
             ListEnvVarBuilder envBuilder = new ListEnvVarBuilder();
             if (Strings.isNotBlank(jenkinsUrl)) {
                 envBuilder.withEnvVar("BASE_URI", jenkinsUrl);
             }
-            envBuilder.withEnvVar("JOB_NAME", name);
-            customStrategy.setEnv(envBuilder.build());
-            customStrategy.setFrom(new ObjectReferenceBuilder().withKind("DockerImage").withName(s2iCustomBuilderImage).build());
+            buildStrategy.setJenkinsfilePath("Jenkinsfile");
         }
         List<BuildTriggerPolicy> triggers = spec.getTriggers();
         if (triggers == null) {

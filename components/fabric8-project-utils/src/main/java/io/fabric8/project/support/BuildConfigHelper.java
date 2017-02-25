@@ -62,7 +62,12 @@ public class BuildConfigHelper {
 
     public static BuildConfig createBuildConfig(KubernetesClient kubernetesClient, String namespace, String projectName, String cloneUrl, Map<String, String> annotations) {
         LOG.info("Creating a BuildConfig for namespace: " + namespace + " project: " + projectName);
-        String jenkinsUrl = getJenkinsServiceUrl(kubernetesClient, namespace);
+        String jenkinsUrl = null;
+        try {
+            jenkinsUrl = getJenkinsServiceUrl(kubernetesClient, namespace);
+        } catch (Exception e) {
+            // ignore missing Jenkins service issue
+        }
         BuildConfig buildConfig = Builds.createDefaultBuildConfig(projectName, cloneUrl, jenkinsUrl);
         Map<String, String> currentAnnotations = KubernetesHelper.getOrCreateAnnotations(buildConfig);
         currentAnnotations.putAll(annotations);
