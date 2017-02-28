@@ -40,8 +40,8 @@ import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.dsl.ClientMixedOperation;
-import io.fabric8.kubernetes.client.dsl.ClientResource;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DoneableImageStream;
@@ -49,7 +49,6 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamSpec;
 import io.fabric8.openshift.api.model.OAuthClient;
 import io.fabric8.openshift.api.model.PolicyBinding;
-import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.ProjectRequest;
 import io.fabric8.openshift.api.model.Role;
 import io.fabric8.openshift.api.model.RoleBinding;
@@ -917,7 +916,7 @@ public class Controller {
             String name = getName(entity);
             String namespace = getNamespace();
             try {
-                ClientResource<ImageStream, DoneableImageStream> resource = openShiftClient.imageStreams().inNamespace(namespace).withName(name);
+                Resource<ImageStream, DoneableImageStream> resource = openShiftClient.imageStreams().inNamespace(namespace).withName(name);
                 ImageStream old = resource.get();
                 if (old == null) {
                     LOG.info("Creating " + kind + " " + name + " from " + sourceName);
@@ -1024,7 +1023,7 @@ public class Controller {
         }
     }
 
-    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, ClientMixedOperation<T, L, D, ? extends ClientResource<T, D>> resources) throws Exception {
+    public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, MixedOperation<T, L, D, ? extends Resource<T, D>> resources) throws Exception {
         String namespace = getNamespace();
         String id = getName(resource);
         String kind = getKind(resource);
@@ -1061,7 +1060,7 @@ public class Controller {
         }
     }
 
-    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, ClientMixedOperation<T, L, D, ? extends ClientResource<T, D>> resources) throws Exception {
+    protected <T extends HasMetadata,L,D> void doCreateResource(T resource, String namespace ,String sourceName, MixedOperation<T, L, D, ? extends Resource<T, D>> resources) throws Exception {
         String kind = getKind(resource);
         LOG.info("Creating a " + kind + " from " + sourceName + " namespace " + namespace + " name " + getName(resource));
         try {
