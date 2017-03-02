@@ -20,7 +20,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>2.2.170.redhat-SNAPSHOT</version>
+    <version>2.2.170.fuse-000025</version>
     <relativePath>../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -31,52 +31,19 @@
   <name>Fabric8 :: Components</name>
 
   <modules>
-    <!-- utils -->
     <module>fabric8-utils</module>
-    <module>cxf-utils</module>
-    <module>rest-utils</module>
-
-    <!-- kubernetes/jolokia/testing -->
-    <module>kubernetes-assertions</module>
-    <module>kubernetes-jolokia</module>
-    <module>kubernetes-generator</module>
-    <module>jenkins-assertions</module>
-    <module>jolokia-assertions</module>
-
-    <!-- fabric8 base -->
-    <module>fabric8-annotations</module>
-    <module>fabric8-cdi</module>
-
-    <!-- apis -->
-    <module>kubernetes-api</module>
-    <module>gerrit-api</module>
     <module>gitrepo-api</module>
-    <module>gitrepo-resteasy</module>
-    <module>hubot-api</module>
-    <module>letschat-api</module>
-    <module>taiga-api</module>
-
-    <!-- fabric8 -->
-    <module>fabric8-agent</module>
-    <module>fabric8-apm</module>
-    <module>fabric8-arquillian</module>
-    <module>fabric8-cxf</module>
-    <module>fabric8-cxf-plugins</module>
-    <!--<module>fabric8-cxf-registry</module>--> <!-- TODO: does not work yet -->
-    <module>fabric8-devops</module>
-    <module>fabric8-devops-connector</module>
-    <module>fabric8-jgroups</module>
-    <module>fabric8-profiles</module>
+    <module>cxf-utils</module>
     <module>fabric8-project-utils</module>
-    <module>fabric8-selenium</module>
-    <module>fabric8-spring-boot</module>
-
-    <!-- karaf support -->
+    <module>kubernetes-generator</module>
+    <module>kubernetes-api</module>
+    <module>kubernetes-assertions</module>
+    <module>jolokia-assertions</module>
+    <module>kubernetes-jolokia</module>
+    <module>fabric8-annotations</module>
+    <module>fabric8-devops</module>
+    <module>fabric8-arquillian</module>
     <module>fabric8-karaf</module>
-
-    <!-- swagger -->
-    <module>swagger-annotator</module>
-    <module>swagger-model</module>
   </modules>
 
   <profiles>
