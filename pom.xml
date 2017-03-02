@@ -143,7 +143,7 @@
         <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
         <maven.failsafe.plugin.version>2.19</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
-        <mockwebserver.version>0.0.4</mockwebserver.version>
+        <mockwebserver.version>0.0.12</mockwebserver.version>
         <mvel.version>2.3.1.Final</mvel.version>
         <osgi.version>4.3.1</osgi.version>
         <osgi-compendium.version>4.3.1</osgi-compendium.version>
@@ -159,7 +159,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
-        <spring-cloud-kubernetes.version>0.1.4</spring-cloud-kubernetes.version>
+        <spring-cloud-kubernetes.version>0.1.5</spring-cloud-kubernetes.version>
         <sundrio.plugin.version>0.3.10</sundrio.plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
