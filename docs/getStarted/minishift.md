@@ -1,6 +1,8 @@
 ## Getting Started with MiniShift
 
-The easiest way to get started with Fabric8 and OpenShift on your laptop is via [MiniShift](https://github.com/jimmidyson/minishift)
+**NOTE** the new [1.x version of MiniShift](https://github.com/minishift/minishift) does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now.
+
+Until 1.x of minishift is working with fabric8 **we highly recommend** you just stick with [minikube](minikube.html) instead for now until it gets resolved!
 
 ### Start the cluster with minishift start
 
