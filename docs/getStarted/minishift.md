@@ -1,8 +1,28 @@
 ## Getting Started with MiniShift
 
-**NOTE** the new [1.x version of MiniShift](https://github.com/minishift/minishift) does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now.
+### Warning: please use minikube!
+
+**NOTE** the new [1.x version of MiniShift](https://github.com/minishift/minishift) does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now and it looks like not getting fixed any time soon.
 
 Until 1.x of minishift is working with fabric8 **we highly recommend** you just stick with [minikube](minikube.html) instead for now until it gets resolved!
+
+If you still want to try with minishift 1.x here are some tips to try work around the regressions in minishift:
+
+* start minishift manually (don't use `gofabric8 start`)
+* install oc by hand. e.g. via:
+
+    brew install openshift-cli
+
+* manually enable CORS due to [this issue](https://github.com/minishift/minishift/issues/257) 
+
+
+    minishift openshift config set --patch '{"corsAllowedOrigins": [".*"]}'
+
+* only login with `system:admin` as the `developer` account is pretty broken; [unable to create projects](https://github.com/minishift/minishift/issues/476) via `oc apply` or the REST API and [unable to create Persistent Volumes](https://github.com/minishift/minishift/issues/458)
+
+     oc login -u system:admin
+          
+* you might wanna try figure out how to [reconfigure minishift to use `nip.io` instead of `xip.io`](https://github.com/minishift/minishift/issues/501) as the latter is a little flaky
 
 ### Start the cluster with minishift start
 
