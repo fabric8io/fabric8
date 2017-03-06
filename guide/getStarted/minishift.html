@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="14.2.1" data-basepath=".." data-revision="Mon Mar 06 2017 08:29:13 GMT+0000 (UTC)">
+    <div class="book" data-level="14.2.1" data-basepath=".." data-revision="Mon Mar 06 2017 09:08:25 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1868,8 +1868,26 @@
                     <section class="normal" id="section-">
                     
                         <h2 id="getting-started-with-minishift"><a name="getting-started-with-minishift" class="plugin-anchor" href="#getting-started-with-minishift"><span class="fa fa-link"></span></a>Getting Started with MiniShift</h2>
-<p><strong>NOTE</strong> the new <a href="https://github.com/minishift/minishift" target="_blank">1.x version of MiniShift</a> does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now.</p>
+<h3 id="warning-please-use-minikube"><a name="warning-please-use-minikube" class="plugin-anchor" href="#warning-please-use-minikube"><span class="fa fa-link"></span></a>Warning: please use minikube!</h3>
+<p><strong>NOTE</strong> the new <a href="https://github.com/minishift/minishift" target="_blank">1.x version of MiniShift</a> does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now and it looks like not getting fixed any time soon.</p>
 <p>Until 1.x of minishift is working with fabric8 <strong>we highly recommend</strong> you just stick with <a href="minikube.html">minikube</a> instead for now until it gets resolved!</p>
+<p>If you still want to try with minishift 1.x here are some tips to try work around the regressions in minishift:</p>
+<ul>
+<li>start minishift manually (don&apos;t use <code>gofabric8 start</code>)</li>
+<li><p>install oc by hand. e.g. via:</p>
+<p>  brew install openshift-cli</p>
+</li>
+<li><p>manually enable CORS due to <a href="https://github.com/minishift/minishift/issues/257" target="_blank">this issue</a> </p>
+</li>
+</ul>
+<pre><code>minishift openshift config set --patch &apos;{&quot;corsAllowedOrigins&quot;: [&quot;.*&quot;]}&apos;
+</code></pre><ul>
+<li><p>only login with <code>system:admin</code> as the <code>developer</code> account is pretty broken; <a href="https://github.com/minishift/minishift/issues/476" target="_blank">unable to create projects</a> via <code>oc apply</code> or the REST API and <a href="https://github.com/minishift/minishift/issues/458" target="_blank">unable to create Persistent Volumes</a></p>
+<p>   oc login -u system:admin</p>
+</li>
+<li><p>you might wanna try figure out how to <a href="https://github.com/minishift/minishift/issues/501" target="_blank">reconfigure minishift to use <code>nip.io</code> instead of <code>xip.io</code></a> as the latter is a little flaky</p>
+</li>
+</ul>
 <h3 id="start-the-cluster-with-minishift-start"><a name="start-the-cluster-with-minishift-start" class="plugin-anchor" href="#start-the-cluster-with-minishift-start"><span class="fa fa-link"></span></a>Start the cluster with minishift start</h3>
 <ul>
 <li><a href="https://github.com/jimmidyson/minishift/releases" target="_blank">Download a MiniShift binary for your platform</a>, extract it and add it to your <code>$PATH</code></li>
