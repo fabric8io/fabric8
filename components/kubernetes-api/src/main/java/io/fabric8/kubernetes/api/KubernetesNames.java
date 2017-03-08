@@ -22,31 +22,30 @@ public class KubernetesNames {
     /**
      * Lets convert the string to btw a valid kubernetes resource name
      */
-    static String convertToKubernetesName(String text, boolean allowDots) {
-      String lower = text.toLowerCase();
-      StringBuilder builder = new StringBuilder();
-      boolean started = false;
-      char lastCh = ' ';
-      for (int i = 0, last = lower.length() - 1; i <= last; i++) {
-        char ch = lower.charAt(i);
-        if (!(ch >= 'a' && ch <= 'z') && !(ch >= '0' && ch <= '9')) {
-          if (ch == '/') {
-            ch = '.';
-          } else if (ch != '.' && ch != '-') {
-            ch = '-';
-          }
-          if (!allowDots && ch == '.') {
-              ch = '-';
-          }
-          if (!started || lastCh == '-' || lastCh == '.' || i == last) {
-            continue;
-          }
+    public static String convertToKubernetesName(String text, boolean allowDots) {
+        String lower = text.toLowerCase();
+        StringBuilder builder = new StringBuilder();
+        boolean started = false;
+        char lastCh = ' ';
+        for (int i = 0, last = lower.length() - 1; i <= last; i++) {
+            char ch = lower.charAt(i);
+            if (!(ch >= 'a' && ch <= 'z') && !(ch >= '0' && ch <= '9')) {
+                if (ch == '/') {
+                    ch = '.';
+                } else if (ch != '.' && ch != '-') {
+                    ch = '-';
+                }
+                if (!allowDots && ch == '.') {
+                    ch = '-';
+                }
+                if (!started || lastCh == '-' || lastCh == '.' || i == last) {
+                    continue;
+                }
+            }
+            builder.append(ch);
+            started = true;
+            lastCh = ch;
         }
-        builder.append(ch);
-        started = true;
-        lastCh = ch;
-      }
-      return builder.toString();
+        return builder.toString();
     }
-
 }
