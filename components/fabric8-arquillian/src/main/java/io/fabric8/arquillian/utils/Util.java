@@ -121,7 +121,7 @@ public class Util {
                 throw new MultiException("Error while cleaning up session.", exceptions);
             }
         } else {
-            Namespaces.updateNamespaceStatus(client, session, status);
+            Namespaces.updateConfigMapStatus(client, session, status);
         }
     }
 

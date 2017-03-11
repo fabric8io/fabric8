@@ -31,7 +31,7 @@ public class TestListener {
         String pkg = event.getTestClass().getJavaClass().getPackage().getName();
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
-        Namespaces.updateNamespaceTestStatus(client, session, trimName(pkg, className, methodName), "RUNNING");
+        Namespaces.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), "RUNNING");
     }
 
     public void stop(@Observes(precedence = Integer.MIN_VALUE) AfterTestLifecycleEvent event, TestResult result, KubernetesClient client, Session session) {
@@ -39,7 +39,7 @@ public class TestListener {
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
 
-        Namespaces.updateNamespaceTestStatus(client, session, trimName(pkg, className, methodName), result.getStatus().name());
+        Namespaces.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), result.getStatus().name());
         switch (result.getStatus()) {
             case PASSED:
                 session.getPassed().incrementAndGet();

@@ -19,6 +19,7 @@ import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
@@ -35,6 +36,7 @@ import java.util.Properties;
 
 public class Namespaces {
     private static final transient Logger LOG = LoggerFactory.getLogger(Namespaces.class);
+    public static final String FABRIC8_ARQUILLIAN = "fabric8-arquillian";
 
     public static void createNamespace(KubernetesClient client, Controller controller, Session session) {
         String newNamespace = session.getNamespace();
@@ -58,9 +60,9 @@ public class Namespaces {
         }
     }
 
-    public static synchronized Namespace updateNamespaceStatus(KubernetesClient client, final Session session, final String status) {
+    public static synchronized ConfigMap updateConfigMapStatus(KubernetesClient client, final Session session, final String status) {
         try {
-            return client.namespaces().withName(session.getNamespace())
+            return client.configMaps().withName(FABRIC8_ARQUILLIAN)
                     .edit()
                     .editMetadata()
                     .addToAnnotations(createNamespaceAnnotations(session, status))
@@ -72,13 +74,11 @@ public class Namespaces {
         }
     }
 
-    public static synchronized Namespace updateNamespaceTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
+    public static synchronized ConfigMap updateConfigMapTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
         try {
-            return client.namespaces().withName(session.getNamespace())
+            return client.configMaps().withName(FABRIC8_ARQUILLIAN)
                     .edit()
-                    .editMetadata()
-                        .addToAnnotations(Annotations.Tests.TEST_CASE_STATUS+ test, status)
-                    .endMetadata()
+                    .addToData(test, status)
                     .done();
         } catch (Exception e) {
             LOG.warn("failed to update namespace: " + e, e);

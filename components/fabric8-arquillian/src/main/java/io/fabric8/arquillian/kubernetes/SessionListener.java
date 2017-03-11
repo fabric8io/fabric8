@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 import static io.fabric8.arquillian.kubernetes.Configuration.findConfigResource;
 import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
 import static io.fabric8.arquillian.utils.Namespaces.createNamespace;
-import static io.fabric8.arquillian.utils.Namespaces.updateNamespaceStatus;
+import static io.fabric8.arquillian.utils.Namespaces.updateConfigMapStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
@@ -99,7 +99,7 @@ public class SessionListener {
             createNamespace(client, controller, session);
         } else {
             checkNamespace(client, controller, session, configuration);
-            updateNamespaceStatus(client, session, Constants.RUNNING_STATUS);
+            updateConfigMapStatus(client, session, Constants.RUNNING_STATUS);
             namespace = namespaceToUse;
             controller.setNamespace(namespace);
         }
