@@ -101,10 +101,12 @@ public class Util {
             waitUntilWeCanDestroyNamespace(session);
             List<Throwable> errors = new ArrayList<>();
             cleanupAllMatching(client, session, errors);
-            try {
-                controller.deleteNamespace(session.getNamespace());
-            } catch (Exception e) {
-                errors.add(e);
+            if (configuration.isCreateNamespaceForTest()) {
+                try {
+                    controller.deleteNamespace(session.getNamespace());
+                } catch (Exception e) {
+                    errors.add(e);
+                }
             }
             List<Throwable> exceptions = new ArrayList<>();
             for (Throwable exception : errors) {

@@ -34,7 +34,7 @@ public class ResourceInjection {
     private Session session;
 
     @Test
-    public void testClinetInjection() {
+    public void testCliettInjection() {
         assertNotNull(client);
     }
 

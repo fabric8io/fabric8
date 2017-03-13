@@ -15,8 +15,8 @@
  */
 package io.fabric8.arquillian;
 
-import io.fabric8.arquillian.kubernetes.TestListener;
 import io.fabric8.arquillian.kubernetes.ClientCreator;
+import io.fabric8.arquillian.kubernetes.TestListener;
 import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Configurer;
 import io.fabric8.arquillian.kubernetes.Constants;

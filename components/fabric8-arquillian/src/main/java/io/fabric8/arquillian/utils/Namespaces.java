@@ -20,6 +20,7 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.PropertiesHelper;
@@ -62,12 +63,10 @@ public class Namespaces {
 
     public static synchronized ConfigMap updateConfigMapStatus(KubernetesClient client, final Session session, final String status) {
         try {
-            return client.configMaps().withName(FABRIC8_ARQUILLIAN)
-                    .edit()
-                    .editMetadata()
-                    .addToAnnotations(createNamespaceAnnotations(session, status))
-                    .endMetadata()
-                    .done();
+            ConfigMap configMap = new ConfigMapBuilder().
+                    withNewMetadata().withName(FABRIC8_ARQUILLIAN).addToAnnotations(createNamespaceAnnotations(session, status)).endMetadata().
+                    build();
+            return client.configMaps().inNamespace(session.getNamespace()).withName(FABRIC8_ARQUILLIAN).createOrReplace(configMap);
         } catch (Exception e) {
             LOG.warn("failed to update namespace: " + e, e);
             return null;
@@ -76,7 +75,7 @@ public class Namespaces {
 
     public static synchronized ConfigMap updateConfigMapTestStatus(KubernetesClient client, final Session session, final String test, final String status) {
         try {
-            return client.configMaps().withName(FABRIC8_ARQUILLIAN)
+            return client.configMaps().inNamespace(session.getNamespace()).withName(FABRIC8_ARQUILLIAN)
                     .edit()
                     .addToData(test, status)
                     .done();

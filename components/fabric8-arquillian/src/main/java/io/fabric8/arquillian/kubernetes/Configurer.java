@@ -15,6 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -40,7 +41,7 @@ public class Configurer {
 
     public void configure(@Observes ArquillianDescriptor arquillianDescriptor) {
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
-        configurationProducer.set(Configuration.fromMap(config));
+        configurationProducer.set(Configuration.fromMap(config, null));
         configureProtocolHandlers(config);
     }
     

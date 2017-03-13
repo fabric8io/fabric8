@@ -17,8 +17,12 @@ package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.devops.ProjectConfig;
 import io.fabric8.devops.ProjectConfigs;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.environments.Environments;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
@@ -26,41 +30,27 @@ import io.fabric8.utils.Systems;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_CLEANUP_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_CLEANUP_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_WAIT_POLL_INTERVAL;
-import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_WAIT_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_RESOURCE_NAME;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_URL;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_DEPENDENCIES;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.FABRIC8_ENVIRONMENT;
-import static io.fabric8.arquillian.kubernetes.Constants.GOFABRIC8_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_CONFIRM_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_LAZY_CREATE_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_TO_USE;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_LIST;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_POLL_INTERVAL;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_TIMEOUT;
+import static io.fabric8.arquillian.kubernetes.Constants.*;
 
 public class Configuration {
 
     private static final String NAMESPACE_PREFIX = Systems.getEnvVarOrSystemProperty("FABRIC8_NAMESPACE_PREFIX", "itest-");
-    private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
+    private static Config FALLBACK_CONFIG = new ConfigBuilder().build();
+    private KubernetesClient kubernetesClient;
+    private boolean createNamespaceForTest;
 
+    /**
+     * For easier testing
+     */
+    static void resetFallbackConfig() {
+         FALLBACK_CONFIG = new ConfigBuilder().build();
+    }
 
     private String masterUrl;
     private List<String> environmentDependencies = new ArrayList<>();
@@ -147,6 +137,10 @@ public class Configuration {
         return namespaceLazyCreateEnabled;
     }
 
+    public boolean isCreateNamespaceForTest() {
+        return createNamespaceForTest;
+    }
+
     public String getNamespace() {
         return namespace;
     }
@@ -159,9 +153,13 @@ public class Configuration {
      * namespace for the given environment or uses environment variables to resolve the environment name -> physical namespace
      * @return the namespace
      */
-    private static String findNamespaceForEnvironment(String environment, Map<String, String> map) {
+    private static String findNamespaceForEnvironment(String environment, Map<String, String> map, KubernetesClient kubernetesClient, String developNamespace, boolean failOnMissingEnvironmentNamespace) {
         String namespace = null;
         if (!Strings.isNullOrBlank(environment)) {
+            namespace = Environments.namespaceForEnvironment(kubernetesClient, environment, developNamespace);
+            if (Strings.isNotBlank(namespace)) {
+                return namespace;
+            }
             String basedir = System.getProperty("basedir", ".");
             File folder = new File(basedir);
             ProjectConfig projectConfig = ProjectConfigs.findFromFolder(folder);
@@ -177,7 +175,11 @@ public class Configuration {
                 namespace = getStringProperty(key, map, null);
             }
             if (Strings.isNullOrBlank(namespace)) {
-                throw new IllegalStateException("A fabric8 environment '" + environment + "' has been specified, but no matching namespace was found in the fabric8.yml file or '" + key + "' system property");
+                if (failOnMissingEnvironmentNamespace) {
+                    throw new IllegalStateException("A fabric8 environment '" + environment + "' has been specified, but no matching namespace was found in the fabric8.yml file or '" + key + "' system property");
+                } else {
+                    return developNamespace;
+                }
             }
         }
         return namespace;
@@ -203,7 +205,35 @@ public class Configuration {
         return gofabric8Enabled != null && gofabric8Enabled.booleanValue();
     }
 
-    public static Configuration fromMap(Map<String, String> map) {
+    public KubernetesClient getKubernetesClient() {
+        return kubernetesClient;
+    }
+
+    /**
+     * Lazily creates the kubernetes client if one is not already configured
+     *
+     * @param config
+     * @param testKubernetesClient the client typically passed in during test cases
+     * @return the lazily created kubernetes client
+     */
+    protected static KubernetesClient getOrCreateKubernetesClient(Configuration config, KubernetesClient testKubernetesClient) {
+        if (testKubernetesClient == null) {
+            if (!Strings.isNullOrBlank(config.getMasterUrl())) {
+                testKubernetesClient = new DefaultKubernetesClient(new ConfigBuilder()
+                        .withMasterUrl(config.getMasterUrl())
+                        .withNamespace(config.getNamespace())
+                        .build());
+            } else {
+                testKubernetesClient = new DefaultKubernetesClient(new ConfigBuilder()
+                        .withNamespace(config.getNamespace())
+                        .build());
+            }
+        }
+        return testKubernetesClient;
+    }
+
+
+    public static Configuration fromMap(Map<String, String> map, KubernetesClient testKubernetesClient) {
         Configuration configuration = new Configuration();
         try {
             configuration.masterUrl = getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CONFIG.getMasterUrl());
@@ -213,16 +243,11 @@ public class Configuration {
             configuration.environmentDependencies = Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+");
 
             configuration.namespaceLazyCreateEnabled = getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED);
+            configuration.properties = map;
 
             String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
-            String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map);
-            String providedNamespace = selectNamespace(environmentNamespace, existingNamespace);
 
             configuration.sessionId = UUID.randomUUID().toString();
-            configuration.namespace = Strings.isNotBlank(providedNamespace) ? providedNamespace : NAMESPACE_PREFIX + configuration.sessionId;
-
-            //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
-            configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(providedNamespace));
             configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);
             configuration.namespaceCleanupTimeout = getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT);
 
@@ -236,7 +261,33 @@ public class Configuration {
             configuration.kubernetesDomain = getStringProperty(KUBERNETES_DOMAIN, map, "");
             configuration.gofabric8Enabled = getBooleanProperty(GOFABRIC8_ENABLED, map, false);
 
-            configuration.properties = map;
+            configuration.createNamespaceForTest = getBooleanProperty(CREATE_NAMESPACE_FOR_TEST, map, false);
+
+
+            boolean failOnMissingEnvironmentNamespace = getBooleanProperty(FAIL_ON_MISSING_ENVIRONMENT_NAMESPACE, map, false);
+            String developNamespace = getStringProperty(DEVELOPMENT_NAMESPACE, map, existingNamespace);
+
+            KubernetesClient kubernetesClient = getOrCreateKubernetesClient(configuration, testKubernetesClient);
+            configuration.kubernetesClient = kubernetesClient;
+            String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map, kubernetesClient, developNamespace, failOnMissingEnvironmentNamespace);
+            String providedNamespace = selectNamespace(environmentNamespace, existingNamespace);
+
+            if (configuration.createNamespaceForTest) {
+                configuration.namespace =  NAMESPACE_PREFIX + configuration.sessionId;
+            } else {
+                String namespace = Strings.isNotBlank(providedNamespace) ? providedNamespace : developNamespace;;
+                if (Strings.isNullOrBlank(namespace)) {
+                    namespace = kubernetesClient.getNamespace();
+                    if (Strings.isNullOrBlank(namespace)) {
+                        namespace = KubernetesHelper.defaultNamespace();
+                    }
+                }
+                configuration.namespace = namespace;
+            }
+
+            //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
+            configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(providedNamespace));
+
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;

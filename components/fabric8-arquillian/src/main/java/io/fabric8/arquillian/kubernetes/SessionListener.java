@@ -94,10 +94,10 @@ public class SessionListener {
         controller.setRecreateMode(true);
         controller.setIgnoreRunningOAuthClients(true);
 
-        String namespaceToUse = configuration.getNamespace();
-        if (Strings.isNullOrBlank(namespaceToUse)) {
+        if (configuration.isCreateNamespaceForTest()) {
             createNamespace(client, controller, session);
         } else {
+            String namespaceToUse = configuration.getNamespace();
             checkNamespace(client, controller, session, configuration);
             updateConfigMapStatus(client, session, Constants.RUNNING_STATUS);
             namespace = namespaceToUse;

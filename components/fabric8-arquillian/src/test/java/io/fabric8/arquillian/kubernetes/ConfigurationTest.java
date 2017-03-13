@@ -15,39 +15,30 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.client.mock.OpenShiftServer;
+import org.jboss.arquillian.core.api.InstanceProducer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_RESOURCE_NAME;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_CONFIG_URL;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_DEPENDENCIES;
-import static io.fabric8.arquillian.kubernetes.Constants.ENVIRONMENT_INIT_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.FABRIC8_ENVIRONMENT;
-import static io.fabric8.arquillian.kubernetes.Constants.GOFABRIC8_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_DOMAIN;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
-import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_NAMESPACE;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_CONFIRM_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_CLEANUP_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_LAZY_CREATE_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.NAMESPACE_TO_USE;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION_ENABLED;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION_TIMEOUT;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_LIST;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_POLL_INTERVAL;
-import static io.fabric8.arquillian.kubernetes.Constants.WAIT_TIMEOUT;
+import static io.fabric8.arquillian.kubernetes.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ConfigurationTest {
+
+    @Rule
+    public OpenShiftServer server = new OpenShiftServer();
+
+    protected KubernetesClient kubernetesClient;
 
     @Before
     public void setUp() {
@@ -115,7 +106,7 @@ public class ConfigurationTest {
 
         map.put(ANSI_LOGGER_ENABLED, "true");
         map.put(GOFABRIC8_ENABLED, "true");
-        Configuration configuration = Configuration.fromMap(map);
+        Configuration configuration = Configuration.fromMap(map, getKubernetesClient());
 
         assertEquals(expctedMaster, configuration.getMasterUrl());
         assertEquals(expectedNamespace, configuration.getNamespace());
@@ -137,8 +128,11 @@ public class ConfigurationTest {
     @Test
     public void testFallbackToClientsDefaults() {
         //Let's provide a fake kubeconfig for the client.
-        System.setProperty(Config.KUBERNETES_KUBECONFIG_FILE, getClass().getResource("/test-kubeconfig").getFile());
-        Configuration config = Configuration.fromMap(new HashMap<String, String>());
+        String file = getClass().getResource("/test-kubeconfig").getFile();
+        System.setProperty(Config.KUBERNETES_KUBECONFIG_FILE, file);
+        Configuration.resetFallbackConfig();
+
+        Configuration config = Configuration.fromMap(new HashMap<String, String>(), getKubernetesClient());
         assertNotNull(config);
 
         assertEquals("https://from.kube.config:8443/", config.getMasterUrl());
@@ -176,7 +170,7 @@ public class ConfigurationTest {
 
         System.setProperty(ANSI_LOGGER_ENABLED, "true");
         System.setProperty(GOFABRIC8_ENABLED, "true");
-        Configuration configuration = Configuration.fromMap(new HashMap<String, String>());
+        Configuration configuration = Configuration.fromMap(new HashMap<String, String>(), getKubernetesClient());
 
         assertEquals(expctedMaster, configuration.getMasterUrl());
         assertEquals(expectedNamespace, configuration.getNamespace());
@@ -238,7 +232,7 @@ public class ConfigurationTest {
         map.put(KUBERNETES_NAMESPACE, overridenNamespace);
         map.put(NAMESPACE_TO_USE, overridenNamespace);
 
-        Configuration configuration = Configuration.fromMap(map);
+        Configuration configuration = Configuration.fromMap(map, getKubernetesClient());
 
         assertEquals(overridenMaster, configuration.getMasterUrl());
         assertEquals(overridenNamespace, configuration.getNamespace());
@@ -257,20 +251,106 @@ public class ConfigurationTest {
         assertTrue(configuration.isWaitForServiceConnectionEnabled());
     }
 
+    @Test
+    public void testNamespaceFoundFromConfigMap() {
+        String devNamespace = "myproject";
+        String environmentKey = "testing";
+        String testNamespace = "myproject-testing";
+
+
+        Map<String, String> data = new HashMap<>();
+        data.put(environmentKey, "    name: Testing\n" +
+                "    namespace: " + testNamespace + "\n" +
+                "    order: 0");
+        server.expect().withPath("/api/v1/namespaces/" + devNamespace + "/configmaps/fabric8-environments").andReturn(200, new ConfigMapBuilder().withNewMetadata().withName("fabric8-environments").endMetadata().withData(data).build()).once();
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put(FABRIC8_ENVIRONMENT, environmentKey);
+        map.put(DEVELOPMENT_NAMESPACE, devNamespace);
+
+        Configuration configuration = Configuration.fromMap(map, getKubernetesClient());
+
+        assertEquals(testNamespace, configuration.getNamespace());
+        
+        assertTrue(configuration.isAnsiLoggerEnabled());
+        assertTrue(configuration.isEnvironmentInitEnabled());
+        assertTrue(configuration.isNamespaceLazyCreateEnabled());
+    }
+
+    @Test
+    public void testNamespaceNotFoundFromConfigMap() {
+        String devNamespace = "myproject";
+        String environmentKey = "testing";
+        String testNamespace = devNamespace;
+
+
+        Map<String, String> data = new HashMap<>();
+        data.put("staging", "    name: Staging\n" +
+                "    namespace: myproject-staging\n" +
+                "    order: 0");
+        server.expect().withPath("/api/v1/namespaces/" + devNamespace + "/configmaps/fabric8-environments").andReturn(200, new ConfigMapBuilder().withNewMetadata().withName("fabric8-environments").endMetadata().withData(data).build()).once();
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put(FABRIC8_ENVIRONMENT, environmentKey);
+        map.put(DEVELOPMENT_NAMESPACE, devNamespace);
+
+        Configuration configuration = Configuration.fromMap(map, getKubernetesClient());
+
+        assertEquals(testNamespace, configuration.getNamespace());
+
+        assertTrue(configuration.isAnsiLoggerEnabled());
+        assertTrue(configuration.isEnvironmentInitEnabled());
+        assertTrue(configuration.isNamespaceLazyCreateEnabled());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testFailIfEnvironmentNamespaceNotFoundFromConfigMap() {
+        String devNamespace = "myproject";
+        String environmentKey = "testing";
+
+        Map<String, String> data = new HashMap<>();
+        data.put("staging", "    name: Staging\n" +
+                "    namespace: myproject-staging\n" +
+                "    order: 0");
+        server.expect().withPath("/api/v1/namespaces/" + devNamespace + "/configmaps/fabric8-environments").andReturn(200, new ConfigMapBuilder().withNewMetadata().withName("fabric8-environments").endMetadata().withData(data).build()).once();
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put(FABRIC8_ENVIRONMENT, environmentKey);
+        map.put(DEVELOPMENT_NAMESPACE, devNamespace);
+        map.put(FAIL_ON_MISSING_ENVIRONMENT_NAMESPACE, "true");
+
+        Configuration.fromMap(map, getKubernetesClient());
+    }
 
     @Test(expected = IllegalStateException.class)
     public void testNamespaceConflict() {
         Map<String, String> map = new HashMap<>();
         map.put(NAMESPACE_TO_USE, "namesapce1");
         map.put(FABRIC8_ENVIRONMENT, "testing");
-        map.put("testing.namesapce", "namespace2");
-        Configuration.fromMap(map);
+        map.put("testing.namespace", "namespace2");
+        Configuration.fromMap(map, getKubernetesClient());
     }
 
     @Test(expected = IllegalStateException.class)
     public void testMissingEnvironmentNamespace() {
         Map<String, String> map = new HashMap<>();
         map.put(FABRIC8_ENVIRONMENT, "testing");
-        Configuration.fromMap(map);
+        map.put(FAIL_ON_MISSING_ENVIRONMENT_NAMESPACE, "true");
+        Configuration.fromMap(map, getKubernetesClient());
+    }
+
+    public KubernetesClient getKubernetesClient() {
+        if (kubernetesClient == null) {
+            kubernetesClient = server.getKubernetesClient();
+        }
+        assertNotNull("No KubernetesClient was created by the mock!", kubernetesClient);
+        return kubernetesClient;
+    }
+
+    public void setKubernetesClient(KubernetesClient kubernetesClient) {
+        this.kubernetesClient = kubernetesClient;
     }
 }

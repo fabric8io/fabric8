@@ -31,15 +31,6 @@ public class ClientCreator {
     private InstanceProducer<KubernetesClient> kubernetesProducer;
 
     public void createClient(@Observes Configuration config) {
-        if (!Strings.isNullOrBlank(config.getMasterUrl())) {
-            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder()
-                    .withMasterUrl(config.getMasterUrl())
-                    .withNamespace(config.getNamespace())
-                    .build()));
-        } else {
-            kubernetesProducer.set(new DefaultKubernetesClient(new ConfigBuilder()
-                    .withNamespace(config.getNamespace())
-                    .build()));
-        }
+        kubernetesProducer.set(config.getKubernetesClient());
     }
 }
