@@ -99,6 +99,10 @@ public class PipelineConfiguration {
         return setJobNamesKind(PipelineKind.CI, names);
     }
 
+    public PipelineConfiguration setJobNamesDeveloper(String... names) {
+        return setJobNamesKind(PipelineKind.Developer, names);
+    }
+
     public PipelineConfiguration setJobNamesKind(PipelineKind kind, String... names) {
         for (String name : names) {
             jobNameToKindMap.put(name, kind);

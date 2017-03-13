@@ -25,13 +25,22 @@ import java.util.Map;
  */
 public class Pipelines {
 
+    /**
+     * Looks up the pipeline kind based on the configuration in the given kubernetes namespace.
+     *
+     * <b>NOTE</b> that you should pass in the <code>BRANCH_NAME</code> and <code>GIT_URL</code> environment variables
+     * so that this function can properly detect if a build should be a <code>CD</code> build or not!
+     *
+     */
+    public static Pipeline getPipeline(KubernetesClient kubernetesClient, String namespace, Map<String, String> jobEnvironment) throws IntrospectionException {
+        PipelineConfiguration configuration = getPipelineConfiguration(kubernetesClient, namespace);
+        return configuration.getPipeline(jobEnvironment);
+    }
+
+
     public static PipelineConfiguration getPipelineConfiguration(KubernetesClient kubernetesClient, String namespace) {
         PipelineConfiguration configuration = PipelineConfiguration.createDefault();
         return configuration;
     }
 
-    public static Pipeline getPipeline(KubernetesClient kubernetesClient, String namespace, Map<String, String> jobEnvironment) throws IntrospectionException {
-        PipelineConfiguration configuration = getPipelineConfiguration(kubernetesClient, namespace);
-        return configuration.getPipeline(jobEnvironment);
-    }
 }

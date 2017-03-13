@@ -52,13 +52,16 @@ public class PipelinesTest {
 
     @Test
     public void testEnableCDBuildsForOrganisation() throws Exception {
-        PipelineConfiguration configuration = PipelineConfiguration.createDefault().setCDGitOrganisation("github.com/fabric8io", "master");
+        PipelineConfiguration configuration = PipelineConfiguration.createDefault().setCDGitOrganisation("github.com/fabric8io", "master").setJobNamesDeveloper("whatnot");
 
         assertJobName(configuration, "foo", "master", "git@github.com:fabric8io/foo.git", PipelineKind.CD);
         assertJobName(configuration, "foo", "master", "https://github.com/fabric8io/foo.git", PipelineKind.CD);
 
         assertJobName(configuration, "bar", "master", "https://github.com/bar/foo.git", PipelineKind.Developer);
         assertJobName(configuration, "bar", "master", "git@github.com:bar/foo.git", PipelineKind.Developer);
+
+        // lets show we can opt out of CD pipelines for specific builds in an organisation if required
+        assertJobName(configuration, "whatnot", "master", "https://github.com/fabric8io/whatnot.git", PipelineKind.Developer);
     }
 
     protected void assertJobName(PipelineConfiguration configuration, String jobName, String branchName, PipelineKind expectedKind) {
