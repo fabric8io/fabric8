@@ -55,7 +55,6 @@ public class JobEnvironment {
                 String name = propertyDescriptor.getName();
                 String envVarName = propertyNameToEnvironmentVariableName(name);
                 String value = map.get(envVarName);
-                System.out.println("Looked up $" + envVarName + " found: " + value);
                 if (value == null) {
                     continue;
                 }

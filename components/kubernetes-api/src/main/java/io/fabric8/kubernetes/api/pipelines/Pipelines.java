@@ -17,14 +17,21 @@
 package io.fabric8.kubernetes.api.pipelines;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.IntrospectionException;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
  */
 public class Pipelines {
+    public static final String PIPELINE_KIND = "PIPELINE_KIND";
+    public static final String JOB_NAME = "JOB_NAME";
 
+    private static final transient Logger LOG = LoggerFactory.getLogger(Pipelines.class);
     /**
      * Looks up the pipeline kind based on the configuration in the given kubernetes namespace.
      * <p>
@@ -32,8 +39,23 @@ public class Pipelines {
      * so that this function can properly detect if a build should be a <code>CD</code> build or not!
      */
     public static Pipeline getPipeline(KubernetesClient kubernetesClient, String namespace, Map<String, String> jobEnvironment) throws IntrospectionException {
+        String kind = jobEnvironment.get(PIPELINE_KIND);
+        String jobName = jobEnvironment.get(JOB_NAME);
+        if (Strings.isNotBlank(jobName) && Strings.isNotBlank(kind)) {
+            try {
+                PipelineKind pipelineKind = PipelineKind.valueOf(kind);
+                return new Pipeline(pipelineKind, jobName);
+            } catch (IllegalArgumentException e) {
+                LOG.warn("$PIPELINE_KIND has a value of " + kind +
+                        " which is not a valid value. Available values are: " + Arrays.asList(PipelineKind.values()) + ". " + e, e);
+            }
+        }
         PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(kubernetesClient, namespace);
-        return configuration.getPipeline(jobEnvironment);
+        Pipeline pipeline = configuration.getPipeline(jobEnvironment);
+
+        // lets update the environment with the new pipeline so we can avoid querying the ConfigMap next time we try create this object
+        jobEnvironment.put(PIPELINE_KIND, pipeline.getKind().toString());
+        return pipeline;
     }
 
     /**

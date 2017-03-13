@@ -22,9 +22,13 @@ import io.fabric8.openshift.client.mock.OpenShiftServer;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.fabric8.kubernetes.api.pipelines.PipelineConfiguration.FABRIC8_PIPELINES;
 import static io.fabric8.kubernetes.api.pipelines.PipelineConfigurationParseTest.loadTestConfigMap;
 import static io.fabric8.kubernetes.api.pipelines.PipelinesTest.assertJobName;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -61,6 +65,29 @@ public class OpenShiftPipelineTest {
         assertJobName(configuration, "random", "master", "https://github.com/random/whatnot.git", PipelineKind.Developer);
         assertJobName(configuration, "random", "release", "https://github.com/random/whatnot.git", PipelineKind.CD);
         assertJobName(configuration, "random", "whatever", "https://github.com/random/whatnot.git", PipelineKind.CI);
+    }
+
+    @Test
+    public void testPipelinesFromConfigMapWithCaching() throws Exception {
+        String namespace = "myproject";
+
+        final ConfigMap configMap = loadTestConfigMap();
+
+        server.expect().withPath("/api/v1/namespaces/" + namespace + "/configmaps/" + FABRIC8_PIPELINES).andReturn(200, configMap).once();
+
+        Map<String, String> environment = new HashMap<>();
+        environment.put(Pipelines.JOB_NAME, "foo");
+        environment.put("BRANCH_NAME", "master");
+
+        Pipeline pipeline = Pipelines.getPipeline(getKubernetesClient(), namespace, environment);
+        assertEquals("Pipeline kind", pipeline.getKind(), PipelineKind.CD);
+
+        assertEquals("$" + Pipelines.PIPELINE_KIND, "CD", environment.get(Pipelines.PIPELINE_KIND));
+
+        // we should not query the ConfigMap again!
+        pipeline = Pipelines.getPipeline(getKubernetesClient(), namespace, environment);
+        assertEquals("Pipeline kind", pipeline.getKind(), PipelineKind.CD);
+
     }
 
     @Test
