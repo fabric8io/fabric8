@@ -63,6 +63,20 @@ public class OpenShiftPipelineTest {
         assertJobName(configuration, "random", "whatever", "https://github.com/random/whatnot.git", PipelineKind.CI);
     }
 
+    @Test
+    public void testPipelinesWithNoConfigMap() throws Exception {
+        String namespace = "myproject";
+
+        PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(getKubernetesClient(), namespace);
+
+        assertJobName(configuration, "whatnot", "master", PipelineKind.Developer);
+        assertJobName(configuration, "whatnot", "release", PipelineKind.Developer);
+
+        // match CI if branch pattern matches
+        assertJobName(configuration, "whatnot", null, PipelineKind.Developer);
+        assertJobName(configuration, "whatnot", "PR-123", PipelineKind.CI);
+    }
+
 
     public KubernetesClient getKubernetesClient() {
         if (kubernetesClient == null) {
