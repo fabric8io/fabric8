@@ -29,6 +29,29 @@ public class PipelinesTest {
         assertEquals("pipelineKind", expectedKind, pipeline.getKind());
     }
 
+    public static void assertJobName(PipelineConfiguration configuration, String jobName, String branchName, PipelineKind expectedKind) {
+        JobEnvironment jobEnvironment = createJobEnvironment(jobName, branchName);
+        assertJobName(configuration, jobEnvironment, jobName, expectedKind);
+    }
+
+    public static void assertJobName(PipelineConfiguration configuration, String jobName, String branchName, String gitUrl, PipelineKind expectedKind) {
+        JobEnvironment jobEnvironment = createJobEnvironment(jobName, branchName, gitUrl);
+        assertJobName(configuration, jobEnvironment, jobName, expectedKind);
+    }
+
+    public static JobEnvironment createJobEnvironment(String jobName, String branchName, String gitUrl) {
+        JobEnvironment answer = createJobEnvironment(jobName, branchName);
+        answer.setGitUrl(gitUrl);
+        return answer;
+    }
+
+    public static JobEnvironment createJobEnvironment(String jobName, String branchName) {
+        JobEnvironment answer = new JobEnvironment();
+        answer.setJobName(jobName);
+        answer.setBranchName(branchName);
+        return answer;
+    }
+
     @Test
     public void testNotCDBuildsByDefault() throws Exception {
         PipelineConfiguration configuration = PipelineConfiguration.createDefault();
@@ -62,28 +85,5 @@ public class PipelinesTest {
 
         // lets show we can opt out of CD pipelines for specific builds in an organisation if required
         assertJobName(configuration, "whatnot", "master", "https://github.com/fabric8io/whatnot.git", PipelineKind.Developer);
-    }
-
-    protected void assertJobName(PipelineConfiguration configuration, String jobName, String branchName, PipelineKind expectedKind) {
-        JobEnvironment jobEnvironment = createJobEnvironment(jobName, branchName);
-        assertJobName(configuration, jobEnvironment, jobName, expectedKind);
-    }
-
-    protected void assertJobName(PipelineConfiguration configuration, String jobName, String branchName, String gitUrl, PipelineKind expectedKind) {
-        JobEnvironment jobEnvironment = createJobEnvironment(jobName, branchName, gitUrl);
-        assertJobName(configuration, jobEnvironment, jobName, expectedKind);
-    }
-
-    protected JobEnvironment createJobEnvironment(String jobName, String branchName, String gitUrl) {
-        JobEnvironment answer = createJobEnvironment(jobName, branchName);
-        answer.setGitUrl(gitUrl);
-        return answer;
-    }
-
-    protected JobEnvironment createJobEnvironment(String jobName, String branchName) {
-        JobEnvironment answer = new JobEnvironment();
-        answer.setJobName(jobName);
-        answer.setBranchName(branchName);
-        return answer;
     }
 }
