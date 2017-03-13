@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import static io.fabric8.kubernetes.api.pipelines.PipelineConfiguration.FABRIC8_PIPELINES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +64,41 @@ public class PipelineConfigurationParseTest {
         assertThat(pipelineConfiguration.getCdGitHostAndOrganisationToBranchPatterns()).describedAs("getCdGitHostAndOrganisationToBranchPatterns()").
                 containsEntry("github.com/fabric8io", Arrays.asList("master")).
                 containsEntry("github.com/fabric8-quickstarts", Arrays.asList("PR-.*"));
+    }
+
+
+    @Test
+    public void testLoadMutateAndLoadPipelineConfiguration() throws Exception {
+        ConfigMap configMap = loadTestConfigMap();
+
+        PipelineConfiguration pipelineConfiguration = PipelineConfiguration.getPipelineConfiguration(configMap);
+        pipelineConfiguration.setCdBranchPatterns(Arrays.asList("cd-1", "cd-2"));
+        pipelineConfiguration.setCiBranchPatterns(Arrays.asList("ci-1", "ci-2"));
+        pipelineConfiguration.setJobNameToKindMap(new HashMap<>());
+        pipelineConfiguration.setJobNamesCD("job-cd");
+        pipelineConfiguration.setJobNamesCI("job-ci");
+
+
+        HashMap<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
+        cdGitHostAndOrganisationToBranchPatterns.put("github.com/acme", Arrays.asList("release1"));
+        cdGitHostAndOrganisationToBranchPatterns.put("github.com/another", Arrays.asList("release2"));
+        pipelineConfiguration.setCdGitHostAndOrganisationToBranchPatterns(cdGitHostAndOrganisationToBranchPatterns);
+
+
+        // reload the modified configuration
+        configMap = pipelineConfiguration.createConfigMap();
+        pipelineConfiguration = PipelineConfiguration.getPipelineConfiguration(configMap);
+
+        assertThat(pipelineConfiguration.getCdBranchPatterns()).describedAs("getCdBranchPatterns()").contains("cd-1").contains("cd-2");
+        assertThat(pipelineConfiguration.getCiBranchPatterns()).describedAs("getCiBranchPatterns()").contains("ci-1").contains("ci-2");
+
+        assertThat(pipelineConfiguration.getJobNameToKindMap()).describedAs("getJobNameToKindMap()").
+                containsEntry("job-cd", PipelineKind.CD).
+                containsEntry("job-ci", PipelineKind.CI);
+
+        assertThat(pipelineConfiguration.getCdGitHostAndOrganisationToBranchPatterns()).describedAs("getCdGitHostAndOrganisationToBranchPatterns()").
+                containsEntry("github.com/acme", Arrays.asList("release1")).
+                containsEntry("github.com/another", Arrays.asList("release2"));
     }
 
 }

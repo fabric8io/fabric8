@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.api.pipelines;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
@@ -36,11 +37,17 @@ import java.util.Map;
 /**
  */
 public class PipelineConfiguration {
+    private static final transient Logger LOG = LoggerFactory.getLogger(PipelineConfiguration.class);
+
     /**
      * The name of the ConfigMap which stores the {@link PipelineConfiguration}
      */
     public static final String FABRIC8_PIPELINES = "fabric8-pipelines";
-    private static final transient Logger LOG = LoggerFactory.getLogger(PipelineConfiguration.class);
+
+    public static final String CI_BRANCH_PATTERNS = "ci-branch-patterns";
+    public static final String CD_BRANCH_PATTERNS = "cd-branch-patterns";
+    public static final String ORGANISATION_BRANCH_PATTERNS = "organisation-branch-patterns";
+    public static final String JOB_NAME_TO_KIND = "job-name-to-kind";
 
     private Map<String, PipelineKind> jobNameToKindMap = new HashMap<>();
     private List<String> ciBranchPatterns = new ArrayList<>();
@@ -51,11 +58,11 @@ public class PipelineConfiguration {
     }
 
     public PipelineConfiguration(Map<String, String> configMapData) {
-        this.ciBranchPatterns = loadYamlListOfStrings(configMapData, "ci-branch-patterns");
-        this.cdBranchPatterns = loadYamlListOfStrings(configMapData, "cd-branch-patterns");
+        this.ciBranchPatterns = loadYamlListOfStrings(configMapData, CI_BRANCH_PATTERNS);
+        this.cdBranchPatterns = loadYamlListOfStrings(configMapData, CD_BRANCH_PATTERNS);
 
 
-        Map<Object, Object> orgBranchMap = loadYamlMap(configMapData, "organisation-branch-patterns");
+        Map<Object, Object> orgBranchMap = loadYamlMap(configMapData, ORGANISATION_BRANCH_PATTERNS);
         for (Map.Entry<Object, Object> entry : orgBranchMap.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
@@ -73,11 +80,11 @@ public class PipelineConfiguration {
                 if (list != null) {
                     cdGitHostAndOrganisationToBranchPatterns.put(keyText, list);
                 } else {
-                    LOG.warn("Could not find List for organisation-branch-patterns key " + key + " value: " + value);
+                    LOG.warn("Could not find List for " + ORGANISATION_BRANCH_PATTERNS + " key " + key + " value: " + value);
                 }
             }
         }
-        Map<Object, Object> jobNameMap = loadYamlMap(configMapData, "job-name-to-kind");
+        Map<Object, Object> jobNameMap = loadYamlMap(configMapData, JOB_NAME_TO_KIND);
         for (Map.Entry<Object, Object> entry : jobNameMap.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
@@ -88,7 +95,7 @@ public class PipelineConfiguration {
                     PipelineKind pipelineKind = PipelineKind.valueOf(valueText);
                     jobNameToKindMap.put(keyText, pipelineKind);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Ignoring job-name-to-kind key " + key + " with value: " + value
+                    LOG.warn("Ignoring " + JOB_NAME_TO_KIND + " key " + key + " with value: " + value
                             + ". Values are: " + Arrays.asList(PipelineKind.values()) + ". " + e, e);
                 }
             }
@@ -131,7 +138,11 @@ public class PipelineConfiguration {
         return null;
     }
 
-    public static PipelineConfiguration getPipelineConfiguration(KubernetesClient kubernetesClient, String namespace) {
+    /**
+     * Loads the pipeline configuration from the namespace in kubernetes if it is present. Otherwise a default
+     * configuration is loaded.
+     */
+    public static PipelineConfiguration loadPipelineConfiguration(KubernetesClient kubernetesClient, String namespace) {
         ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(FABRIC8_PIPELINES).get();
         if (configMap != null) {
             return getPipelineConfiguration(configMap);
@@ -140,8 +151,50 @@ public class PipelineConfiguration {
         return configuration;
     }
 
+    /**
+     * Saves the {@link PipelineConfiguration} into a {@link ConfigMap} in the given namespace
+     */
+    public static void savePipelineConfiguration(KubernetesClient kubernetesClient, String namespace, PipelineConfiguration configuration) {
+        ConfigMap configMap = configuration.createConfigMap();
+        kubernetesClient.configMaps().inNamespace(namespace).withName(FABRIC8_PIPELINES).createOrReplace(configMap);
+    }
+
+    @Override
+    public String toString() {
+        return "PipelineConfiguration{" +
+                "jobNameToKindMap=" + jobNameToKindMap +
+                ", ciBranchPatterns=" + ciBranchPatterns +
+                ", cdBranchPatterns=" + cdBranchPatterns +
+                ", cdGitHostAndOrganisationToBranchPatterns=" + cdGitHostAndOrganisationToBranchPatterns +
+                '}';
+    }
+
+    /**
+     * Creates the {@link ConfigMap} for the current configuration
+     */
+    public ConfigMap createConfigMap() {
+        Map<String, String> data = new HashMap<>();
+        data.put(JOB_NAME_TO_KIND, asYaml(jobNameToKindMap));
+        data.put(CI_BRANCH_PATTERNS, asYaml(ciBranchPatterns));
+        data.put(CD_BRANCH_PATTERNS, asYaml(cdBranchPatterns));
+        data.put(ORGANISATION_BRANCH_PATTERNS, asYaml(cdGitHostAndOrganisationToBranchPatterns));
+        return new ConfigMapBuilder().withNewMetadata().
+                withName(FABRIC8_PIPELINES).addToLabels("provider", "fabric8").endMetadata().
+                withData(data).build();
+    }
+
+    private String asYaml(Object value) {
+        if (value != null) {
+            try {
+                return KubernetesHelper.toYaml(value);
+            } catch (IOException e) {
+                LOG.warn("Error trying to convert " + value + " to YAML: " + e, e);
+            }
+        }
+        return "";
+    }
+
     public static PipelineConfiguration getPipelineConfiguration(ConfigMap configMap) {
-        PipelineConfiguration answer = new PipelineConfiguration();
         Map<String, String> data = configMap.getData();
         if (data == null) {
             data = new HashMap<>();
@@ -194,6 +247,22 @@ public class PipelineConfiguration {
 
     public Map<String, List<String>> getCdGitHostAndOrganisationToBranchPatterns() {
         return cdGitHostAndOrganisationToBranchPatterns;
+    }
+
+    public void setJobNameToKindMap(Map<String, PipelineKind> jobNameToKindMap) {
+        this.jobNameToKindMap = jobNameToKindMap;
+    }
+
+    public void setCiBranchPatterns(List<String> ciBranchPatterns) {
+        this.ciBranchPatterns = ciBranchPatterns;
+    }
+
+    public void setCdBranchPatterns(List<String> cdBranchPatterns) {
+        this.cdBranchPatterns = cdBranchPatterns;
+    }
+
+    public void setCdGitHostAndOrganisationToBranchPatterns(Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns) {
+        this.cdGitHostAndOrganisationToBranchPatterns = cdGitHostAndOrganisationToBranchPatterns;
     }
 
     public Pipeline getPipeline(Map<String, String> jobEnvironmentMap) throws IntrospectionException {

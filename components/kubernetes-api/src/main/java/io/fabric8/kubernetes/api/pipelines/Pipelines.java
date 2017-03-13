@@ -50,7 +50,7 @@ public class Pipelines {
                         " which is not a valid value. Available values are: " + Arrays.asList(PipelineKind.values()) + ". " + e, e);
             }
         }
-        PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(kubernetesClient, namespace);
+        PipelineConfiguration configuration = PipelineConfiguration.loadPipelineConfiguration(kubernetesClient, namespace);
         Pipeline pipeline = configuration.getPipeline(jobEnvironment);
 
         // lets update the environment with the new pipeline so we can avoid querying the ConfigMap next time we try create this object
@@ -65,7 +65,7 @@ public class Pipelines {
      * so that this function can properly detect if a build should be a <code>CD</code> build or not!
      */
     public static Pipeline getPipeline(KubernetesClient kubernetesClient, String namespace, JobEnvironment jobEnvironment) throws IntrospectionException {
-        PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(kubernetesClient, namespace);
+        PipelineConfiguration configuration = PipelineConfiguration.loadPipelineConfiguration(kubernetesClient, namespace);
         return configuration.getPipeline(jobEnvironment);
     }
 }

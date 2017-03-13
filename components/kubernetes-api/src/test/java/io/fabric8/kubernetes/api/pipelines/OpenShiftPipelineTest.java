@@ -48,7 +48,7 @@ public class OpenShiftPipelineTest {
 
         server.expect().withPath("/api/v1/namespaces/" + namespace + "/configmaps/" + FABRIC8_PIPELINES).andReturn(200, configMap).once();
 
-        PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(getKubernetesClient(), namespace);
+        PipelineConfiguration configuration = PipelineConfiguration.loadPipelineConfiguration(getKubernetesClient(), namespace);
 
         assertJobName(configuration, "foo", "dummy", PipelineKind.CD);
         assertJobName(configuration, "bar", "dummy", PipelineKind.CI);
@@ -94,7 +94,7 @@ public class OpenShiftPipelineTest {
     public void testPipelinesWithNoConfigMap() throws Exception {
         String namespace = "myproject";
 
-        PipelineConfiguration configuration = PipelineConfiguration.getPipelineConfiguration(getKubernetesClient(), namespace);
+        PipelineConfiguration configuration = PipelineConfiguration.loadPipelineConfiguration(getKubernetesClient(), namespace);
 
         assertJobName(configuration, "whatnot", "master", PipelineKind.Developer);
         assertJobName(configuration, "whatnot", "release", PipelineKind.Developer);
