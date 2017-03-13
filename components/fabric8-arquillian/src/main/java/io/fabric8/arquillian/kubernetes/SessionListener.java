@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 import static io.fabric8.arquillian.kubernetes.Configuration.findConfigResource;
 import static io.fabric8.arquillian.utils.Namespaces.checkNamespace;
 import static io.fabric8.arquillian.utils.Namespaces.createNamespace;
-import static io.fabric8.arquillian.utils.Namespaces.updateConfigMapStatus;
+import static io.fabric8.arquillian.utils.ConfigMaps.updateConfigMapStatus;
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;

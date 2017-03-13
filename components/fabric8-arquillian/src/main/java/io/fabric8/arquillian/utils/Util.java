@@ -123,7 +123,7 @@ public class Util {
                 throw new MultiException("Error while cleaning up session.", exceptions);
             }
         } else {
-            Namespaces.updateConfigMapStatus(client, session, status);
+            ConfigMaps.updateConfigMapStatus(client, session, status);
         }
     }
 

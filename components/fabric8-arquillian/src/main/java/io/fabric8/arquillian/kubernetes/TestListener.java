@@ -15,7 +15,7 @@
  */
 package io.fabric8.arquillian.kubernetes;
 
-import io.fabric8.arquillian.utils.Namespaces;
+import io.fabric8.arquillian.utils.ConfigMaps;
 import io.fabric8.kubernetes.api.Annotations;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -31,7 +31,7 @@ public class TestListener {
         String pkg = event.getTestClass().getJavaClass().getPackage().getName();
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
-        Namespaces.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), "RUNNING");
+        ConfigMaps.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), "RUNNING");
     }
 
     public void stop(@Observes(precedence = Integer.MIN_VALUE) AfterTestLifecycleEvent event, TestResult result, KubernetesClient client, Session session) {
@@ -39,7 +39,7 @@ public class TestListener {
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
 
-        Namespaces.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), result.getStatus().name());
+        ConfigMaps.updateConfigMapTestStatus(client, session, trimName(pkg, className, methodName), result.getStatus().name());
         switch (result.getStatus()) {
             case PASSED:
                 session.getPassed().incrementAndGet();
