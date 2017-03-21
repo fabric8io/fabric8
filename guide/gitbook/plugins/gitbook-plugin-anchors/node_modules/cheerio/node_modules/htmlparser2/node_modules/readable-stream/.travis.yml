@@ -28,6 +28,8 @@ matrix:
     env: TASK=test
   - node_js: 6
     env: TASK=test
+  - node_js: 7
+    env: TASK=test
   - node_js: 5
     env: TASK=browser BROWSER_NAME=ie BROWSER_VERSION="9..latest"
   - node_js: 5

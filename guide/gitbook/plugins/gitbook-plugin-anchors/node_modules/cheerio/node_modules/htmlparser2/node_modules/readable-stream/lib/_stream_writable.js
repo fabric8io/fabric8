@@ -6,14 +6,6 @@
 
 module.exports = Writable;
 
-// It seems a linked list but it is not
-// there will be only 2 of these for each stream
-function CorkedRequest(state) {
-  this.next = null;
-  this.entry = null;
-  this.finish = onCorkedFinish.bind(undefined, this, state);
-}
-
 /*<replacement>*/
 var processNextTick = require('process-nextick-args');
 /*</replacement>*/
