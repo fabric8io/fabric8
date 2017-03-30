@@ -66,6 +66,7 @@ def updateDownstreamDependencies(stagedProject) {
             'fabric8io/fabric8-ipaas',
             'fabric8io/ipaas-quickstarts',
             'fabric8io/fabric8-forge',
+            'fabric8io/fabric8-generator',
             'fabric8io/kubeflix',
             'fabric8io/kubernetes-zipkin',
             'fabric8io/fabric8-maven-dependencies',
