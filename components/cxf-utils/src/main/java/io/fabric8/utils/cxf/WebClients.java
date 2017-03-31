@@ -36,7 +36,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import java.io.ByteArrayInputStream;
@@ -55,9 +54,8 @@ import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import static io.fabric8.utils.cxf.JsonHelper.createObjectMapper;
+import static io.fabric8.utils.jaxrs.JsonHelper.createObjectMapper;
 
 /**
  */
@@ -259,21 +257,4 @@ public class WebClients {
     }
 
 
-
-    /**
-     * A helper method to handle REST APIs which throw a 404 by just returning null
-     */
-    public static <T> T handle404ByReturningNull(Callable<T> callable) {
-        try {
-            return callable.call();
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404) {
-                return null;
-            } else {
-                throw e;
-            }
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
-        }
-    }
 }

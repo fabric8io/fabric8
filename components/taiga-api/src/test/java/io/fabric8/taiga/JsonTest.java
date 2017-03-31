@@ -15,7 +15,7 @@
  */
 package io.fabric8.taiga;
 
-import io.fabric8.utils.cxf.JsonHelper;
+import io.fabric8.utils.jaxrs.JsonHelper;
 import org.junit.Test;
 
 /**

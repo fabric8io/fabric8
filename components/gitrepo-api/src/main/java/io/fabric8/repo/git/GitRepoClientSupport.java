@@ -15,15 +15,12 @@
  */
 package io.fabric8.repo.git;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.utils.cxf.WebClients.handle404ByReturningNull;
+import static io.fabric8.utils.jaxrs.JAXRSClients.handle404ByReturningNull;
 
 /**
  */

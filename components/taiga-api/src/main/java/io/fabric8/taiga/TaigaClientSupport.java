@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.taiga.Projects.addUser;
-import static io.fabric8.utils.cxf.WebClients.handle404ByReturningNull;
+import static io.fabric8.utils.jaxrs.JAXRSClients.handle404ByReturningNull;
 
 /**
  * Default base class for a TaigaClient implementation

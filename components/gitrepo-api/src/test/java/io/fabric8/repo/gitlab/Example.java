@@ -15,12 +15,7 @@
  */
 package io.fabric8.repo.gitlab;
 
-import io.fabric8.repo.git.GitRepoClient;
-import io.fabric8.repo.git.RepositoryDTO;
-
 import java.util.List;
-
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
 
 /**
  */

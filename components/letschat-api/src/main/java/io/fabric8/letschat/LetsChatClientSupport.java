@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.utils.Lists.notNullList;
-import static io.fabric8.utils.cxf.WebClients.handle404ByReturningNull;
+import static io.fabric8.utils.jaxrs.JAXRSClients.handle404ByReturningNull;
 
 /**
  * Default base class for a LetschatClient implementation

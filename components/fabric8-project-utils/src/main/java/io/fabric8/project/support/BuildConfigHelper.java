@@ -42,7 +42,7 @@ import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespace;
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
+import static io.fabric8.utils.jaxrs.JsonHelper.toJson;
 
 /**
  */

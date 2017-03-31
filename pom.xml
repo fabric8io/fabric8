@@ -125,6 +125,7 @@
         <javax.cdi-api.version>1.2</javax.cdi-api.version>
         <javax.el-version>2.2.5</javax.el-version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
         <jetty.version>8.1.17.v20150415</jetty.version>
@@ -206,7 +207,6 @@
         <fuse.osgi.require.bundle/>
         <fuse.osgi.capabilities.provide/>
         <fuse.osgi.capabilities.require/>
-
     </properties>
 
     <distributionManagement>
@@ -454,6 +454,11 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>cxf-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>jaxrs-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -17,7 +17,7 @@ package io.fabric8.repo.git;
 
 import java.util.List;
 
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
+import static io.fabric8.utils.jaxrs.JsonHelper.toJson;
 
 /**
  */

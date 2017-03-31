@@ -25,32 +25,24 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>cxf-utils</artifactId>
-  <name>Fabric8 :: CXF Utils</name>
+  <artifactId>jaxrs-utils</artifactId>
+  <name>Fabric8 :: JAXRS Utils</name>
 
   <dependencies>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric8-utils</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>jaxrs-utils</artifactId>
-    </dependency>
 
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>${javax.ws.rs-api.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-client</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>net.oauth.core</groupId>
-      <artifactId>oauth</artifactId>
     </dependency>
 
     <dependency>

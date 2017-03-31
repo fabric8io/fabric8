@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
-import static io.fabric8.utils.cxf.JsonHelper.toJson;
+import static io.fabric8.utils.jaxrs.JsonHelper.toJson;
 
 /**
  * A helper class for registering web hooks
