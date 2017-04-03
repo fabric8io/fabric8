@@ -23,6 +23,7 @@ import io.fabric8.openshift.client.mock.OpenShiftServer;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -282,6 +283,39 @@ public class ConfigurationTest {
         assertFalse(configuration.isCreateNamespaceForTest());
     }
 
+    @Ignore
+    public void testEnvironmentKeyButNoConfigMapLocalOnly() {
+        String devNamespace = "myproject";
+        String environmentKey = "testing";
+        String testNamespace = devNamespace;
+
+
+        Map<String, String> data = new HashMap<>();
+        data.put("staging", "    name: Staging\n" +
+                "    namespace: myproject-staging\n" +
+                "    order: 0");
+        server.expect().withPath("/api/v1/namespaces/" + devNamespace + "/configmaps/fabric8-environments").andReturn(404, "Not found").once();
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put(FABRIC8_ENVIRONMENT, environmentKey);
+
+        KubernetesClient kubernetesClient = getKubernetesClient();
+        Config config = new Config();
+        config.setNamespace(devNamespace);
+        config.setMasterUrl(kubernetesClient.getMasterUrl().toString());
+        DefaultKubernetesClient clientWithDefaultNamespace = new DefaultKubernetesClient(config);
+        Configuration configuration = Configuration.fromMap(map, clientWithDefaultNamespace);
+
+        assertEquals(testNamespace, configuration.getNamespace());
+
+        assertTrue(configuration.isAnsiLoggerEnabled());
+        assertTrue(configuration.isEnvironmentInitEnabled());
+        assertTrue(configuration.isNamespaceLazyCreateEnabled());
+        assertFalse(configuration.isNamespaceCleanupEnabled());
+        assertFalse(configuration.isCreateNamespaceForTest());
+    }
+
     @Test
     public void testEnvironmentKeyButNoConfigMap() {
         String devNamespace = "myproject";
@@ -298,6 +332,7 @@ public class ConfigurationTest {
 
         Map<String, String> map = new HashMap<>();
         map.put(FABRIC8_ENVIRONMENT, environmentKey);
+        map.put(DEVELOPMENT_NAMESPACE, devNamespace);
 
         KubernetesClient kubernetesClient = getKubernetesClient();
         Config config = new Config();
