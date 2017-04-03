@@ -264,10 +264,15 @@ public class Configuration {
             configuration.createNamespaceForTest = getBooleanProperty(CREATE_NAMESPACE_FOR_TEST, map, false);
 
 
-            boolean failOnMissingEnvironmentNamespace = getBooleanProperty(FAIL_ON_MISSING_ENVIRONMENT_NAMESPACE, map, false);
-            String developNamespace = getStringProperty(DEVELOPMENT_NAMESPACE, map, existingNamespace);
-
             KubernetesClient kubernetesClient = getOrCreateKubernetesClient(configuration, testKubernetesClient);
+
+            boolean failOnMissingEnvironmentNamespace = getBooleanProperty(FAIL_ON_MISSING_ENVIRONMENT_NAMESPACE, map, false);
+            String defaultDevelopNamespace = existingNamespace;
+            if (Strings.isNullOrBlank(defaultDevelopNamespace)) {
+                defaultDevelopNamespace = kubernetesClient.getNamespace();
+            }
+            String developNamespace = getStringProperty(DEVELOPMENT_NAMESPACE, map, defaultDevelopNamespace);
+
             configuration.kubernetesClient = kubernetesClient;
             String environmentNamespace = findNamespaceForEnvironment(configuration.environment, map, kubernetesClient, developNamespace, failOnMissingEnvironmentNamespace);
             String providedNamespace = selectNamespace(environmentNamespace, existingNamespace);
@@ -284,6 +289,7 @@ public class Configuration {
                 }
                 configuration.namespace = namespace;
             }
+
 
             //We default to "cleanup=true" when generating namespace and "cleanup=false" when using existing namespace.
             configuration.namespaceCleanupEnabled = getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrBlank(providedNamespace));
