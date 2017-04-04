@@ -21,7 +21,10 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -96,11 +99,15 @@ public class Util {
 
     }
 
-    public static void cleanupSession(KubernetesClient client, Controller controller, Configuration configuration, Session session, String status) throws MultiException {
+    public static void cleanupSession(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<KubernetesList> kubeConfigs, String status) throws MultiException {
         if (configuration.isNamespaceCleanupEnabled()) {
             waitUntilWeCanDestroyNamespace(session);
             List<Throwable> errors = new ArrayList<>();
-            cleanupAllMatching(client, session, errors);
+            if (configuration.isDeleteAllResourcesOnExit()) {
+                cleanupAllResources(client, session, errors);
+            } else {
+                cleanupAllMatching(client, session, errors, kubeConfigs);
+            }
             if (configuration.isCreateNamespaceForTest()) {
                 try {
                     controller.deleteNamespace(session.getNamespace());
@@ -177,14 +184,41 @@ public class Util {
         // TODO lets try dump the current errors so that the user can noodle into the system before its destroyed
     }
 
-    public static void cleanupAllMatching(KubernetesClient client, Session session, List<Throwable> errors) throws MultiException {
+    public static void cleanupAllMatching(KubernetesClient client, Session session, List<Throwable> errors, List<KubernetesList> kubeConfigs) throws MultiException {
+
+        String sessionNamespace = session.getNamespace();
+        session.getLogger().info("Removing provisioned resources in namespace " + sessionNamespace);
+
+        /**
+         * Lets use a loop to ensure we really do delete all the matching resources
+         */
+        for (int i = 0; i < 10; i++) {
+            for (KubernetesList list : kubeConfigs) {
+                List<HasMetadata> items = list.getItems();
+                if (items != null) {
+                    for (HasMetadata item : items) {
+                        cleanupItem(client, session, item, errors);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void cleanupItem(KubernetesClient client, Session session, HasMetadata item, List<Throwable> errors) {
+        String sessionNamespace = session.getNamespace();
+        KubernetesHelper.getOrCreateMetadata(item).setNamespace(sessionNamespace);
+        client.resource(item).inNamespace(sessionNamespace).cascading(true).delete();
+    }
+
+    public static void cleanupAllResources(KubernetesClient client, Session session, List<Throwable> errors) throws MultiException {
+        String sessionNamespace = session.getNamespace();
+        session.getLogger().info("Removing all resources in namespace " + sessionNamespace);
 
         /**
          * Lets use a loop to ensure we really do delete all the matching resources
          */
         for (int i = 0; i < 10; i++) {
             OpenShiftClient openShiftClient = new Controller(client).getOpenShiftClientOrNull();
-            String sessionNamespace = session.getNamespace();
             if (openShiftClient != null) {
                 try {
                     openShiftClient.deploymentConfigs().inNamespace(sessionNamespace).delete();

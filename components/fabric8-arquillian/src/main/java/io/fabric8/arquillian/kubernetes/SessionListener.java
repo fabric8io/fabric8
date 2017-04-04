@@ -104,13 +104,13 @@ public class SessionListener {
             controller.setNamespace(namespace);
         }
 
-        shutdownHook = new ShutdownHook(client, controller, configuration, session);
+        List<KubernetesList> kubeConfigs = new LinkedList<>();
+        shutdownHook = new ShutdownHook(client, controller, configuration, session, kubeConfigs);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<String> dependencies = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : resolver.resolve(session);
-            List<KubernetesList> kubeConfigs = new LinkedList<>();
 
             if (configuration.isEnvironmentInitEnabled()) {
                 for (String dependency : dependencies) {
@@ -167,7 +167,7 @@ public class SessionListener {
             }
         } catch (Exception e) {
             try {
-                cleanupSession(client, controller, configuration, session, Constants.ERROR_STATUS);
+                cleanupSession(client, controller, configuration, session, kubeConfigs, Constants.ERROR_STATUS);
             } catch (MultiException me) {
                 throw e;
             } finally {
@@ -265,10 +265,10 @@ public class SessionListener {
         }
     }
 
-    public void stop(@Observes Stop event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
+    public void stop(@Observes Stop event, KubernetesClient client, Controller controller, Configuration configuration, List<KubernetesList> kubeConfigs) throws Exception {
         try {
             Session session = event.getSession();
-            cleanupSession(client, controller, configuration, session, Util.getSessionStatus(session));
+            cleanupSession(client, controller, configuration, session, kubeConfigs, Util.getSessionStatus(session));
         } finally {
             if (shutdownHook != null) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);

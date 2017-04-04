@@ -63,6 +63,7 @@ public class Configuration {
     private boolean namespaceCleanupEnabled = DEFAULT_NAMESPACE_CLEANUP_ENABLED;
     private long namespaceCleanupTimeout = 10000L;
     private boolean namespaceCleanupConfirmationEnabled = false;
+    private boolean deleteAllResourcesOnExit = false;
 
     private long waitTimeout = DEFAULT_WAIT_TIMEOUT;
     private long waitPollInterval = DEFAULT_WAIT_POLL_INTERVAL;
@@ -131,6 +132,10 @@ public class Configuration {
 
     public boolean isNamespaceCleanupEnabled() {
         return namespaceCleanupEnabled;
+    }
+
+    public boolean isDeleteAllResourcesOnExit() {
+        return deleteAllResourcesOnExit;
     }
 
     public boolean isNamespaceLazyCreateEnabled() {
@@ -249,6 +254,7 @@ public class Configuration {
 
             configuration.sessionId = UUID.randomUUID().toString();
             configuration.namespaceCleanupConfirmationEnabled = getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false);
+            configuration.deleteAllResourcesOnExit = getBooleanProperty(NAMESPACE_DELETE_ALL_RESOURCES_ON_EXIT, map, false);
             configuration.namespaceCleanupTimeout = getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT);
 
             configuration.waitTimeout = getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT);
@@ -368,5 +374,6 @@ public class Configuration {
             return Long.parseLong(Utils.getSystemPropertyOrEnvVar(name, String.valueOf(defaultValue)));
         }
     }
+
 }
 
