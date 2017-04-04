@@ -34,6 +34,9 @@ import java.util.TreeSet;
  * A helper class for working with environments (Dev, Test, Staging, Production) in fabric8
  */
 public class Environments {
+    public static final String ENVIRONMENTS_CONFIGMAP_NAME = "fabric8-environments";
+    public static final String SPACE_LINK_CONFIGMAP_NAME = "fabric8-space-link";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(Environments.class);
 
     private final Map<String, Environment> environments;
@@ -45,8 +48,30 @@ public class Environments {
     public static Environments load(KubernetesClient kubernetesClient, String namespace) {
         namespace = getDefaultNamespace(kubernetesClient, namespace);
         LOG.debug("Loading environments from namespace: " + namespace);
-        ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName("fabric8-environments").get();
+        ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(ENVIRONMENTS_CONFIGMAP_NAME).get();
+        if (configMap == null) {
+            String spaceNamespace = findSpaceNamespace(kubernetesClient, namespace);
+            if (Strings.isNotBlank(spaceNamespace)) {
+                configMap = kubernetesClient.configMaps().inNamespace(spaceNamespace).withName("fabric8-environments").get();
+            }
+        }
         return load(configMap);
+    }
+
+    private static String findSpaceNamespace(KubernetesClient kubernetesClient, String namespace) {
+        try {
+            ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(SPACE_LINK_CONFIGMAP_NAME).get();
+            if (configMap != null) {
+                Map<String, String> data = configMap.getData();
+                if (data != null) {
+                    return data.get("space");
+
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to lookup Space Link ConfigMap " + namespace + "/" + SPACE_LINK_CONFIGMAP_NAME + ". " + e, e);
+        }
+        return null;
     }
 
     /**

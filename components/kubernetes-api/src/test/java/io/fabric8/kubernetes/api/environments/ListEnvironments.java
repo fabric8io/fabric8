@@ -31,6 +31,7 @@ public class ListEnvironments {
             namespace = args[0];
         }
 
+        System.out.println("Listing environments for namespace: " + namespace);
         KubernetesClient kubernetesClient = new DefaultKubernetesClient();
         Environments environments = Environments.load(kubernetesClient, namespace);
         SortedSet<Environment> set = environments.getEnvironmentSet();
