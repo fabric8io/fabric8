@@ -18,7 +18,7 @@ package io.fabric8.kubernetes.api.pipelines;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.client.mock.OpenShiftServer;
+import io.fabric8.openshift.client.server.mock.OpenShiftServer;
 import org.junit.Rule;
 import org.junit.Test;
 
