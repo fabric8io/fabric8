@@ -25,6 +25,7 @@ import io.fabric8.apmagent.metrics.ThreadMetrics;
 import io.fabric8.apmagent.strategy.sampling.SamplingStrategy;
 import io.fabric8.apmagent.strategy.trace.TraceStrategy;
 import io.fabric8.apmagent.utils.PropertyUtils;
+
 import org.jolokia.jvmagent.JvmAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             ApmAgent agent = ApmAgent.INSTANCE;
             if (agent.initialize(instrumentation, args)) {
                 if (agent.getConfiguration().isStartJolokiaAgent()) {
-                    JvmAgent.agentmain(args);
+                    JvmAgent.agentmain(args, instrumentation);
                 }
             }
         } catch (Exception e) {
@@ -73,7 +74,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             ApmAgent agent = ApmAgent.INSTANCE;
             if (agent.initialize(instrumentation, args)) {
                 if (agent.getConfiguration().isStartJolokiaAgent()) {
-                    JvmAgent.premain(args);
+                    JvmAgent.premain(args, instrumentation);
                 }
                 if (agent.getConfiguration().isAutoStartMetrics()) {
                     agent.startMetrics();
