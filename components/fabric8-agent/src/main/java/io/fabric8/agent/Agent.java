@@ -27,12 +27,12 @@ public class Agent {
 
     public static void agentmain(final String args,
                                  final Instrumentation instrumentation) throws Exception {
-        JvmAgent.agentmain(args);
+        JvmAgent.agentmain(args, instrumentation);
         ApmAgent.agentmain(args, instrumentation);
     }
 
     public static void premain(String args, Instrumentation instrumentation) throws Exception {
-        JvmAgent.premain(args);
+        JvmAgent.premain(args, instrumentation);
         ApmAgent.premain(args, instrumentation);
     }
 }
