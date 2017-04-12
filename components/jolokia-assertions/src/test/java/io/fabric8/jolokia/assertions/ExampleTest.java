@@ -37,7 +37,7 @@ public class ExampleTest {
     @Before
     public void init() {
         // lets initialise the JVM agent and the client
-        JvmAgent.agentmain("");
+        JvmAgent.agentmain("", null);
 
         client = J4pClient.url("http://localhost:8778/jolokia")
                 .connectionTimeout(3000)
