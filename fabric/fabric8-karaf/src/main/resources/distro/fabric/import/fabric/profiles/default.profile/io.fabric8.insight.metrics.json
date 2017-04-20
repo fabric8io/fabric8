@@ -1,0 +1,55 @@
+{
+  "queries" : [ {
+    "name" : "jvm",
+	"template": "profile:jvm.mvel",
+	"metadata": "profile:jvm.json",
+    "requests" : [ {
+      "name": "memory",
+      "obj" : "java.lang:type=Memory",
+      "attrs" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ]
+    },
+    {
+      "name": "pool",
+      "obj" : "java.lang:type=MemoryPool,*",
+      "attrs" : [ "Usage", "PeakUsage" ]
+    },
+    {
+      "name": "threading",
+      "obj" : "java.lang:type=Threading",
+      "attrs" : [ "ThreadCount", "PeakThreadCount" ]
+    },
+    {
+      "name": "gc",
+      "obj" : "java.lang:type=GarbageCollector,*",
+      "attrs" : [ "CollectionCount", "CollectionTime" ]
+    },
+    {
+      "name": "buffer_pools",
+      "obj" : "java.nio:type=BufferPool,*",
+      "attrs" : [ "Count", "MemoryUsed", "TotalCapacity" ]
+    },
+    {
+      "name": "os",
+      "obj" : "java.lang:type=OperatingSystem",
+      "attrs" : [ "OpenFileDescriptorCount", "MaxFileDescriptorCount", "FreePhysicalMemorySize", "TotalPhysicalMemorySize", "FreeSwapSpaceSize", "TotalSwapSpaceSize", "ProcessCpuLoad", "ProcessCpuTime", "SystemCpuLoad", "SystemLoadAverage" ]
+    },
+    {
+      "name": "filesystem",
+      "obj" : "io.fabric8:service=FileSystem",
+      "attrs" : [ "FreeSpace", "TotalSpace" ]
+    } ]
+  }, {
+    "name": "zookeeper",
+	"template": "profile:zookeeper.mvel",
+	"metadata": "profile:zookeeper.json",
+    "requests": [ {
+      "name": "peer",
+      "obj" : "org.apache.zookeeper:name0=*,name1=*,name2=*",
+      "attrs": [ "AvgRequestLatency", "MaxRequestLatency", "MinRequestLatency", "PacketsReceived", "PacketsSent" ]
+    }, {
+      "name": "tree",
+      "obj" : "org.apache.zookeeper:name3=InMemoryDataTree,*",
+      "attrs": [ "NodeCount", "WatchCount" ]
+    } ]
+  } ]
+}

@@ -1,0 +1,17 @@
+{
+  "queries" : [ {
+    "name" : "elasticsearch",
+	"template": "profile:elasticsearch.mvel",
+	"metadata": "profile:elasticsearch.json",
+    "period": 1,
+    "minPeriod": "default",
+    "lock": "global",
+    "requests" : [ {
+      "name": "health",
+      "obj" : "org.elasticsearch:service=restjmx",
+      "oper": "exec",
+      "args": [ "GET", "/_cluster/health", null ],
+      "sig" : [ "java.lang.String", "java.lang.String", "java.lang.String" ]
+    } ]
+  } ]
+}
