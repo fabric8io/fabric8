@@ -15,17 +15,9 @@
  */
 package io.fabric8.maven.stubs;
 
-import org.apache.maven.model.Build;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
-import org.codehaus.plexus.util.ReaderFactory;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-public class CreateProfileZipJarProjectStub extends CreateProfileZipProjectStub {
+public class CreateProfileZipJarProjectStub extends AbstractProjectStub {
 
     @Override
     public File getBasedir()

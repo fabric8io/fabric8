@@ -237,6 +237,20 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.replaceReadmeLinksPrefix")
     protected String replaceReadmeLinksPrefix;
 
+    /**
+     * Allows the user to omit dependencies from the fabric8 profile requirements
+     */
+    @Parameter(property = "fabric8.omitDependenciesFromRequirements", defaultValue = "false")
+    private boolean omitDependenciesFromRequirements;
+
+    public String getArtifactBundleType() {
+        return artifactBundleType;
+    }
+
+    public String getArtifactBundleClassifier() {
+        return artifactBundleClassifier;
+    }
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
@@ -583,16 +597,17 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected void addProjectArtifactBundle(ProjectRequirements requirements) throws MojoFailureException {
         DependencyDTO rootDependency = requirements.getRootDependency();
         if (rootDependency != null) {
-            // we need url with type, so when we deploy war files the mvn url is correct
             StringBuilder urlBuffer = new StringBuilder(rootDependency.toBundleUrl());
 
             String apparentType = rootDependency.getType();
             String apparentClassifier = rootDependency.getClassifier();
 
-            for (String omit : OMITTED_BUNDLE_TYPES) {
-                if (omit.equals(apparentType)) {
-                    apparentType = null;
-                    break;
+            if (artifactBundleType == null) {
+                for (String omit : OMITTED_BUNDLE_TYPES) {
+                    if (omit.equals(apparentType)) {
+                        apparentType = null;
+                        break;
+                    }
                 }
             }
 
@@ -608,12 +623,8 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     }
 
     private void handleArtifactBundleType(StringBuilder urlBuffer, String apparentType) {
-        if (artifactBundleType != null) {
-            urlBuffer.append("/" + artifactBundleType);
-        } else {
-            if (apparentType != null) {
-                urlBuffer.append("/" + apparentType);
-            }
+        if (apparentType != null) {
+            urlBuffer.append("/" + apparentType);
         }
     }
 
@@ -623,22 +634,31 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             nextUrlComponent = "/" + apparentClassifier;
         }
 
-        if (artifactBundleClassifier != null) {
-            if (artifactBundleType != null) {
-                nextUrlComponent = "/" + artifactBundleClassifier;
-            } else {
-                throw new MojoFailureException(
-                        "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
-                                +"' without also specifying artifactBundleType");
-            }
-        }
         urlBuffer.append(nextUrlComponent);
     }
 
-    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
+    private void throwClassifierWithoutTypeException() throws MojoFailureException {
+        throw new MojoFailureException(
+                "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
+                        +"' without also specifying artifactBundleType");
+    }
+
+    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException, MojoFailureException {
         ArtifactFilter artifactFilter = createResolvingArtifactFilter();
         DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);
-        return buildFrom(dependencyNode);
+        DependencyDTO dependencyDTO = buildFrom(dependencyNode);
+        if (artifactBundleType != null) {
+            dependencyDTO.setType(artifactBundleType);
+        }
+
+        if (artifactBundleClassifier != null) {
+            if (artifactBundleType != null) {
+                dependencyDTO.setClassifier(artifactBundleClassifier);
+            } else {
+                throwClassifierWithoutTypeException();
+            }
+        }
+        return dependencyDTO;
     }
 
     private DependencyDTO buildFrom(DependencyNode node) {
@@ -648,9 +668,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             answer.setGroupId(artifact.getGroupId());
             answer.setArtifactId(artifact.getArtifactId());
             answer.setVersion(artifact.getVersion());
-            answer.setClassifier(artifact.getClassifier());
             String scope = artifact.getScope();
             answer.setScope(scope);
+            answer.setClassifier(artifact.getClassifier());
             answer.setType(artifact.getType());
             // there is a bug if we try to resolve the current projects artifact for a "jar" packaging
             // before we've installed it then this operation will force the jar not be installed
@@ -702,12 +722,20 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 getLog().debug("Ignoring " + node);
                 return null;
             }
+
+            // test for override first, so war logic can be overridden
+            if (omitDependenciesFromRequirements) {
+                getLog().debug("The omitDependenciesFromRequirements flag was enabled node so skipping children");
+                return answer;
+            }
+
             if (isWarProject()) {
                 if (scope != null && !scope.equals("provided")) {
                     getLog().debug("WAR packaging so ignoring non-provided scope " + scope + " for " + node);
                     return null;
                 }
             }
+
             List children = node.getChildren();
             for (Object child : children) {
                 if (child instanceof DependencyNode) {

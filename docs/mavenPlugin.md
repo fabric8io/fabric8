@@ -345,6 +345,13 @@ Normally the classifier is empty. The artifactBundleType parameter must always b
 when using the artifactBundleClassifier parameter.</td>
 </tr>
 <tr>
+<td>omitDependenciesFromRequirements</td>
+<td>Depending on the type of project that is being built, fabric8 will include some of the project's dependencies as profile requirements. 
+Depending on the container used, the requirements might indicate dependencies to be downloaded by fabric8 during provisioning. 
+This property can be set to true if adding dependencies as requirements is not appropriate for your project's profile. 
+By default this property is set to false.</td>
+</tr>
+<tr>
 <td>profileConfigDir</td>
 <td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>

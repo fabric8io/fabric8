@@ -205,8 +205,6 @@
 
     <!-- Testing -->
 
-
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -252,8 +250,11 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
+
+
 
   <reporting>
     <plugins>
@@ -264,4 +265,46 @@
       </plugin>
     </plugins>
   </reporting>
+
+
+    <profiles>
+        <profile>
+            <id>ts.maven</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <version>1.9</version>
+                        <configuration>
+                            <addTestClassPath>true</addTestClassPath>
+                            <projectsDirectory>src/it</projectsDirectory>
+                            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                            <goals>
+                                <goal>clean</goal>
+                                <goal>package</goal>
+                            </goals>
+                            <settingsFile>src/it/settings.xml</settingsFile>
+                            <debug>true</debug>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

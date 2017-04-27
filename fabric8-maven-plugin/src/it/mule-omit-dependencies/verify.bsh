@@ -1,0 +1,35 @@
+
+import java.io.*;
+import java.nio.file.Files;
+import io.fabric8.deployer.dto.DtoHelper;
+import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.deployer.dto.DependencyDTO;
+static import org.junit.Assert.*;
+static import java.util.Collections.*;
+import java.lang.System;
+
+groupId="io.fabric8.maven.itests";
+artifactId="mule-omit-dependencies";
+generatedProfiles = new File(basedir + "/target/generated-profiles");
+
+profilePath = "itests/maven/";
+profileName = "mule.omit.dependencies.profile";
+
+profileFolder = new File(generatedProfiles, profilePath + profileName);
+requirementsFile = new File(profileFolder, "/dependencies/"+groupId+"/"+artifactId+"-requirements.json");
+
+data = Files.readAllBytes(requirementsFile.toPath());
+
+ProjectRequirements requirements = DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
+
+DependencyDTO rootDependency = requirements.getRootDependency();
+
+assertNotNull(rootDependency);
+assertEquals(groupId, rootDependency.getGroupId());
+assertEquals(artifactId, rootDependency.getArtifactId());
+
+// since omitDependenciesFromRequirements is true, this should be empty
+assertEquals(emptyList(),rootDependency.getChildren());
+
+
+return true;

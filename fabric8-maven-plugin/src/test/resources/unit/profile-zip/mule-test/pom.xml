@@ -51,7 +51,7 @@
                 <configuration>
                     <includeArtifact>true</includeArtifact>
                     <profileConfigDir>${basedir}/src/main/fabric8</profileConfigDir>
-                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipJarProjectStub"/>
+                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipMuleProjectStub"/>
                 </configuration>
             </plugin>
         </plugins>

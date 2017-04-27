@@ -56,10 +56,15 @@
     <!-- we can define what the context path should be using a fixed name -->
     <fabric8.webContextPath>helloworld</fabric8.webContextPath>
 
-    <!-- fabric8 will using the packing type 'mule' as the extentions spec -->
-    <!-- for the bundle, which is wrong, so the default must be override -->
-    <!-- (see fabric8 plugin config, in this module) -->
-    <fabric8.includeArtifact>false</fabric8.includeArtifact>
+    <!-- fabric8 will by default use the packaging type as the archive extension spec -->
+    <!-- for the bundle. This means it will specify an archive 'mule-helloworld.mule' to -->
+    <!-- the resolver, which is wrong. So the default type must be overridden so that -->
+    <!-- resolver looks for mule-helloworld.zip instead! -->
+    <fabric8.artifactBundleType>zip</fabric8.artifactBundleType>
+
+    <!-- The mule application is self contained, so fabric doesn't need to know about -->
+    <!-- code dependencies -->
+    <fabric8.omitDependenciesFromRequirements>true</fabric8.omitDependenciesFromRequirements>
   </properties>
 
   <dependencyManagement>
@@ -171,7 +176,6 @@
 
     <plugins>
 
-      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.compiler.plugin}</version>
@@ -269,13 +273,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <includeArtifact>${fabric8.includeArtifact}</includeArtifact>
-          <!-- override the default bundle spec, with the correct one -->
-          <bundles>
-            file:mvn:${project.groupId}/${project.artifactId}/${project.version}/zip
-          </bundles>
-        </configuration>
       </plugin>
 
     </plugins>
