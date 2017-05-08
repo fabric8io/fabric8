@@ -12,13 +12,37 @@ Fabric8 is an integrated open source [DevOps](fabric8DevOps.html) and [Integrati
 
 Fabric8 (pronounced _fabricate_) gives you out of the box services that assist you when building Microservices, monoliths or any application in a linux container (Docker/Rocket) environment and is built on top of [Kubernetes](http://kubernetes.io/).
 
-#### What is Kubernetes?
+#### How does fabric8 compare to openshift.io?
 
-[Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) based _Container As A Service_ (orchestrates docker containers)
+Red Hat recently announced [openshift.io](https://openshift.io/) at the [Summit keynote](https://youtu.be/PtTnnw3DakY?list=PLEGSLwUsxfEh4TE2GDU4oygCB-tmShkSn&t=1834). You can find out more about [openshift.io](https://openshift.io/) in [this overview video](https://www.youtube.com/watch?v=lkNVTY3vzvs).
 
+[openshift.io](https://openshift.io/) is a free hosted development platform which uses that lets developers plan, create, edit, run, debug and CI / CD applications that are hosted on [OpenShift Online](https://www.openshift.com/features/index.html) with a fully integrated console, IDE and deep analytics.
+
+The upstream project of [openshift.io](https://openshift.io/) is [fabric8](https://fabric8.io/). So you can think of openshift.io as _fabric8 as a service_ :).
+
+At the time of writing there are quite a few differences between the upstream fabric8 distribution and openshift.io which we are hoping to reduce ASAP. The differences today are:
+
+* openshift.io delegates to [keycloak](http://www.keycloak.org/) as the SSO service for all applications and users to use as well as to unify identities between opesnhift.io, github and the openshift online cluster. We have not yet integrated keycloak into the upstream distro - instead we just delegate to openshift OAuth (or don't provide OAuth on kubernetes). Hopefully soon we can integrate keycloak into the fabric8 distro.
+* we've been working on a new shiny angular 4 based console. The core [fabric8-runtime-console](https://github.com/fabric8-ui/fabric8-runtime-console) will be included in the fabric8 upstream distro soon. Then there is the much larger [fabric8-ui](https://github.com/fabric8io/fabric8-ui) console which builds on [fabric8-runtime-console](https://github.com/fabric8-ui/fabric8-runtime-console) to add additional capabilities:
+  * planning, kanban board and issue tracking
+  * analytics integration
+  * integration with Eclipse Che
+* fabric8-planner provides a [front end](https://github.com/fabric8io/fabric8-planner) and [back end](https://github.com/almighty/almighty-core) for planning, kanban board and issue tracking. We'd like to add this into the fabric8 distribution ASAP
+* [fabric8-analytics](https://github.com/fabric8-analytics) provides analytics about projects, libraries, dependencies and so forth. As you can see in the [openshift.io demo](https://youtu.be/PtTnnw3DakY?list=PLEGSLwUsxfEh4TE2GDU4oygCB-tmShkSn&t=1834) this can be used to generate reports on each build or inside an IDE like Eclipse Che to warn about using dependencies which have security vulnerabilities together with providing feedback on which version to migrate to. All the source code is upstream at the [github fabric8-analytics organisation](https://github.com/fabric8-analytics) but given the data plus all the cloud based infrastructure involved in this large complex project which is currently very AWS centric;  we've no immediate plans to include it inside the fabric8 distribution. Its trivial however to reuse fabric8 analytics from fabric8 or openshift.io via the REST API.
+* eclipse che. We need to include this in the upstream distribution ASAP. The current app is [here](https://github.com/fabric8io/fabric8-online/tree/master/apps/che) though I suspect it will need work to run upstream.
+* [fabric8-init-tenant](https://github.com/fabric8io/fabric8-init-tenant) is a SaaS service which we use to initialise and update users tenant namespaces (e.g. the namespaces running the users Jenkins + Che services) and keep them updated. We'd like to port this so folks can use it upstream to manage the versions of developer tools that users run.
+
+So its going to take a little while for us to get a fabric8 distrition thats easy to install and run on any kubernetes or openshift cluster that mimicks the functionality of [openshift.io](https://openshift.io/) but we will get there in the end.
+
+At the same time in parallel we hope to make [openshift.io](https://openshift.io/) work with different openshift clusters for building applications and using different environments; so that might be the fastest way to get an openshift.io experience either on premise or on your own kubernetes or openshift cluster in the cloud.   
+ 
 #### How does Fabric8 relate to other open source projects?
 
 Fabric8 provides upstream innovation on concepts and features, once validated, make their way into other open source projects such as [OpenShift Origin](https://github.com/openshift/origin), [Kubernetes](http://kubernetes.io) and [Jenkins](https://jenkins.io/) (as examples). Fabric8 contributors work in the various other open source communities to align a unified developer experience.
+
+#### What is Kubernetes?
+
+[Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) based _Container As A Service_ (orchestrates docker containers)
 
 #### What is the overlap with oc/kubectl/webconsole and fabric8-maven-plugin?
 
