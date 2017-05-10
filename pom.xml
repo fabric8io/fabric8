@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>2.2.170.redhat-SNAPSHOT</version>
+    <version>2.2.170.fuse-000051</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -74,8 +74,8 @@
 
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.12.1</activemq.version>
-        <camel.version>2.18.0</camel.version>
-        <cxf.version>3.1.6</cxf.version>
+        <camel.version>2.20.0.fuse-000009</camel.version>
+        <cxf.version>3.2.0.fuse-000055</cxf.version>
         <cxf.plugin.version>3.1.5</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
@@ -89,7 +89,6 @@
         <jsonschema2pojo.version>0.4.27</jsonschema2pojo.version>
         <snakeyaml.version>1.17</snakeyaml.version>
         <swagger.jaxrs.version>1.5.10</swagger.jaxrs.version>
-        <vertx.version>3.3.3</vertx.version>
         <weld.version>2.3.5.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
@@ -107,7 +106,6 @@
         <aether.version>1.0.0.v20140518</aether.version>
         <archetype-packaging.version>2.4</archetype-packaging.version>
         <arquillian.version>1.1.11.Final</arquillian.version>
-        <asm.version>5.0.4</asm.version>
         <assertj.core.version>2.4.1</assertj.core.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
 
@@ -115,7 +113,7 @@
         <curator.version>2.9.1</curator.version>
         <deltaspike.version>1.7.1</deltaspike.version>
         <dnsjava.version>2.1.7</dnsjava.version>
-        <docker.maven.plugin.version>0.16.8</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.16.9.fuse-000033</docker.maven.plugin.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
@@ -129,7 +127,6 @@
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin.version>8.1.16.v20140903</jetty-plugin.version>
-        <jetty.version>8.1.17.v20150415</jetty.version>
 
 <!--
         We've released a new version of gitective (0.9.17) with the latest jgit support (4.5.0.201609210915-r)
@@ -137,7 +134,7 @@
         <jgit.version>4.5.0.201609210915-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
-        <kubernetes-client.version>1.4.14</kubernetes-client.version>
+        <kubernetes-client.version>1.4.14.fuse-000031</kubernetes-client.version>
         <log4j.version>1.2.17</log4j.version>
         <lombok.version>1.16.10</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
@@ -161,7 +158,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
-        <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
+        <spring-cloud-kubernetes.version>0.1.4.fuse-000005</spring-cloud-kubernetes.version>
         <sundrio.version>0.4.4</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
@@ -599,11 +596,7 @@
             </dependency>
 
             <!-- vertx -->
-            <dependency>
-                <groupId>io.vertx</groupId>
-                <artifactId>vertx-core</artifactId>
-                <version>${vertx.version}</version>
-            </dependency>
+            
 
             <!-- Log4j -->
             <dependency>
@@ -1364,7 +1357,6 @@
         <module>parent</module>
         <module>fabric8-apt</module>
         <module>components</module>
-        <module>fabric8-maven-plugin</module>
         <module>hawt-app-maven-plugin</module>
         <module>tooling</module>
     </modules>
@@ -1476,6 +1468,8 @@
                                   <include>org.yaml:snakeyaml</include>
 
                                   <include>xml-apis:xml-apis</include>
+
+                                  <include>org.hibernate:hibernate-validator</include>
                               </includes>
                               <excludes>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
@@ -1877,7 +1871,7 @@
         <profile>
             <id>camel-snapshot</id>
             <properties>
-                <camel.version>2.18-SNAPSHOT</camel.version>
+                <camel.version>2.20.0.fuse-000009</camel.version>
             </properties>
         </profile>
         <profile>
