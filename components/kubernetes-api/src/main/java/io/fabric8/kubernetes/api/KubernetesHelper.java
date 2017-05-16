@@ -134,13 +134,14 @@ public final class KubernetesHelper {
 
 
     public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
-    protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
 
     public static final String defaultApiVersion = "v1";
     public static final String defaultOsApiVersion = "v1";
 
     private static final ConcurrentMap<URL, Boolean> IS_OPENSHIFT = new ConcurrentHashMap<>();
     private static final Config CONFIG = new ConfigBuilder().build();
+
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
 
     public static String defaultNamespace() {
         return CONFIG.getNamespace();
@@ -1905,7 +1906,7 @@ public final class KubernetesHelper {
 
     public static Date parseDate(String text) {
         try {
-            return dateTimeFormat.parse(text);
+            return new SimpleDateFormat(DATE_TIME_FORMAT).parse(text);
         } catch (ParseException e) {
             LOG.warn("Failed to parse date: " + text + ". Reason: " + e);
             return null;
