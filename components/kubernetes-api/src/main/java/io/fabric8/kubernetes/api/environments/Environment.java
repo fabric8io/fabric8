@@ -27,6 +27,8 @@ public class Environment implements Comparable<Environment> {
     private String namespace;
     private String clusterAPiServer;
     private Integer order;
+    private String key;
+
 
     @Override
     public String toString() {
@@ -79,5 +81,13 @@ public class Environment implements Comparable<Environment> {
 
     public void setOrder(Integer order) {
         this.order = order;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
