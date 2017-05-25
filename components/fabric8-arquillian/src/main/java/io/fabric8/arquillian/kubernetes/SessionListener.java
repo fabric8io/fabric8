@@ -96,6 +96,7 @@ public class SessionListener {
 
         if (configuration.isCreateNamespaceForTest()) {
             createNamespace(client, controller, session);
+            updateConfigMapStatus(client, session, Constants.RUNNING_STATUS);
         } else {
             String namespaceToUse = configuration.getNamespace();
             checkNamespace(client, controller, session, configuration);
