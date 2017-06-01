@@ -8,9 +8,9 @@ var parse = require('../parse'),
     isHtml = utils.isHtml,
     slice = Array.prototype.slice,
     _ = {
-      flatten: require('lodash.flatten'),
-      bind: require('lodash.bind'),
-      forEach: require('lodash.foreach')
+      flatten: require('lodash/flatten'),
+      bind: require('lodash/bind'),
+      forEach: require('lodash/forEach')
     };
 
 // Create an array of nodes, recursing into arrays and parsing strings if
@@ -25,7 +25,7 @@ exports._makeDomArray = function makeDomArray(elem, clone) {
       return this._makeDomArray(el, clone);
     }, this));
   } else if (typeof elem === 'string') {
-    return evaluate(elem, this.options);
+    return evaluate(elem, this.options, false);
   } else {
     return clone ? cloneDom([elem]) : [elem];
   }
@@ -141,7 +141,7 @@ exports.wrap = function(wrapper) {
   _.forEach(this, _.bind(function(el, i) {
     var parent = el.parent || el.root,
         siblings = parent.children,
-        dom, index;
+        wrapperDom, elInsertLocation, j, index;
 
     if (!parent) {
       return;
@@ -155,14 +155,31 @@ exports.wrap = function(wrapper) {
       wrapper = this.parents().last().find(wrapper).clone();
     }
 
-    dom = this._makeDomArray(wrapper, i < lastIdx).slice(0, 1);
+    wrapperDom = this._makeDomArray(wrapper, i < lastIdx).slice(0, 1);
+    elInsertLocation = wrapperDom[0];
+    // Find the deepest child. Only consider the first tag child of each node
+    // (ignore text); stop if no children are found.
+    j = 0;
+
+    while (elInsertLocation && elInsertLocation.children) {
+      if (j >= elInsertLocation.children.length) {
+        break;
+      }
+
+      if (elInsertLocation.children[j].type === 'tag') {
+        elInsertLocation = elInsertLocation.children[j];
+        j=0;
+      } else {
+        j++;
+      }
+    }
     index = siblings.indexOf(el);
 
-    updateDOM([el], dom[0]);
+    updateDOM([el], elInsertLocation);
     // The previous operation removed the current element from the `siblings`
     // array, so the `dom` array can be inserted without removing any
     // additional elements.
-    uniqueSplice(siblings, index, 0, dom, parent);
+    uniqueSplice(siblings, index, 0, wrapperDom, parent);
   }, this));
 
   return this;
@@ -350,8 +367,8 @@ exports.replaceWith = function(content) {
 
 exports.empty = function() {
   domEach(this, function(i, el) {
-    _.forEach(el.children, function(el) {
-      el.next = el.prev = el.parent = null;
+    _.forEach(el.children, function(child) {
+      child.next = child.prev = child.parent = null;
     });
 
     el.children.length = 0;
@@ -371,11 +388,11 @@ exports.html = function(str) {
   var opts = this.options;
 
   domEach(this, function(i, el) {
-    _.forEach(el.children, function(el) {
-      el.next = el.prev = el.parent = null;
+    _.forEach(el.children, function(child) {
+      child.next = child.prev = child.parent = null;
     });
 
-    var content = str.cheerio ? str.clone().get() : evaluate('' + str, opts);
+    var content = str.cheerio ? str.clone().get() : evaluate('' + str, opts, false);
 
     updateDOM(content, el);
   });
@@ -401,8 +418,8 @@ exports.text = function(str) {
 
   // Append text node to each selected elements
   domEach(this, function(i, el) {
-    _.forEach(el.children, function(el) {
-      el.next = el.prev = el.parent = null;
+    _.forEach(el.children, function(child) {
+      child.next = child.prev = child.parent = null;
     });
 
     var elem = {

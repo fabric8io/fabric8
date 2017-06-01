@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.3" data-basepath=".." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="3.3" data-basepath=".." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="design-for-failure"><a name="design-for-failure" class="plugin-anchor" href="#design-for-failure"><span class="fa fa-link"></span></a>Design for failure</h2>
+                        <html><head></head><body><h2 id="design-for-failure"><a name="design-for-failure" class="plugin-anchor" href="#design-for-failure"><span class="fa fa-link"></span></a>Design for failure</h2>
 <p>Traditionally we&apos;ve tried to &quot;avoid&quot; failure by doing whatever we could to make services/components &quot;not fail&quot;. We would deploy monolithic &quot;appliances&quot; (hardware or software) and if that appliance failed it was a significant event. As we start to move toward distributed systems, especially Microservices, we find that there are many more points of failure. Microservices are  implemented as a collection of services that evolve independently and interact and react to their surrounding environments including the changing of user/customer behaviors, business strategy/direction, system behavior, and even other services. One premise of these types of complex-adaptive systems is the ability to withstand failures and unexpected faults.</p>
 <p>To do this, you must design your services with failure in mind. There are a handful of practices that come to mind:</p>
 <ul>
@@ -1892,7 +1892,7 @@
 <p>From the domain perspective, we have to be able to degrade gracefully when these downstream components are faulting. We can limit the blast radius of a faulting component, but if we provide a service, how do we maintain our promise to deliver that service? Hystrix also allows us to use fallback methods and workflows to provide some level of (possibly degraded) service even in the event of failures.</p>
 <h3 id="prove-your-system-has-been-designed-for-failure"><a name="prove-your-system-has-been-designed-for-failure" class="plugin-anchor" href="#prove-your-system-has-been-designed-for-failure"><span class="fa fa-link"></span></a>Prove your system has been designed for failure</h3>
 <p>When you&apos;ve designed your system with failure in mind and able to withstand faults, a useful technique is to continuously prove whether or not this is true. With fabric8, we have an out of the box <a href="../chaosMonkey.html">chaos monkey</a> that can go through your Kubernetes namespaces and randomly kill pods in any of your environments including production. If you&apos;ve not designed your services to be able to withstand these types of faults, then you want to know with fast feedback. Chaos monkey can provide that feedback. </p>
-
+</body></html>
                     
                     </section>
                 

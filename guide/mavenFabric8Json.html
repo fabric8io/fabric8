@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.11" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2.1.11" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-json"><a name="fabric8-json" class="plugin-anchor" href="#fabric8-json"><span class="fa fa-link"></span></a>fabric8:json</h2>
+                        <html><head></head><body><h2 id="fabric8-json"><a name="fabric8-json" class="plugin-anchor" href="#fabric8-json"><span class="fa fa-link"></span></a>fabric8:json</h2>
 <p>The maven <code>fabric8:json</code> goal generates the <code>kubernetes.json</code> file for your <a href="apps.html">App</a> from your Maven project and adds it as an artifact to your build so that it gets versioned and released along with your artifacts.</p>
 <p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
 <h3 id="generation-options"><a name="generation-options" class="plugin-anchor" href="#generation-options"><span class="fa fa-link"></span></a>Generation options</h3>
@@ -1929,7 +1929,7 @@ ANOTHER = some ${CHEESE}
 <pre><code>mvn fabric8:json -Dfabric8.label.foo=bar -Dfabric8.iconRef=java
 </code></pre><p>There are many options as listed in the following table:</p>
 <table class="table table-striped">
-<tr>
+<tbody><tr>
 <th>Parameter</th>
 <th>Description</th>
 </tr>
@@ -2153,10 +2153,10 @@ ANOTHER = some ${CHEESE}
 <td>fabric8.service.name</td>
 <td>The name of the Service to generate. Defaults to <code>${project.artifactId}</code> (the artifact Id of the project)</td>
 </tr>
-<td>fabric8.service.headless</td>
+<tr><td>fabric8.service.headless</td>
 <td>Whether or not we should generate headless services (services with no ports exposed, no cluster IPs, and are not managed my the Kube Proxy)</td>
 
-<tr>
+</tr><tr>
 </tr><tr>
 <td>fabric8.service.port</td>
 <td>The port of the Service to generate (if a kubernetes service is required).</td>
@@ -2243,8 +2243,8 @@ ANOTHER = some ${CHEESE}
 <td>fabric8.volume.FOO.secret = BAR</td>
 <td>Defines the secret name to be BAR for the FOO volume.</td>
 </tr>
-</table>
-
+</tbody></table>
+</body></html>
                     
                     </section>
                 

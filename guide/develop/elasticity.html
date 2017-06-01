@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="3.2" data-basepath=".." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="3.2" data-basepath=".." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="elasticity-and-resilience"><a name="elasticity-and-resilience" class="plugin-anchor" href="#elasticity-and-resilience"><span class="fa fa-link"></span></a>Elasticity and Resilience</h2>
+                        <html><head></head><body><h2 id="elasticity-and-resilience"><a name="elasticity-and-resilience" class="plugin-anchor" href="#elasticity-and-resilience"><span class="fa fa-link"></span></a>Elasticity and Resilience</h2>
 <p>Your Microservices should be <strong>highly available</strong> and resilient to failure. Ideally each Microservice should also be <em>elastic</em> so that you can easily scale up or down the number of containers used for each Microservice. Some Microservices may only require one container; others may require many.</p>
 <p> Many times when considering elasticity, you have to consider whether your app is stateless or stateful. Stateless apps should be trivial to scale up and down, however stateful apps require more care. For example, a stateful data store would need to shard and replicate its state across the members in the cluster and know how to rebalance itself during scaling events.</p>
 <p>Fabric8 solves these elasticity and resilience problems by using Kubernetes <a href="../replicationControllers.html">Replica Sets</a> (which used to be called Replication Controllers). Just like most configurations for Kubernetes, a Replica Set is a way to reconcile a desired state: you tell Kubernetes what state the system should be and Kubernetes figures out how to make it so. A Replica Set controls the number of <code>replicas</code> or exact copies of the app that should be running at any time.    </p>
@@ -1877,7 +1877,7 @@
 <p>To scale your Replica Set you just need to specify how many <code>replicas</code> you wish by default in your Replica Set YAML file. The default value of 1 should ensure that there is always a pod running. If a pod terminates (or the host running the pod terminates) then Kubernetes will automatically spin up another pod for you.</p>
 <h3 id="autoscaling"><a name="autoscaling" class="plugin-anchor" href="#autoscaling"><span class="fa fa-link"></span></a>Autoscaling</h3>
 <p>To autoscale you need to annotate your Replica Set with the metadata required, such as CPU limits or custom metrics so that Kubernetes knows when to scale up or down the number of pods. Then you can create a <a href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaling/" target="_blank">HorizontalPodAutoscaler</a> to let Kubernetes know certain pods/ReplicaSets should participate in autoscaling. </p>
-
+</body></html>
                     
                     </section>
                 

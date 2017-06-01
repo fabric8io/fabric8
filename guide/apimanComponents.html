@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="6.2.1" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="6.2.1" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,14 +1867,14 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="overview-of-the-components-shipped-by-apiman"><a name="overview-of-the-components-shipped-by-apiman" class="plugin-anchor" href="#overview-of-the-components-shipped-by-apiman"><span class="fa fa-link"></span></a>Overview of the components shipped by apiman</h2>
+                        <html><head></head><body><h2 id="overview-of-the-components-shipped-by-apiman"><a name="overview-of-the-components-shipped-by-apiman" class="plugin-anchor" href="#overview-of-the-components-shipped-by-apiman"><span class="fa fa-link"></span></a>Overview of the components shipped by apiman</h2>
 <p>The bottom half of the apiman component diagram below shows the apiman gateway. The gateway is a standalone application that functions as proxy between service consumers and producers. Requests are routed through a policy engine that applies a preconfigured chain of policies both on the way in (think of authentication policies) as well as on the way out (think of usage policies). Policies are plugins that if needed can connect to external systems to lookup authentication credentials such as LDAP, a JDBC store or a REST based call to an external system. The gateway component services runtime requests. </p>
 <p>The top half of the diagram show the apiman application itself. This application is used at design time by service producers to configure their service with policies, and or plans. Service consumers then agree to a certain plan and a contract can be set up between the two parties. More on this later. Once the desired policies, plans and contracts are in place, the service can be published to the gateway. The publish process is a REST based call from apiman to the gateway. At this point the service is live for consumption by application developers (service consumers).</p>
 <p><img src="images/apiman1.png" alt="apiman overview diagram">.</p>
 <p><em>Overview of the apiman components</em></p>
 <h3 id="apiman-on-fabric8"><a name="apiman-on-fabric8" class="plugin-anchor" href="#apiman-on-fabric8"><span class="fa fa-link"></span></a>Apiman on Fabric8</h3>
 <p>Apiman is deployed on top of Fabric8 itself. This means that both apiman and the gateway are deployed as a Microservice. This means that each app is a Kubernetes Service backed by one of more Kubernetes Pod instances. In each namespace you can run an apiman service and a gateway. Persistence is provided by using elasticsearch as a NoSQL datastore. You can run more then one pod for both apiman and the gateway to increase performance of these apps if needed.</p>
-
+</body></html>
                     
                     </section>
                 

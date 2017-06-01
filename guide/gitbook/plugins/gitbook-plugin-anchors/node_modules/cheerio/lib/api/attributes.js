@@ -8,9 +8,9 @@ var $ = require('../static'),
     rspace = /\s+/,
     dataAttrPrefix = 'data-',
     _ = {
-      forEach: require('lodash.foreach'),
-      extend: require('lodash.assignin'),
-      some: require('lodash.some')
+      forEach: require('lodash/forEach'),
+      extend: require('lodash/assignIn'),
+      some: require('lodash/some')
     },
 
   // Lookup table for coercing string data-* attributes to their corresponding
@@ -78,8 +78,8 @@ exports.attr = function(name, value) {
       if (!isTag(el)) return;
 
       if (typeof name === 'object') {
-        _.forEach(name, function(value, name) {
-          setAttr(el, name, value);
+        _.forEach(name, function(objValue, objName) {
+          setAttr(el, objName, objValue);
         });
       } else {
         setAttr(el, name, value);
@@ -92,8 +92,8 @@ exports.attr = function(name, value) {
 
 var getProp = function (el, name) {
   if (!el || !isTag(el)) return;
-  
-  return el.hasOwnProperty(name)
+
+  return hasOwn.call(el, name)
       ? el[name]
       : rboolean.test(name)
           ? getAttr(el, name) !== undefined
@@ -135,18 +135,18 @@ exports.prop = function (name, value) {
   if (typeof name === 'object' || value !== undefined) {
 
     if (typeof value === 'function') {
-      return domEach(this, function(i, el) {
-        setProp(el, name, value.call(el, i, getProp(el, name)));
+      return domEach(this, function(j, el) {
+        setProp(el, name, value.call(el, j, getProp(el, name)));
       });
     }
 
-    return domEach(this, function(i, el) {
+    return domEach(this, function(__, el) {
       if (!isTag(el)) return;
 
       if (typeof name === 'object') {
 
-        _.forEach(name, function(val, name) {
-          setProp(el, name, val);
+        _.forEach(name, function(val, key) {
+          setProp(el, key, val);
         });
 
       } else {
@@ -165,8 +165,6 @@ var setData = function(el, name, value) {
   if (typeof name === 'object') return _.extend(el.data, name);
   if (typeof name === 'string' && value !== undefined) {
     el.data[name] = value;
-  } else if (typeof name === 'object') {
-    _.extend(el.data, name);
   }
 };
 
@@ -182,8 +180,8 @@ var readData = function(el, name) {
     domNames = Object.keys(el.attribs).filter(function(attrName) {
       return attrName.slice(0, dataAttrPrefix.length) === dataAttrPrefix;
     });
-    jsNames = domNames.map(function(domName) {
-      return camelCase(domName.slice(dataAttrPrefix.length));
+    jsNames = domNames.map(function(_domName) {
+      return camelCase(_domName.slice(dataAttrPrefix.length));
     });
   } else {
     domNames = [dataAttrPrefix + cssCase(name)];
@@ -272,7 +270,7 @@ exports.val = function(value) {
           returnValue;
       if (option === undefined) return undefined;
       if (!querying) {
-        if (!this.attr().hasOwnProperty('multiple') && typeof value == 'object') {
+        if (!hasOwn.call(this.attr(), 'multiple') && typeof value == 'object') {
           return this;
         }
         if (typeof value != 'object') {
@@ -285,9 +283,9 @@ exports.val = function(value) {
         return this;
       }
       returnValue = option.attr('value');
-      if (this.attr().hasOwnProperty('multiple')) {
+      if (hasOwn.call(this.attr(), 'multiple')) {
         returnValue = [];
-        domEach(option, function(i, el) {
+        domEach(option, function(__, el) {
           returnValue.push(getAttr(el, 'value'));
         });
       }
@@ -328,7 +326,7 @@ exports.hasClass = function(className) {
         idx = -1,
         end;
 
-    if (clazz) {
+    if (clazz && className.length) {
       while ((idx = clazz.indexOf(className, idx+1)) > -1) {
         end = idx + className.length;
 
@@ -492,4 +490,3 @@ exports.is = function (selector) {
   }
   return false;
 };
-

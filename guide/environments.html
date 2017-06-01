@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="10.8" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="10.8" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h3 id="working-with-environments-in-kubernetes"><a name="working-with-environments-in-kubernetes" class="plugin-anchor" href="#working-with-environments-in-kubernetes"><span class="fa fa-link"></span></a>Working with Environments in Kubernetes</h3>
+                        <html><head></head><body><h3 id="working-with-environments-in-kubernetes"><a name="working-with-environments-in-kubernetes" class="plugin-anchor" href="#working-with-environments-in-kubernetes"><span class="fa fa-link"></span></a>Working with Environments in Kubernetes</h3>
 <p>Developers tend to work with multiple environments; production, staging, UAT, regression testing and so forth. Ideally there should be a <a href="http://en.wikipedia.org/wiki/Continuous_delivery" target="_blank">Continuous Delivery</a> pipeline setup to move containers and configurations from <code>dev -&gt; test -&gt; UAT -&gt; staging -&gt; production</code>. In an ideal world we&apos;d reuse as much as possible (container images and kubernetes manifests between environments.</p>
 <p>In Kubernetes each environment is a <strong>namespace</strong>. Then <a href="pods.html">pods</a> inside a namespace only see <a href="services.html">services</a> defined in that namespace. So <em>prod</em> pods only see <em>prod</em> services, <em>test</em> pods only see <em>test</em> services etc.</p>
 <p>So <a href="services.html">service discovery</a> takes care of finding the right database, message brokers, remote caches and other services for the environment (namespace) a pod is provisioned in.</p>
@@ -1879,7 +1879,7 @@
 <p>So we&apos;d recommend you to try to keep the JSON/YAML the same between environments. One thing that does tend to change between environments is scale. Ideally things would automatically scale; so you use modest sizes in <a href="replicationControllers">Replication Controllers</a> (e.g. replica size 1); then use per environment auto-scaling to scale things up based on load.</p>
 <p>Then your JSON/YAML and docker images can work in all environments without having to change them per environment and folks can have a completely automated Continuous Delivery mechanism setup between however many environments folks need; safe in the knowledge you are testing the same metadata, configuration and images in each environment.</p>
 <p>If you do find you need to add some kind of per-environment configuration change, the other option is to put the JSON/YAML in source control and have a branch per environment so you can make environment-specific changes when you absolutely must do (and can then easily diff between environments)</p>
-
+</body></html>
                     
                     </section>
                 

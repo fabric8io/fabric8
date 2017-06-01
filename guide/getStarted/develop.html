@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="2.8" data-basepath=".." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="2.8" data-basepath=".." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="develop-locally"><a name="develop-locally" class="plugin-anchor" href="#develop-locally"><span class="fa fa-link"></span></a>Develop locally</h2>
+                        <html><head></head><body><h2 id="develop-locally"><a name="develop-locally" class="plugin-anchor" href="#develop-locally"><span class="fa fa-link"></span></a>Develop locally</h2>
 <p>Pushing and pulling docker images to and from docker registries can be quite slow, even when everything is running on your laptop. So its useful to avoid that step when working locally as it speeds up your <code>edit -&gt; compile -&gt; run</code> cycle time and helps you develop faster.</p>
 <p>So if you are running Kubernetes locally on your laptop such as via the <a href="vagrant.html">Fabric8 vagrant image</a> its a good idea to use the same docker daemon that is running inside vagrant on your host operating system (OS X / Windows) when using the docker command and building images.</p>
 <h3 id="setup-your-machine"><a name="setup-your-machine" class="plugin-anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h3>
@@ -1890,7 +1890,7 @@
 </code></pre><p>For more background see a <a href="../mavenFabric8DeletePods.html">description of the mvn fabric8:delete-pods command</a>.</p>
 <p>What this does is builds the docker image in the docker daemon and deletes all the pods in kubernetes which use the same image as your current maven project; this immediately causes the kubernetes <a href="../replicationControllers.html">Replication Controller</a> to recreate any of the pods you deleted. </p>
 <p>Basically this causes an immediate rolling upgrade to the new image! Its a pretty nice, quick way of working.</p>
-
+</body></html>
                     
                     </section>
                 

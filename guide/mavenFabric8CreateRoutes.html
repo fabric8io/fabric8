@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.6" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2.1.6" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-create-routes"><a name="fabric8-create-routes" class="plugin-anchor" href="#fabric8-create-routes"><span class="fa fa-link"></span></a>fabric8:create-routes</h2>
+                        <html><head></head><body><h2 id="fabric8-create-routes"><a name="fabric8-create-routes" class="plugin-anchor" href="#fabric8-create-routes"><span class="fa fa-link"></span></a>fabric8:create-routes</h2>
 <p>The maven <code>fabric8:create-routes</code> goal queries all the <a href="services.html">Services</a> in the current namespace which expose ports 80 or 443 and create a new <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Route</a> if one doesn&apos;t already exist</p>
 <p>You can use the maven property <code>fabric8.domain</code> or the environment variable <code>$KUBERNETES_DOMAIN</code> to define the DNS host to expose services as <a href="http://docs.openshift.org/latest/admin_guide/router.html" target="_blank">OpenShift Routes</a></p>
 <p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
@@ -1899,7 +1899,7 @@ mvn fabric8:create-routes
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>The following maven property values are used to configure the behaviour of the apply goal:</p>
 <table class="table table-striped">
-<tr>
+<tbody><tr>
 <th>Parameter</th>
 <th>Description</th>
 </tr>
@@ -1911,9 +1911,9 @@ mvn fabric8:create-routes
 <td>fabric8.namespace</td>
 <td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
 </tr>
-</table>
+</tbody></table>
 
-
+</body></html>
                     
                     </section>
                 

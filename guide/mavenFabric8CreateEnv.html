@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="8.2.1.5" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="8.2.1.5" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="fabric8-create-env"><a name="fabric8-create-env" class="plugin-anchor" href="#fabric8-create-env"><span class="fa fa-link"></span></a>fabric8:create-env</h2>
+                        <html><head></head><body><h2 id="fabric8-create-env"><a name="fabric8-create-env" class="plugin-anchor" href="#fabric8-create-env"><span class="fa fa-link"></span></a>fabric8:create-env</h2>
 <p>The maven <code>fabric8:create-env</code> goal queries all the <a href="services.html">Services</a> in the current namespace along with looking at the JSON file generated via <a href="mavenFarbic8Json.html">mvn fabric8:json</a> (located at <code>target/classes/kubernetes.json</code>) and generates a list of environment variables that would be required to simulate running a process inside Kubernetes.</p>
 <p>This makes it easy to run, say, Java programs in your IDE as if it was running inside a Kubernetes environment; discovering all the <a href="services.html">services</a> available in the namespace and setting all the same environment variables that are defined inside your <a href="pods.html">pods</a> or <a href="replicationControllers.html">replication controllers</a></p>
 <p>For a summary of the options see the <a href="#maven-properties">Maven Property Reference</a></p>
@@ -1911,7 +1911,7 @@ source target/env.sh
 <h3 id="maven-properties"><a name="maven-properties" class="plugin-anchor" href="#maven-properties"><span class="fa fa-link"></span></a>Maven Properties</h3>
 <p>The following maven property values are used to configure the behaviour of the apply goal:</p>
 <table class="table table-striped">
-<tr>
+<tbody><tr>
 <th>Parameter</th>
 <th>Description</th>
 </tr>
@@ -1919,9 +1919,9 @@ source target/env.sh
 <td>fabric8.namespace</td>
 <td>Specifies the namespace (or OpenShift project name) to apply the kubernetes resources to. If not specified it will use the <code>KUBERNETES_NAMESPACE</code> environment variable or use the <a href="#defaults-from-openshift">Defaults from OpenShift</a></td>
 </tr>
-</table>
+</tbody></table>
 
-
+</body></html>
                     
                     </section>
                 

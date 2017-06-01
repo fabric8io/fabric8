@@ -40,7 +40,7 @@
     <body>
         
         
-    <div class="book" data-level="6.2.4" data-basepath="." data-revision="Tue May 23 2017 11:08:48 GMT+0000 (UTC)">
+    <div class="book" data-level="6.2.4" data-basepath="." data-revision="Thu Jun 01 2017 14:57:06 GMT+0000 (UTC)">
     
 
 <div class="book-summary">
@@ -1867,7 +1867,7 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h2 id="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><a name="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway" class="plugin-anchor" href="#importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><span class="fa fa-link"></span></a>Importing a service from Fabric8 and publishing it to the gateway</h2>
+                        <html><head></head><body><h2 id="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><a name="importing-a-service-from-fabric8-and-publishing-it-to-the-gateway" class="plugin-anchor" href="#importing-a-service-from-fabric8-and-publishing-it-to-the-gateway"><span class="fa fa-link"></span></a>Importing a service from Fabric8 and publishing it to the gateway</h2>
 <p>Let&apos;s assume you have deployed the CxfCdi quickstart in Fabric8 using</p>
 <pre><code>...
 mvn -Pf8-deploy-local
@@ -1921,7 +1921,7 @@ internal service address is displayed in the &apos;Implementation&apos; tab on t
 <p>A service can be published to the gateway without any policies but it makes sense to configure at least an authentication policy. Since we already published the service we can no longer change the settings on this version. So let&apos;s add version 1.1 of this service (clone version 1.0). Now you can navigate to the Policy screen on the Service and select Add Policy. In the dropdown select a Basic Authentication policy, and select &apos;Basic Auth Required&apos; and add a Static Identity and a  user/password pair.</p>
 <p><img src="images/apiman-basicauth.png" alt="service definition link">.</p>
 <p>Click save when done, and now you should see the policy on the &apos;Policy&apos; tab, so go ahead and &apos;Publish&apos; the service. The managed endpoint of this new version of the service is <a href="http://apiman-gateway.vagrant.f8/gateway/Fabric8Org/quickstart-java-cxf-cdi/1.1" target="_blank">http://apiman-gateway.vagrant.f8/gateway/Fabric8Org/quickstart-java-cxf-cdi/1.1</a>. You can try it in a new browser window and you should see it pop up the basic auth login box.</p>
-
+</body></html>
                     
                     </section>
                 
