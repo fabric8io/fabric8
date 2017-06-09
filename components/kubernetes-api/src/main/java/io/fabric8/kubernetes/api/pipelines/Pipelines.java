@@ -16,6 +16,7 @@
  */
 package io.fabric8.kubernetes.api.pipelines;
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
@@ -32,6 +33,16 @@ public class Pipelines {
     public static final String JOB_NAME = "JOB_NAME";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(Pipelines.class);
+    /**
+     * Looks up the pipeline kind based on the configuration in the given kubernetes namespace.
+     * <p>
+     * <b>NOTE</b> that you should pass in the <code>BRANCH_NAME</code> and <code>GIT_URL</code> environment variables
+     * so that this function can properly detect if a build should be a <code>CD</code> build or not!
+     */
+    public static Pipeline getPipeline(String namespace, Map<String, String> jobEnvironment) throws IntrospectionException {
+        return getPipeline(new DefaultKubernetesClient(), namespace, jobEnvironment);
+    }
+
     /**
      * Looks up the pipeline kind based on the configuration in the given kubernetes namespace.
      * <p>

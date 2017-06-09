@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api.environments;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
@@ -72,6 +73,13 @@ public class Environments {
             LOG.warn("Failed to lookup Space Link ConfigMap " + namespace + "/" + SPACE_LINK_CONFIGMAP_NAME + ". " + e, e);
         }
         return null;
+    }
+
+    /**
+     * Returns the namespace for the given environment name if its defined or null if one cannot be found
+     */
+    public static String namespaceForEnvironment(String environmentKey, String namespace) {
+        return namespaceForEnvironment(new DefaultKubernetesClient(), environmentKey, namespace);
     }
 
     /**
