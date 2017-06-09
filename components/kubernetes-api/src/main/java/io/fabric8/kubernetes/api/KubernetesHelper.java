@@ -2316,6 +2316,17 @@ public final class KubernetesHelper {
         return config;
     }
 
+    /**
+     * Returns the default namespace for the given client
+     */
+    public static String getNamespace(KubernetesClient kubernetesClient) {
+        String answer = kubernetesClient.getNamespace();
+        if (Strings.isNullOrBlank(answer)) {
+            answer = defaultNamespace();
+        }
+        return answer;
+    }
+
     protected static class JenkinShiftClient extends DefaultOpenShiftClient {
         public JenkinShiftClient(Config config) throws KubernetesClientException {
             super(config);

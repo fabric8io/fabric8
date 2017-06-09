@@ -46,6 +46,10 @@ public class Environments {
         this.environments = environments;
     }
 
+    public static Environments load(String namespace) {
+        return load(new DefaultKubernetesClient(), namespace);
+    }
+
     public static Environments load(KubernetesClient kubernetesClient, String namespace) {
         namespace = getDefaultNamespace(kubernetesClient, namespace);
         LOG.debug("Loading environments from namespace: " + namespace);
@@ -76,6 +80,15 @@ public class Environments {
     }
 
     /**
+     * Returns the namespace for the given environment name
+     */
+    public static String namespaceForEnvironment(String environmentKey) {
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+        String namespace = KubernetesHelper.getNamespace(kubernetesClient);
+        return namespaceForEnvironment(kubernetesClient, environmentKey, namespace);
+    }
+
+    /**
      * Returns the namespace for the given environment name if its defined or null if one cannot be found
      */
     public static String namespaceForEnvironment(String environmentKey, String namespace) {
@@ -88,6 +101,9 @@ public class Environments {
     public static String namespaceForEnvironment(KubernetesClient kubernetesClient, String environmentKey, String namespace) {
         Environments environments = Environments.load(kubernetesClient, namespace);
         Environment environment = environments.getEnvironment(environmentKey);
+        if (environment == null) {
+            environment = environments.getEnvironment(environmentKey.toLowerCase());
+        }
         String answer = null;
         if (environment != null) {
             answer = environment.getNamespace();
