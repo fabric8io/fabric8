@@ -49,6 +49,14 @@ public class Environments {
         this.environments = environments;
     }
 
+
+
+    public static Environments load() {
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            String namespace = findSpaceNamespace(kubernetesClient);
+            return load(kubernetesClient, namespace);
+        }
+    }
     public static Environments load(String namespace) {
         try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
             return load(kubernetesClient, namespace);

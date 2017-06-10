@@ -26,14 +26,23 @@ import java.util.SortedSet;
  */
 public class ListEnvironments {
     public static void main(String[] args) {
-        String namespace = null;
+
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+        Environments environments;
         if (args.length > 0) {
-            namespace = args[0];
+            String namespace = args[0];
+            System.out.println("Listing environments for namespace: " + namespace);
+            environments = Environments.load(namespace);
+        } else {
+            environments = Environments.load();
+        }
+        String environmentKey = "testing";
+        if (args.length > 1) {
+            environmentKey = args[1];
         }
 
-        System.out.println("Listing environments for namespace: " + namespace);
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-        Environments environments = Environments.load(kubernetesClient, namespace);
+        System.out.println("Space namespace: " + environments.getNamespace());
+        
         SortedSet<Environment> set = environments.getEnvironmentSet();
         for (Environment environment : set) {
             String onCluster = "";
@@ -44,10 +53,6 @@ public class ListEnvironments {
             System.out.println("Environment " + environment.getName() + " maps to namespace: " + environment.getNamespace() + onCluster);
         }
 
-        String environmentKey = "testing";
-        if (args.length > 1) {
-            environmentKey = args[1];
-        }
-        System.out.println("Namespace for environment key: " + environmentKey + " is " + Environments.namespaceForEnvironment(kubernetesClient, environmentKey, namespace));
+        System.out.println("Namespace for environment key: " + environmentKey + " is " + Environments.namespaceForEnvironment(environmentKey));
     }
 }
