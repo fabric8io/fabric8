@@ -195,6 +195,8 @@ public class PipelineConfiguration {
                 ", ciBranchPatterns=" + ciBranchPatterns +
                 ", cdBranchPatterns=" + cdBranchPatterns +
                 ", cdGitHostAndOrganisationToBranchPatterns=" + cdGitHostAndOrganisationToBranchPatterns +
+                ", disableITestsCD=" + disableITestsCD +
+                ", disableITestsCI=" + disableITestsCI +
                 '}';
     }
 
