@@ -28,21 +28,20 @@ import java.beans.IntrospectionException;
 public class ViewPipelineConfiguration {
     public static void main(String[] args) {
         try {
-            KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-
-            String namespace = kubernetesClient.getNamespace();
-            if (Strings.isNullOrBlank(namespace)) {
-                namespace = KubernetesHelper.defaultNamespace();
-            }
+            PipelineConfiguration pipeline;
             if (args.length > 0) {
-                namespace = args[0];
+                pipeline = PipelineConfiguration.loadPipelineConfiguration(args[0]);
+            } else {
+                pipeline = PipelineConfiguration.loadPipelineConfiguration();
             }
-            System.out.println("Loading pipeline configuration from namespace: " + namespace);
-            PipelineConfiguration pipeline = PipelineConfiguration.loadPipelineConfiguration(kubernetesClient, namespace);
+
+            System.out.println("Main namespace:                      " + pipeline.getSpaceNamespace());
             System.out.println("Job Name to kind map:                " + pipeline.getJobNameToKindMap());
             System.out.println("CI branch patterns:                  " + pipeline.getCiBranchPatterns());
             System.out.println("CD branch patterns:                  " + pipeline.getCdBranchPatterns());
             System.out.println("CD git organisation branch patterns: " + pipeline.getCdGitHostAndOrganisationToBranchPatterns());
+            System.out.println("Disable ITests for CD:               " + pipeline.isDisableITestsCD());
+            System.out.println("Disable ITests for CI:               " + pipeline.isDisableITestsCI());
         } catch (Exception e) {
             System.out.println("Failed with: " + e);
             e.printStackTrace();

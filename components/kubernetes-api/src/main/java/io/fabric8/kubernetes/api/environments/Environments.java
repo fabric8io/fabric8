@@ -40,14 +40,19 @@ public class Environments {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(Environments.class);
 
+    private final String namespace;
     private final Map<String, Environment> environments;
 
-    public Environments(Map<String, Environment> environments) {
+
+    public Environments(String namespace, Map<String, Environment> environments) {
+        this.namespace = namespace;
         this.environments = environments;
     }
 
     public static Environments load(String namespace) {
-        return load(new DefaultKubernetesClient(), namespace);
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            return load(kubernetesClient, namespace);
+        }
     }
 
     public static Environments load(KubernetesClient kubernetesClient, String namespace) {
@@ -56,43 +61,70 @@ public class Environments {
         ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(ENVIRONMENTS_CONFIGMAP_NAME).get();
         if (configMap == null) {
             String spaceNamespace = findSpaceNamespace(kubernetesClient, namespace);
-            if (Strings.isNotBlank(spaceNamespace)) {
+            if (Strings.isNotBlank(spaceNamespace) && !spaceNamespace.equals(namespace)) {
+                namespace = spaceNamespace;
                 configMap = kubernetesClient.configMaps().inNamespace(spaceNamespace).withName("fabric8-environments").get();
             }
         }
-        return load(configMap);
+        return load(configMap, namespace);
     }
 
-    private static String findSpaceNamespace(KubernetesClient kubernetesClient, String namespace) {
+    /**
+     * Tries to find the current space namespace from the current namespace
+     *
+     * @return the space namespace containing the fabric8-environments ConfigMap or null if it cannot be found
+     */
+    public static String findSpaceNamespace(KubernetesClient kubernetesClient) {
+        return findSpaceNamespace(kubernetesClient, KubernetesHelper.getNamespace(kubernetesClient));
+    }
+
+    /**
+     * Tries to find the current space namespace from the current namespace
+     *
+     * @return the space namespace containing the fabric8-environments ConfigMap or returns namespace if another namespace can be found
+     */
+    public static String findSpaceNamespace(KubernetesClient kubernetesClient, String namespace) {
         try {
             ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(SPACE_LINK_CONFIGMAP_NAME).get();
             if (configMap != null) {
                 Map<String, String> data = configMap.getData();
                 if (data != null) {
-                    return data.get("space");
+                    String answer = data.get("space");
+                    if (Strings.isNotBlank(answer)) {
+                        return answer;
+                    }
 
                 }
             }
         } catch (Exception e) {
             LOG.warn("Failed to lookup Space Link ConfigMap " + namespace + "/" + SPACE_LINK_CONFIGMAP_NAME + ". " + e, e);
         }
-        return null;
+
+        // lets try guess the namespace by stripping the suffix such as '-run', '-che', '-jenkins', '-test', '-prod' etc
+        int idx = namespace.lastIndexOf('-');
+        if (idx > 0) {
+            return namespace.substring(0, idx);
+        }
+        return namespace;
     }
 
     /**
      * Returns the namespace for the given environment name
      */
     public static String namespaceForEnvironment(String environmentKey) {
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-        String namespace = KubernetesHelper.getNamespace(kubernetesClient);
-        return namespaceForEnvironment(kubernetesClient, environmentKey, namespace);
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            String namespace = KubernetesHelper.getNamespace(kubernetesClient);
+            return namespaceForEnvironment(kubernetesClient, environmentKey, namespace);
+        }
     }
 
     /**
      * Returns the namespace for the given environment name if its defined or null if one cannot be found
      */
     public static String namespaceForEnvironment(String environmentKey, String namespace) {
-        return namespaceForEnvironment(new DefaultKubernetesClient(), environmentKey, namespace);
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            return namespaceForEnvironment(kubernetesClient, environmentKey, namespace);
+        }
     }
 
     /**
@@ -121,7 +153,7 @@ public class Environments {
         return namespace;
     }
 
-    private static Environments load(ConfigMap configMap) {
+    private static Environments load(ConfigMap configMap, String namespace) {
         Map<String, Environment> environmentMap = new HashMap<>();
         if (configMap != null) {
             Map<String, String> data = configMap.getData();
@@ -137,7 +169,7 @@ public class Environments {
                 }
             }
         }
-        return new Environments(environmentMap);
+        return new Environments(namespace, environmentMap);
     }
 
     private static Environment parseEnvironment(String key, String yaml) {
@@ -147,6 +179,14 @@ public class Environments {
             LOG.warn("Failed to parse environment YAML for " + key + ". Reason: " + e + ". YAML: " + yaml, e);
             return null;
         }
+    }
+
+    /**
+     * Returns the main namespace that contains the {@link #ENVIRONMENTS_CONFIGMAP_NAME} ConfigMap that points
+     * to all the other environments
+     */
+    public String getNamespace() {
+        return namespace;
     }
 
     public Environment getEnvironment(String environmentKey) {

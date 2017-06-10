@@ -27,6 +27,8 @@ import java.beans.IntrospectionException;
 import java.util.Arrays;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.environments.Environments.findSpaceNamespace;
+
 /**
  */
 public class Pipelines {
@@ -42,9 +44,10 @@ public class Pipelines {
      * so that this function can properly detect if a build should be a <code>CD</code> build or not!
      */
     public static Pipeline getPipeline(Map<String, String> jobEnvironment) throws IntrospectionException {
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-        String namespace = KubernetesHelper.getNamespace(kubernetesClient);
-        return getPipeline(kubernetesClient, namespace, jobEnvironment);
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            String namespace = findSpaceNamespace(kubernetesClient);
+            return getPipeline(kubernetesClient, namespace, jobEnvironment);
+        }
     }
     /**
      * Looks up the pipeline kind based on the configuration in the given kubernetes namespace.
@@ -53,7 +56,9 @@ public class Pipelines {
      * so that this function can properly detect if a build should be a <code>CD</code> build or not!
      */
     public static Pipeline getPipeline(String namespace, Map<String, String> jobEnvironment) throws IntrospectionException {
-        return getPipeline(new DefaultKubernetesClient(), namespace, jobEnvironment);
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            return getPipeline(kubernetesClient, namespace, jobEnvironment);
+        }
     }
 
     /**

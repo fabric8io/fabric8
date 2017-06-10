@@ -157,7 +157,29 @@
             </configuration>
           </plugin>
         </plugins>
-
+      </build>
+    </profile>
+    <profile>
+      <id>pipeline-cfg</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <mainClass>io.fabric8.kubernetes.api.pipelines.ViewPipelineConfiguration</mainClass>
+              <classpathScope>test</classpathScope>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

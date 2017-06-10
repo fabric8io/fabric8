@@ -21,6 +21,7 @@ package io.fabric8.kubernetes.api.pipelines;
 public class Pipeline {
     private final PipelineKind kind;
     private final String jobName;
+    private PipelineConfiguration configuration;
 
     public Pipeline(PipelineKind kind, String jobName) {
         this.kind = kind;
@@ -45,5 +46,16 @@ public class Pipeline {
 
     public PipelineKind getKind() {
         return kind;
+    }
+
+    public void setConfiguration(PipelineConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    public PipelineConfiguration getConfiguration() {
+        if (configuration == null) {
+            configuration = new PipelineConfiguration();
+        }
+        return configuration;
     }
 }

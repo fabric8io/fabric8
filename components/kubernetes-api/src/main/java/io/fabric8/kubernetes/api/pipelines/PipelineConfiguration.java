@@ -20,6 +20,7 @@ package io.fabric8.kubernetes.api.pipelines;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
@@ -33,6 +34,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.environments.Environments.findSpaceNamespace;
 
 /**
  */
@@ -48,11 +51,16 @@ public class PipelineConfiguration {
     public static final String CD_BRANCH_PATTERNS = "cd-branch-patterns";
     public static final String ORGANISATION_BRANCH_PATTERNS = "organisation-branch-patterns";
     public static final String JOB_NAME_TO_KIND = "job-name-to-kind";
+    public static final String DISABLE_CD_ITESTS = "disable-itests-cd";
+    public static final String DISABLE_CI_ITESTS = "disable-itests-ci";
 
     private Map<String, PipelineKind> jobNameToKindMap = new HashMap<>();
     private List<String> ciBranchPatterns = new ArrayList<>();
     private List<String> cdBranchPatterns = new ArrayList<>();
     private Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
+    private boolean disableITestsCD;
+    private boolean disableITestsCI;
+    private String spaceNamespace;
 
     public PipelineConfiguration() {
     }
@@ -60,6 +68,8 @@ public class PipelineConfiguration {
     public PipelineConfiguration(Map<String, String> configMapData) {
         this.ciBranchPatterns = loadYamlListOfStrings(configMapData, CI_BRANCH_PATTERNS);
         this.cdBranchPatterns = loadYamlListOfStrings(configMapData, CD_BRANCH_PATTERNS);
+        this.disableITestsCD = loadYamlBoolean(configMapData, DISABLE_CD_ITESTS, false);
+        this.disableITestsCI = loadYamlBoolean(configMapData, DISABLE_CI_ITESTS, false);
 
 
         Map<Object, Object> orgBranchMap = loadYamlMap(configMapData, ORGANISATION_BRANCH_PATTERNS);
@@ -102,6 +112,7 @@ public class PipelineConfiguration {
         }
     }
 
+
     public static PipelineConfiguration createDefault() {
         PipelineConfiguration configuration = new PipelineConfiguration();
         configuration.getCiBranchPatterns().add("PR-.*");
@@ -138,16 +149,34 @@ public class PipelineConfiguration {
         return null;
     }
 
+    public static PipelineConfiguration loadPipelineConfiguration() {
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            String namespace = findSpaceNamespace(kubernetesClient);
+            return loadPipelineConfiguration(kubernetesClient, namespace);
+        }
+    }
+
+
+    public static PipelineConfiguration loadPipelineConfiguration(String namespace) {
+        try (KubernetesClient kubernetesClient = new DefaultKubernetesClient()) {
+            return loadPipelineConfiguration(kubernetesClient, namespace);
+        }
+    }
+
     /**
      * Loads the pipeline configuration from the namespace in kubernetes if it is present. Otherwise a default
      * configuration is loaded.
      */
     public static PipelineConfiguration loadPipelineConfiguration(KubernetesClient kubernetesClient, String namespace) {
         ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(FABRIC8_PIPELINES).get();
+        PipelineConfiguration configuration;
         if (configMap != null) {
-            return getPipelineConfiguration(configMap);
+            configuration = getPipelineConfiguration(configMap);
+        } else {
+            // we may be in the wrong environment so lets try find the environments
+            configuration = createDefault();
         }
-        PipelineConfiguration configuration = createDefault();
+        configuration.setSpaceNamespace(namespace);
         return configuration;
     }
 
@@ -233,6 +262,14 @@ public class PipelineConfiguration {
         return answer;
     }
 
+    private boolean loadYamlBoolean(Map<String, String> configMapData, String key, boolean defaultValue) {
+        String text = configMapData.get(key);
+        if (Strings.isNotBlank(text)) {
+            return text.equalsIgnoreCase("true");
+        }
+        return defaultValue;
+    }
+
     public Map<String, PipelineKind> getJobNameToKindMap() {
         return jobNameToKindMap;
     }
@@ -265,9 +302,27 @@ public class PipelineConfiguration {
         this.cdGitHostAndOrganisationToBranchPatterns = cdGitHostAndOrganisationToBranchPatterns;
     }
 
+    public boolean isDisableITestsCD() {
+        return disableITestsCD;
+    }
+
+    public void setDisableITestsCD(boolean disableITestsCD) {
+        this.disableITestsCD = disableITestsCD;
+    }
+
+    public boolean isDisableITestsCI() {
+        return disableITestsCI;
+    }
+
+    public void setDisableITestsCI(boolean disableITestsCI) {
+        this.disableITestsCI = disableITestsCI;
+    }
+
     public Pipeline getPipeline(Map<String, String> jobEnvironmentMap) throws IntrospectionException {
         JobEnvironment jobEnvironment = JobEnvironment.create(jobEnvironmentMap);
-        return getPipeline(jobEnvironment);
+        Pipeline pipeline = getPipeline(jobEnvironment);
+        pipeline.setConfiguration(this);
+        return pipeline;
     }
 
     public PipelineConfiguration setJobNamesCD(String... names) {
@@ -351,5 +406,13 @@ public class PipelineConfiguration {
             }
         }
         return false;
+    }
+
+    public void setSpaceNamespace(String spaceNamespace) {
+        this.spaceNamespace = spaceNamespace;
+    }
+
+    public String getSpaceNamespace() {
+        return spaceNamespace;
     }
 }
