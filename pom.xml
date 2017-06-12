@@ -1462,6 +1462,11 @@
                                   <include>org.jboss.shrinkwrap*:*</include>
 
                                   <include>xml-apis:xml-apis</include>
+
+                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
+                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
+                                  <include>org.apache.cxf:cxf-rt-rs-service-description-swagger</include>
+                                  <include>io.swagger:*</include>
                               </includes>
                               <excludes>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
