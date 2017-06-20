@@ -1,6 +1,12 @@
 ## Getting Started with MiniShift
 
-### Warning: please use minikube!
+### To try the 4.x distributions of Fabric8
+
+If you want to try the 4.x verisons of Fabric8 then please try [follow these instructions](https://github.com/fabric8io/fabric8-platform/blob/master/INSTALL.md)
+
+### For older versions of fabric8
+
+For 3.x or earlier we recommend trying to use minikube.
 
 **NOTE** the new [1.x version of MiniShift](https://github.com/minishift/minishift) does not yet work with fabric8. Due to the 1.x changes of MiniShift suport for Fabric8 and MiniShift is in a state of flux right now and it looks like not getting fixed any time soon.
 

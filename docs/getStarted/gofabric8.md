@@ -2,6 +2,8 @@
 
 The easiest way to get started with Fabric8 on your laptop or against an existing Kubernetes or OpenShift cluster is via [gofabric8](https://github.com/fabric8io/gofabric8/releases)
 
+Note if you want to try the early access 4.x version of fabric8 on MiniShift then please [check out these instructions](https://github.com/fabric8io/fabric8-platform/blob/master/INSTALL.md)
+
 ### Prerequisites
 
 Depending on your platform you may also need to install the following drivers:  
