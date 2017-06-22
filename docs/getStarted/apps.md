@@ -171,7 +171,7 @@ e.g.
 curl -o fabric8.zip http://repo1.maven.org/maven2/io/fabric8/ipaas/distro/distro/2.2.94/distro-2.2.94-templates.zip
 unzip fabric8.zip
 cd main
-
+```
 Then run whatever templates you want to run from the ipaas:
 
 		oc process -v DOMAIN=$KUBERNETES_DOMAIN -f apiman-2.2.94.json | oc create -f -
