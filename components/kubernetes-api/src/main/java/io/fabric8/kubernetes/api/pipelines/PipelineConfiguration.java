@@ -53,6 +53,7 @@ public class PipelineConfiguration {
     public static final String JOB_NAME_TO_KIND = "job-name-to-kind";
     public static final String DISABLE_CD_ITESTS = "disable-itests-cd";
     public static final String DISABLE_CI_ITESTS = "disable-itests-ci";
+    public static final String USE_DOCKER_SOCKET = "use-docker-socket";
 
     private Map<String, PipelineKind> jobNameToKindMap = new HashMap<>();
     private List<String> ciBranchPatterns = new ArrayList<>();
@@ -60,6 +61,7 @@ public class PipelineConfiguration {
     private Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
     private boolean disableITestsCD;
     private boolean disableITestsCI;
+    private boolean useDockerSocket;
     private String spaceNamespace;
 
     public PipelineConfiguration() {
@@ -70,7 +72,7 @@ public class PipelineConfiguration {
         this.cdBranchPatterns = loadYamlListOfStrings(configMapData, CD_BRANCH_PATTERNS);
         this.disableITestsCD = loadYamlBoolean(configMapData, DISABLE_CD_ITESTS, false);
         this.disableITestsCI = loadYamlBoolean(configMapData, DISABLE_CI_ITESTS, false);
-
+        this.useDockerSocket = loadYamlBoolean(configMapData, USE_DOCKER_SOCKET, true);
 
         Map<Object, Object> orgBranchMap = loadYamlMap(configMapData, ORGANISATION_BRANCH_PATTERNS);
         for (Map.Entry<Object, Object> entry : orgBranchMap.entrySet()) {
@@ -282,6 +284,14 @@ public class PipelineConfiguration {
 
     public List<String> getCdBranchPatterns() {
         return cdBranchPatterns;
+    }
+
+    public boolean isUseDockerSocket() {
+        return useDockerSocket;
+    }
+
+    public void setUseDockerSocket(boolean useDockerSocket) {
+        this.useDockerSocket = useDockerSocket;
     }
 
     public Map<String, List<String>> getCdGitHostAndOrganisationToBranchPatterns() {
