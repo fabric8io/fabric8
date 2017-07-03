@@ -47,6 +47,7 @@ import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import io.fabric8.openshift.api.model.Template;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftAPIGroups;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
@@ -2210,7 +2211,10 @@ public final class KubernetesHelper {
      */
     public static List<HasMetadata> findKubernetesResourcesOnClasspath(Controller controller) throws IOException {
         String resourceName = "kubernetes.yml";
-        if (controller.getOpenShiftClientOrNull() != null) {
+        OpenShiftClient openShiftClient = controller.getOpenShiftClientOrNull();
+        if (openShiftClient != null &&
+                openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.IMAGE) &&
+                openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.ROUTE)) {
             resourceName = "openshift.yml";
         }
         URL configUrl = findConfigResource("/META-INF/fabric8/" + resourceName);

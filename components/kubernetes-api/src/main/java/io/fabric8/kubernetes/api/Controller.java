@@ -56,6 +56,7 @@ import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.TagReference;
 import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.OpenShiftAPIGroups;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftNotAvailableException;
 import io.fabric8.utils.Files;
@@ -246,7 +247,7 @@ public class Controller {
         } else if (dto instanceof DeploymentConfig) {
             DeploymentConfig resource = (DeploymentConfig) dto;
             OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-            if (openShiftClient != null) {
+            if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.APPS)) {
                 applyResource(resource, sourceName, openShiftClient.deploymentConfigs());
             } else {
                 LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
@@ -258,7 +259,7 @@ public class Controller {
         } else if (dto instanceof Role) {
             Role resource = (Role) dto;
             OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-            if (openShiftClient != null) {
+            if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.AUTHORIZATION)) {
                 applyResource(resource, sourceName, openShiftClient.roles());
             } else {
                 LOG.warn("Not connected to OpenShift cluster so cannot apply entity " + dto);
@@ -290,8 +291,13 @@ public class Controller {
         } else if (dto instanceof HasMetadata) {
             HasMetadata entity = (HasMetadata) dto;
             try {
+                String namespace = getNamespace();
+                String resourceNamespace = getNamespace(entity);
+                if (Strings.isNotBlank(namespace) && Strings.isNullOrBlank(resourceNamespace)) {
+                    getOrCreateMetadata(entity).setNamespace(namespace);
+                }
                 LOG.info("Applying " + getKind(entity) + " " + getName(entity) + " from " + sourceName);
-                kubernetesClient.resource(entity).inNamespace(getNamespace()).apply();
+                kubernetesClient.resource(entity).inNamespace(namespace).createOrReplace();
             } catch (Exception e) {
                 onApplyError("Failed to create " + getKind(entity) + " from " + sourceName + ". " + e, e);
             }
@@ -302,7 +308,7 @@ public class Controller {
 
     public void applyOAuthClient(OAuthClient entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.OAUTH)) {
             if (supportOAuthClients) {
                 String id = getName(entity);
                 Objects.notNull(id, "No name for " + entity + " " + sourceName);
@@ -344,7 +350,7 @@ public class Controller {
 
     protected void doCreateOAuthClient(OAuthClient entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.OAUTH)) {
             Object result = null;
             try {
                 result = openShiftClient.oAuthClients().create(entity);
@@ -367,7 +373,7 @@ public class Controller {
      */
     public void installTemplate(Template entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient == null) {
+        if (openShiftClient == null || !openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.TEMPLATE)) {
             // lets not install the template on Kubernetes!
             return;
         }
@@ -437,7 +443,7 @@ public class Controller {
 
     protected void doCreateTemplate(Template entity, String namespace, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.TEMPLATE)) {
             LOG.info("Creating a Template from " + sourceName + " namespace " + namespace + " name " + getName(entity));
             try {
                 Object answer = openShiftClient.templates().inNamespace(namespace).create(entity);
@@ -728,7 +734,7 @@ public class Controller {
 
     public void applyRoute(Route entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.ROUTE)) {
             String id = getName(entity);
             Objects.notNull(id, "No name for " + entity + " " + sourceName);
             String namespace = KubernetesHelper.getNamespace(entity);
@@ -914,7 +920,7 @@ public class Controller {
 
     public void applyImageStream(ImageStream entity, String sourceName) {
         OpenShiftClient openShiftClient = getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.IMAGE)) {
             String kind = getKind(entity);
             String name = getName(entity);
             String namespace = getNamespace();
@@ -1028,6 +1034,10 @@ public class Controller {
 
     public <T extends HasMetadata,L,D> void applyResource(T resource, String sourceName, MixedOperation<T, L, D, ? extends Resource<T, D>> resources) throws Exception {
         String namespace = getNamespace();
+        String resourceNamespace = getNamespace(resource);
+        if (Strings.isNotBlank(namespace) && Strings.isNullOrBlank(resourceNamespace)) {
+            getOrCreateMetadata(resource).setNamespace(namespace);
+        }
         String id = getName(resource);
         String kind = getKind(resource);
         Objects.notNull(id, "No name for " + resource + " " + sourceName);
@@ -1099,7 +1109,7 @@ public class Controller {
             return false;
         }
         OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
-        if (openshiftClient != null) {
+        if (openshiftClient != null && openshiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.PROJECT)) {
             // It is preferable to iterate on the list of projects as regular user with the 'basic-role' bound
             // are not granted permission get operation on non-existing project resource that returns 403
             // instead of 404. Only more privileged roles like 'view' or 'cluster-reader' are granted this permission.
@@ -1117,7 +1127,7 @@ public class Controller {
             return false;
         }
         OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
-        if (openshiftClient != null) {
+        if (openshiftClient != null && openshiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.PROJECT)) {
             return openshiftClient.projects().withName(namespaceName).delete();
         } else {
             return kubernetesClient.namespaces().withName(namespaceName).delete();
@@ -1133,7 +1143,7 @@ public class Controller {
             return;
         }
         OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
-        if (openshiftClient != null) {
+        if (openshiftClient != null && openshiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.PROJECT)) {
             ProjectRequest entity = new ProjectRequest();
             ObjectMeta metadata = getOrCreateMetadata(entity);
             metadata.setName(namespaceName);
@@ -1197,7 +1207,7 @@ public class Controller {
         String name = getName(entity);
         Objects.notNull(name, "No name for " + entity);
         OpenShiftClient openshiftClient = getOpenShiftClientOrNull();
-        if (openshiftClient == null) {
+        if (openshiftClient == null || !openshiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.PROJECT)) {
             LOG.warn("Cannot check for Project " + namespace + " as not running against OpenShift!");
             return false;
         }

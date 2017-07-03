@@ -36,6 +36,7 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.client.OpenShiftAPIGroups;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
@@ -127,7 +128,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         String namespace = namespace();
         String qualifiedName = namespace + "." + deploymentName;
         OpenShiftClient openShiftClient = new Controller(client).getOpenShiftClientOrNull();
-        if (openShiftClient != null) {
+        if (openShiftClient != null && openShiftClient.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.APPS)) {
             DeploymentConfig deployment = openShiftClient.deploymentConfigs().inNamespace(namespace).withName(deploymentName).get();
             assertThat(deployment).describedAs("DeploymentConfig: " + qualifiedName).isNotNull().metadata().name().isEqualTo(deploymentName);
             return new DeploymentConfigPodsAssert(client, deployment);

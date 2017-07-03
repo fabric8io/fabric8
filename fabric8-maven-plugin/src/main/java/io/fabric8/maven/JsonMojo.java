@@ -32,7 +32,6 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.openshift.api.model.ParameterBuilder;
 import io.fabric8.openshift.api.model.Template;
-import io.fabric8.openshift.api.model.TemplateBuilder;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Lists;
@@ -687,6 +686,11 @@ public class JsonMojo extends AbstractFabric8Mojo {
                             @Override
                             public String getApiVersion() {
                                 return entity.getApiVersion();
+                            }
+
+                            @Override
+                            public void setApiVersion(String apiVersion) {
+                                entity.setApiVersion(apiVersion);
                             }
                         };
                         addLabelIfNotExist(hasMetadata, label, value);
