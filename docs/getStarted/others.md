@@ -17,7 +17,7 @@ If you already have a cluster installed try this:
 
   This is the easiest and fastest way to get started with Fabric8 and Kubernetes locally.
   You just need to download 2 small binaries ([minikube](https://github.com/kubernetes/minikube/releases) and [gofabric8](https://github.com/fabric8io/gofabric8/releases)) - no need for VirtualBox or Vagrant!
-  Check out how to [Install Fabric8 on a MiniKube created cluster of Kuberetes](minikube.html)
+  Check out how to [Install Fabric8 on a MiniKube created cluster of Kubernetes](minikube.html)
 
 * [**MiniShift**](minishift.html)
 
