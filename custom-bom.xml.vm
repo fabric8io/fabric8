@@ -70,9 +70,7 @@
             <dependency>
                 <groupId>${d.groupId}</groupId>
                 <artifactId>${d.artifactId}</artifactId>
-                <version>#[[$]]#{version.${d.groupId}.${d.artifactId}}</version>#if( $d.scope && $!d.scope != '' )
-
-                <scope>${d.scope}</scope>#end#if( $d.type && $!d.type != '' && $!d.type != 'jar' && $!d.type != 'bundle')
+                <version>#[[$]]#{version.${d.groupId}.${d.artifactId}}</version>#if( $d.type && $!d.type != '' && $!d.type != 'jar' && $!d.type != 'bundle')
 
                 <type>${d.type}</type>#end#if( $d.classifier && $!d.classifier != '' )
 
