@@ -15,12 +15,10 @@
  */
 package io.fabric8.spring.boot;
 
-import io.fabric8.annotations.Configuration;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@Configuration
-@EnableAutoConfiguration()
+@SpringBootApplication
 public class Fabric8Application {
     
     public static void main(String[] args) {

@@ -73,10 +73,10 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.12.1</activemq.version>
-        <camel.version>2.18.3</camel.version>
-        <cxf.version>3.1.9</cxf.version>
-        <cxf.plugin.version>3.1.9</cxf.plugin.version>
+        <activemq.version>5.14.5</activemq.version>
+        <camel.version>2.19.1</camel.version>
+        <cxf.version>3.1.11</cxf.version>
+        <cxf.plugin.version>3.1.11</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
         <fuse.version>6.3.0.redhat-187</fuse.version>
@@ -158,8 +158,8 @@
         <servlet-api.version>2.5</servlet-api.version>
         <shrinkwrap-resolver.version>2.2.2</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <spring.version>4.3.3.RELEASE</spring.version>
-        <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
+        <spring.version>4.3.9.RELEASE</spring.version>
+        <spring.boot.version>1.5.4.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.5</spring-cloud-kubernetes.version>
         <sundrio.plugin.version>0.3.10</sundrio.plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>

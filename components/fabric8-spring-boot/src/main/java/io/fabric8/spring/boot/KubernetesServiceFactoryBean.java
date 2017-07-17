@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
 
 public class KubernetesServiceFactoryBean implements FactoryBean<Object>, InitializingBean {
@@ -27,10 +28,7 @@ public class KubernetesServiceFactoryBean implements FactoryBean<Object>, Initia
     private String name;
     private String port;
     private Service service;
-
-    @Autowired
     private ConversionService conversionService;
-
 
     @Override
     public Object getObject() throws Exception {
@@ -92,6 +90,8 @@ public class KubernetesServiceFactoryBean implements FactoryBean<Object>, Initia
         return conversionService;
     }
 
+    @Autowired
+    @Qualifier("conversionService")
     public void setConversionService(ConversionService conversionService) {
         this.conversionService = conversionService;
     }

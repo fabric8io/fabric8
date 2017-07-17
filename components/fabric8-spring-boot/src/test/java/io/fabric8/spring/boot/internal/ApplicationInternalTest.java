@@ -28,13 +28,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.net.URLConnection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {URLToConnection.class, Fabric8Application.class})
+@SpringBootTest(classes = {URLToConnection.class, Fabric8Application.class})
 public class ApplicationInternalTest {
 
     @BeforeClass
