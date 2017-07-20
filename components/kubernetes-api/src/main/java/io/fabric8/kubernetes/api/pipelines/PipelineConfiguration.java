@@ -61,7 +61,7 @@ public class PipelineConfiguration {
     private Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
     private boolean disableITestsCD;
     private boolean disableITestsCI;
-    private boolean useDockerSocket;
+    private Boolean useDockerSocketFlag;
     private String spaceNamespace;
 
     public PipelineConfiguration() {
@@ -72,7 +72,7 @@ public class PipelineConfiguration {
         this.cdBranchPatterns = loadYamlListOfStrings(configMapData, CD_BRANCH_PATTERNS);
         this.disableITestsCD = loadYamlBoolean(configMapData, DISABLE_CD_ITESTS, false);
         this.disableITestsCI = loadYamlBoolean(configMapData, DISABLE_CI_ITESTS, false);
-        this.useDockerSocket = loadYamlBoolean(configMapData, USE_DOCKER_SOCKET, true);
+        this.useDockerSocketFlag = loadYamlBooleanOptional(configMapData, USE_DOCKER_SOCKET, null);
 
         Map<Object, Object> orgBranchMap = loadYamlMap(configMapData, ORGANISATION_BRANCH_PATTERNS);
         for (Map.Entry<Object, Object> entry : orgBranchMap.entrySet()) {
@@ -266,6 +266,14 @@ public class PipelineConfiguration {
         return answer;
     }
 
+    private Boolean loadYamlBooleanOptional(Map<String, String> configMapData, String key, Boolean defaultValue) {
+        String text = configMapData.get(key);
+        if (Strings.isNotBlank(text)) {
+            return text.equalsIgnoreCase("true");
+        }
+        return defaultValue;
+    }
+
     private boolean loadYamlBoolean(Map<String, String> configMapData, String key, boolean defaultValue) {
         String text = configMapData.get(key);
         if (Strings.isNotBlank(text)) {
@@ -286,12 +294,16 @@ public class PipelineConfiguration {
         return cdBranchPatterns;
     }
 
-    public boolean isUseDockerSocket() {
-        return useDockerSocket;
+    public Boolean getUseDockerSocketFlag() {
+        return useDockerSocketFlag;
     }
 
-    public void setUseDockerSocket(boolean useDockerSocket) {
-        this.useDockerSocket = useDockerSocket;
+    public boolean isUseDockerSocket() {
+        return useDockerSocketFlag != null && useDockerSocketFlag.booleanValue();
+    }
+
+    public void setUseDockerSocketFlag(Boolean useDockerSocket) {
+        this.useDockerSocketFlag = useDockerSocket;
     }
 
     public Map<String, List<String>> getCdGitHostAndOrganisationToBranchPatterns() {
