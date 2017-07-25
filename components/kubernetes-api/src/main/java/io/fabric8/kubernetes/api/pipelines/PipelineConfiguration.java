@@ -199,6 +199,7 @@ public class PipelineConfiguration {
                 ", cdGitHostAndOrganisationToBranchPatterns=" + cdGitHostAndOrganisationToBranchPatterns +
                 ", disableITestsCD=" + disableITestsCD +
                 ", disableITestsCI=" + disableITestsCI +
+                ", useDockerSocketFlag=" + useDockerSocketFlag +
                 '}';
     }
 
