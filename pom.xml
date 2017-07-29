@@ -1390,11 +1390,41 @@
       </pluginManagement>
       <plugins>
           <plugin>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <version>1.8</version>
+              <executions>
+                  <execution>
+                      <id>set number of slashes in URL</id>
+                      <phase>validate</phase>
+                      <goals>
+                          <goal>run</goal>
+                      </goals>
+                      <configuration>
+                          <exportAntProperties>true</exportAntProperties>
+                          <target>
+                              <condition property="urlSlashesOsModifier" value="//">
+                                  <and>
+                                      <not>
+                                          <os family="windows"/>
+                                      </not>
+                                  </and>
+                              </condition>
+                              <condition property="urlSlashesOsModifier" value="///">
+                                  <and>
+                                      <os family="windows" />
+                                  </and>
+                              </condition>
+                          </target>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+          <plugin>
               <groupId>io.sundr</groupId>
               <artifactId>sundr-maven-plugin</artifactId>
               <version>${sundrio.plugin.version}</version>
               <configuration>
-                  <bomTemplateUrl>file://${project.basedir}/custom-bom.xml.vm</bomTemplateUrl>
+                  <bomTemplateUrl>file:${urlSlashesOsModifier}${project.basedir}/custom-bom.xml.vm</bomTemplateUrl>
                   <boms>
                       <bom>
                           <artifactId>fabric8-project-bom</artifactId>
