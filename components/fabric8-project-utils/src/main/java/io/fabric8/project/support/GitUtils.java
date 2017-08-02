@@ -71,6 +71,7 @@ import java.util.Properties;
  */
 public class GitUtils {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitUtils.class);
+    private static final int DEFAULT_RETRIES = 5;
 
     public static File getRootGitDirectory(Git git) {
         return git.getRepository().getDirectory().getParentFile();
@@ -169,7 +170,7 @@ public class GitUtils {
         return relativePath.replace(File.separatorChar, '/');
     }
 
-    public static RevCommit doCommitAndPush(Git git, String message, UserDetails userDetails, PersonIdent author, String branch, String origin, boolean pushOnCommit) throws GitAPIException {
+    public static RevCommit doCommitAndPush(Git git, String message, UserDetails userDetails, PersonIdent author, String branch, String origin, boolean pushOnCommit, int pushRetries) throws GitAPIException {
         CommitCommand commit = git.commit().setAll(true).setMessage(message);
         if (author != null) {
             commit = commit.setAuthor(author);
@@ -181,13 +182,35 @@ public class GitUtils {
         }
 
         if (pushOnCommit) {
-            PushCommand push = git.push();
-            configureCommand(push, userDetails);
-            Iterable<PushResult> results = push.setRemote(origin).call();
-            for (PushResult result : results) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Pushed " + result.getMessages() + " " + result.getURI() + " branch: " + branch + " updates: " + toString(result.getRemoteUpdates()));
+            GitAPIException exception = null;
+            for (int i = 1; i <= pushRetries; i++) {
+                try {
+                    if (i > 1) {
+                        try {
+                            Thread.sleep(700);
+                        } catch (InterruptedException e) {
+                            //
+                        }
+                        LOG.info("Retrying git push attempt " + i);
+                    }
+                    PushCommand push = git.push();
+                    configureCommand(push, userDetails);
+                    Iterable<PushResult> results = push.setRemote(origin).call();
+                    for (PushResult result : results) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Pushed " + result.getMessages() + " " + result.getURI() + " branch: " + branch + " updates: " + toString(result.getRemoteUpdates()));
+                        }
+                    }
+                    return answer;
+                } catch (GitAPIException e) {
+                    if (exception == null) {
+                        exception = e;
+                    }
+                    LOG.error("Failed to git push attempt " + i + " with " + e, e);
                 }
+            }
+            if (exception != null) {
+                throw exception;
             }
         }
         return answer;
@@ -195,7 +218,12 @@ public class GitUtils {
 
     public static void doAddCommitAndPushFiles(Git git, UserDetails userDetails, PersonIdent personIdent, String branch, String origin, String message, boolean pushOnCommit) throws GitAPIException {
         git.add().addFilepattern(".").call();
-        doCommitAndPush(git, message, userDetails, personIdent, branch, origin, pushOnCommit);
+        doCommitAndPush(git, message, userDetails, personIdent, branch, origin, pushOnCommit, DEFAULT_RETRIES);
+    }
+
+    public static void doAddCommitAndPushFiles(Git git, UserDetails userDetails, PersonIdent personIdent, String branch, String origin, String message, boolean pushOnCommit, int pushRetries) throws GitAPIException {
+        git.add().addFilepattern(".").call();
+        doCommitAndPush(git, message, userDetails, personIdent, branch, origin, pushOnCommit, pushRetries);
     }
 
     /**
