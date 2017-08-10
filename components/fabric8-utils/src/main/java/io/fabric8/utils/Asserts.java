@@ -88,7 +88,6 @@ public class Asserts {
                 failure = new AssertionError(e);
             }
             LOG.debug("Ignoring exception in assertWaitFor() loop: " + failure, failure);
-            System.out.println("Ignoring exception in assertWaitFor() loop:: " + failure);
             if (isVerboseWaitMessage()) {
                 failure.printStackTrace();
             }

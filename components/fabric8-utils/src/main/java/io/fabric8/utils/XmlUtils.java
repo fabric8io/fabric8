@@ -16,6 +16,7 @@
 package io.fabric8.utils;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,6 +50,14 @@ public class XmlUtils {
             IOException {
         return parseDoc(new FileInputStream(xmlFile));
     }
+
+    public static Document parseDoc(String xml)
+            throws ParserConfigurationException,
+            SAXException,
+            IOException {
+        return parseDoc(new ByteArrayInputStream(xml.getBytes()));
+    }
+
 
     public static Document parseDoc(final InputStream is)
             throws ParserConfigurationException,
