@@ -23,6 +23,8 @@ import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.FolderJob;
 import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import com.offbytwo.jenkins.model.QueueItem;
+import com.offbytwo.jenkins.model.QueueReference;
 import io.fabric8.utils.Asserts;
 import io.fabric8.utils.Block;
 import io.fabric8.utils.Millis;
@@ -35,6 +37,7 @@ import org.w3c.dom.Document;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -219,9 +222,33 @@ public class JenkinsAsserts {
      */
     public static JobWithDetails assertJobPathExists(JenkinsServer jenkins, String... jobPath) throws IOException {
         JobWithDetails job = findJobPath(jenkins, jobPath);
-        assertNotNull("Could not find Jenkins Job: " + jobPath(jobPath), job);
+        assertNotNull("Could not find Jenkins Job: " + fullJobPath(jobPath), job);
         LOG.info("Found job " + job.getUrl());
         return job;
+    }
+
+    /**
+     * Asserts that we can trigger the job defined by the given path
+     */
+    public static QueueReference assertTriggerJobPath(JenkinsServer jenkins, String... jobPath) throws IOException {
+        JobWithDetails jobWithDetails = assertJobPathExists(jenkins, jobPath);
+        QueueReference build = jobWithDetails.build(true);
+        assertNotNull("No build reference for job " + fullJobPath(jobPath), build != null);
+        return build;
+    }
+
+    /**
+     * Asserts that we can trigger the job defined by the given path
+     */
+    public static void assertWaitForNoRunningBuilds(JenkinsServer jenkins, long timeMillis) throws Exception {
+        LOG.info("Waiting for no running Jenkins jobs");
+        Asserts.assertWaitFor(timeMillis, new Block() {
+            @Override
+            public void invoke() throws Exception {
+                List<QueueItem> items = jenkins.getQueue().getItems();
+                assertTrue("Waiting for build queue to be empty but has " + items.size(), items.isEmpty());
+            }
+        });
     }
 
     /**
@@ -231,7 +258,7 @@ public class JenkinsAsserts {
      */
     public static JobWithDetails assertWaitForJobPathExists(final JenkinsServer jenkins, long timeMillis, String... jobPath) throws Exception {
         final AtomicReference<JobWithDetails> holder = new AtomicReference<>(null);
-        LOG.info("Waiting for Jenkins job " + jobPath(jobPath));
+        LOG.info("Waiting for Jenkins job " + fullJobPath(jobPath));
         Asserts.assertWaitFor(timeMillis, new Block() {
             @Override
             public void invoke() throws Exception {
@@ -242,7 +269,7 @@ public class JenkinsAsserts {
     }
 
     public static void assertWaitForJobPathNotExist(final JenkinsServer jenkins, long timeMillis, String... jobPath) throws Exception {
-        final String fullPath = jobPath(jobPath);
+        final String fullPath = fullJobPath(jobPath);
         LOG.info("Waiting for Jenkins job to no longer exist " + fullPath);
         Asserts.assertWaitFor(timeMillis, new Block() {
             @Override
@@ -252,7 +279,7 @@ public class JenkinsAsserts {
         });
     }
 
-    public static String jobPath(String[] jobPath) {
+    public static String fullJobPath(String[] jobPath) {
         return Strings.join("/", jobPath);
     }
 
