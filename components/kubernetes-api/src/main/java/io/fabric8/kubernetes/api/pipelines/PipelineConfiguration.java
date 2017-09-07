@@ -55,6 +55,7 @@ public class PipelineConfiguration {
     public static final String DISABLE_CI_ITESTS = "disable-itests-ci";
     public static final String USE_DOCKER_SOCKET = "use-docker-socket";
 
+    private Map<String, String> data;
     private Map<String, PipelineKind> jobNameToKindMap = new HashMap<>();
     private List<String> ciBranchPatterns = new ArrayList<>();
     private List<String> cdBranchPatterns = new ArrayList<>();
@@ -63,11 +64,15 @@ public class PipelineConfiguration {
     private boolean disableITestsCI;
     private Boolean useDockerSocketFlag;
     private String spaceNamespace;
+    private Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
+
 
     public PipelineConfiguration() {
+        this.data = new HashMap<>();
     }
 
     public PipelineConfiguration(Map<String, String> configMapData) {
+        this.data = configMapData;
         this.ciBranchPatterns = loadYamlListOfStrings(configMapData, CI_BRANCH_PATTERNS);
         this.cdBranchPatterns = loadYamlListOfStrings(configMapData, CD_BRANCH_PATTERNS);
         this.disableITestsCD = loadYamlBoolean(configMapData, DISABLE_CD_ITESTS, false);
@@ -439,5 +444,16 @@ public class PipelineConfiguration {
 
     public String getSpaceNamespace() {
         return spaceNamespace;
+    }
+
+    /**
+     * Returns all the configuration data from the {@link ConfigMap} so that you can access additional configuration properties
+     */
+    public Map<String, String> getData() {
+        return data;
+    }
+
+    public void setData(Map<String, String> data) {
+        this.data = data;
     }
 }
