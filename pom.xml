@@ -1522,6 +1522,9 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>io.fabric8*:*</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                               <import>
@@ -1536,6 +1539,10 @@
                                           <exclude>org.springframework:*</exclude>
                                           <exclude>org.springframework.boot:*</exclude>
                                           <exclude>commons-lang:commons-lang</exclude>
+                                          <exclude>io.fabric8:kubernetes-*</exclude>
+                                          <exclude>io.fabric8:openshift-*</exclude>
+                                          <exclude>com.squareup.okhttp:*</exclude>
+                                          <exclude>com.squareup.okio:*</exclude>
                                       </excludes>
                                   </dependencyManagement>
                               </import>
