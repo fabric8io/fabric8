@@ -1490,6 +1490,7 @@
 
                                   <include>org.jboss.arquillian*:*</include>
                                   <include>org.jboss.shrinkwrap*:*</include>
+                                  <include>org.assertj*:*</include>
 
                                   <include>xml-apis:xml-apis</include>
 
@@ -1512,6 +1513,9 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>org.assertj*:*</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                               <import>
