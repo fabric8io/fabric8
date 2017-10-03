@@ -74,6 +74,7 @@
 
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.14.5</activemq.version>
+        <arquillian-cube.version>1.9.0</arquillian-cube.version>
         <camel.version>2.19.1</camel.version>
         <cxf.version>3.1.11</cxf.version>
         <cxf.plugin.version>3.1.11</cxf.plugin.version>
@@ -1529,6 +1530,16 @@
                                       <excludes>
                                           <exclude>io.fabric8*:*</exclude>
                                       </excludes>
+                                  </dependencyManagement>
+                              </import>
+                              <import>
+                                  <groupId>org.arquillian.cube</groupId>
+                                  <artifactId>arquillian-cube-bom</artifactId>
+                                  <version>${arquillian-cube.version}</version>
+                                  <dependencyManagement>
+                                      <includes>
+                                          <include>org.arquillian.cube:*</include>
+                                      </includes>
                                   </dependencyManagement>
                               </import>
                               <import>
