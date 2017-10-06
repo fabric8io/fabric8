@@ -64,7 +64,6 @@ public class PipelineConfiguration {
     private boolean disableITestsCI;
     private Boolean useDockerSocketFlag;
     private String spaceNamespace;
-    private Map<String, List<String>> cdGitHostAndOrganisationToBranchPatterns = new HashMap<>();
 
 
     public PipelineConfiguration() {
