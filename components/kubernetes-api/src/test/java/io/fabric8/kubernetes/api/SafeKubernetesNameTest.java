@@ -49,6 +49,12 @@ public class SafeKubernetesNameTest {
         assertSafeKubernetesName("_*foo-bar/*wh!atnot)", "foo-bar-wh-atnot", false);
     }
 
+    @Test
+    public void testSafeNamesStartingWithDigits() throws Exception {
+        assertSafeKubernetesName("1bar", "n1bar", false);
+        assertSafeKubernetesName("9-Foo", "n9-foo", false);
+    }
+
     public static void assertSafeKubernetesName(String text, String expected, boolean allowDots) {
         String actual = KubernetesNames.convertToKubernetesName(text, allowDots);
         //System.out.println("Converted `" + text + "` => `" + actual + "`");

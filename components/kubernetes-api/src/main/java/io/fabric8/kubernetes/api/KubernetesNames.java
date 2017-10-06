@@ -19,6 +19,8 @@ package io.fabric8.kubernetes.api;
 /**
  */
 public class KubernetesNames {
+    protected static final char DIGIT_PREFIX = 'n';
+
     /**
      * Lets convert the string to btw a valid kubernetes resource name
      */
@@ -29,7 +31,12 @@ public class KubernetesNames {
         char lastCh = ' ';
         for (int i = 0, last = lower.length() - 1; i <= last; i++) {
             char ch = lower.charAt(i);
-            if (!(ch >= 'a' && ch <= 'z') && !(ch >= '0' && ch <= '9')) {
+            boolean digit = ch >= '0' && ch <= '9';
+            // names cannot start with a digit so lets add a prefix
+            if (digit && builder.length() == 0) {
+                builder.append(DIGIT_PREFIX);
+            }
+            if (!(ch >= 'a' && ch <= 'z') && !digit) {
                 if (ch == '/') {
                     ch = '.';
                 } else if (ch != '.' && ch != '-') {
