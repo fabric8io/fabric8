@@ -132,9 +132,9 @@
         <jetty.version>8.1.17.v20150415</jetty.version>
 
 <!--
-        We've released a new version of gitective (0.9.22) with the latest jgit support (4.8.0.201706111038-r)
+        We've released a new version of gitective (0.9.23) with the latest jgit support (4.9.0.201710071750-r)
 -->
-        <jgit.version>4.8.0.201706111038-r</jgit.version>
+        <jgit.version>4.9.0.201710071750-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
         <kubernetes-client.version>2.6.3</kubernetes-client.version>
