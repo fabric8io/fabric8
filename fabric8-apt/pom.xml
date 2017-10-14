@@ -20,7 +20,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>2.3.0.fuse-000038</version>
+    <version>2.3.0-000038.fuse-000001</version>
     <relativePath>../parent</relativePath>
   </parent>
 
