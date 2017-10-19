@@ -88,7 +88,7 @@
         <jsonschema2pojo.version>0.5.1</jsonschema2pojo.version>
         <snakeyaml.version>1.18</snakeyaml.version>
         <swagger.jaxrs.version>1.5.10</swagger.jaxrs.version>
-        <vertx.version>3.4.2</vertx.version>
+        <vertx.version>3.5.0</vertx.version>
         <weld.version>2.3.5.Final</weld.version>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
