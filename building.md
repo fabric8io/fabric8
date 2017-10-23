@@ -89,7 +89,7 @@ The documentation is compiled into a book using [GitBook](https://github.com/Git
 
 First install gitbook using npm
 
-    npm install -g gitbook
+    npm install -g gitbook-cli
 
 And then install the anchor plugin
 

@@ -2,10 +2,7 @@
 
 Here's how to install fabric8:
 
-* [**install on your laptop**](gofabric8.html) or a local cluster
-    * [**early access of version 4.x on MiniShift**](https://github.com/fabric8io/fabric8-platform/blob/master/INSTALL.md)
-* [**install on the public cloud**](cloud.html)
-* [**install via helm**](helm.html)
+* [**install**](gofabric8.html) 
 * [**various other options**](others.html)
 
 
@@ -14,7 +11,6 @@ Here's how to install fabric8:
 * [Run a fabric8 App](apps.html)
 * [Check out the Quickstarts](../quickstarts/index.html)
 * [Learn how to develop applications locally](develop.html)
-* [Running a quickstart on the iPaaS](example.html)
 
 ### Troubleshooting
 

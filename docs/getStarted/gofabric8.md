@@ -1,130 +1,223 @@
-## Install Fabric8
+# gofabric8
 
-The easiest way to get started with Fabric8 on your laptop or against an existing Kubernetes or OpenShift cluster is via [gofabric8](https://github.com/fabric8io/gofabric8/releases)
+fabric8 uses a CLI that makes installing fabric8 locally or on remote Kubernetes based clusters very easy.
 
-Note if you want to try the early access 4.x version of fabric8 on MiniShift then please [check out these instructions](https://github.com/fabric8io/fabric8-platform/blob/master/INSTALL.md)
+gofabric8 also has lots of handy commands that makes it easier to work with fabric8 and OpenShift / Kubernetes
 
-### Prerequisites
+## Download gofabric8
 
-Depending on your platform you may also need to install the following drivers:  
-
-* Windows users will need to run this command as Adminstrator and will need to [enable Hyper-V on Windows 10](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/quick_start/walkthrough_install) or [Windows 7](https://blogs.technet.microsoft.com/schadinio/2010/07/09/installing-hyper-v-manager-on-windows-7/).
-* OS X users  will need to [install the xhyve driver](https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#xhyve-driver) which we try to automatically install via `brew` but you may want to install it just in case ;)
-* Linux will need to [install the kvm driver](https://github.com/kubernetes/minikube/blob/master/DRIVERS.md#kvm-driver)
-
-
-### Installing gofabric8
-
-For OS X and Linux you can either install [gofabric8](https://github.com/fabric8io/gofabric8/releases) via this command: 
-
+Download the latest gofabric8 release from [GitHub](https://github.com/fabric8io/gofabric8/releases/latest/) or run this script:
 ```
 curl -sS https://get.fabric8.io/download.txt | bash
 ```
-
-Or you can [download the gofabric8 binary for your platform](https://github.com/fabric8io/gofabric8/releases) and add it to your `PATH` 
-
-```sh
-export PATH=$PATH:$HOME/.fabric8/bin
+add the binary to your $PATH so you can execute it
+```
+echo 'export PATH=$PATH:~/.fabric8/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+or for __oh-my-zsh__
+```
+echo 'export PATH=$PATH:~/.fabric8/bin' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-### Starting the cluster
+### Linux
 
-Start the cluster via this command:
-```sh
-gofabric8 start
+If you are on linux then first you must [install the KVM driver](https://github.com/minishift/minishift/blob/master/docs/source/getting-started/setting-up-driver-plugin.adoc#kvm-driver-install).
+
+## Setup GitHub client ID and secret
+
+We now have GitHub integration letting you browse + create new repositories, edit projects and setup automated CI / CD jobs with webhooks on github.
+
+This requires an [OAuth application to be setup on your github account](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/registering-oauth-apps/) for fabric8 and you need to obtain the client ID and secret for the OAuth application.
+
+We need to set up an oauth client in GitHub so we can reuse their authentication, initially with a dummy redirect URI until gofabric8 gives us the correct one once the external keycloak URL is avaialble.
+
+So please follow the steps below using the a redirect URL such as:
+```
+http://keycloak-fabric8.{minishift ipv4 value}.nip.io/auth/realms/fabric8/broker/github/endpoint
 ```
 
-This will download the necessary tools such as [MiniKube](https://github.com/kubernetes/minikube) to boot up a VM on your laptop to run a single node Kubernetes cluster, a docker daemon and install fabric8. 
+and `https://fabric8.io` as the sample homepage URL:
 
-This will also install [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) which is the main CLI tool for interacting with kubernetes clusters.
 
-### Using OpenShift
+![Register OAuth App](./images/register-oauth.png)
 
-If you'd like to use [OpenShift Origin](https://github.com/openshift/origin) instead of [Kubernetes](https://github.com/kubernetes/kubernetes/) then just add the `--minishift` argument like this:
 
-```sh
-gofabric8 start --minishift
+Once you have created the OAuth application for fabric8 in your github settings and found your client ID and secret then set the env vars below replacing the values:
+
+```
+export GITHUB_OAUTH_CLIENT_ID=123
+export GITHUB_OAUTH_CLIENT_SECRET=123abc
 ```
 
-This will then use [MiniShift](https://github.com/jimmidyson/minishift) instead of [MiniKube](https://github.com/kubernetes/minikube) to create the VM and setup a single node cluster.
+### Quickstart
 
-This will also install [oc](https://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html) which is the CLI tool for interacting with OpenShift specific resources in OpenShift clusters - you can also use [kubectl](http://kubernetes.io/docs/user-guide/kubectl-overview/) for interacting with Kubernetes resources on OpenShift clusters.
+If you're starting from scratch and don't have minishift / minikube installed or the client binaries used to interact with them or drivers even, then simply run:
 
-### Changing the VM Driver
-
-By default the VM drivers used will be `hyperv` on Windows, `xhyve` on OS X and `kvm` on Linux.
-
-If you wish to switch to a different VM driver you can specify the `--vm-driver` property. 
-
-For example if you have installed [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and wish to use that then type:
-
-```sh
-gofabric8 start --vm-driver=virtualbox
+__Minikube__
+```
+gofabric8 start --package=system  --namespace fabric8
+```
+__Minishift__
+```
+gofabric8 start --minishift --package=system  --namespace fabric8
 ```
 
-Note that we highly recommend using the default VM drivers (`hyperv` on Windows, `xhyve` on OS X and `kvm` on Linux) as they tend to work better and use less resources on your laptop than the alternatives.
+Which should download all you need, start a kubernetes cluster and install fabric8 on top. Log into fabirc8 as "developer/developer"
 
-### Changing memory or cpus
+Otherwise please read on for more detail on the different options.
 
-_Note_ due to current limitations of mini* you cannot change the default settings once a VM has beed created.  Instead you will first need to delete the VM using `minishift delete` or `minikube delete`.
 
-You can configure the number of cpus or memory for the VM via arguments. To see all the possible arguments type:
+### Deploying to Minikube
 
-```sh
-gofabric8 help start 
+We require a recent version of minikube. If you are upgrading from an old installation of minikube we recommend you run something like this for minikube:
+
+```
+minikube delete
+sudo rm -rf ~/.minikube
 ```
 
-e.g. to configure the memory in MB or number of CPUs:
+Then [download the latest minikube release](https://github.com/kubernetes/minikube/releases) and put it into your `PATH`.
 
-```sh
-gofabric8 start --memory=6000 --cpus=2
+Then to start minikube and install fabric8 type:
+
+```
+minikube start --vm-driver=xhyve --cpus=5 --disk-size=50g --memory=8000
+minikube addons enable ingress
+gofabric8 deploy --package system -n fabric8
 ```
 
-### Validating your cluster
+If the `minikube start` command fails please see the [minikube instructions](https://github.com/kubernetes/minikube#quickstart)
 
-At any point you can validate your cluster via:
 
-```sh
-gofabric8 validate
+### Deploying to Minishift
+
+If you are on linux then first you must [install the KVM driver](https://github.com/minishift/minishift/blob/master/docs/source/getting-started/setting-up-driver-plugin.adoc#kvm-driver-install).
+
+We require a [recent release of minishift](https://github.com/minishift/minishift/releases). If you are upgrading from an old installation of minishift we recommend you run something like this for minikube:
+
+```
+minishift delete
+sudo rm -rf ~/.minishift
+minishift update
+```
+
+* Make sure you have a recent (3.5 of openshift or 1.5 of origin later) distribution of the `oc` binary on your `$PATH`
+```
+oc version
+```
+
+* If you have an old version or its not found please [download a distribution of the openshift-client-tools for your operating system](https://github.com/openshift/origin/releases/latest/) and copy the `oc` binary onto your `$PATH`
+
+* [download the minishift distribution for your platform](https://github.com/minishift/minishift/releases) extract it and place the `minishift` binary on your `$PATH` somewhere
+* start up minishift via something like this (on OS X):
+
+```
+minishift start --vm-driver=xhyve --memory=7000 --cpus=4 --disk-size=50g
+```
+or on any other operating system (feel free to add the `--vm-driver` parameter of your choosing):
+
+```
+minishift start --memory=7000 --cpus=4 --disk-size=50g
+```
+
+If the `minishift start` command fails please see the [minishift instructions](https://docs.openshift.org/latest/minishift/getting-started/index.html)
+
+* now use gofabric8
+
+```
+gofabric8 deploy --package system -n fabric8
 ```
 
 
-### Access the Fabric8 Developer Console
+### Installing on remote public Kubernetes clusters
 
-To open the [Fabric8 Developer Console](../console.html)  type the following:
+Get a connection to your cluster so that the following command works:
+```
+kubectl get nodes
+```
+Now deploy fabric8:
+```
+gofabric8 deploy --package system --http=true --legacy=false -n fabric8
+```
+By default we will use the magic domain `nip.io` when generating ingress rules when deployed as above.  If you provide your own domain string that you want fabric8 to use when generating ingress rules then we also deploy kube-lego which will automatically generate + refresh signed certificates for you.
 
-```sh
-gofabric8 console
+To use this option and have https signed certs generated automatically for your domain run this instead:
+```
+export TLS_ACME_EMAIL=email.address@for.certbot.com
+gofabric8 deploy --package system --domain example.domain.fabric8.io --legacy=false -n fabric8
 ```
 
-Then a browse window will open for the console. 
+Though please be aware that if you omit the `--http=true` CLI flag then HTTPS will be used with cert generation via kube-lego; which works great but you will get rate limited if you try to reinstall fabric8 a few times into the same domain which will [result in this error](https://github.com/fabric8-services/fabric8-auth/issues/105). 
 
-To see the URL so you can open it in another browser you can type:
+Sticking with HTTP instead of HTTPS is our best option [until kube-lego supports wildcard DNS](https://letsencrypt.org/2017/07/06/wildcard-certificates-coming-jan-2018.html) or can reuse the same Certs across reinstalls of fabric8. 
 
-```sh
-gofabric8 service fabric8 --url
+### Installing on remote public OpenShift clusters
+
+Installing on a remote public OpenShift clusters will be the same process as the Kubernetes install. You make sure you are logged in into the remote OpenShift cluster first before deploying :
+
+```
+oc login
 ```
 
-You can use the same command to open other consoles too like gogs, Jenkins or Nexus
+And deploy as per the instructions for Kubernetes remote install.
 
-```sh
-gofabric8 service gogs
-gofabric8 service jenkins
-gofabric8 service nexus
+If you have deployed with the [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md) command you may run into some selinux issues and you have to run this command to change the context of the local volumes to allow to write to it :
+
+```
+chcon -Rt svirt_sandbox_file_t /var/lib/origin/openshift.local.volumes/
 ```
 
-Though from the [Fabric8 Developer Console](../console.html) you can easily switch between all your development tools using the tool drop down menu at the top right of the screen:
+### Local development
 
-![clicking on the tools drop down](../images/console-tools.png)
- 
-#### Configuring Docker
- 
-To use docker on your host communicating with the docker daemon inside your MiniKube cluster type:
+If you are developing locally and want to deploy custom version of YAML then you can clone this repo and run:
 
-```sh
-eval $(gofabric8 docker-env)
+```
+mvn clean install  -DskipTests=true
+```
+MiniKube / Kubernetes
+```
+gofabric8 deploy --namespace fabric8 --legacy=false -y --package=packages/fabric8-system/target/classes/META-INF/fabric8/k8s-template.yml
+```
+MiniShift / OpenShift
+```
+gofabric8 deploy --namespace fabric8 --legacy=false -y --package=packages/fabric8-system/target/classes/META-INF/fabric8/openshift.yml
 ```
 
-## Troubleshooting
+### Accept the insecure URLs in your browser - remote OpenShift clusters ONLY
 
-Check out the [troubleshooting guide](troubleshooting.html) for more help.
+Currently there are 4 different URLS that Chrome will barf on and you'll have to explcitily click on the `ADVANCED` button then click on the URL to tell your browser its fine to trust the URLs before you can open and use the new fabric8 console
+
+The above script should list the 4 URLs you need to open separately and approve.
+
+We hope to figure out a nicer alternative to this issue! The problem is things like lenscript only work for public hosted URLs; whereas running locally on MiniShift we're local but use `nip.io` to provide a global URL to your local machine (to simplify having to do DNS magic on your laptop). If you fancy trying to help fix this [please check out this MiniShift issue](https://github.com/minishift/minishift/issues/1031)
+
+### Troubleshooting
+
+* __Pods fail to start__ - init container issues: check the init container logs
+```
+oc logs foo -c init-container-name
+```
+* __Networking issues__ - cannot connect to github for example: see https://docs.openshift.com/container-platform/3.6/admin_guide/sdn_troubleshooting.html
+
+### FAQ
+
+### I need to manually create the OAuthCLient
+
+Creating OAuthClients requires cluster permissions so not everyone has this.  If you need to manually create or request the OAuthclient be created you can use this (remember to replace `$YOUR_DOMAIN` with your domain)
+
+```
+oc login -u system:admin
+
+cat <<EOF | oc create -f -
+kind: OAuthClient
+apiVersion: v1
+metadata:
+  name: fabric8-online-platform
+secret: fabric8
+redirectURIs:
+- "http://keycloak-fabric8.$YOUR_DOMAIN/auth/realms/fabric8/broker/openshift-v3/endpoint"
+grantMethod: prompt
+EOF
+```

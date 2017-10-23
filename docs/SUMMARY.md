@@ -1,7 +1,6 @@
 * [Overview](overview.md)
 * [Getting Started](getStarted/index.md)
-  * [Install on your laptop](getStarted/gofabric8.md)
-  * [Install on the cloud](getStarted/cloud.md)
+  * [Install](getStarted/gofabric8.md)
   * [Upgrading](getStarted/upgrading.md)
   * [Install via Helm](getStarted/helm.md)
   * [Persistence](getStarted/persistence.md)
