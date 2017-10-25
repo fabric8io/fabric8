@@ -22,7 +22,7 @@
       }
     ],
     "selector": null,
-    "portalIP": "172.30.17.2",
+    "clusterIP": "172.30.17.2",
     "sessionAffinity": "None"
   },
   "status": {}

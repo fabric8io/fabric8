@@ -90,7 +90,7 @@ public class ClientFactory {
                 .withPort(443)
                 .withNewTargetPort(443)
                 .endPort()
-                .withPortalIP("172.30.17.2")
+                .withClusterIP("172.30.17.2")
                 .endSpec()
                 .build();
 
@@ -116,7 +116,7 @@ public class ClientFactory {
                 .withPort(8083)
                 .withNewTargetPort(8083)
                 .endPort()
-                .withPortalIP("172.30.17.2")
+                .withClusterIP("172.30.17.2")
                 .endSpec()
                 .build();
 

@@ -1240,7 +1240,7 @@ public final class KubernetesHelper {
 
     /**
      * Returns the URL to access the service; using the environment variables, routes
-     * or service portalIP address
+     * or service clusterIP address
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
@@ -1276,15 +1276,17 @@ public final class KubernetesHelper {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
-        if ("None".equals(srv.getSpec().getClusterIP())) {
+
+        String clusterIP = srv.getSpec().getClusterIP();
+        if ("None".equals(clusterIP)) {
             throw new IllegalStateException("Service: " + serviceName + " in namespace:" + serviceNamespace + "is head-less. Search for endpoints instead.");
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+        return (serviceProto + "://" + clusterIP + ":" + port.getPort()).toLowerCase();
     }
 
     /**
      * Returns the URL to access the service; using the environment variables, routes
-     * or service portalIP address
+     * or service clusterIP address
      *
      * @throws IllegalArgumentException if the URL cannot be found for the serviceName and namespace
      */
@@ -1318,7 +1320,13 @@ public final class KubernetesHelper {
         if (port == null) {
             throw new RuntimeException("Couldn't find port: " + servicePortName + " for service:" + serviceName);
         }
-        return (serviceProto + "://" + srv.getSpec().getPortalIP() + ":" + port.getPort()).toLowerCase();
+
+        String clusterIP = srv.getSpec().getClusterIP();
+        if ("None".equals(clusterIP)) {
+            throw new IllegalStateException("Service: " + serviceName + " in current namespace is head-less. Search for endpoints instead.");
+        }
+
+        return (serviceProto + "://" + clusterIP + ":" + port.getPort()).toLowerCase();
     }
 
     public static String serviceToHost(String id) {

@@ -44,7 +44,7 @@ To do that, the test needs to have access to information like:
 * Replication Controllers
 * Session Namespace
 
-Each of the items above is made available to the test as an arquillian resource. 
+Each of the items above is made available to the test as an arquillian resource.
 
 
 To obtain a reference to the KubernetesClient:
@@ -81,49 +81,49 @@ To obtain a refernce to a particular replication controller created in the curre
     @Id("my-controller-id")
     @ArquillianResource
     io.fabric8.kubernetes.api.model.ReplicationController myController;
-        
+
 
 To obtain the list of all pods created in the current session:
-      
+
     @ArquillianResource
     io.fabric8.kubernetes.api.model.PodList sessionPods;
-        
+
 To obtain the Session:
 
      @ArquillianResource
      io.fabric8.arquillian.kubernetes.Session mySession;
-        
+
 ### Configuration Options
 
-Any configuration option can be provided as an environment variable, system property or arquillian property. 
+Any configuration option can be provided as an environment variable, system property or arquillian property.
 For example:
-        
+
         <arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns="http://jboss.org/schema/arquillian"
                     xsi:schemaLocation="http://jboss.org/schema/arquillian
                     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
-                    
+
             <extension qualifier="kubernetes">
                 <property name="masterUrl">true</property>
             </extension>
         </arquillian>
 
 The only required configuration option is url to the kubernetes master. Since in most cases this will be specified as KUBERNETES_MASTER env variable, there is no need
-to specify it again. 
+to specify it again.
 This means that the arquillian.xml configuration file is completely optional.
-        
+
 Supported options:
-        
-* masterUrl: The url to the kubernetes master.
-* configFileName: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
-* configUrl: The url to the kubernetes configuration to be tested.
-* connectToServices: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service PortalIP / port cannot be opened by the JUnit test case (and may require authentication)
-* dependencies: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
-* waitForServiceConnection: Wait until a network connection to all applied services is possible.
-* serviceConnectionTimeout: The connection timeout for each attempt to "connect to the service".
-* waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.
-* timeout: The total amount of time for to wait for pods and service to be ready.
-* pollInterval: The interval between polling the status of pods and services.
+
+* `masterUrl`: The url to the kubernetes master.
+* `configFileName`: If a url hasn't been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.
+* `configUrl`: The url to the kubernetes configuration to be tested.
+* `connectToServices`: Whether or not an attempt is made to connect to a service port; failing the test if it can't be connected. This is disabled by default since its likely a service ClusterIP / port cannot be opened by the JUnit test case (and may require authentication)
+* `env.dependencies`: A space separated list of directories, files or urls to kubernetes configurations that are required to be applied before the current one.
+* `waitForServiceConnection`: Wait until a network connection to all applied services is possible.
+* `serviceConnectionTimeout`: The connection timeout for each attempt to "connect to the service".
+* `waitForServices`: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.
+* `timeout`: The total amount of time for to wait for pods and service to be ready.
+* `pollInterval`: The interval between polling the status of pods and services.
 
 
 ### Maven Integration

@@ -26,7 +26,7 @@
       "component": "AppLibrary",
       "provider": "fabric8"
     },
-    "portalIP": "172.30.17.9",
+    "clusterIP": "172.30.17.9",
     "sessionAffinity": "None"
   },
   "status": {}

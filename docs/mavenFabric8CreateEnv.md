@@ -16,7 +16,7 @@ The goal generates  the following files:
 
 ### Accessing services 
 
-Note that your local machine may not be able to see [services](services.html) using the `PortalIP` address of the service (depending on how your networking is setup).
+Note that your local machine may not be able to see [services](services.html) using the `ClusterIP` address of the service (depending on how your networking is setup).
 
 So the service environment variables like `FOO_SERVICE_HOST` will use the host names on any defined [OpenShift Routes](http://docs.openshift.org/latest/admin_guide/router.html) instead which allow access to services from outside of the Kubernetes cluster.
 

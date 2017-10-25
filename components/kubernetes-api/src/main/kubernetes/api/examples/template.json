@@ -34,7 +34,7 @@
           "component": "jenkins",
           "provider": "fabric8"
         },
-        "portalIP": "",
+        "clusterIP": "",
         "sessionAffinity": "None"
       },
       "status": {}
