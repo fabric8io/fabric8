@@ -55,10 +55,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -66,12 +64,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  */
 public class GitUtils {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitUtils.class);
     private static final int DEFAULT_RETRIES = 5;
+
+    private static final String GITSSH_REGEX = "^(?<gitssh>git\\@)(?<domain>github\\.com)\\:?(?<repo>.*)$";
+    static final Pattern GITHUB_GIT_URL_PATTERN = Pattern.compile(GITSSH_REGEX);
+    static final Pattern GITHUB_HTTPS_URL_PATTERN = Pattern.compile("^(?<proto>http[s]?://)(?<domain>github\\.com.*)$");
 
     public static File getRootGitDirectory(Git git) {
         return git.getRepository().getDirectory().getParentFile();
@@ -126,15 +130,50 @@ public class GitUtils {
         return null;
     }
 
+    /**
+     * Returns the remote repository https for the current branch in the given repository
+     */
+    public static String getRemoteAsHttpsURL(Repository repository) throws IOException {
+        if (repository != null) {
+            String remoteURL = getRemoteURL(repository, "origin");
+            if(remoteURL!=null){
+                return buildHttpsFromSSHURL(remoteURL);
+            }
+        }
+        return null;
+    }
+
+    public static String getRemoteAsHttpsURL(Repository repository, String remoteName) {
+        if (repository != null) {
+            StoredConfig config = repository.getConfig();
+            if (config != null) {
+                String remoteURL = config.getString("remote", remoteName, "url");
+                return buildHttpsFromSSHURL(remoteURL);
+            }
+        }
+        return null;
+    }
+
     public static String getRemoteURL(Repository repository, String remoteName) {
         if (repository != null) {
             StoredConfig config = repository.getConfig();
             if (config != null) {
+                String remoteURL = "";
                 return config.getString("remote", remoteName, "url");
             }
         }
         return null;
     }
+
+    private static String buildHttpsFromSSHURL(String remoteURL) {
+        Matcher matcher = GITHUB_GIT_URL_PATTERN.matcher(remoteURL);
+        if(matcher.find()){
+            return remoteURL.replaceAll(GITSSH_REGEX,"https://$2/$3");
+        }else{
+            return remoteURL;
+        }
+    }
+
 
     public static void configureBranch(Git git, String branch, String origin, String remoteRepository) {
         // lets update the merge config
