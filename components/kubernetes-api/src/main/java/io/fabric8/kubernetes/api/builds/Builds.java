@@ -18,7 +18,6 @@ package io.fabric8.kubernetes.api.builds;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.builders.ListEnvVarBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Time;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigSpec;
@@ -236,8 +235,8 @@ public class Builds {
     }
 
 
-    public static Time getCreationTimestamp(Build build) {
-        Time answer = null;
+    public static String getCreationTimestamp(Build build) {
+        String answer = null;
         if (build != null) {
             ObjectMeta metadata = build.getMetadata();
             if (metadata != null) {
@@ -248,12 +247,9 @@ public class Builds {
     }
 
     public static Date getCreationTimestampDate(Build build) {
-        Time time = getCreationTimestamp(build);
+        String time = getCreationTimestamp(build);
         if (time != null) {
-            String text = time.getTime();
-            if (text != null) {
-                return KubernetesHelper.parseDate(text);
-            }
+            return KubernetesHelper.parseDate(time);
         }
         return null;
     }
