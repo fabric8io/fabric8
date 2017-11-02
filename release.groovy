@@ -63,15 +63,13 @@ def updateDownstreamDependencies(stagedProject) {
     propertyName = 'fabric8.version'
     projects = [
             'fabric8io/fabric8-devops',
-            'fabric8io/fabric8-ipaas',
             'fabric8io/ipaas-quickstarts',
             'fabric8io/fabric8-forge',
             'fabric8io/kubeflix',
             'fabric8io/kubernetes-zipkin',
             'fabric8io/fabric8-maven-dependencies',
             'fabric8io/django',
-            'fabric8io/kubernetes-pipeline-plugin',
-            'funktionio/funktion-connectors'
+            'fabric8io/kubernetes-pipeline-plugin'
 
     ]
     version = stagedProject[1]
