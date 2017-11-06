@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getName;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespace;
@@ -48,6 +50,8 @@ import static io.fabric8.utils.jaxrs.JsonHelper.toJson;
  */
 public class BuildConfigHelper {
     private static final transient Logger LOG = LoggerFactory.getLogger(BuildConfigHelper.class);
+
+    static final Pattern GITHUB_API_URL_PATTERN = Pattern.compile("^(?<proto>http[s]?://)(?<api>api\\.)(?<domain>github\\.com.*)$");
 
     /**
      * Returns the created BuildConfig for the given project name and git repository
@@ -137,8 +141,8 @@ public class BuildConfigHelper {
             fullName = user + "/" + projectName;
         }
 
-        String htmlUrl = URLUtils.pathJoin(address, user, projectName);
-        String localCloneUrl = URLUtils.pathJoin(internalAddress,  user, projectName + ".git");
+        String htmlUrl = URLUtils.pathJoin(resolveToRoot(address), user, projectName);
+        String localCloneUrl = URLUtils.pathJoin(resolveToRoot(internalAddress),  user, projectName + ".git");
         String cloneUrl = htmlUrl + ".git";
 
         String defaultCloneUrl = cloneUrl;
@@ -166,6 +170,17 @@ public class BuildConfigHelper {
         }
 
         return new CreateGitProjectResults(buildConfig, fullName, htmlUrl, localCloneUrl, cloneUrl);
+    }
+
+
+    protected static String resolveToRoot(String address) {
+        if (address != null) {
+            final Matcher matcher = GITHUB_API_URL_PATTERN.matcher(address);
+            if (matcher.find()) {
+                return String.format("%s%s",matcher.group("proto"),matcher.group("domain"));
+            }
+        }
+        return address ;
     }
 
     public static class CreateGitProjectResults {

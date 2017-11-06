@@ -28,7 +28,7 @@ import java.util.List;
  * REST API for working with git hosted repositories using back ends like
  * <a href="http://gogs.io/">gogs</a> or <a href="http://github.com/">github</a>
  */
-@Path("api/v1")
+@Path("/")
 @Produces("application/json")
 @Consumes("application/json")
 public interface GitApi {

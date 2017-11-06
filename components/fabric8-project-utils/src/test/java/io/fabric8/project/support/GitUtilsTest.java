@@ -20,6 +20,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -29,13 +31,40 @@ import static org.junit.Assert.assertNotNull;
 public class GitUtilsTest {
     @Test
     public void testGetRepositoryURL() throws Exception {
-        File basedir = new File(System.getProperty("basedir", "."));
-        Repository repository = GitUtils.findRepository(basedir);
-        assertNotNull("Should find a repository", repository);
+        Repository repository = assertRepos();
 
         String url = GitUtils.getRemoteURL(repository);
         System.out.println("Found git repository URL: " + url);
         assertThat(url).isNotEmpty().contains(".git");
+    }
+
+    private Repository assertRepos() throws IOException {
+        File basedir = new File(System.getProperty("basedir", "."));
+        Repository repository = GitUtils.findRepository(basedir);
+        assertNotNull("Should find a repository", repository);
+        return repository;
+    }
+
+    @Test
+    public void testGetRepositoryHttpsURL() throws Exception {
+        Pattern GITHUB_HTTPS_URL_PATTERN = Pattern.compile("^https://github\\.com/(?<user>[a-z0-9](?:-?[a-z0-9]){0,38})/.*?$");
+
+        Repository repository = assertRepos();
+
+        String url = GitUtils.getRemoteAsHttpsURL(repository);
+        System.out.println("Found git repository URL: " + url);
+        assertThat(GITHUB_HTTPS_URL_PATTERN.matcher(url).find()).isTrue();
+    }
+
+    @Test
+    public void testGetRepositoryHttpsAsURLWithRemoteName() throws Exception {
+        Pattern GITHUB_HTTPS_URL_PATTERN = Pattern.compile("^https://github\\.com/(?<user>[a-z0-9](?:-?[a-z0-9]){0,38})/.*?$");
+
+        Repository repository = assertRepos();
+
+        String url = GitUtils.getRemoteAsHttpsURL(repository,"origin");
+        System.out.println("Found git repository URL: " + url);
+        assertThat(GITHUB_HTTPS_URL_PATTERN.matcher(url).find()).isTrue();
     }
 
     @Test
