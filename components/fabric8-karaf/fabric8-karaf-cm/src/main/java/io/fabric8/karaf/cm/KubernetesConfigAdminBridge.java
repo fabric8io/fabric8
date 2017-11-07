@@ -371,9 +371,21 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
         if (oldConfiguration != null && oldConfiguration.length > 0) {
             return oldConfiguration[0];
         } else {
-            return factoryPid != null
-                ? configAdmin.createFactoryConfiguration(pid, null)
-                : configAdmin.getConfiguration(pid, null);
+            Configuration newConfiguration;
+            if (factoryPid != null) {
+                newConfiguration = configAdmin.createFactoryConfiguration(pid, null);
+            } else {
+                newConfiguration = configAdmin.getConfiguration(pid, null);
+                // 104.4.2 Dynamic Binding:
+                //  A null location parameter can be used to create Configuration objects that are not yet bound.
+                //  In this case, the Configuration becomes bound to a specific location the first time that it is
+                //  compared to a Bundle’s location.
+                //
+                //  It is recommended that management agents explicitly set the location to a ? (a multi-location)
+                //  to allow multiple bundles to share PIDs and not use the dynamic binding facility.
+                newConfiguration.setBundleLocation("?");
+            }
+            return newConfiguration;
         }
     }
 
