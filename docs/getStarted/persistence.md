@@ -11,7 +11,7 @@ To see the current `PersistentVolumeClaim` and `PersistentVolume` resources use 
     kubectl get pvc
     kubectl get pv
 
-When things are working correctly you should see all the `PersistentVolumeClaim` resources are `Bound` to some `PersistentVolume` resource. When thats true then all the various persistent apps in fabric8 will startup.
+When things are working correctly you should see all the `PersistentVolumeClaim` resources are `Bound` to some `PersistentVolume` resource. When that's true then all the various persistent apps in fabric8 will startup.
 
 ### MiniKube and MiniShift
 
