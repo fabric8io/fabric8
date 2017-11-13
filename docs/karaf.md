@@ -15,7 +15,7 @@ Using Fabric8 it is possible to:
 
 ### Adding the Features File
 
-To use any of the features described in document you should add the `fabric8-karaf-features` dependency to your project pom so that it's feature can be installed into your Karaf server.
+To use any of the features described in document you should add the `fabric8-karaf-features` dependency to your project pom so that its features can be installed into your Karaf server.
 
 ```xml
 <dependency>
@@ -225,7 +225,7 @@ data:
 
 ```
 
-Individual properties work fine for most cases but sometimes you may want more freedom to define your configuration sou you can use a single property names as it would be your pid file in karaf/etc:
+Individual properties work fine for most cases, but sometimes you may want more freedom to define your configuration so you can use single property names, i.e. your pid file in karaf/etc:
 
 
 ```yaml
@@ -297,7 +297,7 @@ Fabric8 Karaf Config Admin supports the following options:
 
 
 Notes:
-  * Otions can be set via system properties and/or environment variables
+  * Options can be set via system properties and/or environment variables
   * ConfigurationPlugin requires Aries Blueprint CM 1.0.9 or above
 
 </br>
@@ -371,7 +371,7 @@ Adding the feature to your project's pom.xml:
 </startupFeatures>
 ```
 
-The `fabric8-maven-plugin:resources` goal will detect if your using the `fabric8-karaf-checks` feature and automatically add the Kubernetes for readiness and liveness probes to your container's configuration.
+The `fabric8-maven-plugin:resources` goal will detect if you're using the `fabric8-karaf-checks` feature and automatically add the Kubernetes for readiness and liveness probes to your container's configuration.
 
 #### Add Custom Heath Checks
 
