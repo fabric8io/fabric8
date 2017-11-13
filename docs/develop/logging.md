@@ -7,4 +7,4 @@ When running the Fabric8 Microservices Platform we recommend running the [Loggin
 As a Microservice developer, you get _logging as a service_ for free with the [Logging Microservices](../logging.html), though its recommended that you:
 
 * write logs to standard output rather than to files on disk
-* ideally use JSON output so thats its easy to automically parse it
+* ideally use JSON output so that it's easy to automatically parse it
