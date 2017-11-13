@@ -40,8 +40,8 @@ Under the covers the code will default to using the **MY_SERVICE_SERVICE_HOST** 
 If your Java code is running outside of Kubernetes then @ServiceName will use the environment variable **KUBERNETES_MASTER** to connect to the kubernetes REST API and then use that to discover where the services are. This lets you run the same Java code in a test, in your IDE and inside kubernetes.
 
 ### The @Protocol annotation
-Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
-One could find and replace the transport protocol with the actual application protocol but that its really smelly.
+Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL it's more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that's really smelly.
 
 The extension supports the @Protocol annotation which allows the user to specify the application protocol to use.
 
@@ -51,13 +51,13 @@ The extension supports the @Protocol annotation which allows the user to specify
         private String service.
 
 ### Using Converters and Factories
-Using the service coordinates, like the URL is handy. Many times one needs to inject a client/consumer of the service.
+Using the service coordinates like the URL is handy. Many times one needs to inject a client/consumer of the service.
 Spring is using Converters when it needs to inject a bean and there is a type mismatch. It will look for a converter bean
 that can convert from the type of the matching bean in the registry to the type need. If converter is available it will be automatically used.
 
 This module takes things a step further. It provides the @Factory annotation that can automatically create and register a converter for the job.
 Here's an example:
-   
+
        @Factory
        @ServiceName
        public MyClient create(@ServiceName String url) {
