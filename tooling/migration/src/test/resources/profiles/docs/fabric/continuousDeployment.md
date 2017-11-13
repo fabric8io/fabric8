@@ -10,7 +10,7 @@ We tend to create various binaries; jar files, bundles, wars, ears, tarballs, zi
 
 In development mode when working with _SNAPSHOT_ versions we expect you to use the [mvn fabric8:deploy goal in the maven plugin](mavenPlugin.html) to deploy a new maven project to a profile; then use the [fabric:watch * command line tool](developer.html) to provide rapid redeployment as you rebuild your binaries; then as you rebuild on your local machine your code gets auto-redeployed on your fabric containers.
 
-The _Continuous Deployment_ pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn't necessary mean you need a maven repository manager like [Nexus](http://www.sonatype.org/nexus/) or Artifactory; it could just be a block storage, NFS or HTTP based website thats rynch'd or backed up.
+The _Continuous Deployment_ pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn't necessarily mean you need a maven repository manager like [Nexus](http://www.sonatype.org/nexus/) or Artifactory; it could just be a block storage, NFS or HTTP based website that's rynch'd or backed up.
 
 We then refer to those binaries in [profiles](profiles.html) by using maven coordinates.
 
