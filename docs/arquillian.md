@@ -4,9 +4,9 @@ Fabric8 provides an arquillian extension, which helps you write and run integrat
 
 ### Overview
 
-This extension, wll create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests.
+This extension will create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests.
 
-This extension, will not mutate neither your containers *(by deploying, reconfiguring etc)* nor your Kubernetes resources, and takes a black box approach to testing.
+This extension will not mutate neither your containers *(by deploying, reconfiguring etc)* nor your Kubernetes resources, and takes a black box approach to testing.
 
 ### Features
 - Hybrid *(in or out of Kubernetes/Openshift)*
@@ -26,7 +26,7 @@ This extension, will not mutate neither your containers *(by deploying, reconfig
 
 ### Configuring the extension
 
-The plugin can be configured using the traditional arquillian.xml, via system properties or evnironment variables (in that particular order).
+The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables (in that particular order).
 Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn't contain an entry, the system properties will be used.
 If no result has been found so far the environment variables will be used.
 
@@ -129,15 +129,15 @@ The resource providers available, can be used to inject to your test cases the f
       }
     }
 
-The test code above, demonstrates how you can inject an use inside your test the *KubernetesClient* and the *Session* object. It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on [assert4j](http://assertj.org) for performing assertions on top of the Kubernetes model.
+The test code above demonstrates how you can inject and use the *KubernetesClient* and the *Session* object inside your test. It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on [assert4j](http://assertj.org) for performing assertions on top of the Kubernetes model.
 
-The next example is intended to how you can inject a resource by id.
+The next example is intended to demonstrate how you can inject a resource by id.
 
     @RunWith(Arquillian.class)
     public class ResourceByIdTest {
 
      @ArquillianResouce
-     @ServiceName("my-serivce")
+     @ServiceName("my-service")
      Service service;
 
      @ArquillianResouce
@@ -145,7 +145,7 @@ The next example is intended to how you can inject a resource by id.
      Pod pod;
 
      @ArquillianResouce
-     @ReplicationControllerName("my-contoller")
+     @ReplicationControllerName("my-controller")
      ReplicationController controller;
 
       @Test
@@ -181,7 +181,7 @@ For java based application in particular one can directly obtain a jolokia clien
     public class JolokiaClientTest {
 
      @ArquillianResouce
-     @ServiceName("target-serivce")
+     @ServiceName("target-service")
      J4pClient jolokia;
 
       @Test
