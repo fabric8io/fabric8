@@ -10,7 +10,7 @@ Using this extension you can easily:
 
 [fabric8-arquillian](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian) uses:
 
-* Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases
+* Kubernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases
 * [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
 * [kubernetes-assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) and [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) to provide assertions within the JUnit test case.
 
