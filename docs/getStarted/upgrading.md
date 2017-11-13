@@ -42,4 +42,4 @@ If you have an older version of fabric8 platform installed before version `2.4.2
 gofabric8 upgrade fabric8-platform
 ```
 
-This will then ugprade to the latest version and install the necessary `Package` metadata so that `gofabric8` is now aware of what version of the package is installed to smooth the upgrade/downgrade process.
+This will then upgrade to the latest version and install the necessary `Package` metadata so that `gofabric8` is now aware of what version of the package is installed to smooth the upgrade/downgrade process.
