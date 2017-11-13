@@ -4,7 +4,7 @@
 
 So helm is a great way to install fabric8 on an existing kubernetes cluster and then later on upgrade it when a new release of fabric8 comes out.
 
-**NOTE** currently helm does not properly support OpenShift since OpenShift uses lots of non-standard resource kinds - so for now we recommend not using Helm for OpenShift -instead we recommend using the [gofabric8 installer](gofabric8.html) for OpensShift. We do hope long term to have great helm support for OpenShift though - as we view it as essential technology for managing upgrades of software.
+**NOTE** currently helm does not properly support OpenShift since OpenShift uses lots of non-standard resource kinds - so for now we recommend not using Helm for OpenShift -instead we recommend using the [gofabric8 installer](gofabric8.html) for OpenShift. We do hope long term to have great helm support for OpenShift though - as we view it as essential technology for managing upgrades of software.
 
 
 ### Installing fabric8 with helm
