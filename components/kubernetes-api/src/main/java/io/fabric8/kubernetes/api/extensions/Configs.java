@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Helper class for working with the YAML config file thats located in
+ * Helper class for working with the YAML config file that's located in
  * <code>~/.kube/config</code> which is updated when you use commands
  * like <code>oc login</code> and <code>oc project myproject</code>
  */
