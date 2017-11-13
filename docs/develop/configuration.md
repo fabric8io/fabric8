@@ -22,7 +22,7 @@ This assumes the configuration will be the same in each environment due to the a
 
 For any environment specific values then you could specify environment variables in your kubernetes resource. e.g. your [Kubernetes Deployments](http://kubernetes.io/docs/user-guide/deployments/) can include `env` values in the pod template's container section.
 
-Though its good practice maximise the amount of immutable arfifacts you have (e.g. docker images and kubernetes resources) and to minimise the amount of artifacts you need to modify for each environment. So for per-environment configuration we recommend one of the following approaches:
+Though it's good practice to maximise the amount of immutable artifacts you have (e.g. docker images and kubernetes resources) and to minimise the amount of artifacts you need to modify for each environment. So for per-environment configuration we recommend one of the following approaches:
 
 ### ConfigMap
 
@@ -35,7 +35,7 @@ If you are using Spring in your Java based Microservices you may want to check o
 
 ### Git
 
-One of the downsides of using `ConfigMap` as described above is that there's no history or change tracking; there's just the latest version of the ConfigMap. For complex configuration its very useful to have a changelog so you can see who changed what configuration values when so that when things start to go wrong you can easily revert changes or see the history.
+One of the downsides of using `ConfigMap` as described above is that there's no history or change tracking; there's just the latest version of the ConfigMap. For complex configuration it's very useful to have a changelog so you can see who changed what configuration values when so that when things start to go wrong you can easily revert changes or see the history.
 
 So you can store your environment specific configuration in a git repository (maybe using a different branch or repo for each environment) then you can mount the git repository as a volume in your Microservice docker container via a [`gitRepo` volume](http://kubernetes.io/docs/user-guide/volumes/#gitrepo) using a specific git revision.
 
@@ -49,7 +49,7 @@ You can either run `gitcontroller` as a Microservice in your namespace or you ca
 
 ### Choosing the right approach
 
-We recommend you try to keep the environment specific configuration down to a minimum as that increases the amount of resuable immuable artifacts (docker images and kubernetes resources) that can be used without modification in any environment and promotes confidence and testing of those artifacts across your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html).
+We recommend you try to keep the environment specific configuration down to a minimum as that increases the amount of reusable immutable artifacts (docker images and kubernetes resources) that can be used without modification in any environment and promotes confidence and testing of those artifacts across your [CI / CD Pipeline](http://fabric8.io/guide/cdelivery.html).
 
 So if you can avoid any configuration that is environment specific (thanks to [service discovery](serviceDiscovery.html) and [kubernetes secrets](http://kubernetes.io/docs/user-guide/secrets/)) then just including configuration inside your docker image makes the most sense.
 
