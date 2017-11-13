@@ -8,7 +8,7 @@ When using the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html
 
 #### Should I use features?
 
-If you're using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server and you've already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.
+If you're using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server and you've already developed features XML files for grouping bundles together as a logical application; that's all cool and they work great in fabric8.
 
 However there's not really a big need to develop them going forward; as its easier to just create a [profile zip file as part of your maven build](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) which can automatically include all your bundles for your project.
 
