@@ -23,8 +23,8 @@ The fabric8 extension provides a unified approach in looking up for service coor
     private String service.
 
 ### The @Protocol annotation
-Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL its more useful to use the application protocol.
-One could find and replace the transport protocol with the actual application protocol but that its really smelly.
+Kubernetes uses the notion of Protocol to refer to the transport protocol TCP or UDP. In Java URL it's more useful to use the application protocol.
+One could find and replace the transport protocol with the actual application protocol but that's really smelly.
 
 The CDI extension supports the @Protocol annotation which allows the user to specify the application protocol to use.
 
@@ -32,7 +32,7 @@ The CDI extension supports the @Protocol annotation which allows the user to spe
         @ServiceName("my-ftp-service")
         @Protocol("ftp")
         private String service.
-        
+
 ### The @PortName annotation
 In Kubernetes a service may define multiple ports. Fabric8 provides a qualifier which can be used to select a specific port by name.
 
@@ -51,30 +51,30 @@ In the same spirit with the @Protocol annotation this extension also supports th
                 @Protocol("jdbc:mysql")
                 @Path("db1")
                 private String urlForDb1.
-                
+
                 @Inject
                 @ServiceName("mysqldb")
                 @Protocol("jdbc:mysql")
                 @Path("db2")
-                private String urlForDb2.                        
+                private String urlForDb2.
 
 ### The @Endpoint annotation
-There are cases, where we don't want to access the Service IP but we want to access and endpoint to the service.
-A very good example are headless service, which doesn't have a Service IP. You can instruct the framework to use endpoints instead of the Service with the @Endpoint annotation.
+There are cases where we don't want to access the Service IP but we want to access an endpoint to the service.
+A very good example are headless services, which don't have a Service IP. You can instruct the framework to use endpoints instead of the Service with the @Endpoint annotation.
 
         @Inject
         @ServiceName("headless-service")
         @Endpoint
         private String service.
 
-If more than one endpoints are available for the service, the first found will be the one injected. But you can access them all by using a List or a Set.
+If more than one endpoint is available for the service, the first found will be the one injected. But you can access them all by using a List or a Set.
 
         @Inject
         @ServiceName("headless-service")
         @Endpoint
         private List<String> services.
-        
-In case of Set or List injection the @Endpoint annotation can also be assumed.        
+
+In case of Set or List injection the @Endpoint annotation can also be assumed.
 
 ### Running inside and outside of Kubernetes
 
@@ -88,7 +88,7 @@ Currently route will be used only if @Protocol or @PortName haven't been explici
 
 ### Creating custom objects
 In most of the cases the user will create a client so that it can consume the service. This can be easily done using the injection point and a manual kubernetes service lookup.
-   
+
     @Produces
     @ServiceName
     public MyClient create(InjectionPoint ip) {
@@ -96,11 +96,11 @@ In most of the cases the user will create a client so that it can consume the se
         String url = Services.toServiceUrl(service.getId(), service.getProtocol());
         return new MyClient(url);
     }
-    
+
 ### Using Factories
 The example above is something that works but it does require boilerplate.
 To simplify the code Fabric8 provides the @Factory annotation.
-   
+
        @Factory
        @ServiceName
        public MyClient create(@ServiceName String url) {
@@ -108,8 +108,8 @@ To simplify the code Fabric8 provides the @Factory annotation.
        }
 
 ### Integration with Apache Deltaspike
-In kubernetes its quite common to pass around configuration via Environment Variables. Outside of kubernetes java developers often use System properties, property files and what not.
-DeltaSpike provides an awesome extension which works great along with the fabric8 extension that allows the user to inject configuration form various sources:
+In kubernetes, it's quite common to pass around configuration via Environment Variables. Outside of kubernetes java developers often use System properties, property files and what not.
+DeltaSpike provides an awesome extension which works great along with the fabric8 extension that allows the user to inject configuration from various sources:
 
 * System Properties
 * Environment Variables
@@ -128,8 +128,8 @@ So it makes sense when we create the "factory" for our client, to also inject co
 
     @Inject
     @ConfigProperty(name="CONNECTION_TIMEOUT", defaultValue="10000L")
-    private Long timeout; 
-   
+    private Long timeout;
+
     @Produces
     @ServiceName
     public MyClient create(@ServiceName url) {
@@ -139,7 +139,7 @@ So it makes sense when we create the "factory" for our client, to also inject co
 But what happens if we need  to create multiple instances of MyClient each configured differently?
 
 #### The @Configuration annotation
-The configuration annotation allows you to group a set of configuration properties together as part of a bean and instantiate it with different configuration values, depending the context.
+The configuration annotation allows you to group a set of configuration properties together as part of a bean and instantiate it with different configuration values, depending on the context.
 
 For example let's assume that **MyClient** which has been used in the previous examples, requires a timeout and a pool size for its configuration. And we need to configure multiple instances of MyClient.
 The configuration of MyClient can be encapsulated like this:
@@ -148,16 +148,16 @@ The configuration of MyClient can be encapsulated like this:
         private final Integer poolSize;
         private final Long timeout;
     }
-        
+
 The obvious way would be to create 2 classes for MyConfig each using a different set of annotations. The worst part is that then we would also need to create 2 instances of @Produces each consuming a different set of configuration. Which becomes really painful even for a simple example like this.
 
-The alternative approach is to use the @Configuration annotation and a simple convention: "For all configuration sets, keys are named the same and use a descriminator prefix". This would allow use to use a single MyConfig class and only specifiy the **descriminator** where we need to.
-     
+The alternative approach is to use the @Configuration annotation and a simple convention: "For all configuration sets, keys are named the same and use a descriminator prefix". This would allow us to use a single MyConfig class and only specify the **descriminator** where we need to.
+
      public class MyConfig {
          @Inject
-         @ConfigProperty(name="POOL_SIZE", defaultValue="10")         
+         @ConfigProperty(name="POOL_SIZE", defaultValue="10")
          private final Integer poolSize;
-         
+
          @Inject
          @ConfigProperty(name="CONNECTION_TIMEOUT", defaultValue="10000L")
          private final Long timeout;
@@ -169,33 +169,33 @@ The discriminator only needs to be specified at the point where configuration is
         @Inject
         @Configuration("SERVICE_1")
         private MyConfig cfg1;
-        
+
         @Inject
         @Configuration("SERVICE_2")
         private MyConfig cfg2;
-                
-                
+
+
 #### Combining @Factory, @ServiceName and @Configuration annotations
-To further reduce the amount of boilerplate one could use all of the annotations to create generic factories that accepts as parameters service urls and configuration.
-              
+To further reduce the amount of boilerplate one could use all of the annotations to create generic factories that accept service urls and configuration as parameters.
+
     public class MyFactory {
         @Factory
         @ServiceName
         MyClient create(@ServiceName String url, @Configuration MyConfig cfg) {
-            return MyClient(url, cfg);  
+            return MyClient(url, cfg);
         }
     }
-    
+
 The you can directly inject the client:
-    
+
         @Inject
         @ServiceName("SERVICE_1")
         private MyClient cl1;
-        
+
         @Inject
         @ServiceName("SERVICE_2")
-        private MyClient cl2;        
-        
+        private MyClient cl2;
+
 In this approach the benefit is double as both the configuration and the service url are not needed to be specified in the factory but just to the place where the client is consumed. That makes the factory reusable and reduces the amount of code needed.
 
 Factories can also make use of the @Protocol and @PortName annotations to set default values for protocol and port name.
@@ -206,11 +206,11 @@ Factories can also make use of the @Protocol and @PortName annotations to set de
         DataSource create(@ServiceName @Protocol("jdbc:mysql") @PortName("mysqld-port") String url, @Configuration MyConfig cfg) {
             DataSource ds = null;
             ...
-            return ds;  
+            return ds;
         }
     }
-    
-If @Protocol or @PortName are present on the actual injection point to, they will take precedence over what's found here.    
+
+If @Protocol or @PortName are present on the actual injection point to, they will take precedence over what's found here.
 
 #### Injection of Optional Services
 
