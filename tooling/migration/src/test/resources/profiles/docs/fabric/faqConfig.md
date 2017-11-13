@@ -34,5 +34,5 @@ e.g. if you put files in the **overlayFiles/classes** folder within the profile,
 
 and so be on the CLASSPATH so you can access it that way (or you could access it relative to the current working directory if you prefer).
 
-Thats how the log4j.properties file gets added from the profile to the classpath:
+That's how the log4j.properties file gets added from the profile to the classpath:
 https://github.com/jstrachan/fabric8/tree/kube/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/overlayFiles/classes
