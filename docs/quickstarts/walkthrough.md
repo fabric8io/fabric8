@@ -20,14 +20,8 @@ In this guide we will start with one of the simplest which is the `java-fatjar` 
 
 To get started you can checkout the quickstart source code using the following git command:
 
-    git clone https://github.com/fabric8io/ipaas-quickstarts.git
-    cd ipaas-quickstarts
-
-And then change directory to 
-
-    cd quickstart
-    cd java
-    cd fatjar
+    git clone https://github.com/fabric8-quickstarts/java-fatjar.git
+    cd java-fatjar
     
  
 #### Check your environment
@@ -172,7 +166,7 @@ Which will clean and compile the source, do a docker image build, and re-deploy 
 When the application is de-deployed then kubernetes will shutdown the old pod, and start a new pod, so we will list all the running pods with `oc get pods`:
 
 ```
-ipaas-quickstarts/quickstart/java/fatjar/$ oc get pods
+java-fatjar/$ oc get pods
 NAME                                  READY     STATUS    RESTARTS   AGE
 docker-registry-1-68nz6               1/1       Running   0          15m
 fabric8-jccyj                         1/1       Running   0          16m
@@ -188,7 +182,7 @@ And as you can see the pod name has changed to `java-fatjar-2nnx7`. To see our c
 And you should see our changed logging message:
 
 ```
-ipaas-quickstarts/quickstart/java/fatjar/$ oc logs -f java-fatjar-2nnx7
+java-fatjar/$ oc logs -f java-fatjar-2nnx7
 I> No access restrictor found, access to all MBean is allowed
 Jolokia: Agent started with URL http://172.17.0.7:8778/jolokia/
 I was here: PorTM

@@ -12,14 +12,14 @@ You can run one of the [quickstarts](index.md) either directly out of
 a git checked out repository or from a project created by an
 quickstart [archetype](archetype.md).
 
-The quickstarts can be used directly by
+The quickstarts can be used directly by checking one out from the
+[fabric8-quickstarts](https://github.com/fabric8-quickstarts) GitHub organization.
+For example:
 
-    git clone https://github.com/fabric8io/ipaas-quickstarts.git
-    cd quickstart
+    git clone https://github.com/fabric8-quickstarts/cdi-camel.git
+    cd cdi-camel
 
-and then into the subdirectory of a specific quickstart.
-
-For the rest of this chapter we are using `cdi/camel` as an example
+For the rest of this chapter we are using `cdi-camel` as an example
 and assume that you are within its directory.
 
 #### Check your environment
