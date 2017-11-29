@@ -1,8 +1,8 @@
 ## Fabric8 Quickstarts
 
 Fabric8 ships with a set of quickstarts which shows you how to build a
-docker image and run it on Kubernetes / OpenShift. All quickstart can
-either run directly by checking it out from the
+docker image and run it on Kubernetes / OpenShift. A quickstart can
+either be run directly by checking it out from the
 [fabric8-quickstarts GitHub organization](https://github.com/fabric8-quickstarts)
 or run as an archetype.
 
@@ -58,13 +58,13 @@ The following quickstarts are available:
   * **wildfly** demonstrates how to deploy a simple Application as war
     on a Wildfly instance
 
-You can use this quickstarts either as an [archetype](archetypes.md)
-or directly by checking it out from the
+You can use these quickstarts either as an [archetype](archetypes.md)
+or directly by checking one out from the
 [https://github.com/fabric8-quickstarts](https://github.com/fabric8-quickstarts)
 GitHub organization.
 
-Detailed instruction for running the quickstarts can be found in an
-each section ["Running Quickstarts"](running.md)
+Detailed instructions for running the quickstarts can be found in the
+["Running Quickstarts"](running.md) section.
 
 
 

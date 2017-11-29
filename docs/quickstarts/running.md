@@ -92,7 +92,7 @@ the option `-Dfabric8.dockerUser` to specify your username:
  
     mvn clean install docker:build docker:push -Dfabric8.dockerUser=morlock/
 
-(Pleade note the trailing `/` after the username). Authentication for this user *morlock* must 
+(Please note the trailing `/` after the username). Authentication for this user *morlock* must 
 be done as described in the [manual for the docker-maven-plugin](https://github.com/rhuss/docker-maven-plugin). 
 E.g. you can use `-Ddocker.push.username` and `-Ddocker.push.password` for specifying the
 credentials or you can set this up in your `~/.m2/settings.xml`.
