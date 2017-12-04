@@ -6,7 +6,7 @@ Let's assume you have deployed the CxfCdi quickstart in Fabric8 using
     mvn -Pf8-deploy-local
     ...
     
-from the [ipaas-quickstarts/quickstart/cdi/cxf](https://github.com/fabric8io/ipaas-quickstarts/tree/release-v2.2.45/quickstart/cdi/cxf) directory and that you created your own organization in apiman. You can now navigate to the Organization/Service page to 'Import Services' into apiman. Apiman will obtain a list of running services in your namespace that match your search string. Use '*' to match all service. 
+from the [fabric8-quickstarts/cdi-cxf](https://github.com/fabric8-quickstarts/cdi-cxf) directory and that you created your own organization in apiman. You can now navigate to the Organization/Service page to 'Import Services' into apiman. Apiman will obtain a list of running services in your namespace that match your search string. Use '*' to match all service. 
 
 ![service import](images/apiman-serviceimport.png).
 

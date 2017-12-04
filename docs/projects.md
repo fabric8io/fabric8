@@ -24,7 +24,11 @@ The following projects are for [Microservices Platform](http://fabric8.io/guide/
 The following projects are for [Fabric8 iPaaS](http://fabric8.io/guide/ipaas.html):
 
 * [fabric8-ipaas](https://github.com/fabric8io/fabric8-ipaas) contains the main [iPaaS](http://fabric8.io/guide/ipaas.html) applications
-* [ipaas-quickstarts](https://github.com/fabric8io/ipaas-quickstarts) contains the [quickstarts](http://fabric8.io/guide/quickstarts/index.html) and [archetypes](http://fabric8.io/guide/quickstarts/archetypes.html) for the [iPaaS](http://fabric8.io/guide/ipaas.html)
+* [ipaas-quickstarts](https://github.com/fabric8io/ipaas-quickstarts) contains the Maven [archetypes](quickstarts/archetypes.html) that developers can use to create new projects based on the [fabric8-quickstarts](https://github.com/fabric8-quickstarts)
+
+### Quickstarts
+
+The [fabric8-quickstarts](https://github.com/fabric8-quickstarts) GitHub organization contains example projects to make getting started with fabric8 easy. See the [quickstarts](quickstarts/index.html) documentation for more information.
 
 ### Tools
 

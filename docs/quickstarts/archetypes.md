@@ -1,6 +1,6 @@
 ### Archetypes
 
-For each quickstart a dedicate archetype is available. You can create
+For each quickstart a dedicated Maven archetype is available. You can create
 a new project based on the archetype easily:
 
     mvn archetype:generate \
