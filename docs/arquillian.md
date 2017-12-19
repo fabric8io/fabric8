@@ -1,5 +1,8 @@
 ## Fabric8 Arquillian Extension
 
+The Fabric8 Arquillian Extension has been merged into Arquillian Cube: https://github.com/arquillian/arquillian-cube/blob/master/docs/kubernetes.adoc. It is strongly advised to use that instead. This module is going to be removed in future versions.
+
+
 Fabric8 provides an arquillian extension, which helps you write and run integration tests for your Kubernetes/Openshift application.
 
 ### Overview
