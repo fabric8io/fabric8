@@ -67,6 +67,7 @@ public class MultiHasPodSelectionAssert implements HasPodSelectionAssert {
                 try {
                     thread.join();
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     fail("Interrupted: "+e);
                 }
             }

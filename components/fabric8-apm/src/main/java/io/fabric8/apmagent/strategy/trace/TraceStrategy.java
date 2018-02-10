@@ -257,6 +257,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
                                 }
                             }
                         } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                             shutDown();
                         }
                     }
