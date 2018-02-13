@@ -19,8 +19,10 @@ import java.io.StringReader;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
@@ -29,6 +31,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.utils.Utils;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -88,7 +91,7 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
 
     private boolean enabled;
     private String pidLabel;
-    private Map<String, String> filters;
+    private Map<String, Set<String>> filters;
     private Watch watch;
     private boolean configMerge;
     private boolean configMeta;
@@ -125,7 +128,11 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             for (String filter : filterList.split(",")) {
                 String[] kv = filter.split("=");
                 if (kv.length == 2) {
-                    filters.put(kv[0].trim(), kv[1].trim());
+                    Set<String> orConditions = new HashSet<>();
+                    for (String orCondition : kv[1].split(";")) {
+                        orConditions.add(orCondition.trim());
+                    }
+                    filters.put(kv[0].trim(), orConditions);
                 }
             }
         }
@@ -347,9 +354,16 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
 
     private ConfigMapList getConfigMapList() {
         KubernetesClient client = kubernetesClient.get();
-        return client != null
-            ? client.configMaps().withLabel(pidLabel).withLabels(filters).list()
-            : null;
+
+        if( client != null ) {
+            FilterWatchListDeletable<ConfigMap, ConfigMapList, Boolean, Watch, Watcher<ConfigMap>> configMapsSelector = client.configMaps().withLabel(pidLabel);
+            for( String key : filters.keySet() ){
+                configMapsSelector.withLabelIn(key, filters.get(key).toArray(new String[filters.get(key).size()]));
+            }
+            return configMapsSelector.list();
+        } else {
+            return null;
+        }
     }
 
     private void watchConfigMapList() {
@@ -357,7 +371,11 @@ public class KubernetesConfigAdminBridge implements Watcher<ConfigMap> {
             KubernetesClient client = kubernetesClient.get();
 
             if (client != null) {
-                watch = client.configMaps().withLabel(pidLabel).withLabels(filters).watch(this);
+                FilterWatchListDeletable<ConfigMap, ConfigMapList, Boolean, Watch, Watcher<ConfigMap>> configMapsSelector = client.configMaps().withLabel(pidLabel);
+                for( String key : filters.keySet() ){
+                    configMapsSelector.withLabelIn(key, filters.get(key).toArray(new String[filters.get(key).size()]));
+                }
+                watch = configMapsSelector.watch(this);
             } else {
                 throw new RuntimeException("KubernetesClient not set");
             }
