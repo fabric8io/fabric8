@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>components</artifactId>
-    <version>3.0.8</version>
+    <version>3.0.8.fuse-000012</version>
   </parent>
 
   <artifactId>kubernetes-jolokia</artifactId>
