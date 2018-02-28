@@ -292,9 +292,8 @@ Fabric8 Karaf Config Admin supports the following options:
 | fabric8.config.watch          | true        | Enable watching for ConfigMap changes
 | fabric8.config.merge          | false       | Enable merge ConfigMap values in ConfigAdmin
 | fabric8.config.meta           | true        | Enable injecting ConfigMap meta in ConfigAdmin bridge
-| fabric8.pid.label             | karaf.pid   | Define the label the ConfigAdmin bridge looks for
-
-
+| fabric8.pid.label             | karaf.pid   | Define the label the ConfigAdmin bridge looks for (i.e. a ConfigMap, to be selected, needs to have that label; the value of which determines to what PID it gets associated)
+| fabric8.pid.filters           | empty       | Define additional conditions for the ConfigAdmin bridge to pick up a ConfigMap. The supported syntax is:<br/> <ul><li>conditions on different labels are separated by "," and are intended in AND between each other.</li><li>inside a label, separated by ";" there might be conditions on the label value which are considered in OR with each other.</li></ul> As an example a filter like -Dfabric8.pid.filters=appName=A;B,database.name=my.oracle.datasource would translate in "give me all the ConfigMap that have a label appName with values A or B and a label database.name equals to my.oracle.datasource".
 
 Notes:
   * Options can be set via system properties and/or environment variables
