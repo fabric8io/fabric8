@@ -21,12 +21,12 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-project</artifactId>
-        <version>3.0.8</version>
+        <version>3.0.8.fuse-000017</version>
     </parent>
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-parent</artifactId>
-    <version>3.0.8</version>
+    <version>3.0.8.fuse-000017</version>
     <packaging>pom</packaging>
 
     <name>Fabric8 :: Parent</name>
