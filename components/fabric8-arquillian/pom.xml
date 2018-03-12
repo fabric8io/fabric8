@@ -20,7 +20,7 @@
     <parent>
         <artifactId>components</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0.11</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -161,34 +161,34 @@
                     <reuseForks>false</reuseForks>
                     <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
                     <environmentVariables>
-                        <KUBERNETES_MASTER></KUBERNETES_MASTER>
-                        <KUBERNETES_NAMESPACE></KUBERNETES_NAMESPACE>
-                        <FABRIC8_ENVIRONMENT/>
-                        <KUBERNETES_DOMAIN></KUBERNETES_DOMAIN>
-                        <NAMESPACE_LAZY_CREATE_ENABLED></NAMESPACE_LAZY_CREATE_ENABLED>
-                        <NAMESPACE_CLEANUP_TIMEOUT></NAMESPACE_CLEANUP_TIMEOUT>
-                        <NAMESPACE_CLEANUP_CONFIRM></NAMESPACE_CLEANUP_CONFIRM>
-                        <NAMESPACE_CLEANUP_ENABLED></NAMESPACE_CLEANUP_ENABLED>
-                        <NAMESPACE_TO_USE></NAMESPACE_TO_USE>
-                        <ENVIRONMENT_INIT_ENABLED></ENVIRONMENT_INIT_ENABLED>
-                        <ENVIRONMENT_CONFIG_URL></ENVIRONMENT_CONFIG_URL>
-                        <ENVIRONMENT_CONFIG_RESOURCE_NAME></ENVIRONMENT_CONFIG_RESOURCE_NAME>
-                        <ENVIRONMENT_DEPENDENCIES></ENVIRONMENT_DEPENDENCIES>
-                        <WAIT_TIMEOUT></WAIT_TIMEOUT>
-                        <WAIT_POLL_INTERVAL></WAIT_POLL_INTERVAL>
-                        <WAIT_FOR_SERVICE_LIST></WAIT_FOR_SERVICE_LIST>
-                        <WAIT_FOR_SERVICE_CONNECTION_ENABLED></WAIT_FOR_SERVICE_CONNECTION_ENABLED>
-                        <WAIT_FOR_SERVICE_CONNECTION_TIMEOUT></WAIT_FOR_SERVICE_CONNECTION_TIMEOUT>
-                        <ANSI_LOGGER_ENABLED></ANSI_LOGGER_ENABLED>
-                        <GOFABRIC8_ENABLED></GOFABRIC8_ENABLED>
-                        <CLIENT_CREATOR_CLASS_NAME></CLIENT_CREATOR_CLASS_NAME>
-                        <JAVA_PROTOCOL_HANDLER></JAVA_PROTOCOL_HANDLER>
-                        <PROTOCOL_HANDLERS></PROTOCOL_HANDLERS>
-                        <DEFAULT_MAVEN_PROTOCOL_HANDLER></DEFAULT_MAVEN_PROTOCOL_HANDLER>
-                        <DEFAULT_CONFIG_FILE_NAME></DEFAULT_CONFIG_FILE_NAME>
-                        <DEFAULT_NAMESPACE_CLEANUP_TIMEOUT></DEFAULT_NAMESPACE_CLEANUP_TIMEOUT>
-                        <DEFAULT_NAMESPACE_CLEANUP_ENABLED></DEFAULT_NAMESPACE_CLEANUP_ENABLED>
-                        <DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED></DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED>
+                        <KUBERNETES_MASTER />
+                        <KUBERNETES_NAMESPACE />
+                        <FABRIC8_ENVIRONMENT />
+                        <KUBERNETES_DOMAIN />
+                        <NAMESPACE_LAZY_CREATE_ENABLED />
+                        <NAMESPACE_CLEANUP_TIMEOUT />
+                        <NAMESPACE_CLEANUP_CONFIRM />
+                        <NAMESPACE_CLEANUP_ENABLED />
+                        <NAMESPACE_TO_USE />
+                        <ENVIRONMENT_INIT_ENABLED />
+                        <ENVIRONMENT_CONFIG_URL />
+                        <ENVIRONMENT_CONFIG_RESOURCE_NAME />
+                        <ENVIRONMENT_DEPENDENCIES />
+                        <WAIT_TIMEOUT />
+                        <WAIT_POLL_INTERVAL />
+                        <WAIT_FOR_SERVICE_LIST />
+                        <WAIT_FOR_SERVICE_CONNECTION_ENABLED />
+                        <WAIT_FOR_SERVICE_CONNECTION_TIMEOUT />
+                        <ANSI_LOGGER_ENABLED />
+                        <GOFABRIC8_ENABLED />
+                        <CLIENT_CREATOR_CLASS_NAME />
+                        <JAVA_PROTOCOL_HANDLER />
+                        <PROTOCOL_HANDLERS />
+                        <DEFAULT_MAVEN_PROTOCOL_HANDLER />
+                        <DEFAULT_CONFIG_FILE_NAME />
+                        <DEFAULT_NAMESPACE_CLEANUP_TIMEOUT />
+                        <DEFAULT_NAMESPACE_CLEANUP_ENABLED />
+                        <DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED />
                     </environmentVariables>
                 </configuration>
             </plugin>

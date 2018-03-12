@@ -20,7 +20,7 @@
     <parent>
         <artifactId>components</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0.11</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -215,10 +215,10 @@
                             <skip>false</skip>
                             <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
                             <environmentVariables>
-                                <HOSTNAME></HOSTNAME>
+                                <HOSTNAME />
                                 <KUBERNETES_NAMESPACE>default</KUBERNETES_NAMESPACE>
-                                <KUBERNETES_SERVICE_HOST></KUBERNETES_SERVICE_HOST>
-                                <KUBERNETES_SERVICE_PORT></KUBERNETES_SERVICE_PORT>
+                                <KUBERNETES_SERVICE_HOST />
+                                <KUBERNETES_SERVICE_PORT />
                             </environmentVariables>
                             <includes>
                                 <include>**/*ExternalTest.java</include>
@@ -236,7 +236,7 @@
                             <!-- We cleanup system properties an env vars, so that we can test in a predictable env -->
                             <environmentVariables>
                                 <HOSTNAME>dummyhost</HOSTNAME>
-                                <KUBERNETES_NAMESPACE></KUBERNETES_NAMESPACE>
+                                <KUBERNETES_NAMESPACE />
                                 <KUBERNETES_AUTH_TRYKUBECONFIG>false</KUBERNETES_AUTH_TRYKUBECONFIG>
                                 <KUBERNETES_AUTH_TRYKUBESERVICEACCCOUNT>false</KUBERNETES_AUTH_TRYKUBESERVICEACCCOUNT>
                             </environmentVariables>

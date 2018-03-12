@@ -16,11 +16,10 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.fabric8</groupId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0.11</version>
         <artifactId>fabric8-karaf</artifactId>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -104,7 +103,7 @@
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>io.fabric8.karaf.blueprint;version=${project.version};-noimport:=true</Export-Package>
                         <Import-Package>*</Import-Package>
-                        <Private-Package></Private-Package>
+                        <Private-Package />
                         <Implementation-Title>Fabric8 Karaf Blueprint Support</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
                         <Include-Resource>{maven-resources}</Include-Resource>
