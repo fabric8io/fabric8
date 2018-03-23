@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>3.0.11</version>
+    <version>3.0.11.fuse-000002</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -75,12 +75,12 @@
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.14.5</activemq.version>
         <arquillian-cube.version>1.9.0</arquillian-cube.version>
-        <camel.version>2.19.1</camel.version>
-        <cxf.version>3.1.11</cxf.version>
-        <cxf.plugin.version>3.1.11</cxf.plugin.version>
+        <camel.version>2.21.0.fuse-000057</camel.version>
+        <cxf.version>3.1.11.fuse-000201</cxf.version>
+        <cxf.plugin.version>3.1.11.fuse-000201</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
-        <fuse.version>6.3.0.redhat-187</fuse.version>
+        <fuse.version>7.0.0.fuse-000165</fuse.version>
         <hibernate-validator.version>5.4.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jolokia.version>1.3.7</jolokia.version>
@@ -90,6 +90,7 @@
         <swagger.jaxrs.version>1.5.10</swagger.jaxrs.version>
         <vertx.version>3.5.0</vertx.version>
         <weld.version>2.3.5.Final</weld.version>
+        <version.org.fusesource.camel-sap>7.0.0.fuse-000191</version.org.fusesource.camel-sap>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <forge-project-id>fabric</forge-project-id>
@@ -114,14 +115,14 @@
         <curator.version>2.9.1</curator.version>
         <deltaspike.version>1.7.2</deltaspike.version>
         <dnsjava.version>2.1.8</dnsjava.version>
-        <docker.maven.plugin.version>0.18.1</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.23.0.fuse-000015</docker.maven.plugin.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
         <guava.version>19.0</guava.version>
         <httpclient.version>4.3.3</httpclient.version>
-        <jackson2.version>2.7.4</jackson2.version>
+        <jackson2.version>2.8.9</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.cdi-api.version>1.2</javax.cdi-api.version>
         <javax.el-version>2.2.5</javax.el-version>
@@ -137,7 +138,7 @@
         <jgit.version>4.10.0.201712302008-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
-        <kubernetes-client.version>3.0.3</kubernetes-client.version>
+        <kubernetes-client.version>3.0.3.fuse-000020</kubernetes-client.version>
         <log4j.version>1.2.17</log4j.version>
         <lombok.version>1.16.18</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
@@ -160,12 +161,12 @@
         <shrinkwrap-resolver.version>2.2.2</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.3.9.RELEASE</spring.version>
-        <spring.boot.version>1.5.4.RELEASE</spring.boot.version>
-        <spring-cloud-kubernetes.version>0.1.5</spring-cloud-kubernetes.version>
+        <spring.boot.version>1.5.10.RELEASE</spring.boot.version>
+        <spring-cloud-kubernetes.version>0.1.6.fuse-000020</spring-cloud-kubernetes.version>
         <sundrio.plugin.version>0.3.10</sundrio.plugin.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
-        <commons-codec.version>1.10</commons-codec.version>
+        <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
 
         <!-- OSGi bundles properties -->
@@ -536,6 +537,12 @@
                 <type>xml</type>
                 <classifier>features</classifier>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>camel-sap</artifactId>
+                <version>${version.org.fusesource.camel-sap}</version>
+            </dependency>
+
 
           <!-- Weld -->
             <dependency>
@@ -1500,6 +1507,7 @@
                                   <include>org.assertj*:*</include>
 
                                   <include>xml-apis:xml-apis</include>
+                                  <include>org.fusesource:camel-sap</include>
 
                                   <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
                                   <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
@@ -1591,6 +1599,7 @@
                                   <include>io.fabric8:fabric8-karaf*</include>
                                   <include>io.fabric8.kubernetes:*</include>
 
+                                  <include>org.fusesource:camel-sap</include>
                                   <include>javax*:*</include>
 
                                   <include>org.jboss.arquillian*:*</include>
@@ -1608,7 +1617,7 @@
                           </dependencies>
                           <imports>
                               <import>
-                                  <groupId>org.jboss.fuse.bom</groupId>
+                                  <groupId>org.jboss.fuse</groupId>
                                   <artifactId>jboss-fuse-parent</artifactId>
                                   <version>${fuse.version}</version>
                                   <repository>https://maven.repository.redhat.com/ga</repository>
@@ -1616,6 +1625,9 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
+                                      <excludes>
+                                          <exclude>org.fusesource:camel-sap</exclude>
+                                      </excludes>
                                   </dependencyManagement>
                               </import>
                           </imports>
@@ -1625,6 +1637,7 @@
                               </includes>
                           </plugins>
                           <properties>
+                              <version.org.fusesource.camel-sap>7.0.0.fuse-000191</version.org.fusesource.camel-sap>
                               <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                           </properties>
                           <inheritDependencyManagement>true</inheritDependencyManagement>
@@ -1911,7 +1924,7 @@
         <profile>
             <id>camel-snapshot</id>
             <properties>
-                <camel.version>2.18-SNAPSHOT</camel.version>
+                <camel.version>2.21.0.fuse-000057</camel.version>
             </properties>
         </profile>
         <profile>
