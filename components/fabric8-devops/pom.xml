@@ -20,7 +20,7 @@
   <parent>
     <artifactId>components</artifactId>
     <groupId>io.fabric8</groupId>
-    <version>3.0.11</version>
+    <version>3.0.11.fuse-000005</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
