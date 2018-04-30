@@ -1,4 +1,4 @@
-<!--
+ <!--
 
      Copyright 2005-2016 Red Hat, Inc.
 
@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>3.0.11</version>
+    <version>3.0.11.fuse-000034</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -45,6 +45,16 @@
             <name>Apache License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
+        </license>
+        <license>
+          <name>Creative Commons Attribution 2.5</name>
+          <url>http://creativecommons.org/licenses/by/2.5/legalcode</url>
+          <distribution>repo</distribution>
+        </license>
+        <license>
+          <name>MIT License</name>
+          <url>http://www.opensource.org/licenses/MIT</url>
+          <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -73,14 +83,14 @@
     <properties>
 
         <!-- upstream vs redhat versions of dependencies goes here -->
-        <activemq.version>5.14.5</activemq.version>
+        <activemq.version>5.11.0.redhat-630343</activemq.version>
         <arquillian-cube.version>1.9.0</arquillian-cube.version>
-        <camel.version>2.19.1</camel.version>
-        <cxf.version>3.1.11</cxf.version>
-        <cxf.plugin.version>3.1.11</cxf.plugin.version>
+        <camel.version>2.21.0.fuse-000077</camel.version>
+        <cxf.version>3.1.11.fuse-000243</cxf.version>
+        <cxf.plugin.version>3.1.11.fuse-000243</cxf.plugin.version>
 
         <commons.collections.version>3.2.2</commons.collections.version>
-        <fuse.version>6.3.0.redhat-187</fuse.version>
+        <fuse.version>7.0.0.fuse-000181</fuse.version>
         <hibernate-validator.version>5.4.2.Final</hibernate-validator.version>
         <jansi.version>1.11</jansi.version>
         <jolokia.version>1.3.7</jolokia.version>
@@ -90,6 +100,9 @@
         <swagger.jaxrs.version>1.5.10</swagger.jaxrs.version>
         <vertx.version>3.5.0</vertx.version>
         <weld.version>2.3.5.Final</weld.version>
+        <version.org.fusesource.camel-sap>7.0.0.fuse-000211</version.org.fusesource.camel-sap>
+        <version.org.fusesource.camel-activemq>${version.org.fusesource.camel-sap}</version.org.fusesource.camel-activemq>
+        <version.io.undertow>1.4.18.SP5-redhat-1</version.io.undertow>
 
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <forge-project-id>fabric</forge-project-id>
@@ -114,14 +127,14 @@
         <curator.version>2.9.1</curator.version>
         <deltaspike.version>1.7.2</deltaspike.version>
         <dnsjava.version>2.1.8</dnsjava.version>
-        <docker.maven.plugin.version>0.18.1</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.23.0.fuse-000030</docker.maven.plugin.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
         <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
         <felix-scr-annotations.version>1.9.12</felix-scr-annotations.version>
         <felix-scr-plugin.version>1.21.0</felix-scr-plugin.version>
         <guava.version>19.0</guava.version>
         <httpclient.version>4.3.3</httpclient.version>
-        <jackson2.version>2.7.4</jackson2.version>
+        <jackson2.version>2.8.11</jackson2.version>
         <jar.plugin.version>2.6</jar.plugin.version>
         <javax.cdi-api.version>1.2</javax.cdi-api.version>
         <javax.el-version>2.2.5</javax.el-version>
@@ -137,7 +150,7 @@
         <jgit.version>4.10.0.201712302008-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
-        <kubernetes-client.version>3.0.3</kubernetes-client.version>
+        <kubernetes-client.version>3.0.3.fuse-000035</kubernetes-client.version>
         <log4j.version>1.2.17</log4j.version>
         <lombok.version>1.16.18</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
@@ -159,13 +172,14 @@
         <servlet-api.version>2.5</servlet-api.version>
         <shrinkwrap-resolver.version>2.2.2</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <spring.version>4.3.9.RELEASE</spring.version>
-        <spring.boot.version>1.5.4.RELEASE</spring.boot.version>
-        <spring-cloud-kubernetes.version>0.1.5</spring-cloud-kubernetes.version>
-        <sundrio.plugin.version>0.3.10</sundrio.plugin.version>
+        <spring.version>4.3.16.RELEASE</spring.version>
+        <spring.boot.version>1.5.12.RELEASE</spring.boot.version>
+        <spring-cloud-kubernetes.version>0.1.6.fuse-000035</spring-cloud-kubernetes.version>
+        <sundrio.plugin.version>0.4.4</sundrio.plugin.version>
+        <tomcat-embed.version>8.0.36.redhat-30</tomcat-embed.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
-        <commons-codec.version>1.10</commons-codec.version>
+        <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
 
         <!-- OSGi bundles properties -->
@@ -353,6 +367,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>spring-cloud-kubernetes-bom-with-platform-deps</artifactId>
+                <version>${spring-cloud-kubernetes.version}</version>
+            </dependency>
+            <dependency>
               <groupId>org.seleniumhq.selenium</groupId>
               <artifactId>selenium-java</artifactId>
               <version>${selenium.version}</version>
@@ -536,6 +555,39 @@
                 <type>xml</type>
                 <classifier>features</classifier>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>camel-activemq</artifactId>
+                <version>${version.org.fusesource.camel-sap}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>camel-sap</artifactId>
+                <version>${version.org.fusesource.camel-sap}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>camel-sap-starter</artifactId>
+                <version>${version.org.fusesource.camel-sap}</version>
+            </dependency>
+
+          <!-- Undertow -->
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-core</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-servlet</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-websockets-jsr</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
+
 
           <!-- Weld -->
             <dependency>
@@ -761,11 +813,6 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-client</artifactId>
-                <version>${activemq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-camel</artifactId>
                 <version>${activemq.version}</version>
             </dependency>
             <dependency>
@@ -1500,11 +1547,17 @@
                                   <include>org.assertj*:*</include>
 
                                   <include>xml-apis:xml-apis</include>
+                                  <include>org.fusesource:camel-activemq</include>
+                                  <include>org.fusesource:camel-sap</include>
+                                  <include>org.fusesource:camel-sap-starter</include>
 
                                   <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
                                   <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
                                   <include>org.apache.cxf:cxf-rt-rs-service-description-swagger</include>
+                                  <include>org.apache.httpcomponents:*</include>
                                   <include>io.swagger:*</include>
+                                  <include>io.undertow:*</include>
+                                  <include>junit:junit</include>
                               </includes>
                               <excludes>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
@@ -1518,10 +1571,117 @@
                                   <version>${spring.boot.version}</version>
                                   <dependencyManagement>
                                       <includes>
-                                          <include>*:*</include>
+                                          <!-- These are artifacts that are excluded from camel, and we expect the versions from
+                                               spring-boot-dependencies -->
+                                          <include>de.flapdoodle*:*</include>
+                                          <include>org.apache.activemq:*</include>
+                                          <include>org.apache.commons:commons-pool2</include>
+                                          <include>org.apache.httpcomponents:httpasyncclient</include>
+                                          <include>org.apache.httpcomponents:httpclient</include>
+                                          <include>org.apache.httpcomponents:httpclient-cache</include>
+                                          <include>org.apache.httpcomponents:httpclient-osgi</include>
+                                          <include>org.apache.httpcomponents:httpcore</include>
+                                          <include>org.apache.httpcomponents:httpmime</include>
+                                          <include>org.apache.derby:derby</include>
+                                          <include>org.apache.logging.log4j:*</include>
+
+                                          <include>org.codehaus.groovy:*</include>
+                                          <include>org.hibernate:hibernate-entitymanager</include>
+                                          <include>org.hsqldb:*</include>
+                                          <include>org.mockito:*</include>
+
+                                          <include>org.slf4j:*</include>
+
+                                          <include>org.springframework*:*</include>
+
+                                          <include>commons-codec:*</include>
+                                          <include>commons-collections:*</include>
+                                          <include>commons-dbcp:*</include>
+                                          <include>org.apache.commons:commons-dbcp2</include>
+                                          <include>commons-pool:*</include>
+
+                                          <include>com.github.ben-manes.caffeine:caffeine</include>
+                                          <include>com.datastax.cassandra:*</include>
+
+                                          <include>com.fasterxml.jackson.*:*</include>
+
+                                          <include>com.google.code.gson:*</include>
+                                          <include>javax.servlet:javax.servlet-api</include>
+                                          <include>junit:*</include>
+                                          <include>net.sf.ehcache:ehcache</include>
+
+                                          <include>xml-apis:*</include>
+
+                                          <!-- Others that we need -->
+                                          <include>mysql:*</include>
+                                          <include>org.apache.tomcat*:*</include>
+                                          <include>org.eclipse.jetty*:*</include>
+                                          <include>org.jolokia:jolokia-core</include>
+                                          <include>org.jboss:jboss-transaction-spi</include>
+                                          <include>org.jboss.logging:jboss-logging</include>
+                                          <include>org.jboss.narayana.jta:*</include>
+                                          <include>org.jboss.narayana.jts:*</include>
+
+                                          <include>org.springframework.boot:spring-boot-starter</include>
+                                          <include>org.springframework.boot:spring-boot-starter-activemq</include>
+                                          <include>org.springframework.boot:spring-boot-starter-actuator</include>
+                                          <include>org.springframework.boot:spring-boot-starter-jdbc</include>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-jpa</exclude>
+                                          <include>org.springframework.boot:spring-boot-starter-jta-narayana</include>
+                                          <include>org.springframework.boot:spring-boot-starter-logging</include>
+                                          <include>org.springframework.boot:spring-boot-starter-security</include>
+                                          <include>org.springframework.boot:spring-boot-starter-test</include>
+                                          <include>org.springframework.boot:spring-boot-starter-tomcat</include>
+                                          <include>org.springframework.boot:spring-boot-starter-web</include>
+                                          <include>org.springframework.boot:spring-boot-starter-undertow</include>
+                                          <include>org.springframework.boot:spring-boot-configuration-processor</include>
+                                          <include>org.springframework.boot:spring-boot-maven-plugin</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>org.apache.activemq:activemq-camel</exclude>
                                           <exclude>org.assertj*:*</exclude>
+
+                                          <!-- Out of scope sb starters -->
+                                          <exclude>org.springframework.boot:spring-boot-starter-aop</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-artemis</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-batch</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-cloud-connectors</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-cassandra</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-couchbase</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-elasticsearch</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-ldap</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-mongodb</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-neo4j</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-redis</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-redis-reactive</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-rest</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-data-solr</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-freemarker</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-groovy-templates</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-hateoas</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-integration</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jersey</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jetty</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jooq</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jta-atomikos</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-jta-bitronix</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-log4j2</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-mail</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-mobile</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-mustache</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-reactor-netty</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-redis</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-remote-shell</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-social-facebook</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-social-linkedin</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-social-twitter</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-thymeleaf</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-validation</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-velocity</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-web-services</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-webflux</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-websocket</exclude>
+                                          <exclude>org.springframework.boot:spring-boot-starter-ws</exclude>
                                       </excludes>
                                   </dependencyManagement>
                               </import>
@@ -1535,6 +1695,43 @@
                                       </includes>
                                       <excludes>
                                           <exclude>io.fabric8*:*</exclude>
+
+                                          <!-- Deprecated components -->
+                                          <exclude>org.apache.camel:camel-context</exclude>
+                                          <exclude>org.apache.camel:camel-context-starter</exclude>
+                                          <exclude>org.apache.camel:camel-cache</exclude>
+                                          <exclude>org.apache.camel:camel-cache-starter</exclude>
+                                          <exclude>org.apache.camel:camel-elasticsearch5</exclude>
+                                          <exclude>org.apache.camel:camel-elasticsearch5-starter</exclude>
+                                          <exclude>org.apache.camel:camel-hdfs</exclude>
+                                          <exclude>org.apache.camel:camel-hdfs-starter</exclude>
+                                          <exclude>org.apache.camel:camel-http</exclude>
+                                          <exclude>org.apache.camel:camel-ibatis</exclude>
+                                          <exclude>org.apache.camel:camel-ignite</exclude>
+                                          <exclude>org.apache.camel:camel-ignite-starter</exclude>
+                                          <exclude>org.apache.camel:camel-ironmq</exclude>
+                                          <exclude>org.apache.camel:camel-ironmq-starter</exclude>
+                                          <exclude>org.apache.camel:camel-javaspace</exclude>
+                                          <exclude>org.apache.camel:camel-javaspace-starter</exclude>
+                                          <exclude>org.apache.camel:camel-kestrel</exclude>
+                                          <exclude>org.apache.camel:camel-kestrel-starter</exclude>
+                                          <exclude>org.apache.camel:camel-krati</exclude>
+                                          <exclude>org.apache.camel:camel-krati-starter</exclude>
+                                          <exclude>org.apache.camel:camel-mina</exclude>
+                                          <exclude>org.apache.camel:camel-netty</exclude>
+                                          <exclude>org.apache.camel:camel-netty-starter</exclude>
+                                          <exclude>org.apache.camel:camel-netty-http</exclude>
+                                          <exclude>org.apache.camel:camel-netty-http-starter</exclude>
+                                          <exclude>org.apache.camel:camel-openshift</exclude>
+                                          <exclude>org.apache.camel:camel-openshift-starter</exclude>
+                                          <exclude>org.apache.camel:camel-quartz</exclude>
+                                          <exclude>org.apache.camel:camel-routebox</exclude>
+                                          <exclude>org.apache.camel:camel-routebox-starter</exclude>
+                                          <exclude>org.apache.camel:camel-swagger</exclude>
+
+                                          <exclude>org.apache.camel:camel-xmlrpc</exclude>
+                                          <exclude>org.apache.camel:camel-xmlrpc-starter</exclude>
+
                                       </excludes>
                                   </dependencyManagement>
                               </import>
@@ -1568,6 +1765,24 @@
                                   </dependencyManagement>
                               </import>
                           </imports>
+                          <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.apache.activemq:activemq-*</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${activemq.version}</version>
+                              </override>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.apache.tomcat*:*</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${tomcat-embed.version}</version>
+                              </override>
+                          </overrides>
                           <plugins>
                               <includes>
                                   <include>io.fabric8:*</include>
@@ -1591,6 +1806,8 @@
                                   <include>io.fabric8:fabric8-karaf*</include>
                                   <include>io.fabric8.kubernetes:*</include>
 
+                                  <include>org.fusesource:camel-sap</include>
+                                  <include>org.fusesource:camel-activemq</include>
                                   <include>javax*:*</include>
 
                                   <include>org.jboss.arquillian*:*</include>
@@ -1608,7 +1825,7 @@
                           </dependencies>
                           <imports>
                               <import>
-                                  <groupId>org.jboss.fuse.bom</groupId>
+                                  <groupId>org.jboss.fuse</groupId>
                                   <artifactId>jboss-fuse-parent</artifactId>
                                   <version>${fuse.version}</version>
                                   <repository>https://maven.repository.redhat.com/ga</repository>
@@ -1616,68 +1833,30 @@
                                       <includes>
                                           <include>*:*</include>
                                       </includes>
-                                  </dependencyManagement>
-                              </import>
-                          </imports>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritDependencyManagement>true</inheritDependencyManagement>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
-                      <bom>
-                          <artifactId>fabric8-project-bom-cxf-spring-boot</artifactId>
-                          <name>Fabric8 :: Project :: Bom for Cxf and Spring-Boot</name>
-                          <dependencies>
-                              <includes>
-                                  <!-- The kubernetes Client and Model -->
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
-
-                                  <include>javax*:*</include>
-
-                                  <include>org.jboss.arquillian*:*</include>
-                                  <include>org.jboss.shrinkwrap*:*</include>
-
-                                  <include>xml-apis:xml-apis</include>
-                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
-                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
-                                  <include>org.apache.cxf:cxf-rt-rs-service-description-swagger</include>
-                                  <include>io.swagger:*</include>
-                              </includes>
-                              <excludes>
-                                  <exclude>javax.servlet:javax.servlet-api</exclude>
-                                  <exclude>javax.activation:activation:1.1</exclude>
-                              </excludes>
-                          </dependencies>
-                          <imports>
-                              <import>
-                                  <groupId>io.fabric8</groupId>
-                                  <artifactId>spring-cloud-kubernetes-bom-with-platform-deps</artifactId>
-                                  <version>${spring-cloud-kubernetes.version}</version>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>*:*</include>
-                                      </includes>
                                       <excludes>
-                                          <exclude>org.springframework:*</exclude>
-                                          <exclude>org.springframework.boot:*</exclude>
-                                          <exclude>commons-lang:commons-lang</exclude>
+                                          <exclude>org.apache.activemq:activemq-camel</exclude>
+                                          <exclude>org.fusesource:camel-sap</exclude>
                                       </excludes>
                                   </dependencyManagement>
                               </import>
                           </imports>
+                          <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.apache.activemq:activemq-*</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${activemq.version}</version>
+                              </override>
+                          </overrides>
                           <plugins>
                               <includes>
                                   <include>io.fabric8:*</include>
                               </includes>
                           </plugins>
                           <properties>
+                              <version.org.fusesource.camel-sap>7.0.0.fuse-000211</version.org.fusesource.camel-sap>
                               <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                           </properties>
                           <inheritDependencyManagement>true</inheritDependencyManagement>
@@ -1911,7 +2090,7 @@
         <profile>
             <id>camel-snapshot</id>
             <properties>
-                <camel.version>2.18-SNAPSHOT</camel.version>
+                <camel.version>2.21.0.fuse-000077</camel.version>
             </properties>
         </profile>
         <profile>
