@@ -2,7 +2,7 @@
 @Library('github.com/fabric8io/fabric8-pipeline-library@master')
 def dummy
 clientsTemplate{
-  mavenNode(mavenOpts: "-Xmx3072m") {
+  mavenNode {
     ws{
       checkout scm
       sh "git remote set-url origin git@github.com:fabric8io/fabric8.git"
