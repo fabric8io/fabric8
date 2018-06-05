@@ -114,6 +114,15 @@ public class Zips {
                 if (!entry.isDirectory()) {
                     String entryName = entry.getName();
                     File toFile = new File(toDir, entryName);
+                    String fileDestinationFullPath = toFile.getPath();
+                    try{
+                    if (!fileDestinationFullPath.startsWith(toDir.getPath())); throw new IOException("Extracting results to different directory");
+
+                    }catch (IOException e){
+                        System.out.println(e);
+                        System.exit(1);
+                    }
+
                     toFile.getParentFile().mkdirs();
                     OutputStream os = new FileOutputStream(toFile);
                     try {
