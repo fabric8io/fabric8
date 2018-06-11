@@ -160,7 +160,7 @@
         <shrinkwrap-resolver.version>2.2.2</shrinkwrap-resolver.version>
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.3.3.RELEASE</spring.version>
-        <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
+        <spring.boot.version>1.4.7.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
         <sundrio.version>0.4.4</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
