@@ -1,3 +1,5 @@
+# Note: gofabric8 is not maintained aymore
+
 ## Install Fabric8
 
 The easiest way to get started with Fabric8 on your laptop or against an existing Kubernetes or OpenShift cluster is via [gofabric8](https://github.com/fabric8io/gofabric8/releases)
