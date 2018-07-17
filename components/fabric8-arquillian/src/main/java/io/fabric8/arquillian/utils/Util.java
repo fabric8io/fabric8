@@ -173,6 +173,7 @@ public class Util {
                 try {
                     Thread.sleep(timeout * 1000);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     log.info("Interupted sleeping to GC the namespace: " + e);
                 }
             }
@@ -281,6 +282,7 @@ public class Util {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     e.printStackTrace();
                 }
             }

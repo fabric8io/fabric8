@@ -191,6 +191,7 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
         try {
             ready = podReady.await(readyTimeoutMS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOG.warn("Interupted waiting for podReady: " + e);
             ready = podReady.getCount() == 0L;
         }
@@ -201,6 +202,7 @@ public class PodWatcher implements Watcher<Pod>, Closeable {
         try {
             ready = podReadyForEntireDuration.await(readyPeriodMS * 2, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOG.warn("Interupted waiting for podReadyForEntireDuration: " + e);
             ready = podReadyForEntireDuration.getCount() == 0L;
         }

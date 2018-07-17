@@ -245,6 +245,7 @@ public class Processes {
         try {
             return process != null ? process.waitFor() : 1;
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             String message = format("Interrupted while waiting for 'taskkill /PID %d ' command to finish", pid);
             throw new RuntimeException(message, e);
         }
@@ -266,6 +267,7 @@ public class Processes {
         try {
             return process != null ? process.waitFor() : 1;
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             String message = format("Interrupted while waiting for 'kill %d ' command to finish", pid);
             throw new RuntimeException(message, e);
         }
