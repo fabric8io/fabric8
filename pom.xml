@@ -1379,6 +1379,16 @@
               <version>${hibernate-validator.version}</version>
             </dependency>
             <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-webmvc</artifactId>
+              <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-webmvc-portlet</artifactId>
+              <version>${spring.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
                 <version>${javax.cdi-api.version}</version>
@@ -1584,6 +1594,8 @@
                                           <include>*:*</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>org.springframework:spring-webmvc</exclude>
+                                          <exclude>org.springframework:spring-webmvc-portlet</exclude>
                                           <exclude>commons-collections:commons-collections</exclude>
                                           <exclude>commons-lang:commons-lang</exclude>
                                           <exclude>commons-pool:commons-pool</exclude>
@@ -1597,6 +1609,15 @@
                               </import>
                           </imports>
                           <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.springframework:spring-webmvc</include>
+                                          <include>org.springframework:spring-webmvc-portlet</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${spring.version}</version>
+                              </override>
                               <override>
                                   <dependencies>
                                       <includes>
@@ -1638,6 +1659,8 @@
 
                                   <!-- JBoss Fuse kar -->
                                   <include>org.jboss.fuse:fuse-karaf-framework:${fuse.version}:kar</include>
+                                  <include>org.springframework:spring-webmvc</include>
+                                  <include>org.springframework:spring-webmvc-portlet</include>
                               </includes>
                               <excludes>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
@@ -1655,6 +1678,8 @@
                                           <include>*:*</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>org.springframework:spring-webmvc</exclude>
+                                          <exclude>org.springframework:spring-webmvc-portlet</exclude>
                                           <exclude>org.apache.geronimo.specs:geronimo-interceptor_1.1_spec</exclude>
                                           <exclude>org.apache.geronimo.specs:geronimo-jcdi_1.0_spec</exclude>
                                           <exclude>org.apache.geronimo.specs:geronimo-el_2.2_spec</exclude>
