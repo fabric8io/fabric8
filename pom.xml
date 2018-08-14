@@ -162,6 +162,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.7.RELEASE</spring.boot.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
+        <spring.security.oauth.version>2.0.15</spring.security.oauth.version>
         <sundrio.version>0.4.4</sundrio.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
         <zookeeper.version>3.4.9</zookeeper.version>
@@ -1625,6 +1626,15 @@
                                       </includes>
                                   </dependencies>
                                   <version>${activemq.version}</version>
+                              </override>
+                             <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.springframework.security.oauth:spring-security-oauth</include>
+                                          <include>org.springframework.security.oauth:spring-security-oauth2</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${spring.security.oauth.version}</version>
                               </override>
                           </overrides>
                           <plugins>
