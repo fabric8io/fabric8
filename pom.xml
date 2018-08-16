@@ -161,6 +161,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.4.7.RELEASE</spring.boot.version>
+        <spring-messaging.version>4.3.16.RELEASE</spring-messaging.version>
         <spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
         <spring.security.oauth.version>2.0.15</spring.security.oauth.version>
         <sundrio.version>0.4.4</sundrio.version>
@@ -1595,6 +1596,7 @@
                                           <include>*:*</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>org.springframework:spring-messaging</exclude>
                                           <exclude>org.springframework:spring-webmvc</exclude>
                                           <exclude>org.springframework:spring-webmvc-portlet</exclude>
                                           <exclude>commons-collections:commons-collections</exclude>
@@ -1610,6 +1612,14 @@
                               </import>
                           </imports>
                           <overrides>
+                              <override>
+                                  <dependencies>
+                                      <includes>
+                                          <include>org.springframework:spring-messaging</include>
+                                      </includes>
+                                  </dependencies>
+                                  <version>${spring-messaging.version}</version>
+                              </override>
                               <override>
                                   <dependencies>
                                       <includes>
