@@ -1533,6 +1533,7 @@
                                   <include>xml-apis:xml-apis</include>
                               </includes>
                               <excludes>
+                                  <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                                   <exclude>javax.servlet:javax.servlet-api</exclude>
                                   <exclude>javax.activation:activation:1.1</exclude>
                               </excludes>
@@ -1547,6 +1548,7 @@
                                           <include>*:*</include>
                                       </includes>
                                       <excludes>
+                                          <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                                           <exclude>com.googlecode.json-simple:json-simple</exclude>
                                           <exclude>commons-collections:commons-collections</exclude>
                                           <exclude>commons-io:commons-io</exclude>
