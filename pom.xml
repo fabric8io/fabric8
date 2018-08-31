@@ -1515,7 +1515,6 @@
                                   <!-- The kubernetes Client and Model -->
                                   <include>io.fabric8:kubernetes-*</include>
                                   <include>io.fabric8:openshift-*</include>
-
                                   <include>javax*:*</include>
 
                                   <!-- CXF Spring Boot starters -->
@@ -1573,6 +1572,7 @@
                                           <exclude>org.springframework.boot:spring-boot-starter-jetty</exclude>
                                           <exclude>org.yaml:snakeyaml</exclude>
                                           <exclude>wsdl4j:wsdl4j</exclude>
+                                          <exclude>ch.qos.logback:*</exclude>
                                       </excludes>
                                   </dependencyManagement>
                               </import>
