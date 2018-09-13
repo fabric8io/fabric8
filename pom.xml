@@ -686,6 +686,11 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
@@ -1532,6 +1537,7 @@
                                   <include>org.jolokia:*</include>
                                   <include>org.jboss.arquillian*:*</include>
                                   <include>org.jboss.shrinkwrap*:*</include>
+                                  <include>org.slf4j:*</include>
                                   <include>org.yaml:snakeyaml</include>
 
                                   <include>xml-apis:xml-apis</include>
