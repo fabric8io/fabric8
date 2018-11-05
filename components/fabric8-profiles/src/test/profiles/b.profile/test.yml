@@ -1,6 +1,0 @@
----
-name: b
-attributes: { role: b, awesome: yes }
-pods:
-  - name: image/b
-    image: foo
