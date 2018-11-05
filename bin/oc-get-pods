@@ -1,8 +1,0 @@
-#!/bin/bash
-
-for var in "$@"
-do
-  oc get pods | grep $var
-done
-
-

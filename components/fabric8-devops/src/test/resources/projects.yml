@@ -1,4 +1,0 @@
-- kind: GitHubProjectRepository
-  url: https://github.com/fabric8io/fabric8
-- kind: GitHubProjectRepository
-  url: https://github.com/fabric8io/quickstarts

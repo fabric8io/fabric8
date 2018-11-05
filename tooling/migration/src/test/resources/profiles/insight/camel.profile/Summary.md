@@ -1,1 +1,0 @@
-The insight-camel profile adds Camel message audit logging to [ElasticSearch](http://www.elasticsearch.org/)

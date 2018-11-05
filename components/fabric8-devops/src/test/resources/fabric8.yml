@@ -1,8 +1,0 @@
-pipeline: "maven/CanaryReleaseThenStage.groovy"
-issueProjectName: "foo"
-codeReview: true
-chatRoom: "myroom"
-environments:
-  Testing: "gogsadmin-james4-testing"
-  Staging: "gogsadmin-james4-staging"
-  Production: "gogsadmin-james4-prod"
