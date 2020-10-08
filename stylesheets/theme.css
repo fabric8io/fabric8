@@ -88,7 +88,7 @@ h2:first-child {
 
 .navbar > .container .navbar-brand,
 .navbar-brand {
-  padding: 8px 0 0 8px; 
+  padding: 8px 0 0 8px;
   margin-left: 0;
 }
 
@@ -182,6 +182,11 @@ img.logo {
   height: 48px;
   margin-right: 10px;
   vertical-align: top;
+}
+
+img.deprecated-logo {
+  width: 48px;
+  height: 48px;
 }
 
 td.icon-column {
